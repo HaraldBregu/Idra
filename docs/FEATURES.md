@@ -2,37 +2,28 @@
 
 Friday is a cross-platform Electron desktop assistant that turns chat requests into model responses, tool calls, local file and process work, web research, generated media, background checks, and messaging-channel replies.
 
-This document describes the feature set present in the current source tree. It distinguishes working behavior from surfaces that are only partially wired so that a visible setting or catalog entry is not mistaken for an end-to-end capability.
+This document describes the feature set present in the current source tree, grouped from most to least central to the product, and orders items within each group the same way. It distinguishes working behavior from surfaces that are only partially wired so that a visible setting or catalog entry is not mistaken for an end-to-end capability.
 
 ## Feature status
 
 | Status       | Meaning                                                                                                                                 |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | Available    | The current renderer and main process are connected to an implementation. Provider credentials or OS permissions may still be required. |
 | Partial      | A useful portion is implemented, but an important control or execution path is missing.                                                 |
-| Placeholder  | A visible control or surface exists, but its intended workflow is not connected.                                                        |
+| Placeholder  | A visible control or surface exists, but its intended workflow is not connected.                                                         |
 | Catalog only | The provider or model is selectable or described, but no working execution adapter is present.                                          |
 
 ## Contents
 
 - [Product overview](#product-overview)
-- [First-run setup](#first-run-setup)
-- [Conversation experience](#conversation-experience)
-- [Sessions and conversation history](#sessions-and-conversation-history)
-- [Agent runtime](#agent-runtime)
-- [Permissions and execution control](#permissions-and-execution-control)
-- [Personalization, workspace, and memory](#personalization-workspace-and-memory)
-- [Skills](#skills)
-- [MCP servers](#mcp-servers)
-- [Scheduled tasks](#scheduled-tasks)
-- [Periodic health checks](#periodic-health-checks)
-- [Speech services](#speech-services)
-- [Image, video, and audio generation](#image-video-and-audio-generation)
-- [Chat and research providers](#chat-and-research-providers)
-- [Messaging channels](#messaging-channels)
-- [Settings and desktop integration](#settings-and-desktop-integration)
-- [Privacy, storage, and security](#privacy-storage-and-security)
-- [Platform and packaging](#platform-and-packaging)
+- [1. Core conversation experience](#1-core-conversation-experience)
+- [2. Agent runtime and automation](#2-agent-runtime-and-automation)
+- [3. Providers and model catalogs](#3-providers-and-model-catalogs)
+- [4. Media generation](#4-media-generation)
+- [5. Messaging channels](#5-messaging-channels)
+- [6. Desktop, settings, and extensibility surfaces](#6-desktop-settings-and-extensibility-surfaces)
+- [7. Privacy, storage, and security](#7-privacy-storage-and-security)
+- [8. Platform and packaging](#8-platform-and-packaging)
 - [Source map](#source-map)
 
 ## Product overview
@@ -40,29 +31,30 @@ This document describes the feature set present in the current source tree. It d
 Friday provides:
 
 - Persistent, streaming conversations with multiple local chat sessions.
-- Image and PDF attachments for multimodal requests.
-- Live or recorded speech-to-text input and text-to-speech playback.
-- An agent loop that can use files, patches, commands, long-running processes, the web, a browser, memory, skills, MCP tools, media generation, automation tools, and one-level subagents.
-- Independent provider and model selection for chat, transcription, speech, image, video, audio, scheduled work, health checks, and messaging channels.
-- Local skills, remote HTTP MCP servers, and local stdio MCP servers.
-- Persistent schedules and periodic `HEALTH.md` checks.
+- An agent loop that can use files, patches, commands, long-running processes, the web, a browser, memory, named project workspaces, skills, MCP tools, media generation, automation tools, and one-level subagents.
+- Image and PDF attachments for multimodal requests, and live or recorded speech-to-text input with text-to-speech playback.
+- Independent provider and model selection for chat, transcription, speech, image, video, audio, scheduled work, and health checks.
+- Local skills, remote HTTP MCP servers, local stdio MCP servers, and standalone widget windows.
+- Persistent schedules, periodic `HEALTH.md` checks, and S3-compatible cloud storage sync for local folders.
 - Telegram and Discord bot connections with sender policies.
 - Local configuration, conversation history, memory, generated-media storage, and operational logs.
 - Windows, macOS, and Linux packaging; partial English and Italian localization; light, dark, and system themes.
 
-## First-run setup
+## 1. Core conversation experience
+
+The chat surface is the primary way users interact with Friday, so its setup, input, and rendering behavior are documented first.
+
+### First-run setup
 
 The first launch uses a three-step setup flow:
 
 1. **Welcome** introduces Friday as a personal agent for everyday tasks, coding, and background work.
 2. **Providers** requires at least one provider API key. Each provider card links to its key or configuration page and supports connect, edit, cancel, and save states.
-3. **Models** selects models for Assistant, Voice, Transcription, Image, Video, Audio, Tasks, and Health. Only the Assistant selection is required to finish.
+3. **Models** selects models for Assistant, Voice, Transcription, Image, Video, and Audio. Only the Assistant selection is required to finish. Task and health provider/model selection are configured separately, later, on their own Settings pages rather than during first-run setup.
 
 When an Assistant provider and model are already stored, Friday skips setup and opens the chat screen. The same provider keys and service selections can be changed later in Settings.
 
 Provider API keys are stored in Friday's local application data and are masked after saving. Requests and credentials are still sent to the configured provider as required for authentication and inference.
-
-## Conversation experience
 
 ### Chat input
 
@@ -113,7 +105,7 @@ Installed skill names become searchable entries after `/skill`. Task commands ar
 - Image context menus can open, reveal, copy the image, copy its path, or save a copy. Video and audio menus can open, reveal, copy the path, or save a copy.
 - Earlier long user messages collapse. A More/Less control is also rendered for earlier long assistant messages, but it currently does not change the assistant content layout.
 
-## Sessions and conversation history
+### Sessions and conversation history
 
 - The title-bar history menu starts a new UUID-backed conversation or switches to an existing one.
 - Sessions are listed newest first and titled from the first user message, shortened to 60 characters.
@@ -124,47 +116,52 @@ Installed skill names become searchable entries after `/skill`. Task commands ar
 
 There is a clear-messages API in the runtime, but the current Chat History screen exposes per-session deletion rather than a separate clear button.
 
-## Agent runtime
+## 2. Agent runtime and automation
+
+This group covers what makes Friday an agent rather than a chat window: the tool-calling loop, its permission model, and the automation surfaces (projects, skills, MCP, schedules, health checks) built on top of it.
+
+### Agent runtime
 
 Friday uses an iterative tool-calling loop:
 
-1. Build a system prompt from the base assistant contract, tool descriptions, workspace profile files, persistent memory, and any skill loaded during the run.
+1. Build a system prompt from the base assistant contract, tool descriptions, workspace profile files, persistent memory, any active project's instructions, and any skill loaded during the run.
 2. Stream a model turn and collect text, reasoning continuity where supported, and tool calls.
 3. Run requested tools, stream their activity into the conversation, and append results to the transcript.
 4. Continue until the model returns no tool calls, the request is cancelled, an error occurs, or the 20-turn session limit is reached.
 
-Each model turn currently allows up to 4,096 output tokens and is retried once after a provider failure.
+Each model turn currently allows up to 8,192 output tokens and is retried once after a provider failure.
 
-The Home prompt classifier computes `none`, `medium`, or `high` reasoning based on prompt language, length, and code context. The current send path drops that `effort` before model execution; `lightContext`, `toolsAllow`, and `toolsDeny` are also dropped. These Home options therefore have no execution effect at present.
+The Home prompt classifier computes `none`, `medium`, or `high` reasoning effort from prompt language, length, and code context, and also derives `lightContext`. `toolsAllow`, `toolsDeny`, and `lightContext` are forwarded from the renderer but dropped by the main-process IPC normalizer before reaching the agent; `effort` survives that step but is never read when the run's input is assembled. These Home options therefore have no execution effect at present.
 
 ### Built-in tools
 
 | Area       | Tools and behavior                                                                                                                                                                                                  |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Files      | Read a complete UTF-8 file, create or overwrite a text file, replace one exact unique match, and apply structured multi-file patches.                                                                               |
-| Commands   | Run a shell command with working directory, environment, timeout, yield/background behavior, and optional PTY. Host elevation, gateway execution, and remote-node execution are not implemented in this runtime.    |
-| Processes  | List, poll, page through logs, write text, submit text, paste, send special keys, kill, clear, or remove retained long-running process sessions.                                                                    |
-| Web search | Query the selected Brave or Tavily engine for 1–20 results using its API key from Settings. `BRAVE_API_KEY` and `TAVILY_API_KEY` remain available as environment fallbacks.                                         |
-| Web fetch  | Fetch public HTTP(S) pages or JSON, follow up to three redirects, convert HTML to plain text, and truncate long output. Private, loopback, and link-local targets are blocked.                                      |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Files      | Read a complete UTF-8 file, create or overwrite a text file, replace one exact unique match, and apply structured multi-file patches.                                                                              |
+| Commands   | Run a shell command with working directory, environment, timeout, yield/background behavior, and optional PTY. Host elevation, gateway execution, and remote-node execution are not implemented in this runtime.  |
+| Processes  | List, poll, page through logs, write text, submit text, paste, send special keys, kill, clear, or remove retained long-running process sessions.                                                                   |
+| Web search | Query the selected Brave or Tavily engine for 1–20 results using its API key from Settings. `BRAVE_API_KEY` and `TAVILY_API_KEY` remain available as environment fallbacks.                                        |
+| Web fetch  | Fetch public HTTP(S) pages or JSON, follow up to three redirects, convert HTML to plain text, and truncate long output. Private, loopback, and link-local targets are blocked.                                     |
 | Browser    | Start or stop a persistent visible Chrome profile; manage tabs; navigate; take DOM/text snapshots, screenshots, or PDFs; read console output; and click, type, press, hover, drag, select, fill, wait, or evaluate. |
-| Media      | Generate an image, video, music track, or sound effect with the configured service and save agent-created output in the media library.                                                                              |
+| Media      | Generate an image, video, music track, or sound effect with the configured service and save agent-created output in the media library.                                                                             |
 | Memory     | Save a durable fact or forget all saved facts containing a case-insensitive match.                                                                                                                                  |
+| Projects   | Create, list, select, update, delete, or unload a named project workspace. See [Projects](#projects) below.                                                                                                         |
 | Skills     | Load an enabled skill's `SKILL.md` instructions and return its directory path to the current run.                                                                                                                   |
-| MCP        | Load enabled server tools dynamically as `mcp__<server>__<tool>`.                                                                                                                                                   |
-| Schedules  | Create, update, pause, resume, delete, inspect, list, or trigger persistent schedule records. See [Scheduled tasks](#scheduled-tasks) for the execution limit.                                                      |
+| MCP        | Load enabled server tools dynamically as `mcp__<server>__<tool>`.                                                                                                                                                    |
+| Schedules  | Create, update, pause, resume, delete, inspect, list, or trigger persistent schedule records. See [Scheduled tasks](#scheduled-tasks) for the execution limit.                                                     |
 | Health     | Replace the `HEALTH.md` checklist or update health-run settings.                                                                                                                                                    |
-| Bootstrap  | Complete the one-time conversational bootstrap after profile files have been written.                                                                                                                               |
-| Subagents  | Run one independent subagent with a fresh conversation and the same tool set except further subagent spawning.                                                                                                      |
+| Bootstrap  | Complete the one-time conversational bootstrap after profile files have been written.                                                                                                                              |
+| Subagents  | Run one independent subagent with a fresh conversation and the same tool set except further subagent spawning.                                                                                                     |
 
 Subagents are non-interactive. Any tool that resolves to `ask` is denied because a subagent cannot present a permission card to the user.
 
-## Permissions and execution control
+### Permissions and execution control
 
 The Policies screen provides persistent controls for sensitive tools:
 
 - Every tool owns a top-level policy object with `default`, `allow`, `ask`, and `deny` fields.
 - The top-level `dir` map assigns directory-scoped tool allow-lists using `{ "recoursive": boolean, "tools": "*" | string[] }` entries.
-- `read` and `write` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
+- `read`, `write`, and `process` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
 - Other built-in tools retain independent **Allow** defaults.
 - An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
 - An always-allow decision stores the containing folder for `read`, the exact target for other file and patch tools, and the raw command for `exec`.
@@ -198,27 +195,20 @@ Important boundaries:
 - `exec` policy resolution examines the command string; it is not an operating-system sandbox and cannot prove which paths a command will access.
 - Directory policy resolves `exec` from its working directory, but commands can still access paths outside that directory.
 - Relative policy paths such as `Desktop` resolve from the user home directory.
+- Project tools (`create_project`, `list_projects`, `select_project`, `update_project`, `unload_project`) are not covered by the centralized policy system and always run; only `delete_project` always asks for confirmation.
 - Tool defaults and directory pre-authorizations are editable from Settings.
 
-## Personalization, workspace, and memory
+### Projects
 
-Friday maintains an agent workspace in local application data with these Markdown files:
+Projects give the agent named, persistent workspaces:
 
-| File           | Purpose                                                         |
-| -------------- | --------------------------------------------------------------- |
-| `AGENTS.md`    | Standing behavior and workspace instructions.                   |
-| `BOOTSTRAP.md` | One-time conversational setup instructions for a fresh profile. |
-| `IDENTITY.md`  | Assistant identity and presentation.                            |
-| `SOUL.md`      | Personality and behavioral guidance.                            |
-| `USER.md`      | User profile and preferences.                                   |
-| `MEMORY.md`    | Durable facts loaded into every conversation.                   |
-| `HEALTH.md`    | Checklist used by periodic health runs.                         |
+- Each project is a folder under the agent's `projects` directory containing a `project.json` (title, description) and its own `AGENTS.md` instructions file.
+- `create_project`, `update_project`, and `delete_project` manage that folder; `list_projects` enumerates existing projects.
+- `select_project` marks a project active for the session and appends its `AGENTS.md` content to the system prompt for that turn. `unload_project` clears the active project.
+- Selecting a project does not change the working directory, execution policy, or which tools are available.
+- There is no Settings or renderer UI for creating or browsing projects; the feature is agent-tool only, driven entirely through conversation.
 
-If `USER.md` has no completed profile, `BOOTSTRAP.md` is included in the system prompt. Completing bootstrap removes that file after the identity, user, and soul files have been updated.
-
-`memory_save` adds one bullet fact without duplicating an identical line. `memory_forget` removes every bullet containing the requested text, case-insensitively. Workspace profile and memory content are rebuilt into the system prompt before each model turn.
-
-## Skills
+### Skills
 
 Skills are local directories under the agent's `skills` folder and must contain `SKILL.md`.
 
@@ -237,19 +227,19 @@ Validation requires frontmatter `name` and `description`. Names are lowercase al
 
 The Home slash menu searches installed skills, and the agent can load a selected skill's `SKILL.md` instructions during a run. The loader returns the skill directory path; bundled scripts, references, and assets must be read separately when needed.
 
-## MCP servers
+### MCP servers
 
 Friday supports two MCP transport types:
 
 | Transport   | Configuration                                                                                                                               |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Remote HTTP | Server ID, name, URL, optional bearer token, and optional OAuth client ID and client secret.                                                |
 | Local stdio | Server ID, name, command, whitespace-split arguments, optional `KEY=value` environment variables, and an optional stored working directory. |
 
 MCP settings provide:
 
 - Separate lists for remote and local servers.
-- Configured, disabled, and error states.
+- Configured, disabled, and error states, with an enable/disable toggle in both the list and detail views.
 - Add and edit dialogs. Server ID and transport type are fixed after creation.
 - A detail page with ID, status, URL or command/arguments, authentication type, refresh/update timestamps, and the last error.
 - OAuth authorization for HTTP servers without a bearer token, including reauthorization.
@@ -258,11 +248,11 @@ At the start of each normal agent run, enabled servers connect in parallel, expo
 
 Current limits:
 
-- The renderer has no delete or enable/disable control even though disabled server metadata is supported.
-- Stored `require_approval` and `defer_loading` fields are not enforced by the tool loader.
-- Dynamically loaded MCP tools are not included in the built-in gated-tool list.
+- The renderer still has no delete control for a configured server.
+- A stored `require_approval` field is enforced: it sets a loaded MCP tool's default permission to allow or ask. A stored `defer_loading` field is not yet enforced by the tool loader.
+- Dynamically loaded MCP tools are not included in the built-in gated-tool list; only their own `require_approval`-derived default applies.
 
-## Scheduled tasks
+### Scheduled tasks
 
 Friday persists cron schedule records with:
 
@@ -277,9 +267,9 @@ Friday persists cron schedule records with:
 
 The Tasks settings screen selects the task provider/model and lists each schedule's name, prompt or message, cron expression, and enabled state. Schedule creation and management are driven through the agent and slash commands rather than direct Settings forms.
 
-**Partial:** the current cron callback logs debug actions and creates trigger/task metadata, but its agent-action branch does not call the agent. Scheduled prompts and **Run now** therefore do not execute an agent request yet.
+**Partial:** the current cron callback logs debug actions and creates trigger/task metadata, but its agent-action branch is still an empty no-op. Scheduled prompts and **Run now** therefore do not execute an agent request yet.
 
-## Periodic health checks
+### Periodic health checks
 
 `HEALTH.md` defines a checklist that Friday can run in the background.
 
@@ -297,14 +287,57 @@ The Health settings screen exposes provider, model, interval, target, direct pol
 
 **Partial:** the runtime currently applies interval, busy checks, active hours/dates, and isolated-session behavior. Stored target, direct policy, light context, include reasoning, provider, and model fields are not consumed by `runHealthCheck`; health runs use the agent's normal active model.
 
-## Speech services
+### Personalization, workspace, and memory
 
-### Speech-to-text
+Friday maintains an agent workspace in local application data with these Markdown files:
+
+| File           | Purpose                                                         |
+| -------------- | ---------------------------------------------------------------- |
+| `AGENTS.md`    | Standing behavior and workspace instructions.                   |
+| `BOOTSTRAP.md` | One-time conversational setup instructions for a fresh profile. |
+| `IDENTITY.md`  | Assistant identity and presentation.                            |
+| `SOUL.md`      | Personality and behavioral guidance.                             |
+| `USER.md`      | User profile and preferences.                                    |
+| `MEMORY.md`    | Durable facts loaded into every conversation.                    |
+| `HEALTH.md`    | Checklist used by periodic health runs.                          |
+
+If `USER.md` has no completed profile, `BOOTSTRAP.md` is included in the system prompt. Completing bootstrap removes that file after the identity, user, and soul files have been updated.
+
+`memory_save` adds one bullet fact without duplicating an identical line. `memory_forget` removes every bullet containing the requested text, case-insensitively. Workspace profile and memory content are rebuilt into the system prompt before each model turn.
+
+## 3. Providers and model catalogs
+
+### Chat and research providers
+
+Provider routing uses the native Anthropic Messages API for Anthropic, the OpenAI Responses API for OpenAI, and the OpenAI-compatible Chat Completions path for every other chat provider.
+
+| Provider                 | Current model catalog                                                    |
+| ------------------------ | -------------------------------------------------------------------------- |
+| Anthropic                | Claude Opus 4.7; Claude Sonnet 4.6; Claude Haiku 4.5                       |
+| DeepSeek                 | DeepSeek V4 Pro; DeepSeek V4 Flash                                        |
+| Google                   | Gemini 3.1 Pro Preview; Gemini 3.1 Flash Lite                             |
+| Kimi                     | Kimi K2.6; Kimi K2.5; Kimi K2 Thinking                                    |
+| MiniMax                  | MiniMax M2.7; MiniMax M2.5                                                |
+| Mistral                  | Mistral Large 2512; Mistral Medium 3.5; Devstral 2512                     |
+| OpenAI                   | GPT-5.6 Sol, Terra, Luna; GPT-5.5, 5.5 Pro; GPT-5.4, 5.4 Pro, Mini, Nano |
+| Qwen                     | Qwen3.7 Max; Qwen3.6 Plus; Qwen3.6 Flash                                  |
+| Reka                     | Reka Flash; Reka Edge 2603                                                |
+| xAI                      | Grok 4.3; Grok Build 0.1                                                  |
+| Z.ai                     | GLM-5.1; GLM-5; GLM-5 Turbo                                               |
+| Perplexity research chat | Sonar Deep Research; Sonar Reasoning Pro; Sonar Pro; Sonar                |
+
+The provider key manager includes 24 catalog entries: OpenAI, Anthropic, Google, xAI, Mistral, DeepSeek, Qwen, Kimi, Z.ai, MiniMax, ElevenLabs, Deepgram, Cartesia, Black Forest Labs, Midjourney, Kling, Runway, Luma, Stability AI, Ideogram, Pika, Suno, Reka, and Perplexity. Each entry includes capability labels and an external setup/documentation link.
+
+Realtime-voice models are cataloged for Google, Luma, Qwen, and xAI, but there is no realtime-voice IPC or model execution service. Friday's current Voice API is text-to-speech, and Home's voice-conversation panel is not connected to these models.
+
+### Speech services
+
+#### Speech-to-text
 
 Realtime and recorded transcription use independent saved selections. Settings filters models by whether they implement streaming or batch transcription and provides a live test and a record-then-transcribe test.
 
 | Provider   | Models                                                          | Modes                                      |
-| ---------- | --------------------------------------------------------------- | ------------------------------------------ |
+| ---------- | ----------------------------------------------------------------- | -------------------------------------------- |
 | Deepgram   | Nova 3; Flux                                                    | Nova 3: batch and stream; Flux: stream     |
 | ElevenLabs | Scribe v2; Scribe v2 Realtime                                   | Batch; stream                              |
 | Mistral    | Voxtral Mini 2602; Voxtral Mini Transcribe Realtime 2602        | Batch; stream                              |
@@ -314,12 +347,12 @@ Realtime and recorded transcription use independent saved selections. Settings f
 
 The transcription API accepts optional language, prompt, temperature, and sample-rate settings. Batch audio is capped at 64 MiB of encoded input, and realtime chunks are capped at 256 KiB.
 
-### Text-to-speech
+#### Text-to-speech
 
 Settings selects a provider/model and can synthesize and play editable sample text. Responses can use the same service for read-aloud playback. Input text is required and capped at 4,096 characters.
 
 | Provider   | Models                                               |
-| ---------- | ---------------------------------------------------- |
+| ---------- | ------------------------------------------------------- |
 | Cartesia   | Sonic 3.5; Sonic 3                                   |
 | Deepgram   | Aura 2                                               |
 | ElevenLabs | Eleven v3; Eleven Multilingual v2; Eleven Flash v2.5 |
@@ -330,54 +363,54 @@ Settings selects a provider/model and can synthesize and play editable sample te
 
 All text-to-speech providers in this table have runtime adapters.
 
-## Image, video, and audio generation
+## 4. Media generation
 
 Media can be generated from the dedicated Settings studios or by agent tools during a conversation.
 
 - Each studio persists an independent provider/model selection and accepts a text prompt.
 - Image results are previewed in the studio.
 - Video results are playable and can expose their local-file menu.
-- The audio studio refreshes a dated local list and plays saved tracks.
-- Agent-created image, video, and audio files are saved under `agent/library` and displayed automatically in chat.
+- The audio studio ("Audio"/Music Creator in Settings navigation) refreshes a dated local list and plays saved tracks.
+- Agent-created image, video, and audio files are saved under the app's local `library` data folder and displayed automatically in chat.
 - Standalone video and audio outputs are stored in their feature-specific application-data folders. Standalone image generation returns image data to the studio without adding it to the unified library.
 
 ### Image adapters
 
 | Status       | Provider and models                                                                                          |
-| ------------ | ------------------------------------------------------------------------------------------------------------ |
+| ------------ | ---------------------------------------------------------------------------------------------------------------- |
 | Available    | Black Forest Labs: FLUX.2, FLUX.1 Kontext Pro, FLUX1.1 Pro Ultra                                             |
 | Available    | Google: Gemini 3.1 Flash Image Preview, Gemini 3 Pro Image Preview                                           |
-| Available    | Ideogram: 3.0, 2a                                                                                            |
-| Available    | Luma: Uni 1.1                                                                                                |
-| Available    | Qwen: Qwen Image, Qwen Image Edit                                                                            |
-| Available    | Stability AI: Stable Image Ultra, Stable Image Core                                                          |
-| Available    | xAI: Grok Imagine Image, Grok Imagine Image Quality                                                          |
+| Available    | Ideogram: 3.0, 2a                                                                                             |
+| Available    | Luma: Uni 1.1                                                                                                 |
+| Available    | Qwen: Qwen Image, Qwen Image Edit                                                                             |
+| Available    | Stability AI: Stable Image Ultra, Stable Image Core                                                           |
+| Available    | xAI: Grok Imagine Image, Grok Imagine Image Quality                                                           |
 | Catalog only | Midjourney v8.1 and v7 are selectable, but the runtime explicitly reports that Midjourney has no public API. |
 
 ### Video adapters
 
 | Status       | Provider and models                                                                                      |
 | ------------ | -------------------------------------------------------------------------------------------------------- |
-| Available    | Google: Veo 3.1, Veo 3.1 Fast                                                                            |
-| Available    | Kling: 2.5 Turbo, 2.1 Master                                                                             |
-| Available    | Luma: Ray 3, Ray 2                                                                                       |
-| Available    | MiniMax: Hailuo 2.3, Hailuo 02                                                                           |
-| Available    | Pika: 2.2                                                                                                |
-| Available    | Qwen: Wan 2.5 T2V, Wan 2.2 T2V Plus                                                                      |
-| Available    | Runway: Gen-4 Turbo, Gen-3 Alpha Turbo                                                                   |
-| Available    | xAI: Grok Imagine Video 1.5                                                                              |
+| Available    | Google: Veo 3.1, Veo 3.1 Fast                                                                             |
+| Available    | Kling: 2.5 Turbo, 2.1 Master                                                                              |
+| Available    | Luma: Ray 3, Ray 2                                                                                        |
+| Available    | MiniMax: Hailuo 2.3, Hailuo 02                                                                            |
+| Available    | Pika: 2.2                                                                                                  |
+| Available    | Qwen: Wan 2.5 T2V, Wan 2.2 T2V Plus                                                                        |
+| Available    | Runway: Gen-4 Turbo, Gen-3 Alpha Turbo                                                                     |
+| Available    | xAI: Grok Imagine Video 1.5                                                                                |
 | Catalog only | Midjourney Video v1 is selectable, but the runtime explicitly reports that Midjourney has no public API. |
 
 ### Audio adapters
 
-| Status       | Provider and models                                               |
-| ------------ | ----------------------------------------------------------------- |
-| Available    | ElevenLabs: Eleven Music, ElevenLabs Sound Effects                |
-| Available    | Stability AI: Stable Audio 2.5                                    |
-| Catalog only | Google: Lyria 3 Pro Preview, Lyria 3 Clip Preview, Lyria Realtime |
-| Catalog only | Kling Audio                                                       |
-| Catalog only | MiniMax Music 2.6, Music Cover                                    |
-| Catalog only | Suno v5.5, v4.5 All                                               |
+| Status       | Provider and models                                                |
+| ------------ | ----------------------------------------------------------------------- |
+| Available    | ElevenLabs: Eleven Music, ElevenLabs Sound Effects                     |
+| Available    | Stability AI: Stable Audio 2.5                                        |
+| Catalog only | Google: Lyria 3 Pro Preview, Lyria 3 Clip Preview, Lyria Realtime      |
+| Catalog only | Kling Audio                                                             |
+| Catalog only | MiniMax Music 2.6, Music Cover                                        |
+| Catalog only | Suno v5.5, v4.5 All                                                    |
 
 The audio catalog presents all six providers, but only ElevenLabs and Stability AI currently have executable adapters.
 
@@ -392,30 +425,7 @@ The Library settings screen lists agent-generated images, videos, and audio newe
 
 The library currently has no search, filter, refresh, or delete toolbar.
 
-## Chat and research providers
-
-Provider routing uses the native Anthropic Messages API for Anthropic, the OpenAI Responses API for OpenAI, and the OpenAI-compatible Chat Completions path for every other chat provider.
-
-| Provider                 | Current model catalog                                                    |
-| ------------------------ | ------------------------------------------------------------------------ |
-| Anthropic                | Claude Opus 4.7; Claude Sonnet 4.6; Claude Haiku 4.5                     |
-| DeepSeek                 | DeepSeek V4 Pro; DeepSeek V4 Flash                                       |
-| Google                   | Gemini 3.1 Pro Preview; Gemini 3.1 Flash Lite                            |
-| Kimi                     | Kimi K2.6; Kimi K2.5; Kimi K2 Thinking                                   |
-| MiniMax                  | MiniMax M2.7; MiniMax M2.5                                               |
-| Mistral                  | Mistral Large 2512; Mistral Medium 3.5; Devstral 2512                    |
-| OpenAI                   | GPT-5.6 Sol, Terra, Luna; GPT-5.5, 5.5 Pro; GPT-5.4, 5.4 Pro, Mini, Nano |
-| Qwen                     | Qwen3.7 Max; Qwen3.6 Plus; Qwen3.6 Flash                                 |
-| Reka                     | Reka Flash; Reka Edge 2603                                               |
-| xAI                      | Grok 4.3; Grok Build 0.1                                                 |
-| Z.ai                     | GLM-5.1; GLM-5; GLM-5 Turbo                                              |
-| Perplexity research chat | Sonar Deep Research; Sonar Reasoning Pro; Sonar Pro; Sonar               |
-
-The provider key manager includes 24 catalog entries: OpenAI, Anthropic, Google, xAI, Mistral, DeepSeek, Qwen, Kimi, Z.ai, MiniMax, ElevenLabs, Deepgram, Cartesia, Black Forest Labs, Midjourney, Kling, Runway, Luma, Stability AI, Ideogram, Pika, Suno, Reka, and Perplexity. Each entry includes capability labels and an external setup/documentation link.
-
-Realtime-voice models are cataloged for Google, Luma, Qwen, and xAI, but there is no realtime-voice IPC or model execution service. Friday's current Voice API is text-to-speech, and Home's voice-conversation panel is not connected to these models.
-
-## Messaging channels
+## 5. Messaging channels
 
 Friday includes Telegram and Discord bot adapters. Enabled channels with tokens are started when the app becomes ready.
 
@@ -454,17 +464,34 @@ Friday includes Telegram and Discord bot adapters. Enabled channels with tokens 
 - discord.js handles reconnection.
 - Reply splitting at 2,000 characters.
 
-The Channels screen configures both adapters with enable state, token, DM policy, direct-sender allowlist, group/channel allowlist, and the reply provider/model. The current renderer displays live runtime status only for Telegram and labels Discord as “config only,” even though Discord is started by the main-process registry when enabled.
+The Channels screen configures both adapters with enable state, token, DM policy, direct-sender allowlist, group/channel allowlist, and the reply provider/model. The current renderer displays live runtime status only for Telegram and labels Discord as "config only," even though Discord is started by the main-process registry when enabled.
 
-## Settings and desktop integration
+## 6. Desktop, settings, and extensibility surfaces
 
-### Navigation
+### Settings navigation
 
-- The Settings overview groups General, System, Providers, Agent, Skills, MCP, Tasks, Health, Transcribe, Voice, Image, Video, Audio, and Channels.
+- The Settings overview groups pages as: **General** (Application, System, Providers), **Primary** (Assistant, Skills, MCP, Library, Tasks — Health lives nested under Assistant rather than as its own overview card), **Model services** (Transcribe, Voice, Image, Video, Audio/Music Creator), **Channels**, **Widgets**, **Cloud** (Storage, Database), and **Search**.
 - Deep pages use breadcrumbs.
 - `Cmd/Ctrl+F` opens a route and setting search palette.
 - Unknown routes show a 404 recovery view; route failures show retry, restart, or Home actions.
 - Page transitions respect the operating system's reduced-motion preference.
+- The Search settings page configures the same Brave/Tavily engine and API key used by the agent's web search tool; it is not a separate local-search feature.
+
+### Widgets
+
+Widgets are standalone mini-app windows:
+
+- Each widget lives in its own folder under the app's local data directory with a `manifest.json` declaring a title, description, and entry point.
+- The application menu and a `window.widgets` API can list installed widgets and open each one in its own `BrowserWindow`.
+- The main process watches widget folders and supports hot-reload.
+- The Widgets settings page lists installed widgets with title, description, and category, but has no install, remove, or enable/disable control yet.
+
+**Partial:** the widget-loading backend is fully implemented; the Settings UI is view-only.
+
+### Cloud storage sync
+
+- The Storage settings page configures S3-compatible remote storage: endpoint, region, access key, secret key, bucket, path style, selected local paths, and a sync interval, so chosen local folders back up to a bucket on a schedule.
+- A Database entry appears in Settings navigation as "coming soon." It has no page, route, or backend service yet.
 
 ### Application preferences
 
@@ -493,26 +520,27 @@ The Channels screen configures both adapters with enable state, token, DM policy
 - Native menus include New Window, standard editing commands, reload, window controls, English/Italian selection, developer console, and refresh.
 - The app can open additional launcher windows.
 
-## Privacy, storage, and security
+## 7. Privacy, storage, and security
 
 ### Local data
 
 Friday stores configuration and working data below Electron's application-data directory:
 
 | Area        | Stored data                                                                                                                                 |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | App         | Tray, keep-awake, language, and theme settings.                                                                                             |
 | Providers   | Provider name, API key, and base URL.                                                                                                       |
-| Agent       | Active model, policy, MCP definitions and OAuth state, skills, schedules, health settings, workspace Markdown, sessions, and media library. |
+| Agent       | Active model, policy, MCP definitions and OAuth state, skills, projects, schedules, health settings, workspace Markdown, sessions, and media library. |
 | Channels    | Bot tokens, sender policies, and channel reply model.                                                                                       |
 | Services    | Independent text, transcription, voice, image, video, and audio selections.                                                                 |
 | Media       | Standalone generated video and audio files.                                                                                                 |
-| Browser     | Persistent agent-browser profile.                                                                                                           |
+| Browser     | Persistent agent-browser profile.                                                                                                            |
+| Storage     | S3-compatible remote-storage credentials and sync configuration.                                                                            |
 | Diagnostics | Local rotating logs and crash dumps. Crash dumps are not uploaded by the current configuration.                                             |
 
 Secrets are masked in the renderer after saving, but provider keys, bot tokens, and MCP secrets are stored in ordinary local electron-store files rather than an encrypted credential vault. Anyone with access to the user's application-data files may be able to read them.
 
-Prompts, attachments, tool inputs, and generated content may be sent to configured model providers, MCP servers, websites, browser targets, Telegram, or Discord as required by the requested operation.
+Prompts, attachments, tool inputs, and generated content may be sent to configured model providers, MCP servers, websites, browser targets, Telegram, Discord, or the configured cloud storage endpoint as required by the requested operation.
 
 ### Electron hardening
 
@@ -528,9 +556,10 @@ Known boundaries:
 - The external-URL IPC path does not validate schemes before passing a URL to Electron.
 - Provider secrets can be read by trusted renderer code through the provider preload API.
 - The local-resource protocol confines `local-resource://agent/...`, while other host/path forms are less restricted.
+- Project management tools and some MCP behaviors (see [Projects](#projects) and [MCP servers](#mcp-servers)) run outside the centralized tool-policy system.
 - Friday does not claim formal certification for regulated data.
 
-## Platform and packaging
+## 8. Platform and packaging
 
 - Windows: NSIS installer for x64, selectable installation directory, desktop shortcut, and retained app data on uninstall.
 - macOS: PKG and DMG targets for x64 and arm64, dark-mode support, hardened runtime, and microphone/camera entitlements.
@@ -544,6 +573,9 @@ The main implementation areas behind this reference are:
 - [Chat and renderer UI](../src/renderer/src/pages/home/)
 - [Settings pages](../src/renderer/src/pages/settings/)
 - [Agent runtime and tools](../src/main/agent/)
+- [Project workspace tools](../src/main/agent/tools/) (`project_*.ts`)
+- [Widgets](../src/main/widgets/)
+- [Cloud storage sync](../src/renderer/src/pages/settings/pages/storage/)
 - [Provider catalog and models](../src/shared/provider_models_definitions.ts)
 - [Provider metadata](../src/shared/providers_definitions.ts)
 - [Speech-to-text adapters](../src/main/models/stt/)
@@ -555,4 +587,4 @@ The main implementation areas behind this reference are:
 - [Desktop application services](../src/main/app/)
 - [Security policy](../SECURITY.md)
 
-Feature claims in this document intentionally exclude unmounted demo components, legacy translation strings without a current route, the disabled tray “Apps” placeholder, inactive browser-style navigation controls, and package manifest entries that do not have a corresponding current implementation.
+Feature claims in this document intentionally exclude unmounted demo components, legacy translation strings without a current route, the disabled tray "Apps" placeholder, inactive browser-style navigation controls, the `documentReader` and `embedding` service identifiers (reserved names with no Settings surface or backend consumer), the "coming soon" Database settings entry, and package manifest entries that do not have a corresponding current implementation.
