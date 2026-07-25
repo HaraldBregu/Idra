@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron';
+import { publish } from '../api/api_events';
 
 export interface AppEvent {
 	type: string;
