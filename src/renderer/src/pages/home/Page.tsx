@@ -112,9 +112,10 @@ function EmptyConversation(): ReactElement {
 				<EmptyMedia className="mt-8">
 					<img src={logo} alt="" className="size-[72px] rounded-2xl object-contain" />
 				</EmptyMedia>
-				<EmptyTitle>Start a conversation</EmptyTitle>
+				<EmptyTitle>What can I do for you?</EmptyTitle>
 				<EmptyDescription>
-					Ask Friday to inspect code, make a change, or help plan the next step.
+					I can schedule tasks that run in the background, keep an eye on your system, generate
+					images, video and music, or just help you think. Pick an example below or type your own.
 				</EmptyDescription>
 			</EmptyHeader>
 		</Empty>
