@@ -165,6 +165,8 @@ app.whenReady().then(async () => {
 		trayManager.updateLanguage(language);
 	});
 
+	startApiServer(logger);
+
 	// Create main window
 	mainWindow.create();
 
