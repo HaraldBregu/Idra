@@ -78,10 +78,11 @@
 	--app-surface-opacity: 1;
 	--app-popover-opacity: 1;
 	--app-sidebar-opacity: 1;
-	--app-window-background-base: oklch(0.963 0.008 75);
-	--app-surface-background-base: oklch(0.972 0.007 75);
-	--app-popover-background-base: oklch(0.972 0.007 75);
-	--app-sidebar-background-base: oklch(0.957 0.009 75);
+	--app-window-background-base: #fbfbfa;
+	--app-surface-background-base: #ffffff;
+	--app-popover-background-base: #ffffff;
+	--app-sidebar-background-base: #fafaf8;
+	--app-window-border: #19635f;
 	--app-window-background: color-mix(
 		in oklch,
 		var(--app-window-background-base) calc(var(--app-bg-opacity) * 100%),

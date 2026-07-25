@@ -116,12 +116,17 @@ async function saveImageAs(imagePath: string, window: BrowserWindow | null): Pro
 }
 
 function validatedAgentImagePath(requestedPath: string): string {
-	const root = realpathSync(path.resolve(agentLocation()));
-	const real = realpathSync(path.resolve(agentLocation(), requestedPath));
-	if (!real.startsWith(root + path.sep)) {
-		throw new Error('Image path must be inside the agent data directory.');
+	const roots = [agentLocation(), libraryLocation()];
+	for (const root of roots) {
+		try {
+			const realRoot = realpathSync(path.resolve(root));
+			const real = realpathSync(path.resolve(root, requestedPath));
+			if (real.startsWith(realRoot + path.sep)) return real;
+		} catch {
+			// Root or file missing under this root; try the next one.
+		}
 	}
-	return real;
+	throw new Error('Image path must be inside the agent or library data directory.');
 }
 
 function showImageContextMenu(event: IpcMainInvokeEvent, requestedPath: string): void {
