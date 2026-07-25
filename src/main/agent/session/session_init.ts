@@ -15,7 +15,7 @@ export function init(
 	input: SessionInput,
 	category: SessionCategory = DEFAULT_CATEGORY
 ): void {
-	state.id = resolveSessionId(input.sessionId, config.location);
+	state.id = resolveSessionId(input.sessionId, config.location, category);
 	state.category = category;
 	state.folderName = sessionFolderName(state.id);
 	state.sessionsPath = sessionsRoot(config.location);
