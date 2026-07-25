@@ -1,6 +1,19 @@
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 import { wrapSimpleHandler, wrapIpcHandler } from './error_handler';
+import { ipcHandlers } from './registry';
 import type { InvokeChannelMap } from '../../../shared/ipc_channels_types';
+
+function expose(
+	channel: string,
+	handler: (event: IpcMainInvokeEvent, ...args: unknown[]) => unknown
+): void {
+	ipcMain.handle(channel, handler);
+	ipcHandlers.set(channel, (...args) =>
+		Promise.resolve(handler(undefined as never, ...args)) as ReturnType<
+			NonNullable<ReturnType<typeof ipcHandlers.get>>
+		>
+	);
+}
 
 // ---- registerQuery --------------------------------------------------------
 

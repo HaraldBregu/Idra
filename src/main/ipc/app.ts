@@ -176,7 +176,7 @@ function showAudioContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 }
 
 function validatedVideoPath(requestedPath: string): string {
-	const roots = [agentLocation(), path.resolve(userDataLocation(), 'video')];
+	const roots = [agentLocation(), libraryLocation(), path.resolve(userDataLocation(), 'video')];
 	for (const root of roots) {
 		try {
 			const realRoot = realpathSync(path.resolve(root));
