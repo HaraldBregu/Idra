@@ -52,7 +52,7 @@ export function registerCommand<TArgs extends unknown[], TResult>(
 	handler: (...args: TArgs) => Promise<TResult> | TResult
 ): void;
 export function registerCommand(channel: string, handler: (...args: unknown[]) => unknown): void {
-	ipcMain.handle(channel, wrapSimpleHandler(handler, channel));
+	expose(channel, wrapSimpleHandler(handler, channel));
 }
 
 // ---- registerCommandWithEvent ---------------------------------------------
