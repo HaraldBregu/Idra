@@ -56,6 +56,10 @@ const promptSuggestions = [
 		label: 'Create an image',
 		prompt: 'Create an image of a cozy workspace at sunset.',
 	},
+	{
+		label: 'Create a video',
+		prompt: 'Create a short video of waves rolling onto a beach at dawn.',
+	},
 ] as const;
 
 function attachmentId(): string {
