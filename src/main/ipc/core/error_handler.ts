@@ -5,7 +5,6 @@ export type { IpcResult } from '../../../shared/ipc_types';
 
 // Import the types we need locally
 import type { IpcResult } from '../../../shared/ipc_types';
-import { ipcHandlers } from './registry';
 import { toError } from './error';
 
 /**
