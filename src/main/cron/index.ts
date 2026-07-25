@@ -19,9 +19,11 @@ export { runScheduleNow } from './cron_run_schedule_now';
 export { listJobs } from './cron_list_jobs';
 export { deleteJob } from './cron_delete_job';
 export { getCronState, setCronState } from './cron_store';
+export { setCronRunner } from './cron_module_state';
 export {
 	DEFAULT_CRON_STATE,
 	type CronAction,
+	type CronRunner,
 	type CronEvents,
 	type CronFunctionId,
 	type CronFunctionInput,
