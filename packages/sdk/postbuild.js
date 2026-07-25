@@ -3,15 +3,19 @@ import { dirname, join, resolve } from 'node:path';
 
 // ponytail: tsc keeps the app's extensionless relative imports; Node16/NodeNext
 // consumers reject those, so rewrite them in the emitted declarations.
-function declarations(dir) {
-	return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+const pending = ['dist'];
+const declarations = [];
+
+while (pending.length > 0) {
+	const dir = pending.pop();
+	for (const entry of readdirSync(dir, { withFileTypes: true })) {
 		const path = join(dir, entry.name);
-		if (entry.isDirectory()) return declarations(path);
-		return path.endsWith('.d.ts') ? [path] : [];
-	});
+		if (entry.isDirectory()) pending.push(path);
+		else if (path.endsWith('.d.ts')) declarations.push(path);
+	}
 }
 
-for (const file of declarations('dist')) {
+for (const file of declarations) {
 	const source = readFileSync(file, 'utf8');
 	const fixed = source.replace(/((?:from |import\()')(\.[^']*)(')/g, (_match, head, spec, tail) => {
 		const target = resolve(dirname(file), spec);
