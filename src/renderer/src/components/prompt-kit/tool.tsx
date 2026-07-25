@@ -3,6 +3,7 @@
 import { useState, type CSSProperties } from 'react';
 import {
 	AudioLines,
+	CalendarClock,
 	Check,
 	ChevronDown,
 	CircleX,
