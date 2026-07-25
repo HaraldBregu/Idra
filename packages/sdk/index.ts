@@ -19,6 +19,8 @@ import type {
 	WindowApi,
 } from '../../src/shared/api_types';
 
+export { connect, type ConnectOptions, type FridayClient } from './connect';
+
 export type * from '../../src/shared';
 export type * from '../../src/shared/api_types';
 export type * from '../../src/shared/agent_types';
