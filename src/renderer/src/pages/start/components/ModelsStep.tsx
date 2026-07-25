@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot } from 'lucide-react';
+import { LogoView } from '@/components/app/base/logo-view';
 import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
 import { StepHeader } from './StepHeader';
 import { getProviderCatalogItem, MODEL_SERVICE_DEFINITIONS, STEP_COPY } from '../constants';
