@@ -1,12 +1,22 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
+import type { SessionCategory } from './session_types';
 import { sessionPath } from './session_session_path';
+import { sessionType } from './session_session_type';
 import { isUuid } from './session_is_uuid';
 
-export function latestUuidSessionId(sessionsPath: string): string | undefined {
+export function latestUuidSessionId(
+	sessionsPath: string,
+	category: SessionCategory
+): string | undefined {
 	if (!existsSync(sessionsPath)) return undefined;
 	try {
 		return readdirSync(sessionsPath, { withFileTypes: true })
-			.filter((entry) => entry.isDirectory() && isUuid(entry.name))
+			.filter(
+				(entry) =>
+					entry.isDirectory() &&
+					isUuid(entry.name) &&
+					sessionType(sessionsPath, entry.name) === category
+			)
 			.map((entry) => {
 				const stats = statSync(sessionPath(sessionsPath, entry.name));
 				return {
