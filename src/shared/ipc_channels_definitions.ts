@@ -53,6 +53,14 @@ export const LibraryChannels = {
 	list: 'library:list',
 } as const;
 
+export const NotesChannels = {
+	list: 'notes:list',
+	get: 'notes:get',
+	create: 'notes:create',
+	update: 'notes:update',
+	delete: 'notes:delete',
+} as const;
+
 export const AppChannels = {
 	openAppDataFolder: 'app:open-app-data-folder',
 	openExternalUrl: 'app:open-external-url',
