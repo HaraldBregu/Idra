@@ -83,23 +83,33 @@ own preload API (`win` is embedded-only — it drives the window hosting your co
 | `widgets`    | Installed widgets                                                                 |
 | `win`        | Window controls for the hosting window                                            |
 
-`isFriday()` reports whether the host globals are present. Every other export throws a
-descriptive error when the app isn't there, so a missing host fails loudly instead of
-silently returning `undefined`.
-
 All request/result types are re-exported (`ImageRequest`, `AgentResponseEvent`,
-`CronSchedule`, `SkillInfo`, `StorageConfig`, `PermissionsSchema`, …).
+`CronSchedule`, `SkillInfo`, `StorageConfig`, `PermissionsSchema`, …), and `Uint8Array`
+payloads (`storage.putObject`, `storage.getObject`) survive the remote hop intact.
 
-## Requirements
+A handful of members only make sense inside a window and are refused by `connect()` with
+a descriptive error: `app.getPathForFile`, `app.show*ContextMenu`,
+`transcribe.onRealtimeEvent`, and everything on `win`. Embedded imports likewise throw
+when the app isn't there, so a missing host fails loudly instead of returning `undefined`.
 
-The runtime only works where Friday's preload globals exist — inside a Friday window.
-Outside of it the package still type-checks, and `isFriday()` returns `false`.
+## The API server
+
+Friday starts it on `127.0.0.1:8765` at launch. Every request needs
+`Authorization: Bearer <token>`; requests without it get a `401`, and only channels that
+don't depend on a calling window are reachable.
+
+| Setting            | Effect                                        |
+| ------------------ | --------------------------------------------- |
+| `FRIDAY_API_PORT`  | Change the port. `0` keeps the port closed.   |
+| `<userData>/sdk-token` | The bearer token, created on first launch (mode `600`). |
+
+Routes: `GET /health`, `POST /invoke` (`{ channel, args }`), `GET /events` (SSE).
 
 ## Development
 
 ```sh
 npm run build   # tsc from the app's shared types into dist/
-npm run smoke   # build, then a stubbed-globals self-check
+npm run smoke   # build, then a self-check of both the embedded and remote paths
 ```
 
 ## Publishing
