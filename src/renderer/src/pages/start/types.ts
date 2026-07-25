@@ -32,9 +32,7 @@ export type ModelServiceId =
 	| 'transcription'
 	| 'image'
 	| 'video'
-	| 'audio'
-	| 'tasks'
-	| 'health';
+	| 'audio';
 
 export type ModelServiceSelection = {
 	providerId: string;
