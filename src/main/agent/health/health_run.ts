@@ -36,6 +36,8 @@ export async function runHealthCheck(agent: Agent, logger: HealthLogger): Promis
 		category: 'health',
 		interactive: false,
 		...(settings.isolatedSession ? { sessionId: HEALTH_SESSION_ID } : {}),
+		...(settings.providerId ? { providerId: settings.providerId } : {}),
+		...(settings.modelId ? { modelId: settings.modelId } : {}),
 	});
 	if (response.trim() === HEALTH_OK) {
 		logger.info('Health', 'Health check completed: HEALTH_OK');
