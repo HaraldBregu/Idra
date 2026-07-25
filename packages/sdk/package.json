@@ -1,23 +1,31 @@
 {
-  "name": "@friday/sdk",
-  "version": "0.1.0",
-  "description": "Friday SDK — demo scoped public package",
-  "type": "module",
-  "main": "index.js",
-  "exports": "./index.js",
-  "files": [
-    "index.js"
-  ],
-  "scripts": {
-    "demo": "node index.js"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "keywords": [
-    "friday",
-    "sdk"
-  ],
-  "author": "Harald Bregu <harald.bregu@gmail.com>",
-  "license": "MIT"
+	"name": "@friday/sdk",
+	"version": "0.1.0",
+	"description": "Typed client for the Friday desktop app API",
+	"type": "module",
+	"main": "./dist/packages/sdk/index.js",
+	"types": "./dist/packages/sdk/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/packages/sdk/index.d.ts",
+			"default": "./dist/packages/sdk/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"smoke": "npm run build && node smoke.js",
+		"prepublishOnly": "npm run build"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"friday",
+		"sdk"
+	],
+	"author": "Harald Bregu <harald.bregu@gmail.com>",
+	"license": "MIT"
 }
