@@ -114,8 +114,14 @@ npm run smoke   # build, then a self-check of both the embedded and remote paths
 
 ## Publishing
 
-`publishConfig.access` is already `public`, and `prepublishOnly` rebuilds `dist/`:
+The scope `@friday` must exist on npm and be yours — create it once with
+`npm org create friday`, or claim the username. Then:
 
 ```sh
-npm publish
+npm login
+npm pack --dry-run   # inspect what ships (dist/ + README + LICENSE)
+npm publish          # prepublishOnly rebuilds dist/, publishConfig.access is public
 ```
+
+Bump with `npm version patch|minor|major` (semver: patch = fix, minor = added API,
+major = breaking). Releases before `1.0.0` may break on minor bumps.
