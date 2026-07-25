@@ -113,7 +113,10 @@ function EmptyConversation(): ReactElement {
 					<img src={logo} alt="" className="size-[72px] rounded-2xl object-contain" />
 				</EmptyMedia>
 				<EmptyTitle>What can I do for you?</EmptyTitle>
-				<EmptyDescription>Pick an example below or type your own.</EmptyDescription>
+				<EmptyDescription>
+					I schedule tasks, watch your system, and create images, video and music. Pick an example
+					below or type your own.
+				</EmptyDescription>
 			</EmptyHeader>
 		</Empty>
 	);
