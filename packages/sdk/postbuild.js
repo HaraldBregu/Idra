@@ -11,7 +11,7 @@ while (pending.length > 0) {
 	for (const entry of readdirSync(dir, { withFileTypes: true })) {
 		const path = join(dir, entry.name);
 		if (entry.isDirectory()) pending.push(path);
-		else if (path.endsWith('.d.ts')) declarations.push(path);
+		else if (path.endsWith('.d.ts') || path.endsWith('.js')) declarations.push(path);
 	}
 }
 
