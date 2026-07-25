@@ -57,7 +57,10 @@ const request: ImageRequest = { prompt: 'a red bicycle' };
 const result = await image.createImage(request);
 ```
 
-Anything the app exposes is available, keeping the same shape as the app's own preload API:
+## What's available
+
+Both shapes expose the same namespaces, with the same method names and types as the app's
+own preload API (`win` is embedded-only — it drives the window hosting your code):
 
 | Export       | What it covers                                                                    |
 | ------------ | --------------------------------------------------------------------------------- |
