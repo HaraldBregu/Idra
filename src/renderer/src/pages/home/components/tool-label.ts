@@ -40,6 +40,9 @@ export function toolPartLabel(tool: AgentToolPart): string {
 	const input = isRecord(tool.input) ? tool.input : {};
 	const type = tool.type.toLowerCase();
 
+	const task = TASK_TOOL_LABELS[type];
+	if (task) return isToolRunning(tool) ? task.running : task.done;
+
 	if (type === 'read') {
 		const path = stringArg(input, 'path', 'file_path', 'filepath');
 		if (path) return `Read ${basename(path)}`;
