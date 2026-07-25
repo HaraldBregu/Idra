@@ -54,6 +54,7 @@ export const LLM_MODELS_BY_PROVIDER = {
 		model('gemini-3.1-flash-lite', 'Gemini 3.1 Flash Lite'),
 	],
 	kimi: [
+		model('kimi-k3', 'Kimi K3'),
 		model('kimi-k2.6', 'Kimi K2.6'),
 		model('kimi-k2.5', 'Kimi K2.5'),
 		model('kimi-k2-thinking', 'Kimi K2 Thinking'),
