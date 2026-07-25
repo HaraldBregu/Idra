@@ -50,6 +50,7 @@ export interface SessionTurn {
 
 export interface SessionState {
 	id: string;
+	category: SessionCategory;
 	messages: Message[];
 	toolCalls: ToolCall[];
 	usage: SessionUsage;
