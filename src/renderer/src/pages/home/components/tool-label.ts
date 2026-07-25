@@ -110,6 +110,7 @@ export function toolGroupLabel(type: string, tools: readonly AgentToolPart[]): s
 	if (type.toLowerCase() === 'project') {
 		return running.length > 0 ? 'Tooling project' : 'Project tools';
 	}
+	if (type.toLowerCase() === 'task') return 'Tasks';
 
 	const verbs = groupVerbs(type);
 	if (running.length > 0) {
