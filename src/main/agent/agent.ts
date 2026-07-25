@@ -71,6 +71,15 @@ export class Agent {
 	}): void {
 		if (this.isStarted) return;
 		this.isStarted = true;
+		setCronRunner((schedule) => {
+			if (schedule.action.type !== 'agent') return Promise.resolve('');
+			const runtime = getRuntime();
+			return this.send(schedule.action.prompt, 'cron', {
+				category: 'task',
+				interactive: false,
+				...(runtime ? { providerId: runtime.providerId, modelId: runtime.modelId } : {}),
+			});
+		});
 		void startCron().catch((error) => {
 			logger.error('Cron', 'Failed to start persistent cron scheduler', error);
 		});
@@ -79,6 +88,7 @@ export class Agent {
 
 	destroy(): void {
 		stopHealth();
+		setCronRunner(undefined);
 		destroyCron();
 	}
 
