@@ -10,69 +10,57 @@ const app = await _electron.launch({
 
 await app.firstWindow();
 
-const result = await app.evaluate(async ({ BrowserWindow, Menu }) => {
-	const report = { menuLabels: [], widgetItems: [], opened: null, error: null };
+const result = await app.evaluate(async ({ app: electronApp, Menu }) => {
+	const log = [];
+	let target;
 
-	const menu = Menu.getApplicationMenu();
-	if (!menu) return { ...report, error: 'No application menu set.' };
-	report.menuLabels = menu.items.map((item) => item.label);
-
-	// The Widgets top-level menu holds one item per installed widget.
-	const widgetItems = menu.items.find((item) => /widget/i.test(item.label ?? ''))?.submenu?.items;
-	if (!widgetItems) {
-		const labels = menu.items.flatMap((item) =>
-			(item.submenu?.items ?? []).map((sub) => `${item.label} > ${sub.label}`)
+	// Attach before clicking so nothing is missed.
+	electronApp.on('browser-window-created', (_event, win) => {
+		target = win;
+		log.push('browser-window-created');
+		win.once('ready-to-show', () => log.push('ready-to-show'));
+		win.webContents.on('did-finish-load', () => log.push('did-finish-load'));
+		win.webContents.on('did-fail-load', (_e, code, description) =>
+			log.push(`did-fail-load ${code} ${description}`)
 		);
-		return { ...report, error: 'No widgets submenu found.', menuLabels: labels };
-	}
-
-	report.widgetItems = widgetItems.map((item) => item.label);
-
-	const before = new Set(BrowserWindow.getAllWindows().map((win) => win.id));
-	try {
-		widgetItems[0].click();
-	} catch (cause) {
-		report.error = `click threw: ${cause.message}`;
-		return report;
-	}
-
-	const win = await new Promise((resolve) => {
-		const started = Date.now();
-		const tick = setInterval(() => {
-			const fresh = BrowserWindow.getAllWindows().find((candidate) => !before.has(candidate.id));
-			if (fresh) {
-				clearInterval(tick);
-				resolve(fresh);
-			} else if (Date.now() - started > 8000) {
-				clearInterval(tick);
-				resolve(null);
+		win.webContents.on('preload-error', (_e, path, error) =>
+			log.push(`preload-error ${path} :: ${error.message}`)
+		);
+		win.webContents.on('render-process-gone', (_e, details) =>
+			log.push(`render-process-gone ${JSON.stringify(details)}`)
+		);
+		win.webContents.on('console-message', (event) => {
+			if (event.level === 'error' || event.level === 3) {
+				log.push(`console: ${event.message ?? ''}`.slice(0, 300));
 			}
-		}, 100);
-	});
-
-	if (!win) {
-		report.error = 'Clicking the widget item opened no window.';
-		return report;
-	}
-
-	report.opened = await new Promise((resolve) => {
-		const done = (value) => resolve(value);
-		win.webContents.on('render-process-gone', (_e, details) => done({ crashed: details }));
-		win.webContents.on('did-fail-load', (_e, code, description, url) =>
-			done({ failed: { code, description, url } })
-		);
-		win.webContents.on('did-finish-load', async () => {
-			done({
-				url: win.webContents.getURL(),
-				title: await win.webContents.executeJavaScript('document.title'),
-				bodyLength: await win.webContents.executeJavaScript('document.body.innerHTML.length'),
-				consoleErrors: 'see stderr',
-			});
 		});
-		setTimeout(() => done({ timeout: true, url: win.webContents.getURL() }), 10000);
 	});
 
-	return report;
+	const items = Menu.getApplicationMenu()?.items.find((item) => /widget/i.test(item.label ?? ''))
+		?.submenu?.items;
+	items[0].click();
+
+	await new Promise((resolve) => setTimeout(resolve, 6000));
+	if (!target) return { log, error: 'no window created' };
+
+	const probe = await target.webContents
+		.executeJavaScript(
+			`JSON.stringify({
+				title: document.title,
+				bodyLength: document.body.innerHTML.length,
+				rootLength: document.getElementById('root')?.innerHTML.length ?? -1,
+				scripts: [...document.scripts].map((s) => s.src),
+			})`
+		)
+		.catch((cause) => `executeJavaScript failed: ${cause.message}`);
+
+	return {
+		log,
+		visible: target.isVisible(),
+		url: target.webContents.getURL(),
+		loading: target.webContents.isLoading(),
+		probe,
+	};
 });
 
 console.log('RESULT', JSON.stringify(result, null, 2));
