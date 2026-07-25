@@ -116,3 +116,5 @@ export interface CronFunctionResult {
 export interface CronEvents {
 	subscribe(listener: (event: CronScheduleEvent) => void): () => void;
 }
+
+export type CronRunner = (schedule: CronSchedule) => Promise<unknown>;
