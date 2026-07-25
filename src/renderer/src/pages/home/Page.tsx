@@ -50,9 +50,9 @@ const promptSuggestions = [
 			'Help me set up a recurring task that runs in the background. Ask what you should do and how often, then create the schedule.',
 	},
 	{
-		label: 'Run a health check',
+		label: 'Create a sound',
 		prompt:
-			'Set up a periodic health check. Ask what you should watch and how often to report, then configure it.',
+			'Create a sound for me. Ask what it should sound like and how long it should be, then generate it.',
 	},
 	{
 		label: 'Create an image',
