@@ -17,15 +17,8 @@ const result = await app.evaluate(async ({ BrowserWindow, Menu }) => {
 	if (!menu) return { ...report, error: 'No application menu set.' };
 	report.menuLabels = menu.items.map((item) => item.label);
 
-	// Find whichever submenu holds the widget entries.
-	let widgetItems = null;
-	for (const item of menu.items) {
-		for (const sub of item.submenu?.items ?? []) {
-			if (sub.submenu && sub.submenu.items.length && /widget/i.test(sub.label ?? '')) {
-				widgetItems = sub.submenu.items;
-			}
-		}
-	}
+	// The Widgets top-level menu holds one item per installed widget.
+	const widgetItems = menu.items.find((item) => /widget/i.test(item.label ?? ''))?.submenu?.items;
 	if (!widgetItems) {
 		const labels = menu.items.flatMap((item) =>
 			(item.submenu?.items ?? []).map((sub) => `${item.label} > ${sub.label}`)
