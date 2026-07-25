@@ -148,7 +148,7 @@ function showImageContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 }
 
 function validatedAudioPath(requestedPath: string): string {
-	const roots = [agentLocation(), path.resolve(userDataLocation(), 'sound')];
+	const roots = [agentLocation(), libraryLocation(), path.resolve(userDataLocation(), 'sound')];
 	for (const root of roots) {
 		try {
 			const realRoot = realpathSync(path.resolve(root));
