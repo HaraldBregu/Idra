@@ -15,14 +15,15 @@ export function init(
 	input: SessionInput,
 	category: SessionCategory = DEFAULT_CATEGORY
 ): void {
-	state.id = resolveSessionId(input.sessionId, category, config.location);
+	state.id = resolveSessionId(input.sessionId, config.location);
+	state.category = category;
 	state.folderName = sessionFolderName(state.id);
-	state.sessionsPath = sessionsRoot(config.location, category);
+	state.sessionsPath = sessionsRoot(config.location);
 	state.context.project = loadProject(state);
-	const storedMessages = loadMessagesBySessionId(state.id, category, config.location);
+	const storedMessages = loadMessagesBySessionId(state.id, config.location);
 	const legacyMessages =
 		input.sessionId && input.sessionId !== state.id && storedMessages.length === 0
-			? loadMessagesBySessionId(input.sessionId, category, config.location)
+			? loadMessagesBySessionId(input.sessionId, config.location)
 			: [];
 	state.messages = [
 		...(storedMessages.length > 0 ? storedMessages : legacyMessages),
