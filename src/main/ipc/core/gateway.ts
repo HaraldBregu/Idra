@@ -31,7 +31,7 @@ export function registerQuery<TArgs extends unknown[], TResult>(
 	handler: (...args: TArgs) => Promise<TResult> | TResult
 ): void;
 export function registerQuery(channel: string, handler: (...args: unknown[]) => unknown): void {
-	ipcMain.handle(channel, wrapSimpleHandler(handler, channel));
+	expose(channel, wrapSimpleHandler(handler, channel));
 }
 
 // ---- registerCommand ------------------------------------------------------
