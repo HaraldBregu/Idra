@@ -1,0 +1,9 @@
+{
+	"title": "Projects",
+	"description": "Browse and manage Friday projects through the SDK.",
+	"metadata": {
+		"version": "1.0.0",
+		"category": "productivity",
+		"entry": "dist/index.html"
+	}
+}
