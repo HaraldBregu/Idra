@@ -98,9 +98,9 @@ Friday starts it on `127.0.0.1:8765` at launch. Every request needs
 `Authorization: Bearer <token>`; requests without it get a `401`, and only channels that
 don't depend on a calling window are reachable.
 
-| Setting            | Effect                                        |
-| ------------------ | --------------------------------------------- |
-| `FRIDAY_API_PORT`  | Change the port. `0` keeps the port closed.   |
+| Setting                | Effect                                                  |
+| ---------------------- | ------------------------------------------------------- |
+| `FRIDAY_API_PORT`      | Change the port. `0` keeps the port closed.             |
 | `<userData>/sdk-token` | The bearer token, created on first launch (mode `600`). |
 
 Routes: `GET /health`, `POST /invoke` (`{ channel, args }`), `GET /events` (SSE).

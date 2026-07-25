@@ -83,7 +83,9 @@ const ALIASES: Record<string, string> = {
 type Listener = (channel: string, data: unknown) => void;
 
 function uuid(): string {
-	return globalThis.crypto?.randomUUID?.() ?? `run-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+	return (
+		globalThis.crypto?.randomUUID?.() ?? `run-${Date.now()}-${Math.random().toString(36).slice(2)}`
+	);
 }
 
 export function connect(options: ConnectOptions): FridayClient {
@@ -117,7 +119,8 @@ export function connect(options: ConnectOptions): FridayClient {
 		if (opened) return opened;
 		controller = new AbortController();
 		opened = call(`${base}/events`, { headers, signal: controller.signal }).then((response) => {
-			if (!response.ok || !response.body) throw new Error(`Event stream failed: ${response.status}`);
+			if (!response.ok || !response.body)
+				throw new Error(`Event stream failed: ${response.status}`);
 			void read(response.body).catch(() => undefined);
 		});
 		return opened;
@@ -166,10 +169,7 @@ export function connect(options: ConnectOptions): FridayClient {
 						})
 					: undefined;
 				try {
-					return (await invoke(AgentChannels.send, [
-						message,
-						{ ...sendOptions, runId },
-					])) as string;
+					return (await invoke(AgentChannels.send, [message, { ...sendOptions, runId }])) as string;
 				} finally {
 					off?.();
 				}
