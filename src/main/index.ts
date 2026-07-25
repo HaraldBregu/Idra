@@ -21,6 +21,7 @@ import {
 	setupMediaPermissionHandlers,
 } from './app/protocol';
 import { registerIpcHandlers } from './ipc/core/register_ipc_handlers';
+import { startApiServer } from './api';
 import {
 	setupEventLogging,
 	setupProcessSafetyNet,
