@@ -1,8 +1,8 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
-// ponytail: tsc keeps the app's extensionless relative imports; Node16/NodeNext
-// consumers reject those, so rewrite them in the emitted emitted.
+// ponytail: tsc keeps the app's extensionless relative imports; Node ESM and
+// Node16/NodeNext type resolution reject those, so rewrite them after emit.
 const pending = ['dist'];
 const emitted = [];
 
