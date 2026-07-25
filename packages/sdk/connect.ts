@@ -1,0 +1,215 @@
+import { decode, encode } from '../../src/shared/api_codec';
+import {
+	AgentChannels,
+	AppChannels,
+	ChannelsChannels,
+	CronChannels,
+	ImageChannels,
+	LibraryChannels,
+	McpChannels,
+	ProviderChannels,
+	SearchChannels,
+	SkillsChannels,
+	SoundChannels,
+	SpeechChannels,
+	SttChannels,
+	StorageChannels,
+	TextChannels,
+	VideoChannels,
+	WidgetChannels,
+} from '../../src/shared/ipc_channels_definitions';
+import type {
+	AgentApi,
+	AppApi,
+	ChannelsApi,
+	CronApi,
+	ImageApi,
+	LibraryApi,
+	McpApi,
+	ProviderApi,
+	SearchApi,
+	SkillsApi,
+	SoundApi,
+	StorageApi,
+	TextApi,
+	TranscribeApi,
+	VideoApi,
+	VoiceApi,
+	WidgetsApi,
+} from '../../src/shared/api_types';
+import type { AgentResponseEvent } from '../../src/shared/agent_types';
+import type { ChannelStatusEvent } from '../../src/shared/channels_types';
+
+export interface ConnectOptions {
+	/** Base URL of the Friday API. Defaults to `http://127.0.0.1:8765`. */
+	url?: string;
+	/** Contents of `<userData>/sdk-token` in the Friday app data folder. */
+	token: string;
+	/** Override the fetch implementation (defaults to the global one). */
+	fetch?: typeof globalThis.fetch;
+}
+
+export interface FridayClient {
+	agent: AgentApi;
+	app: AppApi;
+	channels: ChannelsApi;
+	cron: CronApi;
+	image: ImageApi;
+	library: LibraryApi;
+	mcp: McpApi;
+	provider: ProviderApi;
+	search: SearchApi;
+	skills: SkillsApi;
+	sound: SoundApi;
+	storage: StorageApi;
+	text: TextApi;
+	transcribe: TranscribeApi;
+	video: VideoApi;
+	voice: VoiceApi;
+	widgets: WidgetsApi;
+	/** Verify the app is reachable and the token is accepted. */
+	ping: () => Promise<{ name: string; version: string }>;
+	/** Close the event stream, if one was opened. */
+	close: () => void;
+}
+
+// Method names that do not match their channel key in the definitions above.
+const ALIASES: Record<string, string> = {
+	getLastMessages: 'lastMessages',
+	healthGetSettings: 'healthSettings',
+	healthGetData: 'healthData',
+};
+
+type Listener = (channel: string, data: unknown) => void;
+
+function uuid(): string {
+	return globalThis.crypto?.randomUUID?.() ?? `run-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+export function connect(options: ConnectOptions): FridayClient {
+	const base = (options.url ?? 'http://127.0.0.1:8765').replace(/\/$/, '');
+	const call = options.fetch ?? globalThis.fetch;
+	const headers = { authorization: `Bearer ${options.token}`, 'content-type': 'application/json' };
+
+	const listeners = new Set<Listener>();
+	let controller: AbortController | undefined;
+	let opened: Promise<void> | undefined;
+
+	const read = async (stream: ReadableStream<Uint8Array>): Promise<void> => {
+		const reader = stream.getReader();
+		const decoder = new TextDecoder();
+		let buffer = '';
+		for (;;) {
+			const { done, value } = await reader.read();
+			if (done) return;
+			buffer += decoder.decode(value, { stream: true });
+			const frames = buffer.split('\n\n');
+			buffer = frames.pop() ?? '';
+			for (const frame of frames) {
+				if (!frame.startsWith('data: ')) continue;
+				const event = decode(JSON.parse(frame.slice(6))) as { channel: string; data: unknown };
+				for (const listener of listeners) listener(event.channel, event.data);
+			}
+		}
+	};
+
+	const open = (): Promise<void> => {
+		if (opened) return opened;
+		controller = new AbortController();
+		opened = call(`${base}/events`, { headers, signal: controller.signal }).then((response) => {
+			if (!response.ok || !response.body) throw new Error(`Event stream failed: ${response.status}`);
+			void read(response.body).catch(() => undefined);
+		});
+		return opened;
+	};
+
+	const listen = async (listener: Listener): Promise<() => void> => {
+		await open();
+		listeners.add(listener);
+		return (): void => {
+			listeners.delete(listener);
+		};
+	};
+
+	const invoke = async (channel: string, args: unknown[]): Promise<unknown> => {
+		const response = await call(`${base}/invoke`, {
+			method: 'POST',
+			headers,
+			body: JSON.stringify(encode({ channel, args })),
+		});
+		const result = decode(await response.json()) as
+			| { success: true; data: unknown }
+			| { success: false; error: { message: string } };
+		if (!result.success) throw new Error(result.error.message);
+		return result.data;
+	};
+
+	const namespace = <T>(channels: Record<string, string>, extras: Partial<T> = {}): T =>
+		new Proxy(extras as object, {
+			get(target, key) {
+				if (typeof key !== 'string') return undefined;
+				if (key in target) return (target as Record<string, unknown>)[key];
+				const channel = channels[ALIASES[key] ?? key];
+				if (!channel) throw new Error(`@friday/sdk: "${key}" is not available over the API.`);
+				return (...args: unknown[]): Promise<unknown> => invoke(channel, args);
+			},
+		}) as T;
+
+	return {
+		agent: namespace<AgentApi>(AgentChannels, {
+			send: async (message, sendOptions, onEvent) => {
+				const runId = (sendOptions?.runId as string) || uuid();
+				const off = onEvent
+					? await listen((channel, data) => {
+							const event = data as AgentResponseEvent;
+							if (channel === AgentChannels.response && event.runId === runId) onEvent(event);
+						})
+					: undefined;
+				try {
+					return (await invoke(AgentChannels.send, [
+						message,
+						{ ...sendOptions, runId },
+					])) as string;
+				} finally {
+					off?.();
+				}
+			},
+		}),
+		app: namespace<AppApi>(AppChannels),
+		channels: namespace<ChannelsApi>(ChannelsChannels, {
+			onStatusChanged: (callback: (event: ChannelStatusEvent) => void) => {
+				const pending = listen((channel, data) => {
+					if (channel === ChannelsChannels.statusChanged) callback(data as ChannelStatusEvent);
+				});
+				return (): void => {
+					void pending.then((off) => off());
+				};
+			},
+		}),
+		cron: namespace<CronApi>(CronChannels),
+		image: namespace<ImageApi>(ImageChannels),
+		library: namespace<LibraryApi>(LibraryChannels),
+		mcp: namespace<McpApi>(McpChannels),
+		provider: namespace<ProviderApi>(ProviderChannels),
+		search: namespace<SearchApi>(SearchChannels),
+		skills: namespace<SkillsApi>(SkillsChannels),
+		sound: namespace<SoundApi>(SoundChannels),
+		storage: namespace<StorageApi>(StorageChannels),
+		text: namespace<TextApi>(TextChannels),
+		transcribe: namespace<TranscribeApi>(SttChannels),
+		video: namespace<VideoApi>(VideoChannels),
+		voice: namespace<VoiceApi>(SpeechChannels),
+		widgets: namespace<WidgetsApi>(WidgetChannels),
+		ping: async () => {
+			const response = await call(`${base}/health`, { headers });
+			if (!response.ok) throw new Error(`Friday API unreachable: ${response.status}`);
+			return (await response.json()) as { name: string; version: string };
+		},
+		close: () => {
+			listeners.clear();
+			controller?.abort();
+			controller = undefined;
+			opened = undefined;
+		},
+	};
+}
