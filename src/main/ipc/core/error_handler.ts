@@ -70,5 +70,8 @@ export function wrapSimpleHandler<TArgs extends unknown[], TResult>(
 	handler: (...args: TArgs) => Promise<TResult> | TResult,
 	handlerName: string
 ): (event: IpcMainInvokeEvent, ...args: TArgs) => Promise<IpcResult<TResult>> {
-	return wrapIpcHandler((_event, ...args) => handler(...args), handlerName);
+	const wrapped = wrapIpcHandler((_event, ...args) => handler(...args), handlerName);
+	// Handlers that ignore the invoke event can also serve callers outside a window.
+	ipcHandlers.set(handlerName, (...args) => wrapped(undefined as never, ...(args as TArgs)));
+	return wrapped;
 }
