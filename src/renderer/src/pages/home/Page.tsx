@@ -46,18 +46,15 @@ type PromptAttachment = {
 const promptSuggestions = [
 	{
 		label: 'Schedule a task',
-		prompt:
-			'Help me set up a recurring task that runs in the background. Ask what you should do and how often, then create the schedule.',
+		prompt: 'Every morning at 9, summarize my day and send me the highlights.',
 	},
 	{
 		label: 'Create a sound',
-		prompt:
-			'Create a sound for me. Ask what it should sound like and how long it should be, then generate it.',
+		prompt: 'Create a 10 second sound of rain falling on a window.',
 	},
 	{
 		label: 'Create an image',
-		prompt:
-			'Create an image for me. Ask what I want to see and the style I prefer, then generate it.',
+		prompt: 'Create an image of a cozy workspace at sunset.',
 	},
 ] as const;
 
