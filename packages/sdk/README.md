@@ -2,10 +2,12 @@
 
 Typed client for the Friday desktop app API.
 
-Friday exposes its IPC API to the renderer as globals (`window.agent`, `window.image`, …)
-through the Electron preload. This package is a typed, lazily-bound view over those
-globals, so an app embedded in Friday — a widget window, or any renderer bundle — can
-import the API instead of reaching into `window` untyped.
+The same API in two shapes:
+
+- **`connect()`** — for other apps. Friday serves its API over loopback HTTP, so any
+  Node, browser, or Electron app can drive it.
+- **named exports** — for code embedded in Friday (a widget window, or any renderer
+  bundle), bound to the preload globals (`window.agent`, `window.image`, …).
 
 The types are generated from the app's own contract (`src/shared/api_types.ts`), so the
 package never drifts from the running app.
@@ -16,7 +18,33 @@ package never drifts from the running app.
 npm install @friday/sdk
 ```
 
-## Usage
+## Usage from another app
+
+Friday listens on `http://127.0.0.1:8765` and writes a bearer token to
+`<userData>/sdk-token` (on macOS, `~/Library/Application Support/Friday/sdk-token`).
+Read that token, and you have the whole API:
+
+```ts
+import { readFileSync } from 'node:fs';
+import { connect } from '@friday/sdk';
+
+const friday = connect({
+	token: readFileSync('/Users/me/Library/Application Support/Friday/sdk-token', 'utf8').trim(),
+});
+
+await friday.ping(); // { name: 'friday', version: '1.0.0' }
+
+const reply = await friday.agent.send('Summarize my day', {}, (event) => console.log(event));
+const image = await friday.image.createImage({ prompt: 'a red bicycle' });
+
+const off = friday.channels.onStatusChanged((event) => console.log(event.status));
+```
+
+Streaming callbacks (`agent.send`'s `onEvent`, `channels.onStatusChanged`) ride a
+server-sent event stream that opens on first use; call `friday.close()` to drop it.
+Pass `url` to reach a non-default port, and `fetch` to supply your own implementation.
+
+## Usage inside Friday
 
 ```ts
 import { agent, image, isFriday, type ImageRequest } from '@friday/sdk';
