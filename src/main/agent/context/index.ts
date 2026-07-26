@@ -1,3 +1,4 @@
+export { adoptSubagent } from './context_adopt_subagent';
 export { agentView, type AgentCommandView } from './context_agent_view';
 export { beginCommand } from './context_begin';
 export { contextAllowsTool } from './context_allows_tool';
