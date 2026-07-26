@@ -1,6 +1,6 @@
-import type { AgentContext } from './context_types';
+import type { ToolsContext } from './context_types';
 
-export function hasCreatedFile(context: AgentContext | undefined, filePath: string): boolean {
+export function hasCreatedFile(context: ToolsContext | undefined, filePath: string): boolean {
 	return (
 		context?.tools?.some((state) => state.toolName === 'write' && state.path === filePath) ?? false
 	);
