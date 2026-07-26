@@ -204,7 +204,7 @@ async function* loop(
 				turn.toolCalls,
 				interactive,
 				signal,
-				session.context
+				session.context.toolsContext
 			)) {
 				yield event;
 				if (event.type !== 'tool_call_end') continue;
