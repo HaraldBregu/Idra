@@ -130,7 +130,7 @@ async function* loop(
 	if (!options.tools) {
 		const mcp = await loadMcpTools();
 		tools.push(...mcp.tools);
-		tools.push(subagentTool(config, [...tools]));
+		tools.push(subagentTool(config, [...tools], session.context));
 		closeMcp = mcp.close;
 	}
 
