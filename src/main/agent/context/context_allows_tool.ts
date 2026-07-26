@@ -1,10 +1,10 @@
 import { fileToolState } from './context_file_tool_state';
 import { hasCreatedFile } from './context_has_created_file';
 import { hasToolPermission } from './context_has_tool_permission';
-import type { AgentContext } from './context_types';
+import type { ToolsContext } from './context_types';
 
 export function contextAllowsTool(
-	context: AgentContext | undefined,
+	context: ToolsContext | undefined,
 	toolName: string,
 	args: Record<string, unknown>,
 	baseDir: string
