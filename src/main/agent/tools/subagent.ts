@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { tool } from './tool';
 import { createSessionState } from '../session';
 import { addSkillPrompt } from '../system';
+import { adoptSubagent, type AgentContext } from '../context';
 import { stream } from '../run/run_stream';
 import type { Config, RuntimeInput, Tool } from '../types';
 
@@ -14,23 +15,30 @@ Rules:
 
 When you finish, your final response is reported back to the main agent. Include what you accomplished or found and any details the main agent needs. Keep it concise but informative.`;
 
-export function subagentTool(config: Config, tools: Tool[]): Tool {
+export function subagentTool(config: Config, tools: Tool[], parent: AgentContext): Tool {
 	return tool({
 		name: 'subagent',
 		description:
 			'Spawn a subagent to complete a task in its own isolated context and return a summary. It has the same tools as you, except spawning subagents. Use it for work that takes many steps, produces large intermediate output, or is independent of the conversation. Give it a clear objective and the expected output.',
 		inputSchema: z.object({
 			task: z.string().describe('The task for the subagent to complete'),
+			systemPrompt: z
+				.string()
+				.optional()
+				.describe(
+					'Custom system prompt for the subagent. Omit to run it with the default subagent instructions.'
+				),
 		}),
-		execute: async ({ task }) => {
+		execute: async ({ task, systemPrompt }) => {
 			const input: RuntimeInput = { task: 'subagent', message: task };
 			// Fresh context: the subagent never sees the main agent's conversation.
 			const session = createSessionState();
 			session.messages = [{ role: 'user', content: task }];
+			session.context.basePrompt = addSkillPrompt(systemPrompt ?? instructions);
+			adoptSubagent(parent, session.context);
 
 			let text = '';
 			const events = stream(config, session, input, new AbortController().signal, {
-				systemPrompt: addSkillPrompt(instructions),
 				tools,
 				interactive: false,
 			});
