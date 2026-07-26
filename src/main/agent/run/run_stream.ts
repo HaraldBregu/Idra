@@ -51,7 +51,6 @@ import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 
 export interface StreamOptions {
-	systemPrompt?: string;
 	tools?: Tool[];
 	interactive?: boolean;
 }
