@@ -22,4 +22,4 @@ export type {
 	CommandStatus,
 	ExecutionRecord,
 } from './context_state_types';
-export type { AgentContext, LoadedSkill, ToolContextState } from './context_types';
+export type { AgentContext, LoadedSkill, ToolContextState, ToolsContext } from './context_types';
