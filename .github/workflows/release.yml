@@ -67,5 +67,5 @@ jobs:
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.version.outputs.v }}
-          name: friday ${{ steps.version.outputs.date }}-beta.1
+          name: Friday ${{ steps.version.outputs.date }}-beta.1
           files: dist/*
