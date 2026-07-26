@@ -1,5 +1,5 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
-import type { AgentContext } from '../context';
+import type { ToolsContext } from '../context';
 import { runToolCall } from './run_tool_call';
 
 export async function* runToolCalls(
