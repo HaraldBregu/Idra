@@ -11,7 +11,7 @@ import type { PermissionMode } from './policy_types';
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
-	context?: AgentContext,
+	context?: ToolsContext,
 	reuseContext = true,
 	fallback: PermissionMode = 'ask'
 ): PermissionMode {
