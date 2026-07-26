@@ -16,7 +16,7 @@ export async function* runToolCall(
 	toolCall: ToolCall,
 	interactive = true,
 	signal?: AbortSignal,
-	context?: AgentContext
+	context?: ToolsContext
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 	const state = fileToolState(toolCall.name, toolCall.args, agentLocation());
