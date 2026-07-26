@@ -233,7 +233,7 @@ async function* loop(
 			}
 			addToolResults(session, turn.toolCalls);
 
-			if (session.context.cancelled) {
+			if (session.context.toolsContext.cancelled) {
 				session.stopReason = 'cancelled';
 				const result = toResult(session, 'success');
 				yield { type: 'run_finished', result };
