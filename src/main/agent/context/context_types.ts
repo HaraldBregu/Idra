@@ -10,11 +10,17 @@ export interface ToolContextState {
 	folderPath: string;
 }
 
+export interface ToolsContext {
+	tools?: ToolContextState[];
+	cancelled?: boolean;
+}
+
 export interface AgentContext {
 	skill?: string;
 	loadedSkills?: LoadedSkill[];
-	tools?: ToolContextState[];
 	project?: string;
-	cancelled?: boolean;
+	basePrompt?: string;
 	systemPrompt?: string;
+	toolsContext: ToolsContext;
+	subagents?: AgentContext[];
 }
