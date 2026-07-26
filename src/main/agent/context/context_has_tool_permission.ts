@@ -1,7 +1,7 @@
-import type { AgentContext } from './context_types';
+import type { ToolsContext } from './context_types';
 
 export function hasToolPermission(
-	context: AgentContext | undefined,
+	context: ToolsContext | undefined,
 	toolName: string,
 	folderPath: string
 ): boolean {
