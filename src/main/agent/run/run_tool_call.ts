@@ -1,5 +1,5 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
-import { fileToolState, isFileCreation, rememberTool, type AgentContext } from '../context';
+import { fileToolState, isFileCreation, rememberTool, type ToolsContext } from '../context';
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
