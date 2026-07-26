@@ -1,4 +1,4 @@
-import { contextAllowsTool, type AgentContext } from '../context';
+import { contextAllowsTool, type ToolsContext } from '../context';
 import { directoryPolicyAllows } from './policy_directories';
 import { directoryPermissionTargets } from './policy_directory_targets';
 import { isToolPermission } from './policy_is_tool_permission';
