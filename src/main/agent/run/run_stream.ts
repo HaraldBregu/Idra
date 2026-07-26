@@ -136,8 +136,8 @@ async function* loop(
 
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
-	session.context.tools = undefined;
-	session.context.cancelled = undefined;
+	session.context.subagents = undefined;
+	session.context.toolsContext = {};
 
 	yield {
 		type: 'run_started',
