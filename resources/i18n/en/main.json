@@ -943,7 +943,7 @@
 			},
 			"pathsTitle": "Folders to sync",
 			"folders": {
-				"library": "Library",
+				"agent": "Agent",
 				"notes": "Notes"
 			},
 			"push": "Push to bucket",
