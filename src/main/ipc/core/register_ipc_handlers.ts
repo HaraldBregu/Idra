@@ -34,7 +34,6 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('channels', () => new ChannelsIpc().register({ logger, channelRegistry }, eventBus));
 	safeRegister('cron', () => new CronIpc().register(undefined, eventBus));
 	safeRegister('image', () => new ImageIpc().register(undefined, eventBus));
-	safeRegister('library', () => new LibraryIpc().register(undefined, eventBus));
 	safeRegister('mcp', () => new McpIpc().register(undefined, eventBus));
 	safeRegister('skills', () => new SkillsIpc().register(undefined, eventBus));
 	safeRegister('sound', () => new SoundIpc().register(undefined, eventBus));
