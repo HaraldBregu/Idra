@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { AlertTriangle, LayoutGrid } from 'lucide-react';
+import { AlertTriangle, ExternalLink, LayoutGrid } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { Widget } from '../../../../../../../shared/widget_types';
 import {
