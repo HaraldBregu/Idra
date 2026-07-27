@@ -213,13 +213,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		descriptionKey: 'settings.mcp.emptyDescription',
 		keywords: 'new mcp server command url transport connect',
 	},
-	// Library
-	{
-		path: '/settings/library',
-		labelKey: 'settings.library.itemsTitle',
-		descriptionKey: 'settings.library.description',
-		keywords: 'media files browse agent library images audio video documents',
-	},
 	// Widgets
 	{
 		path: '/settings/widgets',
