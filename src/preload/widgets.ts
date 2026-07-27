@@ -6,4 +6,7 @@ export const widgets: WidgetsApi = {
 	list: () => {
 		return typedInvokeUnwrap(WidgetChannels.list);
 	},
+	open: (widgetId) => {
+		return typedInvokeUnwrap(WidgetChannels.open, widgetId);
+	},
 };
