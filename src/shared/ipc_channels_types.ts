@@ -155,13 +155,6 @@ export interface McpInvokeChannelMap {
 	[McpChannels.oauthFinish]: { args: [id: string, code: string]; result: void };
 }
 
-export interface LibraryInvokeChannelMap {
-	[LibraryChannels.list]: {
-		args: [];
-		result: import('./library_types').LibraryFile[];
-	};
-}
-
 export interface AgentEventChannelMap {
 	[AgentChannels.response]: { data: import('./agent_types').AgentResponseEvent };
 }
