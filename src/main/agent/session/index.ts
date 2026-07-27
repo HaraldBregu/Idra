@@ -7,7 +7,6 @@ export { init } from './session_init';
 export { isExhausted } from './session_is_exhausted';
 export { listSessions } from './session_list_sessions';
 export { loadMessages } from './session_load_messages';
-export { loadProject } from './session_load_project';
 export { modelMessages } from './session_model_messages';
 export { createSessionState } from './session_module_state';
 export { persistSystemPrompt } from './session_persist_system';
