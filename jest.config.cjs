@@ -22,7 +22,8 @@ module.exports = {
 				// so that `import.meta.env.*` references (Vite-only syntax) are
 				// rewritten to safe globalThis.__VITE_ENV__.* accesses before ts-jest
 				// compiles them. Without this, ts-jest in CJS mode throws a SyntaxError.
-				'^.+[\\\\/]src[\\\\/]main[\\\\/].+\\.tsx?$': '<rootDir>/tests/transforms/vite-env-transform.cjs',
+				'^.+[\\\\/]src[\\\\/]main[\\\\/].+\\.tsx?$':
+					'<rootDir>/tests/transforms/vite-env-transform.cjs',
 				// All other TypeScript files (tests themselves, shared utilities) use
 				// vanilla ts-jest.
 				'^.+\\.tsx?$': [
@@ -61,7 +62,8 @@ module.exports = {
 			transform: {
 				// Apply the vite-env-transform to renderer source files that may contain
 				// `import.meta.env.*` references (Vite-only syntax unsupported by ts-jest CJS).
-				'^.+[\\\\/]src[\\\\/]renderer[\\\\/].+\\.tsx?$': '<rootDir>/tests/transforms/vite-env-transform.cjs',
+				'^.+[\\\\/]src[\\\\/]renderer[\\\\/].+\\.tsx?$':
+					'<rootDir>/tests/transforms/vite-env-transform.cjs',
 				// All other TypeScript files (tests, shared utilities) use vanilla ts-jest.
 				'^.+\\.tsx?$': [
 					'ts-jest',

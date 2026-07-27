@@ -1,6 +1,7 @@
 import type { Message, ToolCall } from '../types';
 
-export const EXPIRED_SKILL_CONTEXT = 'Skill instructions omitted because they applied only to the run that loaded them.';
+export const EXPIRED_SKILL_CONTEXT =
+	'Skill instructions omitted because they applied only to the run that loaded them.';
 
 export function sanitizeMessages(messages: Message[]): Message[] {
 	const sanitized: Message[] = [];

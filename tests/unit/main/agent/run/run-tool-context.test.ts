@@ -92,7 +92,7 @@ describe('tool context permissions', () => {
 			call,
 			false,
 			undefined,
-				createContext().toolsContext
+			createContext().toolsContext
 		))
 			events.push(event);
 

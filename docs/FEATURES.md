@@ -7,10 +7,10 @@ This document describes the feature set present in the current source tree, grou
 ## Feature status
 
 | Status       | Meaning                                                                                                                                 |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Available    | The current renderer and main process are connected to an implementation. Provider credentials or OS permissions may still be required. |
 | Partial      | A useful portion is implemented, but an important control or execution path is missing.                                                 |
-| Placeholder  | A visible control or surface exists, but its intended workflow is not connected.                                                         |
+| Placeholder  | A visible control or surface exists, but its intended workflow is not connected.                                                        |
 | Catalog only | The provider or model is selectable or described, but no working execution adapter is present.                                          |
 
 ## Contents
@@ -137,22 +137,22 @@ The Home prompt classifier computes `none`, `medium`, or `high` reasoning effort
 ### Built-in tools
 
 | Area       | Tools and behavior                                                                                                                                                                                                  |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Files      | Read a complete UTF-8 file, create or overwrite a text file, replace one exact unique match, and apply structured multi-file patches.                                                                              |
-| Commands   | Run a shell command with working directory, environment, timeout, yield/background behavior, and optional PTY. Host elevation, gateway execution, and remote-node execution are not implemented in this runtime.  |
-| Processes  | List, poll, page through logs, write text, submit text, paste, send special keys, kill, clear, or remove retained long-running process sessions.                                                                   |
-| Web search | Query the selected Brave or Tavily engine for 1–20 results using its API key from Settings. `BRAVE_API_KEY` and `TAVILY_API_KEY` remain available as environment fallbacks.                                        |
-| Web fetch  | Fetch public HTTP(S) pages or JSON, follow up to three redirects, convert HTML to plain text, and truncate long output. Private, loopback, and link-local targets are blocked.                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Files      | Read a complete UTF-8 file, create or overwrite a text file, replace one exact unique match, and apply structured multi-file patches.                                                                               |
+| Commands   | Run a shell command with working directory, environment, timeout, yield/background behavior, and optional PTY. Host elevation, gateway execution, and remote-node execution are not implemented in this runtime.    |
+| Processes  | List, poll, page through logs, write text, submit text, paste, send special keys, kill, clear, or remove retained long-running process sessions.                                                                    |
+| Web search | Query the selected Brave or Tavily engine for 1–20 results using its API key from Settings. `BRAVE_API_KEY` and `TAVILY_API_KEY` remain available as environment fallbacks.                                         |
+| Web fetch  | Fetch public HTTP(S) pages or JSON, follow up to three redirects, convert HTML to plain text, and truncate long output. Private, loopback, and link-local targets are blocked.                                      |
 | Browser    | Start or stop a persistent visible Chrome profile; manage tabs; navigate; take DOM/text snapshots, screenshots, or PDFs; read console output; and click, type, press, hover, drag, select, fill, wait, or evaluate. |
-| Media      | Generate an image, video, music track, or sound effect with the configured service and save agent-created output in the media library.                                                                             |
+| Media      | Generate an image, video, music track, or sound effect with the configured service and save agent-created output in the media library.                                                                              |
 | Memory     | Save a durable fact or forget all saved facts containing a case-insensitive match.                                                                                                                                  |
 | Projects   | Create, list, select, update, delete, or unload a named project workspace. See [Projects](#projects) below.                                                                                                         |
 | Skills     | Load an enabled skill's `SKILL.md` instructions and return its directory path to the current run.                                                                                                                   |
-| MCP        | Load enabled server tools dynamically as `mcp__<server>__<tool>`.                                                                                                                                                    |
-| Schedules  | Create, update, pause, resume, delete, inspect, list, or trigger persistent schedule records. See [Scheduled tasks](#scheduled-tasks) for the execution limit.                                                     |
+| MCP        | Load enabled server tools dynamically as `mcp__<server>__<tool>`.                                                                                                                                                   |
+| Schedules  | Create, update, pause, resume, delete, inspect, list, or trigger persistent schedule records. See [Scheduled tasks](#scheduled-tasks) for the execution limit.                                                      |
 | Health     | Replace the `HEALTH.md` checklist or update health-run settings.                                                                                                                                                    |
-| Bootstrap  | Complete the one-time conversational bootstrap after profile files have been written.                                                                                                                              |
-| Subagents  | Run one independent subagent with a fresh conversation and the same tool set except further subagent spawning.                                                                                                     |
+| Bootstrap  | Complete the one-time conversational bootstrap after profile files have been written.                                                                                                                               |
+| Subagents  | Run one independent subagent with a fresh conversation and the same tool set except further subagent spawning.                                                                                                      |
 
 Subagents are non-interactive. Any tool that resolves to `ask` is denied because a subagent cannot present a permission card to the user.
 
@@ -233,7 +233,7 @@ The Home slash menu searches installed skills, and the agent can load a selected
 Friday supports two MCP transport types:
 
 | Transport   | Configuration                                                                                                                               |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Remote HTTP | Server ID, name, URL, optional bearer token, and optional OAuth client ID and client secret.                                                |
 | Local stdio | Server ID, name, command, whitespace-split arguments, optional `KEY=value` environment variables, and an optional stored working directory. |
 
@@ -293,14 +293,14 @@ The Health settings screen exposes provider, model, interval, target, direct pol
 Friday maintains an agent workspace in local application data with these Markdown files:
 
 | File           | Purpose                                                         |
-| -------------- | ---------------------------------------------------------------- |
+| -------------- | --------------------------------------------------------------- |
 | `AGENTS.md`    | Standing behavior and workspace instructions.                   |
 | `BOOTSTRAP.md` | One-time conversational setup instructions for a fresh profile. |
 | `IDENTITY.md`  | Assistant identity and presentation.                            |
-| `SOUL.md`      | Personality and behavioral guidance.                             |
-| `USER.md`      | User profile and preferences.                                    |
-| `MEMORY.md`    | Durable facts loaded into every conversation.                    |
-| `HEALTH.md`    | Checklist used by periodic health runs.                          |
+| `SOUL.md`      | Personality and behavioral guidance.                            |
+| `USER.md`      | User profile and preferences.                                   |
+| `MEMORY.md`    | Durable facts loaded into every conversation.                   |
+| `HEALTH.md`    | Checklist used by periodic health runs.                         |
 
 If `USER.md` has no completed profile, `BOOTSTRAP.md` is included in the system prompt. Completing bootstrap removes that file after the identity, user, and soul files have been updated.
 
@@ -313,19 +313,19 @@ If `USER.md` has no completed profile, `BOOTSTRAP.md` is included in the system 
 Provider routing uses the native Anthropic Messages API for Anthropic, the OpenAI Responses API for OpenAI, and the OpenAI-compatible Chat Completions path for every other chat provider.
 
 | Provider                 | Current model catalog                                                    |
-| ------------------------ | -------------------------------------------------------------------------- |
-| Anthropic                | Claude Opus 4.7; Claude Sonnet 4.6; Claude Haiku 4.5                       |
-| DeepSeek                 | DeepSeek V4 Pro; DeepSeek V4 Flash                                        |
-| Google                   | Gemini 3.1 Pro Preview; Gemini 3.1 Flash Lite                             |
-| Kimi                     | Kimi K2.6; Kimi K2.5; Kimi K2 Thinking                                    |
-| MiniMax                  | MiniMax M2.7; MiniMax M2.5                                                |
-| Mistral                  | Mistral Large 2512; Mistral Medium 3.5; Devstral 2512                     |
+| ------------------------ | ------------------------------------------------------------------------ |
+| Anthropic                | Claude Opus 4.7; Claude Sonnet 4.6; Claude Haiku 4.5                     |
+| DeepSeek                 | DeepSeek V4 Pro; DeepSeek V4 Flash                                       |
+| Google                   | Gemini 3.1 Pro Preview; Gemini 3.1 Flash Lite                            |
+| Kimi                     | Kimi K2.6; Kimi K2.5; Kimi K2 Thinking                                   |
+| MiniMax                  | MiniMax M2.7; MiniMax M2.5                                               |
+| Mistral                  | Mistral Large 2512; Mistral Medium 3.5; Devstral 2512                    |
 | OpenAI                   | GPT-5.6 Sol, Terra, Luna; GPT-5.5, 5.5 Pro; GPT-5.4, 5.4 Pro, Mini, Nano |
-| Qwen                     | Qwen3.7 Max; Qwen3.6 Plus; Qwen3.6 Flash                                  |
-| Reka                     | Reka Flash; Reka Edge 2603                                                |
-| xAI                      | Grok 4.3; Grok Build 0.1                                                  |
-| Z.ai                     | GLM-5.1; GLM-5; GLM-5 Turbo                                               |
-| Perplexity research chat | Sonar Deep Research; Sonar Reasoning Pro; Sonar Pro; Sonar                |
+| Qwen                     | Qwen3.7 Max; Qwen3.6 Plus; Qwen3.6 Flash                                 |
+| Reka                     | Reka Flash; Reka Edge 2603                                               |
+| xAI                      | Grok 4.3; Grok Build 0.1                                                 |
+| Z.ai                     | GLM-5.1; GLM-5; GLM-5 Turbo                                              |
+| Perplexity research chat | Sonar Deep Research; Sonar Reasoning Pro; Sonar Pro; Sonar               |
 
 The provider key manager includes 24 catalog entries: OpenAI, Anthropic, Google, xAI, Mistral, DeepSeek, Qwen, Kimi, Z.ai, MiniMax, ElevenLabs, Deepgram, Cartesia, Black Forest Labs, Midjourney, Kling, Runway, Luma, Stability AI, Ideogram, Pika, Suno, Reka, and Perplexity. Each entry includes capability labels and an external setup/documentation link.
 
@@ -338,7 +338,7 @@ Realtime-voice models are cataloged for Google, Luma, Qwen, and xAI, but there i
 Realtime and recorded transcription use independent saved selections. Settings filters models by whether they implement streaming or batch transcription and provides a live test and a record-then-transcribe test.
 
 | Provider   | Models                                                          | Modes                                      |
-| ---------- | ----------------------------------------------------------------- | -------------------------------------------- |
+| ---------- | --------------------------------------------------------------- | ------------------------------------------ |
 | Deepgram   | Nova 3; Flux                                                    | Nova 3: batch and stream; Flux: stream     |
 | ElevenLabs | Scribe v2; Scribe v2 Realtime                                   | Batch; stream                              |
 | Mistral    | Voxtral Mini 2602; Voxtral Mini Transcribe Realtime 2602        | Batch; stream                              |
@@ -353,7 +353,7 @@ The transcription API accepts optional language, prompt, temperature, and sample
 Settings selects a provider/model and can synthesize and play editable sample text. Responses can use the same service for read-aloud playback. Input text is required and capped at 4,096 characters.
 
 | Provider   | Models                                               |
-| ---------- | ------------------------------------------------------- |
+| ---------- | ---------------------------------------------------- |
 | Cartesia   | Sonic 3.5; Sonic 3                                   |
 | Deepgram   | Aura 2                                               |
 | ElevenLabs | Eleven v3; Eleven Multilingual v2; Eleven Flash v2.5 |
@@ -378,40 +378,40 @@ Media can be generated from the dedicated Settings studios or by agent tools dur
 ### Image adapters
 
 | Status       | Provider and models                                                                                          |
-| ------------ | ---------------------------------------------------------------------------------------------------------------- |
+| ------------ | ------------------------------------------------------------------------------------------------------------ |
 | Available    | Black Forest Labs: FLUX.2, FLUX.1 Kontext Pro, FLUX1.1 Pro Ultra                                             |
 | Available    | Google: Gemini 3.1 Flash Image Preview, Gemini 3 Pro Image Preview                                           |
-| Available    | Ideogram: 3.0, 2a                                                                                             |
-| Available    | Luma: Uni 1.1                                                                                                 |
-| Available    | Qwen: Qwen Image, Qwen Image Edit                                                                             |
-| Available    | Stability AI: Stable Image Ultra, Stable Image Core                                                           |
-| Available    | xAI: Grok Imagine Image, Grok Imagine Image Quality                                                           |
+| Available    | Ideogram: 3.0, 2a                                                                                            |
+| Available    | Luma: Uni 1.1                                                                                                |
+| Available    | Qwen: Qwen Image, Qwen Image Edit                                                                            |
+| Available    | Stability AI: Stable Image Ultra, Stable Image Core                                                          |
+| Available    | xAI: Grok Imagine Image, Grok Imagine Image Quality                                                          |
 | Catalog only | Midjourney v8.1 and v7 are selectable, but the runtime explicitly reports that Midjourney has no public API. |
 
 ### Video adapters
 
 | Status       | Provider and models                                                                                      |
 | ------------ | -------------------------------------------------------------------------------------------------------- |
-| Available    | Google: Veo 3.1, Veo 3.1 Fast                                                                             |
-| Available    | Kling: 2.5 Turbo, 2.1 Master                                                                              |
-| Available    | Luma: Ray 3, Ray 2                                                                                        |
-| Available    | MiniMax: Hailuo 2.3, Hailuo 02                                                                            |
-| Available    | Pika: 2.2                                                                                                  |
-| Available    | Qwen: Wan 2.5 T2V, Wan 2.2 T2V Plus                                                                        |
-| Available    | Runway: Gen-4 Turbo, Gen-3 Alpha Turbo                                                                     |
-| Available    | xAI: Grok Imagine Video 1.5                                                                                |
+| Available    | Google: Veo 3.1, Veo 3.1 Fast                                                                            |
+| Available    | Kling: 2.5 Turbo, 2.1 Master                                                                             |
+| Available    | Luma: Ray 3, Ray 2                                                                                       |
+| Available    | MiniMax: Hailuo 2.3, Hailuo 02                                                                           |
+| Available    | Pika: 2.2                                                                                                |
+| Available    | Qwen: Wan 2.5 T2V, Wan 2.2 T2V Plus                                                                      |
+| Available    | Runway: Gen-4 Turbo, Gen-3 Alpha Turbo                                                                   |
+| Available    | xAI: Grok Imagine Video 1.5                                                                              |
 | Catalog only | Midjourney Video v1 is selectable, but the runtime explicitly reports that Midjourney has no public API. |
 
 ### Audio adapters
 
-| Status       | Provider and models                                                |
-| ------------ | ----------------------------------------------------------------------- |
-| Available    | ElevenLabs: Eleven Music, ElevenLabs Sound Effects                     |
-| Available    | Stability AI: Stable Audio 2.5                                        |
-| Catalog only | Google: Lyria 3 Pro Preview, Lyria 3 Clip Preview, Lyria Realtime      |
-| Catalog only | Kling Audio                                                             |
-| Catalog only | MiniMax Music 2.6, Music Cover                                        |
-| Catalog only | Suno v5.5, v4.5 All                                                    |
+| Status       | Provider and models                                               |
+| ------------ | ----------------------------------------------------------------- |
+| Available    | ElevenLabs: Eleven Music, ElevenLabs Sound Effects                |
+| Available    | Stability AI: Stable Audio 2.5                                    |
+| Catalog only | Google: Lyria 3 Pro Preview, Lyria 3 Clip Preview, Lyria Realtime |
+| Catalog only | Kling Audio                                                       |
+| Catalog only | MiniMax Music 2.6, Music Cover                                    |
+| Catalog only | Suno v5.5, v4.5 All                                               |
 
 The audio catalog presents all six providers, but only ElevenLabs and Stability AI currently have executable adapters.
 
@@ -527,17 +527,17 @@ Widgets are standalone mini-app windows:
 
 Friday stores configuration and working data below Electron's application-data directory:
 
-| Area        | Stored data                                                                                                                                 |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| App         | Tray, keep-awake, language, and theme settings.                                                                                             |
-| Providers   | Provider name, API key, and base URL.                                                                                                       |
+| Area        | Stored data                                                                                                                                           |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| App         | Tray, keep-awake, language, and theme settings.                                                                                                       |
+| Providers   | Provider name, API key, and base URL.                                                                                                                 |
 | Agent       | Active model, policy, MCP definitions and OAuth state, skills, projects, schedules, health settings, workspace Markdown, sessions, and media library. |
-| Channels    | Bot tokens, sender policies, and channel reply model.                                                                                       |
-| Services    | Independent text, transcription, voice, image, video, and audio selections.                                                                 |
-| Media       | Standalone generated video and audio files.                                                                                                 |
-| Browser     | Persistent agent-browser profile.                                                                                                            |
-| Storage     | S3-compatible remote-storage credentials and sync configuration.                                                                            |
-| Diagnostics | Local rotating logs and crash dumps. Crash dumps are not uploaded by the current configuration.                                             |
+| Channels    | Bot tokens, sender policies, and channel reply model.                                                                                                 |
+| Services    | Independent text, transcription, voice, image, video, and audio selections.                                                                           |
+| Media       | Standalone generated video and audio files.                                                                                                           |
+| Browser     | Persistent agent-browser profile.                                                                                                                     |
+| Storage     | S3-compatible remote-storage credentials and sync configuration.                                                                                      |
+| Diagnostics | Local rotating logs and crash dumps. Crash dumps are not uploaded by the current configuration.                                                       |
 
 Secrets are masked in the renderer after saving, but provider keys, bot tokens, and MCP secrets are stored in ordinary local electron-store files rather than an encrypted credential vault. Anyone with access to the user's application-data files may be able to read them.
 
