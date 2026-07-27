@@ -9,7 +9,6 @@ const TOOL_ACTIONS: Record<string, string> = {
 	edit: 'edit this file',
 	apply_patch: 'apply this patch',
 	exec: 'run this command',
-	delete_project: 'delete this project',
 };
 
 function toolDetail(permission: PendingToolPermission): string | undefined {
