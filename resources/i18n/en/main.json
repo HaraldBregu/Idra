@@ -178,7 +178,6 @@
 				"heartbeat": "Periodic agent checks",
 				"health": "Periodic health checks",
 				"policies": "Tool permissions and path rules",
-				"library": "Generated media files",
 				"widgets": "Installed widget apps"
 			}
 		},
@@ -206,7 +205,6 @@
 			"policies": "Policies",
 			"developer": "Developer",
 			"skills": "Skills",
-			"library": "Library",
 			"widgets": "Widgets"
 		},
 		"breadcrumb": {
@@ -995,14 +993,6 @@
 			"generateError": "Unable to generate the audio.",
 			"libraryTitle": "Generated audio",
 			"libraryEmpty": "No audio generated yet."
-		},
-		"library": {
-			"title": "Library",
-			"description": "Browse the media files in the agent library.",
-			"itemsTitle": "All files",
-			"empty": "No media files yet.",
-			"viewCollection": "Collection view",
-			"viewList": "List view"
 		},
 		"modelServices": {
 			"title": "Model services",

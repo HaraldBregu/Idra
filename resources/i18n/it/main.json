@@ -178,7 +178,6 @@
 				"heartbeat": "Controlli periodici agente",
 				"health": "Controlli salute periodici",
 				"policies": "Permessi strumenti e regole di percorso",
-				"library": "File multimediali generati",
 				"widgets": "App widget installate"
 			}
 		},
@@ -206,7 +205,6 @@
 			"policies": "Politiche",
 			"developer": "Sviluppatore",
 			"skills": "Abilità",
-			"library": "Libreria",
 			"widgets": "Widget"
 		},
 		"breadcrumb": {
@@ -995,14 +993,6 @@
 			"generateError": "Impossibile generare l'audio.",
 			"libraryTitle": "Audio generati",
 			"libraryEmpty": "Nessun audio generato."
-		},
-		"library": {
-			"title": "Libreria",
-			"description": "Sfoglia i file multimediali nella libreria dell'agente.",
-			"itemsTitle": "Tutti i file",
-			"empty": "Nessun file multimediale.",
-			"viewCollection": "Vista raccolta",
-			"viewList": "Vista elenco"
 		},
 		"modelServices": {
 			"title": "Servizi modello",
