@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, LayoutGrid, RefreshCw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, ChevronRight, LayoutGrid, RefreshCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Item, ItemContent, ItemTitle } from '@/components/ui/item';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { Widget } from '../../../../../../shared/widget_types';
 import {
 	SettingsEmptyState,
