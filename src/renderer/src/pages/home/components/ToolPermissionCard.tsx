@@ -27,7 +27,6 @@ export function ToolPermissionCard({
 	const [responded, setResponded] = useState(false);
 	const detail = toolDetail(permission);
 	const action = TOOL_ACTIONS[permission.toolName] ?? `use ${permission.toolName}`;
-	const isDelete = permission.toolName === 'delete_project';
 
 	const respond = (decision: AgentToolPermissionDecision): void => {
 		if (responded) return;
