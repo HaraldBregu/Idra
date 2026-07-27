@@ -3,7 +3,6 @@ import { ChevronDown } from 'lucide-react';
 import { useNow } from '@/components/hooks/use-now';
 import { formatDuration } from '@/components/prompt-kit/duration';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
-import { isProjectToolType } from '@/components/prompt-kit/project';
 import { isTaskToolType } from '@/components/prompt-kit/task';
 import { Tool, toolIcon } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
