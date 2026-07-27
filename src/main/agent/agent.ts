@@ -135,7 +135,6 @@ export class Agent {
 
 			const streamingToolArgs = new Map<string, { name: string; argsText: string }>();
 			for await (const event of events) {
-				trackEvent(this.state, event);
 				if (event.type === 'model_call_delta') response += event.delta;
 				if (event.type === 'run_finished') response = event.result.text || response;
 
