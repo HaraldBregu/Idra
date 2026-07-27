@@ -110,7 +110,6 @@ export class Agent {
 		beginCommand(this.state, command);
 		const view = agentView(this.state);
 		const { options } = command;
-		const startedAt = Date.now();
 
 		let response = '';
 		let controller: AbortController | undefined;
