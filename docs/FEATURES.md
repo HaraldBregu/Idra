@@ -110,7 +110,7 @@ Installed skill names become searchable entries after `/skill`. Task commands ar
 - The title-bar history menu starts a new UUID-backed conversation or switches to an existing one.
 - Sessions are listed newest first and titled from the first user message, shortened to 60 characters.
 - Switching sessions restores its stored transcript; the Home view loads at most the last 50 stored messages before expanding tool results.
-- Stored transcripts remain complete, while model calls use the latest complete turns up to 50 messages and 120,000 serialized characters.
+- Stored transcripts remain complete. Model calls always retain the current run and add older complete turns within a 50-message, 120,000-serialized-character history budget.
 - Settings includes a Chat History screen with session title, creation date, and confirmation-backed deletion.
 - Session storage is separated into `main`, `task`, `health`, and `bot` categories.
 - Each stored session can contain `messages.json`, append-only `run.jsonl`, the first system prompt, and the latest system prompt.

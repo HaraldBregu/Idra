@@ -3,21 +3,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { realPath } from '../../../../../src/main/shared/real_path';
 
-jest.mock('electron-store', () =>
-	jest.fn().mockImplementation((options: { defaults?: unknown } = {}) => {
-		let backing = structuredClone(options.defaults ?? {});
-		return {
-			path: '',
-			get store() {
-				return backing;
-			},
-			set store(value: unknown) {
-				backing = value;
-			},
-		};
-	})
-);
-
 const getPermissions = jest.fn();
 const addPermissionRule = jest.fn();
 const getToolPermission = jest.fn();

@@ -36,6 +36,7 @@ module.exports = {
 			moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 			moduleNameMapper: {
 				'^electron$': '<rootDir>/tests/mocks/electron.ts',
+				'^electron-store$': '<rootDir>/tests/mocks/electron-store.ts',
 				// chokidar v5 is pure ESM; substitute a CJS-compatible mock so that
 				// main-process tests can import source modules that depend on it without
 				// hitting "Cannot use import statement outside a module".
