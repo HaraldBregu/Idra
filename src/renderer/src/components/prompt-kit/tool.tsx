@@ -26,7 +26,6 @@ import {
 import { useNow } from '@/components/hooks/use-now';
 import { cn } from '@/lib/utils';
 import { formatDuration } from './duration';
-import { isProjectToolType } from './project';
 import { isTaskToolType } from './task';
 import { estimateTokens } from './tokens';
 
