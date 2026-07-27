@@ -11,7 +11,7 @@ import {
 	type SessionState,
 } from '../session';
 import { rememberSkill } from '../context';
-import { addFilesystemPrompt, addProjectPrompt, buildSystemPrompt } from '../system';
+import { addFilesystemPrompt, buildSystemPrompt } from '../system';
 import { loadMcpTools } from '../tools/mcp_loader';
 import { completeBootstrapTool } from '../tools/bootstrap_complete';
 import { readTool } from '../tools/file_read';
