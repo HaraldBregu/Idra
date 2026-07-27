@@ -50,8 +50,9 @@ describe('directoryPermissionTargets', () => {
 	});
 
 	it('maps generated media and loaded skills inside the agent directory', () => {
-		expect(directoryPermissionTargets('create_image', {}, agentDir)).toEqual([
-			path.join(agentDir, 'library', '.generated'),
+		expect(directoryPermissionTargets('create_image', {}, agentDir)).toEqual([agentDir]);
+		expect(directoryPermissionTargets('create_sound', { directory: 'clips' }, agentDir)).toEqual([
+			path.join(agentDir, 'clips'),
 		]);
 		expect(directoryPermissionTargets('load_skill', { name: 'example' }, agentDir)).toEqual([
 			path.join(agentDir, 'skills', 'example'),
