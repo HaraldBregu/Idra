@@ -576,7 +576,6 @@ export interface InvokeChannelMap
 		CronInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		McpInvokeChannelMap,
-		LibraryInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		SearchInvokeChannelMap,
 		StorageInvokeChannelMap,
