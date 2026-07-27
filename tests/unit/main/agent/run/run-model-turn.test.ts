@@ -6,11 +6,11 @@ import type { ResolvedProvider } from '../../../../../src/shared/providers_types
 describe('runModelTurn', () => {
 	it('does not retry an unchanged request after context overflow', async () => {
 		const error = new LlmContextOverflowError('context too long');
-		const stream = jest.fn(() =>
-			(async function* () {
-				throw error;
-			})()
-		);
+		const stream = jest.fn(() => ({
+			[Symbol.asyncIterator]: () => ({
+				next: () => Promise.reject(error),
+			}),
+		}));
 		const events = runModelTurn(
 			{ task: 'chat', message: 'hello' },
 			{ id: 'test', apiKey: 'key' } as ResolvedProvider,
