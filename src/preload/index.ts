@@ -4,7 +4,6 @@ import { app } from './app';
 import { channels } from './channels';
 import { cron } from './cron';
 import { image } from './image';
-import { library } from './library';
 import { mcp } from './mcp';
 import { provider } from './provider';
 import { search } from './search';
