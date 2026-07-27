@@ -400,11 +400,24 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'widgets',
-						element: (
-							<SettingsRouteWrapper>
-								<WidgetsPage />
-							</SettingsRouteWrapper>
-						),
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<WidgetsPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'widgetdetails/:widgetId',
+								element: (
+									<SettingsRouteWrapper>
+										<WidgetDetailsPage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
 					},
 					{
 						path: 'model-services/:serviceId/details/*',
