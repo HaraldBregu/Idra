@@ -107,9 +107,6 @@ function toolRunningDetail(tool: AgentToolPart): string | undefined {
 
 export function toolGroupLabel(type: string, tools: readonly AgentToolPart[]): string {
 	const running = tools.filter(isToolRunning);
-	if (type.toLowerCase() === 'project') {
-		return running.length > 0 ? 'Tooling project' : 'Project tools';
-	}
 	if (type.toLowerCase() === 'task') return 'Tasks';
 
 	const verbs = groupVerbs(type);
