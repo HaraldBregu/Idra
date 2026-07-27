@@ -6,7 +6,6 @@ import {
 	ImageIcon,
 	Info,
 	LayoutGrid,
-	LibraryBig,
 	ListChecks,
 	Mic,
 	MonitorCog,
