@@ -25,7 +25,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/assistant',
 			'/settings/skills',
 			'/settings/mcp',
-			'/settings/library',
 			'/settings/tasks',
 		],
 	},
