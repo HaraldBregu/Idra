@@ -942,6 +942,7 @@
 				"pull": "Impossibile scaricare i file."
 			},
 			"pathsTitle": "Cartelle da sincronizzare",
+			"pathsSubtitle": "Scegli quali cartelle sincronizzare con questo bucket.",
 			"folders": {
 				"agent": "Agente"
 			},
