@@ -3,7 +3,7 @@ import type { AgentContext } from '../../../../../src/main/agent/context/context
 
 describe('rememberSkill', () => {
 	it('adds a skill to an empty context', () => {
-		const context: AgentContext = {};
+		const context: AgentContext = { toolsContext: {} };
 		rememberSkill(context, 'writer', 'content');
 		expect(context.loadedSkills).toEqual([{ name: 'writer', content: 'content' }]);
 	});
@@ -15,7 +15,7 @@ describe('rememberSkill', () => {
 	});
 
 	it('appends distinct skills', () => {
-		const context: AgentContext = {};
+		const context: AgentContext = { toolsContext: {} };
 		rememberSkill(context, 'a', '1');
 		rememberSkill(context, 'b', '2');
 		expect(context.loadedSkills).toHaveLength(2);
