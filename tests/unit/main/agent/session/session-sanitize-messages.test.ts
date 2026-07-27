@@ -1,0 +1,37 @@
+import {
+	EXPIRED_SKILL_CONTEXT,
+	sanitizeMessages,
+} from '../../../../../src/main/agent/session/session_sanitize_messages';
+import type { Message } from '../../../../../src/main/agent/types';
+
+describe('sanitizeMessages', () => {
+	it('removes prior skill instructions without changing other tool results', () => {
+		const messages: Message[] = [
+			{ role: 'user', content: 'load a skill' },
+			{
+				role: 'assistant',
+				content: '',
+				toolCalls: [
+					{
+						id: 'skill-1',
+						name: 'load_skill',
+						args: { name: 'writer' },
+						result: { content: '{"content":"stale instructions"}' },
+					},
+					{
+						id: 'read-1',
+						name: 'read',
+						args: { path: 'file.txt' },
+						result: { content: 'file contents' },
+					},
+				],
+			},
+		];
+
+		const sanitized = sanitizeMessages(messages);
+
+		expect(sanitized[1].toolCalls?.[0].result?.content).toBe(EXPIRED_SKILL_CONTEXT);
+		expect(sanitized[1].toolCalls?.[1].result?.content).toBe('file contents');
+		expect(messages[1].toolCalls?.[0].result?.content).toContain('stale instructions');
+	});
+});

@@ -3,6 +3,21 @@ import os from 'node:os';
 import path from 'node:path';
 import { realPath } from '../../../../../src/main/shared/real_path';
 
+jest.mock('electron-store', () =>
+	jest.fn().mockImplementation((options: { defaults?: unknown } = {}) => {
+		let backing = structuredClone(options.defaults ?? {});
+		return {
+			path: '',
+			get store() {
+				return backing;
+			},
+			set store(value: unknown) {
+				backing = value;
+			},
+		};
+	})
+);
+
 const getPermissions = jest.fn();
 const addPermissionRule = jest.fn();
 const getToolPermission = jest.fn();
@@ -54,7 +69,7 @@ describe('tool context permissions', () => {
 			{ id: 'write-1', name: 'write', args: { path: target, content: 'one' } },
 			{ id: 'edit-1', name: 'edit', args: { path: target, oldText: 'one', newText: 'two' } },
 		];
-		const context = createContext();
+		const context = createContext().toolsContext;
 		const events = runToolCalls(tools, calls, true, undefined, context);
 		const sequence = [
 			(await events.next()).value,
@@ -92,7 +107,7 @@ describe('tool context permissions', () => {
 			call,
 			false,
 			undefined,
-			createContext()
+				createContext().toolsContext
 		))
 			events.push(event);
 
@@ -104,7 +119,13 @@ describe('tool context permissions', () => {
 	it('persists always-allow as the default for a targetless tool', async () => {
 		const run = jest.fn().mockResolvedValue('done');
 		const call: ToolCall = { id: 'targetless-always', name: 'inspect', args: {} };
-		const events = runToolCall(fakeTool('inspect', run), call, true, undefined, createContext());
+		const events = runToolCall(
+			fakeTool('inspect', run),
+			call,
+			true,
+			undefined,
+			createContext().toolsContext
+		);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
@@ -122,7 +143,13 @@ describe('tool context permissions', () => {
 		const target = path.join(os.tmpdir(), 'friday-untracked', 'example.txt');
 		const edit = jest.fn().mockResolvedValue({ path: target });
 		const call: ToolCall = { id: 'edit-ask', name: 'edit', args: { path: target } };
-		const events = runToolCall(fakeTool('edit', edit), call, true, undefined, createContext());
+		const events = runToolCall(
+			fakeTool('edit', edit),
+			call,
+			true,
+			undefined,
+			createContext().toolsContext
+		);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
@@ -138,7 +165,7 @@ describe('tool context permissions', () => {
 		fs.writeFileSync(target, 'existing');
 		const write = jest.fn().mockResolvedValue({ path: target });
 		const call: ToolCall = { id: 'write-ask', name: 'write', args: { path: target } };
-		const context = createContext();
+		const context = createContext().toolsContext;
 		const events = runToolCall(fakeTool('write', write), call, true, undefined, context);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
@@ -158,7 +185,7 @@ describe('tool context permissions', () => {
 		const target = path.join(os.tmpdir(), 'friday-failed', 'example.txt');
 		const write = jest.fn().mockRejectedValue(new Error('failed'));
 		const call: ToolCall = { id: 'write-failed', name: 'write', args: { path: target } };
-		const context = createContext();
+		const context = createContext().toolsContext;
 		const events = runToolCall(fakeTool('write', write), call, true, undefined, context);
 		const sequence = [(await events.next()).value, (await events.next()).value];
 
@@ -175,7 +202,7 @@ describe('tool context permissions', () => {
 		});
 		const write = jest.fn().mockResolvedValue({ path: target });
 		const call: ToolCall = { id: 'write-denied', name: 'write', args: { path: target } };
-		const context = createContext();
+		const context = createContext().toolsContext;
 		const events: RuntimeEvent[] = [];
 
 		for await (const event of runToolCall(fakeTool('write', write), call, true, undefined, context))
@@ -247,7 +274,7 @@ describe('tool context permissions', () => {
 			const firstPath = path.join(root, 'first.txt');
 			const secondPath = path.join(root, 'second.txt');
 			const read = jest.fn().mockResolvedValue('content');
-			const context = createContext();
+			const context = createContext().toolsContext;
 			const firstCall: ToolCall = { id: 'read-first', name: 'read', args: { path: firstPath } };
 			const firstEvents = runToolCall(fakeTool('read', read), firstCall, true, undefined, context);
 
@@ -287,7 +314,7 @@ describe('tool context permissions', () => {
 		const approvedFolder = path.join(root, 'approved');
 		const otherFolder = path.join(root, 'other');
 		const read = jest.fn().mockResolvedValue('content');
-		const context = createContext();
+		const context = createContext().toolsContext;
 		context.tools = [
 			{
 				toolName: 'read',
@@ -315,7 +342,7 @@ describe('tool context permissions', () => {
 		const target = path.join(os.tmpdir(), 'friday-read-rejected', 'example.txt');
 		const read = jest.fn().mockResolvedValue('content');
 		const call: ToolCall = { id: 'read-rejected', name: 'read', args: { path: target } };
-		const context = createContext();
+		const context = createContext().toolsContext;
 		const events = runToolCall(fakeTool('read', read), call, true, undefined, context);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
@@ -335,7 +362,7 @@ describe('tool context permissions', () => {
 		});
 		const read = jest.fn().mockResolvedValue('content');
 		const call: ToolCall = { id: 'read-denied', name: 'read', args: { path: target } };
-		const context = createContext();
+		const context = createContext().toolsContext;
 		rememberTool(context, fileToolState('read', call.args, '/appdata/agent')!);
 		const events: RuntimeEvent[] = [];
 
@@ -356,7 +383,7 @@ describe('tool context permissions', () => {
 		});
 		const read = jest.fn().mockResolvedValue('content');
 		const call: ToolCall = { id: 'read-explicit-ask', name: 'read', args: { path: target } };
-		const context = createContext();
+		const context = createContext().toolsContext;
 		rememberTool(context, fileToolState('read', call.args, '/appdata/agent')!);
 		const events = runToolCall(fakeTool('read', read), call, true, undefined, context);
 

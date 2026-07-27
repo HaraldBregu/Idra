@@ -70,4 +70,25 @@ describe('agent filesystem prompt', () => {
 		expect(prompt).toContain('- "library/"');
 		expect(prompt).not.toContain('library/clip.mp4');
 	});
+
+	it('includes workspace context and gates bootstrap on the user profile', async () => {
+		await fs.writeFile(path.join(root, 'AGENTS.md'), '# Agent rules');
+		await fs.writeFile(path.join(root, 'BOOTSTRAP.md'), '# Bootstrap questions');
+		await fs.writeFile(path.join(root, 'IDENTITY.md'), '# Identity');
+		await fs.writeFile(path.join(root, 'SOUL.md'), '# Soul');
+		await fs.writeFile(path.join(root, 'USER.md'), '- **Name:** Alice');
+		await fs.writeFile(path.join(root, 'MEMORY.md'), '- Prefers concise answers');
+
+		const profilePrompt = await buildSystemPrompt({ location: root });
+		expect(profilePrompt).toContain('# Agent rules');
+		expect(profilePrompt).toContain('# Identity');
+		expect(profilePrompt).toContain('# Soul');
+		expect(profilePrompt).toContain('- **Name:** Alice');
+		expect(profilePrompt).toContain('- Prefers concise answers');
+		expect(profilePrompt).not.toContain('# Bootstrap questions');
+
+		await fs.writeFile(path.join(root, 'USER.md'), '- **Name:**');
+		const bootstrapPrompt = await buildSystemPrompt({ location: root });
+		expect(bootstrapPrompt).toContain('# Bootstrap questions');
+	});
 });

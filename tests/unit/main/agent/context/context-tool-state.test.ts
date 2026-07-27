@@ -8,13 +8,13 @@ import {
 	hasToolPermission,
 	rememberTool,
 } from '../../../../../src/main/agent/context';
-import type { AgentContext } from '../../../../../src/main/agent/context';
+import type { ToolsContext } from '../../../../../src/main/agent/context';
 
 describe('tool context state', () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-context-'));
 
 	it('stores the tool name, file name, and canonical path', () => {
-		const context: AgentContext = {};
+		const context: ToolsContext = {};
 		const state = fileToolState('write', { path: 'directory/example.txt' }, root);
 
 		expect(state).toEqual({
@@ -28,7 +28,7 @@ describe('tool context state', () => {
 	});
 
 	it('matches the full path rather than only the file name', () => {
-		const context: AgentContext = {};
+		const context: ToolsContext = {};
 		const created = fileToolState('write', { path: 'one/example.txt' }, root)!;
 		const other = fileToolState('edit', { path: 'two/example.txt' }, root)!;
 		rememberTool(context, created);
@@ -37,7 +37,7 @@ describe('tool context state', () => {
 	});
 
 	it('stores and matches an allowed tool folder exactly', () => {
-		const context: AgentContext = {};
+		const context: ToolsContext = {};
 		const state = fileToolState('read', { path: 'readable/example.txt' }, root)!;
 		rememberTool(context, state);
 

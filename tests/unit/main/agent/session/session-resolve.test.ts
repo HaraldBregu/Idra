@@ -34,7 +34,7 @@ beforeEach(() => {
 describe('latestUuidSessionId', () => {
 	it('returns undefined when the directory is missing', () => {
 		existsMock.mockReturnValue(false);
-		expect(latestUuidSessionId('/root')).toBeUndefined();
+		expect(latestUuidSessionId('/root', 'main')).toBeUndefined();
 	});
 
 	it('returns the newest uuid directory, ignoring non-uuid entries', () => {
@@ -45,7 +45,7 @@ describe('latestUuidSessionId', () => {
 			ctimeMs: 0,
 			mtimeMs: 0,
 		}));
-		expect(latestUuidSessionId('/root')).toBe(UUID_B);
+		expect(latestUuidSessionId('/root', 'main')).toBe(UUID_B);
 	});
 
 	it('swallows errors and returns undefined', () => {
@@ -53,39 +53,39 @@ describe('latestUuidSessionId', () => {
 		readdirMock.mockImplementation(() => {
 			throw new Error('boom');
 		});
-		expect(latestUuidSessionId('/root')).toBeUndefined();
+		expect(latestUuidSessionId('/root', 'main')).toBeUndefined();
 	});
 });
 
 describe('resolveSessionId', () => {
 	it('generates a uuid when none provided', () => {
-		expect(resolveSessionId(undefined, 'main')).toBe('00000000-0000-4000-8000-000000000000');
+		expect(resolveSessionId(undefined)).toBe('00000000-0000-4000-8000-000000000000');
 	});
 	it('returns the id unchanged when it is already a uuid', () => {
-		expect(resolveSessionId(UUID_A, 'main', '/loc')).toBe(UUID_A);
+		expect(resolveSessionId(UUID_A, '/loc', 'main')).toBe(UUID_A);
 	});
 	it('returns the id unchanged when no location is given', () => {
-		expect(resolveSessionId('home', 'main')).toBe('home');
+		expect(resolveSessionId('home')).toBe('home');
 	});
 	it('resolves a legacy id to the latest stored uuid', () => {
 		existsMock.mockReturnValue(true);
 		readdirMock.mockReturnValue([dirEntry(UUID_A)]);
 		statMock.mockReturnValue({ birthtimeMs: 1, ctimeMs: 0, mtimeMs: 0 });
-		expect(resolveSessionId('home', 'main', '/loc')).toBe(UUID_A);
+		expect(resolveSessionId('home', '/loc', 'main')).toBe(UUID_A);
 	});
 	it('falls back to a generated uuid when nothing stored', () => {
 		existsMock.mockReturnValue(false);
-		expect(resolveSessionId('home', 'main', '/loc')).toBe('00000000-0000-4000-8000-000000000000');
+		expect(resolveSessionId('home', '/loc', 'main')).toBe('00000000-0000-4000-8000-000000000000');
 	});
 });
 
 describe('resolveStoredSessionId', () => {
 	it('returns the id when it is a uuid or no location', () => {
-		expect(resolveStoredSessionId(UUID_A, 'main', '/loc')).toBe(UUID_A);
-		expect(resolveStoredSessionId('home', 'main')).toBe('home');
+		expect(resolveStoredSessionId(UUID_A, '/loc', 'main')).toBe(UUID_A);
+		expect(resolveStoredSessionId('home')).toBe('home');
 	});
 	it('falls back to the original id when nothing stored', () => {
 		existsMock.mockReturnValue(false);
-		expect(resolveStoredSessionId('home', 'main', '/loc')).toBe('home');
+		expect(resolveStoredSessionId('home', '/loc', 'main')).toBe('home');
 	});
 });

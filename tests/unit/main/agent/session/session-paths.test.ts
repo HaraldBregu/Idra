@@ -14,11 +14,11 @@ function stateWith(sessionsPath: string, folderName: string): SessionState {
 }
 
 describe('sessionsRoot', () => {
-	it('joins resolved location with sessions/<category>', () => {
-		expect(sessionsRoot('/tmp/agent', 'main')).toBe(path.join('/tmp/agent', 'sessions', 'main'));
+	it('joins a resolved location with the shared sessions root', () => {
+		expect(sessionsRoot('/tmp/agent')).toBe(path.join('/tmp/agent', 'sessions'));
 	});
 	it('resolves relative locations', () => {
-		expect(sessionsRoot('agent', 'task')).toBe(path.join(path.resolve('agent'), 'sessions', 'task'));
+		expect(sessionsRoot('agent')).toBe(path.join(path.resolve('agent'), 'sessions'));
 	});
 });
 
@@ -61,7 +61,7 @@ describe('createSessionState', () => {
 		expect(s.model).toBe('default');
 		expect(s.messages).toEqual([]);
 		expect(s.usage).toEqual({ inputTokens: 0, outputTokens: 0 });
-		expect(s.context).toEqual({});
+		expect(s.context).toEqual({ toolsContext: {} });
 	});
 	it('returns a new object each call', () => {
 		expect(createSessionState()).not.toBe(createSessionState());

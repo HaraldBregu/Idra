@@ -1,4 +1,9 @@
+jest.mock('../../../../../src/main/skills', () => ({
+	listSkills: jest.fn(() => [{ title: 'Writer', description: 'Draft documents' }]),
+}));
+
 import { addBasePrompt } from '../../../../../src/main/agent/system/system_add_base_prompt';
+import { addSkillPrompt } from '../../../../../src/main/agent/system/system_add_skill_prompt';
 import { addToolsPrompt } from '../../../../../src/main/agent/system/system_add_tools_prompt';
 import { hasUserProfile } from '../../../../../src/main/agent/system/system_has_user_profile';
 import type { Tool } from '../../../../../src/main/agent/types';
@@ -46,6 +51,16 @@ describe('addToolsPrompt', () => {
 	it('does not add a tools section when only MCP tools are provided', () => {
 		const prompt = addToolsPrompt('base', [tool('mcp__notion__notion-search')]);
 		expect(prompt).toBe('base');
+	});
+});
+
+describe('addSkillPrompt', () => {
+	it('lists available skills and appends loaded instructions', () => {
+		const prompt = addSkillPrompt('base', [{ name: 'Writer', content: 'Follow this workflow.' }]);
+
+		expect(prompt).toContain('- Writer: Draft documents');
+		expect(prompt).toContain('### Loaded skill: Writer');
+		expect(prompt).toContain('Follow this workflow.');
 	});
 });
 
