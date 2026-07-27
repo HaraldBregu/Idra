@@ -147,26 +147,16 @@ export class Agent {
 					options.streamEvent?.(responseEvent);
 				}
 			}
-			finishCommand(
-				this.state,
-				command,
-				{ status: controller.signal.aborted ? 'cancelled' : 'ok', response },
-				startedAt
-			);
+			finishCommand(this.state, command);
 			return response;
 		} catch (error) {
 			// A cancelled run ends quietly instead of surfacing an error.
 			if (controller?.signal.aborted) {
-				finishCommand(this.state, command, { status: 'cancelled', response }, startedAt);
+				finishCommand(this.state, command);
 				return response;
 			}
 			const cause = toError(error, 'Agent request failed.');
-			finishCommand(
-				this.state,
-				command,
-				{ status: 'error', response, error: cause.message },
-				startedAt
-			);
+			finishCommand(this.state, command);
 			const responseEvent = {
 				type: 'run_state',
 				state: 'error',
