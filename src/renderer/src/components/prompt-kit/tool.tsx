@@ -7,7 +7,6 @@ import {
 	Check,
 	ChevronDown,
 	CircleX,
-	FolderKanban,
 	Image,
 	LoaderCircle,
 	PenLine,
