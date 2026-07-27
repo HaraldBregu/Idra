@@ -447,7 +447,12 @@ export function ProviderCard({
 						)}
 
 						<section className="space-y-2">
-							<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
+							<div>
+								<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
+								<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+									{t('settings.storage.pathsSubtitle')}
+								</p>
+							</div>
 							<div className="space-y-1.5">
 								{syncFolders.map((folder) => {
 									const active = (editing ? draft : canonical).paths.includes(folder.path);
