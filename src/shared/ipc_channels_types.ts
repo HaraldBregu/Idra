@@ -19,7 +19,6 @@ import {
 	AppChannels,
 	ChannelsChannels,
 	CronChannels,
-	LibraryChannels,
 	McpChannels,
 	SkillsChannels,
 	StorageChannels,
