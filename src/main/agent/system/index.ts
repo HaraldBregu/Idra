@@ -1,6 +1,5 @@
 export { addBasePrompt } from './system_add_base_prompt';
 export { addFilesystemPrompt } from './system_add_filesystem_prompt';
-export { addProjectPrompt } from './system_add_project_prompt';
 export { addSkillPrompt } from './system_add_skill_prompt';
 export { addToolsPrompt } from './system_add_tools_prompt';
 export { addWorkspacePrompt } from './system_add_workspace_prompt';
