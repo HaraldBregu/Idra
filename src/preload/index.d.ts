@@ -28,7 +28,6 @@ declare global {
 		cron: CronApi;
 		skills: SkillsApi;
 		mcp: McpApi;
-		library: LibraryApi;
 		channels: ChannelsApi;
 		storage: StorageApi;
 		provider: ProviderApi;
