@@ -18,6 +18,7 @@ import {
 
 const WidgetsPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const [widgets, setWidgets] = useState<Widget[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [errorMessage, setErrorMessage] = useState('');
