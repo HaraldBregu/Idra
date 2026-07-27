@@ -2,7 +2,6 @@ import type { LoadedSkill } from '../context';
 import type { Config, Tool } from '../types';
 import { addBasePrompt } from './system_add_base_prompt';
 import { addFilesystemPrompt } from './system_add_filesystem_prompt';
-import { addProjectPrompt } from './system_add_project_prompt';
 import { addSkillPrompt } from './system_add_skill_prompt';
 import { addToolsPrompt } from './system_add_tools_prompt';
 import { addWorkspacePrompt } from './system_add_workspace_prompt';
