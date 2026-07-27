@@ -399,14 +399,6 @@ const routes: RouteObject[] = [
 						element: <Navigate to="/settings/music" replace />,
 					},
 					{
-						path: 'library',
-						element: (
-							<SettingsRouteWrapper>
-								<LibraryPage />
-							</SettingsRouteWrapper>
-						),
-					},
-					{
 						path: 'widgets',
 						element: (
 							<SettingsRouteWrapper>
