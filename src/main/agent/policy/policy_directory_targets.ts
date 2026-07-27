@@ -48,7 +48,10 @@ export function directoryPermissionTargets(
 	const fileName = AGENT_FILES[toolName];
 	if (fileName) return [realPath(path.join(baseDir, fileName))];
 	if (toolName === 'health_settings_update') return [realPath(healthStorePath)];
-	if (MEDIA_TOOLS.has(toolName)) return [realPath(path.join(libraryLocation(), '.generated'))];
+	if (MEDIA_TOOLS.has(toolName)) {
+		const directory = typeof args.directory === 'string' && args.directory ? args.directory : '.';
+		return [realPath(resolveUserPath(directory, baseDir))];
+	}
 	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(cronStorePath)];
 	if (toolName === 'load_skill')
 		return [realPath(path.join(skillsRoot, String(args.name ?? '')))];
