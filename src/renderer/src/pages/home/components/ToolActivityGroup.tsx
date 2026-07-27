@@ -23,11 +23,7 @@ type ToolTypeGroup = {
 function groupToolsByType(tools: readonly AgentToolPart[]): ToolTypeGroup[] {
 	const groups: ToolTypeGroup[] = [];
 	for (const tool of tools) {
-		const type = isProjectToolType(tool.type)
-			? 'project'
-			: isTaskToolType(tool.type)
-				? 'task'
-				: tool.type;
+		const type = isTaskToolType(tool.type) ? 'task' : tool.type;
 		const last = groups[groups.length - 1];
 		if (last && last.type === type) {
 			last.tools.push(tool);
