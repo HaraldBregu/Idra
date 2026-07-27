@@ -549,6 +549,7 @@ export interface SttEventChannelMap {
 
 export interface WidgetsInvokeChannelMap {
 	[WidgetChannels.list]: { args: []; result: import('./widget_types').Widget[] };
+	[WidgetChannels.open]: { args: [widgetId: string]; result: void };
 }
 
 export interface WindowInvokeChannelMap {
