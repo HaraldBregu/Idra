@@ -195,18 +195,7 @@ Important boundaries:
 - `exec` policy resolution examines the command string; it is not an operating-system sandbox and cannot prove which paths a command will access.
 - Directory policy resolves `exec` from its working directory, but commands can still access paths outside that directory.
 - Relative policy paths such as `Desktop` resolve from the user home directory.
-- Project tools (`create_project`, `list_projects`, `select_project`, `update_project`, `unload_project`) are not covered by the centralized policy system and always run; only `delete_project` always asks for confirmation.
 - Tool defaults and directory pre-authorizations are editable from Settings.
-
-### Projects
-
-Projects give the agent named, persistent workspaces:
-
-- Each project is a folder under the agent's `projects` directory containing a `project.json` (title, description) and its own `AGENTS.md` instructions file.
-- `create_project`, `update_project`, and `delete_project` manage that folder; `list_projects` enumerates existing projects.
-- `select_project` marks a project active for the session and appends its `AGENTS.md` content to the system prompt for that turn. `unload_project` clears the active project.
-- Selecting a project does not change the working directory, execution policy, or which tools are available.
-- There is no Settings or renderer UI for creating or browsing projects; the feature is agent-tool only, driven entirely through conversation.
 
 ### Skills
 
