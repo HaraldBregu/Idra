@@ -942,10 +942,6 @@
 				"pull": "Could not pull files."
 			},
 			"pathsTitle": "Folders to sync",
-			"folders": {
-				"agent": "Agent",
-				"notes": "Notes"
-			},
 			"push": "Push to bucket",
 			"pushing": "Pushing…",
 			"pushOk": "Pushed {{count}} file(s).",
