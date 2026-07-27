@@ -122,10 +122,6 @@ export interface McpApi {
 	oauthFinish: (id: string, code: string) => Promise<void>;
 }
 
-export interface LibraryApi {
-	list: () => Promise<LibraryFile[]>;
-}
-
 export interface ChannelsApi {
 	getConfig: () => Promise<Channel>;
 	saveChannelConfig: <TKey extends ChannelType>(
