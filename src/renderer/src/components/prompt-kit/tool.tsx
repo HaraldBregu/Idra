@@ -71,7 +71,6 @@ function formatValue(value: unknown): string {
 
 export function toolIcon(toolPart: ToolPart): typeof Wrench {
 	const type = toolPart.type.toLowerCase();
-	if (isProjectToolType(type)) return FolderKanban;
 	if (isTaskToolType(type)) return CalendarClock;
 	if (toolPart.serviceKind === 'mcp' || type.startsWith('mcp__')) return Plug;
 	if (type.includes('skill')) return Sparkles;
