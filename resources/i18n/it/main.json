@@ -942,10 +942,6 @@
 				"pull": "Impossibile scaricare i file."
 			},
 			"pathsTitle": "Cartelle da sincronizzare",
-			"folders": {
-				"agent": "Agente",
-				"notes": "Note"
-			},
 			"push": "Carica sul bucket",
 			"pushing": "Caricamento…",
 			"pushOk": "Caricati {{count}} file.",
