@@ -14,11 +14,11 @@ function stateWith(sessionsPath: string, folderName: string): SessionState {
 }
 
 describe('sessionsRoot', () => {
-	it('joins a resolved location with the shared sessions root', () => {
-		expect(sessionsRoot('/tmp/agent')).toBe(path.join('/tmp/agent', 'sessions'));
+	it('sits beside the resolved location', () => {
+		expect(sessionsRoot('/tmp/agent')).toBe('/tmp/agent_sessions');
 	});
 	it('resolves relative locations', () => {
-		expect(sessionsRoot('agent')).toBe(path.join(path.resolve('agent'), 'sessions'));
+		expect(sessionsRoot('agent')).toBe(`${path.resolve('agent')}_sessions`);
 	});
 });
 
