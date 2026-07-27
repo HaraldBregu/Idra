@@ -943,7 +943,7 @@
 			},
 			"pathsTitle": "Cartelle da sincronizzare",
 			"folders": {
-				"library": "Libreria",
+				"agent": "Agente",
 				"notes": "Note"
 			},
 			"push": "Carica sul bucket",
