@@ -140,16 +140,8 @@ async function* loop(
 			if (signal.aborted) return;
 			session.context.systemPrompt =
 				session.context.basePrompt === undefined
-					? await buildSystemPrompt(
-							config,
-							tools,
-							session.context.loadedSkills,
-							session.context.project
-						)
-					: addProjectPrompt(
-							await addFilesystemPrompt(config, session.context.basePrompt),
-							session.context.project
-						);
+					? await buildSystemPrompt(config, tools, session.context.loadedSkills)
+					: await addFilesystemPrompt(config, session.context.basePrompt);
 			persistSystemPrompt(session, session.context.systemPrompt, firstTurn);
 			firstTurn = false;
 			const turn = yield* runModelTurn(
