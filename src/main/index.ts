@@ -142,7 +142,6 @@ app.whenReady().then(async () => {
 		void stopWatchingWidgets();
 	});
 	syncSkills();
-	syncProjects();
 	// Apply persisted settings on startup (updateLanguage builds the menu)
 	const storedLanguage = getLanguage();
 	menuManager.updateLanguage(storedLanguage);
