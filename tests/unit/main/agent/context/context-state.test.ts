@@ -8,43 +8,56 @@ import {
 	type AgentCommand,
 } from '../../../../../src/main/agent/context';
 
-describe('agent context state limits', () => {
-	it('caps completed history and errors', () => {
-		const state = createContextState(createContext());
-		for (let index = 0; index < 205; index += 1) {
-			const command: AgentCommand = {
-				id: String(index),
-				agentId: 'main',
-				message: `message ${index}`,
-				options: {},
-				queuedAt: index,
-			};
-			enqueueCommand(state, command);
-			beginCommand(state, command);
-			finishCommand(state, command, { status: 'error', error: `error ${index}` }, index);
-		}
+const command = (id: string, agentId = 'main'): AgentCommand => ({
+	id,
+	agentId,
+	message: `message ${id}`,
+	options: {},
+	queuedAt: 0,
+});
 
-		expect(state.history).toHaveLength(200);
-		expect(state.errors).toHaveLength(200);
-		expect(state.history[0].command.id).toBe('5');
-		expect(state.errors[0]).toBe('error 5');
+describe('agent context state', () => {
+	it('moves a command from pending to current and clears it on finish', () => {
+		const state = createContextState(createContext());
+		const first = command('1');
+
+		enqueueCommand(state, first);
+		expect(state.pending).toEqual([first]);
+
+		beginCommand(state, first);
+		expect(state.pending).toEqual([]);
+		expect(state.current).toBe(first);
+
+		finishCommand(state, first);
+		expect(state.current).toBeUndefined();
 	});
 
-	it('caps history when pending commands are interrupted in one batch', () => {
+	it('leaves a newer current command alone when an older one finishes', () => {
 		const state = createContextState(createContext());
-		for (let index = 0; index < 205; index += 1) {
-			enqueueCommand(state, {
-				id: String(index),
-				agentId: 'main',
-				message: `message ${index}`,
-				options: {},
-				queuedAt: index,
-			});
-		}
+		const older = command('1');
+		const newer = command('2');
+
+		beginCommand(state, newer);
+		finishCommand(state, older);
+		expect(state.current).toBe(newer);
+	});
+
+	it('drops every pending command when no agent is given', () => {
+		const state = createContextState(createContext());
+		enqueueCommand(state, command('1', 'main'));
+		enqueueCommand(state, command('2', 'cron'));
 
 		interruptCommands(state);
+		expect(state.pending).toEqual([]);
+	});
 
-		expect(state.history).toHaveLength(200);
-		expect(state.history[0].command.id).toBe('5');
+	it('drops only the named agent commands', () => {
+		const state = createContextState(createContext());
+		const kept = command('2', 'cron');
+		enqueueCommand(state, command('1', 'main'));
+		enqueueCommand(state, kept);
+
+		interruptCommands(state, 'main');
+		expect(state.pending).toEqual([kept]);
 	});
 });
