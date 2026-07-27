@@ -1101,7 +1101,12 @@
 			"refresh": "Aggiorna",
 			"empty": "Nessun widget installato",
 			"emptyDescription": "Aggiungi una cartella widget che contiene manifest.json e il file di ingresso.",
-			"loadError": "Impossibile caricare i widget."
+			"loadError": "Impossibile caricare i widget.",
+			"details": "Dettagli",
+			"detailId": "ID",
+			"detailVersion": "Versione",
+			"detailCategory": "Categoria",
+			"detailEntry": "File di ingresso"
 		},
 		"skills": {
 			"title": "Abilità installate",
