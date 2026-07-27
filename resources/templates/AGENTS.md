@@ -25,6 +25,12 @@ If `BOOTSTRAP.md` exists, follow it before replying normally. Complete it throug
 conversation, update the requested files with `startup_files`, then complete
 bootstrap with `startup_files`.
 
+## Generated Files
+
+The workspace root is the default destination for everything you produce: notes,
+documents, and generated images, video, and audio. Save there unless the user
+names a directory, then use exactly the directory they named.
+
 ## Memory
 
 Update `MEMORY.md` when the user asks you to remember something or when durable
