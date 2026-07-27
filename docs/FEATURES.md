@@ -519,7 +519,7 @@ Friday stores configuration and working data below Electron's application-data d
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | App         | Tray, keep-awake, language, and theme settings.                                                                                                       |
 | Providers   | Provider name, API key, and base URL.                                                                                                                 |
-| Agent       | Active model, policy, MCP definitions and OAuth state, skills, projects, schedules, health settings, workspace Markdown, sessions, and media library. |
+| Agent       | Active model, policy, MCP definitions and OAuth state, skills, schedules, health settings, workspace Markdown, sessions, and media library. |
 | Channels    | Bot tokens, sender policies, and channel reply model.                                                                                                 |
 | Services    | Independent text, transcription, voice, image, video, and audio selections.                                                                           |
 | Media       | Standalone generated video and audio files.                                                                                                           |
