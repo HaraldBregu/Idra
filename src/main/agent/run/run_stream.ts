@@ -7,7 +7,6 @@ import {
 	modelMessages,
 	persistSystemPrompt,
 	recordTurn,
-	setProject,
 	toResult,
 	type SessionState,
 } from '../session';
