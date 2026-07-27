@@ -19,7 +19,6 @@ export function init(
 	state.category = category;
 	state.folderName = sessionFolderName(state.id);
 	state.sessionsPath = sessionsRoot(config.location);
-	state.context.project = loadProject(state);
 	const storedMessages = loadMessagesBySessionId(state.id, config.location);
 	const legacyMessages =
 		input.sessionId && input.sessionId !== state.id && storedMessages.length === 0
