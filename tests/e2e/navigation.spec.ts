@@ -38,7 +38,6 @@ const routes = [
 	'/settings/image',
 	'/settings/video',
 	'/settings/music',
-	'/settings/library',
 ];
 
 for (const route of routes) {
