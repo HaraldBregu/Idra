@@ -72,9 +72,18 @@ const WidgetsPage: React.FC = () => {
 						widgets.map((widget) => (
 							<Item
 								key={widget.id}
+								role="button"
+								tabIndex={0}
 								variant="outline"
 								size="md"
-								className="border-b border-border/60 last:border-b-0"
+								className="cursor-pointer border-b border-border/60 hover:bg-muted/40 last:border-b-0"
+								onClick={() => navigate(`/settings/widgets/widgetdetails/${encodeURIComponent(widget.id)}`)}
+								onKeyDown={(event) => {
+									if (event.key === 'Enter' || event.key === ' ') {
+										event.preventDefault();
+										navigate(`/settings/widgets/widgetdetails/${encodeURIComponent(widget.id)}`);
+									}
+								}}
 							>
 								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
 									<ItemTitle className="max-w-full truncate">{widget.title}</ItemTitle>
@@ -82,9 +91,12 @@ const WidgetsPage: React.FC = () => {
 										{widget.description}
 									</p>
 								</ItemContent>
-								<Badge variant="secondary" className="text-[10px] leading-none">
-									{widget.metadata.category}
-								</Badge>
+								<ItemActions className="ml-auto flex-none items-center justify-end gap-2">
+									<Badge variant="secondary" className="text-[10px] leading-none">
+										{widget.metadata.category}
+									</Badge>
+									<ChevronRight className="size-3.5 text-muted-foreground" strokeWidth={1.8} />
+								</ItemActions>
 							</Item>
 						))
 					)}
