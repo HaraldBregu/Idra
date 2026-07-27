@@ -23,6 +23,7 @@ const WidgetDetailsPage: React.FC = () => {
 	const decodedWidgetId = decodeURIComponent(widgetId ?? '');
 	const [widget, setWidget] = useState<Widget | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [opening, setOpening] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const loadErrorFallback = t('settings.widgets.loadError');
 
