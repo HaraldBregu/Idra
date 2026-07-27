@@ -119,7 +119,7 @@ There is a clear-messages API in the runtime, but the current Chat History scree
 
 ## 2. Agent runtime and automation
 
-This group covers what makes Friday an agent rather than a chat window: the tool-calling loop, its permission model, and the automation surfaces (projects, skills, MCP, schedules, health checks) built on top of it.
+This group covers what makes Friday an agent rather than a chat window: the tool-calling loop, its permission model, and the automation surfaces (skills, MCP, schedules, health checks) built on top of it.
 
 ### Agent runtime
 
