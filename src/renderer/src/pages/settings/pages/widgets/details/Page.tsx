@@ -45,6 +45,19 @@ const WidgetDetailsPage: React.FC = () => {
 		void loadWidget();
 	}, [loadWidget]);
 
+	const handleOpen = useCallback(async (): Promise<void> => {
+		if (!widget) return;
+		setOpening(true);
+		setErrorMessage('');
+		try {
+			await window.widgets.open(widget.id);
+		} catch {
+			setErrorMessage(t('settings.widgets.openError'));
+		} finally {
+			setOpening(false);
+		}
+	}, [widget, t]);
+
 	if (loading) {
 		return (
 			<SettingsPageShell>
