@@ -9,7 +9,10 @@ describe('rememberSkill', () => {
 	});
 
 	it('updates the content of an existing skill in place', () => {
-		const context: AgentContext = { loadedSkills: [{ name: 'writer', content: 'old' }] };
+		const context: AgentContext = {
+			toolsContext: {},
+			loadedSkills: [{ name: 'writer', content: 'old' }],
+		};
 		rememberSkill(context, 'writer', 'new');
 		expect(context.loadedSkills).toEqual([{ name: 'writer', content: 'new' }]);
 	});
