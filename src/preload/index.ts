@@ -22,7 +22,6 @@ export { app } from './app';
 export { channels } from './channels';
 export { cron } from './cron';
 export { image } from './image';
-export { library } from './library';
 export { mcp } from './mcp';
 export { provider } from './provider';
 export { search } from './search';
