@@ -160,6 +160,7 @@ export interface StorageApi {
 
 export interface WidgetsApi {
 	list: () => Promise<Widget[]>;
+	open: (widgetId: string) => Promise<void>;
 }
 
 export interface SearchApi {
