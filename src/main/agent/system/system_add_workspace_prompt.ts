@@ -13,7 +13,8 @@ export async function addWorkspacePrompt(config: Config, prompt: string): Promis
 
 	prompt += '\n\n## Workspace';
 	prompt += `\nYour workspace directory holds your configuration and bootstrap files: ${resolvedWorkspacePath}`;
-	prompt += '\nIt is not your working directory for tasks, use it only to read or update your configuration and bootstrap files.';
+	prompt += '\nIt is also your working directory: every file you create, including generated images, video, and audio, goes here unless the user names another directory.';
+	prompt += '\nDo not edit the configuration and bootstrap files listed below as part of ordinary task work, only when the user asks you to change them.';
 
 	let workspaceContext = '';
 	const agentText = await readAgent(resolvedWorkspacePath);
