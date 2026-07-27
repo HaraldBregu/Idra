@@ -51,7 +51,6 @@ const VoicePage = lazy(() => import('./pages/settings/pages/voice/Page'));
 const ImagePage = lazy(() => import('./pages/settings/pages/image/Page'));
 const VideoPage = lazy(() => import('./pages/settings/pages/video/Page'));
 const MusicPage = lazy(() => import('./pages/settings/pages/music/Page'));
-const LibraryPage = lazy(() => import('./pages/settings/pages/library/Page'));
 const WidgetsPage = lazy(() => import('./pages/settings/pages/widgets/Page'));
 
 function ModelServiceLegacyRedirect(): React.JSX.Element {
