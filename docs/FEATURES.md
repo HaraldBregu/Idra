@@ -562,7 +562,6 @@ The main implementation areas behind this reference are:
 - [Chat and renderer UI](../src/renderer/src/pages/home/)
 - [Settings pages](../src/renderer/src/pages/settings/)
 - [Agent runtime and tools](../src/main/agent/)
-- [Project workspace tools](../src/main/agent/tools/) (`project_*.ts`)
 - [Widgets](../src/main/widgets/)
 - [Cloud storage sync](../src/renderer/src/pages/settings/pages/storage/)
 - [Provider catalog and models](../src/shared/provider_models_definitions.ts)
