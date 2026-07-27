@@ -18,7 +18,6 @@ export interface ToolsContext {
 export interface AgentContext {
 	skill?: string;
 	loadedSkills?: LoadedSkill[];
-	project?: string;
 	basePrompt?: string;
 	systemPrompt?: string;
 	toolsContext: ToolsContext;
