@@ -31,7 +31,7 @@ This document describes the feature set present in the current source tree, grou
 Friday provides:
 
 - Persistent, streaming conversations with multiple local chat sessions.
-- An agent loop that can use files, patches, commands, long-running processes, the web, a browser, memory, named project workspaces, skills, MCP tools, media generation, automation tools, and one-level subagents.
+- An agent loop that can use files, patches, commands, long-running processes, the web, a browser, memory, skills, MCP tools, media generation, automation tools, and one-level subagents.
 - Image and PDF attachments for multimodal requests, and live or recorded speech-to-text input with text-to-speech playback.
 - Independent provider and model selection for chat, transcription, speech, image, video, audio, scheduled work, and health checks.
 - Local skills, remote HTTP MCP servers, local stdio MCP servers, and standalone widget windows.
