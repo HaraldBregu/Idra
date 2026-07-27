@@ -545,7 +545,7 @@ Known boundaries:
 - The external-URL IPC path does not validate schemes before passing a URL to Electron.
 - Provider secrets can be read by trusted renderer code through the provider preload API.
 - The local-resource protocol confines `local-resource://agent/...`, while other host/path forms are less restricted.
-- Project management tools and some MCP behaviors (see [Projects](#projects) and [MCP servers](#mcp-servers)) run outside the centralized tool-policy system.
+- Some MCP behaviors (see [MCP servers](#mcp-servers)) run outside the centralized tool-policy system.
 - Friday does not claim formal certification for regulated data.
 
 ## 8. Platform and packaging
