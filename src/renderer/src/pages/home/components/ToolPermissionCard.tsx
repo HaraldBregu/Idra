@@ -47,64 +47,34 @@ export function ToolPermissionCard({
 					{detail}
 				</p>
 			)}
-			{isDelete && (
-				<p className="mt-2 text-xs font-medium text-destructive">
-					This permanently deletes the project and all its files, and cannot be undone.
-				</p>
-			)}
 			<div className="mt-3 flex flex-wrap justify-end gap-2">
-				{isDelete ? (
-					<>
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							disabled={responded}
-							onClick={() => respond('reject')}
-						>
-							Cancel
-						</Button>
-						<Button
-							type="button"
-							variant="destructive"
-							size="sm"
-							disabled={responded}
-							onClick={() => respond('approve')}
-						>
-							Delete
-						</Button>
-					</>
-				) : (
-					<>
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							disabled={responded}
-							onClick={() => respond('reject')}
-						>
-							Deny
-						</Button>
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							disabled={responded}
-							onClick={() => respond('approve_always')}
-						>
-							Always allow
-						</Button>
-						<Button
-							type="button"
-							variant="default"
-							size="sm"
-							disabled={responded}
-							onClick={() => respond('approve')}
-						>
-							Allow once
-						</Button>
-					</>
-				)}
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
+					disabled={responded}
+					onClick={() => respond('reject')}
+				>
+					Deny
+				</Button>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					disabled={responded}
+					onClick={() => respond('approve_always')}
+				>
+					Always allow
+				</Button>
+				<Button
+					type="button"
+					variant="default"
+					size="sm"
+					disabled={responded}
+					onClick={() => respond('approve')}
+				>
+					Allow once
+				</Button>
 			</div>
 		</div>
 	);
