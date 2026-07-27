@@ -30,9 +30,15 @@ export async function pushFiles(id: string): Promise<StoragePushResult> {
 			const stat = await fs.stat(entryPath);
 			if (stat.isDirectory()) {
 				const folderName = path.basename(entryPath);
+				const localKeys = new Set<string>();
 				for (const file of await walkFiles(entryPath)) {
 					const relative = path.relative(entryPath, file).split(path.sep).join('/');
-					await uploadFile(file, `${folderName}/${relative}`);
+					const key = `${folderName}/${relative}`;
+					localKeys.add(key);
+					await uploadFile(file, key);
+				}
+				for (const item of await listObjects(id, `${folderName}/`)) {
+					if (!localKeys.has(item.key)) await deleteObject(id, item.key);
 				}
 			} else {
 				await uploadFile(entryPath, path.basename(entryPath));
