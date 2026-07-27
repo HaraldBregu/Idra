@@ -96,7 +96,22 @@ const WidgetDetailsPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={widget.title} description={widget.description} />
+			<SettingsPageHeader
+				title={widget.title}
+				description={widget.description}
+				action={
+					<Button variant="outline" size="xs" onClick={() => void handleOpen()} disabled={opening}>
+						<ExternalLink className="size-3" />
+						{t('settings.widgets.open')}
+					</Button>
+				}
+			/>
+
+			{errorMessage && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{errorMessage}
+				</SettingsNotice>
+			)}
 
 			<SettingsSection title={t('settings.widgets.details')}>
 				<SettingsPanel>
