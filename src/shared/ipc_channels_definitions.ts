@@ -49,10 +49,6 @@ export const McpChannels = {
 	oauthFinish: 'mcp:oauth:finish',
 } as const;
 
-export const LibraryChannels = {
-	list: 'library:list',
-} as const;
-
 export const AppChannels = {
 	openAppDataFolder: 'app:open-app-data-folder',
 	openExternalUrl: 'app:open-external-url',
