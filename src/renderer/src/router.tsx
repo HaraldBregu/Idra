@@ -52,6 +52,7 @@ const ImagePage = lazy(() => import('./pages/settings/pages/image/Page'));
 const VideoPage = lazy(() => import('./pages/settings/pages/video/Page'));
 const MusicPage = lazy(() => import('./pages/settings/pages/music/Page'));
 const WidgetsPage = lazy(() => import('./pages/settings/pages/widgets/Page'));
+const WidgetDetailsPage = lazy(() => import('./pages/settings/pages/widgets/details/Page'));
 
 function ModelServiceLegacyRedirect(): React.JSX.Element {
 	const location = useLocation();
