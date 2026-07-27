@@ -23,7 +23,6 @@ import {
 	enqueueCommand,
 	finishCommand,
 	interruptCommands,
-	trackEvent,
 	type AgentCommand,
 	type AgentContextState,
 } from './context';
