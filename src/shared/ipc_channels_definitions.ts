@@ -179,6 +179,7 @@ export const VideoChannels = {
 
 export const WidgetChannels = {
 	list: 'widgets:list',
+	open: 'widgets:open',
 } as const;
 
 export const WindowChannels = {
