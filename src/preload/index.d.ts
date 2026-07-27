@@ -6,7 +6,6 @@ import type {
 	ChannelsApi,
 	CronApi,
 	ImageApi,
-	LibraryApi,
 	McpApi,
 	ProviderApi,
 	SearchApi,
