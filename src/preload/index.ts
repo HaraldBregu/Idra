@@ -42,7 +42,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('mcp', mcp);
-		contextBridge.exposeInMainWorld('library', library);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('storage', storage);
 		contextBridge.exposeInMainWorld('provider', provider);
