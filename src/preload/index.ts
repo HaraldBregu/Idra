@@ -70,8 +70,6 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.mcp = mcp;
 	// @ts-ignore (define in dts)
-	globalThis.library = library;
-	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
 	globalThis.storage = storage;
