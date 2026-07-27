@@ -16,7 +16,6 @@ export { sessionDir } from './session_session_dir';
 export { sessionFolderName } from './session_session_folder_name';
 export { sessionPath } from './session_session_path';
 export { sessionsRoot } from './session_sessions_root';
-export { setProject } from './session_set_project';
 export { toResult } from './session_to_result';
 export {
 	DEFAULT_CATEGORY,
