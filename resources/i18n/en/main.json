@@ -1101,6 +1101,8 @@
 			"empty": "No widgets installed",
 			"emptyDescription": "Add a widget folder that contains a manifest.json and entry file.",
 			"loadError": "Unable to load widgets.",
+			"open": "Open",
+			"openError": "Unable to open the widget.",
 			"details": "Details",
 			"detailId": "ID",
 			"detailVersion": "Version",
