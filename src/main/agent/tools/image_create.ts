@@ -1,27 +1,27 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import { z } from 'zod';
 import { createImage } from '../../image';
-import { libraryLocation } from '../../shared/library_location';
 import type { Tool } from '../types';
+import { saveMedia } from './media_save';
 import { tool } from './tool';
 
 export function createImageTool(): Tool {
 	return tool({
 		name: 'create_image',
 		description:
-			'Generate an image from a text prompt using the configured text-to-image provider. Saves the image under the library directory and returns its absolute path. The image is shown to the user automatically; if you reference it in markdown, use the returned path.',
+			'Generate an image from a text prompt using the configured text-to-image provider. Saves the image in your agent workspace directory and returns its absolute path. The image is shown to the user automatically; if you reference it in markdown, use the returned path.',
 		inputSchema: z.object({
 			prompt: z.string().min(1).describe('Text prompt describing the image to generate.'),
+			directory: z
+				.string()
+				.optional()
+				.describe(
+					'Optional directory to save the image in, relative to the agent workspace. ~ expands to the user home. Defaults to the agent workspace directory; only set it when the user asks for a specific location.'
+				),
 		}),
-		execute: async ({ prompt }) => {
+		execute: async ({ prompt, directory }) => {
 			const { base64, mimeType } = await createImage({ prompt });
 			const ext = mimeType.split('/')[1]?.split('+')[0] || 'png';
-			const fileName = `image-${Date.now()}.${ext}`;
-			const libraryDir = libraryLocation();
-			await fs.mkdir(libraryDir, { recursive: true });
-			const filePath = path.join(libraryDir, fileName);
-			await fs.writeFile(filePath, Buffer.from(base64, 'base64'));
+			const filePath = await saveMedia('image', ext, base64, directory);
 			return { path: filePath, mimeType };
 		},
 	});
