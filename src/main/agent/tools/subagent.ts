@@ -26,7 +26,7 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 				.string()
 				.optional()
 				.describe(
-					'Custom system prompt for the subagent. Omit to run it with the default subagent instructions.'
+					'Additional system instructions for the subagent. Mandatory subagent rules are always retained.'
 				),
 		}),
 		execute: async ({ task, systemPrompt }) => {
@@ -34,7 +34,9 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 			// Fresh context: the subagent never sees the main agent's conversation.
 			const session = createSessionState();
 			session.messages = [{ role: 'user', content: task }];
-			session.context.basePrompt = addSkillPrompt(systemPrompt ?? instructions);
+			session.context.basePrompt = addSkillPrompt(
+				systemPrompt?.trim() ? `${systemPrompt.trim()}\n\n${instructions}` : instructions
+			);
 			adoptSubagent(parent, session.context);
 
 			let text = '';

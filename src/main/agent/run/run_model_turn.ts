@@ -1,4 +1,4 @@
-import { LlmModel } from '../../models/llm';
+import { LlmContextOverflowError, LlmModel } from '../../models/llm';
 import type { LlmEvent, LlmRequest } from '../../models/llm';
 import { parseToolArgs } from '../../shared/parse_tool_args';
 import type { ResolvedProvider } from '../../../shared/providers_types';
@@ -84,7 +84,7 @@ export async function* runModelTurn(
 				})),
 			};
 		} catch (error) {
-			if (signal.aborted) throw error;
+			if (signal.aborted || error instanceof LlmContextOverflowError) throw error;
 			if (attempt >= maxRetries) throw error;
 		}
 	}

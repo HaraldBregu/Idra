@@ -4,6 +4,8 @@ export type AgentLoopState = 'idle' | 'running' | 'cancelled' | 'error';
 
 export type CommandStatus = 'ok' | 'error' | 'cancelled';
 
+export const AGENT_CONTEXT_HISTORY_LIMIT = 200;
+
 export interface AgentCommand<TOptions = unknown> {
 	id: string;
 	agentId: string;

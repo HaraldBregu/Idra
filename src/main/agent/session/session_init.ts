@@ -5,6 +5,7 @@ import { loadProject } from './session_load_project';
 import { loadMessagesBySessionId } from './session_load_messages_by_session_id';
 import { persist } from './session_persist';
 import { resolveSessionId } from './session_resolve_session_id';
+import { sanitizeMessages } from './session_sanitize_messages';
 import { sessionFolderName } from './session_session_folder_name';
 import { sessionsRoot } from './session_sessions_root';
 import { DEFAULT_CATEGORY } from './session_types';
@@ -25,10 +26,10 @@ export function init(
 		input.sessionId && input.sessionId !== state.id && storedMessages.length === 0
 			? loadMessagesBySessionId(input.sessionId, config.location)
 			: [];
-	state.messages = [
+	state.messages = sanitizeMessages([
 		...(storedMessages.length > 0 ? storedMessages : legacyMessages),
 		...(input.messages ?? []),
-	];
+	]);
 	if (input.message || (input.files?.length ?? 0) > 0) {
 		state.messages.push({ role: 'user', content: toUserContent(input.message, input.files ?? []) });
 	}

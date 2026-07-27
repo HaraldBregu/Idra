@@ -3,8 +3,9 @@ import {
 	addAssistantMessage,
 	addToolResults,
 	appendRun,
-	isExhausted,
-	persistSystemPrompt,
+		isExhausted,
+		modelMessages,
+		persistSystemPrompt,
 	recordTurn,
 	setProject,
 	toResult,
@@ -169,7 +170,7 @@ async function* loop(
 				provider,
 				modelId,
 				session.context.systemPrompt,
-				session.messages,
+				modelMessages(session.messages),
 				tools,
 				signal
 			);
