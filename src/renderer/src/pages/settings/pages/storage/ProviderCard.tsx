@@ -449,14 +449,14 @@ export function ProviderCard({
 									return (
 										<Item key={folder.key} variant="outline" size="sm" className="px-0">
 											<ItemContent className="min-w-0 flex-1">
-												<ItemTitle>{t(`settings.storage.folders.${folder.key}`)}</ItemTitle>
+												<ItemTitle className="truncate">{folder.path}</ItemTitle>
 											</ItemContent>
 											<ItemActions className="ml-auto flex-none">
 												<Switch
 													checked={active}
 													onCheckedChange={(checked) => toggleSyncFolder(folder.path, checked)}
 													disabled={saving}
-													aria-label={t(`settings.storage.folders.${folder.key}`)}
+													aria-label={folder.path}
 												/>
 											</ItemActions>
 										</Item>

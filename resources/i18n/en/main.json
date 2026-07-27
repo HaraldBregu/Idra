@@ -1101,7 +1101,12 @@
 			"refresh": "Refresh",
 			"empty": "No widgets installed",
 			"emptyDescription": "Add a widget folder that contains a manifest.json and entry file.",
-			"loadError": "Unable to load widgets."
+			"loadError": "Unable to load widgets.",
+			"details": "Details",
+			"detailId": "ID",
+			"detailVersion": "Version",
+			"detailCategory": "Category",
+			"detailEntry": "Entry file"
 		},
 		"skills": {
 			"title": "Installed skills",
