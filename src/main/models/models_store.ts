@@ -2,7 +2,15 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
 
-export type ModelKind = 'text' | 'sound' | 'image' | 'video' | 'voice' | 'transcribe' | 'realtime';
+export type ModelKind =
+	| 'text'
+	| 'sound'
+	| 'image'
+	| 'video'
+	| 'voice'
+	| 'transcribe'
+	| 'realtime'
+	| 'embedding';
 
 export type ModelSelection = {
 	providerId: string;
