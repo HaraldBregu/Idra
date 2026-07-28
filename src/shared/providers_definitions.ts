@@ -489,6 +489,34 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		capabilities: 'Research chat',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.perplexity,
 	},
+	{
+		id: 'cohere',
+		name: 'Cohere',
+		baseUrl: 'https://api.cohere.com/v2',
+		apiKey: '',
+		capabilities: 'Embedding',
+	},
+	{
+		id: 'voyage',
+		name: 'Voyage AI',
+		baseUrl: 'https://api.voyageai.com/v1',
+		apiKey: '',
+		capabilities: 'Embedding',
+	},
+	{
+		id: 'nomic',
+		name: 'Nomic',
+		baseUrl: 'https://api-atlas.nomic.ai/v1',
+		apiKey: '',
+		capabilities: 'Embedding',
+	},
+	{
+		id: 'jina',
+		name: 'Jina AI',
+		baseUrl: 'https://api.jina.ai/v1',
+		apiKey: '',
+		capabilities: 'Embedding',
+	},
 ];
 
 export function getProviderApiConfigurationUrl(
