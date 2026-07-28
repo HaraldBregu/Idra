@@ -180,7 +180,8 @@
 				"health": "Controlli salute periodici",
 				"policies": "Permessi strumenti e regole di percorso",
 				"widgets": "App widget installate",
-				"rag": "Indice documenti e ricerca vettoriale"
+				"rag": "Indice documenti e ricerca vettoriale",
+				"vectorDb": "Database vettoriale Pinecone"
 			}
 		},
 		"tabs": {
@@ -208,7 +209,8 @@
 			"developer": "Sviluppatore",
 			"skills": "Abilità",
 			"widgets": "Widget",
-			"rag": "RAG"
+			"rag": "RAG",
+			"vectorDb": "Vector DB"
 		},
 		"breadcrumb": {
 			"label": "Navigazione impostazioni",
@@ -1275,6 +1277,15 @@
 			"searching": "Ricerca...",
 			"searchError": "Impossibile cercare nell'indice.",
 			"noResults": "Nessun risultato trovato."
+		},
+		"vectorDb": {
+			"description": "Database vettoriale usato dal RAG per salvare e cercare gli embedding.",
+			"connectionTitle": "Pinecone",
+			"apiKey": "Chiave API",
+			"apiKeyDescription": "La chiave viene usata per creare l'indice e caricare i vettori.",
+			"apiKeyPlaceholder": "Incolla la tua chiave API Pinecone...",
+			"save": "Salva",
+			"saved": "Chiave API salvata."
 		}
 	},
 	"dialogs": {

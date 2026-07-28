@@ -180,7 +180,8 @@
 				"health": "Periodic health checks",
 				"policies": "Tool permissions and path rules",
 				"widgets": "Installed widget apps",
-				"rag": "Document index and vector search"
+				"rag": "Document index and vector search",
+				"vectorDb": "Pinecone vector database"
 			}
 		},
 		"tabs": {
@@ -208,7 +209,8 @@
 			"developer": "Developer",
 			"skills": "Skills",
 			"widgets": "Widgets",
-			"rag": "RAG"
+			"rag": "RAG",
+			"vectorDb": "Vector DB"
 		},
 		"breadcrumb": {
 			"label": "Settings navigation",
@@ -1275,6 +1277,15 @@
 			"searching": "Searching...",
 			"searchError": "Unable to search the index.",
 			"noResults": "No matches found."
+		},
+		"vectorDb": {
+			"description": "Vector database used by RAG to store and search embeddings.",
+			"connectionTitle": "Pinecone",
+			"apiKey": "API key",
+			"apiKeyDescription": "The key is used to create the index and upsert vectors.",
+			"apiKeyPlaceholder": "Paste your Pinecone API key...",
+			"save": "Save",
+			"saved": "API key saved."
 		}
 	},
 	"dialogs": {
