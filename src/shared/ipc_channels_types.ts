@@ -14,9 +14,16 @@ import type { ImageRequest, ImageResult } from './image_types';
 import type { SoundFile, SoundRequest, SoundResult } from './sound_types';
 import type { VideoRequest, VideoResult } from './video_types';
 import type { TextRequest } from './text_types';
+import type {
+	AudioCaptureCommand,
+	AudioCaptureResult,
+	AudioRecordConfig,
+	AudioRecording,
+} from './audio_types';
 import {
 	AgentChannels,
 	AppChannels,
+	AudioChannels,
 	ChannelsChannels,
 	CronChannels,
 	McpChannels,
