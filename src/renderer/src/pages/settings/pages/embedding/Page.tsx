@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, LoaderCircle, Sparkles } from 'lucide-react';
 import {
+	DEFAULT_EMBEDDING_PROVIDER_ID,
 	EMBEDDING_MODELS_BY_PROVIDER,
 	EMBEDDING_PROVIDER_IDS,
 } from '../../../../../../shared/provider_models_definitions';
