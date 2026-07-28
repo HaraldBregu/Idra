@@ -593,6 +593,7 @@ export interface InvokeChannelMap
 	extends
 		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
+		AudioInvokeChannelMap,
 		CronInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		McpInvokeChannelMap,
