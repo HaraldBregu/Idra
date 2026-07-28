@@ -55,9 +55,10 @@ export const LLM_MODELS_BY_PROVIDER = {
 	],
 	kimi: [
 		model('kimi-k3', 'Kimi K3'),
+		model('kimi-k2.7-code', 'Kimi K2.7 Code'),
+		model('kimi-k2.7-code-highspeed', 'Kimi K2.7 Code Highspeed'),
 		model('kimi-k2.6', 'Kimi K2.6'),
 		model('kimi-k2.5', 'Kimi K2.5'),
-		model('kimi-k2-thinking', 'Kimi K2 Thinking'),
 	],
 	minimax: [model('MiniMax-M2.7', 'MiniMax M2.7'), model('MiniMax-M2.5', 'MiniMax M2.5')],
 	mistral: [
