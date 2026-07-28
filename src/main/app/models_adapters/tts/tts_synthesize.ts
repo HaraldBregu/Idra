@@ -50,7 +50,7 @@ function resolveModelId(providerId: TextToSpeechProviderId, modelId: string | un
 }
 
 function configuredProviderId(): TextToSpeechProviderId | undefined {
-	const stored = getStoredProviderId();
+	const stored = getProviderId('voice');
 	if (!stored) return undefined;
 	const normalized = normalizeProviderId(stored);
 	return (TEXT_TO_SPEECH_PROVIDER_IDS as readonly string[]).includes(normalized)
