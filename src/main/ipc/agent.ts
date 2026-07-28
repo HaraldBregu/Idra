@@ -256,7 +256,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler(async (): Promise<string | undefined> => {
 				const window = BrowserWindow.getFocusedWindow();
 				const options = {
-					defaultPath: agentLocation(),
+					defaultPath: workspacePath(agent.config),
 					properties: ['openDirectory' as const],
 				};
 				const result = await (window
