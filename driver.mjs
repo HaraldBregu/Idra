@@ -13,6 +13,7 @@ for await (const line of process.stdin) {
 	const arg = rest.join(' ');
 	try {
 		if (cmd === 'eval') console.log(JSON.stringify(await win.evaluate(arg)));
+		else if (cmd === 'fill') { const [sel, ...v] = arg.split('|'); await win.fill(sel, v.join('|')); console.log('filled'); }
 		else if (cmd === 'click') { await win.click(arg); console.log('clicked'); }
 		else if (cmd === 'ss') { await win.screenshot({ path: arg }); console.log('shot ' + arg); }
 		else if (cmd === 'quit') break;
