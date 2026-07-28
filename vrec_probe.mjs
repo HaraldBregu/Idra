@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { _electron } from 'playwright-core';
 
 const app = await _electron.launch({
@@ -8,47 +9,26 @@ const win = await app.firstWindow();
 await win.waitForLoadState('domcontentloaded');
 await new Promise((r) => setTimeout(r, 4000));
 
-// 1. renderer-side capability probe
-const probe = await win.evaluate(async () => {
-	const out = { href: location.href, hasRecorder: !!window.recorder, secure: window.isSecureContext };
-	try {
-		const s = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-		out.gum = 'ok';
-		out.tracks = s.getTracks().map((t) => `${t.kind}:${t.label}:${t.readyState}`);
-		out.mimeSupport = {
-			default: MediaRecorder.isTypeSupported('video/webm'),
-			vp8: MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus'),
-		};
-		const rec = new MediaRecorder(s);
-		out.recorderMime = rec.mimeType;
-		s.getTracks().forEach((t) => t.stop());
-	} catch (e) {
-		out.gum = `FAIL ${e.name}: ${e.message}`;
+for (const track of ['microphone', 'camera', 'screen']) {
+	const out = `/tmp/claude-501/probe-${track}.webm`;
+	fs.rmSync(out, { force: true });
+	const res = await win.evaluate(
+		async ([track, out]) => {
+			const started = await window.recorder[track].start({ url: out, duration: 2500 });
+			await new Promise((r) => setTimeout(r, 8000));
+			return (await window.recorder[track].list()).find((r) => r.id === started.id);
+		},
+		[track, out]
+	);
+	let verdict = 'NO FILE';
+	if (fs.existsSync(out)) {
+		const b = fs.readFileSync(out);
+		const magic = b.subarray(0, 4).toString('hex');
+		const codecs = ['V_VP8', 'V_VP9', 'A_OPUS'].filter((c) => b.toString('latin1').includes(c));
+		verdict = `${b.length}B magic=${magic}${magic === '1a45dfa3' ? ' (valid EBML)' : ' (CORRUPT)'} codecs=[${codecs}]`;
 	}
-	return out;
-});
-console.log('PROBE', JSON.stringify(probe, null, 2));
-
-// 2. full path through main-process recorder
-const start = await app.evaluate(async ({}, dir) => {
-	const { videoRecorder } = require('./out/main/index.js').__test ?? {};
-	return 'noexport';
-}, process.cwd()).catch((e) => 'evalfail: ' + e.message);
-console.log('MAINEVAL', start);
-
-// 2b. drive via renderer IPC (same path the tool uses in main, minus tool wrapper)
-const rec = await win.evaluate(async () => {
-	const events = [];
-	window.recorder.video.onEvent((e) => events.push({ ...e }));
-	const started = await window.recorder.video.start({
-		url: '/tmp/claude-501/vrec-probe.webm',
-		duration: 3000,
-	});
-	await new Promise((r) => setTimeout(r, 9000));
-	const list = await window.recorder.video.list();
-	return { started, events, list };
-});
-console.log('RECORD', JSON.stringify(rec, null, 2));
+	console.log(`${track}: status=${res?.status} ${res?.error ?? ''} mime=${res?.mimeType} -> ${verdict}`);
+}
 
 await app.close();
 process.exit(0);
