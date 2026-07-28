@@ -1,4 +1,6 @@
-import type { RecorderTrackApi } from '@shared/api_types';
+import type { RecorderApi } from '@shared/api_types';
+
+type RecorderTrack = RecorderApi['microphone'];
 
 type ActiveCapture = {
 	recorder: MediaRecorder;
