@@ -12,7 +12,7 @@ import {
 } from '../session';
 import { rememberSkill } from '../context';
 import { buildSkillContext, buildSystemPrompt, buildWorkspaceContext } from '../system';
-import { loadMcpTools } from '../tools/mcp_loader';
+import { loadMcpTools } from '../tools/mcp/loader';
 import { completeBootstrapTool } from '../tools/bootstrap_complete';
 import { readTool } from '../tools/file/read';
 import { writeTool } from '../tools/file/write';

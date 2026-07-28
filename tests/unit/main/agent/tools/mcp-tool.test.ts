@@ -12,7 +12,7 @@ jest.mock('electron-store', () =>
 	})
 );
 
-import { mcpTool } from '../../../../../src/main/agent/tools/mcp_tool';
+import { mcpTool } from '../../../../../src/main/agent/tools/mcp/tool';
 import type { McpClient } from '../../../../../src/main/agent/mcp';
 
 const client = {} as McpClient;
