@@ -34,6 +34,7 @@ const DEFAULT_MODELS_STORE: ModelsStoreState = {
 	voice: EMPTY_SELECTION,
 	transcribe: EMPTY_SELECTION,
 	realtime: EMPTY_SELECTION,
+	embedding: EMPTY_SELECTION,
 };
 
 const store = new Store<ModelsStoreState>({
