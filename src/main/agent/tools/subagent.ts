@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { tool } from './tool';
 import { createSessionState } from '../session';
-import { addSkillPrompt } from '../system';
 import { adoptSubagent, type AgentContext } from '../context';
 import { stream } from '../run/run_stream';
 import type { Config, RuntimeInput, Tool } from '../types';
@@ -34,9 +33,9 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 			// Fresh context: the subagent never sees the main agent's conversation.
 			const session = createSessionState();
 			session.messages = [{ role: 'user', content: task }];
-			session.context.basePrompt = addSkillPrompt(
-				systemPrompt?.trim() ? `${systemPrompt.trim()}\n\n${instructions}` : instructions
-			);
+			session.context.basePrompt = systemPrompt?.trim()
+				? `${systemPrompt.trim()}\n\n${instructions}`
+				: instructions;
 			adoptSubagent(parent, session.context);
 
 			let text = '';

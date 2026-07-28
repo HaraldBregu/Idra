@@ -1,16 +1,22 @@
 jest.mock('../../../../../src/main/skills', () => ({
-	listSkills: jest.fn(() => [{ title: 'Writer', description: 'Draft documents' }]),
+	listSkills: jest.fn(),
 }));
 
+import { listSkills } from '../../../../../src/main/skills';
 import { addBasePrompt } from '../../../../../src/main/agent/system/system_add_base_prompt';
 import { addSkillPrompt } from '../../../../../src/main/agent/system/system_add_skill_prompt';
 import { addToolsPrompt } from '../../../../../src/main/agent/system/system_add_tools_prompt';
-import { hasUserProfile } from '../../../../../src/main/agent/system/system_has_user_profile';
 import type { Tool } from '../../../../../src/main/agent/types';
+
+const listSkillsMock = jest.mocked(listSkills);
 
 function tool(name: string, description?: string): Tool {
 	return { name, description } as Tool;
 }
+
+beforeEach(() => {
+	listSkillsMock.mockReturnValue([{ title: 'Writer', description: 'Draft documents' }]);
+});
 
 describe('addBasePrompt', () => {
 	it('appends the assistant identity and standard sections', () => {
@@ -58,21 +64,16 @@ describe('addSkillPrompt', () => {
 	it('lists available skills and appends loaded instructions', () => {
 		const prompt = addSkillPrompt('base', [{ name: 'Writer', content: 'Follow this workflow.' }]);
 
-		expect(prompt).toContain('- Writer: Draft documents');
-		expect(prompt).toContain('### Loaded skill: Writer');
+		expect(prompt).toContain('{"name":"Writer","description":"Draft documents"}');
+		expect(prompt).toContain('### Loaded skill: "Writer"');
 		expect(prompt).toContain('Follow this workflow.');
 	});
-});
+	it('retains loaded instructions when the installed skill catalog is empty', () => {
+		listSkillsMock.mockReturnValue([]);
 
-describe('hasUserProfile', () => {
-	it('is true when a bold field has a value', () => {
-		expect(hasUserProfile('- **Name:** Alice')).toBe(true);
-	});
-	it('is false when fields are empty', () => {
-		expect(hasUserProfile('- **Name:**')).toBe(false);
-		expect(hasUserProfile('- **Name:**   ')).toBe(false);
-	});
-	it('is false when there are no profile fields', () => {
-		expect(hasUserProfile('just some prose\nmore prose')).toBe(false);
+		const prompt = addSkillPrompt('base', [{ name: 'Writer', content: 'Follow this workflow.' }]);
+
+		expect(prompt).toContain('### Loaded skill: "Writer"');
+		expect(prompt).toContain('Follow this workflow.');
 	});
 });

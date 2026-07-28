@@ -6,7 +6,6 @@ export { addWorkspacePrompt } from './system_add_workspace_prompt';
 export { buildSystemPrompt } from './system_build_prompt';
 export { ensureWorkspaceFile } from './system_ensure_workspace_file';
 export { ensureWorkspaceFiles } from './system_ensure_workspace_files';
-export { hasUserProfile } from './system_has_user_profile';
 export { readAgent } from './system_read_agent';
 export { readBootstrap } from './system_read_bootstrap';
 export { readIdentity } from './system_read_identity';

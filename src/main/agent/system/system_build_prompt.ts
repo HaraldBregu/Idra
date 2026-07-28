@@ -10,10 +10,13 @@ export async function buildSystemPrompt(
 	config: Config,
 	tools: Tool[] = [],
 	loadedSkills: LoadedSkill[] = [],
+	basePrompt?: string,
 ): Promise<string> {
-	let prompt = addBasePrompt('');
-	prompt = addToolsPrompt(prompt, tools);
-	prompt = await addWorkspacePrompt(config, prompt);
+	let prompt = basePrompt ?? addBasePrompt('');
+	if (basePrompt === undefined) {
+		prompt = addToolsPrompt(prompt, tools);
+		prompt = await addWorkspacePrompt(config, prompt);
+	}
 	prompt = await addFilesystemPrompt(config, prompt);
 	prompt = addSkillPrompt(prompt, loadedSkills);
 	return prompt;

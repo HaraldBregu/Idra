@@ -22,8 +22,8 @@ follow-up read.
 ## Bootstrap
 
 If `BOOTSTRAP.md` exists, follow it before replying normally. Complete it through
-conversation, update the requested files with `startup_files`, then complete
-bootstrap with `startup_files`.
+conversation, update `IDENTITY.md`, `USER.md`, and `SOUL.md` with the file tools,
+then call `complete_bootstrap`.
 
 ## Generated Files
 

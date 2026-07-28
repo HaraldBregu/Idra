@@ -71,7 +71,7 @@ describe('agent filesystem prompt', () => {
 		expect(prompt).not.toContain('library/clip.mp4');
 	});
 
-	it('includes workspace context and gates bootstrap on the user profile', async () => {
+	it('includes bootstrap until its completion file is removed', async () => {
 		await fs.writeFile(path.join(root, 'AGENTS.md'), '# Agent rules');
 		await fs.writeFile(path.join(root, 'BOOTSTRAP.md'), '# Bootstrap questions');
 		await fs.writeFile(path.join(root, 'IDENTITY.md'), '# Identity');
@@ -79,16 +79,45 @@ describe('agent filesystem prompt', () => {
 		await fs.writeFile(path.join(root, 'USER.md'), '- **Name:** Alice');
 		await fs.writeFile(path.join(root, 'MEMORY.md'), '- Prefers concise answers');
 
-		const profilePrompt = await buildSystemPrompt({ location: root });
-		expect(profilePrompt).toContain('# Agent rules');
-		expect(profilePrompt).toContain('# Identity');
-		expect(profilePrompt).toContain('# Soul');
-		expect(profilePrompt).toContain('- **Name:** Alice');
-		expect(profilePrompt).toContain('- Prefers concise answers');
-		expect(profilePrompt).not.toContain('# Bootstrap questions');
-
-		await fs.writeFile(path.join(root, 'USER.md'), '- **Name:**');
 		const bootstrapPrompt = await buildSystemPrompt({ location: root });
+		expect(bootstrapPrompt).toContain('# Agent rules');
+		expect(bootstrapPrompt).toContain('# Identity');
+		expect(bootstrapPrompt).toContain('# Soul');
+		expect(bootstrapPrompt).toContain('- **Name:** Alice');
+		expect(bootstrapPrompt).toContain('- Prefers concise answers');
 		expect(bootstrapPrompt).toContain('# Bootstrap questions');
+
+		await fs.rm(path.join(root, 'BOOTSTRAP.md'));
+		const profilePrompt = await buildSystemPrompt({ location: root });
+		expect(profilePrompt).not.toContain('# Bootstrap questions');
+	});
+
+	it('adds loaded skills to a custom subagent prompt', async () => {
+		const prompt = await buildSystemPrompt(
+			{ location: root },
+			[],
+			[{ name: 'Writer', content: 'Follow this workflow.' }],
+			'Subagent rules'
+		);
+
+		expect(prompt).toContain('Subagent rules');
+		expect(prompt).toContain('## Agent filesystem');
+		expect(prompt).toContain('### Loaded skill: "Writer"');
+		expect(prompt).toContain('Follow this workflow.');
+		expect(prompt).not.toContain('You are a personal AI assistant.');
+	});
+
+	it('ships bootstrap instructions that reference available tools', async () => {
+		const prompt = await buildSystemPrompt({ location: root });
+
+		expect(prompt).toContain('call `complete_bootstrap`');
+		expect(prompt).not.toContain('startup_files');
+	});
+
+	it('marks workspace files as user-controlled context', async () => {
+		const prompt = await buildSystemPrompt({ location: root });
+
+		expect(prompt).toContain('editable, user-controlled local files');
+		expect(prompt).toContain('does not override the agent acceptance contract');
 	});
 });

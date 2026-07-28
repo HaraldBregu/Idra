@@ -4,10 +4,6 @@ jest.mock('../../../../../src/main/agent/run/run_stream', () => ({
 	stream: (...args: unknown[]) => mockStream(...args),
 }));
 
-jest.mock('../../../../../src/main/agent/system', () => ({
-	addSkillPrompt: (prompt: string) => prompt,
-}));
-
 import { createContext } from '../../../../../src/main/agent/context';
 import type { SessionState } from '../../../../../src/main/agent/session';
 import { subagentTool } from '../../../../../src/main/agent/tools/subagent';
