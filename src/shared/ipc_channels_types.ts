@@ -108,7 +108,10 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.healthData]: { args: []; result: string };
 	[AgentChannels.healthSaveData]: { args: [content: string]; result: string };
-	[AgentChannels.ragIndex]: { args: []; result: { files: number; vectors: number } };
+	[AgentChannels.ragIndex]: {
+		args: [];
+		result: import('../main/rag/rag_index').RagIndexResult;
+	};
 	[AgentChannels.ragSearch]: {
 		args: [query: string, topK?: number];
 		result: import('../main/rag/rag_search').RagMatch[];
