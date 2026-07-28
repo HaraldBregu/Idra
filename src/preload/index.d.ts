@@ -3,6 +3,7 @@ export type * from '../shared/api_types';
 import type {
 	AgentApi,
 	AppApi,
+	AudioApi,
 	ChannelsApi,
 	CronApi,
 	ImageApi,
