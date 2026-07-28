@@ -9,7 +9,7 @@ const win = await app.firstWindow();
 await win.waitForLoadState('domcontentloaded');
 await new Promise((r) => setTimeout(r, 4000));
 
-for (const track of ['microphone', 'camera', 'screen']) {
+for (const track of ['camera']) {
 	const out = `/tmp/claude-501/probe-${track}.webm`;
 	fs.rmSync(out, { force: true });
 	const res = await win.evaluate(
