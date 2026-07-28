@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import ProvidersPage from '../../../src/renderer/src/pages/settings/pages/providers/Page';
 
 jest.mock('react-i18next', () => {
@@ -31,15 +31,15 @@ jest.mock('react-i18next', () => {
 describe('Providers settings hub', () => {
 	it('opens the provider API key list from the first item', async () => {
 		const user = userEvent.setup();
-		const router = createMemoryRouter(
-			[
-				{ path: '/settings/providers', element: <ProvidersPage /> },
-				{ path: '/settings/providers/keys', element: <div>All provider API keys</div> },
-			],
-			{ initialEntries: ['/settings/providers'] }
-		);
 
-		render(<RouterProvider router={router} />);
+		render(
+			<MemoryRouter initialEntries={['/settings/providers']}>
+				<Routes>
+					<Route path="/settings/providers" element={<ProvidersPage />} />
+					<Route path="/settings/providers/keys" element={<div>All provider API keys</div>} />
+				</Routes>
+			</MemoryRouter>
+		);
 		await user.click(screen.getByRole('button', { name: /Store provider API keys/ }));
 
 		expect(await screen.findByText('All provider API keys')).toBeInTheDocument();
@@ -47,18 +47,18 @@ describe('Providers settings hub', () => {
 
 	it('lists models beneath the API key item and uses nested provider routes', async () => {
 		const user = userEvent.setup();
-		const router = createMemoryRouter(
-			[
-				{ path: '/settings/providers', element: <ProvidersPage /> },
-				{
-					path: '/settings/providers/transcribe',
-					element: <div>Nested transcribe settings</div>,
-				},
-			],
-			{ initialEntries: ['/settings/providers'] }
-		);
 
-		render(<RouterProvider router={router} />);
+		render(
+			<MemoryRouter initialEntries={['/settings/providers']}>
+				<Routes>
+					<Route path="/settings/providers" element={<ProvidersPage />} />
+					<Route
+						path="/settings/providers/transcribe"
+						element={<div>Nested transcribe settings</div>}
+					/>
+				</Routes>
+			</MemoryRouter>
+		);
 
 		expect(screen.getByText('Models')).toBeInTheDocument();
 		expect(screen.getByRole('button', { name: /Transcribe/ })).toBeInTheDocument();

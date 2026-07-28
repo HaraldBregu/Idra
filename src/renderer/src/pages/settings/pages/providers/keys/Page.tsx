@@ -7,19 +7,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
-import { DEFAULT_PROVIDERS, type Provider } from '../../../../../../shared';
+import { DEFAULT_PROVIDERS, type Provider } from '../../../../../../../shared';
 import {
 	actionableProviderCatalog,
 	getErrorMessage,
 	MASKED_API_KEY_LABEL,
-} from '../../../start/constants';
-import type { ProviderCatalogItem, ProviderSetupEntry } from '../../../start/types';
+} from '../../../../start/constants';
+import type { ProviderCatalogItem, ProviderSetupEntry } from '../../../../start/types';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
-} from '../../components';
+} from '../../../components';
 
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
