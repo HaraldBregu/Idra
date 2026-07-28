@@ -59,15 +59,19 @@ export class WindowIpc implements IpcModule<WindowIpcDeps> {
 		ipcMain.on(WindowChannels.setCompact, (event, compact: boolean) => {
 			const win = BrowserWindow.fromWebContents(event.sender);
 			if (!win) return;
+			const wasResizable = win.isResizable();
+			win.setResizable(true);
 			if (compact) {
 				if (!compactBounds.has(win.id)) compactBounds.set(win.id, win.getBounds());
-				win.setBounds({ width: 100, height: 100 }, true);
+				win.setBounds({ width: 100, height: 100 });
 			} else {
 				const bounds = compactBounds.get(win.id);
-				if (!bounds) return;
-				compactBounds.delete(win.id);
-				win.setBounds(bounds, true);
+				if (bounds) {
+					compactBounds.delete(win.id);
+					win.setBounds(bounds);
+				}
 			}
+			win.setResizable(wasResizable);
 			if (process.platform === 'darwin') {
 				win.setWindowButtonVisibility(!compact);
 			}
