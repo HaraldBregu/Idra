@@ -202,8 +202,9 @@ export interface RecorderTrackApi {
 }
 
 export interface RecorderApi {
-	audio: RecorderTrackApi;
-	video: RecorderTrackApi;
+	microphone: RecorderTrackApi;
+	camera: RecorderTrackApi;
+	screen: RecorderTrackApi;
 }
 
 export interface SoundApi {
