@@ -28,16 +28,18 @@ const routes = [
 	'/settings/mcp',
 	'/settings/skills',
 	'/settings/providers',
+	'/settings/providers/keys',
+	'/settings/providers/transcribe',
+	'/settings/providers/voice',
+	'/settings/providers/image',
+	'/settings/providers/embedding',
+	'/settings/providers/video',
+	'/settings/providers/music',
 	'/settings/search',
 	'/settings/tasks',
 	'/settings/tasks/health',
 	'/settings/assistant',
 	'/settings/assistant/chathistory',
-	'/settings/transcribe',
-	'/settings/voice',
-	'/settings/image',
-	'/settings/video',
-	'/settings/music',
 ];
 
 for (const route of routes) {

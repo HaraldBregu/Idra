@@ -855,7 +855,12 @@
 		},
 		"providers": {
 			"title": "Provider",
-			"description": "Gestisci i provider di servizi AI disponibili per Friday.",
+			"description": "Collega i provider AI e configura i modelli usati da Friday.",
+			"storeApiKeys": "Salva le chiavi API dei provider",
+			"storeApiKeysDescription": "Aggiungi o aggiorna le chiavi API per i provider AI supportati.",
+			"apiKeysTitle": "Chiavi API dei provider",
+			"apiKeysDescription": "Gestisci le chiavi API usate da Friday per collegarsi ai provider AI.",
+			"modelsDescription": "Scegli un servizio modello per configurarne provider e modello.",
 			"registeredProviders": "Provider Registrati",
 			"manageNote": "Gestisci le chiavi API dei provider dalla pagina Modelli nella navigazione principale.",
 			"noProviders": "Nessun provider configurato.",
@@ -873,7 +878,8 @@
 			"addProvider": "Aggiungi Provider",
 			"saving": "Salvataggio...",
 			"keySaved": "Chiave API salvata",
-			"keyMissing": "Chiave API mancante"
+			"keyMissing": "Chiave API mancante",
+			"localNote": "Le chiavi restano nella cartella dati locale di Friday e vengono usate solo per i provider collegati. Puoi revocarle in qualsiasi momento."
 		},
 		"searchEngine": {
 			"description": "Scegli il provider di ricerca web usato dall'assistente.",

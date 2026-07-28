@@ -62,7 +62,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.speechToText,
-		path: '/settings/transcribe',
+		path: '/settings/providers/transcribe',
 		labelKey: 'settings.modelServices.speechTranscriberName',
 		descriptionKey: 'settings.modelServices.speechTranscriberDescription',
 		keywords: 'speech transcription transcribe audio voice microphone model',
@@ -70,7 +70,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToSpeech,
-		path: '/settings/voice',
+		path: '/settings/providers/voice',
 		labelKey: 'settings.modelServices.voiceName',
 		descriptionKey: 'settings.modelServices.voiceDescription',
 		keywords: 'voice text to speech tts output speaking audio synthesis model',
@@ -78,7 +78,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToImage,
-		path: '/settings/image',
+		path: '/settings/providers/image',
 		labelKey: 'settings.modelServices.imageAssistantName',
 		descriptionKey: 'settings.modelServices.imageAssistantDescription',
 		keywords: 'image generation prompt creative model',
@@ -86,7 +86,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.embedding,
-		path: '/settings/embedding',
+		path: '/settings/providers/embedding',
 		labelKey: 'settings.modelServices.embeddingName',
 		descriptionKey: 'settings.modelServices.embeddingDescription',
 		keywords: 'embedding embeddings vector rag retrieval search index model',
@@ -94,7 +94,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToVideo,
-		path: '/settings/video',
+		path: '/settings/providers/video',
 		labelKey: 'settings.modelServices.videoCreatorName',
 		descriptionKey: 'settings.modelServices.videoCreatorDescription',
 		keywords: 'text to video generation model',
@@ -102,7 +102,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToAudio,
-		path: '/settings/music',
+		path: '/settings/providers/music',
 		labelKey: 'settings.modelServices.musicCreatorName',
 		descriptionKey: 'settings.modelServices.musicCreatorDescription',
 		keywords: 'music audio generation creator model',
@@ -170,14 +170,11 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Providers — API keys
 	{
-		path: '/settings/providers',
-		labelKey: 'settings.providers.keySaved',
-		keywords: 'api key anthropic openai google',
-	},
-	{
-		path: '/settings/providers',
-		labelKey: 'settings.providers.apiKeyPlaceholder',
-		keywords: 'api key secret token',
+		path: '/settings/providers/keys',
+		labelKey: 'settings.providers.storeApiKeys',
+		descriptionKey: 'settings.providers.storeApiKeysDescription',
+		keywords: 'api key secret token anthropic openai google provider',
+		icon: Server,
 	},
 	// Search engines
 	{

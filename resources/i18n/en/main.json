@@ -855,7 +855,12 @@
 		},
 		"providers": {
 			"title": "Providers",
-			"description": "Manage AI service providers available to Friday.",
+			"description": "Connect AI providers and configure the models Friday uses.",
+			"storeApiKeys": "Store provider API keys",
+			"storeApiKeysDescription": "Add or update API keys for supported AI providers.",
+			"apiKeysTitle": "Provider API keys",
+			"apiKeysDescription": "Manage the API keys Friday uses to connect to AI providers.",
+			"modelsDescription": "Choose a model service to configure its provider and model.",
 			"registeredProviders": "Registered Providers",
 			"manageNote": "Manage provider API keys from the Models page in the main navigation.",
 			"noProviders": "No providers configured yet.",
@@ -873,7 +878,8 @@
 			"addProvider": "Add Provider",
 			"saving": "Saving...",
 			"keySaved": "API key saved",
-			"keyMissing": "API key missing"
+			"keyMissing": "API key missing",
+			"localNote": "Keys stay in Friday's local app data folder and are only used for providers you connect. You can revoke them anytime."
 		},
 		"searchEngine": {
 			"description": "Choose the web search provider used by the assistant.",

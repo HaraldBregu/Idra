@@ -140,18 +140,14 @@ describe('Search engine settings', () => {
 });
 
 describe('Settings overview', () => {
-	it('shows only the selected search provider on the Search engine item', async () => {
-		searchApi.getSettings.mockResolvedValue({
-			engineId: 'tavily',
-			configured: { brave: true, tavily: true },
-		});
+	it('does not list model services', () => {
 		render(
 			<MemoryRouter initialEntries={['/settings']}>
 				<OverviewPage />
 			</MemoryRouter>
 		);
 
-		expect(await screen.findByText('Tavily')).toBeInTheDocument();
-		expect(screen.queryByText('Brave')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.overview.groups.modelServices')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.modelServices.speechTranscriberName')).not.toBeInTheDocument();
 	});
 });

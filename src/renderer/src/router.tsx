@@ -39,6 +39,7 @@ const McpDetailsPage = lazy(() => import('./pages/settings/pages/mcp/details/Pag
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
+const ProviderKeysPage = lazy(() => import('./pages/settings/pages/providers/keys/Page'));
 const SearchPage = lazy(() => import('./pages/settings/pages/search/Page'));
 const StoragePage = lazy(() => import('./pages/settings/pages/storage/Page'));
 const RagPage = lazy(() => import('./pages/settings/pages/rag/Page'));
@@ -278,11 +279,72 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'providers',
-						element: (
-							<SettingsRouteWrapper>
-								<ProvidersPage />
-							</SettingsRouteWrapper>
-						),
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<ProvidersPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'keys',
+								element: (
+									<SettingsRouteWrapper>
+										<ProviderKeysPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'transcribe',
+								element: (
+									<SettingsRouteWrapper>
+										<TranscribePage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'voice',
+								element: (
+									<SettingsRouteWrapper>
+										<VoicePage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'image',
+								element: (
+									<SettingsRouteWrapper>
+										<ImagePage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'embedding',
+								element: (
+									<SettingsRouteWrapper>
+										<EmbeddingPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'video',
+								element: (
+									<SettingsRouteWrapper>
+										<VideoPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'music',
+								element: (
+									<SettingsRouteWrapper>
+										<MusicPage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
 					},
 					{
 						path: 'search',
@@ -363,67 +425,43 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'transcribe',
-						element: (
-							<SettingsRouteWrapper>
-								<TranscribePage />
-							</SettingsRouteWrapper>
-						),
+						element: <Navigate to="/settings/providers/transcribe" replace />,
 					},
 					{
 						path: 'voice',
-						element: (
-							<SettingsRouteWrapper>
-								<VoicePage />
-							</SettingsRouteWrapper>
-						),
+						element: <Navigate to="/settings/providers/voice" replace />,
 					},
 					{
 						path: 'speech-to-text',
-						element: <Navigate to="/settings/transcribe" replace />,
+						element: <Navigate to="/settings/providers/transcribe" replace />,
 					},
 					{
 						path: 'text-to-speech',
-						element: <Navigate to="/settings/voice" replace />,
+						element: <Navigate to="/settings/providers/voice" replace />,
 					},
 					{
 						path: 'image',
-						element: (
-							<SettingsRouteWrapper>
-								<ImagePage />
-							</SettingsRouteWrapper>
-						),
+						element: <Navigate to="/settings/providers/image" replace />,
 					},
 					{
 						path: 'embedding',
-						element: (
-							<SettingsRouteWrapper>
-								<EmbeddingPage />
-							</SettingsRouteWrapper>
-						),
+						element: <Navigate to="/settings/providers/embedding" replace />,
 					},
 					{
 						path: 'video',
-						element: (
-							<SettingsRouteWrapper>
-								<VideoPage />
-							</SettingsRouteWrapper>
-						),
+						element: <Navigate to="/settings/providers/video" replace />,
 					},
 					{
 						path: 'text-to-video',
-						element: <Navigate to="/settings/video" replace />,
+						element: <Navigate to="/settings/providers/video" replace />,
 					},
 					{
 						path: 'music',
-						element: (
-							<SettingsRouteWrapper>
-								<MusicPage />
-							</SettingsRouteWrapper>
-						),
+						element: <Navigate to="/settings/providers/music" replace />,
 					},
 					{
 						path: 'text-to-audio',
-						element: <Navigate to="/settings/music" replace />,
+						element: <Navigate to="/settings/providers/music" replace />,
 					},
 					{
 						path: 'widgets',

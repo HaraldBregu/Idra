@@ -1,10 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AudioWaveform, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
-import { AGENTS } from '@/lib/compat';
 import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../../components';
 import {
 	SETTINGS_NAVIGATION,
@@ -22,18 +21,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		id: 'primary',
 		titleKey: 'settings.overview.groups.assistant',
 		paths: ['/settings/assistant', '/settings/skills', '/settings/mcp', '/settings/rag'],
-	},
-	{
-		id: 'modelServices',
-		titleKey: 'settings.overview.groups.modelServices',
-		paths: [
-			'/settings/transcribe',
-			'/settings/voice',
-			'/settings/image',
-			'/settings/video',
-			'/settings/music',
-			'/settings/embedding',
-		],
 	},
 	{
 		id: 'cloud',
@@ -56,9 +43,6 @@ function getSettingsOverviewItem(path: string): SettingsNavigationItem | Setting
 
 	const serviceItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.path === path);
 	if (!serviceItem) throw new Error(`Missing settings overview item: ${path}`);
-	if (serviceItem.id === AGENTS.speechToText) {
-		return { ...serviceItem, icon: AudioWaveform };
-	}
 	return serviceItem;
 }
 
