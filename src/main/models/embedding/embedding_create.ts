@@ -1,4 +1,5 @@
 import type { EmbeddingRequest, EmbeddingResult } from '../../../shared/embedding_types';
+import { EMBEDDING_MODELS_BY_PROVIDER } from '../../../shared/provider_models_definitions';
 import { generateEmbeddings } from '../../app/models_adapters/embedding';
 import { getProvider } from '../../providers';
 import { getModelId, getProviderId } from '../models_store';
@@ -14,9 +15,8 @@ export async function createEmbedding(request: EmbeddingRequest): Promise<Embedd
 		request.providerId ?? getProviderId('embedding') ?? DEFAULT_EMBEDDING_PROVIDER_ID
 	);
 	const provider = EMBEDDING_PROVIDERS[providerId];
-	const stored = getProvider(providerId);
-	const modelId = request.modelId?.trim() || getModelId('embedding') || provider.model;
-	const apiKey = stored?.apiKey.trim() ?? '';
+	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('embedding'));
+	const apiKey = getProvider(providerId)?.apiKey.trim() ?? '';
 	if (!apiKey && !provider.local) {
 		throw new Error(`${provider.name} API key not configured.`);
 	}
@@ -25,7 +25,8 @@ export async function createEmbedding(request: EmbeddingRequest): Promise<Embedd
 		providerId,
 		apiKey,
 		modelId,
-		baseURL: stored?.baseUrl.trim() || provider.baseUrl,
+		// ponytail: self-hosted endpoint moves via BGE_BASE_URL; no settings field until asked.
+		baseURL: (provider.local && process.env.BGE_BASE_URL?.trim()) || provider.url,
 		texts,
 		inputType: request.inputType,
 	});
@@ -37,4 +38,14 @@ function resolveProviderId(providerId: string): string {
 		throw new Error(`Embedding provider is not supported: ${providerId}`);
 	}
 	return providerId;
+}
+
+function resolveModelId(providerId: string, modelId: string | undefined): string {
+	if (modelId?.trim()) return modelId.trim();
+	const catalog = EMBEDDING_MODELS_BY_PROVIDER as Readonly<
+		Record<string, readonly { readonly id: string }[]>
+	>;
+	const fallback = catalog[providerId]?.[0]?.id;
+	if (!fallback) throw new Error(`No embedding models available for provider: ${providerId}`);
+	return fallback;
 }
