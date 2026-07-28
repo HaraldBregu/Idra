@@ -60,7 +60,7 @@ function configuredProviderId(): TextToSpeechProviderId | undefined {
 
 function configuredModelId(providerId: TextToSpeechProviderId): string | undefined {
 	if (configuredProviderId() !== providerId) return undefined;
-	const modelId = getStoredModelId();
+	const modelId = getModelId('voice');
 	return modelId &&
 		TEXT_TO_SPEECH_MODELS_BY_PROVIDER[providerId].some((model) => model.id === modelId)
 		? modelId
