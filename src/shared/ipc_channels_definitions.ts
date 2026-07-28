@@ -21,6 +21,9 @@ export const AgentChannels = {
 	healthResetSettings: 'agent:health:settings:reset',
 	healthData: 'agent:health:data',
 	healthSaveData: 'agent:health:data:save',
+	ragIndex: 'agent:rag:index',
+	ragSearch: 'agent:rag:search',
+	ragOpenFolder: 'agent:rag:folder:open',
 } as const;
 
 export const RecorderChannels = {
