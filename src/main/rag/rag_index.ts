@@ -33,7 +33,11 @@ export async function indexRag(): Promise<RagIndexResult> {
 			const embedded = await createEmbedding({ texts: batch, inputType: 'document' });
 			if (!index) {
 				index = await ensureIndex(pinecone, embedded.dimensions);
-				writeRagManifest(embedded);
+				writeRagManifest({
+					providerId: embedded.providerId,
+					modelId: embedded.modelId,
+					dimensions: embedded.dimensions,
+				});
 			}
 			await index.upsert({
 				records: batch.map((text, offset) => ({
