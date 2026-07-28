@@ -22,12 +22,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'primary',
 		titleKey: 'settings.overview.groups.assistant',
-		paths: [
-			'/settings/assistant',
-			'/settings/tasks',
-			'/settings/skills',
-			'/settings/mcp',
-		],
+		paths: ['/settings/assistant', '/settings/skills', '/settings/mcp'],
 	},
 	{
 		id: 'modelServices',
