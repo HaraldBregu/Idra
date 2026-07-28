@@ -82,6 +82,14 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 		icon: ImageIcon,
 	},
 	{
+		id: AGENTS.embedding,
+		path: '/settings/embedding',
+		labelKey: 'settings.modelServices.embeddingName',
+		descriptionKey: 'settings.modelServices.embeddingDescription',
+		keywords: 'embedding embeddings vector rag retrieval search index model',
+		icon: Binary,
+	},
+	{
 		id: AGENTS.textToVideo,
 		path: '/settings/video',
 		labelKey: 'settings.modelServices.videoCreatorName',
