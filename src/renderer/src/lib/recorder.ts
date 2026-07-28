@@ -14,7 +14,7 @@ function blobToBase64(blob: Blob): Promise<string> {
 		reader.onerror = () => reject(reader.error ?? new Error('Failed to read recorded data.'));
 		reader.onload = () => {
 			const dataUrl = reader.result as string;
-			resolve(dataUrl.slice(dataUrl.indexOf(',') + 1));
+			resolve(dataUrl.slice(dataUrl.indexOf(';base64,') + 8));
 		};
 		reader.readAsDataURL(blob);
 	});
