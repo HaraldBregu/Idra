@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { z } from 'zod';
-import { startRecording, waitForRecording } from '../../audio';
+import { startRecording } from '../../audio';
 import { agentLocation } from '../../shared/agent_location';
 import { resolveUserPath } from '../../shared/user_path';
 import type { Tool } from '../types';
@@ -10,7 +10,7 @@ export function audioRecorderTool(): Tool {
 	return tool({
 		name: 'audio_recorder',
 		description:
-			'Record audio from the user microphone for a given duration. Requires an open app window. Saves the recording as an audio file and returns its absolute path. If you reference it in markdown, use the returned path.',
+			'Start recording audio from the user microphone for a given duration. Requires an open app window. The recording runs in the background: this returns immediately with a recording id and the destination path, and the file is written when the recording finishes. Use audio_recorder_status to check progress or wait for completion before using the file.',
 		inputSchema: z.object({
 			duration: z
 				.number()
