@@ -9,7 +9,12 @@ import { ragLocation } from './rag_location';
 const TEXT_EXTENSIONS = new Set(['.txt', '.md', '.markdown', '.json', '.csv', '.log']);
 const BATCH_SIZE = 64;
 
-export async function indexRag(): Promise<{ files: number; vectors: number }> {
+export interface RagIndexResult {
+	files: number;
+	vectors: number;
+}
+
+export async function indexRag(): Promise<RagIndexResult> {
 	const root = ragLocation();
 	const files = (await readdir(root, { recursive: true })).filter((file) =>
 		TEXT_EXTENSIONS.has(path.extname(file).toLowerCase())
