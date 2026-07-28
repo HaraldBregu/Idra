@@ -405,6 +405,29 @@ export interface StorageInvokeChannelMap {
 	};
 }
 
+export interface EmbeddingInvokeChannelMap {
+	[EmbeddingChannels.createEmbedding]: {
+		args: [request: EmbeddingRequest];
+		result: EmbeddingResult;
+	};
+	[EmbeddingChannels.getProviderId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[EmbeddingChannels.setProviderId]: {
+		args: [providerId: string];
+		result: void;
+	};
+	[EmbeddingChannels.getModelId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[EmbeddingChannels.setModelId]: {
+		args: [modelId: string];
+		result: void;
+	};
+}
+
 export interface ImageInvokeChannelMap {
 	[ImageChannels.createImage]: {
 		args: [request: ImageRequest];
