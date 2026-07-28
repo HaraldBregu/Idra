@@ -574,7 +574,7 @@ function PageContent(): ReactElement {
 					type="button"
 					aria-label="End voice conversation"
 					onClick={endVoiceConversation}
-					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+					style={{ WebkitAppRegion: 'no-drag' } as CSSProperties}
 				>
 					<GradientSphere size={64} />
 				</button>
