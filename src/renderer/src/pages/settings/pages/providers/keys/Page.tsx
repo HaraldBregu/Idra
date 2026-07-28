@@ -272,9 +272,7 @@ const ProvidersPage: React.FC = () => {
 				</div>
 			</SettingsSection>
 
-			<SettingsNotice icon={KeyRound}>
-				{t('settings.providers.localNote')}
-			</SettingsNotice>
+			<SettingsNotice icon={KeyRound}>{t('settings.providers.localNote')}</SettingsNotice>
 		</SettingsPageShell>
 	);
 };

@@ -53,16 +53,16 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		const assistantItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.id === 'assistant');
 		return [
 			{
-				label: assistantItem ? t(assistantItem.labelKey) : t('settings.modelServices.assistantName'),
+				label: assistantItem
+					? t(assistantItem.labelKey)
+					: t('settings.modelServices.assistantName'),
 				path: '/settings/assistant',
 			},
 			{ label: t(assistantSubpageLabelKey) },
 		];
 	}
 
-	const serviceItem = SETTINGS_MODEL_SERVICE_ITEMS.find(
-		(item) => item.path === location.pathname
-	);
+	const serviceItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.path === location.pathname);
 	if (serviceItem) {
 		if (serviceItem.path.startsWith('/settings/providers/')) {
 			return [
@@ -80,9 +80,9 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		];
 	}
 
-	const current = SETTINGS_NAVIGATION.filter((item) => (
-		location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
-	)).sort((a, b) => b.path.length - a.path.length)[0];
+	const current = SETTINGS_NAVIGATION.filter(
+		(item) => location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
+	).sort((a, b) => b.path.length - a.path.length)[0];
 	if (!current) return [];
 
 	const items: SettingsBreadcrumbItem[] = [{ label: t(current.labelKey) }];

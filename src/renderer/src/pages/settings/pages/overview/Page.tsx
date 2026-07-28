@@ -4,7 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
-import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../../components';
+import {
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsSection,
+} from '../../components';
 import {
 	SETTINGS_NAVIGATION,
 	SETTINGS_MODEL_SERVICE_ITEMS,

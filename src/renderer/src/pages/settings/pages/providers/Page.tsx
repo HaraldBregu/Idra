@@ -43,10 +43,7 @@ const ProvidersPage: React.FC = () => {
 						</p>
 					</ItemContent>
 					<ItemActions className="ml-0 flex-none justify-end">
-						<ChevronRight
-							className="size-3 shrink-0 text-muted-foreground/40"
-							strokeWidth={1.8}
-						/>
+						<ChevronRight className="size-3 shrink-0 text-muted-foreground/40" strokeWidth={1.8} />
 					</ItemActions>
 				</Item>
 			</SettingsPanel>
