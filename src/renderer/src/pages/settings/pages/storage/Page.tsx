@@ -26,7 +26,11 @@ interface StorageEntry {
 	storage: StorageConfig;
 }
 
-const StoragePage: React.FC = () => {
+interface StoragePageProps {
+	readonly embedded?: boolean;
+}
+
+const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 	const { t } = useTranslation();
 	const [entries, setEntries] = useState<StorageEntry[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -55,11 +59,13 @@ const StoragePage: React.FC = () => {
 	};
 
 	return (
-		<SettingsPageShell>
-			<SettingsPageHeader
-				title={t('settings.tabs.storage')}
-				description={t('settings.storage.description')}
-			/>
+		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
+			{!embedded && (
+				<SettingsPageHeader
+					title={t('settings.tabs.storage')}
+					description={t('settings.storage.description')}
+				/>
+			)}
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
