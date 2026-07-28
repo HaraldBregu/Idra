@@ -20,7 +20,7 @@ import { win } from './win';
 
 export { agent } from './agent';
 export { app } from './app';
-export { audio } from './audio';
+export { recorder } from './recorder';
 export { channels } from './channels';
 export { cron } from './cron';
 export { image } from './image';
