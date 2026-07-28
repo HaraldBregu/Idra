@@ -60,7 +60,7 @@ test('wiki settings renders the complete configuration workflow', async ({}, tes
 	await page.evaluate(() => {
 		window.location.hash = '#/settings/rag/wiki';
 	});
-	await expect(page.getByRole('heading', { name: 'Wiki' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Wiki', exact: true })).toBeVisible();
 	await expect(page.getByLabel('Raw source folder')).toBeVisible();
 	await expect(page.getByLabel('Generated wiki folder')).toBeVisible();
 	await expect(page.getByLabel('Cron expression')).toHaveValue('0 3 * * *');
