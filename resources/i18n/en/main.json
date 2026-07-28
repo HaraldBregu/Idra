@@ -974,7 +974,7 @@
 			"embed": "Embed",
 			"embedding": "Embedding...",
 			"embedError": "Unable to create the embedding.",
-			"result": "Vector created with {{count}} dimensions."
+			"result": "Vector created with {{dimensions}} dimensions."
 		},
 		"image": {
 			"prompt": "Prompt",
