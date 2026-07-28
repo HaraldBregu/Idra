@@ -41,10 +41,12 @@ export class ModelsIpc implements IpcModule {
 			return result;
 		});
 		registerQuery(SoundChannels.listSounds, () => sound.listSounds());
-		registerQuery(SoundChannels.getProviderId, () => sound.getProviderId());
-		registerCommand(SoundChannels.setProviderId, (providerId) => sound.setProviderId(providerId));
-		registerQuery(SoundChannels.getModelId, () => sound.getModelId());
-		registerCommand(SoundChannels.setModelId, (modelId) => sound.setModelId(modelId));
+		registerQuery(SoundChannels.getProviderId, () => getProviderId('sound'));
+		registerCommand(SoundChannels.setProviderId, (providerId) =>
+			setProviderId('sound', providerId)
+		);
+		registerQuery(SoundChannels.getModelId, () => getModelId('sound'));
+		registerCommand(SoundChannels.setModelId, (modelId) => setModelId('sound', modelId));
 
 		registerCommand(TextChannels.generateText, (request) => text.generateText(request));
 		registerQuery(TextChannels.getProviderId, () => text.getProviderId());
