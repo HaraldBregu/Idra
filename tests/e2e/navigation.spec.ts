@@ -70,4 +70,8 @@ test('wiki settings renders the complete configuration workflow', async ({}, tes
 	);
 	await expect(page.getByRole('button', { name: 'Run now' })).toBeVisible();
 	await page.screenshot({ path: testInfo.outputPath('wiki-settings.png'), fullPage: true });
+	await page.getByText('Settings file', { exact: true }).scrollIntoViewIfNeeded();
+	await expect(page.getByRole('switch', { name: 'Scheduled generation' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Open folder' })).toBeVisible();
+	await page.screenshot({ path: testInfo.outputPath('wiki-settings-status.png'), fullPage: true });
 });
