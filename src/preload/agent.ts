@@ -166,4 +166,15 @@ export const agent: AgentApi = {
 	healthSaveData: (content: string): Promise<string> => {
 		return typedInvokeUnwrap(AgentChannels.healthSaveData, content);
 	},
+	ragIndex: (): Promise<RagIndexResult> => {
+		return typedInvokeUnwrap(AgentChannels.ragIndex);
+	},
+	ragSearch: (query: string, topK?: number): Promise<RagMatch[]> => {
+		const normalizedQuery = optionalTrimmedString(query);
+		if (!normalizedQuery) throw new Error('Invalid search query.');
+		return typedInvokeUnwrap(AgentChannels.ragSearch, normalizedQuery, topK);
+	},
+	ragOpenFolder: (): Promise<void> => {
+		return typedInvokeUnwrap(AgentChannels.ragOpenFolder);
+	},
 } satisfies AgentApi;
