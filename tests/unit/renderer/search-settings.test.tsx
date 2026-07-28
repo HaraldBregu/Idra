@@ -151,5 +151,6 @@ describe('Settings overview', () => {
 		expect(
 			screen.queryByText('settings.modelServices.speechTranscriberName')
 		).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.tabs.database')).not.toBeInTheDocument();
 	});
 });
