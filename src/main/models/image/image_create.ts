@@ -21,9 +21,9 @@ export async function createImage(request: ImageRequest): Promise<ImageResult> {
 	if (!prompt) throw new ImageProviderRequestError('Prompt is required.');
 
 	const providerId = resolveProviderId(
-		request.providerId ?? getStoredProviderId() ?? DEFAULT_IMAGE_PROVIDER_ID
+		request.providerId ?? getProviderId('image') ?? DEFAULT_IMAGE_PROVIDER_ID
 	);
-	const modelId = resolveModelId(providerId, request.modelId ?? getStoredModelId());
+	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('image'));
 	const apiKey = resolveApiKey(providerId);
 	return generateImage({ providerId, apiKey, modelId, prompt });
 }
