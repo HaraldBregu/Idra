@@ -49,10 +49,10 @@ export class ModelsIpc implements IpcModule {
 		registerCommand(SoundChannels.setModelId, (modelId) => setModelId('sound', modelId));
 
 		registerCommand(TextChannels.generateText, (request) => text.generateText(request));
-		registerQuery(TextChannels.getProviderId, () => text.getProviderId());
-		registerCommand(TextChannels.setProviderId, (providerId) => text.setProviderId(providerId));
-		registerQuery(TextChannels.getModelId, () => text.getModelId());
-		registerCommand(TextChannels.setModelId, (modelId) => text.setModelId(modelId));
+		registerQuery(TextChannels.getProviderId, () => getProviderId('text'));
+		registerCommand(TextChannels.setProviderId, (providerId) => setProviderId('text', providerId));
+		registerQuery(TextChannels.getModelId, () => getModelId('text'));
+		registerCommand(TextChannels.setModelId, (modelId) => setModelId('text', modelId));
 
 		registerCommand(VideoChannels.createVideo, async (request) => {
 			const result = await video.createVideo(request);
