@@ -22,6 +22,38 @@ function isSttRealtimeSessionId(value: unknown): value is string {
 }
 
 export const models: ModelsApi = {
+	embedding: {
+		createEmbedding: (request) => {
+			const texts = (request?.texts ?? [])
+				.map((text) => optionalTrimmedString(text))
+				.filter((text): text is string => Boolean(text));
+			if (texts.length === 0) throw new Error('Invalid embedding input.');
+			const providerId = optionalTrimmedString(request?.providerId);
+			const modelId = optionalTrimmedString(request?.modelId);
+			return typedInvokeUnwrap(EmbeddingChannels.createEmbedding, {
+				texts,
+				...(request?.inputType ? { inputType: request.inputType } : {}),
+				...(providerId ? { providerId } : {}),
+				...(modelId ? { modelId } : {}),
+			});
+		},
+		getProviderId: () => {
+			return typedInvokeUnwrap(EmbeddingChannels.getProviderId);
+		},
+		setProviderId: (providerId) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			if (!normalizedProviderId) throw new Error('Invalid embedding provider id.');
+			return typedInvokeUnwrap(EmbeddingChannels.setProviderId, normalizedProviderId);
+		},
+		getModelId: () => {
+			return typedInvokeUnwrap(EmbeddingChannels.getModelId);
+		},
+		setModelId: (modelId) => {
+			const normalizedModelId = optionalTrimmedString(modelId);
+			if (!normalizedModelId) throw new Error('Invalid embedding model id.');
+			return typedInvokeUnwrap(EmbeddingChannels.setModelId, normalizedModelId);
+		},
+	},
 	image: {
 		createImage: (request) => {
 			const prompt = optionalTrimmedString(request?.prompt);
