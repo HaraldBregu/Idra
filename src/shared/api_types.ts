@@ -207,6 +207,13 @@ export interface RecorderApi {
 }
 
 export interface ModelsApi {
+	embedding: {
+		createEmbedding: (request: EmbeddingRequest) => Promise<EmbeddingResult>;
+		getProviderId: () => Promise<string | undefined>;
+		setProviderId: (providerId: string) => Promise<void>;
+		getModelId: () => Promise<string | undefined>;
+		setModelId: (modelId: string) => Promise<void>;
+	};
 	image: {
 		createImage: (request: ImageRequest) => Promise<ImageResult>;
 		getProviderId: () => Promise<string | undefined>;
