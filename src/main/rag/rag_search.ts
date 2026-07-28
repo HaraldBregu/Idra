@@ -1,5 +1,6 @@
 import { createEmbedding } from '../models/embedding';
 import { RAG_INDEX_NAME, ragClient } from './rag_client';
+import { readRagManifest } from './rag_manifest';
 
 export interface RagMatch {
 	path: string;
