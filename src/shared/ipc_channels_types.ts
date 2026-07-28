@@ -108,6 +108,19 @@ export interface AgentInvokeChannelMap {
 	[AgentChannels.healthSaveData]: { args: [content: string]; result: string };
 }
 
+export interface AudioInvokeChannelMap {
+	[AudioChannels.start]: { args: [config: AudioRecordConfig]; result: AudioRecording };
+	[AudioChannels.stop]: { args: [id: string]; result: void };
+	[AudioChannels.cancel]: { args: [id: string]; result: void };
+	[AudioChannels.list]: { args: []; result: AudioRecording[] };
+	[AudioChannels.complete]: { args: [result: AudioCaptureResult]; result: void };
+}
+
+export interface AudioEventChannelMap {
+	[AudioChannels.command]: { data: AudioCaptureCommand };
+	[AudioChannels.event]: { data: AudioRecording };
+}
+
 export interface CronInvokeChannelMap {
 	[CronChannels.list]: { args: []; result: import('../main/cron').CronSchedule[] };
 	[CronChannels.getRuntime]: {
