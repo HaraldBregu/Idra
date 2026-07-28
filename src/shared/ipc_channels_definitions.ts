@@ -191,4 +191,5 @@ export const WindowChannels = {
 	maximizeChange: 'window:maximize-change',
 	fullScreenChange: 'window:fullscreen-change',
 	popupMenu: 'window:popup-menu',
+	setCompact: 'window:set-compact',
 } as const;
