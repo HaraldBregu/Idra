@@ -181,7 +181,7 @@ const EmbeddingPage: React.FC = () => {
 
 						{dimensions !== null && (
 							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.embedding.result', { count: dimensions })}
+								{t('settings.embedding.result', { dimensions })}
 							</p>
 						)}
 					</div>
