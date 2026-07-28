@@ -309,6 +309,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'vectordb',
+						element: (
+							<SettingsRouteWrapper>
+								<VectorDbPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'tasks',
 						element: (
 							<SettingsRouteWrapper>
