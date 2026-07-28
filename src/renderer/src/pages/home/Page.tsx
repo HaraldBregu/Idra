@@ -465,6 +465,12 @@ function PageContent(): ReactElement {
 	const startVoiceConversation = (): void => {
 		setVoiceMode('conversation');
 		setMode('voice');
+		window.win.setCompact(true);
+	};
+
+	const endVoiceConversation = (): void => {
+		window.win.setCompact(false);
+		returnToChat();
 	};
 
 	const startDictation = async (): Promise<void> => {
