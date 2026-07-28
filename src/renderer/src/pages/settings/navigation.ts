@@ -1,4 +1,5 @@
 import {
+	Binary,
 	Bot,
 	Database,
 	Folder,
