@@ -32,6 +32,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/image',
 			'/settings/video',
 			'/settings/music',
+			'/settings/embedding',
 		],
 	},
 	{
