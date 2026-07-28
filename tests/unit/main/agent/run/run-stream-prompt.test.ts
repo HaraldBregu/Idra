@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 const runModelTurnMock = jest.fn(async function* () {
+	yield* [];
 	return { content: 'done', model: 'test-model', toolCalls: [] };
 });
 
