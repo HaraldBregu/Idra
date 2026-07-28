@@ -108,17 +108,24 @@ export interface AgentInvokeChannelMap {
 	[AgentChannels.healthSaveData]: { args: [content: string]; result: string };
 }
 
-export interface AudioInvokeChannelMap {
-	[AudioChannels.start]: { args: [config: AudioRecordConfig]; result: AudioRecording };
-	[AudioChannels.stop]: { args: [id: string]; result: void };
-	[AudioChannels.cancel]: { args: [id: string]; result: void };
-	[AudioChannels.list]: { args: []; result: AudioRecording[] };
-	[AudioChannels.complete]: { args: [result: AudioCaptureResult]; result: void };
+export interface RecorderInvokeChannelMap {
+	[RecorderChannels.audio.start]: { args: [config: RecordConfig]; result: Recording };
+	[RecorderChannels.audio.stop]: { args: [id: string]; result: void };
+	[RecorderChannels.audio.cancel]: { args: [id: string]; result: void };
+	[RecorderChannels.audio.list]: { args: []; result: Recording[] };
+	[RecorderChannels.audio.complete]: { args: [result: RecorderCaptureResult]; result: void };
+	[RecorderChannels.video.start]: { args: [config: RecordConfig]; result: Recording };
+	[RecorderChannels.video.stop]: { args: [id: string]; result: void };
+	[RecorderChannels.video.cancel]: { args: [id: string]; result: void };
+	[RecorderChannels.video.list]: { args: []; result: Recording[] };
+	[RecorderChannels.video.complete]: { args: [result: RecorderCaptureResult]; result: void };
 }
 
-export interface AudioEventChannelMap {
-	[AudioChannels.command]: { data: AudioCaptureCommand };
-	[AudioChannels.event]: { data: AudioRecording };
+export interface RecorderEventChannelMap {
+	[RecorderChannels.audio.command]: { data: RecorderCommand };
+	[RecorderChannels.audio.event]: { data: Recording };
+	[RecorderChannels.video.command]: { data: RecorderCommand };
+	[RecorderChannels.video.event]: { data: Recording };
 }
 
 export interface CronInvokeChannelMap {
