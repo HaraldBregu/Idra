@@ -1,4 +1,4 @@
-import { listSkills } from '../../skills';
+import { listSkills } from '../skills';
 import type { LoadedSkill } from '../context';
 
 export function addSkillPrompt(prompt: string, loadedSkills: LoadedSkill[] = []): string {

@@ -2,7 +2,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ImageChannels } from '../../shared/ipc_channels_definitions';
-import { createImage, getModelId, getProviderId, setModelId, setProviderId } from '../image';
+import { createImage, getModelId, getProviderId, setModelId, setProviderId } from '../models/image';
 
 export class ImageIpc implements IpcModule {
 	readonly name = 'image';

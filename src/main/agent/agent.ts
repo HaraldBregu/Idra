@@ -15,7 +15,7 @@ import { agentLocation } from '../shared/agent_location';
 import { destroyCron, getRuntime, initCron, setCronRunner, startCron } from '../cron';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './policy';
-import { resolveSkillCommand } from '../skills';
+import { resolveSkillCommand } from './skills';
 import {
 	agentView,
 	beginCommand,

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 import { cronStorePath } from '../../cron/cron_store';
 import { healthStorePath } from '../health/health_store';
-import { skillsRoot } from '../../skills/skills_root';
+import { skillsRoot } from '../skills/skills_root';
 import { isPathWithin } from './policy_path';
 
 const SYSTEM_STORE_ROOTS = [path.dirname(cronStorePath), path.dirname(healthStorePath), skillsRoot];

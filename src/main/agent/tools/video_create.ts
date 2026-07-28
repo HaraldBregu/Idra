@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createVideo } from '../../video';
+import { createVideo } from '../../models/video';
 import type { Tool } from '../types';
 import { saveMedia } from './media_save';
 import { tool } from './tool';

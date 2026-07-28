@@ -16,7 +16,7 @@ jest.mock('../../../../../src/main/agent/run/run_model_turn', () => ({
 	runModelTurn: (...args: unknown[]) => runModelTurnMock(...args),
 }));
 
-jest.mock('../../../../../src/main/skills', () => ({
+jest.mock('../../../../../src/main/agent/skills', () => ({
 	listSkills: jest.fn(() => []),
 }));
 

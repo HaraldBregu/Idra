@@ -1,6 +1,6 @@
 import type { EventBus } from '../app/event_bus';
 import { SkillsChannels } from '../../shared/ipc_channels_definitions';
-import * as skills from '../skills';
+import * as skills from '../agent/skills';
 import { registerCommand, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 

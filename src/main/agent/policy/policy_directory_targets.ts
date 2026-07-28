@@ -3,7 +3,7 @@ import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
 import { cronStorePath } from '../../cron/cron_store';
 import { healthStorePath } from '../health/health_store';
-import { skillsRoot } from '../../skills/skills_root';
+import { skillsRoot } from '../skills/skills_root';
 import { registry } from '../tools/run_process';
 import { toolPermissionTargets } from './policy_targets';
 

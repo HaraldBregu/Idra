@@ -1,8 +1,8 @@
-jest.mock('../../../../../src/main/skills', () => ({
+jest.mock('../../../../../src/main/agent/skills', () => ({
 	listSkills: jest.fn(),
 }));
 
-import { listSkills } from '../../../../../src/main/skills';
+import { listSkills } from '../../../../../src/main/agent/skills';
 import { addBasePrompt } from '../../../../../src/main/agent/system/system_add_base_prompt';
 import { addSkillPrompt } from '../../../../../src/main/agent/system/system_add_skill_prompt';
 import { addToolsPrompt } from '../../../../../src/main/agent/system/system_add_tools_prompt';

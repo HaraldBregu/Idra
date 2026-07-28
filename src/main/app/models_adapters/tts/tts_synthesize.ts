@@ -17,7 +17,7 @@ import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_e
 import {
 	getModelId as getStoredModelId,
 	getProviderId as getStoredProviderId,
-} from '../../../voice/voice_store';
+} from '../../../models/voice/voice_store';
 import type { SpeechProviderSpec } from './tts_types';
 
 export async function synthesize(request: SpeechSynthesisRequest): Promise<SpeechSynthesisResult> {

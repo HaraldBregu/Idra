@@ -9,7 +9,7 @@ import {
 	saveVideoFile,
 	setModelId,
 	setProviderId,
-} from '../video';
+} from '../models/video';
 
 export class VideoIpc implements IpcModule {
 	readonly name = 'video';

@@ -2,7 +2,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { TextChannels } from '../../shared/ipc_channels_definitions';
-import { generateText, getModelId, getProviderId, setModelId, setProviderId } from '../text';
+import { generateText, getModelId, getProviderId, setModelId, setProviderId } from '../models/text';
 
 export class TextIpc implements IpcModule {
 	readonly name = 'text';

@@ -13,7 +13,7 @@ import {
 	startRealtime,
 	transcribe,
 } from '../app/models_adapters/stt';
-import { getModelId, getProviderId, setModelId, setProviderId } from '../transcribe';
+import { getModelId, getProviderId, setModelId, setProviderId } from '../models/transcribe';
 
 export class SttIpc implements IpcModule {
 	readonly name = 'stt';

@@ -1,4 +1,4 @@
-import { listSkills } from '../../skills';
+import { listSkills } from '../skills';
 
 export function buildSkillContext(): string {
 	const skills = listSkills();

@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { resolveSkillFolder } from '../../../../../src/main/skills/skills_resolve_folder';
-import { skillsRoot } from '../../../../../src/main/skills/skills_root';
+import { resolveSkillFolder } from '../../../../../src/main/agent/skills/skills_resolve_folder';
+import { skillsRoot } from '../../../../../src/main/agent/skills/skills_root';
 
 describe('resolveSkillFolder', () => {
 	it('resolves a valid id under the skills root', () => {

@@ -10,7 +10,7 @@ import {
 	saveSoundFile,
 	setModelId,
 	setProviderId,
-} from '../sound';
+} from '../models/sound';
 
 export class SoundIpc implements IpcModule {
 	readonly name = 'sound';
