@@ -41,7 +41,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('app', app);
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
-		contextBridge.exposeInMainWorld('audio', audio);
+		contextBridge.exposeInMainWorld('recorder', recorder);
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('mcp', mcp);
