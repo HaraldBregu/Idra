@@ -10,6 +10,7 @@ import {
 	VideoChannels,
 } from '../../shared/ipc_channels_definitions';
 import { image, sound, text, transcribe, video, voice } from '../models';
+import { getModelId, getProviderId, setModelId, setProviderId } from '../models/models_store';
 import {
 	appendRealtimeAudio,
 	cancelRealtime,
