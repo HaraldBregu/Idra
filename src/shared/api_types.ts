@@ -14,6 +14,7 @@ import type { McpOAuthStart, McpSettings } from './mcp_types';
 import type { Widget } from './widget_types';
 import type { CronRuntime, CronSchedule } from '../main/cron/cron_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
+import type { RagIndexResult, RagMatch } from '../main/rag';
 import type {
 	DirectoryPermissions,
 	PermissionsSchema,
