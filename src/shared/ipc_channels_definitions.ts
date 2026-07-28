@@ -23,6 +23,16 @@ export const AgentChannels = {
 	healthSaveData: 'agent:health:data:save',
 } as const;
 
+export const AudioChannels = {
+	start: 'audio:start',
+	stop: 'audio:stop',
+	cancel: 'audio:cancel',
+	list: 'audio:list',
+	complete: 'audio:complete',
+	command: 'audio:command',
+	event: 'audio:event',
+} as const;
+
 export const CronChannels = {
 	list: 'cron:list',
 	getRuntime: 'cron:runtime:get',
