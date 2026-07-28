@@ -80,12 +80,12 @@ export class ModelsIpc implements IpcModule {
 		registerCommand(SttChannels.saveSelection, (providerId, modelId, mode) =>
 			saveSelection(providerId, modelId, mode)
 		);
-		registerQuery(SttChannels.getProviderId, () => transcribe.getProviderId());
+		registerQuery(SttChannels.getProviderId, () => getProviderId('transcribe'));
 		registerCommand(SttChannels.setProviderId, (providerId) =>
-			transcribe.setProviderId(providerId)
+			setProviderId('transcribe', providerId)
 		);
-		registerQuery(SttChannels.getModelId, () => transcribe.getModelId());
-		registerCommand(SttChannels.setModelId, (modelId) => transcribe.setModelId(modelId));
+		registerQuery(SttChannels.getModelId, () => getModelId('transcribe'));
+		registerCommand(SttChannels.setModelId, (modelId) => setModelId('transcribe', modelId));
 		registerCommand(SttChannels.transcribe, (request) => sttTranscribe(request));
 		registerCommandWithEvent(SttChannels.startRealtime, (event, request) =>
 			startRealtime(request, (sttEvent) => {
