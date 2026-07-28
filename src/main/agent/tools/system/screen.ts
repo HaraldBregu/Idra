@@ -9,6 +9,7 @@ import { tool } from '../tool';
 export function recorderScreenTool(): Tool {
 	return tool({
 		name: 'recorder_screen',
+		defaultPermission: 'allow',
 		description:
 			'Start recording the user screen (video only) for a given duration. Requires an open app window and macOS Screen Recording permission. The recording runs in the background: this returns immediately with a recording id and the destination path, and the file is written when the recording finishes. Use recorder_screen_status to check progress or wait for completion before using the file.',
 		inputSchema: z.object({
