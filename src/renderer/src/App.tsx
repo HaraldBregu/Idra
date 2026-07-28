@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { AppProvider } from './contexts';
 import { ErrorBoundary } from './components/app/base/ErrorBoundary';
-import { initAudioCapture } from './lib/audio';
+import { initRecorderCapture } from './lib/recorder';
 import { router } from './router';
 import './index.css';
 
