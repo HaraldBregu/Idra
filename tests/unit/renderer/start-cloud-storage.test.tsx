@@ -17,7 +17,8 @@ jest.mock('react-i18next', () => {
 		'settings.storage.save': 'Save',
 		'settings.storage.saved': 'Storage saved',
 	};
-	return { useTranslation: () => ({ t: (key: string) => translations[key] ?? key }) };
+	const t = (key: string): string => translations[key] ?? key;
+	return { useTranslation: () => ({ t }) };
 });
 
 const storageApi = {
