@@ -48,10 +48,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		titleKey: 'settings.overview.groups.cloud',
 		paths: ['/settings/storage', '/settings/database'],
 	},
-	{
-		id: 'search',
-		paths: ['/settings/search'],
-	},
 ] as const;
 
 function getSettingsOverviewItem(path: string): SettingsNavigationItem | SettingsModelServiceItem {
