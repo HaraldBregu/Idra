@@ -1,7 +1,7 @@
 import { contextBridge } from 'electron';
 import { agent } from './agent';
 import { app } from './app';
-import { audio } from './audio';
+import { recorder } from './recorder';
 import { channels } from './channels';
 import { cron } from './cron';
 import { image } from './image';
