@@ -1,6 +1,6 @@
-import { deleteSchedule } from '../../cron';
-import { tool } from './tool';
-import { scheduleIdSchema } from './cron_schema';
+import { deleteSchedule } from '../../../cron';
+import { tool } from '../tool';
+import { scheduleIdSchema } from './schema';
 
 export const deleteScheduleTool = tool({
 	name: 'delete_schedule',

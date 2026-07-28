@@ -1,7 +1,7 @@
-import { createSchedule } from '../../cron';
-import { tool } from './tool';
+import { createSchedule } from '../../../cron';
+import { tool } from '../tool';
 import { z } from 'zod';
-import { createScheduleRequestSchema } from './cron_schema';
+import { createScheduleRequestSchema } from './schema';
 
 export const createScheduleTool = tool({
 	name: 'create_schedule',

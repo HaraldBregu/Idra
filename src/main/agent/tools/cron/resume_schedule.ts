@@ -1,6 +1,6 @@
-import { resumeSchedule } from '../../cron';
-import { tool } from './tool';
-import { scheduleIdSchema } from './cron_schema';
+import { resumeSchedule } from '../../../cron';
+import { tool } from '../tool';
+import { scheduleIdSchema } from './schema';
 
 export const resumeScheduleTool = tool({
 	name: 'resume_schedule',

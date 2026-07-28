@@ -1,7 +1,7 @@
 import dns from 'node:dns/promises';
 import net from 'node:net';
 import { z } from 'zod';
-import { tool } from './tool';
+import { tool } from '../tool';
 
 const MAX_CHARS_DEFAULT = 20_000;
 const TIMEOUT_MS = 30_000;

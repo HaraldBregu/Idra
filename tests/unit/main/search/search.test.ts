@@ -18,7 +18,7 @@ jest.mock('electron-store', () =>
 	})
 );
 
-import { getWebSearchTools } from '../../../../src/main/agent/tools/web_search';
+import { getWebSearchTools } from '../../../../src/main/agent/tools/web/search';
 import { searchBrave } from '../../../../src/main/search/adapters/brave';
 import { searchTavily } from '../../../../src/main/search/adapters/tavily';
 import { getSearchKey } from '../../../../src/main/search/search_get_key';

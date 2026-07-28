@@ -1,6 +1,6 @@
-import { runScheduleNow } from '../../cron';
-import { tool } from './tool';
-import { scheduleIdSchema } from './cron_schema';
+import { runScheduleNow } from '../../../cron';
+import { tool } from '../tool';
+import { scheduleIdSchema } from './schema';
 
 export const runScheduleNowTool = tool({
 	name: 'run_schedule_now',

@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { getSearchSettings, searchWeb } from '../../search';
-import type { Tool } from '../types';
-import { tool } from './tool';
+import { getSearchSettings, searchWeb } from '../../../search';
+import type { Tool } from '../../types';
+import { tool } from '../tool';
 
 const webSearchTool = tool({
 	name: 'web_search',

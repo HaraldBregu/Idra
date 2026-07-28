@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
-import { agentLocation } from '../../shared/agent_location';
-import { resolveUserPath } from '../../shared/user_path';
-import { tool } from './tool';
+import { agentLocation } from '../../../shared/agent_location';
+import { resolveUserPath } from '../../../shared/user_path';
+import { tool } from '../tool';
 
 const BEGIN_PATCH_MARKER = '*** Begin Patch';
 const END_PATCH_MARKER = '*** End Patch';

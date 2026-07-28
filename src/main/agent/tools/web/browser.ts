@@ -3,7 +3,7 @@ import path from 'node:path';
 import { app } from 'electron';
 import { chromium, type BrowserContext, type Page } from 'playwright-core';
 import { z } from 'zod';
-import { tool } from './tool';
+import { tool } from '../tool';
 
 const ACTIONS = [
 	'status',
