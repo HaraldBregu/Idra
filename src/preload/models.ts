@@ -1,9 +1,236 @@
-import { image } from './image';
-import { sound } from './sound';
-import { text } from './text';
-import { transcribe } from './transcribe';
-import { video } from './video';
-import { voice } from './voice';
+import { typedInvokeUnwrap, typedOn } from '../shared/ipc_types';
+import {
+	ImageChannels,
+	SoundChannels,
+	SpeechChannels,
+	SttChannels,
+	TextChannels,
+	VideoChannels,
+} from '../shared/ipc_channels_definitions';
 import type { ModelsApi } from './index.d';
+import {
+	normalizeSttRealtimeAudioChunk,
+	normalizeSttRealtimeStartRequest,
+	normalizeSttTranscriptionRequest,
+} from '../shared/stt_transcription';
+import { normalizeSpeechSynthesisRequest } from '../shared/speech_types';
+import { optionalTrimmedString } from './normalize';
 
-export const models: ModelsApi = { image, sound, text, transcribe, video, voice };
+function isSttRealtimeSessionId(value: unknown): value is string {
+	return typeof value === 'string' && value.trim().length > 0;
+}
+
+export const models: ModelsApi = {
+	image: {
+		createImage: (request) => {
+			const prompt = optionalTrimmedString(request?.prompt);
+			if (!prompt) throw new Error('Invalid image prompt.');
+			const providerId = optionalTrimmedString(request?.providerId);
+			const modelId = optionalTrimmedString(request?.modelId);
+			return typedInvokeUnwrap(ImageChannels.createImage, {
+				prompt,
+				...(providerId ? { providerId } : {}),
+				...(modelId ? { modelId } : {}),
+			});
+		},
+		getProviderId: () => {
+			return typedInvokeUnwrap(ImageChannels.getProviderId);
+		},
+		setProviderId: (providerId) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			if (!normalizedProviderId) throw new Error('Invalid image provider id.');
+			return typedInvokeUnwrap(ImageChannels.setProviderId, normalizedProviderId);
+		},
+		getModelId: () => {
+			return typedInvokeUnwrap(ImageChannels.getModelId);
+		},
+		setModelId: (modelId) => {
+			const normalizedModelId = optionalTrimmedString(modelId);
+			if (!normalizedModelId) throw new Error('Invalid image model id.');
+			return typedInvokeUnwrap(ImageChannels.setModelId, normalizedModelId);
+		},
+	},
+	sound: {
+		createSound: (request) => {
+			const prompt = optionalTrimmedString(request?.prompt);
+			if (!prompt) throw new Error('Invalid sound prompt.');
+			const providerId = optionalTrimmedString(request?.providerId);
+			const modelId = optionalTrimmedString(request?.modelId);
+			return typedInvokeUnwrap(SoundChannels.createSound, {
+				prompt,
+				...(providerId ? { providerId } : {}),
+				...(modelId ? { modelId } : {}),
+			});
+		},
+		listSounds: () => {
+			return typedInvokeUnwrap(SoundChannels.listSounds);
+		},
+		getProviderId: () => {
+			return typedInvokeUnwrap(SoundChannels.getProviderId);
+		},
+		setProviderId: (providerId) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			if (!normalizedProviderId) throw new Error('Invalid sound provider id.');
+			return typedInvokeUnwrap(SoundChannels.setProviderId, normalizedProviderId);
+		},
+		getModelId: () => {
+			return typedInvokeUnwrap(SoundChannels.getModelId);
+		},
+		setModelId: (modelId) => {
+			const normalizedModelId = optionalTrimmedString(modelId);
+			if (!normalizedModelId) throw new Error('Invalid sound model id.');
+			return typedInvokeUnwrap(SoundChannels.setModelId, normalizedModelId);
+		},
+	},
+	text: {
+		generateText: (request) => {
+			const prompt = optionalTrimmedString(request?.prompt);
+			if (!prompt) throw new Error('Invalid text prompt.');
+			const providerId = optionalTrimmedString(request?.providerId);
+			const modelId = optionalTrimmedString(request?.modelId);
+			return typedInvokeUnwrap(TextChannels.generateText, {
+				prompt,
+				...(providerId ? { providerId } : {}),
+				...(modelId ? { modelId } : {}),
+			});
+		},
+		getProviderId: () => {
+			return typedInvokeUnwrap(TextChannels.getProviderId);
+		},
+		setProviderId: (providerId) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			if (!normalizedProviderId) throw new Error('Invalid text provider id.');
+			return typedInvokeUnwrap(TextChannels.setProviderId, normalizedProviderId);
+		},
+		getModelId: () => {
+			return typedInvokeUnwrap(TextChannels.getModelId);
+		},
+		setModelId: (modelId) => {
+			const normalizedModelId = optionalTrimmedString(modelId);
+			if (!normalizedModelId) throw new Error('Invalid text model id.');
+			return typedInvokeUnwrap(TextChannels.setModelId, normalizedModelId);
+		},
+	},
+	transcribe: {
+		transcribe: (request) => {
+			return typedInvokeUnwrap(SttChannels.transcribe, normalizeSttTranscriptionRequest(request));
+		},
+		startRealtime: (request) => {
+			return typedInvokeUnwrap(SttChannels.startRealtime, normalizeSttRealtimeStartRequest(request));
+		},
+		appendRealtimeAudio: (sessionId, audio) => {
+			if (!isSttRealtimeSessionId(sessionId)) {
+				throw new Error('Invalid speech-to-text realtime session id.');
+			}
+			return typedInvokeUnwrap(
+				SttChannels.appendRealtimeAudio,
+				sessionId,
+				normalizeSttRealtimeAudioChunk(audio)
+			);
+		},
+		finishRealtime: (sessionId) => {
+			if (!isSttRealtimeSessionId(sessionId)) {
+				throw new Error('Invalid speech-to-text realtime session id.');
+			}
+			return typedInvokeUnwrap(SttChannels.finishRealtime, sessionId);
+		},
+		cancelRealtime: (sessionId) => {
+			if (!isSttRealtimeSessionId(sessionId)) {
+				throw new Error('Invalid speech-to-text realtime session id.');
+			}
+			return typedInvokeUnwrap(SttChannels.cancelRealtime, sessionId);
+		},
+		onRealtimeEvent: (callback) => {
+			return typedOn(SttChannels.realtimeEvent, callback);
+		},
+		getSelection: (mode) => {
+			return typedInvokeUnwrap(SttChannels.getSelection, mode);
+		},
+		listProviders: () => {
+			return typedInvokeUnwrap(SttChannels.listProviders);
+		},
+		listModels: (providerId) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
+			return typedInvokeUnwrap(SttChannels.listModels, normalizedProviderId);
+		},
+		saveSelection: (providerId, modelId, mode) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			const normalizedModelId = optionalTrimmedString(modelId);
+			if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
+			if (!normalizedModelId) throw new Error('Invalid speech-to-text model id.');
+			return typedInvokeUnwrap(
+				SttChannels.saveSelection,
+				normalizedProviderId,
+				normalizedModelId,
+				mode
+			);
+		},
+		getProviderId: () => {
+			return typedInvokeUnwrap(SttChannels.getProviderId);
+		},
+		setProviderId: (providerId) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			if (!normalizedProviderId) throw new Error('Invalid transcribe provider id.');
+			return typedInvokeUnwrap(SttChannels.setProviderId, normalizedProviderId);
+		},
+		getModelId: () => {
+			return typedInvokeUnwrap(SttChannels.getModelId);
+		},
+		setModelId: (modelId) => {
+			const normalizedModelId = optionalTrimmedString(modelId);
+			if (!normalizedModelId) throw new Error('Invalid transcribe model id.');
+			return typedInvokeUnwrap(SttChannels.setModelId, normalizedModelId);
+		},
+	},
+	video: {
+		createVideo: (request) => {
+			const prompt = optionalTrimmedString(request?.prompt);
+			if (!prompt) throw new Error('Invalid video prompt.');
+			const providerId = optionalTrimmedString(request?.providerId);
+			const modelId = optionalTrimmedString(request?.modelId);
+			return typedInvokeUnwrap(VideoChannels.createVideo, {
+				prompt,
+				...(providerId ? { providerId } : {}),
+				...(modelId ? { modelId } : {}),
+			});
+		},
+		getProviderId: () => {
+			return typedInvokeUnwrap(VideoChannels.getProviderId);
+		},
+		setProviderId: (providerId) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			if (!normalizedProviderId) throw new Error('Invalid video provider id.');
+			return typedInvokeUnwrap(VideoChannels.setProviderId, normalizedProviderId);
+		},
+		getModelId: () => {
+			return typedInvokeUnwrap(VideoChannels.getModelId);
+		},
+		setModelId: (modelId) => {
+			const normalizedModelId = optionalTrimmedString(modelId);
+			if (!normalizedModelId) throw new Error('Invalid video model id.');
+			return typedInvokeUnwrap(VideoChannels.setModelId, normalizedModelId);
+		},
+	},
+	voice: {
+		synthesize: (request) => {
+			return typedInvokeUnwrap(SpeechChannels.synthesize, normalizeSpeechSynthesisRequest(request));
+		},
+		getProviderId: () => {
+			return typedInvokeUnwrap(SpeechChannels.getProviderId);
+		},
+		setProviderId: (providerId) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			if (!normalizedProviderId) throw new Error('Invalid voice provider id.');
+			return typedInvokeUnwrap(SpeechChannels.setProviderId, normalizedProviderId);
+		},
+		getModelId: () => {
+			return typedInvokeUnwrap(SpeechChannels.getModelId);
+		},
+		setModelId: (modelId) => {
+			const normalizedModelId = optionalTrimmedString(modelId);
+			if (!normalizedModelId) throw new Error('Invalid voice model id.');
+			return typedInvokeUnwrap(SpeechChannels.setModelId, normalizedModelId);
+		},
+	},
+};
