@@ -195,7 +195,7 @@
 			"providers": "Providers",
 			"searchEngine": "Search engine",
 			"database": "Database",
-			"storage": "Storage",
+			"storage": "Object Storage",
 			"media": "Media",
 			"devices": "Devices",
 			"tools": "Tools",
