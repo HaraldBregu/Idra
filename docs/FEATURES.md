@@ -125,7 +125,7 @@ This group covers what makes Friday an agent rather than a chat window: the tool
 
 Friday uses an iterative tool-calling loop:
 
-1. Build a system prompt from the base assistant contract, tool descriptions, workspace metadata, the live filesystem inventory, and any skill loaded during the run. Editable profile and memory files are prepended separately as user-controlled context.
+1. Build a system prompt from the base assistant contract, tool descriptions, workspace metadata, the live filesystem inventory, and any skill loaded during the run. Editable profile and memory files plus installed-skill routing metadata are prepended separately as user-controlled context.
 2. Stream a model turn and collect text, reasoning continuity where supported, and tool calls.
 3. Run requested tools, stream their activity into the conversation, and append results to the transcript.
 4. Continue until the model returns no tool calls, the request is cancelled, an error occurs, or the 20-turn session limit is reached.
