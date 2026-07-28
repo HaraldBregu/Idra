@@ -5,6 +5,7 @@ import { createEmbedding } from '../models/embedding';
 import { chunkText } from './rag_chunk';
 import { RAG_INDEX_NAME, ragClient } from './rag_client';
 import { ragLocation } from './rag_location';
+import { writeRagManifest } from './rag_manifest';
 
 const TEXT_EXTENSIONS = new Set(['.txt', '.md', '.markdown', '.json', '.csv', '.log']);
 const BATCH_SIZE = 64;
