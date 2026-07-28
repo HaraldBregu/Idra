@@ -9,6 +9,7 @@ import {
 	CircleX,
 	Image,
 	LoaderCircle,
+	Mic,
 	PenLine,
 	Plug,
 	Sparkles,
