@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { z } from 'zod';
-import { startRecording } from '../../audio';
+import { audioRecorder } from '../../recorder';
 import { agentLocation } from '../../shared/agent_location';
 import { resolveUserPath } from '../../shared/user_path';
 import type { Tool } from '../types';
@@ -27,7 +27,7 @@ export function audioRecorderTool(): Tool {
 		execute: async ({ duration, directory }) => {
 			const targetDir = resolveUserPath(directory ?? '.', agentLocation());
 			const url = path.join(targetDir, `audio-${Date.now()}.webm`);
-			const recording = startRecording({ url, duration: duration * 1000 });
+			const recording = audioRecorder.start({ url, duration: duration * 1000 });
 			return {
 				id: recording.id,
 				path: recording.url,
