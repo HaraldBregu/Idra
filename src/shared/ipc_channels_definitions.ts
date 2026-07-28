@@ -121,6 +121,14 @@ export const ChannelsChannels = {
 	statusChanged: 'channels:status-changed',
 } as const;
 
+export const EmbeddingChannels = {
+	createEmbedding: 'embedding:create-embedding',
+	getModelId: 'embedding:get-model-id',
+	getProviderId: 'embedding:get-provider-id',
+	setModelId: 'embedding:set-model-id',
+	setProviderId: 'embedding:set-provider-id',
+} as const;
+
 export const ImageChannels = {
 	createImage: 'image:create-image',
 	getModelId: 'image:get-model-id',
