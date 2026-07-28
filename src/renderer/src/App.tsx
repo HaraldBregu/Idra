@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { AppProvider } from './contexts';
 import { ErrorBoundary } from './components/app/base/ErrorBoundary';
+import { initAudioCapture } from './lib/audio';
 import { router } from './router';
 import './index.css';
 
 const App: React.FC = () => {
+	useEffect(() => initAudioCapture(), []);
+
 	return (
 		<ErrorBoundary level="root">
 			<AppProvider>
