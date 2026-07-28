@@ -564,6 +564,24 @@ function PageContent(): ReactElement {
 		startVoiceConversation();
 	};
 
+	if (voiceMode === 'conversation') {
+		return (
+			<div
+				className="fixed inset-0 z-[60] flex items-center justify-center bg-background"
+				style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+			>
+				<button
+					type="button"
+					aria-label="End voice conversation"
+					onClick={endVoiceConversation}
+					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+				>
+					<GradientSphere size={64} />
+				</button>
+			</div>
+		);
+	}
+
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
 			<div className="relative flex min-h-0 flex-1 flex-col bg-background text-foreground">
