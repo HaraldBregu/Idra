@@ -152,6 +152,10 @@ describe('Settings overview', () => {
 			screen.queryByText('settings.modelServices.speechTranscriberName')
 		).not.toBeInTheDocument();
 		expect(screen.queryByText('settings.tabs.database')).not.toBeInTheDocument();
-		expect(screen.getByText('settings.tabs.wiki')).toBeInTheDocument();
+		const assistantGroup = screen
+			.getByText('settings.overview.groups.assistant')
+			.closest('section');
+		expect(assistantGroup).not.toBeNull();
+		expect(within(assistantGroup as HTMLElement).getByText('settings.tabs.wiki')).toBeInTheDocument();
 	});
 });
