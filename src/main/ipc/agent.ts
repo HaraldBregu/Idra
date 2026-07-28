@@ -254,7 +254,10 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			AgentChannels.policyPickDirectory,
 			wrapSimpleHandler(async (): Promise<string | undefined> => {
 				const window = BrowserWindow.getFocusedWindow();
-				const options = { properties: ['openDirectory' as const] };
+				const options = {
+					defaultPath: agentLocation(),
+					properties: ['openDirectory' as const],
+				};
 				const result = await (window
 					? dialog.showOpenDialog(window, options)
 					: dialog.showOpenDialog(options));
