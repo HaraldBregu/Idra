@@ -54,7 +54,7 @@ describe('Start cloud storage step', () => {
 		expect(screen.queryByText('Cloud storage settings')).not.toBeInTheDocument();
 		expect(storageApi.getStorages).toHaveBeenCalledTimes(1);
 
-		await user.click(screen.getByRole('button', { name: 'Add provider' }));
+		await user.click(await screen.findByRole('button', { name: 'Add provider' }));
 		await user.type(screen.getByLabelText('Name'), 'Friday backup');
 		await user.type(screen.getByLabelText('Bucket'), 'friday-data');
 		await user.type(screen.getByLabelText('Access key ID'), 'access-key');
