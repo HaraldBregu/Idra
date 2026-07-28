@@ -1,4 +1,4 @@
-import { LlmContextOverflowError } from '../../../../../src/main/models/llm';
+import { LlmContextOverflowError } from '../../../../../src/main/app/models/llm';
 import { runModelTurn } from '../../../../../src/main/agent/run/run_model_turn';
 import type { ModelTurnStream } from '../../../../../src/main/agent/run/run_model_turn';
 import type { ResolvedProvider } from '../../../../../src/shared/providers_types';

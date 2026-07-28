@@ -1,4 +1,4 @@
-import { LlmModel } from '../models/llm';
+import { LlmModel } from '../app/models/llm';
 import type { TextRequest } from '../../shared/text_types';
 import { getProvider } from '../providers';
 import {

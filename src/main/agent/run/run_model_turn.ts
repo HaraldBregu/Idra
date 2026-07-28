@@ -1,5 +1,5 @@
-import { LlmContextOverflowError, LlmModel } from '../../models/llm';
-import type { LlmEvent, LlmRequest } from '../../models/llm';
+import { LlmContextOverflowError, LlmModel } from '../../app/models/llm';
+import type { LlmEvent, LlmRequest } from '../../app/models/llm';
 import { parseToolArgs } from '../../shared/parse_tool_args';
 import type { ResolvedProvider } from '../../../shared/providers_types';
 import type { Message, MessageContentBlock, RuntimeEvent, RuntimeInput, Tool } from '../types';

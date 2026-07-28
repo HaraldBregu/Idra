@@ -1,4 +1,4 @@
-import { transcribe as sttTranscribe } from '../models/stt';
+import { transcribe as sttTranscribe } from '../app/models/stt';
 import type { TranscribeToTextRequest } from './transcribe_types';
 
 export async function toText(request: TranscribeToTextRequest): Promise<string> {

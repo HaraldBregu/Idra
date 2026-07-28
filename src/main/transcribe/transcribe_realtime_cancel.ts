@@ -1,4 +1,4 @@
-import { cancelRealtime as sttCancelRealtime } from '../models/stt';
+import { cancelRealtime as sttCancelRealtime } from '../app/models/stt';
 
 export async function cancelRealtime(sessionId: string): Promise<void> {
 	return sttCancelRealtime(sessionId);

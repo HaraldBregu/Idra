@@ -11,7 +11,7 @@ import {
 	MusicProviderAuthError,
 	MusicProviderRequestError,
 	MusicProviderUnsupportedError,
-} from '../models/tta';
+} from '../app/models/tta';
 import {
 	getModelId as getStoredModelId,
 	getProviderId as getStoredProviderId,

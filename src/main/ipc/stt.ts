@@ -12,7 +12,7 @@ import {
 	saveSelection,
 	startRealtime,
 	transcribe,
-} from '../models/stt';
+} from '../app/models/stt';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../transcribe';
 
 export class SttIpc implements IpcModule {

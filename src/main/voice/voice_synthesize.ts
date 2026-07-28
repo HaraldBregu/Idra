@@ -1,4 +1,4 @@
-import { synthesize as synthesizeTextToSpeech } from '../models/tts';
+import { synthesize as synthesizeTextToSpeech } from '../app/models/tts';
 import type {
 	SpeechSynthesisRequest,
 	SpeechSynthesisResult,
