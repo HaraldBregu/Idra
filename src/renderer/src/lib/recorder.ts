@@ -90,7 +90,7 @@ export function initRecorderCapture(): () => void {
 			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
 		),
 		createCaptureHost(window.recorder.screen, () =>
-			navigator.mediaDevices.getDisplayMedia({ audio: true, video: true })
+			navigator.mediaDevices.getDisplayMedia({ video: true })
 		),
 	];
 	return () => disposers.forEach((dispose) => dispose());
