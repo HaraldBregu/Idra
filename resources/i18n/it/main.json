@@ -967,6 +967,15 @@
 			"enabled": "Attivo",
 			"disabled": "Disattivato"
 		},
+		"embedding": {
+			"input": "Testo",
+			"inputDescription": "Il testo viene incorporato con il provider e il modello selezionati.",
+			"inputPlaceholder": "Incolla il testo da incorporare...",
+			"embed": "Incorpora",
+			"embedding": "Incorporamento...",
+			"embedError": "Impossibile creare l'embedding.",
+			"result": "Vettore creato con {{count}} dimensioni."
+		},
 		"image": {
 			"prompt": "Prompt",
 			"promptDescription": "L'immagine viene generata con il provider e il modello selezionati.",
