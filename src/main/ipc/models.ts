@@ -28,10 +28,12 @@ export class ModelsIpc implements IpcModule {
 
 	register(_deps: void, _eventBus: EventBus): void {
 		registerCommand(ImageChannels.createImage, (request) => image.createImage(request));
-		registerQuery(ImageChannels.getProviderId, () => image.getProviderId());
-		registerCommand(ImageChannels.setProviderId, (providerId) => image.setProviderId(providerId));
-		registerQuery(ImageChannels.getModelId, () => image.getModelId());
-		registerCommand(ImageChannels.setModelId, (modelId) => image.setModelId(modelId));
+		registerQuery(ImageChannels.getProviderId, () => getProviderId('image'));
+		registerCommand(ImageChannels.setProviderId, (providerId) =>
+			setProviderId('image', providerId)
+		);
+		registerQuery(ImageChannels.getModelId, () => getModelId('image'));
+		registerCommand(ImageChannels.setModelId, (modelId) => setModelId('image', modelId));
 
 		registerCommand(SoundChannels.createSound, async (request) => {
 			const result = await sound.createSound(request);
