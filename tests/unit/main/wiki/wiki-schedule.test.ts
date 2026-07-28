@@ -22,6 +22,7 @@ import { wikiRuntime } from '../../../../src/main/wiki/wiki_runtime';
 
 describe('wiki scheduling', () => {
 	beforeEach(() => {
+		schedule.mockClear();
 		wikiRuntime.task = undefined;
 		getWikiSettings.mockReturnValue({
 			providerId: 'openai',
