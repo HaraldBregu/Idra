@@ -8,8 +8,6 @@ import { getProvider } from '../../providers';
 import { getModelId, getProviderId } from '../models_store';
 import { EMBEDDING_PROVIDERS } from './embedding_providers';
 
-const DEFAULT_EMBEDDING_PROVIDER_ID = 'openai';
-
 export async function createEmbedding(request: EmbeddingRequest): Promise<EmbeddingResult> {
 	const texts = (request.texts ?? []).map((text) => text?.trim()).filter(Boolean);
 	if (texts.length === 0) throw new Error('Text to embed is required.');
