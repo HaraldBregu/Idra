@@ -1,4 +1,4 @@
-import { normalizeProviderId } from '../../../shared/provider_models_definitions';
+import { normalizeProviderId } from '../../../../shared/provider_models_definitions';
 import { createBflImageAdapter } from './tti_bfl';
 import { createGoogleImageAdapter } from './tti_google';
 import { createIdeogramImageAdapter } from './tti_ideogram';

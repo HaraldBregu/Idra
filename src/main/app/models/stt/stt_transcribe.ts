@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../shared';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../../shared';
 import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
@@ -10,8 +10,8 @@ import {
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	getSpeechToTextModelApiTypes,
 	supportsSpeechToTextModelApiType,
-} from '../../../shared/provider_models_definitions';
-import type { SpeechToTextProviderId } from '../../../shared/provider_models_types';
+} from '../../../../shared/provider_models_definitions';
+import type { SpeechToTextProviderId } from '../../../../shared/provider_models_types';
 import {
 	STT_DEFAULT_REALTIME_SAMPLE_RATE,
 	normalizeSttRealtimeAudioChunk,
@@ -24,22 +24,22 @@ import {
 	type SttSelectionMode,
 	type SttTranscriptionRequest,
 	type SttTranscriptionResult,
-} from '../../../shared/stt_transcription';
+} from '../../../../shared/stt_transcription';
 import {
 	cloneModels,
 	normalizeProviderId,
-} from '../../../shared/provider_models_definitions';
-import type { ProviderModel } from '../../../shared/provider_models_types';
+} from '../../../../shared/provider_models_definitions';
+import type { ProviderModel } from '../../../../shared/provider_models_types';
 import { buildSttAdapter } from './stt_factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
-import { getProvider } from '../../providers';
-import type { Provider as CatalogProvider } from '../../../shared/providers_definitions';
+import { getProvider } from '../../../providers';
+import type { Provider as CatalogProvider } from '../../../../shared/providers_definitions';
 import {
 	getModelId as getTranscribeModelId,
 	getProviderId as getTranscribeProviderId,
 	setSelection as setTranscribeSelection,
-} from '../../transcribe/transcribe_store';
+} from '../../../transcribe/transcribe_store';
 
 const realtimeSessions = new Map<string, SttActiveRealtimeSession>();
 

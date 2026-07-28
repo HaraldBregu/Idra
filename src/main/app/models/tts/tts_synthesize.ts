@@ -1,23 +1,23 @@
-import { DEFAULT_PROVIDERS } from '../../../shared';
+import { DEFAULT_PROVIDERS } from '../../../../shared';
 import {
 	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_PROVIDER_ID,
 	TEXT_TO_SPEECH_PROVIDER_IDS,
-} from '../../../shared/provider_models_definitions';
-import type { TextToSpeechProviderId } from '../../../shared/provider_models_types';
-import { normalizeProviderId } from '../../../shared/provider_models_definitions';
+} from '../../../../shared/provider_models_definitions';
+import type { TextToSpeechProviderId } from '../../../../shared/provider_models_types';
+import { normalizeProviderId } from '../../../../shared/provider_models_definitions';
 import {
 	normalizeSpeechSynthesisRequest,
 	type SpeechSynthesisRequest,
 	type SpeechSynthesisResult,
-} from '../../../shared/speech_types';
-import { getProvider } from '../../providers';
+} from '../../../../shared/speech_types';
+import { getProvider } from '../../../providers';
 import { buildSpeechAdapter } from './tts_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
 import {
 	getModelId as getStoredModelId,
 	getProviderId as getStoredProviderId,
-} from '../../voice/voice_store';
+} from '../../../voice/voice_store';
 import type { SpeechProviderSpec } from './tts_types';
 
 export async function synthesize(request: SpeechSynthesisRequest): Promise<SpeechSynthesisResult> {

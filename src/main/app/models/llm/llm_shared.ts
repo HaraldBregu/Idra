@@ -6,7 +6,7 @@ import type {
 	ResponseInputItem,
 	ResponseOutputItem,
 } from 'openai/resources/responses/responses';
-import type { Message } from '../../agent/types';
+import type { Message } from '../../../agent/types';
 import type {
 	LlmContentBlock,
 	LlmStreamRequest,
