@@ -249,6 +249,15 @@ export interface TranscribeApi {
 	setModelId: (modelId: string) => Promise<void>;
 }
 
+export interface ModelsApi {
+	image: ImageApi;
+	sound: SoundApi;
+	text: TextApi;
+	transcribe: TranscribeApi;
+	video: VideoApi;
+	voice: VoiceApi;
+}
+
 export interface AppApi {
 	getPathForFile: (file: File) => string;
 	openAppDataFolder: () => Promise<void>;
