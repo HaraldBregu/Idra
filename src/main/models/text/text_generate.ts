@@ -1,10 +1,7 @@
 import { LlmModel } from '../../app/models_adapters/llm';
 import type { TextRequest } from '../../../shared/text_types';
 import { getProvider } from '../../providers';
-import {
-	getModelId as getStoredModelId,
-	getProviderId as getStoredProviderId,
-} from './text_store';
+import { getModelId, getProviderId } from '../models_store';
 
 const llmModel = new LlmModel();
 const MAX_TOKENS = 4096;
