@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import type { WikiSource } from './wiki_types';
 
@@ -8,5 +9,6 @@ export function wikiSourcePage(source: WikiSource): string {
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/^-|-$/g, '')
 		.slice(0, 80);
-	return `sources/${stem || 'source'}-${source.hash.slice(0, 8)}.md`;
+	const pathHash = createHash('sha256').update(source.relativePath).digest('hex').slice(0, 8);
+	return `sources/${stem || 'source'}-${pathHash}.md`;
 }
