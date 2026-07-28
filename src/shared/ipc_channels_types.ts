@@ -622,7 +622,7 @@ export interface SendChannelMap extends WindowSendChannelMap {}
 export interface EventChannelMap
 	extends
 		AgentEventChannelMap,
-		AudioEventChannelMap,
+		RecorderEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
 		SttEventChannelMap {}
