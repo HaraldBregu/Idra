@@ -15,15 +15,15 @@ import type { SoundFile, SoundRequest, SoundResult } from './sound_types';
 import type { VideoRequest, VideoResult } from './video_types';
 import type { TextRequest } from './text_types';
 import type {
-	AudioCaptureCommand,
-	AudioCaptureResult,
-	AudioRecordConfig,
-	AudioRecording,
-} from './audio_types';
+	RecordConfig,
+	Recording,
+	RecorderCaptureResult,
+	RecorderCommand,
+} from './recorder_types';
 import {
 	AgentChannels,
 	AppChannels,
-	AudioChannels,
+	RecorderChannels,
 	ChannelsChannels,
 	CronChannels,
 	McpChannels,
