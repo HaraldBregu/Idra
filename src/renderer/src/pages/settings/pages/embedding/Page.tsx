@@ -50,7 +50,7 @@ const EmbeddingPage: React.FC = () => {
 					storedProviderId &&
 					EMBEDDING_PROVIDER_GROUPS.some((group) => group.id === storedProviderId)
 						? storedProviderId
-						: (EMBEDDING_PROVIDER_GROUPS[0]?.id ?? '');
+						: DEFAULT_EMBEDDING_PROVIDER_ID;
 				const models =
 					EMBEDDING_PROVIDER_GROUPS.find((group) => group.id === nextProviderId)?.models ?? [];
 				setProviderId(nextProviderId);
