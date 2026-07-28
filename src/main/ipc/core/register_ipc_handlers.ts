@@ -1,6 +1,6 @@
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
-import { AudioIpc } from '../audio';
+import { RecorderIpc } from '../recorder';
 import { ChannelsIpc } from '../channels';
 import { CronIpc } from '../cron';
 import { ImageIpc } from '../image';
