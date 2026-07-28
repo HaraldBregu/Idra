@@ -1,10 +1,9 @@
-import { existsSync } from 'node:fs';
 import path from 'node:path';
 import type { WorkspaceFile } from './system_types';
 
 export function resolveTemplatePath(filePath: WorkspaceFile): string {
 	const templatePath = path.join('resources', 'templates', filePath);
-	const developmentPath = path.resolve(process.cwd(), templatePath);
-	if (existsSync(developmentPath)) return developmentPath;
+	if (process.defaultApp || !process.resourcesPath)
+		return path.resolve(process.cwd(), templatePath);
 	return path.join(process.resourcesPath, templatePath);
 }
