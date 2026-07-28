@@ -2,6 +2,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import {
+	EmbeddingChannels,
 	ImageChannels,
 	SoundChannels,
 	SpeechChannels,
@@ -9,7 +10,7 @@ import {
 	TextChannels,
 	VideoChannels,
 } from '../../shared/ipc_channels_definitions';
-import { image, sound, text, video, voice } from '../models';
+import { embedding, image, sound, text, video, voice } from '../models';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../models/models_store';
 import {
 	appendRealtimeAudio,
