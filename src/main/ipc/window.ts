@@ -53,6 +53,25 @@ export class WindowIpc implements IpcModule<WindowIpcDeps> {
 			if (win) win.close();
 		});
 
+		const compactBounds = new Map<number, Electron.Rectangle>();
+
+		ipcMain.on(WindowChannels.setCompact, (event, compact: boolean) => {
+			const win = BrowserWindow.fromWebContents(event.sender);
+			if (!win) return;
+			if (compact) {
+				if (!compactBounds.has(win.id)) compactBounds.set(win.id, win.getBounds());
+				win.setBounds({ width: 100, height: 100 }, true);
+			} else {
+				const bounds = compactBounds.get(win.id);
+				if (!bounds) return;
+				compactBounds.delete(win.id);
+				win.setBounds(bounds, true);
+			}
+			if (process.platform === 'darwin') {
+				win.setWindowButtonVisibility(!compact);
+			}
+		});
+
 		ipcMain.on(WindowChannels.popupMenu, (event) => {
 			const win = BrowserWindow.fromWebContents(event.sender);
 			if (win) {
