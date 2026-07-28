@@ -175,22 +175,6 @@ export interface SearchApi {
 	selectEngine: (engineId: SearchEngineId) => Promise<SearchSettings>;
 }
 
-export interface ImageApi {
-	createImage: (request: ImageRequest) => Promise<ImageResult>;
-	getProviderId: () => Promise<string | undefined>;
-	setProviderId: (providerId: string) => Promise<void>;
-	getModelId: () => Promise<string | undefined>;
-	setModelId: (modelId: string) => Promise<void>;
-}
-
-export interface VideoApi {
-	createVideo: (request: VideoRequest) => Promise<VideoResult>;
-	getProviderId: () => Promise<string | undefined>;
-	setProviderId: (providerId: string) => Promise<void>;
-	getModelId: () => Promise<string | undefined>;
-	setModelId: (modelId: string) => Promise<void>;
-}
-
 export interface RecorderTrackApi {
 	start: (config: RecordConfig) => Promise<Recording>;
 	stop: (id: string) => Promise<void>;
