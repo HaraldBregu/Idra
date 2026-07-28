@@ -376,6 +376,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'embedding',
+						element: (
+							<SettingsRouteWrapper>
+								<EmbeddingPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'video',
 						element: (
 							<SettingsRouteWrapper>
