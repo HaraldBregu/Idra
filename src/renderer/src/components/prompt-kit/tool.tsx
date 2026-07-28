@@ -11,6 +11,7 @@ import {
 	Image,
 	LoaderCircle,
 	Mic,
+	Monitor,
 	PenLine,
 	Plug,
 	Sparkles,
