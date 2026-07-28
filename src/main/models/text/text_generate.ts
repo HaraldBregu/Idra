@@ -10,10 +10,10 @@ export async function generateText(request: TextRequest): Promise<string> {
 	const prompt = request.prompt?.trim();
 	if (!prompt) throw new Error('Prompt is required.');
 
-	const providerId = request.providerId?.trim() || getStoredProviderId();
+	const providerId = request.providerId?.trim() || getProviderId('text');
 	if (!providerId) throw new Error('Text provider not configured.');
 
-	const modelId = request.modelId?.trim() || getStoredModelId();
+	const modelId = request.modelId?.trim() || getModelId('text');
 	if (!modelId) throw new Error('Text model not configured.');
 
 	const provider = getProvider(providerId);
