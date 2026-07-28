@@ -11,7 +11,7 @@ import {
 	VideoProviderAuthError,
 	VideoProviderRequestError,
 	VideoProviderUnsupportedError,
-} from '../app/models/ttv';
+} from '../app/models_adapters/ttv';
 import {
 	getModelId as getStoredModelId,
 	getProviderId as getStoredProviderId,

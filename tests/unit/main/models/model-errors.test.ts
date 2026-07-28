@@ -2,17 +2,17 @@ import {
 	SttProviderAuthError,
 	SttProviderRequestError,
 	SttProviderUnsupportedError,
-} from '../../../../src/main/app/models/stt/stt_errors';
+} from '../../../../src/main/app/models_adapters/stt/stt_errors';
 import {
 	SpeechProviderAuthError,
 	SpeechProviderRequestError,
 	SpeechProviderUnsupportedError,
-} from '../../../../src/main/app/models/tts/tts_errors';
+} from '../../../../src/main/app/models_adapters/tts/tts_errors';
 import {
 	ImageProviderAuthError,
 	ImageProviderRequestError,
 	ImageProviderUnsupportedError,
-} from '../../../../src/main/app/models/tti/tti_errors';
+} from '../../../../src/main/app/models_adapters/tti/tti_errors';
 
 const cases: Array<[new (m: string) => Error, string]> = [
 	[SttProviderAuthError, 'SttProviderAuthError'],
