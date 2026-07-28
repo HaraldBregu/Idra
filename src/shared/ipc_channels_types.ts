@@ -562,6 +562,7 @@ export interface WindowSendChannelMap {
 	[WindowChannels.maximize]: { args: [] };
 	[WindowChannels.close]: { args: [] };
 	[WindowChannels.popupMenu]: { args: [] };
+	[WindowChannels.setCompact]: { args: [boolean] };
 }
 
 export interface WindowEventChannelMap {
