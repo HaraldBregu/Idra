@@ -300,6 +300,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'rag',
+						element: (
+							<SettingsRouteWrapper>
+								<RagPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'tasks',
 						element: (
 							<SettingsRouteWrapper>
