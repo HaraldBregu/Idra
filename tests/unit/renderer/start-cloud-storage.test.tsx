@@ -35,6 +35,13 @@ const storageApi = {
 	pull: jest.fn(),
 };
 
+beforeAll(() => {
+	Object.defineProperty(globalThis.crypto, 'randomUUID', {
+		configurable: true,
+		value: () => 'storage-draft',
+	});
+});
+
 beforeEach(() => {
 	Object.defineProperty(window, 'storage', { configurable: true, value: storageApi });
 	storageApi.getStorages.mockResolvedValue([]);
