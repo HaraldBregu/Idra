@@ -26,15 +26,10 @@ declare global {
 		skills: SkillsApi;
 		mcp: McpApi;
 		channels: ChannelsApi;
+		models: ModelsApi;
 		storage: StorageApi;
 		provider: ProviderApi;
 		search: SearchApi;
-		transcribe: TranscribeApi;
-		voice: VoiceApi;
-		image: ImageApi;
-		video: VideoApi;
-		sound: SoundApi;
-		text: TextApi;
 		widgets: WidgetsApi;
 	}
 }
