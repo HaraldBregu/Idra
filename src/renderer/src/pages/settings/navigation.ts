@@ -354,6 +354,12 @@ export const SETTINGS_NAVIGATION = [
 		icon: Library,
 	},
 	{
+		path: '/settings/vectordb',
+		labelKey: 'settings.tabs.vectorDb',
+		descriptionKey: 'settings.overview.descriptions.vectorDb',
+		icon: Boxes,
+	},
+	{
 		path: '/settings/skills',
 		labelKey: 'settings.tabs.skills',
 		descriptionKey: 'settings.overview.descriptions.skills',
