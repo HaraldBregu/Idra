@@ -175,20 +175,34 @@ export interface SearchApi {
 	selectEngine: (engineId: SearchEngineId) => Promise<SearchSettings>;
 }
 
-export interface RecorderTrackApi {
-	start: (config: RecordConfig) => Promise<Recording>;
-	stop: (id: string) => Promise<void>;
-	cancel: (id: string) => Promise<void>;
-	list: () => Promise<Recording[]>;
-	complete: (result: RecorderCaptureResult) => Promise<void>;
-	onCommand: (callback: (command: RecorderCommand) => void) => () => void;
-	onEvent: (callback: (recording: Recording) => void) => () => void;
-}
-
 export interface RecorderApi {
-	microphone: RecorderTrackApi;
-	camera: RecorderTrackApi;
-	screen: RecorderTrackApi;
+	microphone: {
+		start: (config: RecordConfig) => Promise<Recording>;
+		stop: (id: string) => Promise<void>;
+		cancel: (id: string) => Promise<void>;
+		list: () => Promise<Recording[]>;
+		complete: (result: RecorderCaptureResult) => Promise<void>;
+		onCommand: (callback: (command: RecorderCommand) => void) => () => void;
+		onEvent: (callback: (recording: Recording) => void) => () => void;
+	};
+	camera: {
+		start: (config: RecordConfig) => Promise<Recording>;
+		stop: (id: string) => Promise<void>;
+		cancel: (id: string) => Promise<void>;
+		list: () => Promise<Recording[]>;
+		complete: (result: RecorderCaptureResult) => Promise<void>;
+		onCommand: (callback: (command: RecorderCommand) => void) => () => void;
+		onEvent: (callback: (recording: Recording) => void) => () => void;
+	};
+	screen: {
+		start: (config: RecordConfig) => Promise<Recording>;
+		stop: (id: string) => Promise<void>;
+		cancel: (id: string) => Promise<void>;
+		list: () => Promise<Recording[]>;
+		complete: (result: RecorderCaptureResult) => Promise<void>;
+		onCommand: (callback: (command: RecorderCommand) => void) => () => void;
+		onEvent: (callback: (recording: Recording) => void) => () => void;
+	};
 }
 
 export interface ModelsApi {
