@@ -18,6 +18,7 @@ import {
 	usePromptInput,
 	type PromptInputVoiceMode,
 } from '@/components/ui/prompt-input';
+import { GradientSphere } from '@/components/ui/gradient-sphere';
 import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
 import { ScrollButton } from '@/components/ui/scroll-button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
