@@ -333,6 +333,8 @@ export const EMBEDDING_PROVIDER_IDS = [
 	'voyage',
 ] as const;
 
+export const DEFAULT_EMBEDDING_PROVIDER_ID = 'openai';
+
 export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER = {
 	'black-forest-labs': [
 		model('FLUX.2', 'FLUX.2'),
