@@ -28,15 +28,11 @@ export function audioRecorderTool(): Tool {
 			const targetDir = resolveUserPath(directory ?? '.', agentLocation());
 			const url = path.join(targetDir, `audio-${Date.now()}.webm`);
 			const recording = startRecording({ url, duration: duration * 1000 });
-			const finished = await waitForRecording(recording.id);
-			if (finished.status !== 'completed') {
-				throw new Error(finished.error ?? `Recording ${finished.status}.`);
-			}
 			return {
-				path: finished.url,
-				mimeType: finished.mimeType,
-				durationMs: finished.duration,
-				size: finished.size,
+				id: recording.id,
+				path: recording.url,
+				status: recording.status,
+				durationMs: recording.duration,
 			};
 		},
 	});
