@@ -85,7 +85,7 @@ export function saveSelection(
 			`Speech-to-text model does not support ${apiType} transcription: ${normalizedProviderId}/${normalizedModelId}`
 		);
 	}
-	setTranscribeSelection(normalizedProviderId, normalizedModelId, mode);
+	setTranscribeSelection(mode, normalizedProviderId, normalizedModelId);
 	return true;
 }
 
