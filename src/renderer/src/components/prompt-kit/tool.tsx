@@ -78,8 +78,9 @@ export function toolIcon(toolPart: ToolPart): typeof Wrench {
 	if (type === 'create_image') return Image;
 	if (type === 'create_video') return Video;
 	if (type === 'create_sound') return AudioLines;
-	if (type.startsWith('audio_recorder')) return Mic;
-	if (type.startsWith('video_recorder')) return Camera;
+	if (type.startsWith('recorder_microphone')) return Mic;
+	if (type.startsWith('recorder_camera')) return Camera;
+	if (type.startsWith('recorder_screen')) return Monitor;
 	if (type === 'exec') return Terminal;
 	if (type === 'write') return PenLine;
 	return Wrench;
