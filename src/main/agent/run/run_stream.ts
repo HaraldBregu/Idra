@@ -99,6 +99,7 @@ async function* loop(
 				createImageTool(),
 				createVideoTool(),
 				createSoundTool(),
+				audioRecorderTool(),
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
 				updateHealthTool(config),
