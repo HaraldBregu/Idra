@@ -36,7 +36,7 @@ function createCaptureHost(api: RecorderTrackApi, getStream: () => Promise<Media
 
 	async function startCapture(id: string, duration: number): Promise<void> {
 		try {
-			const stream = await navigator.mediaDevices.getUserMedia(constraints);
+			const stream = await getStream();
 			const recorder = new MediaRecorder(stream);
 			const capture: ActiveCapture = { recorder, stream, chunks: [], timer: 0, discard: false };
 			captures.set(id, capture);
