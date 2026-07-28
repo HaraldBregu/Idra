@@ -100,6 +100,9 @@ export interface AgentApi {
 	healthResetSettings: () => Promise<HealthSettings>;
 	healthGetData: () => Promise<string>;
 	healthSaveData: (content: string) => Promise<string>;
+	ragIndex: () => Promise<RagIndexResult>;
+	ragSearch: (query: string, topK?: number) => Promise<RagMatch[]>;
+	ragOpenFolder: () => Promise<void>;
 }
 
 export interface CronApi {
