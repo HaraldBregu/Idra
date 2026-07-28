@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CloudStep } from '../../../src/renderer/src/pages/start/components/CloudStep';
 
@@ -61,7 +61,7 @@ describe('Start cloud storage step', () => {
 		expect(screen.queryByText('Cloud storage settings')).not.toBeInTheDocument();
 		expect(storageApi.getStorages).toHaveBeenCalledTimes(1);
 
-		await user.click(await screen.findByRole('button', { name: 'Add provider' }));
+		fireEvent.click(await screen.findByRole('button', { name: 'Add provider' }));
 		await user.type(await screen.findByLabelText('Name'), 'Friday backup');
 		await user.type(screen.getByLabelText('Bucket'), 'friday-data');
 		await user.type(screen.getByLabelText('Access key ID'), 'access-key');
