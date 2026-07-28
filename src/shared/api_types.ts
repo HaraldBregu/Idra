@@ -27,6 +27,7 @@ import type {
 } from './agent_types';
 import type { ProviderModel } from './provider_models_types';
 import type { Channel, ChannelStatusEvent, ChannelType } from './channels_types';
+import type { EmbeddingRequest, EmbeddingResult } from './embedding_types';
 import type { ImageRequest, ImageResult } from './image_types';
 import type { SoundFile, SoundRequest, SoundResult } from './sound_types';
 import type {
