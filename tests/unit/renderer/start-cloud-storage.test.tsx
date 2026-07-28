@@ -55,7 +55,7 @@ describe('Start cloud storage step', () => {
 		expect(storageApi.getStorages).toHaveBeenCalledTimes(1);
 
 		await user.click(await screen.findByRole('button', { name: 'Add provider' }));
-		await user.type(screen.getByLabelText('Name'), 'Friday backup');
+		await user.type(await screen.findByLabelText('Name'), 'Friday backup');
 		await user.type(screen.getByLabelText('Bucket'), 'friday-data');
 		await user.type(screen.getByLabelText('Access key ID'), 'access-key');
 		await user.type(screen.getByLabelText('Secret access key'), 'secret-key');
