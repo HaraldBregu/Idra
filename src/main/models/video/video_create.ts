@@ -12,10 +12,7 @@ import {
 	VideoProviderRequestError,
 	VideoProviderUnsupportedError,
 } from '../../app/models_adapters/ttv';
-import {
-	getModelId as getStoredModelId,
-	getProviderId as getStoredProviderId,
-} from './video_store';
+import { getModelId, getProviderId } from '../models_store';
 
 const DEFAULT_VIDEO_PROVIDER_ID = 'google';
 
