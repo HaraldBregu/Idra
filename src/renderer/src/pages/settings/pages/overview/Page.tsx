@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AudioWaveform, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { AGENTS } from '@/lib/compat';
-import type { SearchEngineId } from '../../../../../../shared/search_types';
 import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../../components';
 import {
 	SETTINGS_NAVIGATION,
