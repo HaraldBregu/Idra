@@ -26,13 +26,13 @@ export async function indexRag(): Promise<{ files: number; vectors: number }> {
 			const batch = chunks.slice(start, start + BATCH_SIZE);
 			const embedded = await createEmbedding({ texts: batch, inputType: 'document' });
 			index ??= await ensureIndex(pinecone, embedded.dimensions);
-			await index.upsert(
-				batch.map((text, offset) => ({
+			await index.upsert({
+				records: batch.map((text, offset) => ({
 					id: `${file}#${start + offset}`,
 					values: embedded.embeddings[offset],
 					metadata: { path: file, text },
-				}))
-			);
+				})),
+			});
 			vectors += batch.length;
 		}
 	}
