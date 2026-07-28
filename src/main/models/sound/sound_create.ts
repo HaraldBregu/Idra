@@ -21,9 +21,9 @@ export async function createSound(request: SoundRequest): Promise<SoundResult> {
 	if (!prompt) throw new MusicProviderRequestError('Prompt is required.');
 
 	const providerId = resolveProviderId(
-		request.providerId ?? getStoredProviderId() ?? DEFAULT_SOUND_PROVIDER_ID
+		request.providerId ?? getProviderId('sound') ?? DEFAULT_SOUND_PROVIDER_ID
 	);
-	const modelId = resolveModelId(providerId, request.modelId ?? getStoredModelId());
+	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('sound'));
 	const apiKey = resolveApiKey(providerId);
 	return generateMusic({ providerId, apiKey, modelId, prompt });
 }
