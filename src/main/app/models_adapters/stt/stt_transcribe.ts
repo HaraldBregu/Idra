@@ -39,7 +39,7 @@ import {
 	getModelId as getTranscribeModelId,
 	getProviderId as getTranscribeProviderId,
 	setSelection as setTranscribeSelection,
-} from '../../../models/transcribe/transcribe_store';
+} from '../../../models/models_store';
 
 const realtimeSessions = new Map<string, SttActiveRealtimeSession>();
 
