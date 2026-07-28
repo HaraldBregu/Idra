@@ -28,6 +28,16 @@ export class ModelsIpc implements IpcModule {
 	readonly name = 'models';
 
 	register(_deps: void, _eventBus: EventBus): void {
+		registerCommand(EmbeddingChannels.createEmbedding, (request) =>
+			embedding.createEmbedding(request)
+		);
+		registerQuery(EmbeddingChannels.getProviderId, () => getProviderId('embedding'));
+		registerCommand(EmbeddingChannels.setProviderId, (providerId) =>
+			setProviderId('embedding', providerId)
+		);
+		registerQuery(EmbeddingChannels.getModelId, () => getModelId('embedding'));
+		registerCommand(EmbeddingChannels.setModelId, (modelId) => setModelId('embedding', modelId));
+
 		registerCommand(ImageChannels.createImage, (request) => image.createImage(request));
 		registerQuery(ImageChannels.getProviderId, () => getProviderId('image'));
 		registerCommand(ImageChannels.setProviderId, (providerId) =>
