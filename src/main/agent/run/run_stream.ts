@@ -132,6 +132,7 @@ async function* loop(
 		sessionId: session.id,
 		model: modelId,
 		providerId: provider.id,
+		tools: tools.map((tool) => tool.name),
 	};
 
 	let firstTurn = true;
