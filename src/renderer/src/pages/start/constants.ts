@@ -156,12 +156,18 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	},
 ];
 
-export const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
+export const SETUP_STEPS: readonly SetupStep[] = [
+	'presentation',
+	'providers',
+	'models',
+	'storage',
+];
 
 export const SETUP_STEP_TITLES: Record<SetupStep, string> = {
 	presentation: 'Welcome',
 	providers: 'Providers',
 	models: 'Models',
+	storage: 'Cloud storage',
 };
 
 export const MASKED_API_KEY_LABEL = 'sk-************' as const;
@@ -181,6 +187,11 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 		title: 'Choose your models',
 		description:
 			'Pick the model each service should use. Only the assistant is required — you can change any of these later in settings.',
+	},
+	storage: {
+		title: 'Configure cloud storage',
+		description:
+			'Optionally connect an S3-compatible storage provider to back up and sync your Friday data.',
 	},
 };
 

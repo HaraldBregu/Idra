@@ -2,6 +2,7 @@ import React, { useEffect, useReducer, useState } from 'react';
 import { AlertCircle, ArrowRight, LoaderCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { CloudStep } from './components/CloudStep';
 import { ModelsStep } from './components/ModelsStep';
 import { PresentationStep } from './components/PresentationStep';
 import { ProviderStep } from './components/ProviderStep';
@@ -55,7 +56,7 @@ const StartPage: React.FC = () => {
 		handleOpenProviderLink,
 	} = useProviderSetup(state, dispatch);
 
-	const { handleServiceChange, handleSaveModels } = useModelServices(state, dispatch, navigate);
+	const { handleServiceChange, handleSaveModels } = useModelServices(state, dispatch);
 
 	const stepIndex = SETUP_STEPS.indexOf(step);
 	const hasProviderDraft = providerEntries.some(
@@ -84,7 +85,14 @@ const StartPage: React.FC = () => {
 			return;
 		}
 
-		void handleSaveModels();
+		if (step === 'models') {
+			void handleSaveModels().then((saved) => {
+				if (saved) dispatch({ type: 'GO_TO_STEP', step: 'storage' });
+			});
+			return;
+		}
+
+		navigate('/home');
 	}
 
 	function getPrimaryLabel(): string {
@@ -123,6 +131,10 @@ const StartPage: React.FC = () => {
 					onServiceChange={handleServiceChange}
 				/>
 			);
+		}
+
+		if (step === 'storage') {
+			return <CloudStep />;
 		}
 
 		return <PresentationStep />;

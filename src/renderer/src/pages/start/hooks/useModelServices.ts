@@ -29,8 +29,7 @@ async function loadServiceState(service: ModelServiceDefinition): Promise<ModelS
 
 export function useModelServices(
 	state: SetupState,
-	dispatch: Dispatch<SetupAction>,
-	navigate: (path: string) => void
+	dispatch: Dispatch<SetupAction>
 ) {
 	const { step, serviceStates, savingConfig } = state;
 	const modelsLoadedRef = useRef(false);
@@ -90,8 +89,8 @@ export function useModelServices(
 		dispatch({ type: 'CHANGE_SERVICE_SELECTION', serviceId, providerId, modelId });
 	}
 
-	async function handleSaveModels(): Promise<void> {
-		if (savingConfig) return;
+	async function handleSaveModels(): Promise<boolean> {
+		if (savingConfig) return false;
 
 		dispatch({ type: 'SET_SAVING_CONFIG', saving: true });
 		dispatch({ type: 'CLEAR_ERROR' });
@@ -104,13 +103,14 @@ export function useModelServices(
 					throw new Error(`Could not save the selected ${service.title} model.`);
 				}
 			}
-			navigate('/home');
+			return true;
 		} catch (error) {
 			console.error('[useModelServices] Failed to save model service config:', error);
 			dispatch({
 				type: 'SET_ERROR',
 				message: getErrorMessage(error, 'Could not save your model selections.'),
 			});
+			return false;
 		} finally {
 			dispatch({ type: 'SET_SAVING_CONFIG', saving: false });
 		}
