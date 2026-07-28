@@ -32,7 +32,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 
 	safeRegister('app', () => new AppIpc().register({ logger }, eventBus));
 	safeRegister('agent', () => new AgentIpc().register({ logger, agent: agentService }, eventBus));
-	safeRegister('audio', () => new AudioIpc().register(undefined, eventBus));
+	safeRegister('recorder', () => new RecorderIpc().register(undefined, eventBus));
 	safeRegister('channels', () => new ChannelsIpc().register({ logger, channelRegistry }, eventBus));
 	safeRegister('cron', () => new CronIpc().register(undefined, eventBus));
 	safeRegister('image', () => new ImageIpc().register(undefined, eventBus));
