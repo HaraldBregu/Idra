@@ -67,10 +67,12 @@ export class ModelsIpc implements IpcModule {
 		registerCommand(VideoChannels.setModelId, (modelId) => setModelId('video', modelId));
 
 		registerCommand(SpeechChannels.synthesize, (request) => voice.synthesize(request));
-		registerQuery(SpeechChannels.getProviderId, () => voice.getProviderId());
-		registerCommand(SpeechChannels.setProviderId, (providerId) => voice.setProviderId(providerId));
-		registerQuery(SpeechChannels.getModelId, () => voice.getModelId());
-		registerCommand(SpeechChannels.setModelId, (modelId) => voice.setModelId(modelId));
+		registerQuery(SpeechChannels.getProviderId, () => getProviderId('voice'));
+		registerCommand(SpeechChannels.setProviderId, (providerId) =>
+			setProviderId('voice', providerId)
+		);
+		registerQuery(SpeechChannels.getModelId, () => getModelId('voice'));
+		registerCommand(SpeechChannels.setModelId, (modelId) => setModelId('voice', modelId));
 
 		registerQuery(SttChannels.getSelection, (mode) => getSelection(mode));
 		registerQuery(SttChannels.listProviders, () => listProviders());
