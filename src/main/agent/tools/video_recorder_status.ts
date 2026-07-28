@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { videoRecorder } from '../../recorder';
+import { camera } from '../../recorder';
 import type { Tool } from '../types';
 import { tool } from './tool';
 
@@ -15,7 +15,7 @@ export const videoRecorderStatusTool: Tool = tool({
 			.describe('Wait for the recording to finish before returning. Defaults to false.'),
 	}),
 	execute: async ({ id, wait }) => {
-		const recording = wait ? await videoRecorder.waitFor(id) : videoRecorder.get(id);
+		const recording = wait ? await camera.waitFor(id) : camera.get(id);
 		if (!recording) throw new Error(`Unknown video recording: ${id}`);
 		return {
 			id: recording.id,

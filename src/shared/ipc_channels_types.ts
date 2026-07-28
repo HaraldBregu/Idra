@@ -108,25 +108,29 @@ export interface AgentInvokeChannelMap {
 	[AgentChannels.healthSaveData]: { args: [content: string]; result: string };
 }
 
-export interface RecorderInvokeChannelMap {
-	[RecorderChannels.audio.start]: { args: [config: RecordConfig]; result: Recording };
-	[RecorderChannels.audio.stop]: { args: [id: string]; result: void };
-	[RecorderChannels.audio.cancel]: { args: [id: string]; result: void };
-	[RecorderChannels.audio.list]: { args: []; result: Recording[] };
-	[RecorderChannels.audio.complete]: { args: [result: RecorderCaptureResult]; result: void };
-	[RecorderChannels.video.start]: { args: [config: RecordConfig]; result: Recording };
-	[RecorderChannels.video.stop]: { args: [id: string]; result: void };
-	[RecorderChannels.video.cancel]: { args: [id: string]; result: void };
-	[RecorderChannels.video.list]: { args: []; result: Recording[] };
-	[RecorderChannels.video.complete]: { args: [result: RecorderCaptureResult]; result: void };
-}
+type RecorderInvokeMap<C extends { start: string; stop: string; cancel: string; list: string; complete: string }> = {
+	[K in C['start']]: { args: [config: RecordConfig]; result: Recording };
+} & {
+	[K in C['stop'] | C['cancel']]: { args: [id: string]; result: void };
+} & {
+	[K in C['list']]: { args: []; result: Recording[] };
+} & {
+	[K in C['complete']]: { args: [result: RecorderCaptureResult]; result: void };
+};
 
-export interface RecorderEventChannelMap {
-	[RecorderChannels.audio.command]: { data: RecorderCommand };
-	[RecorderChannels.audio.event]: { data: Recording };
-	[RecorderChannels.video.command]: { data: RecorderCommand };
-	[RecorderChannels.video.event]: { data: Recording };
-}
+export type RecorderInvokeChannelMap = RecorderInvokeMap<typeof RecorderChannels.microphone> &
+	RecorderInvokeMap<typeof RecorderChannels.camera> &
+	RecorderInvokeMap<typeof RecorderChannels.screen>;
+
+type RecorderEventMap<C extends { command: string; event: string }> = {
+	[K in C['command']]: { data: RecorderCommand };
+} & {
+	[K in C['event']]: { data: Recording };
+};
+
+export type RecorderEventChannelMap = RecorderEventMap<typeof RecorderChannels.microphone> &
+	RecorderEventMap<typeof RecorderChannels.camera> &
+	RecorderEventMap<typeof RecorderChannels.screen>;
 
 export interface CronInvokeChannelMap {
 	[CronChannels.list]: { args: []; result: import('../main/cron').CronSchedule[] };
