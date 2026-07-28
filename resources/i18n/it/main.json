@@ -181,6 +181,7 @@
 				"policies": "Permessi strumenti e regole di percorso",
 				"widgets": "App widget installate",
 				"rag": "Indice documenti e ricerca vettoriale",
+				"wiki": "Conoscenza Markdown persistente mantenuta dall'LLM",
 				"vectorDb": "Database vettoriale Pinecone"
 			}
 		},
@@ -210,6 +211,7 @@
 			"skills": "Abilità",
 			"widgets": "Widget",
 			"rag": "RAG",
+			"wiki": "Wiki",
 			"vectorDb": "Vector DB"
 		},
 		"breadcrumb": {
@@ -1283,6 +1285,42 @@
 			"searching": "Ricerca...",
 			"searchError": "Impossibile cercare nell'indice.",
 			"noResults": "Nessun risultato trovato."
+		},
+		"wiki": {
+			"title": "LLM Wiki",
+			"description": "Compila documenti sorgente immutabili in una wiki Markdown persistente e interconnessa.",
+			"overviewDescription": "Costruisci la conoscenza una volta e mantienila aggiornata quando cambiano le fonti.",
+			"modelTitle": "Modello Wiki",
+			"modelDescription": "Il modello di testo selezionato riassume le fonti, aggiorna le pagine correlate ed evidenzia le contraddizioni.",
+			"locationsTitle": "Cartelle della conoscenza",
+			"locationsDescription": "Le fonti restano invariate. Il Markdown generato viene scritto solo nella cartella di destinazione.",
+			"sourcePath": "Cartella fonti grezze",
+			"sourceDescription": "File supportati: Markdown, testo, JSON, CSV e log.",
+			"targetPath": "Cartella wiki generata",
+			"targetDescription": "Contiene AGENTS.md, index.md, log.md e le pagine generate.",
+			"pickSource": "Scegli la cartella delle fonti",
+			"pickTarget": "Scegli la cartella della wiki generata",
+			"scheduleTitle": "Automazione",
+			"scheduleDescription": "Elabora le fonti nuove o modificate con una pianificazione cron.",
+			"scheduleEnabled": "Generazione pianificata",
+			"scheduleEnabledDescription": "Esegui automaticamente il compilatore incrementale della wiki.",
+			"cronExpression": "Espressione cron",
+			"cronDescription": "Cinque campi: minuto, ora, giorno del mese, mese e giorno della settimana.",
+			"statusTitle": "Stato",
+			"settingsFile": "File impostazioni",
+			"nextRun": "Prossima esecuzione",
+			"lastRun": "Ultima esecuzione",
+			"notScheduled": "Non pianificata",
+			"neverRun": "Mai",
+			"outputFolder": "Wiki generata",
+			"openOutput": "Apri cartella",
+			"runNow": "Esegui ora",
+			"running": "Generazione...",
+			"saved": "Impostazioni Wiki salvate.",
+			"runResult": "Elaborate {{processed}} fonti, saltate {{skipped}}, create {{created}} pagine e aggiornate {{updated}}.",
+			"loadError": "Impossibile caricare le impostazioni Wiki.",
+			"saveError": "Impossibile salvare le impostazioni Wiki.",
+			"runError": "Impossibile generare la Wiki."
 		},
 		"vectorDb": {
 			"description": "Database vettoriale usato dal RAG per salvare e cercare gli embedding.",

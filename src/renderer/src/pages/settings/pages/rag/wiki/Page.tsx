@@ -1,0 +1,355 @@
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+	AlertTriangle,
+	FolderOpen,
+	LoaderCircle,
+	Play,
+	Save,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import {
+	LLM_PROVIDER_GROUPS,
+	ModelProviderSelect,
+	resolveStoredModelProvider,
+} from '@/components/model-provider-select';
+import type { WikiRunResult, WikiSettings, WikiStatus } from '../../../../../../../shared';
+import {
+	SettingsField,
+	SettingsLoadingRows,
+	SettingsNotice,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsRow,
+	SettingsSection,
+	SettingsValue,
+} from '../../../components';
+
+const WikiPage: React.FC = () => {
+	const { t } = useTranslation();
+	const [settings, setSettings] = useState<WikiSettings | null>(null);
+	const [status, setStatus] = useState<WikiStatus | null>(null);
+	const [loading, setLoading] = useState(true);
+	const [saving, setSaving] = useState(false);
+	const [running, setRunning] = useState(false);
+	const [saved, setSaved] = useState(false);
+	const [result, setResult] = useState<WikiRunResult | null>(null);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		let mounted = true;
+		void Promise.all([window.wiki.getSettings(), window.wiki.getStatus()])
+			.then(([stored, currentStatus]) => {
+				if (!mounted) return;
+				const selection = resolveStoredModelProvider(
+					LLM_PROVIDER_GROUPS,
+					stored.providerId,
+					stored.modelId
+				);
+				setSettings({ ...stored, ...selection });
+				setStatus(currentStatus);
+			})
+			.catch((loadError: unknown) => {
+				if (mounted) {
+					setError(loadError instanceof Error ? loadError.message : t('settings.wiki.loadError'));
+				}
+			})
+			.finally(() => {
+				if (mounted) setLoading(false);
+			});
+		return () => {
+			mounted = false;
+		};
+	}, [t]);
+
+	const handleSave = async (): Promise<WikiSettings | undefined> => {
+		if (!settings) return undefined;
+		setSaving(true);
+		setSaved(false);
+		setError(null);
+		try {
+			const next = await window.wiki.saveSettings(settings);
+			setSettings(next);
+			setStatus(await window.wiki.getStatus());
+			setSaved(true);
+			return next;
+		} catch (saveError) {
+			setError(saveError instanceof Error ? saveError.message : t('settings.wiki.saveError'));
+			return undefined;
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const handleRun = async (): Promise<void> => {
+		setRunning(true);
+		setResult(null);
+		setError(null);
+		try {
+			if (!(await handleSave())) return;
+			const next = await window.wiki.run();
+			setResult(next);
+			setStatus(await window.wiki.getStatus());
+		} catch (runError) {
+			setError(runError instanceof Error ? runError.message : t('settings.wiki.runError'));
+		} finally {
+			setRunning(false);
+		}
+	};
+
+	const handlePickDirectory = async (kind: 'source' | 'target'): Promise<void> => {
+		const selected = await window.wiki.pickDirectory(kind);
+		if (!selected) return;
+		setSettings((current) =>
+			current
+				? {
+						...current,
+						[kind === 'source' ? 'sourcePath' : 'targetPath']: selected,
+					}
+				: current
+		);
+		setSaved(false);
+	};
+
+	return (
+		<SettingsPageShell>
+			<SettingsPageHeader
+				title={t('settings.tabs.wiki')}
+				description={t('settings.wiki.description')}
+				action={
+					<>
+						<Button
+							type="button"
+							size="sm"
+							variant="outline"
+							disabled={!settings || saving || running}
+							onClick={() => void handleSave()}
+						>
+							{saving ? <LoaderCircle className="size-3 animate-spin" /> : <Save className="size-3" />}
+							{t('common.save')}
+						</Button>
+						<Button
+							type="button"
+							size="sm"
+							disabled={!settings || saving || running}
+							onClick={() => void handleRun()}
+						>
+							{running ? <LoaderCircle className="size-3 animate-spin" /> : <Play className="size-3" />}
+							{running ? t('settings.wiki.running') : t('settings.wiki.runNow')}
+						</Button>
+					</>
+				}
+			/>
+
+			{error && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{error}
+				</SettingsNotice>
+			)}
+			{saved && <SettingsNotice>{t('settings.wiki.saved')}</SettingsNotice>}
+			{result && (
+				<SettingsNotice>
+					{t('settings.wiki.runResult', {
+						processed: result.processedSources,
+						skipped: result.skippedSources,
+						created: result.createdPages,
+						updated: result.updatedPages,
+					})}
+				</SettingsNotice>
+			)}
+
+			{loading || !settings ? (
+				<SettingsPanel>
+					<SettingsLoadingRows rows={4} />
+				</SettingsPanel>
+			) : (
+				<>
+					<SettingsSection
+						title={t('settings.wiki.modelTitle')}
+						description={t('settings.wiki.modelDescription')}
+					>
+						<SettingsPanel>
+							<div className="p-3">
+								<ModelProviderSelect
+									idPrefix="wiki"
+									providerGroups={LLM_PROVIDER_GROUPS}
+									providerId={settings.providerId}
+									modelId={settings.modelId}
+									onChange={(providerId, modelId) => {
+										setSettings((current) =>
+											current ? { ...current, providerId, modelId } : current
+										);
+										setSaved(false);
+									}}
+									disabled={saving || running}
+								/>
+							</div>
+						</SettingsPanel>
+					</SettingsSection>
+
+					<SettingsSection
+						title={t('settings.wiki.locationsTitle')}
+						description={t('settings.wiki.locationsDescription')}
+					>
+						<SettingsPanel>
+							<div className="grid gap-3 p-3">
+								<SettingsField
+									id="wiki-source"
+									label={t('settings.wiki.sourcePath')}
+									description={t('settings.wiki.sourceDescription')}
+								>
+									<div className="flex min-w-0 gap-2">
+										<Input
+											id="wiki-source"
+											value={settings.sourcePath}
+											disabled={saving || running}
+											onChange={(event) => {
+												setSettings({ ...settings, sourcePath: event.target.value });
+												setSaved(false);
+											}}
+										/>
+										<Button
+											type="button"
+											size="icon-sm"
+											variant="outline"
+											aria-label={t('settings.wiki.pickSource')}
+											disabled={saving || running}
+											onClick={() => void handlePickDirectory('source')}
+										>
+											<FolderOpen className="size-3" />
+										</Button>
+									</div>
+								</SettingsField>
+
+								<SettingsField
+									id="wiki-target"
+									label={t('settings.wiki.targetPath')}
+									description={t('settings.wiki.targetDescription')}
+								>
+									<div className="flex min-w-0 gap-2">
+										<Input
+											id="wiki-target"
+											value={settings.targetPath}
+											disabled={saving || running}
+											onChange={(event) => {
+												setSettings({ ...settings, targetPath: event.target.value });
+												setSaved(false);
+											}}
+										/>
+										<Button
+											type="button"
+											size="icon-sm"
+											variant="outline"
+											aria-label={t('settings.wiki.pickTarget')}
+											disabled={saving || running}
+											onClick={() => void handlePickDirectory('target')}
+										>
+											<FolderOpen className="size-3" />
+										</Button>
+									</div>
+								</SettingsField>
+							</div>
+						</SettingsPanel>
+					</SettingsSection>
+
+					<SettingsSection
+						title={t('settings.wiki.scheduleTitle')}
+						description={t('settings.wiki.scheduleDescription')}
+					>
+						<SettingsPanel>
+							<SettingsRow
+								title={t('settings.wiki.scheduleEnabled')}
+								description={t('settings.wiki.scheduleEnabledDescription')}
+								actions={
+									<Switch
+										checked={settings.schedule.enabled}
+										disabled={saving || running}
+										aria-label={t('settings.wiki.scheduleEnabled')}
+										onCheckedChange={(enabled) => {
+											setSettings({
+												...settings,
+												schedule: { ...settings.schedule, enabled },
+											});
+											setSaved(false);
+										}}
+									/>
+								}
+							/>
+							<div className="p-3">
+								<SettingsField
+									id="wiki-cron"
+									label={t('settings.wiki.cronExpression')}
+									description={t('settings.wiki.cronDescription')}
+								>
+									<Input
+										id="wiki-cron"
+										value={settings.schedule.cronExpression}
+										disabled={saving || running}
+										onChange={(event) => {
+											setSettings({
+												...settings,
+												schedule: {
+													...settings.schedule,
+													cronExpression: event.target.value,
+												},
+											});
+											setSaved(false);
+										}}
+									/>
+								</SettingsField>
+							</div>
+						</SettingsPanel>
+					</SettingsSection>
+
+					<SettingsSection title={t('settings.wiki.statusTitle')}>
+						<SettingsPanel>
+							<SettingsRow
+								title={t('settings.wiki.settingsFile')}
+								actions={<SettingsValue mono>{status?.settingsPath ?? '—'}</SettingsValue>}
+							/>
+							<SettingsRow
+								title={t('settings.wiki.nextRun')}
+								actions={
+									<SettingsValue>
+										{status?.nextRunAt
+											? new Date(status.nextRunAt).toLocaleString()
+											: t('settings.wiki.notScheduled')}
+									</SettingsValue>
+								}
+							/>
+							<SettingsRow
+								title={t('settings.wiki.lastRun')}
+								actions={
+									<SettingsValue>
+										{status?.lastRun
+											? new Date(status.lastRun.completedAt).toLocaleString()
+											: t('settings.wiki.neverRun')}
+									</SettingsValue>
+								}
+							/>
+							<SettingsRow
+								title={t('settings.wiki.outputFolder')}
+								actions={
+									<Button
+										type="button"
+										size="sm"
+										variant="outline"
+										onClick={() => void window.wiki.openDirectory('target')}
+									>
+										<FolderOpen className="size-3" />
+										{t('settings.wiki.openOutput')}
+									</Button>
+								}
+							/>
+						</SettingsPanel>
+					</SettingsSection>
+				</>
+			)}
+		</SettingsPageShell>
+	);
+};
+
+export default WikiPage;

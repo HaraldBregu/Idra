@@ -80,6 +80,13 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		];
 	}
 
+	if (location.pathname === '/settings/rag/wiki') {
+		return [
+			{ label: t('settings.tabs.rag'), path: '/settings/rag' },
+			{ label: t('settings.tabs.wiki') },
+		];
+	}
+
 	const current = SETTINGS_NAVIGATION.filter(
 		(item) => location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
 	).sort((a, b) => b.path.length - a.path.length)[0];

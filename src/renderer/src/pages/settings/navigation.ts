@@ -1,5 +1,6 @@
 import {
 	Binary,
+	BookOpenText,
 	Bot,
 	Boxes,
 	Database,
@@ -264,6 +265,13 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		keywords: 'plugins import folder delete refresh',
 	},
 	// Tasks
+	{
+		path: '/settings/rag/wiki',
+		labelKey: 'settings.tabs.wiki',
+		descriptionKey: 'settings.overview.descriptions.wiki',
+		keywords: 'llm wiki knowledge markdown sources synthesis cron schedule',
+		icon: BookOpenText,
+	},
 	{
 		path: '/settings/tasks',
 		labelKey: 'settings.cron.runtime.title',

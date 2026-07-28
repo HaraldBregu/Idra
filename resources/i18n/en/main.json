@@ -181,6 +181,7 @@
 				"policies": "Tool permissions and path rules",
 				"widgets": "Installed widget apps",
 				"rag": "Document index and vector search",
+				"wiki": "Persistent LLM-maintained Markdown knowledge",
 				"vectorDb": "Pinecone vector database"
 			}
 		},
@@ -210,6 +211,7 @@
 			"skills": "Skills",
 			"widgets": "Widgets",
 			"rag": "RAG",
+			"wiki": "Wiki",
 			"vectorDb": "Vector DB"
 		},
 		"breadcrumb": {
@@ -1283,6 +1285,42 @@
 			"searching": "Searching...",
 			"searchError": "Unable to search the index.",
 			"noResults": "No matches found."
+		},
+		"wiki": {
+			"title": "LLM Wiki",
+			"description": "Compile immutable source documents into a persistent, interlinked Markdown wiki.",
+			"overviewDescription": "Build knowledge once and keep it current as sources change.",
+			"modelTitle": "Wiki model",
+			"modelDescription": "The selected text model summarizes sources, updates related pages and surfaces contradictions.",
+			"locationsTitle": "Knowledge folders",
+			"locationsDescription": "Sources remain unchanged. Generated Markdown is written only to the target folder.",
+			"sourcePath": "Raw source folder",
+			"sourceDescription": "Supported files: Markdown, text, JSON, CSV and logs.",
+			"targetPath": "Generated wiki folder",
+			"targetDescription": "Contains AGENTS.md, index.md, log.md and generated pages.",
+			"pickSource": "Choose raw source folder",
+			"pickTarget": "Choose generated wiki folder",
+			"scheduleTitle": "Automation",
+			"scheduleDescription": "Process new or changed sources on a cron schedule.",
+			"scheduleEnabled": "Scheduled generation",
+			"scheduleEnabledDescription": "Run the incremental wiki compiler automatically.",
+			"cronExpression": "Cron expression",
+			"cronDescription": "Five fields: minute, hour, day of month, month and day of week.",
+			"statusTitle": "Status",
+			"settingsFile": "Settings file",
+			"nextRun": "Next run",
+			"lastRun": "Last run",
+			"notScheduled": "Not scheduled",
+			"neverRun": "Never",
+			"outputFolder": "Generated wiki",
+			"openOutput": "Open folder",
+			"runNow": "Run now",
+			"running": "Generating...",
+			"saved": "Wiki settings saved.",
+			"runResult": "Processed {{processed}} sources, skipped {{skipped}}, created {{created}} pages and updated {{updated}}.",
+			"loadError": "Unable to load wiki settings.",
+			"saveError": "Unable to save wiki settings.",
+			"runError": "Unable to generate the wiki."
 		},
 		"vectorDb": {
 			"description": "Vector database used by RAG to store and search embeddings.",
