@@ -113,7 +113,7 @@ Installed skill names become searchable entries after `/skill`. Task commands ar
 - Stored transcripts remain complete. Model calls always retain the current run and add older complete turns within a 50-message, 120,000-serialized-character history budget.
 - Settings includes a Chat History screen with session title, creation date, and confirmation-backed deletion.
 - Session storage is separated into `main`, `task`, `health`, and `bot` categories.
-- Each stored session can contain `messages.json`, append-only `run.jsonl`, the first system prompt, and the latest system prompt.
+- Each stored session can contain `messages.json`, append-only `run.jsonl`, and the latest system prompt in `SYSTEM.md`.
 
 There is a clear-messages API in the runtime, but the current Chat History screen exposes per-session deletion rather than a separate clear button.
 
@@ -125,7 +125,7 @@ This group covers what makes Friday an agent rather than a chat window: the tool
 
 Friday uses an iterative tool-calling loop:
 
-1. Build a system prompt from the base assistant contract, tool descriptions, workspace profile files, persistent memory, and any skill loaded during the run.
+1. Build a system prompt from the base assistant contract, tool descriptions, workspace metadata, the live filesystem inventory, and any skill loaded during the run. Editable profile and memory files are prepended separately as user-controlled context.
 2. Stream a model turn and collect text, reasoning continuity where supported, and tool calls.
 3. Run requested tools, stream their activity into the conversation, and append results to the transcript.
 4. Continue until the model returns no tool calls, the request is cancelled, an error occurs, or the 20-turn session limit is reached.
@@ -290,9 +290,9 @@ Friday maintains an agent workspace in local application data with these Markdow
 | `MEMORY.md`    | Durable facts loaded into every conversation.                   |
 | `HEALTH.md`    | Checklist used by periodic health runs.                         |
 
-If `USER.md` has no completed profile, `BOOTSTRAP.md` is included in the system prompt. Completing bootstrap removes that file after the identity, user, and soul files have been updated.
+While `BOOTSTRAP.md` exists, it is included in the user-controlled workspace context. Completing bootstrap removes that file after the identity, user, and soul files have been updated.
 
-`memory_save` adds one bullet fact without duplicating an identical line. `memory_forget` removes every bullet containing the requested text, case-insensitively. Workspace profile and memory content are rebuilt into the system prompt before each model turn.
+`memory_save` adds one bullet fact without duplicating an identical line. `memory_forget` removes every bullet containing the requested text, case-insensitively. Workspace profile and memory content are rebuilt as transient user-level context before each model turn rather than persisted in the system-prompt snapshot.
 
 ## 3. Providers and model catalogs
 
