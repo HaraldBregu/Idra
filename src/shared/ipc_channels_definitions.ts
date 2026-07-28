@@ -24,23 +24,32 @@ export const AgentChannels = {
 } as const;
 
 export const RecorderChannels = {
-	audio: {
-		start: 'recorder:audio:start',
-		stop: 'recorder:audio:stop',
-		cancel: 'recorder:audio:cancel',
-		list: 'recorder:audio:list',
-		complete: 'recorder:audio:complete',
-		command: 'recorder:audio:command',
-		event: 'recorder:audio:event',
+	microphone: {
+		start: 'recorder:microphone:start',
+		stop: 'recorder:microphone:stop',
+		cancel: 'recorder:microphone:cancel',
+		list: 'recorder:microphone:list',
+		complete: 'recorder:microphone:complete',
+		command: 'recorder:microphone:command',
+		event: 'recorder:microphone:event',
 	},
-	video: {
-		start: 'recorder:video:start',
-		stop: 'recorder:video:stop',
-		cancel: 'recorder:video:cancel',
-		list: 'recorder:video:list',
-		complete: 'recorder:video:complete',
-		command: 'recorder:video:command',
-		event: 'recorder:video:event',
+	camera: {
+		start: 'recorder:camera:start',
+		stop: 'recorder:camera:stop',
+		cancel: 'recorder:camera:cancel',
+		list: 'recorder:camera:list',
+		complete: 'recorder:camera:complete',
+		command: 'recorder:camera:command',
+		event: 'recorder:camera:event',
+	},
+	screen: {
+		start: 'recorder:screen:start',
+		stop: 'recorder:screen:stop',
+		cancel: 'recorder:screen:cancel',
+		list: 'recorder:screen:list',
+		complete: 'recorder:screen:complete',
+		command: 'recorder:screen:command',
+		event: 'recorder:screen:event',
 	},
 } as const;
 
