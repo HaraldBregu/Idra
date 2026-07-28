@@ -1,6 +1,7 @@
 import {
 	Binary,
 	Bot,
+	Boxes,
 	Database,
 	Folder,
 	HeartPulse,
