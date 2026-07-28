@@ -31,7 +31,11 @@ export async function createEmbedding(request: EmbeddingRequest): Promise<Embedd
 		texts,
 		inputType: request.inputType,
 	});
-	return { providerId, modelId, dimensions: embeddings[0]?.length ?? 0, embeddings };
+	const dimensions = embeddings[0]?.length ?? 0;
+	if (embeddings.length !== texts.length || embeddings.some((v) => v?.length !== dimensions)) {
+		throw new Error(`${provider.name} returned malformed embeddings.`);
+	}
+	return { providerId, modelId, dimensions, embeddings };
 }
 
 function resolveProviderId(providerId: string): string {
