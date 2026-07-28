@@ -61,9 +61,13 @@ test('wiki settings renders the complete configuration workflow', async ({}, tes
 		window.location.hash = '#/settings/rag/wiki';
 	});
 	await expect(page.getByRole('heading', { name: 'Wiki', exact: true })).toBeVisible();
-	await expect(page.getByLabel('Raw source folder')).toBeVisible();
-	await expect(page.getByLabel('Generated wiki folder')).toBeVisible();
-	await expect(page.getByLabel('Cron expression')).toHaveValue('0 3 * * *');
+	await expect(page.getByRole('textbox', { name: 'Raw source folder', exact: true })).toBeVisible();
+	await expect(
+		page.getByRole('textbox', { name: 'Generated wiki folder', exact: true })
+	).toBeVisible();
+	await expect(page.getByRole('textbox', { name: 'Cron expression', exact: true })).toHaveValue(
+		'0 3 * * *'
+	);
 	await expect(page.getByRole('button', { name: 'Run now' })).toBeVisible();
 	await page.screenshot({ path: testInfo.outputPath('wiki-settings.png'), fullPage: true });
 });
