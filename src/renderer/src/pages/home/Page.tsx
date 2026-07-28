@@ -568,7 +568,7 @@ function PageContent(): ReactElement {
 		return (
 			<div
 				className="fixed inset-0 z-[60] flex items-center justify-center bg-background"
-				style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+				style={{ WebkitAppRegion: 'drag' } as CSSProperties}
 			>
 				<button
 					type="button"
