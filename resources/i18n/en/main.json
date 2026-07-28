@@ -179,7 +179,8 @@
 				"heartbeat": "Periodic agent checks",
 				"health": "Periodic health checks",
 				"policies": "Tool permissions and path rules",
-				"widgets": "Installed widget apps"
+				"widgets": "Installed widget apps",
+				"rag": "Document index and vector search"
 			}
 		},
 		"tabs": {
@@ -206,7 +207,8 @@
 			"policies": "Policies",
 			"developer": "Developer",
 			"skills": "Skills",
-			"widgets": "Widgets"
+			"widgets": "Widgets",
+			"rag": "RAG"
 		},
 		"breadcrumb": {
 			"label": "Settings navigation",
@@ -1257,6 +1259,22 @@
 			"deleteErrorFallback": "Failed to delete the theme. Please try again.",
 			"dismissError": "Dismiss error",
 			"dismissSuccess": "Dismiss"
+		},
+		"rag": {
+			"description": "Index the documents in the rag folder and search them as vectors.",
+			"documentsTitle": "Documents",
+			"documentsDescription": "Text files in the rag application folder are chunked, embedded with the selected embedding model and stored in Pinecone.",
+			"openFolder": "Open folder",
+			"index": "Generate index",
+			"indexing": "Indexing...",
+			"indexError": "Unable to generate the index.",
+			"indexResult": "Indexed {{files}} files as {{vectors}} vectors.",
+			"searchTitle": "Search",
+			"searchPlaceholder": "Search the indexed documents...",
+			"search": "Search",
+			"searching": "Searching...",
+			"searchError": "Unable to search the index.",
+			"noResults": "No matches found."
 		}
 	},
 	"dialogs": {

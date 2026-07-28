@@ -179,7 +179,8 @@
 				"heartbeat": "Controlli periodici agente",
 				"health": "Controlli salute periodici",
 				"policies": "Permessi strumenti e regole di percorso",
-				"widgets": "App widget installate"
+				"widgets": "App widget installate",
+				"rag": "Indice documenti e ricerca vettoriale"
 			}
 		},
 		"tabs": {
@@ -206,7 +207,8 @@
 			"policies": "Politiche",
 			"developer": "Sviluppatore",
 			"skills": "Abilità",
-			"widgets": "Widget"
+			"widgets": "Widget",
+			"rag": "RAG"
 		},
 		"breadcrumb": {
 			"label": "Navigazione impostazioni",
@@ -1257,6 +1259,22 @@
 			"deleteErrorFallback": "Eliminazione del tema non riuscita. Riprova.",
 			"dismissError": "Chiudi errore",
 			"dismissSuccess": "Chiudi"
+		},
+		"rag": {
+			"description": "Indicizza i documenti nella cartella rag e cercali come vettori.",
+			"documentsTitle": "Documenti",
+			"documentsDescription": "I file di testo nella cartella rag dell'applicazione vengono suddivisi, incorporati con il modello di embedding selezionato e salvati su Pinecone.",
+			"openFolder": "Apri cartella",
+			"index": "Genera indice",
+			"indexing": "Indicizzazione...",
+			"indexError": "Impossibile generare l'indice.",
+			"indexResult": "Indicizzati {{files}} file come {{vectors}} vettori.",
+			"searchTitle": "Ricerca",
+			"searchPlaceholder": "Cerca nei documenti indicizzati...",
+			"search": "Cerca",
+			"searching": "Ricerca...",
+			"searchError": "Impossibile cercare nell'indice.",
+			"noResults": "Nessun risultato trovato."
 		}
 	},
 	"dialogs": {
