@@ -191,6 +191,16 @@ export interface VideoApi {
 	setModelId: (modelId: string) => Promise<void>;
 }
 
+export interface AudioApi {
+	start: (config: AudioRecordConfig) => Promise<AudioRecording>;
+	stop: (id: string) => Promise<void>;
+	cancel: (id: string) => Promise<void>;
+	list: () => Promise<AudioRecording[]>;
+	complete: (result: AudioCaptureResult) => Promise<void>;
+	onCommand: (callback: (command: AudioCaptureCommand) => void) => () => void;
+	onEvent: (callback: (recording: AudioRecording) => void) => () => void;
+}
+
 export interface SoundApi {
 	createSound: (request: SoundRequest) => Promise<SoundResult>;
 	listSounds: () => Promise<SoundFile[]>;
