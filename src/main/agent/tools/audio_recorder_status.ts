@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getRecording, waitForRecording } from '../../audio';
+import { audioRecorder } from '../../recorder';
 import type { Tool } from '../types';
 import { tool } from './tool';
 
@@ -15,7 +15,7 @@ export const audioRecorderStatusTool: Tool = tool({
 			.describe('Wait for the recording to finish before returning. Defaults to false.'),
 	}),
 	execute: async ({ id, wait }) => {
-		const recording = wait ? await waitForRecording(id) : getRecording(id);
+		const recording = wait ? await audioRecorder.waitFor(id) : audioRecorder.get(id);
 		if (!recording) throw new Error(`Unknown audio recording: ${id}`);
 		return {
 			id: recording.id,
