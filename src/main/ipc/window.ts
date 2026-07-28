@@ -17,6 +17,7 @@ export interface WindowIpcDeps {
  *  - window:maximize   (send) -- Toggle maximize state
  *  - window:close      (send) -- Close the window
  *  - window:popup-menu (send) -- Show application menu as popup (Windows/Linux)
+ *  - window:set-compact (send) -- Resize to 100x100 voice rectangle / restore previous bounds
  *
  * Channels (invoke/handle):
  *  - window:is-maximized  (query) -- Check if window is maximized
