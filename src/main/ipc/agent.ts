@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain } from 'electron';
+import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { wrapSimpleHandler } from './core/error_handler';
