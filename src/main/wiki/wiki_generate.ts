@@ -50,6 +50,7 @@ ${source.content}
 			{
 				name: 'apply_wiki_update',
 				description: 'Apply a complete, validated set of Markdown page updates to the wiki.',
+				run: (input) => input,
 				schema: {
 					type: 'object',
 					additionalProperties: false,
