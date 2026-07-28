@@ -12,10 +12,7 @@ import {
 	ImageProviderRequestError,
 	ImageProviderUnsupportedError,
 } from '../../app/models_adapters/tti';
-import {
-	getModelId as getStoredModelId,
-	getProviderId as getStoredProviderId,
-} from './image_store';
+import { getModelId, getProviderId } from '../models_store';
 
 const DEFAULT_IMAGE_PROVIDER_ID = 'google';
 
