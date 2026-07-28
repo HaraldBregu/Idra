@@ -191,55 +191,63 @@ export interface RecorderApi {
 	screen: RecorderTrackApi;
 }
 
-export interface SoundApi {
-	createSound: (request: SoundRequest) => Promise<SoundResult>;
-	listSounds: () => Promise<SoundFile[]>;
-	getProviderId: () => Promise<string | undefined>;
-	setProviderId: (providerId: string) => Promise<void>;
-	getModelId: () => Promise<string | undefined>;
-	setModelId: (modelId: string) => Promise<void>;
-}
-
-export interface TextApi {
-	generateText: (request: TextRequest) => Promise<string>;
-	getProviderId: () => Promise<string | undefined>;
-	setProviderId: (providerId: string) => Promise<void>;
-	getModelId: () => Promise<string | undefined>;
-	setModelId: (modelId: string) => Promise<void>;
-}
-
-export interface VoiceApi {
-	synthesize: (request: SpeechSynthesisRequest) => Promise<SpeechSynthesisResult>;
-	getProviderId: () => Promise<string | undefined>;
-	setProviderId: (providerId: string) => Promise<void>;
-	getModelId: () => Promise<string | undefined>;
-	setModelId: (modelId: string) => Promise<void>;
-}
-
-export interface TranscribeApi {
-	transcribe: (request: SttTranscriptionRequest) => Promise<SttTranscriptionResult>;
-	startRealtime: (request?: SttRealtimeStartRequest) => Promise<SttRealtimeSession>;
-	appendRealtimeAudio: (sessionId: string, audio: string) => Promise<void>;
-	finishRealtime: (sessionId: string) => Promise<void>;
-	cancelRealtime: (sessionId: string) => Promise<void>;
-	onRealtimeEvent: (callback: (event: SttRealtimeEvent) => void) => () => void;
-	getSelection: (mode?: SttSelectionMode) => Promise<SttModelSelection | undefined>;
-	listProviders: () => Promise<PublicProvider[]>;
-	listModels: (providerId: string) => Promise<ProviderModel[]>;
-	saveSelection: (providerId: string, modelId: string, mode?: SttSelectionMode) => Promise<boolean>;
-	getProviderId: () => Promise<string | undefined>;
-	setProviderId: (providerId: string) => Promise<void>;
-	getModelId: () => Promise<string | undefined>;
-	setModelId: (modelId: string) => Promise<void>;
-}
-
 export interface ModelsApi {
-	image: ImageApi;
-	sound: SoundApi;
-	text: TextApi;
-	transcribe: TranscribeApi;
-	video: VideoApi;
-	voice: VoiceApi;
+	image: {
+		createImage: (request: ImageRequest) => Promise<ImageResult>;
+		getProviderId: () => Promise<string | undefined>;
+		setProviderId: (providerId: string) => Promise<void>;
+		getModelId: () => Promise<string | undefined>;
+		setModelId: (modelId: string) => Promise<void>;
+	};
+	sound: {
+		createSound: (request: SoundRequest) => Promise<SoundResult>;
+		listSounds: () => Promise<SoundFile[]>;
+		getProviderId: () => Promise<string | undefined>;
+		setProviderId: (providerId: string) => Promise<void>;
+		getModelId: () => Promise<string | undefined>;
+		setModelId: (modelId: string) => Promise<void>;
+	};
+	text: {
+		generateText: (request: TextRequest) => Promise<string>;
+		getProviderId: () => Promise<string | undefined>;
+		setProviderId: (providerId: string) => Promise<void>;
+		getModelId: () => Promise<string | undefined>;
+		setModelId: (modelId: string) => Promise<void>;
+	};
+	transcribe: {
+		transcribe: (request: SttTranscriptionRequest) => Promise<SttTranscriptionResult>;
+		startRealtime: (request?: SttRealtimeStartRequest) => Promise<SttRealtimeSession>;
+		appendRealtimeAudio: (sessionId: string, audio: string) => Promise<void>;
+		finishRealtime: (sessionId: string) => Promise<void>;
+		cancelRealtime: (sessionId: string) => Promise<void>;
+		onRealtimeEvent: (callback: (event: SttRealtimeEvent) => void) => () => void;
+		getSelection: (mode?: SttSelectionMode) => Promise<SttModelSelection | undefined>;
+		listProviders: () => Promise<PublicProvider[]>;
+		listModels: (providerId: string) => Promise<ProviderModel[]>;
+		saveSelection: (
+			providerId: string,
+			modelId: string,
+			mode?: SttSelectionMode
+		) => Promise<boolean>;
+		getProviderId: () => Promise<string | undefined>;
+		setProviderId: (providerId: string) => Promise<void>;
+		getModelId: () => Promise<string | undefined>;
+		setModelId: (modelId: string) => Promise<void>;
+	};
+	video: {
+		createVideo: (request: VideoRequest) => Promise<VideoResult>;
+		getProviderId: () => Promise<string | undefined>;
+		setProviderId: (providerId: string) => Promise<void>;
+		getModelId: () => Promise<string | undefined>;
+		setModelId: (modelId: string) => Promise<void>;
+	};
+	voice: {
+		synthesize: (request: SpeechSynthesisRequest) => Promise<SpeechSynthesisResult>;
+		getProviderId: () => Promise<string | undefined>;
+		setProviderId: (providerId: string) => Promise<void>;
+		getModelId: () => Promise<string | undefined>;
+		setModelId: (modelId: string) => Promise<void>;
+	};
 }
 
 export interface AppApi {
