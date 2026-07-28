@@ -32,6 +32,7 @@ import {
 	setModelId,
 	setProviderId,
 } from '../app/settings_store';
+import { indexRag, ragLocation, searchRag, type RagIndexResult, type RagMatch } from '../rag';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;
