@@ -23,10 +23,16 @@ export function audioRecorderTool(): Tool {
 				.describe(
 					'Optional directory to save the recording in, relative to the agent workspace. ~ expands to the user home. Defaults to the agent workspace directory; only set it when the user asks for a specific location.'
 				),
+			filename: z
+				.string()
+				.optional()
+				.describe(
+					'Optional file name for the recording, including the .webm extension (recordings are always WebM). Any directory part is ignored; use directory instead. Defaults to audio-<timestamp>.webm.'
+				),
 		}),
-		execute: async ({ duration, directory }) => {
+		execute: async ({ duration, directory, filename }) => {
 			const targetDir = resolveUserPath(directory ?? '.', agentLocation());
-			const url = path.join(targetDir, `audio-${Date.now()}.webm`);
+			const url = path.join(targetDir, path.basename(filename ?? `audio-${Date.now()}.webm`));
 			const recording = microphone.start({ url, duration: duration * 1000 });
 			return {
 				id: recording.id,
