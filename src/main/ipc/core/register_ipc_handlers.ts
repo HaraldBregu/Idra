@@ -30,17 +30,12 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('recorder', () => new RecorderIpc().register(undefined, eventBus));
 	safeRegister('channels', () => new ChannelsIpc().register({ logger, channelRegistry }, eventBus));
 	safeRegister('cron', () => new CronIpc().register(undefined, eventBus));
-	safeRegister('image', () => new ImageIpc().register(undefined, eventBus));
 	safeRegister('mcp', () => new McpIpc().register(undefined, eventBus));
+	safeRegister('models', () => new ModelsIpc().register(undefined, eventBus));
 	safeRegister('skills', () => new SkillsIpc().register(undefined, eventBus));
-	safeRegister('sound', () => new SoundIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
-	safeRegister('speech', () => new SpeechIpc().register(undefined, eventBus));
 	safeRegister('storage', () => new StorageIpc().register(undefined, eventBus));
-	safeRegister('stt', () => new SttIpc().register(undefined, eventBus));
-	safeRegister('text', () => new TextIpc().register(undefined, eventBus));
-	safeRegister('video', () => new VideoIpc().register(undefined, eventBus));
 	safeRegister('widgets', () => new WidgetsIpc().register({ windowFactory }, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
