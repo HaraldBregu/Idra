@@ -81,10 +81,17 @@ function createCaptureHost(api: RecorderTrackApi, getStream: () => Promise<Media
 
 export function initRecorderCapture(): () => void {
 	const disposers = [
-		createCaptureHost(window.recorder.audio, {
-			audio: { echoCancellation: true, noiseSuppression: true },
-		}),
-		createCaptureHost(window.recorder.video, { audio: true, video: true }),
+		createCaptureHost(window.recorder.microphone, () =>
+			navigator.mediaDevices.getUserMedia({
+				audio: { echoCancellation: true, noiseSuppression: true },
+			})
+		),
+		createCaptureHost(window.recorder.camera, () =>
+			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+		),
+		createCaptureHost(window.recorder.screen, () =>
+			navigator.mediaDevices.getDisplayMedia({ audio: true, video: true })
+		),
 	];
 	return () => disposers.forEach((dispose) => dispose());
 }
