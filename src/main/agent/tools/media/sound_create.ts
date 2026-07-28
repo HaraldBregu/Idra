@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { createSound } from '../../models/sound';
-import type { Tool } from '../types';
-import { saveMedia } from './media_save';
-import { tool } from './tool';
+import { createSound } from '../../../models/sound';
+import type { Tool } from '../../types';
+import { saveMedia } from './save';
+import { tool } from '../tool';
 
 export function createSoundTool(): Tool {
 	return tool({

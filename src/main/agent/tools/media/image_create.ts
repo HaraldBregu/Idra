@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { createImage } from '../../models/image';
-import type { Tool } from '../types';
-import { saveMedia } from './media_save';
-import { tool } from './tool';
+import { createImage } from '../../../models/image';
+import type { Tool } from '../../types';
+import { saveMedia } from './save';
+import { tool } from '../tool';
 
 export function createImageTool(): Tool {
 	return tool({

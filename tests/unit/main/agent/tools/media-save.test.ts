@@ -8,7 +8,7 @@ jest.mock('../../../../../src/main/shared/agent_location', () => ({
 	agentLocation: (): string => agentDir,
 }));
 
-import { saveMedia } from '../../../../../src/main/agent/tools/media_save';
+import { saveMedia } from '../../../../../src/main/agent/tools/media/save';
 
 describe('saveMedia', () => {
 	beforeEach(async () => {

@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { forgetMemory } from '../memory';
-import type { Config, Tool } from '../types';
-import { tool } from './tool';
+import { forgetMemory } from '../../memory';
+import type { Config, Tool } from '../../types';
+import { tool } from '../tool';
 
 export function forgetMemoryTool(config: Config): Tool {
 	return tool({

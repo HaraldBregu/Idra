@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { createVideo } from '../../models/video';
-import type { Tool } from '../types';
-import { saveMedia } from './media_save';
-import { tool } from './tool';
+import { createVideo } from '../../../models/video';
+import type { Tool } from '../../types';
+import { saveMedia } from './save';
+import { tool } from '../tool';
 
 export function createVideoTool(): Tool {
 	return tool({

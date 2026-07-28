@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { agentLocation } from '../../shared/agent_location';
-import { resolveUserPath } from '../../shared/user_path';
+import { agentLocation } from '../../../shared/agent_location';
+import { resolveUserPath } from '../../../shared/user_path';
 
 export async function saveMedia(
 	prefix: string,
