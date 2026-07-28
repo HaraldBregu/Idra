@@ -641,6 +641,7 @@ export interface InvokeChannelMap
 		StorageInvokeChannelMap,
 		WindowInvokeChannelMap,
 		ChannelsInvokeChannelMap,
+		EmbeddingInvokeChannelMap,
 		ImageInvokeChannelMap,
 		SoundInvokeChannelMap,
 		SpeechInvokeChannelMap,
