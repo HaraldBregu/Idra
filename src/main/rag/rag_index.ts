@@ -31,7 +31,10 @@ export async function indexRag(): Promise<RagIndexResult> {
 		for (let start = 0; start < chunks.length; start += BATCH_SIZE) {
 			const batch = chunks.slice(start, start + BATCH_SIZE);
 			const embedded = await createEmbedding({ texts: batch, inputType: 'document' });
-			index ??= await ensureIndex(pinecone, embedded.dimensions);
+			if (!index) {
+				index = await ensureIndex(pinecone, embedded.dimensions);
+				writeRagManifest(embedded);
+			}
 			await index.upsert({
 				records: batch.map((text, offset) => ({
 					id: `${file}#${start + offset}`,
