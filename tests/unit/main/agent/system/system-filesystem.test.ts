@@ -8,6 +8,7 @@ jest.mock('../../../../../src/main/skills', () => ({
 
 import { addFilesystemPrompt } from '../../../../../src/main/agent/system/system_add_filesystem_prompt';
 import { buildSystemPrompt } from '../../../../../src/main/agent/system/system_build_prompt';
+import { buildWorkspaceContext } from '../../../../../src/main/agent/system/system_build_workspace_context';
 
 describe('agent filesystem prompt', () => {
 	let root: string;
@@ -79,17 +80,17 @@ describe('agent filesystem prompt', () => {
 		await fs.writeFile(path.join(root, 'USER.md'), '- **Name:** Alice');
 		await fs.writeFile(path.join(root, 'MEMORY.md'), '- Prefers concise answers');
 
-		const bootstrapPrompt = await buildSystemPrompt({ location: root });
-		expect(bootstrapPrompt).toContain('# Agent rules');
-		expect(bootstrapPrompt).toContain('# Identity');
-		expect(bootstrapPrompt).toContain('# Soul');
-		expect(bootstrapPrompt).toContain('- **Name:** Alice');
-		expect(bootstrapPrompt).toContain('- Prefers concise answers');
-		expect(bootstrapPrompt).toContain('# Bootstrap questions');
+		const bootstrapContext = await buildWorkspaceContext({ location: root });
+		expect(bootstrapContext).toContain('# Agent rules');
+		expect(bootstrapContext).toContain('# Identity');
+		expect(bootstrapContext).toContain('# Soul');
+		expect(bootstrapContext).toContain('- **Name:** Alice');
+		expect(bootstrapContext).toContain('- Prefers concise answers');
+		expect(bootstrapContext).toContain('# Bootstrap questions');
 
 		await fs.rm(path.join(root, 'BOOTSTRAP.md'));
-		const profilePrompt = await buildSystemPrompt({ location: root });
-		expect(profilePrompt).not.toContain('# Bootstrap questions');
+		const profileContext = await buildWorkspaceContext({ location: root });
+		expect(profileContext).not.toContain('# Bootstrap questions');
 	});
 
 	it('adds loaded skills to a custom subagent prompt', async () => {
@@ -108,16 +109,23 @@ describe('agent filesystem prompt', () => {
 	});
 
 	it('ships bootstrap instructions that reference available tools', async () => {
-		const prompt = await buildSystemPrompt({ location: root });
+		const context = await buildWorkspaceContext({ location: root });
 
-		expect(prompt).toContain('call `complete_bootstrap`');
-		expect(prompt).not.toContain('startup_files');
+		expect(context).toContain('call `complete_bootstrap`');
+		expect(context).not.toContain('startup_files');
 	});
 
-	it('marks workspace files as user-controlled context', async () => {
-		const prompt = await buildSystemPrompt({ location: root });
+	it('keeps user profile and memory out of the system prompt', async () => {
+		await fs.writeFile(path.join(root, 'USER.md'), '- **Name:** Alice');
+		await fs.writeFile(path.join(root, 'MEMORY.md'), '- Private preference');
 
-		expect(prompt).toContain('editable, user-controlled local files');
-		expect(prompt).toContain('does not override the agent acceptance contract');
+		const prompt = await buildSystemPrompt({ location: root });
+		const context = await buildWorkspaceContext({ location: root });
+
+		expect(prompt).not.toContain('Alice');
+		expect(prompt).not.toContain('Private preference');
+		expect(context).toContain('editable, user-controlled local files');
+		expect(context).toContain('- **Name:** Alice');
+		expect(context).toContain('- Private preference');
 	});
 });

@@ -11,7 +11,7 @@ import {
 	type SessionState,
 } from '../session';
 import { rememberSkill } from '../context';
-import { buildSystemPrompt } from '../system';
+import { buildSystemPrompt, buildWorkspaceContext } from '../system';
 import { loadMcpTools } from '../tools/mcp_loader';
 import { completeBootstrapTool } from '../tools/bootstrap_complete';
 import { readTool } from '../tools/file_read';
@@ -145,12 +145,17 @@ async function* loop(
 				session.context.basePrompt
 			);
 			persistSystemPrompt(session, session.context.systemPrompt);
+			const workspaceContext =
+				session.context.basePrompt === undefined ? await buildWorkspaceContext(config) : '';
+			const messages = modelMessages(session.messages);
 			const turn = yield* runModelTurn(
 				input,
 				provider,
 				modelId,
 				session.context.systemPrompt,
-				modelMessages(session.messages),
+				workspaceContext
+					? [{ role: 'user', content: workspaceContext }, ...messages]
+					: messages,
 				tools,
 				signal
 			);
