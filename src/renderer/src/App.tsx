@@ -7,7 +7,7 @@ import { router } from './router';
 import './index.css';
 
 const App: React.FC = () => {
-	useEffect(() => initAudioCapture(), []);
+	useEffect(() => initRecorderCapture(), []);
 
 	return (
 		<ErrorBoundary level="root">
