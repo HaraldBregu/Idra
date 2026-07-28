@@ -17,7 +17,6 @@ export interface WindowIpcDeps {
  *  - window:maximize   (send) -- Toggle maximize state
  *  - window:close      (send) -- Close the window
  *  - window:popup-menu (send) -- Show application menu as popup (Windows/Linux)
- *  - window:set-compact (send) -- Resize to 100x100 voice rectangle / restore previous bounds
  *
  * Channels (invoke/handle):
  *  - window:is-maximized  (query) -- Check if window is maximized
@@ -52,29 +51,6 @@ export class WindowIpc implements IpcModule<WindowIpcDeps> {
 		ipcMain.on(WindowChannels.close, (event) => {
 			const win = BrowserWindow.fromWebContents(event.sender);
 			if (win) win.close();
-		});
-
-		const compactBounds = new Map<number, Electron.Rectangle>();
-
-		ipcMain.on(WindowChannels.setCompact, (event, compact: boolean) => {
-			const win = BrowserWindow.fromWebContents(event.sender);
-			if (!win) return;
-			const wasResizable = win.isResizable();
-			win.setResizable(true);
-			if (compact) {
-				if (!compactBounds.has(win.id)) compactBounds.set(win.id, win.getBounds());
-				win.setBounds({ width: 100, height: 100 });
-			} else {
-				const bounds = compactBounds.get(win.id);
-				if (bounds) {
-					compactBounds.delete(win.id);
-					win.setBounds(bounds);
-				}
-			}
-			win.setResizable(wasResizable);
-			if (process.platform === 'darwin') {
-				win.setWindowButtonVisibility(!compact);
-			}
 		});
 
 		ipcMain.on(WindowChannels.popupMenu, (event) => {

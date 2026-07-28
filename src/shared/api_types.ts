@@ -60,7 +60,6 @@ export interface WindowApi {
 	minimize: () => void;
 	close: () => void;
 	popupMenu: () => void;
-	setCompact: (compact: boolean) => void;
 	isFullScreen: () => Promise<boolean>;
 	onFullScreenChange: (callback: (isFullScreen: boolean) => void) => () => void;
 }

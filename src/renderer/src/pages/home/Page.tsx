@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactElement } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { AlertCircle, ArrowUp, AudioLines, FileAudio, Mic, Paperclip, Plus, Square, X } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
@@ -18,7 +18,6 @@ import {
 	usePromptInput,
 	type PromptInputVoiceMode,
 } from '@/components/ui/prompt-input';
-import { GradientSphere } from '@/components/ui/gradient-sphere';
 import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
 import { ScrollButton } from '@/components/ui/scroll-button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -466,12 +465,6 @@ function PageContent(): ReactElement {
 	const startVoiceConversation = (): void => {
 		setVoiceMode('conversation');
 		setMode('voice');
-		window.win.setCompact(true);
-	};
-
-	const endVoiceConversation = (): void => {
-		window.win.setCompact(false);
-		returnToChat();
 	};
 
 	const startDictation = async (): Promise<void> => {
@@ -563,24 +556,6 @@ function PageContent(): ReactElement {
 		}
 		startVoiceConversation();
 	};
-
-	if (voiceMode === 'conversation') {
-		return (
-			<div
-				className="fixed inset-0 z-[60] flex items-center justify-center bg-background"
-				style={{ WebkitAppRegion: 'drag' } as CSSProperties}
-			>
-				<button
-					type="button"
-					aria-label="End voice conversation"
-					onClick={endVoiceConversation}
-					style={{ WebkitAppRegion: 'no-drag' } as CSSProperties}
-				>
-					<GradientSphere size={64} />
-				</button>
-			</div>
-		);
-	}
 
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
