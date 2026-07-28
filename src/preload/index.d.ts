@@ -26,7 +26,7 @@ declare global {
 		win: WindowApi;
 		app: AppApi;
 		agent: AgentApi;
-		audio: AudioApi;
+		recorder: RecorderApi;
 		cron: CronApi;
 		skills: SkillsApi;
 		mcp: McpApi;
