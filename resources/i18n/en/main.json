@@ -967,6 +967,15 @@
 			"enabled": "Enabled",
 			"disabled": "Disabled"
 		},
+		"embedding": {
+			"input": "Text",
+			"inputDescription": "The text is embedded with the selected provider and model.",
+			"inputPlaceholder": "Paste the text you want to embed...",
+			"embed": "Embed",
+			"embedding": "Embedding...",
+			"embedError": "Unable to create the embedding.",
+			"result": "Vector created with {{count}} dimensions."
+		},
 		"image": {
 			"prompt": "Prompt",
 			"promptDescription": "The image is generated with the selected provider and model.",
