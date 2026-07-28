@@ -615,6 +615,7 @@ export interface SendChannelMap extends WindowSendChannelMap {}
 export interface EventChannelMap
 	extends
 		AgentEventChannelMap,
+		AudioEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
 		SttEventChannelMap {}
