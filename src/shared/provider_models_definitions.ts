@@ -312,6 +312,27 @@ export const TEXT_TO_SPEECH_PROVIDER_IDS = [
 	'openai',
 ] as const;
 
+export const EMBEDDING_MODELS_BY_PROVIDER = {
+	bge: [model('bge-m3', 'BGE-M3')],
+	cohere: [model('embed-v4.0', 'Embed v4')],
+	jina: [model('jina-embeddings-v3', 'Jina Embeddings v3')],
+	nomic: [model('nomic-embed-text-v2-moe', 'Nomic Embed v2')],
+	openai: [
+		model('text-embedding-3-large', 'Text Embedding 3 Large'),
+		model('text-embedding-3-small', 'Text Embedding 3 Small'),
+	],
+	voyage: [model('voyage-3-large', 'Voyage 3 Large')],
+} as const satisfies ModelCatalog;
+
+export const EMBEDDING_PROVIDER_IDS = [
+	'bge',
+	'cohere',
+	'jina',
+	'nomic',
+	'openai',
+	'voyage',
+] as const;
+
 export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER = {
 	'black-forest-labs': [
 		model('FLUX.2', 'FLUX.2'),
