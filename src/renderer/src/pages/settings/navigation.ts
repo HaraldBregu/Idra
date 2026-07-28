@@ -348,6 +348,12 @@ export const SETTINGS_NAVIGATION = [
 		comingSoon: true,
 	},
 	{
+		path: '/settings/rag',
+		labelKey: 'settings.tabs.rag',
+		descriptionKey: 'settings.overview.descriptions.rag',
+		icon: Library,
+	},
+	{
 		path: '/settings/skills',
 		labelKey: 'settings.tabs.skills',
 		descriptionKey: 'settings.overview.descriptions.skills',
