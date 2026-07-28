@@ -974,7 +974,7 @@
 			"embed": "Incorpora",
 			"embedding": "Incorporamento...",
 			"embedError": "Impossibile creare l'embedding.",
-			"result": "Vettore creato con {{count}} dimensioni."
+			"result": "Vettore creato con {{dimensions}} dimensioni."
 		},
 		"image": {
 			"prompt": "Prompt",
