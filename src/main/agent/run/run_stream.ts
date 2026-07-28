@@ -28,6 +28,8 @@ import { createVideoTool } from '../tools/video_create';
 import { createSoundTool } from '../tools/sound_create';
 import { audioRecorderTool } from '../tools/audio_recorder';
 import { audioRecorderStatusTool } from '../tools/audio_recorder_status';
+import { videoRecorderTool } from '../tools/video_recorder';
+import { videoRecorderStatusTool } from '../tools/video_recorder_status';
 import { saveMemoryTool } from '../tools/memory_save';
 import { forgetMemoryTool } from '../tools/memory_forget';
 import { updateHealthTool } from '../tools/health_update';
