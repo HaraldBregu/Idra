@@ -135,7 +135,6 @@ async function* loop(
 		tools: tools.map((tool) => tool.name),
 	};
 
-	let firstTurn = true;
 	try {
 		while (true) {
 			if (signal.aborted) return;
@@ -143,8 +142,7 @@ async function* loop(
 				session.context.basePrompt === undefined
 					? await buildSystemPrompt(config, tools, session.context.loadedSkills)
 					: await addFilesystemPrompt(config, session.context.basePrompt);
-			persistSystemPrompt(session, session.context.systemPrompt, firstTurn);
-			firstTurn = false;
+			persistSystemPrompt(session, session.context.systemPrompt);
 			const turn = yield* runModelTurn(
 				input,
 				provider,
