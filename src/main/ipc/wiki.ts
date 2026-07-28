@@ -1,4 +1,5 @@
 import { BrowserWindow, dialog, shell } from 'electron';
+import { mkdir } from 'node:fs/promises';
 import type { EventBus } from '../app/event_bus';
 import { WikiChannels } from '../../shared/ipc_channels_definitions';
 import { getWikiSettings, getWikiStatus, runWiki, saveWikiSettings } from '../wiki';
@@ -28,6 +29,7 @@ export class WikiIpc implements IpcModule {
 		registerCommand(WikiChannels.openDirectory, async (kind) => {
 			const settings = getWikiSettings();
 			const target = kind === 'source' ? settings.sourcePath : settings.targetPath;
+			await mkdir(target, { recursive: true });
 			const error = await shell.openPath(target);
 			if (error) throw new Error(error);
 		});
