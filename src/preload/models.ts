@@ -1,5 +1,6 @@
 import { typedInvokeUnwrap, typedOn } from '../shared/ipc_types';
 import {
+	EmbeddingChannels,
 	ImageChannels,
 	SoundChannels,
 	SpeechChannels,
