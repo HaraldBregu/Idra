@@ -130,13 +130,6 @@ const OverviewPage: React.FC = () => {
 								<SettingsOverviewCard
 									key={path}
 									item={item}
-									badge={
-										path === '/settings/search' && selectedSearchEngine ? (
-											<Badge variant="outline" className="text-[10px] leading-none">
-												{t(`settings.searchEngine.${selectedSearchEngine}Name`)}
-											</Badge>
-										) : undefined
-									}
 									disabled={disabledOverviewPaths.has(path)}
 								/>
 							);
