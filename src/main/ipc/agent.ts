@@ -324,6 +324,28 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			}, AgentChannels.healthSaveData)
 		);
 
+		ipcMain.handle(
+			AgentChannels.ragIndex,
+			wrapSimpleHandler((): Promise<RagIndexResult> => indexRag(), AgentChannels.ragIndex)
+		);
+
+		ipcMain.handle(
+			AgentChannels.ragSearch,
+			wrapSimpleHandler((query: unknown, topK: unknown): Promise<RagMatch[]> => {
+				const text = optionalTrimmedString(query);
+				if (!text) throw new Error('Invalid search query.');
+				return searchRag(text, typeof topK === 'number' ? topK : undefined);
+			}, AgentChannels.ragSearch)
+		);
+
+		ipcMain.handle(
+			AgentChannels.ragOpenFolder,
+			wrapSimpleHandler(async (): Promise<void> => {
+				const error = await shell.openPath(ragLocation());
+				if (error) throw new Error(error);
+			}, AgentChannels.ragOpenFolder)
+		);
+
 		logger.info('AgentIpc', `Registered ${this.name} module`);
 	}
 }
