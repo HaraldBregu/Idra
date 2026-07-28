@@ -20,7 +20,7 @@ function blobToBase64(blob: Blob): Promise<string> {
 	});
 }
 
-function createCaptureHost(api: RecorderTrackApi, constraints: MediaStreamConstraints): () => void {
+function createCaptureHost(api: RecorderTrackApi, getStream: () => Promise<MediaStream>): () => void {
 	const captures = new Map<string, ActiveCapture>();
 
 	function report(result: Parameters<RecorderTrackApi['complete']>[0]): void {
