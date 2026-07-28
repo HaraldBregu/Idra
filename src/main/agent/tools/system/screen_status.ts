@@ -5,6 +5,7 @@ import { tool } from '../tool';
 
 export const recorderScreenStatusTool: Tool = tool({
 	name: 'recorder_screen_status',
+	defaultPermission: 'allow',
 	description:
 		'Check the status of a background screen recording started with recorder_screen. With wait=true it blocks until the recording finishes and returns the final result. The recorded file exists only once status is "completed".',
 	inputSchema: z.object({
