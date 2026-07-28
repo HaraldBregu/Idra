@@ -8,7 +8,7 @@ import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers_definitions';
 import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
-import { agentLocation } from '../shared/agent_location';
+import { workspacePath } from '../agent/system';
 import {
 	getPermissions,
 	resetPermissions,
