@@ -23,14 +23,25 @@ export const AgentChannels = {
 	healthSaveData: 'agent:health:data:save',
 } as const;
 
-export const AudioChannels = {
-	start: 'audio:start',
-	stop: 'audio:stop',
-	cancel: 'audio:cancel',
-	list: 'audio:list',
-	complete: 'audio:complete',
-	command: 'audio:command',
-	event: 'audio:event',
+export const RecorderChannels = {
+	audio: {
+		start: 'recorder:audio:start',
+		stop: 'recorder:audio:stop',
+		cancel: 'recorder:audio:cancel',
+		list: 'recorder:audio:list',
+		complete: 'recorder:audio:complete',
+		command: 'recorder:audio:command',
+		event: 'recorder:audio:event',
+	},
+	video: {
+		start: 'recorder:video:start',
+		stop: 'recorder:video:stop',
+		cancel: 'recorder:video:cancel',
+		list: 'recorder:video:list',
+		complete: 'recorder:video:complete',
+		command: 'recorder:video:command',
+		event: 'recorder:video:event',
+	},
 } as const;
 
 export const CronChannels = {
