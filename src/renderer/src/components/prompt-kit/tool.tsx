@@ -4,6 +4,7 @@ import { useState, type CSSProperties } from 'react';
 import {
 	AudioLines,
 	CalendarClock,
+	Camera,
 	Check,
 	ChevronDown,
 	CircleX,
