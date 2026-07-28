@@ -2,14 +2,11 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	AlertTriangle,
-	BookOpenText,
-	ChevronRight,
 	FolderOpen,
 	LoaderCircle,
 	Search,
 	Sparkles,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { RagMatch } from '../../../../../../main/rag';
@@ -18,13 +15,11 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsRow,
 	SettingsSection,
 } from '../../components';
 
 const RagPage: React.FC = () => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const [error, setError] = useState<string | null>(null);
 	const [indexing, setIndexing] = useState(false);
 	const [indexed, setIndexed] = useState<{ files: number; vectors: number } | null>(null);
@@ -72,28 +67,6 @@ const RagPage: React.FC = () => {
 					{error}
 				</SettingsNotice>
 			)}
-
-			<SettingsSection
-				title={t('settings.wiki.title')}
-				description={t('settings.wiki.overviewDescription')}
-			>
-				<SettingsPanel>
-					<button
-						type="button"
-						className="w-full text-left hover:bg-muted/40"
-						onClick={() => navigate('/settings/rag/wiki')}
-					>
-						<SettingsRow
-							title={t('settings.tabs.wiki')}
-							description={t('settings.wiki.description')}
-							icon={BookOpenText}
-							className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
-							actionClassName="w-auto justify-end"
-							actions={<ChevronRight className="size-4 text-muted-foreground" />}
-						/>
-					</button>
-				</SettingsPanel>
-			</SettingsSection>
 
 			<SettingsSection title={t('settings.rag.documentsTitle')}>
 				<SettingsPanel>

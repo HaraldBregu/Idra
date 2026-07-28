@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import WikiPage from '../../../src/renderer/src/pages/settings/pages/rag/wiki/Page';
+import WikiPage from '../../../src/renderer/src/pages/settings/pages/wiki/Page';
 
 jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {

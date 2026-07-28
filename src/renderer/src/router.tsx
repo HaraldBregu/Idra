@@ -43,7 +43,7 @@ const ProviderKeysPage = lazy(() => import('./pages/settings/pages/providers/key
 const SearchPage = lazy(() => import('./pages/settings/pages/search/Page'));
 const StoragePage = lazy(() => import('./pages/settings/pages/storage/Page'));
 const RagPage = lazy(() => import('./pages/settings/pages/rag/Page'));
-const WikiPage = lazy(() => import('./pages/settings/pages/rag/wiki/Page'));
+const WikiPage = lazy(() => import('./pages/settings/pages/wiki/Page'));
 const VectorDbPage = lazy(() => import('./pages/settings/pages/vectordb/Page'));
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const PoliciesPage = lazy(() => import('./pages/settings/pages/policies/Page'));
@@ -365,24 +365,19 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'rag',
-						children: [
-							{
-								index: true,
-								element: (
-									<SettingsRouteWrapper>
-										<RagPage />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: 'wiki',
-								element: (
-									<SettingsRouteWrapper>
-										<WikiPage />
-									</SettingsRouteWrapper>
-								),
-							},
-						],
+						element: (
+							<SettingsRouteWrapper>
+								<RagPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
+						path: 'wiki',
+						element: (
+							<SettingsRouteWrapper>
+								<WikiPage />
+							</SettingsRouteWrapper>
+						),
 					},
 					{
 						path: 'vectordb',

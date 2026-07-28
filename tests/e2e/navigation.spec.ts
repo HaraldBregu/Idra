@@ -37,7 +37,7 @@ const routes = [
 	'/settings/providers/music',
 	'/settings/search',
 	'/settings/rag',
-	'/settings/rag/wiki',
+	'/settings/wiki',
 	'/settings/tasks',
 	'/settings/tasks/health',
 	'/settings/assistant',
@@ -58,7 +58,7 @@ for (const route of routes) {
 
 test('wiki settings renders the complete configuration workflow', async ({}, testInfo) => {
 	await page.evaluate(() => {
-		window.location.hash = '#/settings/rag/wiki';
+		window.location.hash = '#/settings/wiki';
 	});
 	await expect(page.getByRole('heading', { name: 'Wiki', exact: true })).toBeVisible();
 	await expect(page.getByRole('textbox', { name: 'Raw source folder', exact: true })).toBeVisible();

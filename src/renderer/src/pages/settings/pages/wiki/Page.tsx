@@ -15,7 +15,7 @@ import {
 	ModelProviderSelect,
 	resolveStoredModelProvider,
 } from '@/components/model-provider-select';
-import type { WikiRunResult, WikiSettings, WikiStatus } from '../../../../../../../shared';
+import type { WikiRunResult, WikiSettings, WikiStatus } from '../../../../../../shared';
 import {
 	SettingsField,
 	SettingsLoadingRows,
@@ -26,7 +26,7 @@ import {
 	SettingsRow,
 	SettingsSection,
 	SettingsValue,
-} from '../../../components';
+} from '../../components';
 
 const WikiPage: React.FC = () => {
 	const { t } = useTranslation();

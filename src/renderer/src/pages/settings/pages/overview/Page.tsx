@@ -25,7 +25,13 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'primary',
 		titleKey: 'settings.overview.groups.assistant',
-		paths: ['/settings/assistant', '/settings/skills', '/settings/mcp', '/settings/rag'],
+		paths: [
+			'/settings/assistant',
+			'/settings/skills',
+			'/settings/mcp',
+			'/settings/rag',
+			'/settings/wiki',
+		],
 	},
 	{
 		id: 'cloud',

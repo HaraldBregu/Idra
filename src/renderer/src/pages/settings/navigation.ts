@@ -266,13 +266,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Tasks
 	{
-		path: '/settings/rag/wiki',
-		labelKey: 'settings.tabs.wiki',
-		descriptionKey: 'settings.overview.descriptions.wiki',
-		keywords: 'llm wiki knowledge markdown sources synthesis cron schedule',
-		icon: BookOpenText,
-	},
-	{
 		path: '/settings/tasks',
 		labelKey: 'settings.cron.runtime.title',
 		descriptionKey: 'settings.cron.runtime.description',
@@ -358,6 +351,12 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.rag',
 		descriptionKey: 'settings.overview.descriptions.rag',
 		icon: Library,
+	},
+	{
+		path: '/settings/wiki',
+		labelKey: 'settings.tabs.wiki',
+		descriptionKey: 'settings.overview.descriptions.wiki',
+		icon: BookOpenText,
 	},
 	{
 		path: '/settings/vectordb',
