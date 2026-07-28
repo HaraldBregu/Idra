@@ -1,0 +1,142 @@
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import matter from 'gray-matter';
+import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
+import { collectWikiSources } from '../../../../src/main/wiki/wiki_collect_sources';
+import { rebuildWikiIndex } from '../../../../src/main/wiki/wiki_index';
+import { appendWikiLog } from '../../../../src/main/wiki/wiki_log';
+import { normalizeWikiSettings } from '../../../../src/main/wiki/wiki_normalize_settings';
+import { parseWikiUpdate } from '../../../../src/main/wiki/wiki_parse_update';
+import { ensureWikiSchema } from '../../../../src/main/wiki/wiki_schema';
+import { wikiSourcePage } from '../../../../src/main/wiki/wiki_source_page';
+import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
+import { wikiSettingsStore } from '../../../../src/main/wiki/wiki_settings_store';
+
+describe('wiki settings', () => {
+	it('stores settings at wiki/settings.json with a wiki/data default target', () => {
+		expect(wikiSettingsStore.path).toMatch(/[\\/]wiki[\\/]settings\.json$/);
+		expect(wikiSettingsStore.store.targetPath).toMatch(/[\\/]wiki[\\/]data$/);
+	});
+
+	it('normalizes valid settings and rejects invalid or nested locations', () => {
+		const settings = normalizeWikiSettings({
+			providerId: ' openai ',
+			modelId: ' gpt-5 ',
+			sourcePath: '/tmp/wiki-raw',
+			targetPath: '/tmp/wiki-data',
+			schedule: { enabled: true, cronExpression: ' 0  3 * * * ' },
+		});
+		expect(settings).toMatchObject({
+			providerId: 'openai',
+			modelId: 'gpt-5',
+			schedule: { enabled: true, cronExpression: '0 3 * * *' },
+		});
+		expect(() =>
+			normalizeWikiSettings({
+				...settings,
+				schedule: { enabled: true, cronExpression: 'not cron' },
+			})
+		).toThrow('valid cron expression');
+		expect(() =>
+			normalizeWikiSettings({
+				...settings,
+				targetPath: path.join(settings.sourcePath, 'data'),
+			})
+		).toThrow('separate, non-nested');
+	});
+});
+
+describe('wiki source ingestion', () => {
+	it('collects supported text files and keeps source page names stable across content changes', async () => {
+		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-source-'));
+		await writeFile(path.join(root, 'notes.md'), '# Notes', 'utf8');
+		await writeFile(path.join(root, 'ignored.bin'), 'binary', 'utf8');
+		const sources = await collectWikiSources(root);
+		expect(sources).toHaveLength(1);
+		expect(sources[0]).toMatchObject({ relativePath: 'notes.md', content: '# Notes' });
+
+		const firstPage = wikiSourcePage(sources[0]);
+		const changed = { ...sources[0], content: 'changed', hash: 'different' };
+		expect(wikiSourcePage(changed)).toBe(firstPage);
+	});
+
+	it('validates model updates and rejects traversal or missing source summaries', () => {
+		const sourcePage = 'sources/notes-a1b2c3d4.md';
+		const update = parseWikiUpdate(
+			{
+				pages: [
+					{
+						path: sourcePage,
+						title: 'Notes',
+						summary: 'A source summary.',
+						content: 'Key facts.',
+						sources: ['notes.md'],
+					},
+				],
+			},
+			sourcePage
+		);
+		expect(update.pages[0].path).toBe(sourcePage);
+		expect(() =>
+			parseWikiUpdate(
+				{
+					pages: [
+						{
+							path: '../outside.md',
+							title: 'Unsafe',
+							summary: 'Unsafe path.',
+							content: 'No.',
+							sources: [],
+						},
+					],
+				},
+				sourcePage
+			)
+		).toThrow('Unsafe wiki page path');
+	});
+
+	it('writes generated pages, schema, index and append-only log artifacts', async () => {
+		const target = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-target-'));
+		const source: WikiSource = {
+			absolutePath: '/tmp/raw/notes.md',
+			relativePath: 'notes.md',
+			content: 'Friday is a desktop assistant.',
+			hash: 'abc123',
+		};
+		const sourcePage = wikiSourcePage(source);
+		await ensureWikiSchema(target);
+		const applied = await applyWikiUpdate(target, source, {
+			pages: [
+				{
+					path: sourcePage,
+					title: 'Friday notes',
+					summary: 'Notes about Friday.',
+					content: 'Friday connects to [[Desktop assistants]].',
+					sources: ['notes.md'],
+				},
+				{
+					path: 'concepts/desktop-assistants.md',
+					title: 'Desktop assistants',
+					summary: 'Assistants integrated with desktop workflows.',
+					content: 'Connected from [[Friday notes]].',
+					sources: ['notes.md'],
+				},
+			],
+		});
+		await rebuildWikiIndex(target);
+		await appendWikiLog(target, source, applied);
+
+		expect(applied).toEqual({ createdPages: 2, updatedPages: 0 });
+		const sourceMarkdown = matter(await readFile(path.join(target, sourcePage), 'utf8'));
+		expect(sourceMarkdown.data.sources).toEqual(['notes.md']);
+		expect(sourceMarkdown.content).toContain('[[Desktop assistants]]');
+		expect(await readFile(path.join(target, 'AGENTS.md'), 'utf8')).toContain('Wiki maintainer schema');
+		expect(await readFile(path.join(target, 'index.md'), 'utf8')).toContain(
+			'[[concepts/desktop-assistants|Desktop assistants]]'
+		);
+		expect(await readFile(path.join(target, 'log.md'), 'utf8')).toContain(
+			'ingest | notes.md'
+		);
+	});
+});
