@@ -59,10 +59,12 @@ export class ModelsIpc implements IpcModule {
 			const path = await video.saveVideoFile(result);
 			return { ...result, path };
 		});
-		registerQuery(VideoChannels.getProviderId, () => video.getProviderId());
-		registerCommand(VideoChannels.setProviderId, (providerId) => video.setProviderId(providerId));
-		registerQuery(VideoChannels.getModelId, () => video.getModelId());
-		registerCommand(VideoChannels.setModelId, (modelId) => video.setModelId(modelId));
+		registerQuery(VideoChannels.getProviderId, () => getProviderId('video'));
+		registerCommand(VideoChannels.setProviderId, (providerId) =>
+			setProviderId('video', providerId)
+		);
+		registerQuery(VideoChannels.getModelId, () => getModelId('video'));
+		registerCommand(VideoChannels.setModelId, (modelId) => setModelId('video', modelId));
 
 		registerCommand(SpeechChannels.synthesize, (request) => voice.synthesize(request));
 		registerQuery(SpeechChannels.getProviderId, () => voice.getProviderId());
