@@ -1,3 +1,4 @@
+export * as embedding from './embedding';
 export * as image from './image';
 export * as sound from './sound';
 export * as text from './text';
