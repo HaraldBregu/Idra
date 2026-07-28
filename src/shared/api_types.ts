@@ -191,14 +191,19 @@ export interface VideoApi {
 	setModelId: (modelId: string) => Promise<void>;
 }
 
-export interface AudioApi {
-	start: (config: AudioRecordConfig) => Promise<AudioRecording>;
+export interface RecorderTrackApi {
+	start: (config: RecordConfig) => Promise<Recording>;
 	stop: (id: string) => Promise<void>;
 	cancel: (id: string) => Promise<void>;
-	list: () => Promise<AudioRecording[]>;
-	complete: (result: AudioCaptureResult) => Promise<void>;
-	onCommand: (callback: (command: AudioCaptureCommand) => void) => () => void;
-	onEvent: (callback: (recording: AudioRecording) => void) => () => void;
+	list: () => Promise<Recording[]>;
+	complete: (result: RecorderCaptureResult) => Promise<void>;
+	onCommand: (callback: (command: RecorderCommand) => void) => () => void;
+	onEvent: (callback: (recording: Recording) => void) => () => void;
+}
+
+export interface RecorderApi {
+	audio: RecorderTrackApi;
+	video: RecorderTrackApi;
 }
 
 export interface SoundApi {
