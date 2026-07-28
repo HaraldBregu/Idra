@@ -12,10 +12,7 @@ import {
 	MusicProviderRequestError,
 	MusicProviderUnsupportedError,
 } from '../../app/models_adapters/tta';
-import {
-	getModelId as getStoredModelId,
-	getProviderId as getStoredProviderId,
-} from './sound_store';
+import { getModelId, getProviderId } from '../models_store';
 
 const DEFAULT_SOUND_PROVIDER_ID = 'elevenlabs';
 
