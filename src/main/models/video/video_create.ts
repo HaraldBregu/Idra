@@ -21,9 +21,9 @@ export async function createVideo(request: VideoRequest): Promise<VideoResult> {
 	if (!prompt) throw new VideoProviderRequestError('Prompt is required.');
 
 	const providerId = resolveProviderId(
-		request.providerId ?? getStoredProviderId() ?? DEFAULT_VIDEO_PROVIDER_ID
+		request.providerId ?? getProviderId('video') ?? DEFAULT_VIDEO_PROVIDER_ID
 	);
-	const modelId = resolveModelId(providerId, request.modelId ?? getStoredModelId());
+	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('video'));
 	const apiKey = resolveApiKey(providerId);
 	return generateVideo({ providerId, apiKey, modelId, prompt });
 }
