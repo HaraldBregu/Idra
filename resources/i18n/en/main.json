@@ -159,7 +159,8 @@
 				"aiAgents": "AI agents",
 				"aiFeatures": "AI Features",
 				"automations": "Automations",
-				"cloud": "Cloud"
+				"cloud": "Cloud",
+				"assistant": "Assistant"
 			},
 			"descriptions": {
 				"application": "App setup and permissions",
