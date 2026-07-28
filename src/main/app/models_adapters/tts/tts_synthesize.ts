@@ -14,10 +14,7 @@ import {
 import { getProvider } from '../../../providers';
 import { buildSpeechAdapter } from './tts_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
-import {
-	getModelId as getStoredModelId,
-	getProviderId as getStoredProviderId,
-} from '../../../models/voice/voice_store';
+import { getModelId, getProviderId } from '../../../models/models_store';
 import type { SpeechProviderSpec } from './tts_types';
 
 export async function synthesize(request: SpeechSynthesisRequest): Promise<SpeechSynthesisResult> {
