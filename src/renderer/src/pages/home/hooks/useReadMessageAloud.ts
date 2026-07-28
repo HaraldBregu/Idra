@@ -47,7 +47,7 @@ export function useReadMessageAloud(): {
 		const text = markdownToPlainText(markdown).slice(0, SPEECH_MAX_TEXT_LENGTH);
 		if (!text || speakingRef.current) return;
 
-		const voiceApi = window.voice;
+		const voiceApi = window.models.voice;
 		if (!voiceApi?.synthesize) {
 			setErrorMessage('Voice API is unavailable.');
 			return;

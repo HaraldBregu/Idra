@@ -49,8 +49,8 @@ function getVoiceModels(providerId: string): Model[] {
 
 async function getVoiceSelection(): Promise<ModelSelection | undefined> {
 	const [providerId, modelId] = await Promise.all([
-		window.voice.getProviderId(),
-		window.voice.getModelId(),
+		window.models.voice.getProviderId(),
+		window.models.voice.getModelId(),
 	]);
 	if (!providerId || !modelId) return undefined;
 	const provider = getCatalogProviderById(providerId);
@@ -60,8 +60,8 @@ async function getVoiceSelection(): Promise<ModelSelection | undefined> {
 }
 
 async function saveVoiceSelection(provider: PublicProvider, model: Model): Promise<boolean> {
-	await window.voice.setProviderId(provider.id);
-	await window.voice.setModelId(model.id);
+	await window.models.voice.setProviderId(provider.id);
+	await window.models.voice.setModelId(model.id);
 	return true;
 }
 

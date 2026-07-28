@@ -44,8 +44,8 @@ const ImagePage: React.FC = () => {
 		void (async () => {
 			try {
 				const [storedProviderId, storedModelId] = await Promise.all([
-					window.image.getProviderId(),
-					window.image.getModelId(),
+					window.models.image.getProviderId(),
+					window.models.image.getModelId(),
 				]);
 				if (!mounted) return;
 				const nextProviderId =
@@ -79,8 +79,8 @@ const ImagePage: React.FC = () => {
 		setSaved(false);
 		setError(null);
 		try {
-			await window.image.setProviderId(nextProviderId);
-			await window.image.setModelId(nextModelId);
+			await window.models.image.setProviderId(nextProviderId);
+			await window.models.image.setModelId(nextModelId);
 			setSaved(true);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -94,7 +94,7 @@ const ImagePage: React.FC = () => {
 		setGenerating(true);
 		setError(null);
 		try {
-			const result = await window.image.createImage({ prompt, providerId, modelId });
+			const result = await window.models.image.createImage({ prompt, providerId, modelId });
 			setImageSrc(`data:${result.mimeType};base64,${result.base64}`);
 		} catch (err) {
 			setError(

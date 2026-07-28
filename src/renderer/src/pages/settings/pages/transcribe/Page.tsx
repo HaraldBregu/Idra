@@ -68,8 +68,8 @@ async function loadSpeechModeState(
 	fallbackModelErrorMessage: string
 ): Promise<ModelConfigurationState> {
 	try {
-		const selection = await window.transcribe.getSelection(mode);
-		const providers = mergeProviders(await window.transcribe.listProviders(), selection?.provider);
+		const selection = await window.models.transcribe.getSelection(mode);
+		const providers = mergeProviders(await window.models.transcribe.listProviders(), selection?.provider);
 		const modelGroups: ProviderModelGroup[] = [];
 		let firstModelError: unknown;
 
@@ -77,7 +77,7 @@ async function loadSpeechModeState(
 			try {
 				const models = speechModeModels(
 					provider.id,
-					await window.transcribe.listModels(provider.id),
+					await window.models.transcribe.listModels(provider.id),
 					mode
 				);
 				const nextModels =
@@ -179,7 +179,7 @@ const TranscribePage: React.FC = () => {
 			},
 		}));
 		try {
-			const didSave = await window.transcribe.saveSelection(provider.id, model.id, mode);
+			const didSave = await window.models.transcribe.saveSelection(provider.id, model.id, mode);
 			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
 			setSpeechStates((current) => ({
 				...current,

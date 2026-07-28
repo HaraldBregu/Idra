@@ -46,8 +46,8 @@ const VideoPage: React.FC = () => {
 		void (async () => {
 			try {
 				const [storedProviderId, storedModelId] = await Promise.all([
-					window.video.getProviderId(),
-					window.video.getModelId(),
+					window.models.video.getProviderId(),
+					window.models.video.getModelId(),
 				]);
 				if (!mounted) return;
 				const nextProviderId =
@@ -81,8 +81,8 @@ const VideoPage: React.FC = () => {
 		setSaved(false);
 		setError(null);
 		try {
-			await window.video.setProviderId(nextProviderId);
-			await window.video.setModelId(nextModelId);
+			await window.models.video.setProviderId(nextProviderId);
+			await window.models.video.setModelId(nextModelId);
 			setSaved(true);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -96,7 +96,7 @@ const VideoPage: React.FC = () => {
 		setGenerating(true);
 		setError(null);
 		try {
-			const result = await window.video.createVideo({ prompt, providerId, modelId });
+			const result = await window.models.video.createVideo({ prompt, providerId, modelId });
 			setVideoSrc(`data:${result.mimeType};base64,${result.base64}`);
 			setVideoPath(result.path ?? null);
 		} catch (err) {

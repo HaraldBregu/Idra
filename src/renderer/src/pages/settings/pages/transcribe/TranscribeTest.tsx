@@ -118,7 +118,7 @@ const RecordedExample: React.FC = () => {
 			const recording = await recorder.stop();
 			if (!recording) return;
 			try {
-				const result = await window.transcribe.transcribe({
+				const result = await window.models.transcribe.transcribe({
 					audio: await fileToSttAudioInput(recording.file),
 				});
 				setTranscript(result.text);

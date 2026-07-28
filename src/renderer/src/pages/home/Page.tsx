@@ -521,7 +521,7 @@ function PageContent(): ReactElement {
 				}
 
 				try {
-					const result = await window.transcribe.transcribe({
+					const result = await window.models.transcribe.transcribe({
 						audio: await fileToSttAudioInput(recording.file),
 					});
 					if (transcriptionRunRef.current === runId) {

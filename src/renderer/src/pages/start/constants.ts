@@ -82,10 +82,10 @@ function toIdSelectionHandlers(
 }
 
 async function getTranscriptionModelGroups(): Promise<ProviderModelGroup[]> {
-	const providers = await window.transcribe.listProviders();
+	const providers = await window.models.transcribe.listProviders();
 	const modelGroups: ProviderModelGroup[] = [];
 	for (const provider of providers) {
-		const models = await window.transcribe.listModels(provider.id);
+		const models = await window.models.transcribe.listModels(provider.id);
 		if (models.length > 0) modelGroups.push({ provider, models });
 	}
 	return modelGroups;
@@ -115,20 +115,20 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		description: 'Reads responses aloud with text-to-speech.',
 		loadModelGroups: () =>
 			Promise.resolve(toModelGroups(TEXT_TO_SPEECH_PROVIDER_IDS, TEXT_TO_SPEECH_MODELS_BY_PROVIDER)),
-		...toIdSelectionHandlers(() => window.voice),
+		...toIdSelectionHandlers(() => window.models.voice),
 	},
 	{
 		id: 'transcription',
 		title: 'Transcription',
 		description: 'Converts your speech into text.',
 		getSelection: async () => {
-			const selection = await window.transcribe.getSelection();
+			const selection = await window.models.transcribe.getSelection();
 			return selection
 				? { providerId: selection.provider.id, modelId: selection.model.id }
 				: undefined;
 		},
 		loadModelGroups: getTranscriptionModelGroups,
-		saveSelection: (provider, model) => window.transcribe.saveSelection(provider.id, model.id),
+		saveSelection: (provider, model) => window.models.transcribe.saveSelection(provider.id, model.id),
 	},
 	{
 		id: 'image',
@@ -136,7 +136,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		description: 'Generates images from your prompts.',
 		loadModelGroups: () =>
 			Promise.resolve(toModelGroups(TEXT_TO_IMAGE_PROVIDER_IDS, TEXT_TO_IMAGE_MODELS_BY_PROVIDER)),
-		...toIdSelectionHandlers(() => window.image),
+		...toIdSelectionHandlers(() => window.models.image),
 	},
 	{
 		id: 'video',
@@ -144,7 +144,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		description: 'Generates videos from your prompts.',
 		loadModelGroups: () =>
 			Promise.resolve(toModelGroups(TEXT_TO_VIDEO_PROVIDER_IDS, TEXT_TO_VIDEO_MODELS_BY_PROVIDER)),
-		...toIdSelectionHandlers(() => window.video),
+		...toIdSelectionHandlers(() => window.models.video),
 	},
 	{
 		id: 'audio',
@@ -152,7 +152,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		description: 'Generates music and sounds from your prompts.',
 		loadModelGroups: () =>
 			Promise.resolve(toModelGroups(MUSIC_PROVIDER_IDS, TEXT_TO_AUDIO_MODELS_BY_PROVIDER)),
-		...toIdSelectionHandlers(() => window.sound),
+		...toIdSelectionHandlers(() => window.models.sound),
 	},
 ];
 

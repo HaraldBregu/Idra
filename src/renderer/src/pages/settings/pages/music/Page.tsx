@@ -46,7 +46,7 @@ const MusicPage: React.FC = () => {
 
 	const refreshSounds = useCallback(async (): Promise<void> => {
 		try {
-			setSounds(await window.sound.listSounds());
+			setSounds(await window.models.sound.listSounds());
 		} catch {
 			// Listing is best-effort; generation errors are surfaced separately.
 		}
@@ -57,8 +57,8 @@ const MusicPage: React.FC = () => {
 		void (async () => {
 			try {
 				const [storedProviderId, storedModelId] = await Promise.all([
-					window.sound.getProviderId(),
-					window.sound.getModelId(),
+					window.models.sound.getProviderId(),
+					window.models.sound.getModelId(),
 				]);
 				if (!mounted) return;
 				const nextProviderId =
@@ -93,8 +93,8 @@ const MusicPage: React.FC = () => {
 		setSaved(false);
 		setError(null);
 		try {
-			await window.sound.setProviderId(nextProviderId);
-			await window.sound.setModelId(nextModelId);
+			await window.models.sound.setProviderId(nextProviderId);
+			await window.models.sound.setModelId(nextModelId);
 			setSaved(true);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -108,7 +108,7 @@ const MusicPage: React.FC = () => {
 		setGenerating(true);
 		setError(null);
 		try {
-			await window.sound.createSound({ prompt, providerId, modelId });
+			await window.models.sound.createSound({ prompt, providerId, modelId });
 			await refreshSounds();
 		} catch (err) {
 			setError(
