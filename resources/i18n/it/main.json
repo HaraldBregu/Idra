@@ -150,7 +150,7 @@
 			"groups": {
 				"app": "App",
 				"agent": "Agente",
-				"modelServices": "Servizi",
+				"modelServices": "Modelli",
 				"connectors": "Connettori",
 				"channels": "Canali",
 				"automation": "Automazione",
