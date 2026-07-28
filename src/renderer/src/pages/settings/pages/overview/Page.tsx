@@ -117,20 +117,6 @@ function SettingsOverviewCard({
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
 	const disabledOverviewPaths = new Set<string>([]);
-	const [selectedSearchEngine, setSelectedSearchEngine] = useState<SearchEngineId | null>(null);
-
-	useEffect(() => {
-		let cancelled = false;
-		void window.search.getSettings().then(
-			(settings) => {
-				if (!cancelled) setSelectedSearchEngine(settings.engineId);
-			},
-			() => undefined
-		);
-		return () => {
-			cancelled = true;
-		};
-	}, []);
 
 	return (
 		<SettingsPageShell>
