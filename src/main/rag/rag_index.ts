@@ -49,12 +49,14 @@ export async function indexRag(): Promise<RagIndexResult> {
 			vectors += batch.length;
 		}
 	}
-	// ponytail: upsert only — vectors of deleted files stay until someone asks for pruning.
 	return { files: files.length, vectors };
 }
 
 async function ensureIndex(pinecone: Pinecone, dimension: number) {
 	if (dimension === 0) throw new Error('Embedding provider returned no dimensions.');
+	// ponytail: indexing re-embeds every file anyway, so rebuild from scratch — drops vectors of
+	// deleted files and survives a dimension change. Swap for incremental sync if runs get slow.
+	await pinecone.deleteIndex(RAG_INDEX_NAME).catch(() => undefined);
 	await pinecone.createIndex({
 		name: RAG_INDEX_NAME,
 		dimension,
