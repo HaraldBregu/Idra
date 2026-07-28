@@ -40,6 +40,7 @@ import {
 	TextChannels,
 	VideoChannels,
 	WidgetChannels,
+	WikiChannels,
 	WindowChannels,
 } from './ipc_channels_definitions';
 
@@ -363,6 +364,33 @@ export interface SearchInvokeChannelMap {
 	};
 }
 
+export interface WikiInvokeChannelMap {
+	[WikiChannels.getSettings]: {
+		args: [];
+		result: import('./wiki_types').WikiSettings;
+	};
+	[WikiChannels.getStatus]: {
+		args: [];
+		result: import('./wiki_types').WikiStatus;
+	};
+	[WikiChannels.saveSettings]: {
+		args: [settings: import('./wiki_types').WikiSettings];
+		result: import('./wiki_types').WikiSettings;
+	};
+	[WikiChannels.run]: {
+		args: [];
+		result: import('./wiki_types').WikiRunResult;
+	};
+	[WikiChannels.pickDirectory]: {
+		args: [kind: 'source' | 'target'];
+		result: string | undefined;
+	};
+	[WikiChannels.openDirectory]: {
+		args: [kind: 'source' | 'target'];
+		result: void;
+	};
+}
+
 export interface StorageInvokeChannelMap {
 	[StorageChannels.getStorages]: {
 		args: [];
@@ -647,6 +675,7 @@ export interface InvokeChannelMap
 		McpInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		SearchInvokeChannelMap,
+		WikiInvokeChannelMap,
 		StorageInvokeChannelMap,
 		WindowInvokeChannelMap,
 		ChannelsInvokeChannelMap,

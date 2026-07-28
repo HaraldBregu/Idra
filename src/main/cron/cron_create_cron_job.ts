@@ -12,7 +12,7 @@ export function createCronJob(schedule: CronSchedule): CronJobHandle | undefined
 		return undefined;
 	}
 	const task = cron.schedule(schedule.cronExpression, () => fire(schedule.id), {
-		name: schedule.id,
+		name: `cron:${schedule.id}`,
 	});
 	return { stop: () => task.destroy(), getNextRun: () => task.getNextRun() };
 }

@@ -63,6 +63,7 @@ import type {
 	AppLanguage,
 	AppTheme,
 } from './app_types';
+import type { WikiRunResult, WikiSettings, WikiStatus } from './wiki_types';
 
 export interface WindowApi {
 	minimize: () => void;
@@ -178,6 +179,15 @@ export interface SearchApi {
 	getSettings: () => Promise<SearchSettings>;
 	saveEngine: (engineId: SearchEngineId, input: SearchEngineInput) => Promise<SearchSettings>;
 	selectEngine: (engineId: SearchEngineId) => Promise<SearchSettings>;
+}
+
+export interface WikiApi {
+	getSettings: () => Promise<WikiSettings>;
+	getStatus: () => Promise<WikiStatus>;
+	saveSettings: (settings: WikiSettings) => Promise<WikiSettings>;
+	run: () => Promise<WikiRunResult>;
+	pickDirectory: (kind: 'source' | 'target') => Promise<string | undefined>;
+	openDirectory: (kind: 'source' | 'target') => Promise<void>;
 }
 
 export interface RecorderApi {

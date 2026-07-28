@@ -30,6 +30,7 @@ import { bootstrapServices, cleanup } from './bootstrap';
 import { sync as syncSkills } from './agent/skills';
 import { startStorageSync, stopStorageSync } from './cloud/storage';
 import { CHANNEL_PROVIDER_IDS } from '../shared';
+import { startWiki, stopWiki } from './wiki';
 
 // // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -142,6 +143,7 @@ app.whenReady().then(async () => {
 		void stopWatchingWidgets();
 	});
 	syncSkills();
+	startWiki();
 	// Apply persisted settings on startup (updateLanguage builds the menu)
 	const storedLanguage = getLanguage();
 	menuManager.updateLanguage(storedLanguage);
@@ -188,6 +190,7 @@ app.whenReady().then(async () => {
 
 app.on('quit', () => {
 	stopStorageSync();
+	stopWiki();
 	agentService.destroy();
 	cleanup(services);
 });

@@ -11,6 +11,7 @@ import { search } from './search';
 import { skills } from './skills';
 import { storage } from './storage';
 import { widgets } from './widgets';
+import { wiki } from './wiki';
 import { win } from './win';
 
 export { agent } from './agent';
@@ -25,6 +26,7 @@ export { search } from './search';
 export { skills } from './skills';
 export { storage } from './storage';
 export { widgets } from './widgets';
+export { wiki } from './wiki';
 
 if (process.contextIsolated) {
 	try {
@@ -41,6 +43,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('search', search);
 		contextBridge.exposeInMainWorld('widgets', widgets);
+		contextBridge.exposeInMainWorld('wiki', wiki);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -71,4 +74,6 @@ if (process.contextIsolated) {
 	globalThis.search = search;
 	// @ts-ignore (define in dts)
 	globalThis.widgets = widgets;
+	// @ts-ignore (define in dts)
+	globalThis.wiki = wiki;
 }

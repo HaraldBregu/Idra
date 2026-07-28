@@ -10,6 +10,7 @@ import { ProviderStoreIpc } from '../provider';
 import { SearchIpc } from '../search';
 import { StorageIpc } from '../storage';
 import { WidgetsIpc } from '../widgets';
+import { WikiIpc } from '../wiki';
 import { WindowIpc } from '../window';
 import type { EventBus } from '../../app';
 import type { MainServices } from '../../bootstrap';
@@ -37,6 +38,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
 	safeRegister('storage', () => new StorageIpc().register(undefined, eventBus));
 	safeRegister('widgets', () => new WidgetsIpc().register({ windowFactory }, eventBus));
+	safeRegister('wiki', () => new WikiIpc().register(undefined, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
 	logger.info('Bootstrap', 'Registered IPC modules');
