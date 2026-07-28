@@ -101,6 +101,7 @@ async function* loop(
 				createVideoTool(),
 				createSoundTool(),
 				audioRecorderTool(),
+				audioRecorderStatusTool,
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
 				updateHealthTool(config),
