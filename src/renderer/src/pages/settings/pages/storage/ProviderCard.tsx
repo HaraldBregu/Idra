@@ -188,9 +188,11 @@ export function ProviderCard({
 				<CardHeader
 					className={cn('select-none items-center', expanded && 'border-b')}
 				>
-					<div className="flex items-center gap-2 min-w-0 flex-1">
-						<HardDrive className="size-4 flex-shrink-0 text-muted-foreground" />
-						<CardTitle>
+					<div className="flex items-center gap-2.5 min-w-0 flex-1">
+						<div className="flex size-8 flex-shrink-0 items-center justify-center rounded-md bg-muted">
+							<HardDrive className="size-4 text-muted-foreground" />
+						</div>
+						<CardTitle className="min-w-0">
 							{canonical.name || t('settings.storage.newProviderTitle')}
 						</CardTitle>
 					</div>
