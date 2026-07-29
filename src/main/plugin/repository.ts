@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { PublicProvider } from '../../shared/providers_definitions';
+import type { PublicProvider } from '../../shared/provider_types';
 import type { PluginWidgetSource, Widget } from '../../shared/widget_types';
 import { realPath } from '../shared/real_path';
 import {

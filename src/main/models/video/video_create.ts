@@ -1,7 +1,4 @@
-import {
-	TEXT_TO_VIDEO_PROVIDER_IDS,
-	normalizeProviderId,
-} from '../../../shared/provider_models_definitions';
+import { TEXT_TO_VIDEO_PROVIDER_IDS, normalizeProviderId } from '../../../shared/provider_types';
 import type { VideoRequest, VideoResult } from '../../../shared/video_types';
 import { getProvider, loadProviders, providerModels } from '../../providers';
 import {

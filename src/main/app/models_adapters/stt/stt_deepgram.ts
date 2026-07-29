@@ -10,11 +10,7 @@ import type {
 	SttRealtimeEventHandler,
 } from './stt_types';
 import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
-import {
-	DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
-	DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID,
-	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../../shared/provider_models_definitions';
+import { DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID, DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_PROVIDER_BASE_URLS } from '../../../../shared/provider_types';
 
 const DEEPGRAM_LISTEN_PATH = 'listen';
 const DEEPGRAM_FLUX_LISTEN_PATH = '../v2/listen';

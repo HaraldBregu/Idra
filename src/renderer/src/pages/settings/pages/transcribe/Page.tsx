@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	SPEECH_TO_TEXT_BATCH_API_TYPE,
-	SPEECH_TO_TEXT_STREAM_API_TYPE,
-	supportsSpeechToTextModelApiType,
-} from '../../../../../../shared/provider_models_definitions';
-import type { SpeechToTextApiType } from '../../../../../../shared/provider_models_types';
+import { SPEECH_TO_TEXT_BATCH_API_TYPE, SPEECH_TO_TEXT_STREAM_API_TYPE, supportsSpeechToTextModelApiType } from '../../../../../../shared/provider_types';
+import type { SpeechToTextApiType } from '../../../../../../shared/model_types';
 import type { SttSelectionMode } from '../../../../../../shared/stt_transcription';
 import type { Model } from '@/lib/compat';
 import {

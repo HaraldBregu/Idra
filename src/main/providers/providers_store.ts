@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
-import type { Provider, ProviderRecord } from './providers_types';
+import type { StoredProvider as Provider, ProviderRecord } from './provider_types';
 
 const PROVIDERS_STORE_NAME = 'settings';
 

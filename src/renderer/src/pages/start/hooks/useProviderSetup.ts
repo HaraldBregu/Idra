@@ -2,7 +2,7 @@ import type { Dispatch } from 'react';
 import { useEffect } from 'react';
 import { openExternalUrl } from '@/lib/external-links';
 import { providers } from '@/lib/providers';
-import type { Provider } from '../../../../../shared/providers_types';
+import type { StoredProvider as Provider } from '../../../../../shared/provider_types';
 import { actionableProviderCatalog, getErrorMessage } from '../constants';
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../types';
 import type { SetupAction } from '../state/actions';

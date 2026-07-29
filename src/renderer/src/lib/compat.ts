@@ -1,8 +1,8 @@
 import { providerModels } from './providers';
-import type { ProviderModel } from '../../../shared/provider_models_types';
-import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_models_definitions';
+import type { ProviderModel } from '../../../shared/model_types';
+import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_types';
 import type { PublicProvider } from '../../../shared';
-import type { Provider as StoredProvider } from '../../../shared/providers_types';
+import type { StoredProvider as StoredProvider } from '../../../shared/provider_types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,

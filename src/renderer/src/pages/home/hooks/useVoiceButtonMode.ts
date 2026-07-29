@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-	SPEECH_TO_TEXT_BATCH_API_TYPE,
-	SPEECH_TO_TEXT_STREAM_API_TYPE,
-	getSpeechToTextModelApiTypes,
-} from '@shared/provider_models_definitions';
+import { SPEECH_TO_TEXT_BATCH_API_TYPE, SPEECH_TO_TEXT_STREAM_API_TYPE, getSpeechToTextModelApiTypes } from '@shared/provider_types';
 
 export type VoiceButtonMode = 'dictate' | 'record' | 'disabled';
 

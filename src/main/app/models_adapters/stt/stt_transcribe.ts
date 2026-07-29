@@ -1,16 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { PublicProvider } from '../../../../shared';
-import {
-	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
-	SPEECH_TO_TEXT_BATCH_API_TYPE,
-	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-	SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES,
-	SPEECH_TO_TEXT_PROVIDER_IDS,
-	SPEECH_TO_TEXT_STREAM_API_TYPE,
-	getSpeechToTextModelApiTypes,
-	supportsSpeechToTextModelApiType,
-} from '../../../../shared/provider_models_definitions';
-import type { SpeechToTextProviderId } from '../../../../shared/provider_models_types';
+import { OPENAI_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_BATCH_API_TYPE, SPEECH_TO_TEXT_PROVIDER_BASE_URLS, SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES, SPEECH_TO_TEXT_PROVIDER_IDS, SPEECH_TO_TEXT_STREAM_API_TYPE, getSpeechToTextModelApiTypes, supportsSpeechToTextModelApiType } from '../../../../shared/provider_types';
+import type { SpeechToTextProviderId } from '../../../../shared/provider_types';
 import {
 	STT_DEFAULT_REALTIME_SAMPLE_RATE,
 	normalizeSttRealtimeAudioChunk,
@@ -24,15 +15,13 @@ import {
 	type SttTranscriptionRequest,
 	type SttTranscriptionResult,
 } from '../../../../shared/stt_transcription';
-import {
-	normalizeProviderId,
-} from '../../../../shared/provider_models_definitions';
-import type { ProviderModel } from '../../../../shared/provider_models_types';
+import { normalizeProviderId } from '../../../../shared/provider_types';
+import type { ProviderModel } from '../../../../shared/model_types';
 import { buildSttAdapter } from './stt_factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
 import { getProvider, loadProviders, providerModels } from '../../../providers';
-import type { Provider as CatalogProvider } from '../../../../shared/providers_definitions';
+import type { Provider as CatalogProvider } from '../../../../shared/provider_types';
 import {
 	getModelId as getTranscribeModelId,
 	getProviderId as getTranscribeProviderId,

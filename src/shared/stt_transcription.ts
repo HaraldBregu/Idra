@@ -1,5 +1,5 @@
-import type { PublicProvider } from './providers_definitions';
-import type { ProviderModel } from './provider_models_types';
+import type { PublicProvider } from './provider_types';
+import type { ProviderModel } from './model_types';
 
 export const STT_AUDIO_ENCODINGS = ['base64'] as const;
 export const STT_MAX_AUDIO_BASE64_LENGTH = 64 * 1024 * 1024;

@@ -1,7 +1,4 @@
-import {
-	TEXT_TO_IMAGE_PROVIDER_IDS,
-	normalizeProviderId,
-} from '../../../shared/provider_models_definitions';
+import { TEXT_TO_IMAGE_PROVIDER_IDS, normalizeProviderId } from '../../../shared/provider_types';
 import type { ImageRequest, ImageResult } from '../../../shared/image_types';
 import { getProvider, loadProviders, providerModels } from '../../providers';
 import {

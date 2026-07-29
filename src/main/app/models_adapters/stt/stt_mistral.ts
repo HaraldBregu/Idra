@@ -10,10 +10,7 @@ import type {
 	SttRealtimeEventHandler,
 } from './stt_types';
 import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
-import {
-	MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID,
-	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../../shared/provider_models_definitions';
+import { MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_PROVIDER_BASE_URLS } from '../../../../shared/provider_types';
 
 type MistralTranscriptionClient = {
 	audio: {

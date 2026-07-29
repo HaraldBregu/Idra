@@ -1,9 +1,6 @@
-import {
-	TEXT_TO_SPEECH_PROVIDER_ID,
-	TEXT_TO_SPEECH_PROVIDER_IDS,
-} from '../../../../shared/provider_models_definitions';
-import type { TextToSpeechProviderId } from '../../../../shared/provider_models_types';
-import { normalizeProviderId } from '../../../../shared/provider_models_definitions';
+import { TEXT_TO_SPEECH_PROVIDER_ID, TEXT_TO_SPEECH_PROVIDER_IDS } from '../../../../shared/provider_types';
+import type { TextToSpeechProviderId } from '../../../../shared/provider_types';
+import { normalizeProviderId } from '../../../../shared/provider_types';
 import {
 	normalizeSpeechSynthesisRequest,
 	type SpeechSynthesisRequest,

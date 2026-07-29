@@ -2,7 +2,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ProviderStoreChannels } from '../../shared/ipc_channels_definitions';
-import type { Provider } from '../../shared/providers_types';
+import type { StoredProvider as Provider } from '../../shared/provider_types';
 import { getProvider, setProvider } from '../providers';
 
 export class ProviderStoreIpc implements IpcModule {

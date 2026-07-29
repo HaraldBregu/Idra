@@ -1,7 +1,7 @@
 import { LlmContextOverflowError } from '../../../../../src/main/app/models_adapters/llm';
 import { runModelTurn } from '../../../../../src/main/agent/run/run_model_turn';
 import type { ModelTurnStream } from '../../../../../src/main/agent/run/run_model_turn';
-import type { ResolvedProvider } from '../../../../../src/shared/providers_types';
+import type { ResolvedProvider } from '../../../../../src/shared/provider_types';
 
 describe('runModelTurn', () => {
 	it('does not retry an unchanged request after context overflow', async () => {

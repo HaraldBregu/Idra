@@ -8,8 +8,8 @@ import type {
 	SttTranscriptionRequest,
 	SttTranscriptionResult,
 } from './stt_transcription';
-import type { PublicProvider } from './providers_definitions';
-import type { ProviderModel } from './provider_models_types';
+import type { PublicProvider } from './provider_types';
+import type { ProviderModel } from './model_types';
 import type { EmbeddingRequest, EmbeddingResult } from './embedding_types';
 import type { ImageRequest, ImageResult } from './image_types';
 import type { SoundFile, SoundRequest, SoundResult } from './sound_types';
@@ -58,10 +58,10 @@ export interface AgentInvokeChannelMap {
 	[AgentChannels.deleteSession]: { args: [sessionId: string]; result: void };
 	[AgentChannels.getProvider]: {
 		args: [];
-		result: import('./providers_definitions').PublicProvider | undefined;
+		result: import('./provider_types').PublicProvider | undefined;
 	};
 	[AgentChannels.setProvider]: {
-		args: [provider: import('./providers_definitions').PublicProvider];
+		args: [provider: import('./provider_types').PublicProvider];
 		result: boolean;
 	};
 	[AgentChannels.getModelId]: {
@@ -251,7 +251,7 @@ export interface AppInvokeChannelMap {
 	};
 	[AppChannels.providers]: {
 		args: [];
-		result: import('./providers_definitions').PublicProviderCatalogEntry[];
+		result: import('./provider_types').PublicProviderCatalogEntry[];
 	};
 	[AppChannels.openVideo]: {
 		args: [path: string];
@@ -340,11 +340,11 @@ export interface ChannelsEventChannelMap {
 export interface ProviderInvokeChannelMap {
 	[ProviderChannels.get]: {
 		args: [id: string];
-		result: import('./providers_types').Provider | undefined;
+		result: import('./provider_types').StoredProvider | undefined;
 	};
 	[ProviderChannels.set]: {
-		args: [id: string, provider: import('./providers_types').Provider];
-		result: import('./providers_types').Provider;
+		args: [id: string, provider: import('./provider_types').StoredProvider];
+		result: import('./provider_types').StoredProvider;
 	};
 }
 

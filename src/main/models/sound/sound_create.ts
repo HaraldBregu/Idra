@@ -1,7 +1,4 @@
-import {
-	MUSIC_PROVIDER_IDS,
-	normalizeProviderId,
-} from '../../../shared/provider_models_definitions';
+import { MUSIC_PROVIDER_IDS, normalizeProviderId } from '../../../shared/provider_types';
 import type { SoundRequest, SoundResult } from '../../../shared/sound_types';
 import { getProvider, loadProviders, providerModels } from '../../providers';
 import {

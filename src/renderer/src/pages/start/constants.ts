@@ -1,6 +1,6 @@
 import { getProviderApiConfigurationUrl } from '../../../../shared';
 import { providerIdsFor, providerModels, providers } from '@/lib/providers';
-import type { ModelCapability } from '../../../../shared/provider_models_definitions';
+import type { ModelCapability } from '../../../../shared/model_types';
 import type { PublicProvider } from '../../../../shared';
 import type { Model } from '@/lib/compat';
 import type {

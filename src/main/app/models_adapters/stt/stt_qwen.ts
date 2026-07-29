@@ -9,11 +9,7 @@ import type {
 	SttRealtimeEventHandler,
 } from './stt_types';
 import type { SttTranscriptionResult } from '../../../../shared/stt_transcription';
-import {
-	QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
-	QWEN_SPEECH_TO_TEXT_PROVIDER_ID,
-	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../../shared/provider_models_definitions';
+import { QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID, QWEN_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_PROVIDER_BASE_URLS } from '../../../../shared/provider_types';
 
 const QWEN_AUTH_SCHEME = 'Bearer';
 const QWEN_REALTIME_BETA_HEADER = 'OpenAI-Beta';

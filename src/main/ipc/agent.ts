@@ -5,7 +5,7 @@ import { wrapSimpleHandler } from './core/error_handler';
 import { AgentChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import type { LoggerService } from '../shared';
-import type { PublicProvider } from '../../shared/providers_definitions';
+import type { PublicProvider } from '../../shared/provider_types';
 import { loadProviders } from '../providers';
 import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';

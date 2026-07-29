@@ -1,3 +1,3 @@
-import type { Provider, ProviderRecord } from '../../shared/providers_types';
+import type { StoredProvider as Provider, ProviderRecord } from '../../shared/provider_types';
 
 export type { Provider, ProviderRecord };

@@ -20,7 +20,7 @@ import {
 	deleteProvider,
 	clearProviders,
 } from '../../../../src/main/providers/providers_store';
-import type { Provider } from '../../../../src/main/providers/providers_types';
+import type { StoredProvider as Provider } from '../../../../src/main/providers/provider_types';
 
 function provider(name: string): Provider {
 	return { name, apiKey: 'k', baseUrl: 'https://api' } as Provider;
