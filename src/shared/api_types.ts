@@ -1,4 +1,4 @@
-import type { PublicProvider } from './providers_definitions';
+import type { PublicProvider, PublicProviderCatalogEntry } from './providers_definitions';
 import type { Provider } from './providers_types';
 import type { SearchEngineId, SearchEngineInput, SearchSettings } from './search_types';
 import type {
