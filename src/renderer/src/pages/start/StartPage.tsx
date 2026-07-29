@@ -128,6 +128,14 @@ const StartPage: React.FC = () => {
 			);
 		}
 
+		if (step === 'storage') {
+			return <CloudStep />;
+		}
+
+		if (step === 'channels') {
+			return <ChannelStep />;
+		}
+
 		if (step === 'models') {
 			return (
 				<ModelsStep
