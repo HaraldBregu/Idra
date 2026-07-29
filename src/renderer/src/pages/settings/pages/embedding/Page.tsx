@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, LoaderCircle, Sparkles } from 'lucide-react';
-import {
-	DEFAULT_EMBEDDING_PROVIDER_ID,
-	EMBEDDING_MODELS_BY_PROVIDER,
-	EMBEDDING_PROVIDER_IDS,
-} from '../../../../../../shared/provider_models_definitions';
+import { DEFAULT_EMBEDDING_PROVIDER_ID } from '../../../../../../shared/provider_models_definitions';
+import { providerIdsFor, providerModels } from '@/lib/providers';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { type ModelProviderGroup, ModelProviderSelect } from '@/components/model-provider-select';
