@@ -151,7 +151,6 @@ export interface ChannelsApi {
 }
 
 export interface ProviderApi {
-	catalog: () => Promise<PublicProvider[]>;
 	get: (id: string) => Promise<Provider | undefined>;
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
