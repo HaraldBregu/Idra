@@ -491,7 +491,7 @@ export function ProviderCard({
 						</section>
 					</CardContent>
 
-					{(editing || isConfigured(canonical)) && (
+					{!hideDropdown && (editing || isConfigured(canonical)) && (
 						<CardFooter className="justify-between gap-2">
 							<div className="flex gap-2">
 								{!editing && isConfigured(canonical) && (
