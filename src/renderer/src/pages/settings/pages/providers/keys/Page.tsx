@@ -102,6 +102,7 @@ const ProvidersPage: React.FC = () => {
 		if (!provider) return undefined;
 
 		return {
+			id: provider.id,
 			name: provider.name,
 			apiKey,
 			baseUrl: provider.baseUrl,
@@ -118,7 +119,7 @@ const ProvidersPage: React.FC = () => {
 		try {
 			const provider = toStoredProvider(providerId, apiKey);
 			if (!provider) throw new Error('Unknown provider.');
-			await window.provider.set(providerId, provider);
+			await window.provider.set(provider);
 			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 		} catch (err) {
 			setError(getErrorMessage(err, 'Could not save provider API key.'));

@@ -343,7 +343,7 @@ export interface ProviderInvokeChannelMap {
 		result: import('./provider_types').StoredProvider | undefined;
 	};
 	[ProviderChannels.set]: {
-		args: [id: string, provider: import('./provider_types').StoredProvider];
+		args: [provider: import('./provider_types').StoredProvider];
 		result: import('./provider_types').StoredProvider;
 	};
 }

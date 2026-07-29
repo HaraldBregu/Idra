@@ -1,4 +1,4 @@
-import { getModelId, getProvider } from '../../app/settings_store';
+import { getModelId, getResolvedProvider } from '../../app/settings_store';
 import {
 	addAssistantMessage,
 	addToolResults,
@@ -83,7 +83,7 @@ async function* loop(
 	signal: AbortSignal,
 	options: StreamOptions
 ): AsyncGenerator<RuntimeEvent> {
-	const provider = getProvider(input.providerId);
+	const provider = getResolvedProvider(input.providerId);
 	const modelId = input.model ?? getModelId();
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');

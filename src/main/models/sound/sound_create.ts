@@ -1,6 +1,7 @@
 import { normalizeProviderId } from '../../../shared/provider_types';
 import type { SoundRequest, SoundResult } from '../../../shared/sound_types';
-import { getProvider, loadProviders, providerModels, supportsCapability } from '../../providers';
+import { loadProviders, providerModels, supportsCapability } from '../../app/providers_catalog';
+import { getProvider } from '../../app/settings_store';
 import {
 	generateMusic,
 	MusicProviderAuthError,

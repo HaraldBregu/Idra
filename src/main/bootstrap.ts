@@ -6,7 +6,7 @@ import {
 } from './app';
 import { LoggerService } from './shared';
 import { createChannelRegistry, type ChannelRegistry } from './channels';
-import { loadProviders } from './providers';
+import { loadProviders } from './app/providers_catalog';
 import { PluginRepository } from './plugin';
 
 import { Agent } from './agent/agent';

@@ -1,4 +1,4 @@
-import { speechToTextBaseUrl, realtimeSpeechToTextModelId } from '../../../providers';
+import { speechToTextBaseUrl, realtimeSpeechToTextModelId } from '../../providers_catalog';
 import WebSocket from 'ws';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type {

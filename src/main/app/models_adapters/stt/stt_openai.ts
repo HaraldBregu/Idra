@@ -1,4 +1,4 @@
-import { speechToTextBaseUrl, realtimeSpeechToTextModelId } from '../../../providers';
+import { speechToTextBaseUrl, realtimeSpeechToTextModelId } from '../../providers_catalog';
 import OpenAI from 'openai';
 import WebSocket from 'ws';
 import { createAudioFile } from './stt_audio';

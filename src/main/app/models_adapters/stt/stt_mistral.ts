@@ -1,4 +1,4 @@
-import { speechToTextBaseUrl } from '../../../providers';
+import { speechToTextBaseUrl } from '../../providers_catalog';
 import { Mistral } from '@mistralai/mistralai';
 import { createAudioFile } from './stt_audio';
 import { SttProviderAuthError } from './stt_errors';

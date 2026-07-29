@@ -12,6 +12,7 @@ function toStoredProvider(providerId: string, apiKey: string): Provider | undefi
 	const provider = providers().find((item) => item.id === providerId);
 	if (!provider) return undefined;
 	return {
+		id: provider.id,
 		name: provider.name,
 		apiKey,
 		baseUrl: provider.baseUrl,
@@ -26,7 +27,7 @@ async function isProviderApiKeySaved(providerId: string): Promise<boolean> {
 async function setProviderApiKey(providerId: string, apiKey: string): Promise<void> {
 	const provider = toStoredProvider(providerId, apiKey);
 	if (!provider) throw new Error('Unknown provider.');
-	await window.provider.set(providerId, provider);
+	await window.provider.set(provider);
 }
 
 export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupAction>) {
