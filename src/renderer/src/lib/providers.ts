@@ -1,6 +1,9 @@
-import type { PublicProvider, PublicProviderCatalogEntry } from '@shared';
-import type { ModelCapability } from '@shared/provider_models_definitions';
-import type { ProviderModel } from '@shared/provider_models_types';
+import {
+	normalizeProviderId,
+	type PublicProvider,
+	type PublicProviderCatalogEntry,
+} from '@shared/provider_types';
+import type { ModelCapability, ProviderModel } from '@shared/model_types';
 
 let catalog: readonly PublicProviderCatalogEntry[] = [];
 
@@ -32,7 +35,20 @@ export function providerIdsFor(type: ModelCapability): string[] {
 }
 
 export function providerModels(providerId: string, type: ModelCapability): ProviderModel[] {
-	const normalized = providerId.trim().toLowerCase();
+	const normalized = normalizeProviderId(providerId);
 	const entry = catalog.find((item) => item.id === normalized && item.type === type);
 	return (entry?.models ?? []).map((model) => ({ ...model }));
+}
+
+/** Provider marked `default` for a capability, else the first one declaring it. */
+export function defaultProviderId(type: ModelCapability): string | undefined {
+	const entries = catalog.filter((entry) => entry.type === type);
+	return (entries.find((entry) => entry.default) ?? entries[0])?.id;
+}
+
+export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {
+	const model = providerModels(providerId, 'speech-to-text').find(
+		(item) => item.id === modelId.trim()
+	);
+	return model?.realtime === true;
 }
