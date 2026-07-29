@@ -7,7 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
-import { DEFAULT_PROVIDERS, type Provider } from '../../../../../../../shared';
+import type { Provider } from '../../../../../../../shared';
+import { providers } from '@/lib/providers';
 import {
 	actionableProviderCatalog,
 	getErrorMessage,
