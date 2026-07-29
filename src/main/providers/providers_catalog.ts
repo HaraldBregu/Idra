@@ -83,7 +83,7 @@ export function supportsSpeechToTextApiType(
 
 export function realtimeSpeechToTextModelId(providerId: string): string {
 	const id = providerModels(providerId, 'speech-to-text').find((model) => model.realtime)?.id;
-	if (!id) throw new Error(`No realtime speech-to-text model for provider: `);
+	if (!id) throw new Error(`No realtime speech-to-text model for provider: ${providerId}`);
 	return id;
 }
 
