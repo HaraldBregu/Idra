@@ -25,6 +25,16 @@ export interface ProviderModel {
 
 export type ModelCatalog = Readonly<Record<string, readonly ProviderModel[]>>;
 
+/** A model flattened together with the provider that serves it. */
+export interface CatalogModel extends ProviderModel {
+	readonly type: ModelCapability;
+	readonly provider: PublicProvider;
+	/** Speech-to-text only: realtime capture sample rate, from the provider entry. */
+	readonly sampleRate?: number;
+	/** The provider is the default choice for this capability. */
+	readonly default?: boolean;
+}
+
 export function cloneModels(models: readonly ProviderModel[] | undefined): ProviderModel[] {
 	return (models ?? []).map((model) => ({ ...model }));
 }
