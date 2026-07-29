@@ -182,7 +182,8 @@
 				"widgets": "Installed widget apps",
 				"rag": "Document index and vector search",
 				"wiki": "Persistent LLM-maintained Markdown knowledge",
-				"vectorDb": "Pinecone vector database"
+				"vectorDb": "Pinecone vector database",
+				"plugins": "App extensions"
 			}
 		},
 		"tabs": {
