@@ -152,19 +152,24 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 			"Your personal AI agent. I can help with everyday tasks, write code, and keep working in the background while you're away.",
 	},
 	providers: {
-		title: 'Connect a provider',
+		title: 'Connect a model provider',
 		description:
 			'Add at least one API key to continue. You can connect more providers at any time.',
+	},
+	storage: {
+		title: 'Connect to an object storage provider',
+		description:
+			'Optionally connect an S3-compatible storage provider to back up and sync your Friday data.',
+	},
+	channels: {
+		title: 'Connect a channel provider',
+		description:
+			'Optionally add a bot token so Friday can receive and reply to messages on that channel.',
 	},
 	models: {
 		title: 'Choose your models',
 		description:
 			'Pick the model each service should use. Only the assistant is required — you can change any of these later in settings.',
-	},
-	storage: {
-		title: 'Configure cloud storage',
-		description:
-			'Optionally connect an S3-compatible storage provider to back up and sync your Friday data.',
 	},
 };
 
