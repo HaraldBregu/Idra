@@ -18,10 +18,12 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const musicProviderGroups(): readonly ModelProviderGroup[] = MUSIC_PROVIDER_IDS.map((id) => ({
-	id,
-	models: TEXT_TO_AUDIO_MODELS_BY_PROVIDER[id] ?? [],
-})).filter((group) => group.models.length > 0);
+function musicProviderGroups(): readonly ModelProviderGroup[] {
+	return providerIdsFor('text-to-audio').map((id) => ({
+		id,
+		models: providerModels(id, 'text-to-audio'),
+	}));
+}
 
 function localResourceUrl(filePath: string): string {
 	const posixPath = filePath.replace(/\\/g, '/');
