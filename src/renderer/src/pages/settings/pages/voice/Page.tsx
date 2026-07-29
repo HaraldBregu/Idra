@@ -2,10 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
 import { providerIdsFor, providerModels, providers } from '@/lib/providers';
-import {
-	cloneModels,
-	normalizeProviderId,
-} from '../../../../../../shared/provider_models_definitions';
 import type { PublicProvider } from '../../../../../../shared';
 import {
 	SettingsNotice,
@@ -44,7 +40,7 @@ async function getVoiceSelection(): Promise<ModelSelection | undefined> {
 	const provider = getCatalogProviderById(providerId);
 	const model = getVoiceModels(providerId).find((item) => item.id === modelId);
 	if (!provider || !model) return undefined;
-	return { provider: toPublicProvider(provider), model };
+	return { provider, model };
 }
 
 async function saveVoiceSelection(provider: PublicProvider, model: Model): Promise<boolean> {

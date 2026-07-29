@@ -14,9 +14,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { PublicProvider } from '@shared';
-import { providers } from '@/lib/providers';
-import { providerIdsFor, providerModels } from '@/lib/providers';
+import { providerIdsFor, providerModels, providers } from '@/lib/providers';
 import type { ProviderModelGroup } from '@pages/start/types';
 import {
 	SettingsLoadingRows,

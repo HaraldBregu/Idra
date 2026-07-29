@@ -25,7 +25,6 @@ import {
 	type SttTranscriptionResult,
 } from '../../../../shared/stt_transcription';
 import {
-	cloneModels,
 	normalizeProviderId,
 } from '../../../../shared/provider_models_definitions';
 import type { ProviderModel } from '../../../../shared/provider_models_types';

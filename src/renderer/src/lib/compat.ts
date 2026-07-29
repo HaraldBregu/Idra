@@ -1,5 +1,4 @@
 import { providerModels } from './providers';
-import { cloneModels } from '../../../shared/provider_models_definitions';
 import type { ProviderModel } from '../../../shared/provider_models_types';
 import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_models_definitions';
 import type { PublicProvider } from '../../../shared';
