@@ -292,21 +292,23 @@ export function ProviderCard({
 						className="row-span-1 flex items-center gap-2 self-center"
 						onClick={(event) => event.stopPropagation()}
 					>
-						<CollapsibleTrigger
-							render={
-								<Button
-									variant="ghost"
-									size="icon-sm"
-									aria-label={
-										expanded ? t('settings.storage.collapse') : t('settings.storage.expand')
-									}
-								>
-									<ChevronDown
-										className={cn('size-3 transition-transform', expanded && 'rotate-180')}
-									/>
-								</Button>
-							}
-						/>
+						{!hideDropdown && (
+							<CollapsibleTrigger
+								render={
+									<Button
+										variant="ghost"
+										size="icon-sm"
+										aria-label={
+											expanded ? t('settings.storage.collapse') : t('settings.storage.expand')
+										}
+									>
+										<ChevronDown
+											className={cn('size-3 transition-transform', expanded && 'rotate-180')}
+										/>
+									</Button>
+								}
+							/>
+						)}
 						{!editing && (
 							<Button
 								variant="ghost"
