@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, LoaderCircle, Sparkles } from 'lucide-react';
-import {
-	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
-	TEXT_TO_IMAGE_PROVIDER_IDS,
-} from '../../../../../../shared/provider_models_definitions';
+import { providerIdsFor, providerModels } from '@/lib/providers';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
