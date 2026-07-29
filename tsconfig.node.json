@@ -8,6 +8,7 @@
 		"src/types.d.ts",
 		"package.json",
 		"resources/*.json",
+		"resources/providers/*/provider.json",
 		"src/env.d.ts",
 		"src/example"
 	],
