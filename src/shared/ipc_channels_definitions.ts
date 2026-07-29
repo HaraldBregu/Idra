@@ -104,6 +104,7 @@ export const AppChannels = {
 	showImageContextMenu: 'app:show-image-context-menu',
 	showVideoContextMenu: 'app:show-video-context-menu',
 	showAudioContextMenu: 'app:show-audio-context-menu',
+	providers: 'app:providers',
 } as const;
 
 export const ChannelsChannels = {
