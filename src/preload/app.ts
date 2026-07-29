@@ -5,6 +5,9 @@ import type { AppApi } from './index.d';
 import { optionalTrimmedString } from './normalize';
 
 export const app: AppApi = {
+	providers: () => {
+		return typedInvokeUnwrap(AppChannels.providers);
+	},
 	getPathForFile: (file: File): string => {
 		return webUtils.getPathForFile(file);
 	},
