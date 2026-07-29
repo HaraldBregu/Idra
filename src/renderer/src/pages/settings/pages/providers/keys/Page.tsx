@@ -98,7 +98,7 @@ const ProvidersPage: React.FC = () => {
 	};
 
 	const toStoredProvider = (providerId: string, apiKey: string): Provider | undefined => {
-		const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
+		const provider = providers().find((item) => item.id === providerId);
 		if (!provider) return undefined;
 
 		return {
