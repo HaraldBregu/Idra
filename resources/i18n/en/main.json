@@ -160,7 +160,8 @@
 				"aiFeatures": "AI Features",
 				"automations": "Automations",
 				"services": "Services",
-				"assistant": "Assistant"
+				"assistant": "Assistant",
+				"configuration": "Configuration"
 			},
 			"descriptions": {
 				"application": "App setup and permissions",
@@ -211,6 +212,7 @@
 			"developer": "Developer",
 			"skills": "Skills",
 			"widgets": "Widgets",
+			"plugins": "Plugins",
 			"rag": "RAG",
 			"wiki": "Wiki",
 			"vectorDb": "Vector DB"
