@@ -5,10 +5,8 @@ import type { PluginWidgetSource, Widget } from '../../shared/widget_types';
 import { realPath } from '../shared/real_path';
 import {
 	pluginManifestSchema,
-	type PluginLanguageContribution,
 	type PluginManifest,
 	type PluginMcpServerContribution,
-	type PluginThemeContribution,
 } from './schema';
 import { pluginsRoot } from './root';
 
@@ -270,11 +268,11 @@ export class PluginRepository {
 	}
 
 	languages(): readonly PluginLanguage[] {
-		return this.fileCatalog<PluginLanguageContribution, PluginLanguage>('languages');
+		return this.fileCatalog<PluginLanguage>('languages');
 	}
 
 	themes(): readonly PluginTheme[] {
-		return this.fileCatalog<PluginThemeContribution, PluginTheme>('themes');
+		return this.fileCatalog<PluginTheme>('themes');
 	}
 
 	channels(): readonly PluginChannel[] {
