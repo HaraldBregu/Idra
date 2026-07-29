@@ -488,6 +488,8 @@ const ProvidersPage: React.FC = () => {
 									)
 								}
 								onRemoved={() => {}}
+								hideDelete={true}
+								hideDropdown={true}
 							/>
 						))}
 					</div>
