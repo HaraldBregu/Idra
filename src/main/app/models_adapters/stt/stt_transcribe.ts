@@ -3,7 +3,6 @@ import type { PublicProvider } from '../../../../shared';
 import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
-	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
 	SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES,
 	SPEECH_TO_TEXT_PROVIDER_IDS,
@@ -33,7 +32,7 @@ import type { ProviderModel } from '../../../../shared/provider_models_types';
 import { buildSttAdapter } from './stt_factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
-import { getProvider, loadProviders } from '../../../providers';
+import { getProvider, loadProviders, providerModels } from '../../../providers';
 import type { Provider as CatalogProvider } from '../../../../shared/providers_definitions';
 import {
 	getModelId as getTranscribeModelId,
@@ -68,7 +67,7 @@ export function listProviders(): PublicProvider[] {
 
 export function listModels(providerId: string): ProviderModel[] {
 	const normalized = resolveProviderId(providerId);
-	return cloneModels(SPEECH_TO_TEXT_MODELS_BY_PROVIDER[normalized]);
+	return providerModels(normalized, 'speech-to-text');
 }
 
 export function saveSelection(
@@ -205,7 +204,7 @@ function resolveModelId(
 		return modelId;
 	}
 
-	const model = SPEECH_TO_TEXT_MODELS_BY_PROVIDER[providerId].find((candidate) =>
+	const model = providerModels(providerId, 'speech-to-text').find((candidate) =>
 		getSpeechToTextModelApiTypes(providerId, candidate.id).includes(apiType)
 	);
 	if (!model) {
@@ -286,9 +285,7 @@ function findSpeechToTextModel(
 	modelId: string
 ): ProviderModel | undefined {
 	const normalizedModelId = modelId.trim();
-	return SPEECH_TO_TEXT_MODELS_BY_PROVIDER[providerId].find(
-		(model) => model.id === normalizedModelId
-	);
+	return providerModels(providerId, 'speech-to-text').find((model) => model.id === normalizedModelId);
 }
 
 function realtimeSampleRate(providerId: SpeechToTextProviderId): number {
