@@ -24,7 +24,7 @@ import {
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
-		actionableProviderCatalog.map((provider, index) => ({
+		actionableProviderCatalog().map((provider, index) => ({
 			providerId: provider.id,
 			apiKey: '',
 			apiKeySaved: false,
@@ -38,7 +38,7 @@ const ProvidersPage: React.FC = () => {
 		let cancelled = false;
 
 		void Promise.all(
-			actionableProviderCatalog.map(async (provider) => {
+			actionableProviderCatalog().map(async (provider) => {
 				const stored = await window.provider.get(provider.id);
 				return [provider.id, (stored?.apiKey.trim().length ?? 0) > 0] as const;
 			})
@@ -49,7 +49,7 @@ const ProvidersPage: React.FC = () => {
 				const hasSavedProvider = Object.values(savedStatus).some(Boolean);
 
 				setProviderEntries((currentEntries) =>
-					actionableProviderCatalog.map((provider, index) => {
+					actionableProviderCatalog().map((provider, index) => {
 						const current = currentEntries.find((entry) => entry.providerId === provider.id);
 						const draft = current?.apiKey ?? '';
 						const hasDraft = draft.trim().length > 0;
@@ -141,7 +141,7 @@ const ProvidersPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.providers.registeredProviders')}>
 				<div className="space-y-2">
-					{actionableProviderCatalog.map((provider) => {
+					{actionableProviderCatalog().map((provider) => {
 						const entry = providerEntries.find((item) => item.providerId === provider.id);
 						const connected = entry?.apiKeySaved ?? false;
 						const editing = entry?.editing ?? false;
