@@ -84,20 +84,14 @@ const ProvidersPage: React.FC = () => {
 						};
 					})
 				);
+
+				setVectorDbApiKey(
+					storedProviders.find((provider) => provider.id === 'pinecone')?.apiKey ?? ''
+				);
 			})
 			.catch((err) => {
 				if (cancelled) return;
 				setError(getErrorMessage(err, 'Could not check saved provider access.'));
-			});
-
-		// Load Vector DB
-		void window.provider
-			.get('pinecone')
-			.then((provider) => {
-				if (cancelled) setVectorDbApiKey(provider?.apiKey ?? '');
-			})
-			.catch((err: unknown) => {
-				if (!cancelled) setVectorDbError(err instanceof Error ? err.message : String(err));
 			});
 
 		// Load Storage configs
