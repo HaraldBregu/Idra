@@ -86,14 +86,19 @@ const StartPage: React.FC = () => {
 			return;
 		}
 
-		if (step === 'models') {
-			void handleSaveModels().then((saved) => {
-				if (saved) dispatch({ type: 'GO_TO_STEP', step: 'storage' });
-			});
+		if (step === 'storage') {
+			dispatch({ type: 'GO_TO_STEP', step: 'channels' });
 			return;
 		}
 
-		navigate('/home');
+		if (step === 'channels') {
+			dispatch({ type: 'GO_TO_STEP', step: 'models' });
+			return;
+		}
+
+		void handleSaveModels().then((saved) => {
+			if (saved) navigate('/home');
+		});
 	}
 
 	function getPrimaryLabel(): string {
