@@ -236,7 +236,7 @@ const ProvidersPage: React.FC = () => {
 				title={t('settings.overview.groups.mlModels')}
 				description={t('settings.providers.mlModelsDescription')}
 			>
-				<div className="space-y-2 px-3 py-3">
+				<div className="space-y-3 px-4 py-4">
 					{actionableProviderCatalog().map((provider) => {
 						const entry = providerEntries.find((item) => item.providerId === provider.id);
 						const connected = entry?.apiKeySaved ?? false;
