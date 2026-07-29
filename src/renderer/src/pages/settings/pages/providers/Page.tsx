@@ -211,14 +211,27 @@ const ProvidersPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader
-				title={t('settings.tabs.providers')}
-				description={t('settings.providers.description')}
-			/>
+			<div className="px-3 py-3">
+				<Input
+					type="text"
+					placeholder={t('settings.search')}
+					className="h-8 rounded-md border-input bg-card px-2.5 text-sm"
+				/>
+			</div>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
+				</SettingsNotice>
+			)}
+			{vectorDbError && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{vectorDbError}
+				</SettingsNotice>
+			)}
+			{storageError && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{storageError}
 				</SettingsNotice>
 			)}
 
