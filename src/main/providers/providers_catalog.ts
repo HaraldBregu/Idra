@@ -1,9 +1,12 @@
 import path from 'node:path';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { is } from '@electron-toolkit/utils';
-import type { ProviderCatalogEntry, Provider } from '../../shared/providers_definitions';
-import type { ModelCapability } from '../../shared/provider_models_definitions';
-import type { ProviderModel } from '../../shared/provider_models_types';
+import {
+	normalizeProviderId,
+	type Provider,
+	type ProviderCatalogEntry,
+} from '../../shared/provider_types';
+import type { ModelCapability, ProviderModel, SpeechToTextApiType } from '../../shared/model_types';
 
 let cache: readonly ProviderCatalogEntry[] | undefined;
 
@@ -15,24 +18,72 @@ export function loadProviderCatalog(): readonly ProviderCatalogEntry[] {
 
 /** One record per provider, deduplicated across its capability entries. */
 export function loadProviders(): readonly Provider[] {
-	const seen = new Map<string, Provider>();
+	const unique = new Map<string, Provider>();
 	for (const entry of loadProviderCatalog()) {
-		if (!seen.has(entry.id)) seen.set(entry.id, toProvider(entry));
+		if (!unique.has(entry.id)) unique.set(entry.id, toProvider(entry));
 	}
-	return [...seen.values()];
+	return [...unique.values()];
+}
+
+export function providerEntry(
+	providerId: string,
+	type: ModelCapability
+): ProviderCatalogEntry | undefined {
+	const normalized = normalizeProviderId(providerId);
+	return loadProviderCatalog().find((item) => item.id === normalized && item.type === type);
 }
 
 export function providerModels(providerId: string, type: ModelCapability): ProviderModel[] {
-	const entry = loadProviderCatalog().find(
-		(item) => item.id === providerId && item.type === type
-	);
-	return (entry?.models ?? []).map((model) => ({ ...model }));
+	return (providerEntry(providerId, type)?.models ?? []).map((model) => ({ ...model }));
 }
 
 export function providerIdsFor(type: ModelCapability): string[] {
 	return loadProviderCatalog()
 		.filter((entry) => entry.type === type)
 		.map((entry) => entry.id);
+}
+
+export function supportsCapability(providerId: string, type: ModelCapability): boolean {
+	return providerEntry(providerId, type) !== undefined;
+}
+
+/** Provider marked `default` for a capability, else the first one declaring it. */
+export function defaultProviderId(type: ModelCapability): string | undefined {
+	const entries = loadProviderCatalog().filter((entry) => entry.type === type);
+	return (entries.find((entry) => entry.default) ?? entries[0])?.id;
+}
+
+export function speechToTextBaseUrl(providerId: string): string | undefined {
+	return providerEntry(providerId, 'speech-to-text')?.baseUrl;
+}
+
+export function speechToTextSampleRate(providerId: string): number | undefined {
+	return providerEntry(providerId, 'speech-to-text')?.sampleRate;
+}
+
+export function speechToTextApiTypes(
+	providerId: string,
+	modelId: string
+): readonly SpeechToTextApiType[] {
+	const model = providerModels(providerId, 'speech-to-text').find(
+		(item) => item.id === modelId.trim()
+	);
+	return model?.apiTypes ?? [];
+}
+
+export function supportsSpeechToTextApiType(
+	providerId: string,
+	modelId: string,
+	apiType: SpeechToTextApiType
+): boolean {
+	return speechToTextApiTypes(providerId, modelId).includes(apiType);
+}
+
+export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {
+	const model = providerModels(providerId, 'speech-to-text').find(
+		(item) => item.id === modelId.trim()
+	);
+	return model?.realtime === true;
 }
 
 function toProvider(entry: ProviderCatalogEntry): Provider {
