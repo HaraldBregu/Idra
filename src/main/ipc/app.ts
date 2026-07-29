@@ -207,11 +207,26 @@ function showVideoContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 	menu.popup(window ? { window } : {});
 }
 
-function toPublicProvider(provider: Provider): PublicProvider {
+function toPublicEntry(entry: ProviderCatalogEntry): PublicProviderCatalogEntry {
+	return {
+		id: entry.id,
+		name: entry.name,
+		type: entry.type,
+		baseUrl: entry.baseUrl,
+		models: entry.models,
+		...(entry.capabilities ? { capabilities: entry.capabilities } : {}),
+		...(entry.apiConfiguration ? { apiConfiguration: entry.apiConfiguration } : {}),
+	};
+}
+
+/** Plugin providers are openai-compatible chat endpoints, so they join the catalog as `llm`. */
+function pluginEntry(provider: PluginProvider): PublicProviderCatalogEntry {
 	return {
 		id: provider.id,
 		name: provider.name,
+		type: 'llm',
 		baseUrl: provider.baseUrl,
+		models: provider.models.map((model) => ({ ...model, status: 'active' as const })),
 		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
 		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
 	};
