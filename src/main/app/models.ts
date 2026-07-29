@@ -138,16 +138,13 @@ function readModels(): readonly CatalogModel[] {
 
 	return readdirSync(dir, { withFileTypes: true })
 		.filter((entry) => entry.isDirectory())
-		.map((entry) => path.join(dir, entry.name, 'provider.json'))
-		.filter((filePath) => existsSync(filePath))
-		.flatMap((filePath) => JSON.parse(readFileSync(filePath, 'utf-8')) as ProviderCatalogEntry[])
-		.flatMap((entry) => {
+		.flatMap((dirent) => {
+			const providerPath = path.join(dir, dirent.name, 'provider.json');
+			const modelsPath = path.join(dir, dirent.name, 'models.json');
+			if (!existsSync(providerPath) || !existsSync(modelsPath)) return [];
+			const entry = JSON.parse(readFileSync(providerPath, 'utf-8')) as ProviderCatalogEntry;
+			const models = JSON.parse(readFileSync(modelsPath, 'utf-8')) as CatalogEntryModel[];
 			const provider = toPublicProvider(entry);
-			return (entry.models ?? []).map((model) => ({
-				...model,
-				provider,
-				...(entry.sampleRate ? { sampleRate: entry.sampleRate } : {}),
-				...(entry.default ? { default: entry.default } : {}),
-			}));
+			return models.map((model) => ({ ...model, provider }));
 		});
 }
