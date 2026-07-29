@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { is } from '@electron-toolkit/utils';
 import {
 	normalizeProviderId,
+	type CatalogEntryModel,
 	type ProviderCatalogEntry,
 	type PublicProvider,
 } from '../../shared/provider_types';
