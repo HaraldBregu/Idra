@@ -9,7 +9,7 @@ const runModelTurnMock = jest.fn(async function* () {
 
 jest.mock('../../../../../src/main/app/settings_store', () => ({
 	getModelId: jest.fn(() => 'test-model'),
-	getProvider: jest.fn(() => ({ id: 'test-provider', apiKey: 'key' })),
+	getResolvedProvider: jest.fn(() => ({ id: 'test-provider', apiKey: 'key' })),
 }));
 
 jest.mock('../../../../../src/main/agent/run/run_model_turn', () => ({
