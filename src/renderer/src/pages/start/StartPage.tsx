@@ -2,6 +2,7 @@ import React, { useEffect, useReducer, useState } from 'react';
 import { AlertCircle, ArrowRight, LoaderCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ChannelStep } from './components/ChannelStep';
 import { CloudStep } from './components/CloudStep';
 import { ModelsStep } from './components/ModelsStep';
 import { PresentationStep } from './components/PresentationStep';
