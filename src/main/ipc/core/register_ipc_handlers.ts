@@ -34,9 +34,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('mcp', () => new McpIpc().register(undefined, eventBus));
 	safeRegister('models', () => new ModelsIpc().register(undefined, eventBus));
 	safeRegister('skills', () => new SkillsIpc().register(undefined, eventBus));
-	safeRegister('provider-store', () =>
-		new ProviderStoreIpc().register({ pluginRepository }, eventBus)
-	);
+	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
 	safeRegister('storage', () => new StorageIpc().register(undefined, eventBus));
 	safeRegister('widgets', () =>
