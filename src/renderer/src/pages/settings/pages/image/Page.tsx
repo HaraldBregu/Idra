@@ -17,12 +17,12 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const imageProviderGroups(): readonly ModelProviderGroup[] = TEXT_TO_IMAGE_PROVIDER_IDS.map(
-	(id) => ({
+function imageProviderGroups(): readonly ModelProviderGroup[] {
+	return providerIdsFor('text-to-image').map((id) => ({
 		id,
-		models: TEXT_TO_IMAGE_MODELS_BY_PROVIDER[id] ?? [],
-	})
-).filter((group) => group.models.length > 0);
+		models: providerModels(id, 'text-to-image'),
+	}));
+}
 
 const ImagePage: React.FC = () => {
 	const { t } = useTranslation();
