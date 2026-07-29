@@ -6,14 +6,14 @@
 			{
 				"id": "grok-4.3",
 				"name": "Grok 4.3",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.x.ai/v1"
 			},
 			{
 				"id": "grok-build-0.1",
 				"name": "Grok Build 0.1",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.x.ai/v1"
 			}
 		]
 	},
@@ -24,21 +24,21 @@
 			{
 				"id": "xai-stt-batch",
 				"name": "xAI STT Batch",
-				"status": "active",
 				"apiTypes": [
 					"batch"
 				],
-				"type": "speech-to-text"
+				"type": "speech-to-text",
+				"url": "https://api.x.ai/v1"
 			},
 			{
 				"id": "xai-stt-streaming",
 				"name": "xAI STT Streaming",
-				"status": "active",
 				"apiTypes": [
 					"stream"
 				],
 				"realtime": true,
-				"type": "speech-to-text"
+				"type": "speech-to-text",
+				"url": "https://api.x.ai/v1"
 			}
 		],
 		"sampleRate": 24000
@@ -50,8 +50,8 @@
 			{
 				"id": "grok-voice-latest",
 				"name": "Grok Voice Latest",
-				"status": "active",
-				"type": "realtime-voice"
+				"type": "realtime-voice",
+				"url": "https://api.x.ai/v1"
 			}
 		]
 	},
@@ -62,14 +62,14 @@
 			{
 				"id": "grok-imagine-image",
 				"name": "Grok Imagine Image",
-				"status": "active",
-				"type": "text-to-image"
+				"type": "text-to-image",
+				"url": "https://api.x.ai/v1"
 			},
 			{
 				"id": "grok-imagine-image-quality",
 				"name": "Grok Imagine Image Quality",
-				"status": "active",
-				"type": "text-to-image"
+				"type": "text-to-image",
+				"url": "https://api.x.ai/v1"
 			}
 		]
 	},
@@ -80,8 +80,8 @@
 			{
 				"id": "grok-imagine-video-1.5",
 				"name": "Grok Imagine Video 1.5",
-				"status": "active",
-				"type": "text-to-video"
+				"type": "text-to-video",
+				"url": "https://api.x.ai/v1"
 			}
 		]
 	}

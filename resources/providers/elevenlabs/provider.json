@@ -6,21 +6,21 @@
 			{
 				"id": "scribe_v2",
 				"name": "Scribe v2",
-				"status": "active",
 				"apiTypes": [
 					"batch"
 				],
-				"type": "speech-to-text"
+				"type": "speech-to-text",
+				"url": "https://api.elevenlabs.io/v1"
 			},
 			{
 				"id": "scribe_v2_realtime",
 				"name": "Scribe v2 Realtime",
-				"status": "active",
 				"apiTypes": [
 					"stream"
 				],
 				"realtime": true,
-				"type": "speech-to-text"
+				"type": "speech-to-text",
+				"url": "https://api.elevenlabs.io/v1"
 			}
 		],
 		"sampleRate": 16000
@@ -32,20 +32,20 @@
 			{
 				"id": "eleven_v3",
 				"name": "Eleven v3",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://api.elevenlabs.io/v1"
 			},
 			{
 				"id": "eleven_multilingual_v2",
 				"name": "Eleven Multilingual v2",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://api.elevenlabs.io/v1"
 			},
 			{
 				"id": "eleven_flash_v2_5",
 				"name": "Eleven Flash v2.5",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://api.elevenlabs.io/v1"
 			}
 		],
 		"default": true
@@ -57,14 +57,14 @@
 			{
 				"id": "eleven-music",
 				"name": "Eleven Music",
-				"status": "active",
-				"type": "text-to-audio"
+				"type": "text-to-audio",
+				"url": "https://api.elevenlabs.io/v1"
 			},
 			{
 				"id": "elevenlabs-sound-effects",
 				"name": "ElevenLabs Sound Effects",
-				"status": "active",
-				"type": "text-to-audio"
+				"type": "text-to-audio",
+				"url": "https://api.elevenlabs.io/v1"
 			}
 		]
 	}

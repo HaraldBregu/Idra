@@ -6,14 +6,14 @@
 			{
 				"id": "MiniMax-M2.7",
 				"name": "MiniMax M2.7",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.minimax.io/v1"
 			},
 			{
 				"id": "MiniMax-M2.5",
 				"name": "MiniMax M2.5",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.minimax.io/v1"
 			}
 		]
 	},
@@ -24,14 +24,14 @@
 			{
 				"id": "speech-2.8-hd",
 				"name": "Speech 2.8 HD",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://api.minimax.io/v1"
 			},
 			{
 				"id": "speech-2.8-turbo",
 				"name": "Speech 2.8 Turbo",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://api.minimax.io/v1"
 			}
 		]
 	},
@@ -42,14 +42,14 @@
 			{
 				"id": "MiniMax-Hailuo-2.3",
 				"name": "Hailuo 2.3",
-				"status": "active",
-				"type": "text-to-video"
+				"type": "text-to-video",
+				"url": "https://api.minimax.io/v1"
 			},
 			{
 				"id": "MiniMax-Hailuo-02",
 				"name": "Hailuo 02",
-				"status": "active",
-				"type": "text-to-video"
+				"type": "text-to-video",
+				"url": "https://api.minimax.io/v1"
 			}
 		]
 	},
@@ -60,14 +60,14 @@
 			{
 				"id": "music-2.6",
 				"name": "Music 2.6",
-				"status": "active",
-				"type": "text-to-audio"
+				"type": "text-to-audio",
+				"url": "https://api.minimax.io/v1"
 			},
 			{
 				"id": "music-cover",
 				"name": "Music Cover",
-				"status": "active",
-				"type": "text-to-audio"
+				"type": "text-to-audio",
+				"url": "https://api.minimax.io/v1"
 			}
 		]
 	}

@@ -6,14 +6,14 @@
 			{
 				"id": "kling-v2.5-turbo",
 				"name": "Kling v2.5 Turbo",
-				"status": "active",
-				"type": "text-to-video"
+				"type": "text-to-video",
+				"url": "https://kling.ai"
 			},
 			{
 				"id": "kling-v2.1-master",
 				"name": "Kling v2.1 Master",
-				"status": "active",
-				"type": "text-to-video"
+				"type": "text-to-video",
+				"url": "https://kling.ai"
 			}
 		]
 	},
@@ -24,8 +24,8 @@
 			{
 				"id": "kling-audio",
 				"name": "Kling Audio",
-				"status": "active",
-				"type": "text-to-audio"
+				"type": "text-to-audio",
+				"url": "https://kling.ai"
 			}
 		]
 	}

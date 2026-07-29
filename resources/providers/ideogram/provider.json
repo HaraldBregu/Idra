@@ -6,14 +6,14 @@
 			{
 				"id": "ideogram-3.0",
 				"name": "Ideogram 3.0",
-				"status": "active",
-				"type": "text-to-image"
+				"type": "text-to-image",
+				"url": "https://api.ideogram.ai"
 			},
 			{
 				"id": "ideogram-2a",
 				"name": "Ideogram 2a",
-				"status": "active",
-				"type": "text-to-image"
+				"type": "text-to-image",
+				"url": "https://api.ideogram.ai"
 			}
 		]
 	}

@@ -6,14 +6,14 @@
 			{
 				"id": "reka-flash",
 				"name": "Reka Flash",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.reka.ai/v1"
 			},
 			{
 				"id": "reka-edge-2603",
 				"name": "Reka Edge 2603",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.reka.ai/v1"
 			}
 		]
 	}

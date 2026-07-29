@@ -6,8 +6,8 @@
 			{
 				"id": "uni-1.1",
 				"name": "Uni 1.1",
-				"status": "active",
-				"type": "realtime-voice"
+				"type": "realtime-voice",
+				"url": "https://api.lumalabs.ai/dream-machine/v1"
 			}
 		]
 	},
@@ -18,8 +18,8 @@
 			{
 				"id": "uni-1.1",
 				"name": "Uni 1.1",
-				"status": "active",
-				"type": "text-to-image"
+				"type": "text-to-image",
+				"url": "https://api.lumalabs.ai/dream-machine/v1"
 			}
 		]
 	},
@@ -30,14 +30,14 @@
 			{
 				"id": "ray-3",
 				"name": "Ray 3",
-				"status": "active",
-				"type": "text-to-video"
+				"type": "text-to-video",
+				"url": "https://api.lumalabs.ai/dream-machine/v1"
 			},
 			{
 				"id": "ray-2",
 				"name": "Ray 2",
-				"status": "active",
-				"type": "text-to-video"
+				"type": "text-to-video",
+				"url": "https://api.lumalabs.ai/dream-machine/v1"
 			}
 		]
 	}

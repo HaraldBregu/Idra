@@ -6,20 +6,20 @@
 			{
 				"id": "mistral-large-2512",
 				"name": "Mistral Large 2512",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.mistral.ai/v1"
 			},
 			{
 				"id": "mistral-medium-3-5",
 				"name": "Mistral Medium 3.5",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.mistral.ai/v1"
 			},
 			{
 				"id": "devstral-2512",
 				"name": "Devstral 2512",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.mistral.ai/v1"
 			}
 		]
 	},
@@ -30,21 +30,21 @@
 			{
 				"id": "voxtral-mini-latest",
 				"name": "Voxtral Mini 2602",
-				"status": "active",
 				"apiTypes": [
 					"batch"
 				],
-				"type": "speech-to-text"
+				"type": "speech-to-text",
+				"url": "https://api.mistral.ai/v1"
 			},
 			{
 				"id": "voxtral-mini-transcribe-realtime-2602",
 				"name": "Voxtral Mini Transcribe Realtime 2602",
-				"status": "active",
 				"apiTypes": [
 					"stream"
 				],
 				"realtime": true,
-				"type": "speech-to-text"
+				"type": "speech-to-text",
+				"url": "https://api.mistral.ai/v1"
 			}
 		],
 		"sampleRate": 16000
@@ -56,8 +56,8 @@
 			{
 				"id": "voxtral-mini-tts-2603",
 				"name": "Voxtral Mini TTS 2603",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://api.mistral.ai/v1"
 			}
 		]
 	}

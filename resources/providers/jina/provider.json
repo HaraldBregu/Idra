@@ -6,8 +6,8 @@
 			{
 				"id": "jina-embeddings-v3",
 				"name": "Jina Embeddings v3",
-				"status": "active",
-				"type": "embedding"
+				"type": "embedding",
+				"url": "https://api.jina.ai/v1"
 			}
 		]
 	}

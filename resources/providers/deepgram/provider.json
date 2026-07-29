@@ -6,22 +6,22 @@
 			{
 				"id": "nova-3",
 				"name": "Nova 3",
-				"status": "active",
 				"apiTypes": [
 					"batch",
 					"stream"
 				],
-				"type": "speech-to-text"
+				"type": "speech-to-text",
+				"url": "https://api.deepgram.com/v1"
 			},
 			{
 				"id": "flux-general-en",
 				"name": "Flux",
-				"status": "active",
 				"apiTypes": [
 					"stream"
 				],
 				"realtime": true,
-				"type": "speech-to-text"
+				"type": "speech-to-text",
+				"url": "https://api.deepgram.com/v1"
 			}
 		],
 		"sampleRate": 24000
@@ -33,8 +33,8 @@
 			{
 				"id": "aura-2",
 				"name": "Aura 2",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://api.deepgram.com/v1"
 			}
 		]
 	}

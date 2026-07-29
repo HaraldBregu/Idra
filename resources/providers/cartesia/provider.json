@@ -6,14 +6,14 @@
 			{
 				"id": "sonic-3.5",
 				"name": "Sonic 3.5",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://api.cartesia.ai"
 			},
 			{
 				"id": "sonic-3",
 				"name": "Sonic 3",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://api.cartesia.ai"
 			}
 		]
 	}

@@ -6,26 +6,26 @@
 			{
 				"id": "sonar-deep-research",
 				"name": "Sonar Deep Research",
-				"status": "active",
-				"type": "research-chat"
+				"type": "research-chat",
+				"url": "https://api.perplexity.ai"
 			},
 			{
 				"id": "sonar-reasoning-pro",
 				"name": "Sonar Reasoning Pro",
-				"status": "active",
-				"type": "research-chat"
+				"type": "research-chat",
+				"url": "https://api.perplexity.ai"
 			},
 			{
 				"id": "sonar-pro",
 				"name": "Sonar Pro",
-				"status": "active",
-				"type": "research-chat"
+				"type": "research-chat",
+				"url": "https://api.perplexity.ai"
 			},
 			{
 				"id": "sonar",
 				"name": "Sonar",
-				"status": "active",
-				"type": "research-chat"
+				"type": "research-chat",
+				"url": "https://api.perplexity.ai"
 			}
 		]
 	}

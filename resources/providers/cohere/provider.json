@@ -6,8 +6,8 @@
 			{
 				"id": "embed-v4.0",
 				"name": "Embed v4",
-				"status": "active",
-				"type": "embedding"
+				"type": "embedding",
+				"url": "https://api.cohere.com/v2"
 			}
 		]
 	}

@@ -6,14 +6,14 @@
 			{
 				"id": "gemini-3.1-pro-preview",
 				"name": "Gemini 3.1 Pro Preview",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			},
 			{
 				"id": "gemini-3.1-flash-lite",
 				"name": "Gemini 3.1 Flash Lite",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			}
 		]
 	},
@@ -24,8 +24,8 @@
 			{
 				"id": "gemini-3.1-flash-tts-preview",
 				"name": "Gemini 3.1 Flash TTS Preview",
-				"status": "active",
-				"type": "text-to-speech"
+				"type": "text-to-speech",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			}
 		]
 	},
@@ -36,8 +36,8 @@
 			{
 				"id": "gemini-3.1-flash-live-preview",
 				"name": "Gemini 3.1 Flash Live Preview",
-				"status": "active",
-				"type": "realtime-voice"
+				"type": "realtime-voice",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			}
 		]
 	},
@@ -48,14 +48,14 @@
 			{
 				"id": "gemini-3.1-flash-image-preview",
 				"name": "Gemini 3.1 Flash Image Preview",
-				"status": "active",
-				"type": "text-to-image"
+				"type": "text-to-image",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			},
 			{
 				"id": "gemini-3-pro-image-preview",
 				"name": "Gemini 3 Pro Image Preview",
-				"status": "active",
-				"type": "text-to-image"
+				"type": "text-to-image",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			}
 		]
 	},
@@ -66,14 +66,14 @@
 			{
 				"id": "veo-3.1",
 				"name": "Veo 3.1",
-				"status": "active",
-				"type": "text-to-video"
+				"type": "text-to-video",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			},
 			{
 				"id": "veo-3.1-fast",
 				"name": "Veo 3.1 Fast",
-				"status": "active",
-				"type": "text-to-video"
+				"type": "text-to-video",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			}
 		]
 	},
@@ -84,20 +84,20 @@
 			{
 				"id": "lyria-3-pro-preview",
 				"name": "Lyria 3 Pro Preview",
-				"status": "active",
-				"type": "text-to-audio"
+				"type": "text-to-audio",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			},
 			{
 				"id": "lyria-3-clip-preview",
 				"name": "Lyria 3 Clip Preview",
-				"status": "active",
-				"type": "text-to-audio"
+				"type": "text-to-audio",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			},
 			{
 				"id": "lyria-realtime",
 				"name": "Lyria Realtime",
-				"status": "active",
-				"type": "text-to-audio"
+				"type": "text-to-audio",
+				"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 			}
 		]
 	}

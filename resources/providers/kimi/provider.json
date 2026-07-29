@@ -6,32 +6,32 @@
 			{
 				"id": "kimi-k3",
 				"name": "Kimi K3",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.moonshot.ai/v1"
 			},
 			{
 				"id": "kimi-k2.7-code",
 				"name": "Kimi K2.7 Code",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.moonshot.ai/v1"
 			},
 			{
 				"id": "kimi-k2.7-code-highspeed",
 				"name": "Kimi K2.7 Code Highspeed",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.moonshot.ai/v1"
 			},
 			{
 				"id": "kimi-k2.6",
 				"name": "Kimi K2.6",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.moonshot.ai/v1"
 			},
 			{
 				"id": "kimi-k2.5",
 				"name": "Kimi K2.5",
-				"status": "active",
-				"type": "llm"
+				"type": "llm",
+				"url": "https://api.moonshot.ai/v1"
 			}
 		]
 	}
