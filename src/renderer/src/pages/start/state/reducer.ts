@@ -2,20 +2,22 @@ import { actionableProviderCatalog, createInitialModelServiceState } from '../co
 import type { SetupAction } from './actions';
 import type { SetupState } from './types';
 
-export const initialSetupState: SetupState = {
-	step: 'presentation',
-	providerEntries: actionableProviderCatalog.map((provider, index) => ({
-		providerId: provider.id,
-		apiKey: '',
-		apiKeySaved: false,
-		editing: index === 0,
-	})),
-	savingProviderId: null,
-	serviceStates: createInitialModelServiceState(),
-	loadingModels: false,
-	savingConfig: false,
-	errorMessage: '',
-};
+export function createInitialSetupState(): SetupState {
+	return {
+		step: 'presentation',
+		providerEntries: actionableProviderCatalog().map((provider, index) => ({
+			providerId: provider.id,
+			apiKey: '',
+			apiKeySaved: false,
+			editing: index === 0,
+		})),
+		savingProviderId: null,
+		serviceStates: createInitialModelServiceState(),
+		loadingModels: false,
+		savingConfig: false,
+		errorMessage: '',
+	};
+}
 
 export function setupReducer(state: SetupState, action: SetupAction): SetupState {
 	switch (action.type) {
