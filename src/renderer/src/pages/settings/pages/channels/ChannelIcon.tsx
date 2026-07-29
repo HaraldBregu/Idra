@@ -1,15 +1,10 @@
 import React from 'react';
 import { Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import discordIcon from '@resources/icons/brands/discord/raw/discord_source.svg';
-import telegramIcon from '@resources/icons/brands/telegram/raw/telegram_source.svg';
 import type { ChannelType } from '../../../../../../shared';
 import { getChannelBrandIconId } from '../../../../../../shared';
 
-const CHANNEL_SVG_ICONS: Partial<Record<string, string>> = {
-	discord: discordIcon,
-	telegram: telegramIcon,
-};
+const CHANNEL_SVG_ICONS: Partial<Record<string, string>> = {};
 
 export function ChannelIcon({
 	channelId,
