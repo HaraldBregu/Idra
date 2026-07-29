@@ -39,7 +39,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 		async function loadApiKeyStatus(): Promise<void> {
 			try {
 				const savedEntries = await Promise.all(
-					actionableProviderCatalog.map(async (provider) => {
+					actionableProviderCatalog().map(async (provider) => {
 						const saved = await isProviderApiKeySaved(provider.id);
 						return [provider.id, saved] as const;
 					})
