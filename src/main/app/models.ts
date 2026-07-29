@@ -75,7 +75,7 @@ export function speechToTextBaseUrl(providerId: string): string {
 		(entry) => entry.provider.id === normalizeProviderId(providerId)
 	);
 	if (!model) throw new Error(`No speech-to-text entry for provider: ${providerId}`);
-	return model.provider.baseUrl;
+	return model.url ?? '';
 }
 
 export function speechToTextSampleRate(providerId: string): number | undefined {
