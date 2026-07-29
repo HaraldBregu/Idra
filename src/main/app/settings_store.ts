@@ -1,6 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { ResolvedProvider, StoredProvider } from '../../shared/provider_types';
+import type { ProviderType, ResolvedProvider, StoredProvider } from '../../shared/provider_types';
 import { userDataLocation } from '../shared/user_data_location';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
