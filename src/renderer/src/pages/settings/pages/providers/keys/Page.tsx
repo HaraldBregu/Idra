@@ -38,16 +38,16 @@ const ProvidersPage: React.FC = () => {
 	useEffect(() => {
 		let cancelled = false;
 
-		void Promise.all(
-			actionableProviderCatalog().map(async (provider) => {
-				const stored = await window.provider.get(provider.id);
-				return [provider.id, (stored?.apiKey.trim().length ?? 0) > 0] as const;
-			})
-		)
-			.then((entries) => {
+		void window.provider
+			.list()
+			.then((storedProviders) => {
 				if (cancelled) return;
-				const savedStatus: Record<string, boolean> = Object.fromEntries(entries);
-				const hasSavedProvider = Object.values(savedStatus).some(Boolean);
+				const savedStatus: Record<string, boolean> = Object.fromEntries(
+					storedProviders.map((provider) => [provider.id, provider.apiKey.trim().length > 0])
+				);
+				const hasSavedProvider = actionableProviderCatalog().some(
+					(provider) => savedStatus[provider.id]
+				);
 
 				setProviderEntries((currentEntries) =>
 					actionableProviderCatalog().map((provider, index) => {
