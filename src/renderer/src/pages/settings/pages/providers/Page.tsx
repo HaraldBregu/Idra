@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { Bot, Boxes, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
@@ -12,8 +12,6 @@ import {
 } from '../../components';
 import {
 	SETTINGS_MODEL_SERVICE_ITEMS,
-	SETTINGS_ML_MODELS_ITEMS,
-	SETTINGS_VECTOR_DATABASE_ITEMS,
 	SETTINGS_PROVIDER_CONFIG_ITEMS,
 } from '../../navigation';
 
