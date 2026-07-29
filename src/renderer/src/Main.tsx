@@ -13,8 +13,10 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-root.render(
-	<StrictMode>
-		<App />
-	</StrictMode>,
-);
+void loadProviders().then(() => {
+	root.render(
+		<StrictMode>
+			<App />
+		</StrictMode>,
+	);
+});
