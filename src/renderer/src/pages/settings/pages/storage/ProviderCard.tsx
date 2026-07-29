@@ -3,10 +3,8 @@ import {
 	AlertTriangle,
 	CheckCircle2,
 	ChevronDown,
-	DownloadCloud,
 	Pencil,
 	Trash2,
-	UploadCloud,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
