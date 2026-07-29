@@ -183,6 +183,32 @@ const ProvidersPage: React.FC = () => {
 		}
 	};
 
+	const handleVectorDbSave = async (): Promise<void> => {
+		setVectorDbSaving(true);
+		setVectorDbSaved(false);
+		setVectorDbError(null);
+		try {
+			await window.provider.set({
+				id: 'pinecone',
+				name: 'Pinecone',
+				apiKey: vectorDbApiKey.trim(),
+				baseUrl: PINECONE_BASE_URL,
+			});
+			setVectorDbSaved(true);
+		} catch (err) {
+			setVectorDbError(err instanceof Error ? err.message : String(err));
+		} finally {
+			setVectorDbSaving(false);
+		}
+	};
+
+	const addStorageProvider = (): void => {
+		setStorageEntries((current) => [
+			...(current ?? []),
+			{ key: crypto.randomUUID(), storage: BLANK_STORAGE },
+		]);
+	};
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
