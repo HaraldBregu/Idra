@@ -187,54 +187,6 @@ export function ProviderCard({
 		}
 	};
 
-	const push = async (): Promise<void> => {
-		setPushing(true);
-		setStatus(null);
-		setError(null);
-		try {
-			const result = await window.storage.push(canonical.id);
-			const failedCount = result.failed.length;
-			setStatus({
-				ok: failedCount === 0,
-				message:
-					failedCount === 0
-						? t('settings.storage.pushOk', { count: result.uploaded.length })
-						: t('settings.storage.pushPartial', {
-								uploaded: result.uploaded.length,
-								failed: failedCount,
-							}),
-			});
-		} catch (err) {
-			setError(getErrorMessage(err, t('settings.storage.errors.push')));
-		} finally {
-			setPushing(false);
-		}
-	};
-
-	const pull = async (): Promise<void> => {
-		setPulling(true);
-		setStatus(null);
-		setError(null);
-		try {
-			const result = await window.storage.pull(canonical.id);
-			const failedCount = result.failed.length;
-			setStatus({
-				ok: failedCount === 0,
-				message:
-					failedCount === 0
-						? t('settings.storage.pullOk', { count: result.downloaded.length })
-						: t('settings.storage.pullPartial', {
-								downloaded: result.downloaded.length,
-								failed: failedCount,
-							}),
-			});
-		} catch (err) {
-			setError(getErrorMessage(err, t('settings.storage.errors.pull')));
-		} finally {
-			setPulling(false);
-		}
-	};
-
 	const renderField = (field: FieldDef, value: string): React.JSX.Element => (
 		<SettingsField
 			key={field.key}
