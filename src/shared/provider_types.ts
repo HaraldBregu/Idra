@@ -25,6 +25,8 @@ export type ProviderInput = Provider;
 /** A catalog model together with the capability it serves. */
 export interface CatalogEntryModel extends ProviderModel {
 	readonly type: ModelCapability;
+	/** Base URL of the API serving this model. */
+	readonly url: string;
 }
 
 /** A provider's model catalog, as stored in resources/providers/<id>/provider.json. */
