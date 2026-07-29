@@ -3,7 +3,14 @@ import path from 'node:path';
 import type { PublicProvider } from '../../shared/providers_definitions';
 import type { PluginWidgetSource, Widget } from '../../shared/widget_types';
 import { realPath } from '../shared/real_path';
-import { pluginManifestSchema, type PluginManifest } from './schema';
+import {
+	pluginManifestSchema,
+	type PluginChannelContribution,
+	type PluginLanguageContribution,
+	type PluginManifest,
+	type PluginMcpServerContribution,
+	type PluginThemeContribution,
+} from './schema';
 import { pluginsRoot } from './root';
 
 export interface InstalledPlugin {
@@ -27,6 +34,39 @@ export interface PluginProvider extends PublicProvider {
 	readonly pluginId: string;
 	readonly protocol: 'openai-compatible';
 	readonly models: readonly { readonly id: string; readonly name: string }[];
+}
+
+export interface PluginSkill {
+	readonly pluginId: string;
+	readonly id: string;
+	readonly directory: string;
+	readonly skillPath: string;
+}
+
+export type PluginMcpServer = PluginMcpServerContribution & {
+	readonly pluginId: string;
+};
+
+export interface PluginLanguage {
+	readonly pluginId: string;
+	readonly id: string;
+	readonly name: string;
+	readonly file: string;
+}
+
+export interface PluginTheme {
+	readonly pluginId: string;
+	readonly id: string;
+	readonly name: string;
+	readonly file: string;
+}
+
+export interface PluginChannel {
+	readonly pluginId: string;
+	readonly id: string;
+	readonly name: string;
+	readonly description: string;
+	readonly entry: string;
 }
 
 export interface PluginWidget extends Widget {
@@ -109,6 +149,49 @@ export class PluginRepository {
 				continue;
 			}
 
+			const invalidSkill = parsed.data.contributes.skills.find((skill) => {
+				try {
+					const skillPath = this.resolveEntry(pluginDirectory, `${skill.path}/SKILL.md`);
+					return !fs.statSync(skillPath).isFile();
+				} catch {
+					return true;
+				}
+			});
+			if (invalidSkill) {
+				issues.push({
+					pluginId,
+					manifestPath,
+					code: 'invalid-entry',
+					message: `Skill is missing SKILL.md or outside the plugin folder: ${invalidSkill.path}`,
+				});
+				continue;
+			}
+
+			const fileContributions = [
+				...parsed.data.contributes.languages.map((item) => ({ kind: 'Language', ...item })),
+				...parsed.data.contributes.themes.map((item) => ({ kind: 'Theme', ...item })),
+				...parsed.data.contributes.channels.map((item) => ({
+					kind: 'Channel',
+					...item,
+				})),
+			];
+			const invalidFile = fileContributions.find((item) => {
+				try {
+					return !fs.statSync(this.resolveEntry(pluginDirectory, item.entry)).isFile();
+				} catch {
+					return true;
+				}
+			});
+			if (invalidFile) {
+				issues.push({
+					pluginId,
+					manifestPath,
+					code: 'invalid-entry',
+					message: `${invalidFile.kind} entry is missing or outside the plugin folder: ${invalidFile.entry}`,
+				});
+				continue;
+			}
+
 			const conflictingProvider = parsed.data.contributes.providers.find((provider) =>
 				providerIds.has(provider.id)
 			);
@@ -164,6 +247,49 @@ export class PluginRepository {
 		);
 	}
 
+	skills(): readonly PluginSkill[] {
+		return this.list().flatMap((plugin) =>
+			plugin.manifest.contributes.skills.map((skill) => {
+				const directory = this.resolveEntry(plugin.directory, skill.path);
+				return {
+					pluginId: plugin.manifest.id,
+					id: skill.id,
+					directory,
+					skillPath: this.resolveEntry(plugin.directory, `${skill.path}/SKILL.md`),
+				};
+			})
+		);
+	}
+
+	mcpServers(): readonly PluginMcpServer[] {
+		return this.list().flatMap((plugin) =>
+			plugin.manifest.contributes.mcpServers.map((server) => ({
+				pluginId: plugin.manifest.id,
+				...server,
+			}))
+		);
+	}
+
+	languages(): readonly PluginLanguage[] {
+		return this.fileCatalog<PluginLanguageContribution, PluginLanguage>('languages');
+	}
+
+	themes(): readonly PluginTheme[] {
+		return this.fileCatalog<PluginThemeContribution, PluginTheme>('themes');
+	}
+
+	channels(): readonly PluginChannel[] {
+		return this.list().flatMap((plugin) =>
+			plugin.manifest.contributes.channels.map((channel) => ({
+				pluginId: plugin.manifest.id,
+				id: channel.id,
+				name: channel.name,
+				description: channel.description,
+				entry: this.resolveEntry(plugin.directory, channel.entry),
+			}))
+		);
+	}
+
 	widgets(): readonly PluginWidget[] {
 		return this.list().flatMap((plugin) =>
 			plugin.manifest.contributes.widgets.map((widget) => ({
@@ -195,6 +321,23 @@ export class PluginRepository {
 		if (!fs.statSync(entry).isFile())
 			throw new Error(`Plugin widget entry not found: ${source.pluginId}/${source.widgetId}`);
 		return entry;
+	}
+
+	private fileCatalog<
+		TContribution extends { id: string; name: string; entry: string },
+		TResult extends { pluginId: string; id: string; name: string; file: string },
+	>(kind: 'languages' | 'themes'): readonly TResult[] {
+		return this.list().flatMap((plugin) =>
+			plugin.manifest.contributes[kind].map(
+				(contribution) =>
+					({
+						pluginId: plugin.manifest.id,
+						id: contribution.id,
+						name: contribution.name,
+						file: this.resolveEntry(plugin.directory, contribution.entry),
+					}) as TResult
+			)
+		);
 	}
 
 	private resolveEntry(pluginDirectory: string, entry: string): string {
