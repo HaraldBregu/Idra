@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import type { SpeechToTextApiType } from '../../../../shared/model_types';
 import type { PublicProvider } from '../../../../shared';
-import { OPENAI_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_BATCH_API_TYPE, SPEECH_TO_TEXT_PROVIDER_BASE_URLS, SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES, SPEECH_TO_TEXT_PROVIDER_IDS, SPEECH_TO_TEXT_STREAM_API_TYPE, getSpeechToTextModelApiTypes, supportsSpeechToTextModelApiType } from '../../../../shared/provider_types';
-import type { SpeechToTextProviderId } from '../../../../shared/provider_types';
 import {
 	STT_DEFAULT_REALTIME_SAMPLE_RATE,
 	normalizeSttRealtimeAudioChunk,
@@ -20,7 +19,17 @@ import type { ProviderModel } from '../../../../shared/model_types';
 import { buildSttAdapter } from './stt_factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
-import { getProvider, loadProviders, providerModels } from '../../../providers';
+import {
+	getProvider,
+	loadProviders,
+	providerIdsFor,
+	providerModels,
+	speechToTextApiTypes,
+	speechToTextBaseUrl,
+	speechToTextSampleRate,
+	supportsCapability,
+	supportsSpeechToTextApiType,
+} from '../../../providers';
 import type { Provider as CatalogProvider } from '../../../../shared/provider_types';
 import {
 	getModelId as getTranscribeModelId,
@@ -47,7 +56,7 @@ export function getSelection(mode: SttSelectionMode = 'transcribe'): SttModelSel
 }
 
 export function listProviders(): PublicProvider[] {
-	return SPEECH_TO_TEXT_PROVIDER_IDS.flatMap((providerId) => {
+	return providerIdsFor('speech-to-text').flatMap((providerId) => {
 		const provider = publicProvider(providerId);
 		return provider ? [provider] : [];
 	});
@@ -66,8 +75,8 @@ export function saveSelection(
 	const normalizedProviderId = resolveProviderId(providerId);
 	const normalizedModelId = modelId.trim();
 	const apiType =
-		mode === 'realtime' ? SPEECH_TO_TEXT_STREAM_API_TYPE : SPEECH_TO_TEXT_BATCH_API_TYPE;
-	if (!supportsSpeechToTextModelApiType(normalizedProviderId, normalizedModelId, apiType)) {
+		mode === 'realtime' ? 'stream' : 'batch';
+	if (!supportsSpeechToTextApiType(normalizedProviderId, normalizedModelId, apiType)) {
 		throw new SttProviderUnsupportedError(
 			`Speech-to-text model does not support ${apiType} transcription: ${normalizedProviderId}/${normalizedModelId}`
 		);
@@ -84,8 +93,8 @@ export async function transcribe(request: SttTranscriptionRequest): Promise<SttT
 	const modelId = resolveModelId(
 		providerId,
 		normalized.modelId ??
-			getConfiguredModelId(providerId, SPEECH_TO_TEXT_BATCH_API_TYPE, 'transcribe'),
-		SPEECH_TO_TEXT_BATCH_API_TYPE
+			getConfiguredModelId(providerId, 'batch', 'transcribe'),
+		'batch'
 	);
 	const provider = resolveProvider(providerId);
 	const adapter = buildSttAdapter(provider);
@@ -108,8 +117,8 @@ export async function startRealtime(
 	const modelId = resolveModelId(
 		providerId,
 		normalized.modelId ??
-			getConfiguredModelId(providerId, SPEECH_TO_TEXT_STREAM_API_TYPE, 'realtime'),
-		SPEECH_TO_TEXT_STREAM_API_TYPE
+			getConfiguredModelId(providerId, 'stream', 'realtime'),
+		'stream'
 	);
 	const provider = resolveProvider(providerId);
 	const adapter = buildSttAdapter(provider);
@@ -168,10 +177,10 @@ export async function cancelRealtime(sessionId: string): Promise<void> {
 	await session.connection.cancel();
 }
 
-function resolveProviderId(providerId: string | undefined): SpeechToTextProviderId {
-	const normalized = normalizeProviderId(providerId ?? OPENAI_SPEECH_TO_TEXT_PROVIDER_ID);
-	if ((SPEECH_TO_TEXT_PROVIDER_IDS as readonly string[]).includes(normalized)) {
-		return normalized as SpeechToTextProviderId;
+function resolveProviderId(providerId: string | undefined): string {
+	const normalized = normalizeProviderId(providerId ?? 'openai');
+	if (supportsCapability(normalized, 'speech-to-text')) {
+		return normalized;
 	}
 	throw new SttProviderUnsupportedError(
 		`Speech-to-text provider is not supported: ${normalized}`
@@ -179,12 +188,12 @@ function resolveProviderId(providerId: string | undefined): SpeechToTextProvider
 }
 
 function resolveModelId(
-	providerId: SpeechToTextProviderId,
+	providerId: string,
 	modelId: string | undefined,
-	apiType: typeof SPEECH_TO_TEXT_BATCH_API_TYPE | typeof SPEECH_TO_TEXT_STREAM_API_TYPE
+	apiType: SpeechToTextApiType
 ): string {
 	if (modelId) {
-		if (!supportsSpeechToTextModelApiType(providerId, modelId, apiType)) {
+		if (!supportsSpeechToTextApiType(providerId, modelId, apiType)) {
 			throw new SttProviderUnsupportedError(
 				`Speech-to-text model does not support ${apiType} transcription: ${providerId}/${modelId}`
 			);
@@ -193,7 +202,7 @@ function resolveModelId(
 	}
 
 	const model = providerModels(providerId, 'speech-to-text').find((candidate) =>
-		getSpeechToTextModelApiTypes(providerId, candidate.id).includes(apiType)
+		speechToTextApiTypes(providerId, candidate.id).includes(apiType)
 	);
 	if (!model) {
 		throw new SttProviderUnsupportedError(
@@ -203,7 +212,7 @@ function resolveModelId(
 	return model.id;
 }
 
-function resolveProvider(providerId: SpeechToTextProviderId): SttProviderSpec {
+function resolveProvider(providerId: string): SttProviderSpec {
 	const provider = getProviderSpecFromProviderStore(providerId);
 	if (!provider.apiKey) {
 		throw new SttProviderAuthError(`${provider.name} API key not configured.`);
@@ -218,7 +227,7 @@ function resolveRealtimeSession(sessionId: string): SttActiveRealtimeSession {
 	return session;
 }
 
-function getConfiguredProviderId(mode: SttSelectionMode): SpeechToTextProviderId | undefined {
+function getConfiguredProviderId(mode: SttSelectionMode): string | undefined {
 	const providerId = getTranscribeProviderId(mode);
 	if (!providerId) return undefined;
 	try {
@@ -229,26 +238,26 @@ function getConfiguredProviderId(mode: SttSelectionMode): SpeechToTextProviderId
 }
 
 function getConfiguredModelId(
-	providerId: SpeechToTextProviderId,
-	apiType: typeof SPEECH_TO_TEXT_BATCH_API_TYPE | typeof SPEECH_TO_TEXT_STREAM_API_TYPE,
+	providerId: string,
+	apiType: SpeechToTextApiType,
 	mode: SttSelectionMode
 ): string | undefined {
 	const configuredProviderId = getConfiguredProviderId(mode);
 	if (!configuredProviderId || configuredProviderId !== providerId) return undefined;
 	const modelId = getTranscribeModelId(mode);
-	return modelId && supportsSpeechToTextModelApiType(providerId, modelId, apiType)
+	return modelId && supportsSpeechToTextApiType(providerId, modelId, apiType)
 		? modelId
 		: undefined;
 }
 
-function getProviderSpecFromProviderStore(providerId: SpeechToTextProviderId): SttProviderSpec {
+function getProviderSpecFromProviderStore(providerId: string): SttProviderSpec {
 	const stored = getProvider(providerId);
 	const defaults = defaultProvider(providerId);
 	return {
 		id: providerId,
 		name: stored?.name || defaults?.name || providerId,
 		apiKey: stored?.apiKey.trim() ?? '',
-		baseURL: stored?.baseUrl || SPEECH_TO_TEXT_PROVIDER_BASE_URLS[providerId],
+		baseURL: stored?.baseUrl || speechToTextBaseUrl(providerId),
 	};
 }
 
@@ -269,13 +278,13 @@ function publicProvider(providerId: string): PublicProvider | undefined {
 }
 
 function findSpeechToTextModel(
-	providerId: SpeechToTextProviderId,
+	providerId: string,
 	modelId: string
 ): ProviderModel | undefined {
 	const normalizedModelId = modelId.trim();
 	return providerModels(providerId, 'speech-to-text').find((model) => model.id === normalizedModelId);
 }
 
-function realtimeSampleRate(providerId: SpeechToTextProviderId): number {
-	return SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES[providerId] ?? STT_DEFAULT_REALTIME_SAMPLE_RATE;
+function realtimeSampleRate(providerId: string): number {
+	return speechToTextSampleRate(providerId) ?? STT_DEFAULT_REALTIME_SAMPLE_RATE;
 }

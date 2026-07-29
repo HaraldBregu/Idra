@@ -1,6 +1,6 @@
-import { TEXT_TO_IMAGE_PROVIDER_IDS, normalizeProviderId } from '../../../shared/provider_types';
+import { normalizeProviderId } from '../../../shared/provider_types';
 import type { ImageRequest, ImageResult } from '../../../shared/image_types';
-import { getProvider, loadProviders, providerModels } from '../../providers';
+import { getProvider, loadProviders, providerModels, supportsCapability } from '../../providers';
 import {
 	generateImage,
 	ImageProviderAuthError,
@@ -25,7 +25,7 @@ export async function createImage(request: ImageRequest): Promise<ImageResult> {
 
 function resolveProviderId(providerId: string): string {
 	const normalized = normalizeProviderId(providerId);
-	if (!(TEXT_TO_IMAGE_PROVIDER_IDS as readonly string[]).includes(normalized)) {
+	if (!supportsCapability(normalized, 'text-to-image')) {
 		throw new ImageProviderUnsupportedError(
 			`Text-to-image provider is not supported: ${normalized}`
 		);

@@ -1,7 +1,6 @@
 import type { EmbeddingRequest, EmbeddingResult } from '../../../shared/embedding_types';
-import { DEFAULT_EMBEDDING_PROVIDER_ID } from '../../../shared/provider_types';
 import { generateEmbeddings } from '../../app/models_adapters/embedding';
-import { getProvider, providerModels } from '../../providers';
+import { defaultProviderId, getProvider, providerModels } from '../../providers';
 import { getModelId, getProviderId } from '../models_store';
 import { EMBEDDING_PROVIDERS } from './embedding_providers';
 
@@ -10,7 +9,7 @@ export async function createEmbedding(request: EmbeddingRequest): Promise<Embedd
 	if (texts.length === 0) throw new Error('Text to embed is required.');
 
 	const providerId = resolveProviderId(
-		request.providerId ?? getProviderId('embedding') ?? DEFAULT_EMBEDDING_PROVIDER_ID
+		request.providerId ?? getProviderId('embedding') ?? defaultProviderId('embedding') ?? ''
 	);
 	const provider = EMBEDDING_PROVIDERS[providerId];
 	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('embedding'));

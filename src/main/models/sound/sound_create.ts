@@ -1,6 +1,6 @@
-import { MUSIC_PROVIDER_IDS, normalizeProviderId } from '../../../shared/provider_types';
+import { normalizeProviderId } from '../../../shared/provider_types';
 import type { SoundRequest, SoundResult } from '../../../shared/sound_types';
-import { getProvider, loadProviders, providerModels } from '../../providers';
+import { getProvider, loadProviders, providerModels, supportsCapability } from '../../providers';
 import {
 	generateMusic,
 	MusicProviderAuthError,
@@ -25,7 +25,7 @@ export async function createSound(request: SoundRequest): Promise<SoundResult> {
 
 function resolveProviderId(providerId: string): string {
 	const normalized = normalizeProviderId(providerId);
-	if (!(MUSIC_PROVIDER_IDS as readonly string[]).includes(normalized)) {
+	if (!supportsCapability(normalized, 'text-to-audio')) {
 		throw new MusicProviderUnsupportedError(
 			`Text-to-audio provider is not supported: ${normalized}`
 		);

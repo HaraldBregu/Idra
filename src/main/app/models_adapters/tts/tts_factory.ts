@@ -23,7 +23,7 @@ const SPEECH_ADAPTERS: Readonly<
 
 export function buildSpeechAdapter(provider: SpeechProviderSpec): SpeechAdapter {
 	const id = normalizeProviderId(provider.id);
-	const create = SPEECH_ADAPTERS[id as TextToSpeechProviderId];
+	const create = SPEECH_ADAPTERS[id];
 	if (!create) {
 		throw new SpeechProviderUnsupportedError(`Text-to-speech provider is not supported: ${id}`);
 	}

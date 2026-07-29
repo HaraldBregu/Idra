@@ -21,7 +21,7 @@ const STT_ADAPTERS: Readonly<
 
 export function buildSttAdapter(provider: SttProviderSpec): SttAdapter {
 	const id = normalizeProviderId(provider.id);
-	const create = STT_ADAPTERS[id as SpeechToTextProviderId];
+	const create = STT_ADAPTERS[id];
 	if (!create) {
 		throw new SttProviderUnsupportedError(`Speech-to-text provider is not supported: ${id}`);
 	}

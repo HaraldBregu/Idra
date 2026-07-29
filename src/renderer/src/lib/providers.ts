@@ -3,7 +3,7 @@ import {
 	type PublicProvider,
 	type PublicProviderCatalogEntry,
 } from '@shared/provider_types';
-import type { ModelCapability, ProviderModel } from '@shared/model_types';
+import type { ModelCapability, ProviderModel, SpeechToTextApiType } from '@shared/model_types';
 
 let catalog: readonly PublicProviderCatalogEntry[] = [];
 

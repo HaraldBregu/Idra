@@ -1,12 +1,16 @@
-import { TEXT_TO_SPEECH_PROVIDER_ID, TEXT_TO_SPEECH_PROVIDER_IDS } from '../../../../shared/provider_types';
-import type { TextToSpeechProviderId } from '../../../../shared/provider_types';
 import { normalizeProviderId } from '../../../../shared/provider_types';
 import {
 	normalizeSpeechSynthesisRequest,
 	type SpeechSynthesisRequest,
 	type SpeechSynthesisResult,
 } from '../../../../shared/speech_types';
-import { getProvider, loadProviders, providerModels } from '../../../providers';
+import {
+	defaultProviderId,
+	getProvider,
+	loadProviders,
+	providerModels,
+	supportsCapability,
+} from '../../../providers';
 import { buildSpeechAdapter } from './tts_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
 import { getModelId, getProviderId } from '../../../models/models_store';
@@ -15,24 +19,24 @@ import type { SpeechProviderSpec } from './tts_types';
 export async function synthesize(request: SpeechSynthesisRequest): Promise<SpeechSynthesisResult> {
 	const normalized = normalizeSpeechSynthesisRequest(request);
 	const providerId = resolveProviderId(
-		normalized.providerId ?? configuredProviderId() ?? TEXT_TO_SPEECH_PROVIDER_ID
+		normalized.providerId ?? configuredProviderId() ?? defaultProviderId('text-to-speech') ?? ''
 	);
 	const modelId = resolveModelId(providerId, normalized.modelId ?? configuredModelId(providerId));
 	const provider = resolveProvider(providerId);
 	return buildSpeechAdapter(provider).synthesize({ ...normalized, providerId, modelId });
 }
 
-function resolveProviderId(providerId: string): TextToSpeechProviderId {
+function resolveProviderId(providerId: string): string {
 	const normalized = normalizeProviderId(providerId);
-	if ((TEXT_TO_SPEECH_PROVIDER_IDS as readonly string[]).includes(normalized)) {
-		return normalized as TextToSpeechProviderId;
+	if (supportsCapability(normalized, 'text-to-speech')) {
+		return normalized;
 	}
 	throw new SpeechProviderUnsupportedError(
 		`Text-to-speech provider is not supported: ${normalized}`
 	);
 }
 
-function resolveModelId(providerId: TextToSpeechProviderId, modelId: string | undefined): string {
+function resolveModelId(providerId: string, modelId: string | undefined): string {
 	const models = providerModels(providerId, 'text-to-speech');
 	if (!modelId) return models[0].id;
 	const normalized = modelId.trim();
@@ -44,16 +48,16 @@ function resolveModelId(providerId: TextToSpeechProviderId, modelId: string | un
 	return normalized;
 }
 
-function configuredProviderId(): TextToSpeechProviderId | undefined {
+function configuredProviderId(): string | undefined {
 	const stored = getProviderId('voice');
 	if (!stored) return undefined;
 	const normalized = normalizeProviderId(stored);
-	return (TEXT_TO_SPEECH_PROVIDER_IDS as readonly string[]).includes(normalized)
-		? (normalized as TextToSpeechProviderId)
+	return supportsCapability(normalized, 'text-to-speech')
+		? (normalized)
 		: undefined;
 }
 
-function configuredModelId(providerId: TextToSpeechProviderId): string | undefined {
+function configuredModelId(providerId: string): string | undefined {
 	if (configuredProviderId() !== providerId) return undefined;
 	const modelId = getModelId('voice');
 	return modelId &&
@@ -62,7 +66,7 @@ function configuredModelId(providerId: TextToSpeechProviderId): string | undefin
 		: undefined;
 }
 
-function resolveProvider(providerId: TextToSpeechProviderId): SpeechProviderSpec {
+function resolveProvider(providerId: string): SpeechProviderSpec {
 	const stored = getProvider(providerId);
 	const defaults = loadProviders().find((provider) => provider.id === providerId);
 	const spec: SpeechProviderSpec = {

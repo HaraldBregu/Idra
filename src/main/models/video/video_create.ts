@@ -1,6 +1,6 @@
-import { TEXT_TO_VIDEO_PROVIDER_IDS, normalizeProviderId } from '../../../shared/provider_types';
+import { normalizeProviderId } from '../../../shared/provider_types';
 import type { VideoRequest, VideoResult } from '../../../shared/video_types';
-import { getProvider, loadProviders, providerModels } from '../../providers';
+import { getProvider, loadProviders, providerModels, supportsCapability } from '../../providers';
 import {
 	generateVideo,
 	VideoProviderAuthError,
@@ -25,7 +25,7 @@ export async function createVideo(request: VideoRequest): Promise<VideoResult> {
 
 function resolveProviderId(providerId: string): string {
 	const normalized = normalizeProviderId(providerId);
-	if (!(TEXT_TO_VIDEO_PROVIDER_IDS as readonly string[]).includes(normalized)) {
+	if (!supportsCapability(normalized, 'text-to-video')) {
 		throw new VideoProviderUnsupportedError(
 			`Text-to-video provider is not supported: ${normalized}`
 		);
