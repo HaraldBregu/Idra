@@ -333,8 +333,7 @@ export function ProviderCard({
 					</CardAction>
 				</CardHeader>
 
-				{!hideDropdown && (
-					<CollapsibleContent className="flex flex-col gap-3">
+				<CollapsibleContent className="flex flex-col gap-3">
 					<CardContent className="space-y-4">
 						{error && (
 							<SettingsNotice variant="destructive" icon={AlertTriangle}>
