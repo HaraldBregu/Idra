@@ -425,7 +425,10 @@ const ProvidersPage: React.FC = () => {
 										variant="outline"
 										size="sm"
 										disabled={vectorDbSaving}
-										onClick={() => setVectorDbApiKey('')}
+										onClick={() => {
+											setVectorDbApiKey('');
+											setVectorDbEditing(false);
+										}}
 									>
 										{t('common.cancel')}
 									</Button>
