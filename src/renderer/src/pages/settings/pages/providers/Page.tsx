@@ -487,17 +487,11 @@ const ProvidersPage: React.FC = () => {
 										) ?? current
 									)
 								}
-								onRemoved={() =>
-									setStorageEntries((current) =>
-										current?.filter((item) => item.key !== entry.key) ?? current
-									)
-								}
+								onRemoved={() => {}}
 							/>
 						))}
 					</div>
 				)}
-
-				<SettingsNotice icon={Cloud}>{t('settings.storage.localNote')}</SettingsNotice>
 			</SettingsSection>
 		</SettingsPageShell>
 	);
