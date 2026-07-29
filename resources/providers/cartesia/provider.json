@@ -1,20 +1,4 @@
-[
-	{
-		"id": "cartesia",
-		"name": "Cartesia",
-		"models": [
-			{
-				"id": "sonic-3.5",
-				"name": "Sonic 3.5",
-				"type": "text-to-speech",
-				"url": "https://api.cartesia.ai"
-			},
-			{
-				"id": "sonic-3",
-				"name": "Sonic 3",
-				"type": "text-to-speech",
-				"url": "https://api.cartesia.ai"
-			}
-		]
-	}
-]
+{
+	"id": "cartesia",
+	"name": "Cartesia"
+}

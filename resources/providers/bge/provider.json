@@ -1,14 +1,4 @@
-[
-	{
-		"id": "bge",
-		"name": "BGE-M3",
-		"models": [
-			{
-				"id": "bge-m3",
-				"name": "BGE-M3",
-				"type": "embedding",
-				"url": "http://localhost:8080/v1/embeddings"
-			}
-		]
-	}
-]
+{
+	"id": "bge",
+	"name": "BGE-M3"
+}

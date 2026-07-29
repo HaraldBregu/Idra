@@ -1,41 +1,4 @@
-[
-	{
-		"id": "deepgram",
-		"name": "Deepgram",
-		"models": [
-			{
-				"id": "nova-3",
-				"name": "Nova 3",
-				"apiTypes": [
-					"batch",
-					"stream"
-				],
-				"type": "speech-to-text",
-				"url": "https://api.deepgram.com/v1"
-			},
-			{
-				"id": "flux-general-en",
-				"name": "Flux",
-				"apiTypes": [
-					"stream"
-				],
-				"realtime": true,
-				"type": "speech-to-text",
-				"url": "https://api.deepgram.com/v1"
-			}
-		],
-		"sampleRate": 24000
-	},
-	{
-		"id": "deepgram",
-		"name": "Deepgram",
-		"models": [
-			{
-				"id": "aura-2",
-				"name": "Aura 2",
-				"type": "text-to-speech",
-				"url": "https://api.deepgram.com/v1"
-			}
-		]
-	}
-]
+{
+	"id": "deepgram",
+	"name": "Deepgram"
+}
