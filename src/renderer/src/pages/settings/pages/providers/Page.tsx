@@ -31,7 +31,7 @@ const ProvidersPage: React.FC = () => {
 				<Item
 					as="button"
 					type="button"
-					onClick={() => navigate('/settings/assistant')}
+					onClick={() => navigate('/settings/providers/keys')}
 					variant="outline"
 					size="md"
 					className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left"
