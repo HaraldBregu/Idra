@@ -223,6 +223,13 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.providers,
+			wrapSimpleHandler(() => {
+				return [...loadProviderCatalog().map(toPublicProvider), ...pluginRepository.providers()];
+			}, AppChannels.providers)
+		);
+
+		ipcMain.handle(
 			AppChannels.openExternalUrl,
 			wrapSimpleHandler(async (url: string) => {
 				await shell.openExternal(url);
