@@ -58,7 +58,7 @@ describe('Start cloud storage step', () => {
 		const user = userEvent.setup();
 		render(<CloudStep />);
 
-		expect(await screen.findByText('Configure cloud storage')).toBeInTheDocument();
+		expect(await screen.findByText('Connect to an object storage provider')).toBeInTheDocument();
 		expect(screen.queryByText('Cloud storage settings')).not.toBeInTheDocument();
 		expect(storageApi.getStorages).toHaveBeenCalledTimes(1);
 
