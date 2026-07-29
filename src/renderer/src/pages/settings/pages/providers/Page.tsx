@@ -26,18 +26,6 @@ import { ProviderCard } from '../storage/ProviderCard';
 import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../storage/constants';
 
 const PINECONE_BASE_URL = 'https://api.pinecone.io';
-const BLANK_STORAGE: StorageConfig = {
-	id: '',
-	name: '',
-	endpoint: '',
-	region: 'us-east-1',
-	accessKeyId: '',
-	secretAccessKey: '',
-	bucket: '',
-	forcePathStyle: false,
-	paths: [],
-	syncIntervalMinutes: DEFAULT_SYNC_INTERVAL_MINUTES,
-};
 
 interface StorageEntry {
 	key: string;
