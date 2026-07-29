@@ -33,6 +33,10 @@ export default defineConfig({
 		},
 	},
 	renderer: {
+		// Keep Vite's dep pre-bundling cache outside the OneDrive-synced project
+		// tree, otherwise OneDrive locks node_modules/.vite/deps files and Vite
+		// fails to unlink them on startup (EBUSY: resource busy or locked).
+		cacheDir: resolve(tmpdir(), 'friday-vite-cache'),
 		publicDir: resolve(__dirname, './src/renderer/public'),
 		resolve: {
 			alias: {
