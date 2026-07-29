@@ -346,6 +346,10 @@ export interface ProviderInvokeChannelMap {
 		args: [provider: import('./provider_types').StoredProvider];
 		result: import('./provider_types').StoredProvider;
 	};
+	[ProviderChannels.list]: {
+		args: [];
+		result: import('./provider_types').StoredProvider[];
+	};
 }
 
 export type ProviderStoreInvokeChannelMap = ProviderInvokeChannelMap;
