@@ -210,7 +210,7 @@ function showVideoContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
-	register({ logger }: AppIpcDeps, eventBus: EventBus): void {
+	register({ logger, pluginRepository }: AppIpcDeps, eventBus: EventBus): void {
 		// Honor the persisted keep-awake setting on startup
 		applyKeepAwake(getStoredKeepAwake());
 
