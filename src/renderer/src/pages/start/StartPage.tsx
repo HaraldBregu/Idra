@@ -14,7 +14,7 @@ import {
 } from './constants';
 import { useModelServices } from './hooks/useModelServices';
 import { useProviderSetup } from './hooks/useProviderSetup';
-import { initialSetupState, setupReducer } from './state/reducer';
+import { createInitialSetupState, setupReducer } from './state/reducer';
 
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
