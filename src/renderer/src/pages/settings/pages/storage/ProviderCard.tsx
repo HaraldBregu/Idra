@@ -534,7 +534,6 @@ export function ProviderCard({
 						</CardFooter>
 					)}
 				</CollapsibleContent>
-			)}
 			</Collapsible>
 		</Card>
 	);
