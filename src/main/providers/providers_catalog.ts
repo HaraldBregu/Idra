@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { is } from '@electron-toolkit/utils';
 import type { Provider } from '../../shared/providers_definitions';
 
@@ -17,17 +17,12 @@ function readCatalog(): readonly Provider[] {
 		? path.join(__dirname, '../../resources/providers')
 		: path.join(process.resourcesPath, 'resources/providers');
 
-	const entries = readdirSync(dir, { withFileTypes: true })
+	const entries: CatalogEntry[] = readdirSync(dir, { withFileTypes: true })
 		.filter((entry) => entry.isDirectory())
-		.flatMap((entry) => readProvider(path.join(dir, entry.name, 'provider.json')));
+		.map((entry) => path.join(dir, entry.name, 'provider.json'))
+		.filter((filePath) => existsSync(filePath))
+		.map((filePath) => JSON.parse(readFileSync(filePath, 'utf-8')) as CatalogEntry);
 
-	return entries.sort((a, b) => (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER));
-}
-
-function readProvider(filePath: string): CatalogEntry[] {
-	try {
-		return [JSON.parse(readFileSync(filePath, 'utf-8')) as CatalogEntry];
-	} catch {
-		return [];
-	}
+	const last = Number.MAX_SAFE_INTEGER;
+	return entries.sort((a, b) => (a.order ?? last) - (b.order ?? last));
 }
