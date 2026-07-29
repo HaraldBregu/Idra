@@ -14,6 +14,7 @@ function toStoredProvider(providerId: string, apiKey: string): Provider | undefi
 	return {
 		id: provider.id,
 		name: provider.name,
+		type: 'ml_model',
 		apiKey,
 		baseUrl: provider.baseUrl,
 	};

@@ -188,9 +188,12 @@ export function ProviderCard({
 				<CardHeader
 					className={cn('select-none items-center', expanded && 'border-b')}
 				>
-					<CardTitle>
-						{canonical.name || t('settings.storage.newProviderTitle')}
-					</CardTitle>
+					<div className="flex items-center gap-2 min-w-0 flex-1">
+						<HardDrive className="size-4 flex-shrink-0 text-muted-foreground" />
+						<CardTitle>
+							{canonical.name || t('settings.storage.newProviderTitle')}
+						</CardTitle>
+					</div>
 					<CardAction
 						className="row-span-1 flex items-center gap-2 self-center"
 						onClick={(event) => event.stopPropagation()}
