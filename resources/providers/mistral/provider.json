@@ -65,14 +65,22 @@
 			{
 				"id": "voxtral-mini-latest",
 				"name": "Voxtral Mini 2602",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"batch"
+				]
 			},
 			{
 				"id": "voxtral-mini-transcribe-realtime-2602",
 				"name": "Voxtral Mini Transcribe Realtime 2602",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"stream"
+				],
+				"realtime": true
 			}
-		]
+		],
+		"sampleRate": 16000
 	},
 	{
 		"id": "mistral",

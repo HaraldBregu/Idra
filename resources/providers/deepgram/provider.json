@@ -25,14 +25,23 @@
 			{
 				"id": "nova-3",
 				"name": "Nova 3",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"batch",
+					"stream"
+				]
 			},
 			{
 				"id": "flux-general-en",
 				"name": "Flux",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"stream"
+				],
+				"realtime": true
 			}
-		]
+		],
+		"sampleRate": 24000
 	},
 	{
 		"id": "deepgram",

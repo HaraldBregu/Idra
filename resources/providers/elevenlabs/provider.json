@@ -25,14 +25,22 @@
 			{
 				"id": "scribe_v2",
 				"name": "Scribe v2",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"batch"
+				]
 			},
 			{
 				"id": "scribe_v2_realtime",
 				"name": "Scribe v2 Realtime",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"stream"
+				],
+				"realtime": true
 			}
-		]
+		],
+		"sampleRate": 16000
 	},
 	{
 		"id": "elevenlabs",
@@ -72,7 +80,8 @@
 				"name": "Eleven Flash v2.5",
 				"status": "active"
 			}
-		]
+		],
+		"default": true
 	},
 	{
 		"id": "elevenlabs",

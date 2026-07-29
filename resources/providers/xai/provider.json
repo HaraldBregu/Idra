@@ -60,14 +60,22 @@
 			{
 				"id": "xai-stt-batch",
 				"name": "xAI STT Batch",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"batch"
+				]
 			},
 			{
 				"id": "xai-stt-streaming",
 				"name": "xAI STT Streaming",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"stream"
+				],
+				"realtime": true
 			}
-		]
+		],
+		"sampleRate": 24000
 	},
 	{
 		"id": "xai",

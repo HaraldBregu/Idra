@@ -97,19 +97,31 @@
 			{
 				"id": "gpt-4o-transcribe",
 				"name": "GPT-4o Transcribe",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"batch"
+				]
 			},
 			{
 				"id": "gpt-4o-mini-transcribe",
 				"name": "GPT-4o Mini Transcribe",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"batch"
+				]
 			},
 			{
 				"id": "gpt-realtime-whisper",
 				"name": "GPT Realtime Whisper",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"stream"
+				],
+				"realtime": true
 			}
-		]
+		],
+		"default": true,
+		"sampleRate": 24000
 	},
 	{
 		"id": "openai",
@@ -181,6 +193,7 @@
 				"name": "Text Embedding 3 Small",
 				"status": "active"
 			}
-		]
+		],
+		"default": true
 	}
 ]

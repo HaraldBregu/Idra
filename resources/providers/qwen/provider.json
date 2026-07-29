@@ -46,7 +46,7 @@
 		"id": "qwen",
 		"name": "Alibaba / Qwen / Wan",
 		"type": "speech-to-text",
-		"baseUrl": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+		"baseUrl": "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",
 		"apiKey": "",
 		"capabilities": "Chat - Speech-to-text - Realtime voice/omni - Image - Video",
 		"apiConfiguration": {
@@ -71,9 +71,14 @@
 			{
 				"id": "qwen3-asr-flash-realtime",
 				"name": "Qwen3 ASR Flash Realtime",
-				"status": "active"
+				"status": "active",
+				"apiTypes": [
+					"stream"
+				],
+				"realtime": true
 			}
-		]
+		],
+		"sampleRate": 16000
 	},
 	{
 		"id": "qwen",
