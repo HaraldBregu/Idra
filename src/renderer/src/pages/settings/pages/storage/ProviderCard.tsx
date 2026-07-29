@@ -324,7 +324,7 @@ export function ProviderCard({
 											</dt>
 											<dd className="truncate font-mono text-xs text-foreground">{row.value}</dd>
 										</div>
-									)}
+									))}
 								</dl>
 
 							</div>
