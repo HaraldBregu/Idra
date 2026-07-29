@@ -345,14 +345,14 @@ const ProvidersPage: React.FC = () => {
 					<Card
 						className={cn(
 							'rounded-lg border-border bg-card py-0 shadow-none',
-							!vectorDbApiKey.trim() && 'border-ring ring-2 ring-ring/20'
+							vectorDbEditing && 'border-ring ring-2 ring-ring/20'
 						)}
 					>
 						<CardContent className="p-0">
 							<div
 								className={cn(
 									'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
-									!vectorDbApiKey.trim() && 'pb-2'
+									vectorDbEditing && 'pb-2'
 								)}
 							>
 								<ProviderAvatar providerId="pinecone" name="Pinecone" />
@@ -379,30 +379,30 @@ const ProvidersPage: React.FC = () => {
 									</p>
 								</div>
 								<div className="flex shrink-0 justify-end gap-2">
-									{vectorDbApiKey.trim() && !vectorDbSaving ? (
+									{vectorDbApiKey.trim() && !vectorDbEditing ? (
 										<Button
 											type="button"
 											variant="ghost"
 											size="icon-xs"
 											aria-label="Edit Pinecone API key"
-											onClick={() => setVectorDbApiKey('')}
+											onClick={() => setVectorDbEditing(true)}
 										>
 											<Pencil className="size-3.5" />
 										</Button>
-									) : !vectorDbApiKey.trim() ? (
+									) : vectorDbEditing ? null : (
 										<Button
 											type="button"
 											variant="outline"
 											size="xs"
-											onClick={() => setVectorDbApiKey('')}
+											onClick={() => setVectorDbEditing(true)}
 										>
 											Connect
 										</Button>
-									) : null}
+									)}
 								</div>
 							</div>
 
-							{!vectorDbApiKey.trim() || vectorDbSaving ? (
+							{vectorDbEditing ? (
 								<div className="flex items-center gap-2 px-3 pb-3 pt-2">
 									<Input
 										aria-label="Pinecone API key"
