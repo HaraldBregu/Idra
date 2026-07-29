@@ -251,7 +251,7 @@ export interface AppInvokeChannelMap {
 	};
 	[AppChannels.providers]: {
 		args: [];
-		result: import('./providers_definitions').PublicProvider[];
+		result: import('./providers_definitions').PublicProviderCatalogEntry[];
 	};
 	[AppChannels.openVideo]: {
 		args: [path: string];
