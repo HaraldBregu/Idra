@@ -373,7 +373,7 @@ const ProvidersPage: React.FC = () => {
 				description={t('settings.providers.vectorDatabasesDescription')}
 			>
 				<SettingsPanel>
-					<div className="grid gap-3 px-3 py-3">
+					<div className="grid gap-3 px-4 py-4">
 						<SettingsField
 							id="vectordb-api-key"
 							label={t('settings.vectorDb.apiKey')}
