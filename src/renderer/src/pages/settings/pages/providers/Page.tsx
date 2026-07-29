@@ -52,7 +52,7 @@ const ProvidersPage: React.FC = () => {
 				<Item
 					as="button"
 					type="button"
-					onClick={() => navigate('/settings/vectordb')}
+					onClick={() => navigate('/settings/providers/vectordb')}
 					variant="outline"
 					size="md"
 					className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center px-4 text-left"
