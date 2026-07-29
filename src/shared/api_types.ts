@@ -287,7 +287,7 @@ export interface ModelsApi {
 }
 
 export interface AppApi {
-	providers: () => Promise<PublicProvider[]>;
+	providers: () => Promise<PublicProviderCatalogEntry[]>;
 	getPathForFile: (file: File) => string;
 	openAppDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
