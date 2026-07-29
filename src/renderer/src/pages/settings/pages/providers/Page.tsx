@@ -427,7 +427,7 @@ const ProvidersPage: React.FC = () => {
 				{!storageEntries ? (
 					<SettingsLoadingRows rows={4} />
 				) : (
-					<div className="space-y-3 px-3 py-3">
+					<div className="space-y-3 px-4 py-4">
 						{storageEntries.length === 0 && (
 							<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
 						)}
