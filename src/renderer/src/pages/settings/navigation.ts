@@ -121,30 +121,6 @@ export interface SettingsProviderConfigItem {
 	readonly comingSoon?: boolean;
 }
 
-export const SETTINGS_ML_MODELS_ITEMS: readonly SettingsProviderConfigItem[] = [
-	{
-		path: '/settings/providers/keys',
-		labelKey: 'settings.providers.storeApiKeys',
-		descriptionKey: 'settings.providers.storeApiKeysDescription',
-		icon: KeyRound,
-	},
-	{
-		path: '/settings/assistant',
-		labelKey: 'settings.modelServices.assistantName',
-		descriptionKey: 'settings.modelServices.fridayDescription',
-		icon: Bot,
-	},
-] as const;
-
-export const SETTINGS_VECTOR_DATABASE_ITEMS: readonly SettingsProviderConfigItem[] = [
-	{
-		path: '/settings/vectordb',
-		labelKey: 'settings.tabs.vectorDb',
-		descriptionKey: 'settings.overview.descriptions.vectorDb',
-		icon: Boxes,
-	},
-] as const;
-
 export const SETTINGS_PROVIDER_CONFIG_ITEMS: readonly SettingsProviderConfigItem[] = [
 	{
 		path: '/settings/storage',
