@@ -89,6 +89,8 @@ interface ProviderCardProps {
 	readonly storage: StorageConfig;
 	readonly onSaved: (saved: StorageConfig) => void;
 	readonly onRemoved: () => void;
+	readonly hideDelete?: boolean;
+	readonly hideDropdown?: boolean;
 }
 
 export function ProviderCard({
