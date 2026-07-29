@@ -123,12 +123,11 @@ function toProviderModel(model: CatalogModel): ProviderModel {
 }
 
 function toPublicProvider(entry: ProviderCatalogEntry): PublicProvider {
+	// ponytail: catalog no longer carries connection details; the settings store does.
 	return {
 		id: entry.id,
 		name: entry.name,
-		baseUrl: entry.baseUrl,
-		...(entry.capabilities ? { capabilities: entry.capabilities } : {}),
-		...(entry.apiConfiguration ? { apiConfiguration: entry.apiConfiguration } : {}),
+		baseUrl: '',
 	};
 }
 
