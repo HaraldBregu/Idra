@@ -109,10 +109,30 @@ const ProvidersPage: React.FC = () => {
 				setError(getErrorMessage(err, 'Could not check saved provider access.'));
 			});
 
+		// Load Vector DB
+		void window.provider
+			.get('pinecone')
+			.then((provider) => {
+				if (cancelled) setVectorDbApiKey(provider?.apiKey ?? '');
+			})
+			.catch((err: unknown) => {
+				if (!cancelled) setVectorDbError(err instanceof Error ? err.message : String(err));
+			});
+
+		// Load Storage configs
+		void window.storage.getStorages().then(
+			(storages) => {
+				if (!cancelled) setStorageEntries(storages.map((storage) => ({ key: storage.id, storage })));
+			},
+			(err) => {
+				if (!cancelled) setStorageError(getErrorMessage(err, t('settings.storage.errors.load')));
+			}
+		);
+
 		return () => {
 			cancelled = true;
 		};
-	}, []);
+	}, [t]);
 
 	const updateProviderEntry = (providerId: string, patch: Partial<ProviderSetupEntry>): void => {
 		setProviderEntries((currentEntries) =>
