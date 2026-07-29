@@ -250,7 +250,10 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.providers,
 			wrapSimpleHandler(() => {
-				return [...loadProviderCatalog().map(toPublicProvider), ...pluginRepository.providers()];
+				return [
+					...loadProviderCatalog().map(toPublicEntry),
+					...pluginRepository.providers().map(pluginEntry),
+				];
 			}, AppChannels.providers)
 		);
 
