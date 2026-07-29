@@ -1,24 +1,43 @@
-{
-	"id": "zai",
-	"order": 9,
-	"name": "Z.ai / Zhipu AI",
-	"baseUrl": "https://api.z.ai/api/paas/v4",
-	"apiKey": "",
-	"capabilities": "Chat",
-	"apiConfiguration": {
-		"credentialType": "API key",
-		"apiKeyManagementUrl": "https://open.bigmodel.cn/usercenter/apikeys",
-		"configurationDocsUrl": "https://open.bigmodel.cn/dev/api",
-		"authMethod": "API key / Bearer token depending on SDK/API",
-		"recommendedEnvVars": [
-			"ZHIPUAI_API_KEY",
-			"ZAI_API_KEY"
-		],
-		"baseUrls": [
-			"https://open.bigmodel.cn/api/paas/v4"
-		],
-		"importantNotes": [
-			"Zhipu/BigModel is the mainland China platform; Z.ai branding may use related GLM endpoints."
+[
+	{
+		"id": "zai",
+		"name": "Z.ai / Zhipu AI",
+		"type": "llm",
+		"baseUrl": "https://api.z.ai/api/paas/v4",
+		"apiKey": "",
+		"capabilities": "Chat",
+		"apiConfiguration": {
+			"credentialType": "API key",
+			"apiKeyManagementUrl": "https://open.bigmodel.cn/usercenter/apikeys",
+			"configurationDocsUrl": "https://open.bigmodel.cn/dev/api",
+			"authMethod": "API key / Bearer token depending on SDK/API",
+			"recommendedEnvVars": [
+				"ZHIPUAI_API_KEY",
+				"ZAI_API_KEY"
+			],
+			"baseUrls": [
+				"https://open.bigmodel.cn/api/paas/v4"
+			],
+			"importantNotes": [
+				"Zhipu/BigModel is the mainland China platform; Z.ai branding may use related GLM endpoints."
+			]
+		},
+		"models": [
+			{
+				"id": "glm-5.1",
+				"name": "GLM-5.1",
+				"status": "active"
+			},
+			{
+				"id": "glm-5",
+				"name": "GLM-5",
+				"status": "active"
+			},
+			{
+				"id": "glm-5-turbo",
+				"name": "GLM-5 Turbo",
+				"status": "active"
+			}
 		]
 	}
-}
+]

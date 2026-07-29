@@ -1,15 +1,15 @@
 [
 	{
-		"id": "cohere",
-		"name": "Cohere",
+		"id": "bge",
+		"name": "BGE-M3",
 		"type": "embedding",
-		"baseUrl": "https://api.cohere.com/v2",
+		"baseUrl": "http://localhost:8080/v1/embeddings",
 		"apiKey": "",
 		"capabilities": "Embedding",
 		"models": [
 			{
-				"id": "embed-v4.0",
-				"name": "Embed v4",
+				"id": "bge-m3",
+				"name": "BGE-M3",
 				"status": "active"
 			}
 		]

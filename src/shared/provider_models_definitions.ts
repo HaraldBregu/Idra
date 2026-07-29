@@ -7,9 +7,12 @@ export const MODEL_CAPABILITIES = [
 	'text-to-speech',
 	'realtime-voice',
 	'text-to-image',
+	'text-to-video',
 	'text-to-audio',
-	'music',
+	'embedding',
 ] as const;
+
+export type ModelCapability = (typeof MODEL_CAPABILITIES)[number];
 
 export function model(
 	id: string,

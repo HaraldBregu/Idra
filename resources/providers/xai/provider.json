@@ -1,23 +1,167 @@
-{
-	"id": "xai",
-	"order": 4,
-	"name": "xAI",
-	"baseUrl": "https://api.x.ai/v1",
-	"apiKey": "",
-	"capabilities": "Chat - Speech-to-text - Realtime voice/omni - Image - Video",
-	"apiConfiguration": {
-		"credentialType": "API key",
-		"apiKeyManagementUrl": "https://console.x.ai/",
-		"configurationDocsUrl": "https://docs.x.ai/developers/quickstart",
-		"authMethod": "HTTP Bearer token",
-		"recommendedEnvVars": [
-			"XAI_API_KEY"
-		],
-		"baseUrls": [
-			"https://api.x.ai/v1"
-		],
-		"importantNotes": [
-			"Generate key in the xAI console/API Keys page, then export XAI_API_KEY."
+[
+	{
+		"id": "xai",
+		"name": "xAI",
+		"type": "llm",
+		"baseUrl": "https://api.x.ai/v1",
+		"apiKey": "",
+		"capabilities": "Chat - Speech-to-text - Realtime voice/omni - Image - Video",
+		"apiConfiguration": {
+			"credentialType": "API key",
+			"apiKeyManagementUrl": "https://console.x.ai/",
+			"configurationDocsUrl": "https://docs.x.ai/developers/quickstart",
+			"authMethod": "HTTP Bearer token",
+			"recommendedEnvVars": [
+				"XAI_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.x.ai/v1"
+			],
+			"importantNotes": [
+				"Generate key in the xAI console/API Keys page, then export XAI_API_KEY."
+			]
+		},
+		"models": [
+			{
+				"id": "grok-4.3",
+				"name": "Grok 4.3",
+				"status": "active"
+			},
+			{
+				"id": "grok-build-0.1",
+				"name": "Grok Build 0.1",
+				"status": "active"
+			}
+		]
+	},
+	{
+		"id": "xai",
+		"name": "xAI",
+		"type": "speech-to-text",
+		"baseUrl": "https://api.x.ai/v1",
+		"apiKey": "",
+		"capabilities": "Chat - Speech-to-text - Realtime voice/omni - Image - Video",
+		"apiConfiguration": {
+			"credentialType": "API key",
+			"apiKeyManagementUrl": "https://console.x.ai/",
+			"configurationDocsUrl": "https://docs.x.ai/developers/quickstart",
+			"authMethod": "HTTP Bearer token",
+			"recommendedEnvVars": [
+				"XAI_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.x.ai/v1"
+			],
+			"importantNotes": [
+				"Generate key in the xAI console/API Keys page, then export XAI_API_KEY."
+			]
+		},
+		"models": [
+			{
+				"id": "xai-stt-batch",
+				"name": "xAI STT Batch",
+				"status": "active"
+			},
+			{
+				"id": "xai-stt-streaming",
+				"name": "xAI STT Streaming",
+				"status": "active"
+			}
+		]
+	},
+	{
+		"id": "xai",
+		"name": "xAI",
+		"type": "realtime-voice",
+		"baseUrl": "https://api.x.ai/v1",
+		"apiKey": "",
+		"capabilities": "Chat - Speech-to-text - Realtime voice/omni - Image - Video",
+		"apiConfiguration": {
+			"credentialType": "API key",
+			"apiKeyManagementUrl": "https://console.x.ai/",
+			"configurationDocsUrl": "https://docs.x.ai/developers/quickstart",
+			"authMethod": "HTTP Bearer token",
+			"recommendedEnvVars": [
+				"XAI_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.x.ai/v1"
+			],
+			"importantNotes": [
+				"Generate key in the xAI console/API Keys page, then export XAI_API_KEY."
+			]
+		},
+		"models": [
+			{
+				"id": "grok-voice-latest",
+				"name": "Grok Voice Latest",
+				"status": "active"
+			}
+		]
+	},
+	{
+		"id": "xai",
+		"name": "xAI",
+		"type": "text-to-image",
+		"baseUrl": "https://api.x.ai/v1",
+		"apiKey": "",
+		"capabilities": "Chat - Speech-to-text - Realtime voice/omni - Image - Video",
+		"apiConfiguration": {
+			"credentialType": "API key",
+			"apiKeyManagementUrl": "https://console.x.ai/",
+			"configurationDocsUrl": "https://docs.x.ai/developers/quickstart",
+			"authMethod": "HTTP Bearer token",
+			"recommendedEnvVars": [
+				"XAI_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.x.ai/v1"
+			],
+			"importantNotes": [
+				"Generate key in the xAI console/API Keys page, then export XAI_API_KEY."
+			]
+		},
+		"models": [
+			{
+				"id": "grok-imagine-image",
+				"name": "Grok Imagine Image",
+				"status": "active"
+			},
+			{
+				"id": "grok-imagine-image-quality",
+				"name": "Grok Imagine Image Quality",
+				"status": "active"
+			}
+		]
+	},
+	{
+		"id": "xai",
+		"name": "xAI",
+		"type": "text-to-video",
+		"baseUrl": "https://api.x.ai/v1",
+		"apiKey": "",
+		"capabilities": "Chat - Speech-to-text - Realtime voice/omni - Image - Video",
+		"apiConfiguration": {
+			"credentialType": "API key",
+			"apiKeyManagementUrl": "https://console.x.ai/",
+			"configurationDocsUrl": "https://docs.x.ai/developers/quickstart",
+			"authMethod": "HTTP Bearer token",
+			"recommendedEnvVars": [
+				"XAI_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.x.ai/v1"
+			],
+			"importantNotes": [
+				"Generate key in the xAI console/API Keys page, then export XAI_API_KEY."
+			]
+		},
+		"models": [
+			{
+				"id": "grok-imagine-video-1.5",
+				"name": "Grok Imagine Video 1.5",
+				"status": "active"
+			}
 		]
 	}
-}
+]

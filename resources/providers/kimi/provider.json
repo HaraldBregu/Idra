@@ -1,24 +1,53 @@
-{
-	"id": "kimi",
-	"order": 8,
-	"name": "Moonshot AI / Kimi",
-	"baseUrl": "https://api.moonshot.ai/v1",
-	"apiKey": "",
-	"capabilities": "Chat",
-	"apiConfiguration": {
-		"credentialType": "API key",
-		"apiKeyManagementUrl": "https://platform.moonshot.ai/console/api-keys",
-		"configurationDocsUrl": "https://platform.moonshot.ai/",
-		"authMethod": "API key / OpenAI-compatible Bearer token",
-		"recommendedEnvVars": [
-			"MOONSHOT_API_KEY",
-			"KIMI_API_KEY"
-		],
-		"baseUrls": [
-			"https://api.moonshot.ai/v1"
-		],
-		"importantNotes": [
-			"Official platform is the source for key generation; public docs are less indexable than some providers."
+[
+	{
+		"id": "kimi",
+		"name": "Moonshot AI / Kimi",
+		"type": "llm",
+		"baseUrl": "https://api.moonshot.ai/v1",
+		"apiKey": "",
+		"capabilities": "Chat",
+		"apiConfiguration": {
+			"credentialType": "API key",
+			"apiKeyManagementUrl": "https://platform.moonshot.ai/console/api-keys",
+			"configurationDocsUrl": "https://platform.moonshot.ai/",
+			"authMethod": "API key / OpenAI-compatible Bearer token",
+			"recommendedEnvVars": [
+				"MOONSHOT_API_KEY",
+				"KIMI_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.moonshot.ai/v1"
+			],
+			"importantNotes": [
+				"Official platform is the source for key generation; public docs are less indexable than some providers."
+			]
+		},
+		"models": [
+			{
+				"id": "kimi-k3",
+				"name": "Kimi K3",
+				"status": "active"
+			},
+			{
+				"id": "kimi-k2.7-code",
+				"name": "Kimi K2.7 Code",
+				"status": "active"
+			},
+			{
+				"id": "kimi-k2.7-code-highspeed",
+				"name": "Kimi K2.7 Code Highspeed",
+				"status": "active"
+			},
+			{
+				"id": "kimi-k2.6",
+				"name": "Kimi K2.6",
+				"status": "active"
+			},
+			{
+				"id": "kimi-k2.5",
+				"name": "Kimi K2.5",
+				"status": "active"
+			}
 		]
 	}
-}
+]

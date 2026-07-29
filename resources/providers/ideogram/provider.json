@@ -1,23 +1,37 @@
-{
-	"id": "ideogram",
-	"order": 20,
-	"name": "Ideogram",
-	"baseUrl": "https://api.ideogram.ai",
-	"apiKey": "",
-	"capabilities": "Image",
-	"apiConfiguration": {
-		"credentialType": "API key",
-		"apiKeyManagementUrl": "https://ideogram.ai/manage-api",
-		"configurationDocsUrl": "https://developer.ideogram.ai/ideogram-api/api-setup",
-		"authMethod": "API key authentication",
-		"recommendedEnvVars": [
-			"IDEOGRAM_API_KEY"
-		],
-		"baseUrls": [
-			"https://api.ideogram.ai"
-		],
-		"importantNotes": [
-			"Create API keys from Manage API; keys are displayed only partially after creation."
+[
+	{
+		"id": "ideogram",
+		"name": "Ideogram",
+		"type": "text-to-image",
+		"baseUrl": "https://api.ideogram.ai",
+		"apiKey": "",
+		"capabilities": "Image",
+		"apiConfiguration": {
+			"credentialType": "API key",
+			"apiKeyManagementUrl": "https://ideogram.ai/manage-api",
+			"configurationDocsUrl": "https://developer.ideogram.ai/ideogram-api/api-setup",
+			"authMethod": "API key authentication",
+			"recommendedEnvVars": [
+				"IDEOGRAM_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.ideogram.ai"
+			],
+			"importantNotes": [
+				"Create API keys from Manage API; keys are displayed only partially after creation."
+			]
+		},
+		"models": [
+			{
+				"id": "ideogram-3.0",
+				"name": "Ideogram 3.0",
+				"status": "active"
+			},
+			{
+				"id": "ideogram-2a",
+				"name": "Ideogram 2a",
+				"status": "active"
+			}
 		]
 	}
-}
+]

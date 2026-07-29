@@ -1,24 +1,58 @@
-{
-	"id": "anthropic",
-	"order": 2,
-	"name": "Anthropic",
-	"baseUrl": "https://api.anthropic.com",
-	"apiKey": "",
-	"capabilities": "Chat",
-	"apiConfiguration": {
-		"credentialType": "API key",
-		"apiKeyManagementUrl": "https://console.anthropic.com/settings/keys",
-		"configurationDocsUrl": "https://platform.claude.com/docs/en/api/overview",
-		"authMethod": "x-api-key header plus anthropic-version header",
-		"recommendedEnvVars": [
-			"ANTHROPIC_API_KEY"
-		],
-		"baseUrls": [
-			"https://api.anthropic.com"
-		],
-		"importantNotes": [
-			"Official SDKs handle the required headers automatically.",
-			"Keys are generated in the Anthropic Console."
+[
+	{
+		"id": "anthropic",
+		"name": "Anthropic",
+		"type": "llm",
+		"baseUrl": "https://api.anthropic.com",
+		"apiKey": "",
+		"capabilities": "Chat",
+		"apiConfiguration": {
+			"credentialType": "API key",
+			"apiKeyManagementUrl": "https://console.anthropic.com/settings/keys",
+			"configurationDocsUrl": "https://platform.claude.com/docs/en/api/overview",
+			"authMethod": "x-api-key header plus anthropic-version header",
+			"recommendedEnvVars": [
+				"ANTHROPIC_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.anthropic.com"
+			],
+			"importantNotes": [
+				"Official SDKs handle the required headers automatically.",
+				"Keys are generated in the Anthropic Console."
+			]
+		},
+		"models": [
+			{
+				"id": "claude-fable-5",
+				"name": "Claude Fable 5",
+				"status": "active"
+			},
+			{
+				"id": "claude-opus-5",
+				"name": "Claude Opus 5",
+				"status": "active"
+			},
+			{
+				"id": "claude-sonnet-5",
+				"name": "Claude Sonnet 5",
+				"status": "active"
+			},
+			{
+				"id": "claude-opus-4-7",
+				"name": "Claude Opus 4.7",
+				"status": "active"
+			},
+			{
+				"id": "claude-sonnet-4-6",
+				"name": "Claude Sonnet 4.6",
+				"status": "active"
+			},
+			{
+				"id": "claude-haiku-4-5-20251001",
+				"name": "Claude Haiku 4.5 20251001",
+				"status": "active"
+			}
 		]
 	}
-}
+]

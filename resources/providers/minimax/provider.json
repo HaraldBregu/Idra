@@ -1,24 +1,146 @@
-{
-	"id": "minimax",
-	"order": 10,
-	"name": "MiniMax",
-	"baseUrl": "https://api.minimax.io/v1",
-	"apiKey": "",
-	"capabilities": "Chat - Text-to-speech - Video - Music/audio",
-	"apiConfiguration": {
-		"credentialType": "API key; Token Plan key is separate",
-		"apiKeyManagementUrl": "https://platform.minimax.io/user-center/basic-information/interface-key",
-		"configurationDocsUrl": "https://platform.minimax.io/docs/api-reference/api-overview",
-		"authMethod": "API key / Bearer token",
-		"recommendedEnvVars": [
-			"MINIMAX_API_KEY"
-		],
-		"baseUrls": [
-			"https://api.minimax.io",
-			"https://api.minimaxi.com"
-		],
-		"importantNotes": [
-			"Pay-as-you-go API keys and Token Plan keys are different; API host and key region must match."
+[
+	{
+		"id": "minimax",
+		"name": "MiniMax",
+		"type": "llm",
+		"baseUrl": "https://api.minimax.io/v1",
+		"apiKey": "",
+		"capabilities": "Chat - Text-to-speech - Video - Music/audio",
+		"apiConfiguration": {
+			"credentialType": "API key; Token Plan key is separate",
+			"apiKeyManagementUrl": "https://platform.minimax.io/user-center/basic-information/interface-key",
+			"configurationDocsUrl": "https://platform.minimax.io/docs/api-reference/api-overview",
+			"authMethod": "API key / Bearer token",
+			"recommendedEnvVars": [
+				"MINIMAX_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.minimax.io",
+				"https://api.minimaxi.com"
+			],
+			"importantNotes": [
+				"Pay-as-you-go API keys and Token Plan keys are different; API host and key region must match."
+			]
+		},
+		"models": [
+			{
+				"id": "MiniMax-M2.7",
+				"name": "MiniMax M2.7",
+				"status": "active"
+			},
+			{
+				"id": "MiniMax-M2.5",
+				"name": "MiniMax M2.5",
+				"status": "active"
+			}
+		]
+	},
+	{
+		"id": "minimax",
+		"name": "MiniMax",
+		"type": "text-to-speech",
+		"baseUrl": "https://api.minimax.io/v1",
+		"apiKey": "",
+		"capabilities": "Chat - Text-to-speech - Video - Music/audio",
+		"apiConfiguration": {
+			"credentialType": "API key; Token Plan key is separate",
+			"apiKeyManagementUrl": "https://platform.minimax.io/user-center/basic-information/interface-key",
+			"configurationDocsUrl": "https://platform.minimax.io/docs/api-reference/api-overview",
+			"authMethod": "API key / Bearer token",
+			"recommendedEnvVars": [
+				"MINIMAX_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.minimax.io",
+				"https://api.minimaxi.com"
+			],
+			"importantNotes": [
+				"Pay-as-you-go API keys and Token Plan keys are different; API host and key region must match."
+			]
+		},
+		"models": [
+			{
+				"id": "speech-2.8-hd",
+				"name": "Speech 2.8 HD",
+				"status": "active"
+			},
+			{
+				"id": "speech-2.8-turbo",
+				"name": "Speech 2.8 Turbo",
+				"status": "active"
+			}
+		]
+	},
+	{
+		"id": "minimax",
+		"name": "MiniMax",
+		"type": "text-to-video",
+		"baseUrl": "https://api.minimax.io/v1",
+		"apiKey": "",
+		"capabilities": "Chat - Text-to-speech - Video - Music/audio",
+		"apiConfiguration": {
+			"credentialType": "API key; Token Plan key is separate",
+			"apiKeyManagementUrl": "https://platform.minimax.io/user-center/basic-information/interface-key",
+			"configurationDocsUrl": "https://platform.minimax.io/docs/api-reference/api-overview",
+			"authMethod": "API key / Bearer token",
+			"recommendedEnvVars": [
+				"MINIMAX_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.minimax.io",
+				"https://api.minimaxi.com"
+			],
+			"importantNotes": [
+				"Pay-as-you-go API keys and Token Plan keys are different; API host and key region must match."
+			]
+		},
+		"models": [
+			{
+				"id": "MiniMax-Hailuo-2.3",
+				"name": "Hailuo 2.3",
+				"status": "active"
+			},
+			{
+				"id": "MiniMax-Hailuo-02",
+				"name": "Hailuo 02",
+				"status": "active"
+			}
+		]
+	},
+	{
+		"id": "minimax",
+		"name": "MiniMax",
+		"type": "text-to-audio",
+		"baseUrl": "https://api.minimax.io/v1",
+		"apiKey": "",
+		"capabilities": "Chat - Text-to-speech - Video - Music/audio",
+		"apiConfiguration": {
+			"credentialType": "API key; Token Plan key is separate",
+			"apiKeyManagementUrl": "https://platform.minimax.io/user-center/basic-information/interface-key",
+			"configurationDocsUrl": "https://platform.minimax.io/docs/api-reference/api-overview",
+			"authMethod": "API key / Bearer token",
+			"recommendedEnvVars": [
+				"MINIMAX_API_KEY"
+			],
+			"baseUrls": [
+				"https://api.minimax.io",
+				"https://api.minimaxi.com"
+			],
+			"importantNotes": [
+				"Pay-as-you-go API keys and Token Plan keys are different; API host and key region must match."
+			]
+		},
+		"models": [
+			{
+				"id": "music-2.6",
+				"name": "Music 2.6",
+				"status": "active"
+			},
+			{
+				"id": "music-cover",
+				"name": "Music Cover",
+				"status": "active"
+			}
 		]
 	}
-}
+]
