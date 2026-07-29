@@ -65,17 +65,62 @@ export function setTheme(theme: AppTheme): void {
 	store.set('theme', theme);
 }
 
-export function getProvider(
+export function listProviders(): StoredProvider[] {
+	const raw = store.get('providers');
+	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
+}
+
+export function getProvider(id: string): StoredProvider | undefined {
+	return listProviders().find((provider) => provider.id === id);
+}
+
+export function hasProvider(id: string): boolean {
+	return getProvider(id) !== undefined;
+}
+
+export function setProvider(provider: StoredProvider): StoredProvider {
+	const providers = listProviders();
+	const index = providers.findIndex((entry) => entry.id === provider.id);
+	if (index === -1) providers.push(provider);
+	else providers[index] = provider;
+	store.set('providers', providers);
+	return provider;
+}
+
+export function deleteProvider(id: string): void {
+	const providers = listProviders();
+	const remaining = providers.filter((provider) => provider.id !== id);
+	if (remaining.length === providers.length) return;
+	store.set('providers', remaining);
+}
+
+export function clearProviders(): void {
+	store.set('providers', []);
+}
+
+/** The selected provider resolved to the shape model adapters consume. */
+export function getResolvedProvider(
 	providerId: string | undefined = getProviderId()
 ): ResolvedProvider | undefined {
 	if (!providerId) return undefined;
-	const provider = getStoredProvider(providerId);
+	const provider = getProvider(providerId);
 	if (!provider) return undefined;
 	return {
 		id: providerId,
 		apiKey: provider.apiKey,
 		baseURL: provider.baseUrl,
 	};
+}
+
+function isStoredProvider(value: unknown): value is StoredProvider {
+	if (typeof value !== 'object' || value === null) return false;
+	const provider = value as Partial<StoredProvider>;
+	return (
+		typeof provider.id === 'string' &&
+		typeof provider.name === 'string' &&
+		typeof provider.apiKey === 'string' &&
+		typeof provider.baseUrl === 'string'
+	);
 }
 
 export function getProviderId(): string | undefined {
