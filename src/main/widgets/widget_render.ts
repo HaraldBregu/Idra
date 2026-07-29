@@ -29,7 +29,7 @@ export function render(
 							partition: 'friday-plugin-widgets',
 						},
 					}
-				: {}),
+				: { webPreferences: { preload: undefined } }),
 		},
 		{ file }
 	);

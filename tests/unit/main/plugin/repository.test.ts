@@ -38,7 +38,10 @@ function manifest(overrides: Record<string, unknown> = {}): Record<string, unkno
 function install(root: string, folder: string, value: unknown, withEntry = true): void {
 	const directory = path.join(root, folder);
 	fs.mkdirSync(directory, { recursive: true });
-	fs.writeFileSync(path.join(directory, 'manifest.json'), JSON.stringify(value));
+	fs.writeFileSync(
+		path.join(directory, 'manifest.json'),
+		typeof value === 'string' ? value : JSON.stringify(value)
+	);
 	if (withEntry) {
 		const entry = path.join(directory, 'widgets', 'dashboard', 'index.html');
 		fs.mkdirSync(path.dirname(entry), { recursive: true });
