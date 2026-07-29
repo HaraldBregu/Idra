@@ -19,9 +19,7 @@ import type { ProviderCatalogItem, ProviderSetupEntry } from '../../../start/typ
 import {
 	SettingsNotice,
 	SettingsPageShell,
-	SettingsPanel,
 	SettingsSection,
-	SettingsField,
 	SettingsLoadingRows,
 } from '../../components';
 import { ProviderCard } from '../storage/ProviderCard';
