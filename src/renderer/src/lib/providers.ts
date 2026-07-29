@@ -1,59 +1,71 @@
-import {
-	normalizeProviderId,
-	type PublicProvider,
-	type PublicProviderCatalogEntry,
-} from '@shared/provider_types';
-import type { ModelCapability, ProviderModel, SpeechToTextApiType } from '@shared/model_types';
+import { normalizeProviderId, type PublicProvider } from '@shared/provider_types';
+import type {
+	CatalogModel,
+	ModelCapability,
+	ProviderModel,
+	SpeechToTextApiType,
+} from '@shared/model_types';
 
-let catalog: readonly PublicProviderCatalogEntry[] = [];
+let catalog: readonly CatalogModel[] = [];
 
-export async function loadProviders(): Promise<void> {
-	catalog = await window.app.providers();
+export async function loadModels(): Promise<void> {
+	catalog = await window.app.models();
 }
 
-export function providerCatalog(): readonly PublicProviderCatalogEntry[] {
+export function models(): readonly CatalogModel[] {
 	return catalog;
 }
 
+export function modelsFor(type: ModelCapability): CatalogModel[] {
+	return catalog.filter((model) => model.type === type);
+}
+
+/** One record per provider, derived from the models they serve. */
 export function providers(): readonly PublicProvider[] {
 	const unique = new Map<string, PublicProvider>();
-	for (const entry of catalog) {
-		if (unique.has(entry.id)) continue;
-		unique.set(entry.id, {
-			id: entry.id,
-			name: entry.name,
-			baseUrl: entry.baseUrl,
-			...(entry.capabilities ? { capabilities: entry.capabilities } : {}),
-			...(entry.apiConfiguration ? { apiConfiguration: entry.apiConfiguration } : {}),
-		});
+	for (const model of catalog) {
+		if (!unique.has(model.provider.id)) unique.set(model.provider.id, model.provider);
 	}
 	return [...unique.values()];
 }
 
 export function providerIdsFor(type: ModelCapability): string[] {
-	return catalog.filter((entry) => entry.type === type).map((entry) => entry.id);
+	return [...new Set(modelsFor(type).map((model) => model.provider.id))];
 }
 
 export function providerModels(providerId: string, type: ModelCapability): ProviderModel[] {
 	const normalized = normalizeProviderId(providerId);
-	const entry = catalog.find((item) => item.id === normalized && item.type === type);
-	return (entry?.models ?? []).map((model) => ({ ...model }));
+	return catalog
+		.filter((model) => model.provider.id === normalized && model.type === type)
+		.map((model) => ({
+			id: model.id,
+			name: model.name,
+			status: model.status,
+			...(model.apiTypes ? { apiTypes: model.apiTypes } : {}),
+			...(model.realtime ? { realtime: model.realtime } : {}),
+		}));
 }
 
 /** Provider marked `default` for a capability, else the first one declaring it. */
 export function defaultProviderId(type: ModelCapability): string | undefined {
-	const entries = catalog.filter((entry) => entry.type === type);
-	return (entries.find((entry) => entry.default) ?? entries[0])?.id;
+	const typed = modelsFor(type);
+	return (typed.find((model) => model.default) ?? typed[0])?.provider.id;
+}
+
+function findModel(providerId: string, modelId: string): CatalogModel | undefined {
+	const normalized = normalizeProviderId(providerId);
+	const id = modelId.trim();
+	return catalog.find(
+		(model) =>
+			model.provider.id === normalized && model.type === 'speech-to-text' && model.id === id
+	);
 }
 
 export function speechToTextApiTypes(
 	providerId: string,
 	modelId: string
 ): readonly SpeechToTextApiType[] {
-	const model = providerModels(providerId, 'speech-to-text').find(
-		(item) => item.id === modelId.trim()
-	);
-	return model?.apiTypes ?? [];
+	return findModel(providerId, modelId)?.apiTypes ?? [];
 }
 
 export function supportsSpeechToTextApiType(
@@ -65,8 +77,5 @@ export function supportsSpeechToTextApiType(
 }
 
 export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {
-	const model = providerModels(providerId, 'speech-to-text').find(
-		(item) => item.id === modelId.trim()
-	);
-	return model?.realtime === true;
+	return findModel(providerId, modelId)?.realtime === true;
 }

@@ -41,8 +41,8 @@ import {
 	setTheme as setStoredTheme,
 } from '../app/settings_store';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
-import type { ProviderCatalogEntry, PublicProviderCatalogEntry } from '../../shared/provider_types';
-import { loadProviderCatalog } from '../app/models';
+import type { CatalogModel } from '../../shared/model_types';
+import { loadModels } from '../app/models';
 import type { PluginProvider, PluginRepository } from '../plugin';
 import type { LoggerService } from '../shared';
 

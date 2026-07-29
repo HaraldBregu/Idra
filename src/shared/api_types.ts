@@ -1,4 +1,4 @@
-import type { PublicProvider, PublicProviderCatalogEntry } from './provider_types';
+import type { PublicProvider } from './provider_types';
 import type { StoredProvider as Provider } from './provider_types';
 import type { SearchEngineId, SearchEngineInput, SearchSettings } from './search_types';
 import type {
@@ -26,7 +26,7 @@ import type {
 	AgentSessionSummary,
 	AgentToolPermissionDecision,
 } from './agent_types';
-import type { ProviderModel } from './model_types';
+import type { CatalogModel, ProviderModel } from './model_types';
 import type { Channel, ChannelStatusEvent, ChannelType } from './channels_types';
 import type { EmbeddingRequest, EmbeddingResult } from './embedding_types';
 import type { ImageRequest, ImageResult } from './image_types';
@@ -287,7 +287,7 @@ export interface ModelsApi {
 }
 
 export interface AppApi {
-	providers: () => Promise<PublicProviderCatalogEntry[]>;
+	models: () => Promise<CatalogModel[]>;
 	getPathForFile: (file: File) => string;
 	openAppDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
