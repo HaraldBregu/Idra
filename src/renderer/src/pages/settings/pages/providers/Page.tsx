@@ -176,6 +176,8 @@ const ProvidersPage: React.FC = () => {
 				baseUrl: PINECONE_BASE_URL,
 			});
 			setVectorDbSaved(true);
+			setVectorDbApiKey('');
+			setVectorDbEditing(false);
 		} catch (err) {
 			setVectorDbError(err instanceof Error ? err.message : String(err));
 		} finally {
