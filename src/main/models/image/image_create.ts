@@ -4,7 +4,7 @@ import {
 	normalizeProviderId,
 } from '../../../shared/provider_models_definitions';
 import type { ImageRequest, ImageResult } from '../../../shared/image_types';
-import { getProvider, loadProviderCatalog } from '../../providers';
+import { getProvider, loadProviders } from '../../providers';
 import {
 	generateImage,
 	ImageProviderAuthError,
@@ -55,7 +55,7 @@ function resolveApiKey(providerId: string): string {
 	const stored = getProvider(providerId);
 	const apiKey = stored?.apiKey.trim() ?? '';
 	if (!apiKey) {
-		const defaults = loadProviderCatalog().find((provider) => provider.id === providerId);
+		const defaults = loadProviders().find((provider) => provider.id === providerId);
 		throw new ImageProviderAuthError(
 			`${stored?.name || defaults?.name || providerId} API key not configured.`
 		);

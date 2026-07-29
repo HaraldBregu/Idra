@@ -6,7 +6,7 @@ import {
 } from './app';
 import { LoggerService } from './shared';
 import { createChannelRegistry, type ChannelRegistry } from './channels';
-import { loadProviderCatalog } from './providers';
+import { loadProviders } from './providers';
 import { PluginRepository } from './plugin';
 
 import { Agent } from './agent/agent';
@@ -31,7 +31,7 @@ export function bootstrapServices(): BootstrapResult {
 	const agentService = new Agent();
 	const channelRegistry = createChannelRegistry({ logger, eventBus, agentService });
 	const pluginRepository = new PluginRepository({
-		reservedProviderIds: loadProviderCatalog().map((provider) => provider.id),
+		reservedProviderIds: loadProviders().map((provider) => provider.id),
 	});
 	pluginRepository.ensure();
 	const windowFactory = new WindowFactory(logger);

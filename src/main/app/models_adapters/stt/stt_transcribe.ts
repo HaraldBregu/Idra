@@ -33,7 +33,7 @@ import type { ProviderModel } from '../../../../shared/provider_models_types';
 import { buildSttAdapter } from './stt_factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
-import { getProvider, loadProviderCatalog } from '../../../providers';
+import { getProvider, loadProviders } from '../../../providers';
 import type { Provider as CatalogProvider } from '../../../../shared/providers_definitions';
 import {
 	getModelId as getTranscribeModelId,
@@ -266,7 +266,7 @@ function getProviderSpecFromProviderStore(providerId: SpeechToTextProviderId): S
 }
 
 function defaultProvider(providerId: string): CatalogProvider | undefined {
-	return loadProviderCatalog().find((provider) => provider.id === providerId);
+	return loadProviders().find((provider) => provider.id === providerId);
 }
 
 function publicProvider(providerId: string): PublicProvider | undefined {

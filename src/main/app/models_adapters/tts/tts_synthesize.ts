@@ -10,7 +10,7 @@ import {
 	type SpeechSynthesisRequest,
 	type SpeechSynthesisResult,
 } from '../../../../shared/speech_types';
-import { getProvider, loadProviderCatalog } from '../../../providers';
+import { getProvider, loadProviders } from '../../../providers';
 import { buildSpeechAdapter } from './tts_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
 import { getModelId, getProviderId } from '../../../models/models_store';
@@ -68,7 +68,7 @@ function configuredModelId(providerId: TextToSpeechProviderId): string | undefin
 
 function resolveProvider(providerId: TextToSpeechProviderId): SpeechProviderSpec {
 	const stored = getProvider(providerId);
-	const defaults = loadProviderCatalog().find((provider) => provider.id === providerId);
+	const defaults = loadProviders().find((provider) => provider.id === providerId);
 	const spec: SpeechProviderSpec = {
 		id: providerId,
 		name: stored?.name || defaults?.name || providerId,
