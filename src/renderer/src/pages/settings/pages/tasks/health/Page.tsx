@@ -27,23 +27,13 @@ import {
 	SettingsSection,
 } from '../../../components';
 
-type CatalogProvider = PublicProvider;
-
-function toPublicProvider(provider: CatalogProvider): PublicProvider {
-	return {
-		id: provider.id,
-		name: provider.name,
-		baseUrl: provider.baseUrl,
-		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
-		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
-	};
+function llmModelGroups(): ProviderModelGroup[] {
+	return providerIdsFor('llm').flatMap((providerId) => {
+		const provider = providers().find((item) => item.id === providerId);
+		const models = providerModels(providerId, 'llm');
+		return provider && models.length > 0 ? [{ provider, models }] : [];
+	});
 }
-
-const llmModelGroups(): ProviderModelGroup[] = LLM_PROVIDERS.flatMap((providerId) => {
-	const provider = providers().find((item) => item.id === providerId);
-	const models = [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
-	return provider && models.length > 0 ? [{ provider: toPublicProvider(provider), models }] : [];
-});
 
 type HealthSettings = Awaited<ReturnType<typeof window.agent.healthGetSettings>>;
 
