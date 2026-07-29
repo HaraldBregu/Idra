@@ -42,7 +42,7 @@ export function setupReducer(state: SetupState, action: SetupAction): SetupState
 			const hasSavedProvider = Object.values(action.savedStatus).some(Boolean);
 			return {
 				...state,
-				providerEntries: actionableProviderCatalog.map((provider, index) => {
+				providerEntries: actionableProviderCatalog().map((provider, index) => {
 					const current = state.providerEntries.find((e) => e.providerId === provider.id);
 					const saved = action.savedStatus[provider.id] ?? false;
 					const draft = current?.apiKey ?? '';
