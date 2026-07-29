@@ -88,7 +88,7 @@ export function ProviderCard({
 	const [canonical, setCanonical] = useState(storage);
 	const [draft, setDraft] = useState(storage);
 	const [editing, setEditing] = useState(!storage.id);
-	const [expanded, setExpanded] = useState(true);
+	const [expanded, setExpanded] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [removing, setRemoving] = useState(false);
 	const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
