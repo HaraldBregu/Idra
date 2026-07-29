@@ -362,46 +362,108 @@ const ProvidersPage: React.FC = () => {
 				title={t('settings.overview.groups.vectorDatabases')}
 				description={t('settings.providers.vectorDatabasesDescription')}
 			>
-				<SettingsPanel>
-					<div className="grid gap-3 py-4">
-						<SettingsField
-							id="vectordb-api-key"
-							label={t('settings.vectorDb.apiKey')}
-							description={t('settings.vectorDb.apiKeyDescription')}
-						>
-							<Input
-								id="vectordb-api-key"
-								type="password"
-								value={vectorDbApiKey}
-								placeholder={t('settings.vectorDb.apiKeyPlaceholder')}
-								disabled={vectorDbSaving}
-								onChange={(event) => setVectorDbApiKey(event.target.value)}
-							/>
-						</SettingsField>
+				<div className="space-y-3 py-4">
+					<Card className="rounded-lg border-border bg-card shadow-none">
+						<CardContent className="p-0">
+							<div className="grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5">
+								<div className="size-8 rounded-md bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xs font-semibold">
+									P
+								</div>
+								<div className="min-w-0 flex-1">
+									<div className="flex min-w-0 items-center gap-1.5">
+										<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
+											Pinecone
+										</h2>
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon-xs"
+											className="size-5 text-muted-foreground hover:text-foreground"
+											aria-label="Open Pinecone API setup"
+											onClick={() =>
+												openExternalUrl('https://app.pinecone.io/organizations/default/projects/default/indexes')
+											}
+										>
+											<ExternalLink className="size-3" />
+										</Button>
+									</div>
+									<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
+										{vectorDbApiKey.trim() ? MASKED_API_KEY_LABEL : 'Vector database for embeddings'}
+									</p>
+								</div>
+								<div className="flex shrink-0 justify-end gap-2">
+									{vectorDbApiKey.trim() && !vectorDbSaving ? (
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon-xs"
+											aria-label="Edit Pinecone API key"
+											onClick={() => setVectorDbApiKey('')}
+										>
+											<Pencil className="size-3.5" />
+										</Button>
+									) : !vectorDbApiKey.trim() ? (
+										<Button
+											type="button"
+											variant="outline"
+											size="xs"
+											onClick={() => setVectorDbApiKey('')}
+										>
+											Connect
+										</Button>
+									) : null}
+								</div>
+							</div>
 
-						<div className="flex justify-end">
-							<Button
-								type="button"
-								size="sm"
-								disabled={vectorDbSaving || !vectorDbApiKey.trim()}
-								onClick={() => void handleVectorDbSave()}
-							>
-								{vectorDbSaving ? (
-									<LoaderCircle className="size-3 animate-spin" />
-								) : (
-									<Save className="size-3" />
-								)}
-								{t('settings.vectorDb.save')}
-							</Button>
-						</div>
+							{!vectorDbApiKey.trim() || vectorDbSaving ? (
+								<div className="flex items-center gap-2 px-3 pb-3 pt-2">
+									<Input
+										aria-label="Pinecone API key"
+										autoComplete="off"
+										className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
+										disabled={vectorDbSaving}
+										onChange={(event) => setVectorDbApiKey(event.target.value)}
+										onKeyDown={(event) => {
+											if (event.key === 'Enter' && vectorDbApiKey.trim()) {
+												void handleVectorDbSave();
+											}
+										}}
+										placeholder={t('settings.vectorDb.apiKeyPlaceholder')}
+										spellCheck={false}
+										type="password"
+										value={vectorDbApiKey}
+									/>
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										disabled={vectorDbSaving}
+										onClick={() => setVectorDbApiKey('')}
+									>
+										{t('common.cancel')}
+									</Button>
+									<Button
+										type="button"
+										size="sm"
+										disabled={vectorDbSaving || !vectorDbApiKey.trim()}
+										onClick={() => void handleVectorDbSave()}
+									>
+										{vectorDbSaving ? (
+											<LoaderCircle className="size-3.5 animate-spin" />
+										) : null}
+										{t('common.save')}
+									</Button>
+								</div>
+							) : null}
 
-						{vectorDbSaved && (
-							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.vectorDb.saved')}
-							</p>
-						)}
-					</div>
-				</SettingsPanel>
+							{vectorDbSaved && (
+								<p className="text-[11px] leading-4 text-muted-foreground px-3 pb-3 pt-2">
+									{t('settings.vectorDb.saved')}
+								</p>
+							)}
+						</CardContent>
+					</Card>
+				</div>
 			</SettingsSection>
 
 			<SettingsSection
