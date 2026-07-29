@@ -116,7 +116,6 @@ function toProviderModel(model: CatalogModel): ProviderModel {
 	return {
 		id: model.id,
 		name: model.name,
-		status: model.status,
 		...(model.apiTypes ? { apiTypes: model.apiTypes } : {}),
 		...(model.realtime ? { realtime: model.realtime } : {}),
 	};
