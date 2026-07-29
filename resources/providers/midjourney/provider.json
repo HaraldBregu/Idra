@@ -2,57 +2,30 @@
 	{
 		"id": "midjourney",
 		"name": "Midjourney",
-		"type": "text-to-image",
-		"baseUrl": "https://www.midjourney.com",
-		"apiKey": "",
-		"capabilities": "Image - Video",
-		"apiConfiguration": {
-			"credentialType": "No generally available official API key found",
-			"apiKeyManagementUrl": null,
-			"configurationDocsUrl": "https://docs.midjourney.com/hc/en-us",
-			"authMethod": null,
-			"recommendedEnvVars": [],
-			"baseUrls": [],
-			"importantNotes": [
-				"Midjourney has official product/user docs but no generally available official public API-key configuration page found."
-			]
-		},
 		"models": [
 			{
 				"id": "midjourney-v8.1",
 				"name": "Midjourney v8.1",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			},
 			{
 				"id": "midjourney-v7",
 				"name": "Midjourney v7",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			}
 		]
 	},
 	{
 		"id": "midjourney",
 		"name": "Midjourney",
-		"type": "text-to-video",
-		"baseUrl": "https://www.midjourney.com",
-		"apiKey": "",
-		"capabilities": "Image - Video",
-		"apiConfiguration": {
-			"credentialType": "No generally available official API key found",
-			"apiKeyManagementUrl": null,
-			"configurationDocsUrl": "https://docs.midjourney.com/hc/en-us",
-			"authMethod": null,
-			"recommendedEnvVars": [],
-			"baseUrls": [],
-			"importantNotes": [
-				"Midjourney has official product/user docs but no generally available official public API-key configuration page found."
-			]
-		},
 		"models": [
 			{
 				"id": "midjourney-video-v1",
 				"name": "Midjourney Video v1",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			}
 		]
 	}

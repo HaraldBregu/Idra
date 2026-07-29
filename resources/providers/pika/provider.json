@@ -2,31 +2,12 @@
 	{
 		"id": "pika",
 		"name": "Pika",
-		"type": "text-to-video",
-		"baseUrl": "https://pika.art",
-		"apiKey": "",
-		"capabilities": "Video",
-		"apiConfiguration": {
-			"credentialType": "Fal API key for official Pika API access via Fal; third-party Pika keys also exist",
-			"apiKeyManagementUrl": "https://fal.ai/dashboard/keys",
-			"configurationDocsUrl": "https://pika.art/api",
-			"authMethod": "FAL_KEY / API key authentication",
-			"recommendedEnvVars": [
-				"FAL_KEY",
-				"PIKA_API_KEY"
-			],
-			"baseUrls": [
-				"https://fal.run"
-			],
-			"importantNotes": [
-				"Pika's official API page points developers to Fal.ai for API access; avoid confusing this with unrelated third-party Pika API services."
-			]
-		},
 		"models": [
 			{
 				"id": "pika-2.2",
 				"name": "Pika 2.2",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			}
 		]
 	}

@@ -1,0 +1,10 @@
+[
+	{
+		"id": "anthropic",
+		"name": "Anthropic",
+		"vector_database": {
+			"id": "object-storage",
+			"name": "Object Storage"
+		}
+	}
+]

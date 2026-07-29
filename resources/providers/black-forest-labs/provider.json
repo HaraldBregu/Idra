@@ -2,40 +2,24 @@
 	{
 		"id": "black-forest-labs",
 		"name": "Black Forest Labs",
-		"type": "text-to-image",
-		"baseUrl": "https://api.bfl.ai/v1",
-		"apiKey": "",
-		"capabilities": "Image",
-		"apiConfiguration": {
-			"credentialType": "BFL API key",
-			"apiKeyManagementUrl": "https://api.us1.bfl.ai/auth/profile",
-			"configurationDocsUrl": "https://docs.bfl.ai/",
-			"authMethod": "API key authentication",
-			"recommendedEnvVars": [
-				"BFL_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.us1.bfl.ai"
-			],
-			"importantNotes": [
-				"Official API docs are linked from the BFL site/GitHub; key management may require account login."
-			]
-		},
 		"models": [
 			{
 				"id": "FLUX.2",
 				"name": "FLUX.2",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			},
 			{
 				"id": "FLUX.1 Kontext [pro]",
 				"name": "FLUX.1 Kontext [pro]",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			},
 			{
 				"id": "FLUX1.1 [pro] Ultra",
 				"name": "FLUX1.1 [pro] Ultra",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			}
 		]
 	}

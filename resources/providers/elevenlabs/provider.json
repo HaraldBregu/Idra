@@ -2,25 +2,6 @@
 	{
 		"id": "elevenlabs",
 		"name": "ElevenLabs",
-		"type": "speech-to-text",
-		"baseUrl": "https://api.elevenlabs.io/v1",
-		"apiKey": "",
-		"capabilities": "Speech-to-text - Text-to-speech - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://elevenlabs.io/app/settings/api-keys",
-			"configurationDocsUrl": "https://elevenlabs.io/docs/api-reference/authentication",
-			"authMethod": "xi-api-key header",
-			"recommendedEnvVars": [
-				"ELEVENLABS_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.elevenlabs.io"
-			],
-			"importantNotes": [
-				"Each request must include the API key; keys can be restricted/scoped."
-			]
-		},
 		"models": [
 			{
 				"id": "scribe_v2",
@@ -28,7 +9,8 @@
 				"status": "active",
 				"apiTypes": [
 					"batch"
-				]
+				],
+				"type": "speech-to-text"
 			},
 			{
 				"id": "scribe_v2_realtime",
@@ -37,7 +19,8 @@
 				"apiTypes": [
 					"stream"
 				],
-				"realtime": true
+				"realtime": true,
+				"type": "speech-to-text"
 			}
 		],
 		"sampleRate": 16000
@@ -45,40 +28,24 @@
 	{
 		"id": "elevenlabs",
 		"name": "ElevenLabs",
-		"type": "text-to-speech",
-		"baseUrl": "https://api.elevenlabs.io/v1",
-		"apiKey": "",
-		"capabilities": "Speech-to-text - Text-to-speech - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://elevenlabs.io/app/settings/api-keys",
-			"configurationDocsUrl": "https://elevenlabs.io/docs/api-reference/authentication",
-			"authMethod": "xi-api-key header",
-			"recommendedEnvVars": [
-				"ELEVENLABS_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.elevenlabs.io"
-			],
-			"importantNotes": [
-				"Each request must include the API key; keys can be restricted/scoped."
-			]
-		},
 		"models": [
 			{
 				"id": "eleven_v3",
 				"name": "Eleven v3",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-speech"
 			},
 			{
 				"id": "eleven_multilingual_v2",
 				"name": "Eleven Multilingual v2",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-speech"
 			},
 			{
 				"id": "eleven_flash_v2_5",
 				"name": "Eleven Flash v2.5",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-speech"
 			}
 		],
 		"default": true
@@ -86,35 +53,18 @@
 	{
 		"id": "elevenlabs",
 		"name": "ElevenLabs",
-		"type": "text-to-audio",
-		"baseUrl": "https://api.elevenlabs.io/v1",
-		"apiKey": "",
-		"capabilities": "Speech-to-text - Text-to-speech - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://elevenlabs.io/app/settings/api-keys",
-			"configurationDocsUrl": "https://elevenlabs.io/docs/api-reference/authentication",
-			"authMethod": "xi-api-key header",
-			"recommendedEnvVars": [
-				"ELEVENLABS_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.elevenlabs.io"
-			],
-			"importantNotes": [
-				"Each request must include the API key; keys can be restricted/scoped."
-			]
-		},
 		"models": [
 			{
 				"id": "eleven-music",
 				"name": "Eleven Music",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-audio"
 			},
 			{
 				"id": "elevenlabs-sound-effects",
 				"name": "ElevenLabs Sound Effects",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-audio"
 			}
 		]
 	}

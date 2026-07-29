@@ -2,97 +2,66 @@
 	{
 		"id": "openai",
 		"name": "OpenAI",
-		"type": "llm",
-		"baseUrl": "https://api.openai.com/v1",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Speech-to-text",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://platform.openai.com/api-keys",
-			"configurationDocsUrl": "https://developers.openai.com/api/docs/quickstart",
-			"authMethod": "HTTP Bearer token",
-			"recommendedEnvVars": [
-				"OPENAI_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.openai.com/v1"
-			],
-			"importantNotes": [
-				"Create/export the key before calling the API.",
-				"Keep server-side; do not expose in browser or client apps."
-			]
-		},
 		"models": [
 			{
 				"id": "gpt-5.6-sol",
 				"name": "GPT-5.6 Sol",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "gpt-5.6-terra",
 				"name": "GPT-5.6 Terra",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "gpt-5.6-luna",
 				"name": "GPT-5.6 Luna",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "gpt-5.5",
 				"name": "GPT-5.5",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "gpt-5.5-pro",
 				"name": "GPT-5.5 Pro",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "gpt-5.4",
 				"name": "GPT-5.4",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "gpt-5.4-pro",
 				"name": "GPT-5.4 Pro",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "gpt-5.4-mini",
 				"name": "GPT-5.4 Mini",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "gpt-5.4-nano",
 				"name": "GPT-5.4 Nano",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			}
 		]
 	},
 	{
 		"id": "openai",
 		"name": "OpenAI",
-		"type": "speech-to-text",
-		"baseUrl": "https://api.openai.com/v1",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Speech-to-text",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://platform.openai.com/api-keys",
-			"configurationDocsUrl": "https://developers.openai.com/api/docs/quickstart",
-			"authMethod": "HTTP Bearer token",
-			"recommendedEnvVars": [
-				"OPENAI_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.openai.com/v1"
-			],
-			"importantNotes": [
-				"Create/export the key before calling the API.",
-				"Keep server-side; do not expose in browser or client apps."
-			]
-		},
 		"models": [
 			{
 				"id": "gpt-4o-transcribe",
@@ -100,7 +69,8 @@
 				"status": "active",
 				"apiTypes": [
 					"batch"
-				]
+				],
+				"type": "speech-to-text"
 			},
 			{
 				"id": "gpt-4o-mini-transcribe",
@@ -108,7 +78,8 @@
 				"status": "active",
 				"apiTypes": [
 					"batch"
-				]
+				],
+				"type": "speech-to-text"
 			},
 			{
 				"id": "gpt-realtime-whisper",
@@ -117,7 +88,8 @@
 				"apiTypes": [
 					"stream"
 				],
-				"realtime": true
+				"realtime": true,
+				"type": "speech-to-text"
 			}
 		],
 		"default": true,
@@ -126,72 +98,36 @@
 	{
 		"id": "openai",
 		"name": "OpenAI",
-		"type": "text-to-speech",
-		"baseUrl": "https://api.openai.com/v1",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Speech-to-text",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://platform.openai.com/api-keys",
-			"configurationDocsUrl": "https://developers.openai.com/api/docs/quickstart",
-			"authMethod": "HTTP Bearer token",
-			"recommendedEnvVars": [
-				"OPENAI_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.openai.com/v1"
-			],
-			"importantNotes": [
-				"Create/export the key before calling the API.",
-				"Keep server-side; do not expose in browser or client apps."
-			]
-		},
 		"models": [
 			{
 				"id": "gpt-4o-mini-tts",
 				"name": "GPT-4o Mini TTS",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-speech"
 			},
 			{
 				"id": "tts-1-hd",
 				"name": "TTS-1 HD",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-speech"
 			}
 		]
 	},
 	{
 		"id": "openai",
 		"name": "OpenAI",
-		"type": "embedding",
-		"baseUrl": "https://api.openai.com/v1",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Speech-to-text",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://platform.openai.com/api-keys",
-			"configurationDocsUrl": "https://developers.openai.com/api/docs/quickstart",
-			"authMethod": "HTTP Bearer token",
-			"recommendedEnvVars": [
-				"OPENAI_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.openai.com/v1"
-			],
-			"importantNotes": [
-				"Create/export the key before calling the API.",
-				"Keep server-side; do not expose in browser or client apps."
-			]
-		},
 		"models": [
 			{
 				"id": "text-embedding-3-large",
 				"name": "Text Embedding 3 Large",
-				"status": "active"
+				"status": "active",
+				"type": "embedding"
 			},
 			{
 				"id": "text-embedding-3-small",
 				"name": "Text Embedding 3 Small",
-				"status": "active"
+				"status": "active",
+				"type": "embedding"
 			}
 		],
 		"default": true

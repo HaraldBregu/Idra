@@ -2,217 +2,102 @@
 	{
 		"id": "google",
 		"name": "Google DeepMind / Google",
-		"type": "llm",
-		"baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "Gemini API key / Google Cloud credentials depending on service",
-			"apiKeyManagementUrl": "https://aistudio.google.com/app/apikey",
-			"configurationDocsUrl": "https://ai.google.dev/gemini-api/docs/api-key",
-			"authMethod": "API key parameter/header for Gemini Developer API; Google Cloud IAM/auth for Vertex/Cloud APIs",
-			"recommendedEnvVars": [
-				"GEMINI_API_KEY",
-				"GOOGLE_API_KEY"
-			],
-			"baseUrls": [
-				"https://generativelanguage.googleapis.com"
-			],
-			"importantNotes": [
-				"Use Google AI Studio for Gemini API keys.",
-				"For Vertex AI or Cloud Speech/Text-to-Speech, prefer Google Cloud project credentials and IAM."
-			]
-		},
 		"models": [
 			{
 				"id": "gemini-3.1-pro-preview",
 				"name": "Gemini 3.1 Pro Preview",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "gemini-3.1-flash-lite",
 				"name": "Gemini 3.1 Flash Lite",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			}
 		]
 	},
 	{
 		"id": "google",
 		"name": "Google DeepMind / Google",
-		"type": "text-to-speech",
-		"baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "Gemini API key / Google Cloud credentials depending on service",
-			"apiKeyManagementUrl": "https://aistudio.google.com/app/apikey",
-			"configurationDocsUrl": "https://ai.google.dev/gemini-api/docs/api-key",
-			"authMethod": "API key parameter/header for Gemini Developer API; Google Cloud IAM/auth for Vertex/Cloud APIs",
-			"recommendedEnvVars": [
-				"GEMINI_API_KEY",
-				"GOOGLE_API_KEY"
-			],
-			"baseUrls": [
-				"https://generativelanguage.googleapis.com"
-			],
-			"importantNotes": [
-				"Use Google AI Studio for Gemini API keys.",
-				"For Vertex AI or Cloud Speech/Text-to-Speech, prefer Google Cloud project credentials and IAM."
-			]
-		},
 		"models": [
 			{
 				"id": "gemini-3.1-flash-tts-preview",
 				"name": "Gemini 3.1 Flash TTS Preview",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-speech"
 			}
 		]
 	},
 	{
 		"id": "google",
 		"name": "Google DeepMind / Google",
-		"type": "realtime-voice",
-		"baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "Gemini API key / Google Cloud credentials depending on service",
-			"apiKeyManagementUrl": "https://aistudio.google.com/app/apikey",
-			"configurationDocsUrl": "https://ai.google.dev/gemini-api/docs/api-key",
-			"authMethod": "API key parameter/header for Gemini Developer API; Google Cloud IAM/auth for Vertex/Cloud APIs",
-			"recommendedEnvVars": [
-				"GEMINI_API_KEY",
-				"GOOGLE_API_KEY"
-			],
-			"baseUrls": [
-				"https://generativelanguage.googleapis.com"
-			],
-			"importantNotes": [
-				"Use Google AI Studio for Gemini API keys.",
-				"For Vertex AI or Cloud Speech/Text-to-Speech, prefer Google Cloud project credentials and IAM."
-			]
-		},
 		"models": [
 			{
 				"id": "gemini-3.1-flash-live-preview",
 				"name": "Gemini 3.1 Flash Live Preview",
-				"status": "active"
+				"status": "active",
+				"type": "realtime-voice"
 			}
 		]
 	},
 	{
 		"id": "google",
 		"name": "Google DeepMind / Google",
-		"type": "text-to-image",
-		"baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "Gemini API key / Google Cloud credentials depending on service",
-			"apiKeyManagementUrl": "https://aistudio.google.com/app/apikey",
-			"configurationDocsUrl": "https://ai.google.dev/gemini-api/docs/api-key",
-			"authMethod": "API key parameter/header for Gemini Developer API; Google Cloud IAM/auth for Vertex/Cloud APIs",
-			"recommendedEnvVars": [
-				"GEMINI_API_KEY",
-				"GOOGLE_API_KEY"
-			],
-			"baseUrls": [
-				"https://generativelanguage.googleapis.com"
-			],
-			"importantNotes": [
-				"Use Google AI Studio for Gemini API keys.",
-				"For Vertex AI or Cloud Speech/Text-to-Speech, prefer Google Cloud project credentials and IAM."
-			]
-		},
 		"models": [
 			{
 				"id": "gemini-3.1-flash-image-preview",
 				"name": "Gemini 3.1 Flash Image Preview",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			},
 			{
 				"id": "gemini-3-pro-image-preview",
 				"name": "Gemini 3 Pro Image Preview",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			}
 		]
 	},
 	{
 		"id": "google",
 		"name": "Google DeepMind / Google",
-		"type": "text-to-video",
-		"baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "Gemini API key / Google Cloud credentials depending on service",
-			"apiKeyManagementUrl": "https://aistudio.google.com/app/apikey",
-			"configurationDocsUrl": "https://ai.google.dev/gemini-api/docs/api-key",
-			"authMethod": "API key parameter/header for Gemini Developer API; Google Cloud IAM/auth for Vertex/Cloud APIs",
-			"recommendedEnvVars": [
-				"GEMINI_API_KEY",
-				"GOOGLE_API_KEY"
-			],
-			"baseUrls": [
-				"https://generativelanguage.googleapis.com"
-			],
-			"importantNotes": [
-				"Use Google AI Studio for Gemini API keys.",
-				"For Vertex AI or Cloud Speech/Text-to-Speech, prefer Google Cloud project credentials and IAM."
-			]
-		},
 		"models": [
 			{
 				"id": "veo-3.1",
 				"name": "Veo 3.1",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			},
 			{
 				"id": "veo-3.1-fast",
 				"name": "Veo 3.1 Fast",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			}
 		]
 	},
 	{
 		"id": "google",
 		"name": "Google DeepMind / Google",
-		"type": "text-to-audio",
-		"baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
-		"apiKey": "",
-		"capabilities": "Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "Gemini API key / Google Cloud credentials depending on service",
-			"apiKeyManagementUrl": "https://aistudio.google.com/app/apikey",
-			"configurationDocsUrl": "https://ai.google.dev/gemini-api/docs/api-key",
-			"authMethod": "API key parameter/header for Gemini Developer API; Google Cloud IAM/auth for Vertex/Cloud APIs",
-			"recommendedEnvVars": [
-				"GEMINI_API_KEY",
-				"GOOGLE_API_KEY"
-			],
-			"baseUrls": [
-				"https://generativelanguage.googleapis.com"
-			],
-			"importantNotes": [
-				"Use Google AI Studio for Gemini API keys.",
-				"For Vertex AI or Cloud Speech/Text-to-Speech, prefer Google Cloud project credentials and IAM."
-			]
-		},
 		"models": [
 			{
 				"id": "lyria-3-pro-preview",
 				"name": "Lyria 3 Pro Preview",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-audio"
 			},
 			{
 				"id": "lyria-3-clip-preview",
 				"name": "Lyria 3 Clip Preview",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-audio"
 			},
 			{
 				"id": "lyria-realtime",
 				"name": "Lyria Realtime",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-audio"
 			}
 		]
 	}

@@ -2,36 +2,18 @@
 	{
 		"id": "runway",
 		"name": "Runway",
-		"type": "text-to-video",
-		"baseUrl": "https://api.dev.runwayml.com/v1",
-		"apiKey": "",
-		"capabilities": "Video",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://dev.runwayml.com/",
-			"configurationDocsUrl": "https://docs.dev.runwayml.com/guides/setup/",
-			"authMethod": "API key authentication",
-			"recommendedEnvVars": [
-				"RUNWAYML_API_SECRET",
-				"RUNWAY_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.dev.runwayml.com"
-			],
-			"importantNotes": [
-				"Create an organization, add credits, then create/use the API key in the developer portal."
-			]
-		},
 		"models": [
 			{
 				"id": "gen4_turbo",
 				"name": "Gen-4 Turbo",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			},
 			{
 				"id": "gen3a_turbo",
 				"name": "Gen-3 Alpha Turbo",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			}
 		]
 	}

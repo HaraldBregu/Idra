@@ -22,11 +22,17 @@ export interface Provider {
 export type PublicProvider = Omit<Provider, 'apiKey'>;
 export type ProviderInput = Provider;
 
-/** One provider entry per capability, as stored in resources/providers/<id>/provider.json. */
-export interface ProviderCatalogEntry extends Provider {
+/** A catalog model together with the capability it serves. */
+export interface CatalogEntryModel extends ProviderModel {
 	readonly type: ModelCapability;
-	readonly models: readonly ProviderModel[];
-	/** Preferred provider for this capability when nothing is configured. */
+}
+
+/** A provider's model catalog, as stored in resources/providers/<id>/provider.json. */
+export interface ProviderCatalogEntry {
+	readonly id: string;
+	readonly name: string;
+	readonly models?: readonly CatalogEntryModel[];
+	/** Preferred provider for its models' capability when nothing is configured. */
 	readonly default?: boolean;
 	/** Speech-to-text only: realtime capture sample rate. */
 	readonly sampleRate?: number;

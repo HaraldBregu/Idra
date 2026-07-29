@@ -2,15 +2,12 @@
 	{
 		"id": "bge",
 		"name": "BGE-M3",
-		"type": "embedding",
-		"baseUrl": "http://localhost:8080/v1/embeddings",
-		"apiKey": "",
-		"capabilities": "Embedding",
 		"models": [
 			{
 				"id": "bge-m3",
 				"name": "BGE-M3",
-				"status": "active"
+				"status": "active",
+				"type": "embedding"
 			}
 		]
 	}

@@ -2,63 +2,30 @@
 	{
 		"id": "kling",
 		"name": "Kuaishou / Kling AI",
-		"type": "text-to-video",
-		"baseUrl": "https://kling.ai",
-		"apiKey": "",
-		"capabilities": "Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "Access key and secret key",
-			"apiKeyManagementUrl": "https://app.klingai.com/global/dev/account/apiKey",
-			"configurationDocsUrl": "https://app.klingai.com/global/dev/document-api/quickStart/productIntroduction/overview",
-			"authMethod": "Kling developer API authentication using access/secret credentials",
-			"recommendedEnvVars": [
-				"KLING_ACCESS_KEY",
-				"KLING_SECRET_KEY"
-			],
-			"baseUrls": [],
-			"importantNotes": [
-				"Official developer docs exist under Kling AI; credential flow may expose both access key and secret key."
-			]
-		},
 		"models": [
 			{
 				"id": "kling-v2.5-turbo",
 				"name": "Kling v2.5 Turbo",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			},
 			{
 				"id": "kling-v2.1-master",
 				"name": "Kling v2.1 Master",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			}
 		]
 	},
 	{
 		"id": "kling",
 		"name": "Kuaishou / Kling AI",
-		"type": "text-to-audio",
-		"baseUrl": "https://kling.ai",
-		"apiKey": "",
-		"capabilities": "Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "Access key and secret key",
-			"apiKeyManagementUrl": "https://app.klingai.com/global/dev/account/apiKey",
-			"configurationDocsUrl": "https://app.klingai.com/global/dev/document-api/quickStart/productIntroduction/overview",
-			"authMethod": "Kling developer API authentication using access/secret credentials",
-			"recommendedEnvVars": [
-				"KLING_ACCESS_KEY",
-				"KLING_SECRET_KEY"
-			],
-			"baseUrls": [],
-			"importantNotes": [
-				"Official developer docs exist under Kling AI; credential flow may expose both access key and secret key."
-			]
-		},
 		"models": [
 			{
 				"id": "kling-audio",
 				"name": "Kling Audio",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-audio"
 			}
 		]
 	}

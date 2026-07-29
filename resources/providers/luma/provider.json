@@ -2,95 +2,42 @@
 	{
 		"id": "luma",
 		"name": "Luma AI",
-		"type": "realtime-voice",
-		"baseUrl": "https://api.lumalabs.ai/dream-machine/v1",
-		"apiKey": "",
-		"capabilities": "Realtime voice/omni - Image - Video - 3D",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://lumalabs.ai/dream-machine/api/keys",
-			"configurationDocsUrl": "https://docs.lumalabs.ai/docs/welcome",
-			"authMethod": "API key authentication",
-			"recommendedEnvVars": [
-				"LUMA_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.lumalabs.ai/dream-machine/v1"
-			],
-			"importantNotes": [
-				"Dream Machine API keys and billing are managed in Luma's API dashboard."
-			]
-		},
 		"models": [
 			{
 				"id": "uni-1.1",
 				"name": "Uni 1.1",
-				"status": "active"
+				"status": "active",
+				"type": "realtime-voice"
 			}
 		]
 	},
 	{
 		"id": "luma",
 		"name": "Luma AI",
-		"type": "text-to-image",
-		"baseUrl": "https://api.lumalabs.ai/dream-machine/v1",
-		"apiKey": "",
-		"capabilities": "Realtime voice/omni - Image - Video - 3D",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://lumalabs.ai/dream-machine/api/keys",
-			"configurationDocsUrl": "https://docs.lumalabs.ai/docs/welcome",
-			"authMethod": "API key authentication",
-			"recommendedEnvVars": [
-				"LUMA_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.lumalabs.ai/dream-machine/v1"
-			],
-			"importantNotes": [
-				"Dream Machine API keys and billing are managed in Luma's API dashboard."
-			]
-		},
 		"models": [
 			{
 				"id": "uni-1.1",
 				"name": "Uni 1.1",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			}
 		]
 	},
 	{
 		"id": "luma",
 		"name": "Luma AI",
-		"type": "text-to-video",
-		"baseUrl": "https://api.lumalabs.ai/dream-machine/v1",
-		"apiKey": "",
-		"capabilities": "Realtime voice/omni - Image - Video - 3D",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://lumalabs.ai/dream-machine/api/keys",
-			"configurationDocsUrl": "https://docs.lumalabs.ai/docs/welcome",
-			"authMethod": "API key authentication",
-			"recommendedEnvVars": [
-				"LUMA_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.lumalabs.ai/dream-machine/v1"
-			],
-			"importantNotes": [
-				"Dream Machine API keys and billing are managed in Luma's API dashboard."
-			]
-		},
 		"models": [
 			{
 				"id": "ray-3",
 				"name": "Ray 3",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			},
 			{
 				"id": "ray-2",
 				"name": "Ray 2",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-video"
 			}
 		]
 	}

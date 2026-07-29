@@ -2,15 +2,12 @@
 	{
 		"id": "voyage",
 		"name": "Voyage AI",
-		"type": "embedding",
-		"baseUrl": "https://api.voyageai.com/v1",
-		"apiKey": "",
-		"capabilities": "Embedding",
 		"models": [
 			{
 				"id": "voyage-3-large",
 				"name": "Voyage 3 Large",
-				"status": "active"
+				"status": "active",
+				"type": "embedding"
 			}
 		]
 	}

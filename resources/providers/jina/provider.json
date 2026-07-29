@@ -2,15 +2,12 @@
 	{
 		"id": "jina",
 		"name": "Jina AI",
-		"type": "embedding",
-		"baseUrl": "https://api.jina.ai/v1",
-		"apiKey": "",
-		"capabilities": "Embedding",
 		"models": [
 			{
 				"id": "jina-embeddings-v3",
 				"name": "Jina Embeddings v3",
-				"status": "active"
+				"status": "active",
+				"type": "embedding"
 			}
 		]
 	}

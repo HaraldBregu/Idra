@@ -2,35 +2,18 @@
 	{
 		"id": "deepseek",
 		"name": "DeepSeek",
-		"type": "llm",
-		"baseUrl": "https://api.deepseek.com",
-		"apiKey": "",
-		"capabilities": "Chat",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://platform.deepseek.com/api_keys",
-			"configurationDocsUrl": "https://api-docs.deepseek.com/",
-			"authMethod": "OpenAI-compatible Bearer token",
-			"recommendedEnvVars": [
-				"DEEPSEEK_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.deepseek.com"
-			],
-			"importantNotes": [
-				"DeepSeek API is OpenAI/Anthropic-format compatible; configure base URL and key."
-			]
-		},
 		"models": [
 			{
 				"id": "deepseek-v4-pro",
 				"name": "DeepSeek V4 Pro",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			},
 			{
 				"id": "deepseek-v4-flash",
 				"name": "DeepSeek V4 Flash",
-				"status": "active"
+				"status": "active",
+				"type": "llm"
 			}
 		]
 	}

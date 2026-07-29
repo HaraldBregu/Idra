@@ -2,65 +2,30 @@
 	{
 		"id": "stability-ai",
 		"name": "Stability AI",
-		"type": "text-to-image",
-		"baseUrl": "https://api.stability.ai/v2beta",
-		"apiKey": "",
-		"capabilities": "Image - Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://platform.stability.ai/account/keys",
-			"configurationDocsUrl": "https://platform.stability.ai/docs/getting-started",
-			"authMethod": "Authorization: Bearer <api_key>",
-			"recommendedEnvVars": [
-				"STABILITY_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.stability.ai"
-			],
-			"importantNotes": [
-				"Keep keys secret; create a new key and delete old one if leaked."
-			]
-		},
 		"models": [
 			{
 				"id": "stable-image-ultra",
 				"name": "Stable Image Ultra",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			},
 			{
 				"id": "stable-image-core",
 				"name": "Stable Image Core",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-image"
 			}
 		]
 	},
 	{
 		"id": "stability-ai",
 		"name": "Stability AI",
-		"type": "text-to-audio",
-		"baseUrl": "https://api.stability.ai/v2beta",
-		"apiKey": "",
-		"capabilities": "Image - Video - Music/audio",
-		"apiConfiguration": {
-			"credentialType": "API key",
-			"apiKeyManagementUrl": "https://platform.stability.ai/account/keys",
-			"configurationDocsUrl": "https://platform.stability.ai/docs/getting-started",
-			"authMethod": "Authorization: Bearer <api_key>",
-			"recommendedEnvVars": [
-				"STABILITY_API_KEY"
-			],
-			"baseUrls": [
-				"https://api.stability.ai"
-			],
-			"importantNotes": [
-				"Keep keys secret; create a new key and delete old one if leaked."
-			]
-		},
 		"models": [
 			{
 				"id": "stable-audio-2.5",
 				"name": "Stable Audio 2.5",
-				"status": "active"
+				"status": "active",
+				"type": "text-to-audio"
 			}
 		]
 	}
