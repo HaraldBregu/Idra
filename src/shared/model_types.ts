@@ -16,7 +16,6 @@ export type ModelCapability =
 export interface ProviderModel {
 	readonly id: string;
 	readonly name: string;
-	readonly status: ProviderModelStatus;
 	/** Speech-to-text only: transcription APIs this model supports. */
 	readonly apiTypes?: readonly SpeechToTextApiType[];
 	/** Speech-to-text only: model streams transcripts in realtime. */
