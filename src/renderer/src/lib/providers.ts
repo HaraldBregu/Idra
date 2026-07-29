@@ -46,6 +46,24 @@ export function defaultProviderId(type: ModelCapability): string | undefined {
 	return (entries.find((entry) => entry.default) ?? entries[0])?.id;
 }
 
+export function speechToTextApiTypes(
+	providerId: string,
+	modelId: string
+): readonly SpeechToTextApiType[] {
+	const model = providerModels(providerId, 'speech-to-text').find(
+		(item) => item.id === modelId.trim()
+	);
+	return model?.apiTypes ?? [];
+}
+
+export function supportsSpeechToTextApiType(
+	providerId: string,
+	modelId: string,
+	apiType: SpeechToTextApiType
+): boolean {
+	return speechToTextApiTypes(providerId, modelId).includes(apiType);
+}
+
 export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {
 	const model = providerModels(providerId, 'speech-to-text').find(
 		(item) => item.id === modelId.trim()
