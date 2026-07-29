@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, ExternalLink, LoaderCircle, Pencil, Plus, Cloud, Save } from 'lucide-react';
+import { AlertTriangle, ExternalLink, LoaderCircle, Pencil, Plus, Cloud } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
