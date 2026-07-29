@@ -196,7 +196,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Providers — API keys
 	{
 		path: '/settings/providers/keys',
-		labelKey: 'settings.providers.storeApiKeys',
+		labelKey: 'settings.providers.modelsApiKeys',
 		descriptionKey: 'settings.providers.storeApiKeysDescription',
 		keywords: 'api key secret token anthropic openai google provider',
 		icon: Server,
