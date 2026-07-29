@@ -147,10 +147,6 @@ const StartPage: React.FC = () => {
 			);
 		}
 
-		if (step === 'storage') {
-			return <CloudStep />;
-		}
-
 		return <PresentationStep />;
 	}
 
