@@ -317,15 +317,17 @@ export function ProviderCard({
 								<Pencil className="size-3" />
 							</Button>
 						)}
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							aria-label={t('settings.storage.removeProvider')}
-							onClick={() => void remove()}
-							disabled={removing || saving}
-						>
-							<Trash2 className="size-3" />
-						</Button>
+						{!hideDelete && (
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								aria-label={t('settings.storage.removeProvider')}
+								onClick={() => void remove()}
+								disabled={removing || saving}
+							>
+								<Trash2 className="size-3" />
+							</Button>
+						)}
 					</CardAction>
 				</CardHeader>
 
