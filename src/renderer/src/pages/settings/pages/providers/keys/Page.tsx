@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
-import type { Provider } from '../../../../../../../shared';
+import type { StoredProvider } from '../../../../../../../shared/provider_types';
 import { providers } from '@/lib/providers';
 import {
 	actionableProviderCatalog,
@@ -97,7 +97,7 @@ const ProvidersPage: React.FC = () => {
 		openExternalUrl(provider.apiConfigurationUrl);
 	};
 
-	const toStoredProvider = (providerId: string, apiKey: string): Provider | undefined => {
+	const toStoredProvider = (providerId: string, apiKey: string): StoredProvider | undefined => {
 		const provider = providers().find((item) => item.id === providerId);
 		if (!provider) return undefined;
 

@@ -1,6 +1,6 @@
 import { providerModels } from './providers';
 import type { ProviderModel } from '../../../shared/model_types';
-import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_types';
+import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from './providers';
 import type { PublicProvider } from '../../../shared';
 import type { StoredProvider as StoredProvider } from '../../../shared/provider_types';
 import type {

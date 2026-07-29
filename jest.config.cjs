@@ -82,6 +82,8 @@ module.exports = {
 				'^@store/(.*)$': '<rootDir>/src/renderer/src/store/$1',
 				'^@components/(.*)$': '<rootDir>/src/renderer/src/components/$1',
 				'^@icons/(.*)$': '<rootDir>/src/renderer/src/components/icons/$1',
+				'^@shared$': '<rootDir>/src/shared/index.ts',
+				'^@shared/(.*)$': '<rootDir>/src/shared/$1',
 				'^@resources/(.*)$': '<rootDir>/resources/$1',
 				// Handle bare src/renderer/src imports used in some UI components
 				'^src/renderer/src/(.*)$': '<rootDir>/src/renderer/src/$1',

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SPEECH_TO_TEXT_BATCH_API_TYPE, SPEECH_TO_TEXT_STREAM_API_TYPE, getSpeechToTextModelApiTypes } from '@shared/provider_types';
+import { speechToTextApiTypes } from '@/lib/providers';
 
 export type VoiceButtonMode = 'dictate' | 'record' | 'disabled';
 
@@ -14,12 +14,12 @@ export function useVoiceButtonMode(): VoiceButtonMode {
 					setMode('disabled');
 					return;
 				}
-				const apiTypes = getSpeechToTextModelApiTypes(selection.provider.id, selection.model.id);
-				if (apiTypes.includes(SPEECH_TO_TEXT_STREAM_API_TYPE)) {
+				const apiTypes = speechToTextApiTypes(selection.provider.id, selection.model.id);
+				if (apiTypes.includes('stream')) {
 					setMode('dictate');
 					return;
 				}
-				setMode(apiTypes.includes(SPEECH_TO_TEXT_BATCH_API_TYPE) ? 'record' : 'disabled');
+				setMode(apiTypes.includes('batch') ? 'record' : 'disabled');
 			})
 			.catch(() => setMode('disabled'));
 	}, []);

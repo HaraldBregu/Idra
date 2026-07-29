@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, LoaderCircle, Sparkles } from 'lucide-react';
-import { DEFAULT_EMBEDDING_PROVIDER_ID } from '../../../../../../shared/provider_types';
-import { providerIdsFor, providerModels } from '@/lib/providers';
+import { defaultProviderId, providerIdsFor, providerModels } from '@/lib/providers';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { type ModelProviderGroup, ModelProviderSelect } from '@/components/model-provider-select';
@@ -47,7 +46,7 @@ const EmbeddingPage: React.FC = () => {
 					storedProviderId &&
 					embeddingProviderGroups().some((group) => group.id === storedProviderId)
 						? storedProviderId
-						: DEFAULT_EMBEDDING_PROVIDER_ID;
+						: (defaultProviderId('embedding') ?? '');
 				const models =
 					embeddingProviderGroups().find((group) => group.id === nextProviderId)?.models ?? [];
 				setProviderId(nextProviderId);

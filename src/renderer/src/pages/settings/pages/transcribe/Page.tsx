@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SPEECH_TO_TEXT_BATCH_API_TYPE, SPEECH_TO_TEXT_STREAM_API_TYPE, supportsSpeechToTextModelApiType } from '../../../../../../shared/provider_types';
+import { supportsSpeechToTextApiType } from '@/lib/providers';
 import type { SpeechToTextApiType } from '../../../../../../shared/model_types';
 import type { SttSelectionMode } from '../../../../../../shared/stt_transcription';
 import type { Model } from '@/lib/compat';
@@ -46,7 +46,7 @@ const SPEECH_MODE_CONFIGS: readonly SpeechModeConfig[] = [
 ];
 
 function speechModeApiType(mode: SttSelectionMode): SpeechToTextApiType {
-	return mode === 'realtime' ? SPEECH_TO_TEXT_STREAM_API_TYPE : SPEECH_TO_TEXT_BATCH_API_TYPE;
+	return mode === 'realtime' ? 'stream' : 'batch';
 }
 
 function speechModeModels(
@@ -55,7 +55,7 @@ function speechModeModels(
 	mode: SttSelectionMode
 ): Model[] {
 	const apiType = speechModeApiType(mode);
-	return models.filter((model) => supportsSpeechToTextModelApiType(providerId, model.id, apiType));
+	return models.filter((model) => supportsSpeechToTextApiType(providerId, model.id, apiType));
 }
 
 async function loadSpeechModeState(
@@ -78,7 +78,7 @@ async function loadSpeechModeState(
 				);
 				const nextModels =
 					selection?.provider.id === provider.id &&
-					supportsSpeechToTextModelApiType(
+					supportsSpeechToTextApiType(
 						provider.id,
 						selection.model.id,
 						speechModeApiType(mode)
