@@ -94,8 +94,8 @@ export function ProviderCard({
 	const [error, setError] = useState<string | null>(null);
 
 	const update = (
-		key: StringConfigKey | 'forcePathStyle' | 'syncIntervalMinutes',
-		value: string | boolean | number
+		key: StringConfigKey,
+		value: string | number
 	): void => {
 		setDraft((current) => ({ ...current, [key]: value }));
 		setStatus(null);
