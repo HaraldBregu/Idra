@@ -111,6 +111,41 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 ] as const;
 
+export interface SettingsProviderConfigItem {
+	readonly path: string;
+	readonly labelKey: string;
+	readonly descriptionKey: string;
+	readonly icon: LucideIcon;
+	readonly comingSoon?: boolean;
+}
+
+export const SETTINGS_PROVIDER_CONFIG_ITEMS: readonly SettingsProviderConfigItem[] = [
+	{
+		path: '/settings/assistant',
+		labelKey: 'settings.modelServices.assistantName',
+		descriptionKey: 'settings.modelServices.fridayDescription',
+		icon: Bot,
+	},
+	{
+		path: '/settings/vectordb',
+		labelKey: 'settings.tabs.vectorDb',
+		descriptionKey: 'settings.overview.descriptions.vectorDb',
+		icon: Boxes,
+	},
+	{
+		path: '/settings/storage',
+		labelKey: 'settings.tabs.storage',
+		descriptionKey: 'settings.overview.descriptions.storage',
+		icon: Folder,
+	},
+	{
+		path: '/settings/channels',
+		labelKey: 'settings.tabs.channels',
+		descriptionKey: 'settings.overview.descriptions.channels',
+		icon: RadioTower,
+	},
+] as const;
+
 export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// General
 	{
