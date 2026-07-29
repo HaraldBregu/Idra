@@ -15,12 +15,12 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const embeddingProviderGroups(): readonly ModelProviderGroup[] = EMBEDDING_PROVIDER_IDS.map(
-	(id) => ({
+function embeddingProviderGroups(): readonly ModelProviderGroup[] {
+	return providerIdsFor('embedding').map((id) => ({
 		id,
-		models: EMBEDDING_MODELS_BY_PROVIDER[id] ?? [],
-	})
-).filter((group) => group.models.length > 0);
+		models: providerModels(id, 'embedding'),
+	}));
+}
 
 const EmbeddingPage: React.FC = () => {
 	const { t } = useTranslation();
