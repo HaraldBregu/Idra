@@ -185,22 +185,10 @@ export function ProviderCard({
 		<Card size="sm">
 			<Collapsible open={expanded} onOpenChange={setExpanded} className="flex flex-col gap-3">
 				<CardHeader
-					className={cn('cursor-pointer select-none items-center', expanded && 'border-b')}
-					onClick={() => setExpanded((value) => !value)}
+					className={cn('select-none items-center', expanded && 'border-b')}
 				>
 					<CardTitle>
-						{editing ? (
-							<Input
-								value={draft.name}
-								placeholder={t('settings.storage.namePlaceholder')}
-								onChange={(event) => update('name', event.target.value)}
-								onClick={(event) => event.stopPropagation()}
-								className="h-7 max-w-64 text-sm font-semibold"
-								aria-label={t('settings.storage.name')}
-							/>
-						) : (
-							canonical.name || t('settings.storage.newProviderTitle')
-						)}
+						{canonical.name || t('settings.storage.newProviderTitle')}
 					</CardTitle>
 					<CardAction
 						className="row-span-1 flex items-center gap-2 self-center"
@@ -228,7 +216,10 @@ export function ProviderCard({
 								variant="ghost"
 								size="icon-sm"
 								aria-label={t('settings.storage.edit')}
-								onClick={startEditing}
+								onClick={() => {
+									setExpanded(true);
+									startEditing();
+								}}
 							>
 								<Pencil className="size-3" />
 							</Button>
