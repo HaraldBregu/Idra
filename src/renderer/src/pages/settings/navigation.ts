@@ -442,4 +442,11 @@ export const SETTINGS_NAVIGATION = [
 		descriptionKey: 'settings.overview.descriptions.widgets',
 		icon: LayoutGrid,
 	},
+	{
+		path: '/settings/plugins',
+		labelKey: 'settings.tabs.plugins',
+		descriptionKey: 'settings.overview.descriptions.plugins',
+		icon: Puzzle,
+		comingSoon: true,
+	},
 ] satisfies readonly SettingsNavigationItem[];
