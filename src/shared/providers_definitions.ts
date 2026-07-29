@@ -21,6 +21,15 @@ export interface Provider {
 
 export type PublicProvider = Omit<Provider, 'apiKey'>;
 export type ProviderInput = Provider;
+
+/** One provider entry per model capability, as stored in resources/providers/<id>/provider.json. */
+export interface ProviderCatalogEntry extends Provider {
+	readonly type: ModelCapability;
+	readonly models: readonly ProviderModel[];
+}
+
+export type PublicProviderCatalogEntry = Omit<ProviderCatalogEntry, 'apiKey'>;
+
 export interface ModelSelection {
 	provider: PublicProvider;
 	model: ProviderModel;
