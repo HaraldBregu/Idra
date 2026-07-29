@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { isPluginWidgetEntry } from './entry';
+import { isPluginPath } from './path';
 
 const idSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const versionSchema = z
@@ -31,20 +32,85 @@ const widgetSchema = z
 		version: versionSchema.optional(),
 	})
 	.strict();
+const skillSchema = z
+	.object({
+		id: idSchema,
+		path: z.string().refine(isPluginPath),
+	})
+	.strict();
+const mcpServerSchema = z.discriminatedUnion('type', [
+	z
+		.object({
+			id: idSchema,
+			name: z.string().trim().min(1).optional(),
+			type: z.literal('http'),
+			url: z.string().url(),
+			requireApproval: z.enum(['always', 'never']).optional(),
+		})
+		.strict(),
+	z
+		.object({
+			id: idSchema,
+			name: z.string().trim().min(1).optional(),
+			type: z.literal('stdio'),
+			command: z.string().trim().min(1),
+			args: z.array(z.string()).optional(),
+			requireApproval: z.enum(['always', 'never']).optional(),
+		})
+		.strict(),
+]);
+const languageSchema = z
+	.object({
+		id: z.string().regex(/^[a-z]{2,3}(?:-[A-Z]{2})?$/),
+		name: z.string().trim().min(1),
+		entry: z
+			.string()
+			.refine(isPluginPath)
+			.refine((entry) => entry.toLowerCase().endsWith('.json')),
+	})
+	.strict();
+const themeSchema = z
+	.object({
+		id: idSchema,
+		name: z.string().trim().min(1),
+		entry: z
+			.string()
+			.refine(isPluginPath)
+			.refine((entry) => entry.toLowerCase().endsWith('.json')),
+	})
+	.strict();
 const contributionsSchema = z
 	.object({
 		providers: z.array(providerSchema).default([]),
+		skills: z.array(skillSchema).default([]),
 		widgets: z.array(widgetSchema).default([]),
+		mcpServers: z.array(mcpServerSchema).default([]),
+		languages: z.array(languageSchema).default([]),
+		themes: z.array(themeSchema).default([]),
 	})
 	.strict()
 	.superRefine((contributions, context) => {
-		if (contributions.providers.length + contributions.widgets.length === 0) {
+		const contributionCount =
+			contributions.providers.length +
+			contributions.skills.length +
+			contributions.widgets.length +
+			contributions.mcpServers.length +
+			contributions.languages.length +
+			contributions.themes.length;
+		if (contributionCount === 0) {
 			context.addIssue({
 				code: 'custom',
-				message: 'A plugin must contribute at least one provider or widget.',
+				message: 'A plugin must contribute at least one extension.',
 			});
 		}
-		for (const key of ['providers', 'widgets'] as const) {
+		for (const key of [
+			'providers',
+			'skills',
+			'widgets',
+			'mcpServers',
+			'languages',
+			'themes',
+		] as const) {
 			const ids = new Set<string>();
 			contributions[key].forEach((contribution, index) => {
 				if (ids.has(contribution.id)) {
@@ -72,4 +138,8 @@ export const pluginManifestSchema = z
 
 export type PluginManifest = z.infer<typeof pluginManifestSchema>;
 export type PluginProviderContribution = z.infer<typeof providerSchema>;
+export type PluginSkillContribution = z.infer<typeof skillSchema>;
 export type PluginWidgetContribution = z.infer<typeof widgetSchema>;
+export type PluginMcpServerContribution = z.infer<typeof mcpServerSchema>;
+export type PluginLanguageContribution = z.infer<typeof languageSchema>;
+export type PluginThemeContribution = z.infer<typeof themeSchema>;
