@@ -19,7 +19,7 @@ import { createInitialSetupState, setupReducer } from './state/reducer';
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [checkingSetup, setCheckingSetup] = useState(true);
-	const [state, dispatch] = useReducer(setupReducer, initialSetupState);
+	const [state, dispatch] = useReducer(setupReducer, undefined, createInitialSetupState);
 	const {
 		step,
 		providerEntries,
