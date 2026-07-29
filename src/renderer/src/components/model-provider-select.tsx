@@ -1,9 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	LLM_MODELS_BY_PROVIDER,
-	LLM_PROVIDERS,
-} from '../../../shared/provider_models_definitions';
+import { providerIdsFor, providerModels } from '@/lib/providers';
 import {
 	Select,
 	SelectContent,
@@ -19,7 +16,7 @@ export interface ModelProviderGroup {
 	readonly models: readonly { readonly id: string; readonly name: string }[];
 }
 
-export const LLM_PROVIDER_GROUPS: readonly ModelProviderGroup[] = LLM_PROVIDERS.map((id) => ({
+export const llmProviderGroups(): readonly ModelProviderGroup[] = LLM_PROVIDERS.map((id) => ({
 	id,
 	models: LLM_MODELS_BY_PROVIDER[id] ?? [],
 })).filter((group) => group.models.length > 0);

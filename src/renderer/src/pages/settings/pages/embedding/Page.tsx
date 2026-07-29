@@ -18,7 +18,7 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const EMBEDDING_PROVIDER_GROUPS: readonly ModelProviderGroup[] = EMBEDDING_PROVIDER_IDS.map(
+const embeddingProviderGroups(): readonly ModelProviderGroup[] = EMBEDDING_PROVIDER_IDS.map(
 	(id) => ({
 		id,
 		models: EMBEDDING_MODELS_BY_PROVIDER[id] ?? [],
@@ -48,11 +48,11 @@ const EmbeddingPage: React.FC = () => {
 				if (!mounted) return;
 				const nextProviderId =
 					storedProviderId &&
-					EMBEDDING_PROVIDER_GROUPS.some((group) => group.id === storedProviderId)
+					embeddingProviderGroups().some((group) => group.id === storedProviderId)
 						? storedProviderId
 						: DEFAULT_EMBEDDING_PROVIDER_ID;
 				const models =
-					EMBEDDING_PROVIDER_GROUPS.find((group) => group.id === nextProviderId)?.models ?? [];
+					embeddingProviderGroups().find((group) => group.id === nextProviderId)?.models ?? [];
 				setProviderId(nextProviderId);
 				setModelId(
 					storedModelId && models.some((model) => model.id === storedModelId)
@@ -128,7 +128,7 @@ const EmbeddingPage: React.FC = () => {
 					<div className="grid gap-3 px-3 py-3">
 						<ModelProviderSelect
 							idPrefix="embedding"
-							providerGroups={EMBEDDING_PROVIDER_GROUPS}
+							providerGroups={embeddingProviderGroups()}
 							providerId={providerId}
 							modelId={modelId}
 							onChange={(nextProviderId, nextModelId) =>

@@ -20,7 +20,7 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const IMAGE_PROVIDER_GROUPS: readonly ModelProviderGroup[] = TEXT_TO_IMAGE_PROVIDER_IDS.map(
+const imageProviderGroups(): readonly ModelProviderGroup[] = TEXT_TO_IMAGE_PROVIDER_IDS.map(
 	(id) => ({
 		id,
 		models: TEXT_TO_IMAGE_MODELS_BY_PROVIDER[id] ?? [],
@@ -50,11 +50,11 @@ const ImagePage: React.FC = () => {
 				if (!mounted) return;
 				const nextProviderId =
 					storedProviderId &&
-					IMAGE_PROVIDER_GROUPS.some((group) => group.id === storedProviderId)
+					imageProviderGroups().some((group) => group.id === storedProviderId)
 						? storedProviderId
-						: (IMAGE_PROVIDER_GROUPS[0]?.id ?? '');
+						: (imageProviderGroups()[0]?.id ?? '');
 				const models =
-					IMAGE_PROVIDER_GROUPS.find((group) => group.id === nextProviderId)?.models ?? [];
+					imageProviderGroups().find((group) => group.id === nextProviderId)?.models ?? [];
 				setProviderId(nextProviderId);
 				setModelId(
 					storedModelId && models.some((model) => model.id === storedModelId)
@@ -125,7 +125,7 @@ const ImagePage: React.FC = () => {
 					<div className="grid gap-3 px-3 py-3">
 						<ModelProviderSelect
 							idPrefix="image"
-							providerGroups={IMAGE_PROVIDER_GROUPS}
+							providerGroups={imageProviderGroups()}
 							providerId={providerId}
 							modelId={modelId}
 							onChange={(nextProviderId, nextModelId) =>

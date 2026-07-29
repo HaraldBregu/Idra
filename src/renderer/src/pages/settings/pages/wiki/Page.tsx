@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import {
-	LLM_PROVIDER_GROUPS,
+	llmProviderGroups,
 	ModelProviderSelect,
 	resolveStoredModelProvider,
 } from '@/components/model-provider-select';
@@ -45,7 +45,7 @@ const WikiPage: React.FC = () => {
 			.then(([stored, currentStatus]) => {
 				if (!mounted) return;
 				const selection = resolveStoredModelProvider(
-					LLM_PROVIDER_GROUPS,
+					llmProviderGroups(),
 					stored.providerId,
 					stored.modelId
 				);
@@ -175,7 +175,7 @@ const WikiPage: React.FC = () => {
 							<div className="p-3">
 								<ModelProviderSelect
 									idPrefix="wiki"
-									providerGroups={LLM_PROVIDER_GROUPS}
+									providerGroups={llmProviderGroups()}
 									providerId={settings.providerId}
 									modelId={settings.modelId}
 									onChange={(providerId, modelId) => {

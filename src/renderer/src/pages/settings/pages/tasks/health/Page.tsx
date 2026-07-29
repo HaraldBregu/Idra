@@ -39,7 +39,7 @@ function toPublicProvider(provider: CatalogProvider): PublicProvider {
 	};
 }
 
-const LLM_MODEL_GROUPS: ProviderModelGroup[] = LLM_PROVIDERS.flatMap((providerId) => {
+const llmModelGroups(): ProviderModelGroup[] = LLM_PROVIDERS.flatMap((providerId) => {
 	const provider = providers().find((item) => item.id === providerId);
 	const models = [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
 	return provider && models.length > 0 ? [{ provider: toPublicProvider(provider), models }] : [];
@@ -114,7 +114,7 @@ const HealthPage: React.FC = () => {
 		}
 	};
 
-	const selectedGroup = LLM_MODEL_GROUPS.find(
+	const selectedGroup = llmModelGroups().find(
 		(group) => group.provider.id === settings?.providerId
 	);
 	const selectedModel = selectedGroup?.models.find((model) => model.id === settings?.modelId);
@@ -164,7 +164,7 @@ const HealthPage: React.FC = () => {
 												updateAndSave({
 													providerId: value ?? '',
 													modelId:
-														LLM_MODEL_GROUPS.find((group) => group.provider.id === value)
+														llmModelGroups().find((group) => group.provider.id === value)
 															?.models[0]?.id ?? '',
 												})
 											}
@@ -178,7 +178,7 @@ const HealthPage: React.FC = () => {
 												</SelectValue>
 											</SelectTrigger>
 											<SelectContent>
-												{LLM_MODEL_GROUPS.map((group) => (
+												{llmModelGroups().map((group) => (
 													<SelectItem key={group.provider.id} value={group.provider.id}>
 														{group.provider.name}
 													</SelectItem>

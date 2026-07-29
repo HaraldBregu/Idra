@@ -21,7 +21,7 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const MUSIC_PROVIDER_GROUPS: readonly ModelProviderGroup[] = MUSIC_PROVIDER_IDS.map((id) => ({
+const musicProviderGroups(): readonly ModelProviderGroup[] = MUSIC_PROVIDER_IDS.map((id) => ({
 	id,
 	models: TEXT_TO_AUDIO_MODELS_BY_PROVIDER[id] ?? [],
 })).filter((group) => group.models.length > 0);
@@ -63,11 +63,11 @@ const MusicPage: React.FC = () => {
 				if (!mounted) return;
 				const nextProviderId =
 					storedProviderId &&
-					MUSIC_PROVIDER_GROUPS.some((group) => group.id === storedProviderId)
+					musicProviderGroups().some((group) => group.id === storedProviderId)
 						? storedProviderId
-						: (MUSIC_PROVIDER_GROUPS[0]?.id ?? '');
+						: (musicProviderGroups()[0]?.id ?? '');
 				const models =
-					MUSIC_PROVIDER_GROUPS.find((group) => group.id === nextProviderId)?.models ?? [];
+					musicProviderGroups().find((group) => group.id === nextProviderId)?.models ?? [];
 				setProviderId(nextProviderId);
 				setModelId(
 					storedModelId && models.some((model) => model.id === storedModelId)
@@ -139,7 +139,7 @@ const MusicPage: React.FC = () => {
 					<div className="grid gap-3 px-3 py-3">
 						<ModelProviderSelect
 							idPrefix="music"
-							providerGroups={MUSIC_PROVIDER_GROUPS}
+							providerGroups={musicProviderGroups()}
 							providerId={providerId}
 							modelId={modelId}
 							onChange={(nextProviderId, nextModelId) =>

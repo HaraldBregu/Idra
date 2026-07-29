@@ -21,7 +21,7 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const VIDEO_PROVIDER_GROUPS: readonly ModelProviderGroup[] = TEXT_TO_VIDEO_PROVIDER_IDS.map(
+const videoProviderGroups(): readonly ModelProviderGroup[] = TEXT_TO_VIDEO_PROVIDER_IDS.map(
 	(id) => ({
 		id,
 		models: TEXT_TO_VIDEO_MODELS_BY_PROVIDER[id] ?? [],
@@ -52,11 +52,11 @@ const VideoPage: React.FC = () => {
 				if (!mounted) return;
 				const nextProviderId =
 					storedProviderId &&
-					VIDEO_PROVIDER_GROUPS.some((group) => group.id === storedProviderId)
+					videoProviderGroups().some((group) => group.id === storedProviderId)
 						? storedProviderId
-						: (VIDEO_PROVIDER_GROUPS[0]?.id ?? '');
+						: (videoProviderGroups()[0]?.id ?? '');
 				const models =
-					VIDEO_PROVIDER_GROUPS.find((group) => group.id === nextProviderId)?.models ?? [];
+					videoProviderGroups().find((group) => group.id === nextProviderId)?.models ?? [];
 				setProviderId(nextProviderId);
 				setModelId(
 					storedModelId && models.some((model) => model.id === storedModelId)
@@ -128,7 +128,7 @@ const VideoPage: React.FC = () => {
 					<div className="grid gap-3 px-3 py-3">
 						<ModelProviderSelect
 							idPrefix="video"
-							providerGroups={VIDEO_PROVIDER_GROUPS}
+							providerGroups={videoProviderGroups()}
 							providerId={providerId}
 							modelId={modelId}
 							onChange={(nextProviderId, nextModelId) =>

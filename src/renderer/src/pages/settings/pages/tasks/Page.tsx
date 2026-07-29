@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
-	LLM_PROVIDER_GROUPS,
+	llmProviderGroups,
 	ModelProviderSelect,
 	resolveStoredModelProvider,
 } from '@/components/model-provider-select';
@@ -43,7 +43,7 @@ const TasksPage: React.FC = () => {
 	const [runtimeError, setRuntimeError] = useState<string | null>(null);
 
 	const selectedGroup = useMemo(
-		() => LLM_PROVIDER_GROUPS.find((group) => group.id === providerId),
+		() => llmProviderGroups().find((group) => group.id === providerId),
 		[providerId]
 	);
 	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
@@ -55,7 +55,7 @@ const TasksPage: React.FC = () => {
 				if (!mounted) return;
 				setTasks(list);
 				const resolved = resolveStoredModelProvider(
-					LLM_PROVIDER_GROUPS,
+					llmProviderGroups(),
 					runtime?.providerId,
 					runtime?.modelId
 				);
@@ -119,7 +119,7 @@ const TasksPage: React.FC = () => {
 					<CollapsibleContent className="border-t border-border/60">
 						{loading ? (
 							<SettingsLoadingRows rows={1} />
-						) : LLM_PROVIDER_GROUPS.length === 0 ? (
+						) : llmProviderGroups().length === 0 ? (
 							<SettingsEmptyState
 								icon={AlertTriangle}
 								title={t('settings.cron.runtime.noProviders')}
@@ -128,7 +128,7 @@ const TasksPage: React.FC = () => {
 							<div className="grid gap-3 px-3 py-3">
 								<ModelProviderSelect
 									idPrefix="task-runtime"
-									providerGroups={LLM_PROVIDER_GROUPS}
+									providerGroups={llmProviderGroups()}
 									providerId={providerId}
 									modelId={modelId}
 									onChange={(nextProviderId, nextModelId) =>

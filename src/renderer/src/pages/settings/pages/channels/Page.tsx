@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
-	LLM_PROVIDER_GROUPS,
+	llmProviderGroups,
 	ModelProviderSelect,
 	resolveStoredModelProvider,
 } from '@/components/model-provider-select';
@@ -52,7 +52,7 @@ const ChannelsPage: React.FC = () => {
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	const selectedGroup = useMemo(
-		() => LLM_PROVIDER_GROUPS.find((group) => group.id === providerId),
+		() => llmProviderGroups().find((group) => group.id === providerId),
 		[providerId]
 	);
 	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
@@ -71,7 +71,7 @@ const ChannelsPage: React.FC = () => {
 					setStatusByChannel({ [telegramStatus.type]: telegramStatus.status });
 				}
 				const resolved = resolveStoredModelProvider(
-					LLM_PROVIDER_GROUPS,
+					llmProviderGroups(),
 					storedProviderId,
 					storedModelId
 				);
@@ -143,7 +143,7 @@ const ChannelsPage: React.FC = () => {
 							<div className="grid gap-3 px-3 py-3">
 								<ModelProviderSelect
 									idPrefix="channels"
-									providerGroups={LLM_PROVIDER_GROUPS}
+									providerGroups={llmProviderGroups()}
 									providerId={providerId}
 									modelId={modelId}
 									onChange={(nextProviderId, nextModelId) =>
