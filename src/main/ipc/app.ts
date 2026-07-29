@@ -240,13 +240,10 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			AppChannels.providers,
+			AppChannels.models,
 			wrapSimpleHandler(() => {
-				return [
-					...loadProviderCatalog().map(toPublicEntry),
-					...pluginRepository.providers().map(pluginEntry),
-				];
-			}, AppChannels.providers)
+				return [...loadModels(), ...pluginRepository.providers().flatMap(pluginModels)];
+			}, AppChannels.models)
 		);
 
 		ipcMain.handle(
