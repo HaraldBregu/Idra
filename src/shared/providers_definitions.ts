@@ -1,3 +1,4 @@
+import providerDefinitions from '../../resources/model_providers.json';
 import { normalizeProviderId } from './provider_models_definitions';
 import type { ProviderModel } from './provider_models_types';
 
