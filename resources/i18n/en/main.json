@@ -868,6 +868,8 @@
 			"storeApiKeysDescription": "Add or update API keys for supported AI providers.",
 			"apiKeysTitle": "Provider API keys",
 			"apiKeysDescription": "Manage the API keys Friday uses to connect to AI providers.",
+			"mlModelsDescription": "Configure your main AI model and provider.",
+			"vectorDatabasesDescription": "Set up vector database for embeddings and retrieval.",
 			"modelsDescription": "Choose a model service to configure its provider and model.",
 			"registeredProviders": "Registered Providers",
 			"manageNote": "Manage provider API keys from the Models page in the main navigation.",
