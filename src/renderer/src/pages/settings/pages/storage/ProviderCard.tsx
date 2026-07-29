@@ -153,19 +153,6 @@ export function ProviderCard({
 		}
 	};
 
-	const toggleSyncFolder = (folderPath: string, enabled: boolean): void => {
-		const base = editing ? draft : canonical;
-		const paths = enabled
-			? Array.from(new Set([...base.paths, folderPath]))
-			: base.paths.filter((path) => path !== folderPath);
-		if (editing) {
-			setDraft((current) => ({ ...current, paths }));
-			setStatus(null);
-		} else {
-			void save({ ...canonical, paths });
-		}
-	};
-
 	const renderField = (field: FieldDef, value: string): React.JSX.Element => (
 		<SettingsField
 			key={field.key}
