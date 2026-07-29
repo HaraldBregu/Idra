@@ -59,11 +59,6 @@ const isConfigured = (config: StorageConfig): boolean =>
 const mask = (value: string): string =>
 	value.length > 4 ? `••••${value.slice(-4)}` : '•'.repeat(value.length);
 
-const middleEllipsis = (text: string, max = 48): string =>
-	text.length <= max
-		? text
-		: `${text.slice(0, Math.ceil((max - 1) / 2))}…${text.slice(-Math.floor((max - 1) / 2))}`;
-
 function GroupHeading({ children }: { readonly children: React.ReactNode }): React.JSX.Element {
 	return (
 		<h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
