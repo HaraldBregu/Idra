@@ -117,6 +117,7 @@ export function ProviderCard({
 		}
 		setDraft(canonical);
 		setEditing(false);
+		setExpanded(false);
 		setStatus(null);
 		setError(null);
 	};
