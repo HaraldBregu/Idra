@@ -8,7 +8,6 @@ import {
 	HeartPulse,
 	ImageIcon,
 	Info,
-	KeyRound,
 	LayoutGrid,
 	Library,
 	ListChecks,
