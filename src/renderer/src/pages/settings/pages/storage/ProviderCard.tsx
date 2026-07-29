@@ -97,6 +97,8 @@ export function ProviderCard({
 	storage,
 	onSaved,
 	onRemoved,
+	hideDelete = false,
+	hideDropdown = false,
 }: ProviderCardProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const [instanceId] = useState(() => storage.id || crypto.randomUUID());
