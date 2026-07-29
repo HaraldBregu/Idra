@@ -207,6 +207,16 @@ function showVideoContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 	menu.popup(window ? { window } : {});
 }
 
+function toPublicProvider(provider: Provider): PublicProvider {
+	return {
+		id: provider.id,
+		name: provider.name,
+		baseUrl: provider.baseUrl,
+		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
+		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
+	};
+}
+
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
