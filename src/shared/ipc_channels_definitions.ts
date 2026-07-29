@@ -150,6 +150,7 @@ export const SoundChannels = {
 } as const;
 
 export const ProviderChannels = {
+	catalog: 'provider-store:catalog',
 	get: 'provider-store:get',
 	set: 'provider-store:set',
 } as const;
