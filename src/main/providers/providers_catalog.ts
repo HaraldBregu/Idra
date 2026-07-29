@@ -53,8 +53,10 @@ export function defaultProviderId(type: ModelCapability): string | undefined {
 	return (entries.find((entry) => entry.default) ?? entries[0])?.id;
 }
 
-export function speechToTextBaseUrl(providerId: string): string | undefined {
-	return providerEntry(providerId, 'speech-to-text')?.baseUrl;
+export function speechToTextBaseUrl(providerId: string): string {
+	const entry = providerEntry(providerId, 'speech-to-text');
+	if (!entry) throw new Error(`No speech-to-text entry for provider: ${providerId}`);
+	return entry.baseUrl;
 }
 
 export function speechToTextSampleRate(providerId: string): number | undefined {
@@ -79,8 +81,10 @@ export function supportsSpeechToTextApiType(
 	return speechToTextApiTypes(providerId, modelId).includes(apiType);
 }
 
-export function realtimeSpeechToTextModelId(providerId: string): string | undefined {
-	return providerModels(providerId, 'speech-to-text').find((model) => model.realtime)?.id;
+export function realtimeSpeechToTextModelId(providerId: string): string {
+	const id = providerModels(providerId, 'speech-to-text').find((model) => model.realtime)?.id;
+	if (!id) throw new Error(`No realtime speech-to-text model for provider: `);
+	return id;
 }
 
 export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {

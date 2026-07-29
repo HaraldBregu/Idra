@@ -1,3 +1,4 @@
+import { speechToTextBaseUrl, realtimeSpeechToTextModelId } from '../../../providers';
 import OpenAI from 'openai';
 import WebSocket from 'ws';
 import { createAudioFile } from './stt_audio';
@@ -11,7 +12,6 @@ import type {
 	SttRealtimeEventHandler,
 } from './stt_types';
 import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
-import { OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID, OPENAI_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_PROVIDER_BASE_URLS } from '../../../../shared/provider_types';
 
 const OPENAI_REALTIME_PATH = 'realtime';
 const OPENAI_REALTIME_AUTH_SCHEME = 'Bearer';
@@ -78,7 +78,7 @@ export function createOpenAISttAdapter(opts: OpenAISttAdapterOptions): SttAdapte
 			request: SttAdapterRealtimeStartRequest,
 			emit: SttRealtimeEventHandler
 		): Promise<SttRealtimeConnection> {
-			if (provider.id !== OPENAI_SPEECH_TO_TEXT_PROVIDER_ID) {
+			if (provider.id !== 'openai') {
 				throw new SttProviderUnsupportedError(
 					`${provider.name} realtime speech-to-text is not implemented.`
 				);
@@ -201,10 +201,10 @@ function createOpenAIRealtimeConnection(
 function openAIRealtimeUrl(baseURL: string | undefined): string {
 	const url = new URL(
 		OPENAI_REALTIME_PATH,
-		`${baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[OPENAI_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+		`${baseURL ?? speechToTextBaseUrl('openai')}/`
 	);
 	url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:';
-	url.searchParams.set('model', OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID);
+	url.searchParams.set('model', realtimeSpeechToTextModelId('openai'));
 	return url.toString();
 }
 

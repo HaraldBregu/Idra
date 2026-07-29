@@ -1,5 +1,4 @@
 import { normalizeProviderId } from '../../../../shared/provider_types';
-import type { TextToSpeechProviderId } from '../../../../shared/provider_types';
 import { createCartesiaSpeechAdapter } from './tts_cartesia';
 import { createDeepgramSpeechAdapter } from './tts_deepgram';
 import { createElevenLabsSpeechAdapter } from './tts_elevenlabs';
@@ -11,7 +10,7 @@ import { SpeechProviderUnsupportedError } from './tts_errors';
 import type { SpeechAdapter, SpeechProviderSpec } from './tts_types';
 
 const SPEECH_ADAPTERS: Readonly<
-	Record<TextToSpeechProviderId, (spec: SpeechProviderSpec) => SpeechAdapter>
+	Record<string, (spec: SpeechProviderSpec) => SpeechAdapter>
 > = {
 	cartesia: createCartesiaSpeechAdapter,
 	deepgram: createDeepgramSpeechAdapter,

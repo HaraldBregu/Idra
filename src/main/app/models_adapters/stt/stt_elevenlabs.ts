@@ -1,3 +1,4 @@
+import { speechToTextBaseUrl } from '../../../providers';
 import { createAudioFile } from './stt_audio';
 import WebSocket from 'ws';
 import { SttProviderAuthError, SttProviderRequestError } from './stt_errors';
@@ -10,7 +11,6 @@ import type {
 	SttRealtimeEventHandler,
 } from './stt_types';
 import type { SttTranscriptionResult } from '../../../../shared/stt_transcription';
-import { ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_PROVIDER_BASE_URLS } from '../../../../shared/provider_types';
 
 const ELEVENLABS_STT_PATH = 'speech-to-text';
 const ELEVENLABS_REALTIME_STT_PATH = 'speech-to-text/realtime';
@@ -51,7 +51,7 @@ export function createElevenLabsSttAdapter(opts: ElevenLabsSttAdapterOptions): S
 
 			const endpoint = new URL(
 				ELEVENLABS_STT_PATH,
-				`${provider.baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+				`${provider.baseURL ?? speechToTextBaseUrl('elevenlabs')}/`
 			);
 			const response = await fetcher(endpoint, {
 				method: 'POST',
@@ -197,7 +197,7 @@ function elevenLabsRealtimeUrl(
 ): string {
 	const url = new URL(
 		ELEVENLABS_REALTIME_STT_PATH,
-		`${baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+		`${baseURL ?? speechToTextBaseUrl('elevenlabs')}/`
 	);
 	url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:';
 	url.searchParams.set('model_id', request.modelId);

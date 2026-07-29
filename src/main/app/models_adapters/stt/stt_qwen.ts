@@ -1,3 +1,4 @@
+import { speechToTextBaseUrl, realtimeSpeechToTextModelId } from '../../../providers';
 import WebSocket from 'ws';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type {
@@ -9,7 +10,6 @@ import type {
 	SttRealtimeEventHandler,
 } from './stt_types';
 import type { SttTranscriptionResult } from '../../../../shared/stt_transcription';
-import { QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID, QWEN_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_PROVIDER_BASE_URLS } from '../../../../shared/provider_types';
 
 const QWEN_AUTH_SCHEME = 'Bearer';
 const QWEN_REALTIME_BETA_HEADER = 'OpenAI-Beta';
@@ -156,10 +156,10 @@ function qwenRealtimeUrl(
 	request: SttAdapterRealtimeStartRequest
 ): string {
 	const url = new URL(
-		baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[QWEN_SPEECH_TO_TEXT_PROVIDER_ID]
+		baseURL ?? speechToTextBaseUrl('qwen')
 	);
 	url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:';
-	url.searchParams.set('model', request.modelId || QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID);
+	url.searchParams.set('model', request.modelId || realtimeSpeechToTextModelId('qwen'));
 	return url.toString();
 }
 

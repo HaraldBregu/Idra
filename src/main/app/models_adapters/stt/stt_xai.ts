@@ -1,3 +1,4 @@
+import { speechToTextBaseUrl } from '../../../providers';
 import WebSocket from 'ws';
 import { createAudioFile } from './stt_audio';
 import { SttProviderAuthError, SttProviderRequestError } from './stt_errors';
@@ -10,7 +11,6 @@ import type {
 	SttRealtimeEventHandler,
 } from './stt_types';
 import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
-import { SPEECH_TO_TEXT_PROVIDER_BASE_URLS, XAI_SPEECH_TO_TEXT_PROVIDER_ID } from '../../../../shared/provider_types';
 
 const XAI_STT_PATH = 'stt';
 const XAI_STT_AUTH_SCHEME = 'Bearer';
@@ -175,7 +175,7 @@ function createXaiRealtimeConnection(
 function xaiSttUrl(baseURL: string | undefined): URL {
 	return new URL(
 		XAI_STT_PATH,
-		`${baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[XAI_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+		`${baseURL ?? speechToTextBaseUrl('xai')}/`
 	);
 }
 

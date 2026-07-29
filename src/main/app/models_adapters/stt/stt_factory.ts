@@ -1,5 +1,4 @@
 import { normalizeProviderId } from '../../../../shared/provider_types';
-import type { SpeechToTextProviderId } from '../../../../shared/provider_types';
 import { createDeepgramSttAdapter } from './stt_deepgram';
 import { createElevenLabsSttAdapter } from './stt_elevenlabs';
 import { createMistralSttAdapter } from './stt_mistral';
@@ -10,7 +9,7 @@ import { SttProviderUnsupportedError } from './stt_errors';
 import type { SttAdapter, SttProviderSpec } from './stt_types';
 
 const STT_ADAPTERS: Readonly<
-	Record<SpeechToTextProviderId, (spec: SttProviderSpec) => SttAdapter>
+	Record<string, (spec: SttProviderSpec) => SttAdapter>
 > = {
 	deepgram: createDeepgramSttAdapter,
 	elevenlabs: createElevenLabsSttAdapter,

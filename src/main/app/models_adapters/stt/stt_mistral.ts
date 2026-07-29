@@ -1,3 +1,4 @@
+import { speechToTextBaseUrl } from '../../../providers';
 import { Mistral } from '@mistralai/mistralai';
 import { createAudioFile } from './stt_audio';
 import { SttProviderAuthError } from './stt_errors';
@@ -10,7 +11,6 @@ import type {
 	SttRealtimeEventHandler,
 } from './stt_types';
 import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
-import { MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_PROVIDER_BASE_URLS } from '../../../../shared/provider_types';
 
 type MistralTranscriptionClient = {
 	audio: {
@@ -208,7 +208,7 @@ function createMistralRealtimeConnection(
 }
 
 function realtimeBaseUrl(baseURL: string | undefined): string {
-	return (baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID]).replace(
+	return (baseURL ?? speechToTextBaseUrl('mistral')).replace(
 		/\/v1\/?$/,
 		''
 	);

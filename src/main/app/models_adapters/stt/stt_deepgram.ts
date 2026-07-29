@@ -1,3 +1,4 @@
+import { speechToTextBaseUrl, realtimeSpeechToTextModelId } from '../../../providers';
 import WebSocket from 'ws';
 import { createAudioFile } from './stt_audio';
 import { SttProviderAuthError, SttProviderRequestError } from './stt_errors';
@@ -10,7 +11,6 @@ import type {
 	SttRealtimeEventHandler,
 } from './stt_types';
 import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
-import { DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID, DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID, SPEECH_TO_TEXT_PROVIDER_BASE_URLS } from '../../../../shared/provider_types';
 
 const DEEPGRAM_LISTEN_PATH = 'listen';
 const DEEPGRAM_FLUX_LISTEN_PATH = '../v2/listen';
@@ -45,7 +45,7 @@ export function createDeepgramSttAdapter(opts: DeepgramSttAdapterOptions): SttAd
 			const body = Buffer.from(await file.arrayBuffer());
 			const endpoint = new URL(
 				DEEPGRAM_LISTEN_PATH,
-				`${provider.baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+				`${provider.baseURL ?? speechToTextBaseUrl('deepgram')}/`
 			);
 			endpoint.searchParams.set('model', request.modelId);
 			if (request.language) endpoint.searchParams.set('language', request.language);
@@ -205,12 +205,12 @@ function deepgramRealtimeUrl(
 	request: SttAdapterRealtimeStartRequest
 ): string {
 	const path =
-		request.modelId === DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID
+		request.modelId === realtimeSpeechToTextModelId('deepgram')
 			? DEEPGRAM_FLUX_LISTEN_PATH
 			: DEEPGRAM_LISTEN_PATH;
 	const url = new URL(
 		path,
-		`${baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+		`${baseURL ?? speechToTextBaseUrl('deepgram')}/`
 	);
 	url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:';
 	url.searchParams.set('model', request.modelId);
