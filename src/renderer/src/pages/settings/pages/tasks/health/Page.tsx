@@ -14,7 +14,8 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { DEFAULT_PROVIDERS, type PublicProvider } from '@shared';
+import type { PublicProvider } from '@shared';
+import { providers } from '@/lib/providers';
 import { LLM_MODELS_BY_PROVIDER, LLM_PROVIDERS } from '@shared/provider_models_definitions';
 import type { ProviderModelGroup } from '@pages/start/types';
 import {
@@ -26,7 +27,7 @@ import {
 	SettingsSection,
 } from '../../../components';
 
-type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
+type CatalogProvider = PublicProvider;
 
 function toPublicProvider(provider: CatalogProvider): PublicProvider {
 	return {
@@ -39,7 +40,7 @@ function toPublicProvider(provider: CatalogProvider): PublicProvider {
 }
 
 const LLM_MODEL_GROUPS: ProviderModelGroup[] = LLM_PROVIDERS.flatMap((providerId) => {
-	const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
+	const provider = providers().find((item) => item.id === providerId);
 	const models = [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
 	return provider && models.length > 0 ? [{ provider: toPublicProvider(provider), models }] : [];
 });

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
-import { DEFAULT_PROVIDERS } from '../../../../../../shared';
+import { providers } from '@/lib/providers';
 import {
 	cloneModels,
 	normalizeProviderId,
@@ -27,7 +27,7 @@ import type { ProviderModelGroup } from '../../../start/types';
 import type { Model, ModelSelection } from '@/lib/compat';
 import VoiceTest from './VoiceTest';
 
-type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
+type CatalogProvider = PublicProvider;
 
 function toPublicProvider(provider: CatalogProvider): PublicProvider {
 	return {
@@ -40,7 +40,7 @@ function toPublicProvider(provider: CatalogProvider): PublicProvider {
 }
 
 function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
-	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+	return providers().find((provider) => provider.id === providerId);
 }
 
 function getVoiceModels(providerId: string): Model[] {

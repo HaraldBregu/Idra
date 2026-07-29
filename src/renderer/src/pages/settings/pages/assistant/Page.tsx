@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
-import { DEFAULT_PROVIDERS } from '../../../../../../shared';
+import { providers } from '@/lib/providers';
 import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
@@ -25,7 +25,7 @@ import {
 } from '../../components/model-configuration-state';
 import type { ProviderModelGroup } from '../../../start/types';
 
-type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
+type CatalogProvider = PublicProvider;
 
 function toPublicProvider(provider: CatalogProvider): PublicProvider {
 	return {
@@ -38,7 +38,7 @@ function toPublicProvider(provider: CatalogProvider): PublicProvider {
 }
 
 function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
-	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+	return providers().find((provider) => provider.id === providerId);
 }
 
 function getProviderLlmModels(providerId: string): Model[] {
