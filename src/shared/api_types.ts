@@ -153,6 +153,10 @@ export interface ChannelsApi {
 export interface ProviderApi {
 	get: (id: string) => Promise<Provider | undefined>;
 	set: (provider: Provider) => Promise<Provider>;
+	getVectorDatabaseProviders: () => Promise<PublicProvider[]>;
+	getModelProviders: () => Promise<PublicProvider[]>;
+	getObjectStorageProviders: () => Promise<StorageConfig[]>;
+	getChannels: () => Promise<Channel>;
 }
 
 export interface StorageApi {
