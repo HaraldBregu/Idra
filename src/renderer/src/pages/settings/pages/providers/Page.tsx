@@ -36,7 +36,7 @@ const ProvidersPage: React.FC = () => {
 					size="md"
 					className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left"
 				>
-					<ItemIcon icon={Bot} className="size-8 [&_svg]:size-4" />
+					<ItemIcon icon={Sparkles} className="size-8 [&_svg]:size-4" />
 					<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 						<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 							{t('settings.overview.groups.mlModels')}
