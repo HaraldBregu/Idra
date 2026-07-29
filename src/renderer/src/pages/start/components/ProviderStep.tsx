@@ -29,7 +29,7 @@ export function ProviderStep({
 			<StepHeader title={title} description={description} />
 
 			<div className="mt-6 space-y-2">
-				{actionableProviderCatalog.map((provider) => (
+				{actionableProviderCatalog().map((provider) => (
 					<ProviderCard
 						key={provider.id}
 						provider={provider}
