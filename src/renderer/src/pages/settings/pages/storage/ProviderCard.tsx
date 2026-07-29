@@ -299,20 +299,14 @@ export function ProviderCard({
 
 					{(editing || isConfigured(canonical)) && (
 						<CardFooter className="justify-end gap-2">
-							<div className="flex gap-2">
-								{editing && (
-									<>
-										{canonical.id && (
-											<Button variant="ghost" size="sm" onClick={cancelEditing} disabled={saving}>
-												{t('settings.storage.cancel')}
-											</Button>
-										)}
-										<Button size="sm" onClick={() => void save()} disabled={saving}>
-											{saving ? t('settings.storage.saving') : t('settings.storage.save')}
-										</Button>
-									</>
-								)}
-							</div>
+							{canonical.id && (
+								<Button variant="ghost" size="sm" onClick={cancelEditing} disabled={saving}>
+									{t('settings.storage.cancel')}
+								</Button>
+							)}
+							<Button size="sm" onClick={() => void save()} disabled={saving}>
+								{saving ? t('settings.storage.saving') : t('settings.storage.save')}
+							</Button>
 						</CardFooter>
 					)}
 				</CollapsibleContent>
