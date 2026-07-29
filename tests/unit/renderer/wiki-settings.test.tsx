@@ -31,7 +31,7 @@ jest.mock('react-i18next', () => {
 jest.mock('@/components/model-provider-select', () => {
 	const React = jest.requireActual<typeof import('react')>('react');
 	return {
-		LLM_PROVIDER_GROUPS: [{ id: 'openai', models: [{ id: 'gpt-5', name: 'GPT-5' }] }],
+		llmProviderGroups: () => [{ id: 'openai', models: [{ id: 'gpt-5', name: 'GPT-5' }] }],
 		resolveStoredModelProvider: () => ({ providerId: 'openai', modelId: 'gpt-5' }),
 		ModelProviderSelect: ({
 			providerId,
