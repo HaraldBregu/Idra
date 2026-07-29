@@ -1,0 +1,24 @@
+{
+	"id": "google",
+	"name": "Google DeepMind / Google",
+	"baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
+	"apiKey": "",
+	"capabilities": "Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio",
+	"apiConfiguration": {
+		"credentialType": "Gemini API key / Google Cloud credentials depending on service",
+		"apiKeyManagementUrl": "https://aistudio.google.com/app/apikey",
+		"configurationDocsUrl": "https://ai.google.dev/gemini-api/docs/api-key",
+		"authMethod": "API key parameter/header for Gemini Developer API; Google Cloud IAM/auth for Vertex/Cloud APIs",
+		"recommendedEnvVars": [
+			"GEMINI_API_KEY",
+			"GOOGLE_API_KEY"
+		],
+		"baseUrls": [
+			"https://generativelanguage.googleapis.com"
+		],
+		"importantNotes": [
+			"Use Google AI Studio for Gemini API keys.",
+			"For Vertex AI or Cloud Speech/Text-to-Speech, prefer Google Cloud project credentials and IAM."
+		]
+	}
+}

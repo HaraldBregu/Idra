@@ -1,0 +1,22 @@
+{
+	"id": "elevenlabs",
+	"name": "ElevenLabs",
+	"baseUrl": "https://api.elevenlabs.io/v1",
+	"apiKey": "",
+	"capabilities": "Speech-to-text - Text-to-speech - Music/audio",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://elevenlabs.io/app/settings/api-keys",
+		"configurationDocsUrl": "https://elevenlabs.io/docs/api-reference/authentication",
+		"authMethod": "xi-api-key header",
+		"recommendedEnvVars": [
+			"ELEVENLABS_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.elevenlabs.io"
+		],
+		"importantNotes": [
+			"Each request must include the API key; keys can be restricted/scoped."
+		]
+	}
+}

@@ -1,0 +1,23 @@
+{
+	"id": "minimax",
+	"name": "MiniMax",
+	"baseUrl": "https://api.minimax.io/v1",
+	"apiKey": "",
+	"capabilities": "Chat - Text-to-speech - Video - Music/audio",
+	"apiConfiguration": {
+		"credentialType": "API key; Token Plan key is separate",
+		"apiKeyManagementUrl": "https://platform.minimax.io/user-center/basic-information/interface-key",
+		"configurationDocsUrl": "https://platform.minimax.io/docs/api-reference/api-overview",
+		"authMethod": "API key / Bearer token",
+		"recommendedEnvVars": [
+			"MINIMAX_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.minimax.io",
+			"https://api.minimaxi.com"
+		],
+		"importantNotes": [
+			"Pay-as-you-go API keys and Token Plan keys are different; API host and key region must match."
+		]
+	}
+}

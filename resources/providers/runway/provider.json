@@ -1,0 +1,23 @@
+{
+	"id": "runway",
+	"name": "Runway",
+	"baseUrl": "https://api.dev.runwayml.com/v1",
+	"apiKey": "",
+	"capabilities": "Video",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://dev.runwayml.com/",
+		"configurationDocsUrl": "https://docs.dev.runwayml.com/guides/setup/",
+		"authMethod": "API key authentication",
+		"recommendedEnvVars": [
+			"RUNWAYML_API_SECRET",
+			"RUNWAY_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.dev.runwayml.com"
+		],
+		"importantNotes": [
+			"Create an organization, add credits, then create/use the API key in the developer portal."
+		]
+	}
+}

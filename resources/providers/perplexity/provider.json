@@ -1,0 +1,23 @@
+{
+	"id": "perplexity",
+	"name": "Perplexity",
+	"baseUrl": "https://api.perplexity.ai",
+	"apiKey": "",
+	"capabilities": "Research chat",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://www.perplexity.ai/settings/api",
+		"configurationDocsUrl": "https://docs.perplexity.ai/docs/admin/api-key-management",
+		"authMethod": "Bearer token",
+		"recommendedEnvVars": [
+			"PPLX_API_KEY",
+			"PERPLEXITY_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.perplexity.ai"
+		],
+		"importantNotes": [
+			"API keys are shown only once; save immediately. Docs cover create/manage/rotate operations."
+		]
+	}
+}

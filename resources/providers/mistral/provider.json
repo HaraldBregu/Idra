@@ -1,0 +1,22 @@
+{
+	"id": "mistral",
+	"name": "Mistral AI",
+	"baseUrl": "https://api.mistral.ai/v1",
+	"apiKey": "",
+	"capabilities": "Chat - Speech-to-text - Text-to-speech",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://admin.mistral.ai/organization/api-keys",
+		"configurationDocsUrl": "https://docs.mistral.ai/getting-started/quickstarts",
+		"authMethod": "HTTP Bearer token",
+		"recommendedEnvVars": [
+			"MISTRAL_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.mistral.ai/v1"
+		],
+		"importantNotes": [
+			"Create keys in La Plateforme/admin console; use the same key across Mistral API calls subject to account permissions."
+		]
+	}
+}

@@ -1,0 +1,23 @@
+{
+	"id": "openai",
+	"name": "OpenAI",
+	"baseUrl": "https://api.openai.com/v1",
+	"apiKey": "",
+	"capabilities": "Chat - Text-to-speech - Speech-to-text",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://platform.openai.com/api-keys",
+		"configurationDocsUrl": "https://developers.openai.com/api/docs/quickstart",
+		"authMethod": "HTTP Bearer token",
+		"recommendedEnvVars": [
+			"OPENAI_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.openai.com/v1"
+		],
+		"importantNotes": [
+			"Create/export the key before calling the API.",
+			"Keep server-side; do not expose in browser or client apps."
+		]
+	}
+}

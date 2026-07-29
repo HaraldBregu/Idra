@@ -1,0 +1,18 @@
+{
+	"id": "midjourney",
+	"name": "Midjourney",
+	"baseUrl": "https://www.midjourney.com",
+	"apiKey": "",
+	"capabilities": "Image - Video",
+	"apiConfiguration": {
+		"credentialType": "No generally available official API key found",
+		"apiKeyManagementUrl": null,
+		"configurationDocsUrl": "https://docs.midjourney.com/hc/en-us",
+		"authMethod": null,
+		"recommendedEnvVars": [],
+		"baseUrls": [],
+		"importantNotes": [
+			"Midjourney has official product/user docs but no generally available official public API-key configuration page found."
+		]
+	}
+}

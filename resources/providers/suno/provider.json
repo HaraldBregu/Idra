@@ -1,0 +1,18 @@
+{
+	"id": "suno",
+	"name": "Suno",
+	"baseUrl": "https://suno.com",
+	"apiKey": "",
+	"capabilities": "Music/audio",
+	"apiConfiguration": {
+		"credentialType": "No generally available official Suno API key found",
+		"apiKeyManagementUrl": null,
+		"configurationDocsUrl": null,
+		"authMethod": null,
+		"recommendedEnvVars": [],
+		"baseUrls": [],
+		"importantNotes": [
+			"No clearly official, generally available Suno API-key configuration page found; public 'Suno API' sites appear third-party/unofficial and should be validated before use."
+		]
+	}
+}

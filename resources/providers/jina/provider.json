@@ -1,0 +1,7 @@
+{
+	"id": "jina",
+	"name": "Jina AI",
+	"baseUrl": "https://api.jina.ai/v1",
+	"apiKey": "",
+	"capabilities": "Embedding"
+}

@@ -1,0 +1,7 @@
+{
+	"id": "voyage",
+	"name": "Voyage AI",
+	"baseUrl": "https://api.voyageai.com/v1",
+	"apiKey": "",
+	"capabilities": "Embedding"
+}

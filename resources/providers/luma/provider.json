@@ -1,0 +1,22 @@
+{
+	"id": "luma",
+	"name": "Luma AI",
+	"baseUrl": "https://api.lumalabs.ai/dream-machine/v1",
+	"apiKey": "",
+	"capabilities": "Realtime voice/omni - Image - Video - 3D",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://lumalabs.ai/dream-machine/api/keys",
+		"configurationDocsUrl": "https://docs.lumalabs.ai/docs/welcome",
+		"authMethod": "API key authentication",
+		"recommendedEnvVars": [
+			"LUMA_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.lumalabs.ai/dream-machine/v1"
+		],
+		"importantNotes": [
+			"Dream Machine API keys and billing are managed in Luma's API dashboard."
+		]
+	}
+}

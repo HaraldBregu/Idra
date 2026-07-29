@@ -1,0 +1,23 @@
+{
+	"id": "zai",
+	"name": "Z.ai / Zhipu AI",
+	"baseUrl": "https://api.z.ai/api/paas/v4",
+	"apiKey": "",
+	"capabilities": "Chat",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://open.bigmodel.cn/usercenter/apikeys",
+		"configurationDocsUrl": "https://open.bigmodel.cn/dev/api",
+		"authMethod": "API key / Bearer token depending on SDK/API",
+		"recommendedEnvVars": [
+			"ZHIPUAI_API_KEY",
+			"ZAI_API_KEY"
+		],
+		"baseUrls": [
+			"https://open.bigmodel.cn/api/paas/v4"
+		],
+		"importantNotes": [
+			"Zhipu/BigModel is the mainland China platform; Z.ai branding may use related GLM endpoints."
+		]
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"id": "qwen",
+	"name": "Alibaba / Qwen / Wan",
+	"baseUrl": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+	"apiKey": "",
+	"capabilities": "Chat - Speech-to-text - Realtime voice/omni - Image - Video",
+	"apiConfiguration": {
+		"credentialType": "Model Studio API key",
+		"apiKeyManagementUrl": "https://bailian.console.aliyun.com/?tab=api#/api-key",
+		"configurationDocsUrl": "https://www.alibabacloud.com/help/en/model-studio/get-api-key",
+		"authMethod": "API key; OpenAI-compatible or DashScope SDK depending on endpoint",
+		"recommendedEnvVars": [
+			"DASHSCOPE_API_KEY",
+			"ALIBABA_CLOUD_API_KEY"
+		],
+		"baseUrls": [
+			"https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+			"https://dashscope.aliyuncs.com/compatible-mode/v1"
+		],
+		"importantNotes": [
+			"Alibaba recommends using environment variables and not hard-coding the key.",
+			"Regional endpoint/account selection matters."
+		]
+	}
+}

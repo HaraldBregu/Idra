@@ -1,0 +1,7 @@
+{
+	"id": "cohere",
+	"name": "Cohere",
+	"baseUrl": "https://api.cohere.com/v2",
+	"apiKey": "",
+	"capabilities": "Embedding"
+}

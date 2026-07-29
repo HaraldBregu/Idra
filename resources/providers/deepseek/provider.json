@@ -1,0 +1,22 @@
+{
+	"id": "deepseek",
+	"name": "DeepSeek",
+	"baseUrl": "https://api.deepseek.com",
+	"apiKey": "",
+	"capabilities": "Chat",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://platform.deepseek.com/api_keys",
+		"configurationDocsUrl": "https://api-docs.deepseek.com/",
+		"authMethod": "OpenAI-compatible Bearer token",
+		"recommendedEnvVars": [
+			"DEEPSEEK_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.deepseek.com"
+		],
+		"importantNotes": [
+			"DeepSeek API is OpenAI/Anthropic-format compatible; configure base URL and key."
+		]
+	}
+}

@@ -1,0 +1,22 @@
+{
+	"id": "xai",
+	"name": "xAI",
+	"baseUrl": "https://api.x.ai/v1",
+	"apiKey": "",
+	"capabilities": "Chat - Speech-to-text - Realtime voice/omni - Image - Video",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://console.x.ai/",
+		"configurationDocsUrl": "https://docs.x.ai/developers/quickstart",
+		"authMethod": "HTTP Bearer token",
+		"recommendedEnvVars": [
+			"XAI_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.x.ai/v1"
+		],
+		"importantNotes": [
+			"Generate key in the xAI console/API Keys page, then export XAI_API_KEY."
+		]
+	}
+}

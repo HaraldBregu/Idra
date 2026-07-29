@@ -1,0 +1,22 @@
+{
+	"id": "stability-ai",
+	"name": "Stability AI",
+	"baseUrl": "https://api.stability.ai/v2beta",
+	"apiKey": "",
+	"capabilities": "Image - Video - Music/audio",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://platform.stability.ai/account/keys",
+		"configurationDocsUrl": "https://platform.stability.ai/docs/getting-started",
+		"authMethod": "Authorization: Bearer <api_key>",
+		"recommendedEnvVars": [
+			"STABILITY_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.stability.ai"
+		],
+		"importantNotes": [
+			"Keep keys secret; create a new key and delete old one if leaked."
+		]
+	}
+}

@@ -1,0 +1,22 @@
+{
+	"id": "deepgram",
+	"name": "Deepgram",
+	"baseUrl": "https://api.deepgram.com/v1",
+	"apiKey": "",
+	"capabilities": "Speech-to-text - Text-to-speech",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://console.deepgram.com/project/keys",
+		"configurationDocsUrl": "https://developers.deepgram.com/docs/create-additional-api-keys",
+		"authMethod": "Token/API key auth",
+		"recommendedEnvVars": [
+			"DEEPGRAM_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.deepgram.com"
+		],
+		"importantNotes": [
+			"Keys are project-scoped; Deepgram supports short-lived token auth for client-side use cases."
+		]
+	}
+}

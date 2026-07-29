@@ -1,0 +1,22 @@
+{
+	"id": "black-forest-labs",
+	"name": "Black Forest Labs",
+	"baseUrl": "https://api.bfl.ai/v1",
+	"apiKey": "",
+	"capabilities": "Image",
+	"apiConfiguration": {
+		"credentialType": "BFL API key",
+		"apiKeyManagementUrl": "https://api.us1.bfl.ai/auth/profile",
+		"configurationDocsUrl": "https://docs.bfl.ai/",
+		"authMethod": "API key authentication",
+		"recommendedEnvVars": [
+			"BFL_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.us1.bfl.ai"
+		],
+		"importantNotes": [
+			"Official API docs are linked from the BFL site/GitHub; key management may require account login."
+		]
+	}
+}

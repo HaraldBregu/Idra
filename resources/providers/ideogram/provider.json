@@ -1,0 +1,22 @@
+{
+	"id": "ideogram",
+	"name": "Ideogram",
+	"baseUrl": "https://api.ideogram.ai",
+	"apiKey": "",
+	"capabilities": "Image",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://ideogram.ai/manage-api",
+		"configurationDocsUrl": "https://developer.ideogram.ai/ideogram-api/api-setup",
+		"authMethod": "API key authentication",
+		"recommendedEnvVars": [
+			"IDEOGRAM_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.ideogram.ai"
+		],
+		"importantNotes": [
+			"Create API keys from Manage API; keys are displayed only partially after creation."
+		]
+	}
+}

@@ -1,0 +1,22 @@
+{
+	"id": "reka",
+	"name": "Reka AI",
+	"baseUrl": "https://api.reka.ai/v1",
+	"apiKey": "",
+	"capabilities": "Chat",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://platform.reka.ai/",
+		"configurationDocsUrl": "https://docs.reka.ai/quickstart",
+		"authMethod": "API key authentication",
+		"recommendedEnvVars": [
+			"REKA_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.reka.ai"
+		],
+		"importantNotes": [
+			"Reka docs instruct users to obtain an API key by setting up an account in the Reka Platform."
+		]
+	}
+}

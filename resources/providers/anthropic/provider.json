@@ -1,0 +1,23 @@
+{
+	"id": "anthropic",
+	"name": "Anthropic",
+	"baseUrl": "https://api.anthropic.com",
+	"apiKey": "",
+	"capabilities": "Chat",
+	"apiConfiguration": {
+		"credentialType": "API key",
+		"apiKeyManagementUrl": "https://console.anthropic.com/settings/keys",
+		"configurationDocsUrl": "https://platform.claude.com/docs/en/api/overview",
+		"authMethod": "x-api-key header plus anthropic-version header",
+		"recommendedEnvVars": [
+			"ANTHROPIC_API_KEY"
+		],
+		"baseUrls": [
+			"https://api.anthropic.com"
+		],
+		"importantNotes": [
+			"Official SDKs handle the required headers automatically.",
+			"Keys are generated in the Anthropic Console."
+		]
+	}
+}

@@ -1,0 +1,7 @@
+{
+	"id": "nomic",
+	"name": "Nomic",
+	"baseUrl": "https://api-atlas.nomic.ai/v1",
+	"apiKey": "",
+	"capabilities": "Embedding"
+}
