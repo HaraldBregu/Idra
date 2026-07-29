@@ -341,9 +341,19 @@ const ProvidersPage: React.FC = () => {
 				description={t('settings.providers.vectorDatabasesDescription')}
 			>
 				<div className="space-y-3 py-4">
-					<Card className="rounded-lg border-border bg-card shadow-none">
+					<Card
+						className={cn(
+							'rounded-lg border-border bg-card py-0 shadow-none',
+							!vectorDbApiKey.trim() && 'border-ring ring-2 ring-ring/20'
+						)}
+					>
 						<CardContent className="p-0">
-							<div className="grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5">
+							<div
+								className={cn(
+									'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
+									!vectorDbApiKey.trim() && 'pb-2'
+								)}
+							>
 								<ProviderAvatar providerId="pinecone" name="Pinecone" />
 								<div className="min-w-0 flex-1">
 									<div className="flex min-w-0 items-center gap-1.5">
