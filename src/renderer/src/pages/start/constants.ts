@@ -1,7 +1,5 @@
-import {
-	DEFAULT_PROVIDERS,
-	getProviderApiConfigurationUrl,
-} from '../../../../shared';
+import { getProviderApiConfigurationUrl } from '../../../../shared';
+import { providers } from '@/lib/providers';
 import {
 	cloneModels,
 	LLM_MODELS_BY_PROVIDER,
