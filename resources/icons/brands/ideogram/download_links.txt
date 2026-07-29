@@ -1,2 +1,0 @@
-official_asset_page_url: https://ideogram.ai/
-fallback_asset_page_url: https://brandfetch.com/ideogram.ai

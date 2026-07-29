@@ -1,3 +1,0 @@
-official_asset_page_url: https://www.moonshot.ai/
-fallback_asset_page_url: https://lobehub.com/icons/kimi
-additional_official_asset_urls: https://moonshotai.github.io/Branding-Guide/

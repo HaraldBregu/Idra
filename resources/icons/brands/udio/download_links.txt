@@ -1,2 +1,0 @@
-official_asset_page_url: https://www.udio.com/
-fallback_asset_page_url: https://brandfetch.com/udio.com

@@ -1,2 +1,0 @@
-official_asset_page_url: https://www.deepseek.com/en/
-fallback_asset_page_url: https://lobehub.com/icons/deepseek
