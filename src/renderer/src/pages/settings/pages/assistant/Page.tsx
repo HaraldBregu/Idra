@@ -3,10 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { providers } from '@/lib/providers';
-import {
-	LLM_MODELS_BY_PROVIDER,
-	LLM_PROVIDERS,
-} from '../../../../../../shared/provider_models_definitions';
+import { providerIdsFor, providerModels } from '@/lib/providers';
 import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
@@ -27,22 +24,12 @@ import type { ProviderModelGroup } from '../../../start/types';
 
 type CatalogProvider = PublicProvider;
 
-function toPublicProvider(provider: CatalogProvider): PublicProvider {
-	return {
-		id: provider.id,
-		name: provider.name,
-		baseUrl: provider.baseUrl,
-		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
-		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
-	};
-}
-
 function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
 	return providers().find((provider) => provider.id === providerId);
 }
 
 function getProviderLlmModels(providerId: string): Model[] {
-	return [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
+	return providerModels(providerId, 'llm');
 }
 
 async function loadAssistantState(): Promise<ModelConfigurationState> {
@@ -50,10 +37,10 @@ async function loadAssistantState(): Promise<ModelConfigurationState> {
 		window.agent.getProvider(),
 		window.agent.getModelId(),
 	]);
-	const providers = LLM_PROVIDERS.flatMap((providerId) => {
+	const providers = providerIdsFor('llm').flatMap((providerId) => {
 		const provider = getCatalogProviderById(providerId);
 		return provider && getProviderLlmModels(providerId).length > 0
-			? [toPublicProvider(provider)]
+			? [provider]
 			: [];
 	});
 	const modelGroups: ProviderModelGroup[] = providers.map((provider) => ({

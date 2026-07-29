@@ -1,4 +1,4 @@
-import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/provider_models_definitions';
+import { providerModels } from './providers';
 import { cloneModels } from '../../../shared/provider_models_definitions';
 import type { ProviderModel } from '../../../shared/provider_models_types';
 import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_models_definitions';
@@ -71,7 +71,7 @@ export type RendererAppApi = Window['app'] & {
 export const appApi = window.app as unknown as RendererAppApi;
 
 export function getLlmModels(providerId: string): Model[] {
-	return cloneModels(CHAT_MODELS_BY_PROVIDER[providerId.trim().toLowerCase()]);
+	return [...providerModels(providerId, 'llm'), ...providerModels(providerId, 'research-chat')];
 }
 
 export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {

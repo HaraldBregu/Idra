@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
-import { providers } from '@/lib/providers';
+import { providerIdsFor, providerModels, providers } from '@/lib/providers';
 import {
 	cloneModels,
 	normalizeProviderId,
-	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
-	TEXT_TO_SPEECH_PROVIDER_IDS,
 } from '../../../../../../shared/provider_models_definitions';
 import type { PublicProvider } from '../../../../../../shared';
 import {
@@ -29,22 +27,12 @@ import VoiceTest from './VoiceTest';
 
 type CatalogProvider = PublicProvider;
 
-function toPublicProvider(provider: CatalogProvider): PublicProvider {
-	return {
-		id: provider.id,
-		name: provider.name,
-		baseUrl: provider.baseUrl,
-		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
-		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
-	};
-}
-
 function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
 	return providers().find((provider) => provider.id === providerId);
 }
 
 function getVoiceModels(providerId: string): Model[] {
-	return cloneModels(TEXT_TO_SPEECH_MODELS_BY_PROVIDER[normalizeProviderId(providerId)]);
+	return providerModels(providerId, 'text-to-speech');
 }
 
 async function getVoiceSelection(): Promise<ModelSelection | undefined> {
@@ -83,9 +71,9 @@ const VoicePage: React.FC = () => {
 
 			try {
 				const selection = await getVoiceSelection();
-				const providers = TEXT_TO_SPEECH_PROVIDER_IDS.flatMap((providerId) => {
+				const providers = providerIdsFor('text-to-speech').flatMap((providerId) => {
 					const provider = getCatalogProviderById(providerId);
-					return provider ? [toPublicProvider(provider)] : [];
+					return provider ? [provider] : [];
 				});
 				const mergedProviders = mergeProviders(providers, selection?.provider);
 				if (!mounted) return;

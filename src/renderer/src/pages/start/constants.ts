@@ -27,13 +27,10 @@ import type {
 
 type CatalogProvider = PublicProvider;
 
-function toModelGroups(
-	providerIds: readonly string[],
-	modelsByProvider: Record<string, readonly Model[]>
-): ProviderModelGroup[] {
-	return providerIds.flatMap((providerId) => {
+function toModelGroups(type: ModelCapability): ProviderModelGroup[] {
+	return providerIdsFor(type).flatMap((providerId) => {
 		const provider = providers().find((item) => item.id === providerId);
-		const models = cloneModels(modelsByProvider[providerId]);
+		const models = providerModels(providerId, type);
 		return provider && models.length > 0 ? [{ provider, models }] : [];
 	});
 }
