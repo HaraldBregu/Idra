@@ -184,7 +184,8 @@
 				"rag": "Indice documenti e ricerca vettoriale",
 				"wiki": "Conoscenza Markdown persistente mantenuta dall'LLM",
 				"vectorDb": "Database vettoriale Pinecone",
-				"plugins": "Estensioni dell'app"
+				"plugins": "Estensioni dell'app",
+				"configurationDescription": "Configura modelli, archiviazione e integrazioni"
 			}
 		},
 		"tabs": {
