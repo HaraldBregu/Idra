@@ -48,7 +48,6 @@ interface StorageEntry {
 
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		actionableProviderCatalog().map((provider, index) => ({
 			providerId: provider.id,
