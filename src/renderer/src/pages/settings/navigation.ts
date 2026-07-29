@@ -122,6 +122,12 @@ export interface SettingsProviderConfigItem {
 
 export const SETTINGS_ML_MODELS_ITEMS: readonly SettingsProviderConfigItem[] = [
 	{
+		path: '/settings/providers/keys',
+		labelKey: 'settings.providers.storeApiKeys',
+		descriptionKey: 'settings.providers.storeApiKeysDescription',
+		icon: KeyRound,
+	},
+	{
 		path: '/settings/assistant',
 		labelKey: 'settings.modelServices.assistantName',
 		descriptionKey: 'settings.modelServices.fridayDescription',
