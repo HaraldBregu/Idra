@@ -1,18 +1,6 @@
 import { getProviderApiConfigurationUrl } from '../../../../shared';
-import { providers } from '@/lib/providers';
-import {
-	cloneModels,
-	LLM_MODELS_BY_PROVIDER,
-	LLM_PROVIDERS,
-	MUSIC_PROVIDER_IDS,
-	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
-	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
-	TEXT_TO_IMAGE_PROVIDER_IDS,
-	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
-	TEXT_TO_SPEECH_PROVIDER_IDS,
-	TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
-	TEXT_TO_VIDEO_PROVIDER_IDS,
-} from '../../../../shared/provider_models_definitions';
+import { providerIdsFor, providerModels, providers } from '@/lib/providers';
+import type { ModelCapability } from '../../../../shared/provider_models_definitions';
 import type { PublicProvider } from '../../../../shared';
 import type { Model } from '@/lib/compat';
 import type {
@@ -36,7 +24,7 @@ function toModelGroups(type: ModelCapability): ProviderModelGroup[] {
 }
 
 function getLlmModelGroups(): ProviderModelGroup[] {
-	return toModelGroups(LLM_PROVIDERS, LLM_MODELS_BY_PROVIDER);
+	return toModelGroups('llm');
 }
 
 type ModelIdApi = {
@@ -97,7 +85,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		title: 'Voice',
 		description: 'Reads responses aloud with text-to-speech.',
 		loadModelGroups: () =>
-			Promise.resolve(toModelGroups(TEXT_TO_SPEECH_PROVIDER_IDS, TEXT_TO_SPEECH_MODELS_BY_PROVIDER)),
+			Promise.resolve(toModelGroups('text-to-speech')),
 		...toIdSelectionHandlers(() => window.models.voice),
 	},
 	{
@@ -118,7 +106,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		title: 'Image',
 		description: 'Generates images from your prompts.',
 		loadModelGroups: () =>
-			Promise.resolve(toModelGroups(TEXT_TO_IMAGE_PROVIDER_IDS, TEXT_TO_IMAGE_MODELS_BY_PROVIDER)),
+			Promise.resolve(toModelGroups('text-to-image')),
 		...toIdSelectionHandlers(() => window.models.image),
 	},
 	{
@@ -126,7 +114,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		title: 'Video',
 		description: 'Generates videos from your prompts.',
 		loadModelGroups: () =>
-			Promise.resolve(toModelGroups(TEXT_TO_VIDEO_PROVIDER_IDS, TEXT_TO_VIDEO_MODELS_BY_PROVIDER)),
+			Promise.resolve(toModelGroups('text-to-video')),
 		...toIdSelectionHandlers(() => window.models.video),
 	},
 	{
@@ -134,7 +122,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		title: 'Audio',
 		description: 'Generates music and sounds from your prompts.',
 		loadModelGroups: () =>
-			Promise.resolve(toModelGroups(MUSIC_PROVIDER_IDS, TEXT_TO_AUDIO_MODELS_BY_PROVIDER)),
+			Promise.resolve(toModelGroups('text-to-audio')),
 		...toIdSelectionHandlers(() => window.models.sound),
 	},
 ];

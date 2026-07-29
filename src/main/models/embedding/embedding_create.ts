@@ -1,10 +1,7 @@
 import type { EmbeddingRequest, EmbeddingResult } from '../../../shared/embedding_types';
-import {
-	DEFAULT_EMBEDDING_PROVIDER_ID,
-	EMBEDDING_MODELS_BY_PROVIDER,
-} from '../../../shared/provider_models_definitions';
+import { DEFAULT_EMBEDDING_PROVIDER_ID } from '../../../shared/provider_models_definitions';
 import { generateEmbeddings } from '../../app/models_adapters/embedding';
-import { getProvider } from '../../providers';
+import { getProvider, providerModels } from '../../providers';
 import { getModelId, getProviderId } from '../models_store';
 import { EMBEDDING_PROVIDERS } from './embedding_providers';
 
@@ -47,10 +44,7 @@ function resolveProviderId(providerId: string): string {
 
 function resolveModelId(providerId: string, modelId: string | undefined): string {
 	if (modelId?.trim()) return modelId.trim();
-	const catalog = EMBEDDING_MODELS_BY_PROVIDER as Readonly<
-		Record<string, readonly { readonly id: string }[]>
-	>;
-	const fallback = catalog[providerId]?.[0]?.id;
+	const fallback = providerModels(providerId, 'embedding')[0]?.id;
 	if (!fallback) throw new Error(`No embedding models available for provider: ${providerId}`);
 	return fallback;
 }

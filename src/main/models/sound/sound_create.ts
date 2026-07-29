@@ -1,10 +1,9 @@
 import {
 	MUSIC_PROVIDER_IDS,
-	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
 	normalizeProviderId,
 } from '../../../shared/provider_models_definitions';
 import type { SoundRequest, SoundResult } from '../../../shared/sound_types';
-import { getProvider, loadProviders } from '../../providers';
+import { getProvider, loadProviders, providerModels } from '../../providers';
 import {
 	generateMusic,
 	MusicProviderAuthError,

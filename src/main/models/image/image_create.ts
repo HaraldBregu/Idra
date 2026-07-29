@@ -1,10 +1,9 @@
 import {
-	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 	TEXT_TO_IMAGE_PROVIDER_IDS,
 	normalizeProviderId,
 } from '../../../shared/provider_models_definitions';
 import type { ImageRequest, ImageResult } from '../../../shared/image_types';
-import { getProvider, loadProviders } from '../../providers';
+import { getProvider, loadProviders, providerModels } from '../../providers';
 import {
 	generateImage,
 	ImageProviderAuthError,
@@ -39,10 +38,7 @@ function resolveProviderId(providerId: string): string {
 
 function resolveModelId(providerId: string, modelId: string | undefined): string {
 	if (modelId?.trim()) return modelId.trim();
-	const catalog = TEXT_TO_IMAGE_MODELS_BY_PROVIDER as Readonly<
-		Record<string, readonly { readonly id: string }[]>
-	>;
-	const fallback = catalog[providerId]?.[0]?.id;
+	const fallback = providerModels(providerId, 'text-to-image')[0]?.id;
 	if (!fallback) {
 		throw new ImageProviderUnsupportedError(
 			`No text-to-image models available for provider: ${providerId}`

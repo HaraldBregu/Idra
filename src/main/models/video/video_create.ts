@@ -1,10 +1,9 @@
 import {
-	TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
 	TEXT_TO_VIDEO_PROVIDER_IDS,
 	normalizeProviderId,
 } from '../../../shared/provider_models_definitions';
 import type { VideoRequest, VideoResult } from '../../../shared/video_types';
-import { getProvider, loadProviders } from '../../providers';
+import { getProvider, loadProviders, providerModels } from '../../providers';
 import {
 	generateVideo,
 	VideoProviderAuthError,
