@@ -187,21 +187,23 @@ function normalizeProvider(provider: CatalogProvider, index: number): ProviderOp
 	return { label, value };
 }
 
-export const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
-	normalizeProvider(provider, index)
-);
+export function providerOptions(): ProviderOption[] {
+	return providers().map((provider, index) => normalizeProvider(provider, index));
+}
 
-export const supportedProviderIds = new Set(providerOptions.map((provider) => provider.value));
+export function supportedProviderIds(): Set<string> {
+	return new Set(providerOptions().map((provider) => provider.value));
+}
 
-export const actionableProviderCatalog: readonly ProviderCatalogItem[] = DEFAULT_PROVIDERS.map(
-	(provider) => ({
+export function actionableProviderCatalog(): readonly ProviderCatalogItem[] {
+	return providers().map((provider) => ({
 		id: provider.id,
 		name: provider.name,
 		capabilities: provider.capabilities ?? 'AI provider',
 		supported: true,
 		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
-	})
-);
+	}));
+}
 
 export function getErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim().length > 0) {
