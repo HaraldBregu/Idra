@@ -1,7 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { ResolvedProvider } from '../../shared/provider_types';
-import { getProvider as getStoredProvider } from '../providers';
+import type { ResolvedProvider, StoredProvider } from '../../shared/provider_types';
 import { userDataLocation } from '../shared/user_data_location';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
@@ -12,6 +11,7 @@ export type AppSettingsState = {
 	theme: AppTheme;
 	providerId: string | undefined;
 	modelId: string | undefined;
+	providers: StoredProvider[];
 };
 
 const APP_SETTINGS_STORE_NAME = 'settings';
@@ -23,6 +23,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	theme: 'system',
 	providerId: undefined,
 	modelId: undefined,
+	providers: [],
 };
 
 const store = new Store<AppSettingsState>({
