@@ -532,8 +532,7 @@ export function ProviderCard({
 								)}
 							</div>
 						</CardFooter>
-					))}
-				</CollapsibleContent>
+					)))}
 			</Collapsible>
 		</Card>
 	);
