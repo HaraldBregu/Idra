@@ -866,6 +866,7 @@
 			"description": "Connect AI providers and configure the models Friday uses.",
 			"storeApiKeys": "Store provider API keys",
 			"storeApiKeysDescription": "Add or update API keys for supported AI providers.",
+			"modelsApiKeys": "Models API keys",
 			"apiKeysTitle": "Provider API keys",
 			"apiKeysDescription": "Manage the API keys Friday uses to connect to AI providers.",
 			"mlModelsDescription": "Configure your main AI model and provider.",
