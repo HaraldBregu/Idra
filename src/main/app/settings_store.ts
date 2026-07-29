@@ -65,9 +65,12 @@ export function setTheme(theme: AppTheme): void {
 	store.set('theme', theme);
 }
 
-export function listProviders(): StoredProvider[] {
+export function listProviders(type?: ProviderType): StoredProvider[] {
 	const raw = store.get('providers');
-	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
+	const providers = Array.isArray(raw)
+		? raw.filter(isStoredProvider).map(normalizeStoredProvider)
+		: [];
+	return type ? providers.filter((provider) => provider.type === type) : providers;
 }
 
 export function getProvider(id: string): StoredProvider | undefined {
