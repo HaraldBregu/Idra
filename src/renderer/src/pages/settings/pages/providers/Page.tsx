@@ -206,13 +206,15 @@ const ProvidersPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<div className="px-3 py-3">
-				<Input
-					type="text"
-					placeholder={t('settings.search')}
-					className="h-8 rounded-md border-input bg-card px-2.5 text-sm"
-				/>
-			</div>
+			<SettingsPanel>
+				<div className="px-4 py-3">
+					<Input
+						type="text"
+						placeholder={t('settings.search')}
+						className="h-8 rounded-md border-input bg-card px-3 text-sm"
+					/>
+				</div>
+			</SettingsPanel>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
