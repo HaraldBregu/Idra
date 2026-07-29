@@ -120,7 +120,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 					providerIds: entriesToSave.map((entry) => entry.providerId),
 				});
 			}
-			dispatch({ type: 'GO_TO_STEP', step: 'models' });
+			dispatch({ type: 'GO_TO_STEP', step: 'storage' });
 		} catch (error) {
 			console.error('[useProviderSetup] Failed to save provider API keys:', error);
 			dispatch({
