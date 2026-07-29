@@ -299,6 +299,14 @@ const routes: RouteObject[] = [
 								),
 							},
 							{
+								path: 'vectordb',
+								element: (
+									<SettingsRouteWrapper>
+										<ProviderVectorDbPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
 								path: 'transcribe',
 								element: (
 									<SettingsRouteWrapper>
