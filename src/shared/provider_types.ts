@@ -41,12 +41,11 @@ export interface ModelSelection {
 
 /** A provider's credentials as saved by the user. */
 export interface StoredProvider {
+	id: string;
 	name: string;
 	apiKey: string;
 	baseUrl: string;
 }
-
-export type ProviderRecord = Record<string, StoredProvider>;
 
 export interface ResolvedProvider {
 	id: string;
