@@ -18,12 +18,12 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const videoProviderGroups(): readonly ModelProviderGroup[] = TEXT_TO_VIDEO_PROVIDER_IDS.map(
-	(id) => ({
+function videoProviderGroups(): readonly ModelProviderGroup[] {
+	return providerIdsFor('text-to-video').map((id) => ({
 		id,
-		models: TEXT_TO_VIDEO_MODELS_BY_PROVIDER[id] ?? [],
-	})
-).filter((group) => group.models.length > 0);
+		models: providerModels(id, 'text-to-video'),
+	}));
+}
 
 const VideoPage: React.FC = () => {
 	const { t } = useTranslation();
