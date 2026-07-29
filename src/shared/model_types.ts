@@ -27,6 +27,8 @@ export type ModelCatalog = Readonly<Record<string, readonly ProviderModel[]>>;
 /** A model flattened together with the provider that serves it. */
 export interface CatalogModel extends ProviderModel {
 	readonly type: ModelCapability;
+	/** Base URL of the API serving this model. */
+	readonly url?: string;
 	readonly provider: PublicProvider;
 	/** Speech-to-text only: realtime capture sample rate, from the provider entry. */
 	readonly sampleRate?: number;
