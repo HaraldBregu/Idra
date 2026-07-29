@@ -79,6 +79,20 @@ const themeSchema = z
 			.refine((entry) => entry.toLowerCase().endsWith('.json')),
 	})
 	.strict();
+const channelSchema = z
+	.object({
+		id: idSchema,
+		name: z.string().trim().min(1),
+		description: z.string().trim().min(1),
+		entry: z
+			.string()
+			.refine(isPluginPath)
+			.refine((entry) => {
+				const extension = entry.toLowerCase();
+				return extension.endsWith('.js') || extension.endsWith('.mjs');
+			}),
+	})
+	.strict();
 const contributionsSchema = z
 	.object({
 		providers: z.array(providerSchema).default([]),
@@ -87,6 +101,7 @@ const contributionsSchema = z
 		mcpServers: z.array(mcpServerSchema).default([]),
 		languages: z.array(languageSchema).default([]),
 		themes: z.array(themeSchema).default([]),
+		channels: z.array(channelSchema).default([]),
 	})
 	.strict()
 	.superRefine((contributions, context) => {
@@ -96,7 +111,8 @@ const contributionsSchema = z
 			contributions.widgets.length +
 			contributions.mcpServers.length +
 			contributions.languages.length +
-			contributions.themes.length;
+			contributions.themes.length +
+			contributions.channels.length;
 		if (contributionCount === 0) {
 			context.addIssue({
 				code: 'custom',
@@ -110,6 +126,7 @@ const contributionsSchema = z
 			'mcpServers',
 			'languages',
 			'themes',
+			'channels',
 		] as const) {
 			const ids = new Set<string>();
 			contributions[key].forEach((contribution, index) => {
@@ -143,3 +160,4 @@ export type PluginWidgetContribution = z.infer<typeof widgetSchema>;
 export type PluginMcpServerContribution = z.infer<typeof mcpServerSchema>;
 export type PluginLanguageContribution = z.infer<typeof languageSchema>;
 export type PluginThemeContribution = z.infer<typeof themeSchema>;
+export type PluginChannelContribution = z.infer<typeof channelSchema>;
