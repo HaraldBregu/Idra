@@ -249,6 +249,10 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: import('./app_types').CameraPermissionSettings;
 	};
+	[AppChannels.providers]: {
+		args: [];
+		result: import('./providers_definitions').PublicProvider[];
+	};
 	[AppChannels.openVideo]: {
 		args: [path: string];
 		result: void;
