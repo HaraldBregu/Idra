@@ -329,41 +329,6 @@ export function ProviderCard({
 
 							</div>
 						)}
-
-						<section className="space-y-2">
-							<div>
-								<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
-								<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-									{t('settings.storage.pathsSubtitle')}
-								</p>
-							</div>
-							<div className="space-y-1.5">
-								{syncFolders.map((folder) => {
-									const active = (editing ? draft : canonical).paths.includes(folder.path);
-									return (
-										<Item key={folder.key} variant="outline" size="sm" className="px-0">
-											<ItemContent className="min-w-0 flex-1">
-												<ItemTitle>{t(`settings.storage.folders.${folder.key}`)}</ItemTitle>
-												<p
-													className="mt-0.5 text-[11px] leading-4 text-muted-foreground"
-													title={folder.path}
-												>
-													{middleEllipsis(folder.path)}
-												</p>
-											</ItemContent>
-											<ItemActions className="ml-auto flex-none">
-												<Switch
-													checked={active}
-													onCheckedChange={(checked) => toggleSyncFolder(folder.path, checked)}
-													disabled={saving}
-													aria-label={t(`settings.storage.folders.${folder.key}`)}
-												/>
-											</ItemActions>
-										</Item>
-									);
-								})}
-							</div>
-						</section>
 					</CardContent>
 
 					{(editing || isConfigured(canonical)) && (
