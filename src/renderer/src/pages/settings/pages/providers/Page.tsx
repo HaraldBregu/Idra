@@ -44,6 +44,7 @@ const ProvidersPage: React.FC = () => {
 	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [vectorDbApiKey, setVectorDbApiKey] = useState('');
+	const [vectorDbEditing, setVectorDbEditing] = useState(false);
 	const [vectorDbSaving, setVectorDbSaving] = useState(false);
 	const [vectorDbSaved, setVectorDbSaved] = useState(false);
 	const [vectorDbError, setVectorDbError] = useState<string | null>(null);
