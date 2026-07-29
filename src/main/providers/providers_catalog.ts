@@ -79,6 +79,10 @@ export function supportsSpeechToTextApiType(
 	return speechToTextApiTypes(providerId, modelId).includes(apiType);
 }
 
+export function realtimeSpeechToTextModelId(providerId: string): string | undefined {
+	return providerModels(providerId, 'speech-to-text').find((model) => model.realtime)?.id;
+}
+
 export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {
 	const model = providerModels(providerId, 'speech-to-text').find(
 		(item) => item.id === modelId.trim()
