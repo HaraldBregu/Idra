@@ -40,7 +40,6 @@ export function providerModels(providerId: string, type: ModelCapability): Provi
 		.map((model) => ({
 			id: model.id,
 			name: model.name,
-			status: model.status,
 			...(model.apiTypes ? { apiTypes: model.apiTypes } : {}),
 			...(model.realtime ? { realtime: model.realtime } : {}),
 		}));
