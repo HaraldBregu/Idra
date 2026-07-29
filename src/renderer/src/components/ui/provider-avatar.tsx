@@ -52,7 +52,6 @@ const providerIconAssets: Readonly<Record<string, ProviderIconAsset>> = {
 	openai: { light: openaiIconLight, dark: openaiIconDark },
 	anthropic: { light: anthropicIconLight, dark: anthropicIconDark },
 	google: { light: googleIconLight, dark: googleIconDark },
-	meta: { light: metaIconLight, dark: metaIconDark },
 	xai: { light: xaiIconLight, dark: xaiIconDark },
 	mistral: { light: mistralIconLight, dark: mistralIconDark },
 	deepseek: { light: deepseekIconLight, dark: deepseekIconDark },
