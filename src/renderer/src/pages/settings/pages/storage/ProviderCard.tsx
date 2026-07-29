@@ -3,6 +3,7 @@ import {
 	AlertTriangle,
 	CheckCircle2,
 	ChevronDown,
+	HardDrive,
 	Pencil,
 	Trash2,
 } from 'lucide-react';

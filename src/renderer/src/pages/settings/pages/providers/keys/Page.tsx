@@ -104,6 +104,7 @@ const ProvidersPage: React.FC = () => {
 		return {
 			id: provider.id,
 			name: provider.name,
+			type: 'ml_model',
 			apiKey,
 			baseUrl: provider.baseUrl,
 		};
