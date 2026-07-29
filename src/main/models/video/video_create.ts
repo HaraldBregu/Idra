@@ -1,6 +1,6 @@
 import { normalizeProviderId } from '../../../shared/provider_types';
 import type { VideoRequest, VideoResult } from '../../../shared/video_types';
-import { loadProviders, providerModels, supportsCapability } from '../../app/providers_catalog';
+import { loadProviders, providerModels, supportsCapability } from '../../app/models';
 import { getProvider } from '../../app/settings_store';
 import {
 	generateVideo,

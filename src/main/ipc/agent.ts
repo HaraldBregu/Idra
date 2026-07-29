@@ -6,7 +6,7 @@ import { AgentChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import type { LoggerService } from '../shared';
 import type { PublicProvider } from '../../shared/provider_types';
-import { loadProviders } from '../app/providers_catalog';
+import { loadProviders } from '../app/models';
 import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
 import { workspacePath } from '../agent/system';

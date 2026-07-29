@@ -42,7 +42,7 @@ import {
 } from '../app/settings_store';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
 import type { ProviderCatalogEntry, PublicProviderCatalogEntry } from '../../shared/provider_types';
-import { loadProviderCatalog } from '../app/providers_catalog';
+import { loadProviderCatalog } from '../app/models';
 import type { PluginProvider, PluginRepository } from '../plugin';
 import type { LoggerService } from '../shared';
 
@@ -207,29 +207,21 @@ function showVideoContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 	menu.popup(window ? { window } : {});
 }
 
-function toPublicEntry(entry: ProviderCatalogEntry): PublicProviderCatalogEntry {
-	return {
-		id: entry.id,
-		name: entry.name,
-		type: entry.type,
-		baseUrl: entry.baseUrl,
-		models: entry.models,
-		...(entry.capabilities ? { capabilities: entry.capabilities } : {}),
-		...(entry.apiConfiguration ? { apiConfiguration: entry.apiConfiguration } : {}),
-	};
-}
-
-/** Plugin providers are openai-compatible chat endpoints, so they join the catalog as `llm`. */
-function pluginEntry(provider: PluginProvider): PublicProviderCatalogEntry {
-	return {
+/** Plugin providers are openai-compatible chat endpoints, so their models join as `llm`. */
+function pluginModels(provider: PluginProvider): CatalogModel[] {
+	const publicProvider = {
 		id: provider.id,
 		name: provider.name,
-		type: 'llm',
 		baseUrl: provider.baseUrl,
-		models: provider.models.map((model) => ({ ...model, status: 'active' as const })),
 		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
 		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
 	};
+	return provider.models.map((model) => ({
+		...model,
+		status: 'active' as const,
+		type: 'llm' as const,
+		provider: publicProvider,
+	}));
 }
 
 export class AppIpc implements IpcModule {
