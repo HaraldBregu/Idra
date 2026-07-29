@@ -500,11 +500,6 @@ const ProvidersPage: React.FC = () => {
 								}
 							/>
 						))}
-
-						<Button variant="outline" size="sm" onClick={addStorageProvider} className="self-start">
-							<Plus className="size-3" />
-							{t('settings.storage.addProvider')}
-						</Button>
 					</div>
 				)}
 
