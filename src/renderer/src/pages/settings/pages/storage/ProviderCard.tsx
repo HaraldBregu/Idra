@@ -491,31 +491,7 @@ export function ProviderCard({
 					</CardContent>
 
 					{(editing || isConfigured(canonical)) && (
-						<CardFooter className="justify-between gap-2">
-							<div className="flex gap-2">
-								{!editing && isConfigured(canonical) && (
-									<>
-										<Button
-											variant="outline"
-											size="icon-sm"
-											aria-label={t('settings.storage.push')}
-											onClick={() => void push()}
-											disabled={pushing || pulling || canonical.paths.length === 0}
-										>
-											<UploadCloud className="size-3" />
-										</Button>
-										<Button
-											variant="outline"
-											size="icon-sm"
-											aria-label={t('settings.storage.pull')}
-											onClick={() => void pull()}
-											disabled={pulling || pushing || canonical.paths.length === 0}
-										>
-											<DownloadCloud className="size-3" />
-										</Button>
-									</>
-								)}
-							</div>
+						<CardFooter className="justify-end gap-2">
 							<div className="flex gap-2">
 								{editing && (
 									<>
