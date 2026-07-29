@@ -866,6 +866,7 @@
 			"description": "Collega i provider AI e configura i modelli usati da Friday.",
 			"storeApiKeys": "Salva le chiavi API dei provider",
 			"storeApiKeysDescription": "Aggiungi o aggiorna le chiavi API per i provider AI supportati.",
+			"modelsApiKeys": "Chiavi API dei modelli",
 			"apiKeysTitle": "Chiavi API dei provider",
 			"apiKeysDescription": "Gestisci le chiavi API usate da Friday per collegarsi ai provider AI.",
 			"mlModelsDescription": "Configura il tuo modello AI principale e il provider.",
