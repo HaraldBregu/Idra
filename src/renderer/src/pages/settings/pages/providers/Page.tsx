@@ -173,6 +173,7 @@ const ProvidersPage: React.FC = () => {
 			await window.provider.set({
 				id: 'pinecone',
 				name: 'Pinecone',
+				type: 'vector_db',
 				apiKey: vectorDbApiKey.trim(),
 				baseUrl: PINECONE_BASE_URL,
 			});
