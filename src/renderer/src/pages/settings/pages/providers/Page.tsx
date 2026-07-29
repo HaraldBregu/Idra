@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Boxes, ChevronRight, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
+import { AlertTriangle, Boxes, ChevronRight, ExternalLink, LoaderCircle, Pencil, Plus, Cloud, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ProviderAvatar } from '@/components/provider-avatar';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
 import type { StoredProvider } from '@shared/provider_types';
+import type { StorageConfig } from '@shared/storage_types';
 import { providers } from '@/lib/providers';
 import {
 	actionableProviderCatalog,
@@ -22,9 +23,13 @@ import {
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
+	SettingsField,
+	SettingsLoadingRows,
 } from '../../components';
 import { SETTINGS_PROVIDER_CONFIG_ITEMS } from '../../navigation';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
+import { ProviderCard } from '../storage/ProviderCard';
+import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../storage/constants';
 
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
