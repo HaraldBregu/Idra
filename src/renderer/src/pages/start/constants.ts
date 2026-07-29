@@ -214,11 +214,12 @@ export function getErrorMessage(error: unknown, fallback: string): string {
 
 export function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 	return (
-		actionableProviderCatalog.find((provider) => provider.id === providerId) ?? {
+		actionableProviderCatalog().find((provider) => provider.id === providerId) ?? {
 			id: providerId,
-			name: providerOptions.find((provider) => provider.value === providerId)?.label ?? providerId,
+			name:
+				providerOptions().find((provider) => provider.value === providerId)?.label ?? providerId,
 			capabilities: 'Chat',
-			supported: supportedProviderIds.has(providerId),
+			supported: supportedProviderIds().has(providerId),
 		}
 	);
 }
