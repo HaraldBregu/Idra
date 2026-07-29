@@ -25,28 +25,16 @@ import type {
 	SetupStep,
 } from './types';
 
-type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
-
-function toPublicProvider(provider: CatalogProvider): PublicProvider {
-	return {
-		id: provider.id,
-		name: provider.name,
-		baseUrl: provider.baseUrl,
-		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
-		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
-	};
-}
+type CatalogProvider = PublicProvider;
 
 function toModelGroups(
 	providerIds: readonly string[],
 	modelsByProvider: Record<string, readonly Model[]>
 ): ProviderModelGroup[] {
 	return providerIds.flatMap((providerId) => {
-		const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
+		const provider = providers().find((item) => item.id === providerId);
 		const models = cloneModels(modelsByProvider[providerId]);
-		return provider && models.length > 0
-			? [{ provider: toPublicProvider(provider), models }]
-			: [];
+		return provider && models.length > 0 ? [{ provider, models }] : [];
 	});
 }
 
