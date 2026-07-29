@@ -3,7 +3,12 @@ import type { WindowFactory } from '../app/window_factory';
 
 const windows = new Set<BrowserWindow>();
 
-export function render(windowFactory: WindowFactory, file: string, title: string): BrowserWindow {
+export function render(
+	windowFactory: WindowFactory,
+	file: string,
+	title: string,
+	restricted = false
+): BrowserWindow {
 	const win = windowFactory.create(
 		{
 			width: 820,
@@ -14,6 +19,17 @@ export function render(windowFactory: WindowFactory, file: string, title: string
 			title,
 			autoHideMenuBar: true,
 			backgroundColor: '#f5f5f2',
+			...(restricted
+				? {
+						webPreferences: {
+							preload: undefined,
+							sandbox: true,
+							nodeIntegration: false,
+							contextIsolation: true,
+							partition: 'friday-plugin-widgets',
+						},
+					}
+				: {}),
 		},
 		{ file }
 	);

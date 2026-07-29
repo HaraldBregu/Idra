@@ -16,7 +16,7 @@ import type { EventBus } from '../../app';
 import type { MainServices } from '../../bootstrap';
 
 export function registerIpcHandlers(services: MainServices, eventBus: EventBus): void {
-	const { logger, agentService, channelRegistry, windowFactory } = services;
+	const { logger, agentService, channelRegistry, pluginRepository, windowFactory } = services;
 
 	const safeRegister = (name: string, register: () => void): void => {
 		try {
@@ -34,10 +34,14 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('mcp', () => new McpIpc().register(undefined, eventBus));
 	safeRegister('models', () => new ModelsIpc().register(undefined, eventBus));
 	safeRegister('skills', () => new SkillsIpc().register(undefined, eventBus));
-	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
+	safeRegister('provider-store', () =>
+		new ProviderStoreIpc().register({ pluginRepository }, eventBus)
+	);
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
 	safeRegister('storage', () => new StorageIpc().register(undefined, eventBus));
-	safeRegister('widgets', () => new WidgetsIpc().register({ windowFactory }, eventBus));
+	safeRegister('widgets', () =>
+		new WidgetsIpc().register({ windowFactory, pluginRepository }, eventBus)
+	);
 	safeRegister('wiki', () => new WikiIpc().register(undefined, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 

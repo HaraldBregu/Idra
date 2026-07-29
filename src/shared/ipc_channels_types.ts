@@ -334,6 +334,10 @@ export interface ChannelsEventChannelMap {
 }
 
 export interface ProviderInvokeChannelMap {
+	[ProviderChannels.catalog]: {
+		args: [];
+		result: import('./providers_definitions').PublicProvider[];
+	};
 	[ProviderChannels.get]: {
 		args: [id: string];
 		result: import('./providers_types').Provider | undefined;

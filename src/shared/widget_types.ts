@@ -11,8 +11,15 @@ export type WidgetManifest = {
 	metadata: WidgetMetadata;
 };
 
+export type PluginWidgetSource = {
+	kind: 'plugin';
+	pluginId: string;
+	widgetId: string;
+};
+
 export type Widget = WidgetManifest & {
 	id: string;
+	source?: PluginWidgetSource;
 };
 
 export type WidgetSettings = {

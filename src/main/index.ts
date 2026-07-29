@@ -85,7 +85,15 @@ try {
 
 // Bootstrap new architecture - FULL INTEGRATION ENABLED
 const services = bootstrapServices();
-const { eventBus, appState, windowFactory, logger, windowContextManager, agentService } = services;
+const {
+	eventBus,
+	appState,
+	windowFactory,
+	logger,
+	windowContextManager,
+	agentService,
+	pluginRepository,
+} = services;
 agentService.start(logger);
 startStorageSync(logger);
 // Re-bind safety net with the real logger now that it exists.
@@ -127,8 +135,8 @@ const menuManager = new Menu({
 		logger.info('Menu', 'Creating new launcher window');
 		mainWindow.createAdditionalWindow();
 	},
-	getWidgets: () => listWidgets(),
-	onOpenWidget: (widget) => loadWidget(windowFactory, widget),
+	getWidgets: () => listWidgets(undefined, pluginRepository),
+	onOpenWidget: (widget) => loadWidget(windowFactory, widget, undefined, pluginRepository),
 });
 
 app.whenReady().then(async () => {

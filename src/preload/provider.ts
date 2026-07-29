@@ -4,6 +4,9 @@ import type { ProviderApi } from './index.d';
 import type { Provider } from '../shared/providers_types';
 
 export const provider: ProviderApi = {
+	catalog: () => {
+		return typedInvokeUnwrap(ProviderStoreChannels.catalog);
+	},
 	get: (id: string): Promise<Provider | undefined> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.get, id);
 	},

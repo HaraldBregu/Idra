@@ -5,15 +5,20 @@ import { readWidgetManifest } from './widget_read';
 import { widgetsRoot } from './widget_root';
 import { readWidgetSettings } from './widget_settings_read';
 import type { Widget } from './widget_types';
+import type { PluginRepository } from '../plugin';
 
-export function listWidgets(appLocation?: string): Widget[] {
+export function listWidgets(
+	appLocation?: string,
+	pluginRepository?: PluginRepository
+): Widget[] {
 	if (!readWidgetSettings(appLocation).enabled) return [];
 	const root = widgetsRoot(appLocation);
-	if (!existsSync(root)) return [];
 	const widgets: Widget[] = [];
-	const directories = readdirSync(root, { withFileTypes: true })
-		.filter((entry) => entry.isDirectory() && isWidgetId(entry.name))
-		.sort((left, right) => left.name.localeCompare(right.name));
+	const directories = existsSync(root)
+		? readdirSync(root, { withFileTypes: true })
+				.filter((entry) => entry.isDirectory() && isWidgetId(entry.name))
+				.sort((left, right) => left.name.localeCompare(right.name))
+		: [];
 	for (const directory of directories) {
 		const manifest = readWidgetManifest(directory.name, appLocation);
 		if (!manifest) continue;
@@ -25,5 +30,6 @@ export function listWidgets(appLocation?: string): Widget[] {
 		}
 		widgets.push({ id: directory.name, ...manifest });
 	}
-	return widgets;
+	widgets.push(...(pluginRepository?.widgets() ?? []));
+	return widgets.sort((left, right) => left.id.localeCompare(right.id));
 }
