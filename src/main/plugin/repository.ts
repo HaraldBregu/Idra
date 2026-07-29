@@ -5,7 +5,6 @@ import type { PluginWidgetSource, Widget } from '../../shared/widget_types';
 import { realPath } from '../shared/real_path';
 import {
 	pluginManifestSchema,
-	type PluginChannelContribution,
 	type PluginLanguageContribution,
 	type PluginManifest,
 	type PluginMcpServerContribution,
@@ -324,7 +323,6 @@ export class PluginRepository {
 	}
 
 	private fileCatalog<
-		TContribution extends { id: string; name: string; entry: string },
 		TResult extends { pluginId: string; id: string; name: string; file: string },
 	>(kind: 'languages' | 'themes'): readonly TResult[] {
 		return this.list().flatMap((plugin) =>
