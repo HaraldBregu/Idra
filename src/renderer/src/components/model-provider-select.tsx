@@ -16,10 +16,9 @@ export interface ModelProviderGroup {
 	readonly models: readonly { readonly id: string; readonly name: string }[];
 }
 
-export const llmProviderGroups(): readonly ModelProviderGroup[] = LLM_PROVIDERS.map((id) => ({
-	id,
-	models: LLM_MODELS_BY_PROVIDER[id] ?? [],
-})).filter((group) => group.models.length > 0);
+export function llmProviderGroups(): readonly ModelProviderGroup[] {
+	return providerIdsFor('llm').map((id) => ({ id, models: providerModels(id, 'llm') }));
+}
 
 export function resolveStoredModelProvider(
 	providerGroups: readonly ModelProviderGroup[],
