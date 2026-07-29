@@ -97,11 +97,6 @@ export function ProviderCard({
 	const [removing, setRemoving] = useState(false);
 	const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [syncFolders, setSyncFolders] = useState<StorageSyncFolder[]>([]);
-
-	useEffect(() => {
-		void window.storage.syncFolders().then(setSyncFolders, () => {});
-	}, []);
 
 	const update = (
 		key: StringConfigKey | 'forcePathStyle' | 'syncIntervalMinutes',
