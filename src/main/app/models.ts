@@ -143,9 +143,8 @@ function readModels(): readonly CatalogModel[] {
 		.flatMap((filePath) => JSON.parse(readFileSync(filePath, 'utf-8')) as ProviderCatalogEntry[])
 		.flatMap((entry) => {
 			const provider = toPublicProvider(entry);
-			return entry.models.map((model) => ({
+			return (entry.models ?? []).map((model) => ({
 				...model,
-				type: entry.type,
 				provider,
 				...(entry.sampleRate ? { sampleRate: entry.sampleRate } : {}),
 				...(entry.default ? { default: entry.default } : {}),
