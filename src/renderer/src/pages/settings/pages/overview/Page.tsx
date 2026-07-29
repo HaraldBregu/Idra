@@ -34,17 +34,9 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		],
 	},
 	{
-		id: 'cloud',
-		titleKey: 'settings.overview.groups.cloud',
-		paths: ['/settings/storage', '/settings/vectordb'],
-	},
-	{
-		id: 'channels',
-		paths: ['/settings/channels'],
-	},
-	{
-		id: 'widgets',
-		paths: ['/settings/widgets'],
+		id: 'services',
+		titleKey: 'settings.overview.groups.services',
+		paths: ['/settings/storage', '/settings/vectordb', '/settings/channels', '/settings/widgets'],
 	},
 ] as const;
 
