@@ -1,5 +1,6 @@
 {
 	"id": "kling",
+	"order": 16,
 	"name": "Kuaishou / Kling AI",
 	"baseUrl": "https://kling.ai",
 	"apiKey": "",

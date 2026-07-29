@@ -1,5 +1,6 @@
 {
 	"id": "qwen",
+	"order": 7,
 	"name": "Alibaba / Qwen / Wan",
 	"baseUrl": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
 	"apiKey": "",

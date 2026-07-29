@@ -1,5 +1,6 @@
 {
 	"id": "xai",
+	"order": 4,
 	"name": "xAI",
 	"baseUrl": "https://api.x.ai/v1",
 	"apiKey": "",

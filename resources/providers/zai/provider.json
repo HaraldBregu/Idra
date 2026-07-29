@@ -1,5 +1,6 @@
 {
 	"id": "zai",
+	"order": 9,
 	"name": "Z.ai / Zhipu AI",
 	"baseUrl": "https://api.z.ai/api/paas/v4",
 	"apiKey": "",

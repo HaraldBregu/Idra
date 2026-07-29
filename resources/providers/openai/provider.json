@@ -1,5 +1,6 @@
 {
 	"id": "openai",
+	"order": 1,
 	"name": "OpenAI",
 	"baseUrl": "https://api.openai.com/v1",
 	"apiKey": "",

@@ -1,5 +1,6 @@
 {
 	"id": "cohere",
+	"order": 25,
 	"name": "Cohere",
 	"baseUrl": "https://api.cohere.com/v2",
 	"apiKey": "",

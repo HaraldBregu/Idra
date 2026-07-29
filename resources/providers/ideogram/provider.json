@@ -1,5 +1,6 @@
 {
 	"id": "ideogram",
+	"order": 20,
 	"name": "Ideogram",
 	"baseUrl": "https://api.ideogram.ai",
 	"apiKey": "",

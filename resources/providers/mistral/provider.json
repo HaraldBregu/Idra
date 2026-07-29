@@ -1,5 +1,6 @@
 {
 	"id": "mistral",
+	"order": 5,
 	"name": "Mistral AI",
 	"baseUrl": "https://api.mistral.ai/v1",
 	"apiKey": "",

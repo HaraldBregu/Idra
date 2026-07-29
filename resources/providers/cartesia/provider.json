@@ -1,5 +1,6 @@
 {
 	"id": "cartesia",
+	"order": 13,
 	"name": "Cartesia",
 	"baseUrl": "https://api.cartesia.ai",
 	"apiKey": "",

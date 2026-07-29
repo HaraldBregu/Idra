@@ -1,5 +1,6 @@
 {
 	"id": "anthropic",
+	"order": 2,
 	"name": "Anthropic",
 	"baseUrl": "https://api.anthropic.com",
 	"apiKey": "",

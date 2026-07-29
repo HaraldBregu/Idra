@@ -1,5 +1,6 @@
 {
 	"id": "kimi",
+	"order": 8,
 	"name": "Moonshot AI / Kimi",
 	"baseUrl": "https://api.moonshot.ai/v1",
 	"apiKey": "",

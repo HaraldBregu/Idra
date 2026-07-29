@@ -1,5 +1,6 @@
 {
 	"id": "reka",
+	"order": 23,
 	"name": "Reka AI",
 	"baseUrl": "https://api.reka.ai/v1",
 	"apiKey": "",

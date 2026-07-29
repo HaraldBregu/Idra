@@ -1,5 +1,6 @@
 {
 	"id": "elevenlabs",
+	"order": 11,
 	"name": "ElevenLabs",
 	"baseUrl": "https://api.elevenlabs.io/v1",
 	"apiKey": "",

@@ -1,5 +1,6 @@
 {
 	"id": "suno",
+	"order": 22,
 	"name": "Suno",
 	"baseUrl": "https://suno.com",
 	"apiKey": "",

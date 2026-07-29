@@ -1,5 +1,6 @@
 {
 	"id": "luma",
+	"order": 18,
 	"name": "Luma AI",
 	"baseUrl": "https://api.lumalabs.ai/dream-machine/v1",
 	"apiKey": "",

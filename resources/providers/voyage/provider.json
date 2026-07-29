@@ -1,5 +1,6 @@
 {
 	"id": "voyage",
+	"order": 26,
 	"name": "Voyage AI",
 	"baseUrl": "https://api.voyageai.com/v1",
 	"apiKey": "",

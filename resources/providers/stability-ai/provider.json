@@ -1,5 +1,6 @@
 {
 	"id": "stability-ai",
+	"order": 19,
 	"name": "Stability AI",
 	"baseUrl": "https://api.stability.ai/v2beta",
 	"apiKey": "",

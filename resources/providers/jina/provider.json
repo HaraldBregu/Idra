@@ -1,5 +1,6 @@
 {
 	"id": "jina",
+	"order": 28,
 	"name": "Jina AI",
 	"baseUrl": "https://api.jina.ai/v1",
 	"apiKey": "",

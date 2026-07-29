@@ -1,5 +1,6 @@
 {
 	"id": "midjourney",
+	"order": 15,
 	"name": "Midjourney",
 	"baseUrl": "https://www.midjourney.com",
 	"apiKey": "",

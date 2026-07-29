@@ -1,5 +1,6 @@
 {
 	"id": "minimax",
+	"order": 10,
 	"name": "MiniMax",
 	"baseUrl": "https://api.minimax.io/v1",
 	"apiKey": "",

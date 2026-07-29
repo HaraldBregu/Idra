@@ -1,5 +1,6 @@
 {
 	"id": "perplexity",
+	"order": 24,
 	"name": "Perplexity",
 	"baseUrl": "https://api.perplexity.ai",
 	"apiKey": "",

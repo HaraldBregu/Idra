@@ -1,5 +1,6 @@
 {
 	"id": "black-forest-labs",
+	"order": 14,
 	"name": "Black Forest Labs",
 	"baseUrl": "https://api.bfl.ai/v1",
 	"apiKey": "",

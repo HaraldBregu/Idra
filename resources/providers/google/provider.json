@@ -1,5 +1,6 @@
 {
 	"id": "google",
+	"order": 3,
 	"name": "Google DeepMind / Google",
 	"baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
 	"apiKey": "",

@@ -1,5 +1,6 @@
 {
 	"id": "deepgram",
+	"order": 12,
 	"name": "Deepgram",
 	"baseUrl": "https://api.deepgram.com/v1",
 	"apiKey": "",

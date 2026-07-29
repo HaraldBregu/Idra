@@ -1,5 +1,6 @@
 {
 	"id": "pika",
+	"order": 21,
 	"name": "Pika",
 	"baseUrl": "https://pika.art",
 	"apiKey": "",

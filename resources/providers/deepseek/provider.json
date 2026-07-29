@@ -1,5 +1,6 @@
 {
 	"id": "deepseek",
+	"order": 6,
 	"name": "DeepSeek",
 	"baseUrl": "https://api.deepseek.com",
 	"apiKey": "",
