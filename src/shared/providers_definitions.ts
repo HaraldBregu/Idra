@@ -55,7 +55,36 @@ export interface ModelSelection {
 	model: ProviderModel;
 }
 
-export const DEFAULT_PROVIDERS: readonly Provider[] = providerDefinitions as readonly Provider[];
+export const DEFAULT_PROVIDERS: readonly Provider[] = [
+	openai,
+	anthropic,
+	google,
+	xai,
+	mistral,
+	deepseek,
+	qwen,
+	kimi,
+	zai,
+	minimax,
+	elevenlabs,
+	deepgram,
+	cartesia,
+	blackForestLabs,
+	midjourney,
+	kling,
+	runway,
+	luma,
+	stabilityAi,
+	ideogram,
+	pika,
+	suno,
+	reka,
+	perplexity,
+	cohere,
+	voyage,
+	nomic,
+	jina,
+];
 
 export function getProviderApiConfigurationUrl(
 	provider: Pick<Provider, 'apiConfiguration' | 'baseUrl'>
