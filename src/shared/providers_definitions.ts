@@ -1,3 +1,4 @@
+import type { ModelCapability } from './provider_models_definitions';
 import type { ProviderModel } from './provider_models_types';
 
 export interface ProviderApiConfiguration {
