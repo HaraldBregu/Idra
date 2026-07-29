@@ -195,13 +195,6 @@ const ProvidersPage: React.FC = () => {
 		}
 	};
 
-	const addStorageProvider = (): void => {
-		setStorageEntries((current) => [
-			...(current ?? []),
-			{ key: crypto.randomUUID(), storage: BLANK_STORAGE },
-		]);
-	};
-
 	return (
 		<SettingsPageShell>
 			{error && (
