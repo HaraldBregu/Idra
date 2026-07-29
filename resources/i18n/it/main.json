@@ -182,7 +182,8 @@
 				"widgets": "App widget installate",
 				"rag": "Indice documenti e ricerca vettoriale",
 				"wiki": "Conoscenza Markdown persistente mantenuta dall'LLM",
-				"vectorDb": "Database vettoriale Pinecone"
+				"vectorDb": "Database vettoriale Pinecone",
+				"plugins": "Estensioni dell'app"
 			}
 		},
 		"tabs": {

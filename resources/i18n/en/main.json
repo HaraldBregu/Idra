@@ -184,7 +184,8 @@
 				"rag": "Document index and vector search",
 				"wiki": "Persistent LLM-maintained Markdown knowledge",
 				"vectorDb": "Pinecone vector database",
-				"plugins": "App extensions"
+				"plugins": "App extensions",
+				"configurationDescription": "Configure models, storage, and integrations"
 			}
 		},
 		"tabs": {
