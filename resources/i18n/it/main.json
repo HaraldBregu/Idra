@@ -151,7 +151,7 @@
 				"app": "App",
 				"agent": "Agente",
 				"modelServices": "Modelli",
-				"mlModels": "Modelli ML",
+				"mlModels": "Modelli",
 				"vectorDatabases": "Database Vettoriali",
 				"connectors": "Connettori",
 				"channels": "Canali",
