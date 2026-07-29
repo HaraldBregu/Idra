@@ -16,7 +16,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import type { PublicProvider } from '@shared';
 import { providers } from '@/lib/providers';
-import { LLM_MODELS_BY_PROVIDER, LLM_PROVIDERS } from '@shared/provider_models_definitions';
+import { providerIdsFor, providerModels } from '@/lib/providers';
 import type { ProviderModelGroup } from '@pages/start/types';
 import {
 	SettingsLoadingRows,
