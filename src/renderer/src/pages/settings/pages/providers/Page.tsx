@@ -376,65 +376,92 @@ const ProvidersPage: React.FC = () => {
 				description={t('settings.providers.vectorDatabasesDescription')}
 			>
 				<SettingsPanel>
-					<Item
-						as="button"
-						type="button"
-						onClick={() => navigate('/settings/providers/vectordb')}
-						variant="outline"
-						size="md"
-						className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center px-4 text-left"
-					>
-						<ItemIcon icon={Boxes} className="size-8 [&_svg]:size-4" />
-						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-							<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
-								{t('settings.overview.groups.vectorDatabases')}
-							</ItemTitle>
-							<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-								{t('settings.providers.vectorDatabasesDescription')}
+					<div className="grid gap-3 px-3 py-3">
+						<SettingsField
+							id="vectordb-api-key"
+							label={t('settings.vectorDb.apiKey')}
+							description={t('settings.vectorDb.apiKeyDescription')}
+						>
+							<Input
+								id="vectordb-api-key"
+								type="password"
+								value={vectorDbApiKey}
+								placeholder={t('settings.vectorDb.apiKeyPlaceholder')}
+								disabled={vectorDbSaving}
+								onChange={(event) => setVectorDbApiKey(event.target.value)}
+							/>
+						</SettingsField>
+
+						<div className="flex justify-end">
+							<Button
+								type="button"
+								size="sm"
+								disabled={vectorDbSaving || !vectorDbApiKey.trim()}
+								onClick={() => void handleVectorDbSave()}
+							>
+								{vectorDbSaving ? (
+									<LoaderCircle className="size-3 animate-spin" />
+								) : (
+									<Save className="size-3" />
+								)}
+								{t('settings.vectorDb.save')}
+							</Button>
+						</div>
+
+						{vectorDbSaved && (
+							<p className="text-[11px] leading-4 text-muted-foreground">
+								{t('settings.vectorDb.saved')}
 							</p>
-						</ItemContent>
-						<ItemActions className="ml-0 flex-none justify-end">
-							<ChevronRight className="size-3 shrink-0 text-muted-foreground/40" strokeWidth={1.8} />
-						</ItemActions>
-					</Item>
+						)}
+					</div>
 				</SettingsPanel>
 			</SettingsSection>
 
 			<SettingsSection
-				title={t('settings.overview.groups.configuration')}
-				description={t('settings.providers.configurationDescription')}
+				title={t('settings.tabs.storage')}
+				description={t('settings.storage.description')}
 			>
-				<SettingsPanel>
-					{SETTINGS_PROVIDER_CONFIG_ITEMS.map((item, index) => (
-						<Item
-							key={item.path}
-							as="button"
-							type="button"
-							onClick={() => navigate(item.path)}
-							variant="outline"
-							size="md"
-							className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center px-4 text-left ${
-								index < SETTINGS_PROVIDER_CONFIG_ITEMS.length - 1 ? 'border-b border-border/30' : ''
-							} last:border-b-0`}
-						>
-							<ItemIcon icon={item.icon} className="size-8 [&_svg]:size-4" />
-							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-								<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
-									{t(item.labelKey)}
-								</ItemTitle>
-								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-									{t(item.descriptionKey)}
-								</p>
-							</ItemContent>
-							<ItemActions className="ml-0 flex-none justify-end">
-								<ChevronRight
-									className="size-3 shrink-0 text-muted-foreground/40"
-									strokeWidth={1.8}
-								/>
-							</ItemActions>
-						</Item>
-					))}
-				</SettingsPanel>
+				{storageError && (
+					<SettingsNotice variant="destructive" icon={AlertTriangle}>
+						{storageError}
+					</SettingsNotice>
+				)}
+
+				{!storageEntries ? (
+					<SettingsLoadingRows rows={4} />
+				) : (
+					<div className="space-y-3 px-3 py-3">
+						{storageEntries.length === 0 && (
+							<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
+						)}
+
+						{storageEntries.map((entry) => (
+							<ProviderCard
+								key={entry.key}
+								storage={entry.storage}
+								onSaved={(saved) =>
+									setStorageEntries((current) =>
+										current?.map((item) =>
+											item.key === entry.key ? { ...item, storage: saved } : item
+										) ?? current
+									)
+								}
+								onRemoved={() =>
+									setStorageEntries((current) =>
+										current?.filter((item) => item.key !== entry.key) ?? current
+									)
+								}
+							/>
+						))}
+
+						<Button variant="outline" size="sm" onClick={addStorageProvider} className="self-start">
+							<Plus className="size-3" />
+							{t('settings.storage.addProvider')}
+						</Button>
+					</div>
+				)}
+
+				<SettingsNotice icon={Cloud}>{t('settings.storage.localNote')}</SettingsNotice>
 			</SettingsSection>
 		</SettingsPageShell>
 	);
