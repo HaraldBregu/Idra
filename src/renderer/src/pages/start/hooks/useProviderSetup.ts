@@ -1,7 +1,7 @@
 import type { Dispatch } from 'react';
 import { useEffect } from 'react';
 import { openExternalUrl } from '@/lib/external-links';
-import { DEFAULT_PROVIDERS } from '../../../../../shared';
+import { providers } from '@/lib/providers';
 import type { Provider } from '../../../../../shared/providers_types';
 import { actionableProviderCatalog, getErrorMessage } from '../constants';
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../types';
