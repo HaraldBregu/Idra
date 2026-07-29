@@ -10,7 +10,7 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../components';
-import { SETTINGS_MODEL_SERVICE_ITEMS } from '../../navigation';
+import { SETTINGS_MODEL_SERVICE_ITEMS, SETTINGS_PROVIDER_CONFIG_ITEMS } from '../../navigation';
 
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
