@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../../shared';
+import type { PublicProvider } from '../../../../shared';
 import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
@@ -33,7 +33,7 @@ import type { ProviderModel } from '../../../../shared/provider_models_types';
 import { buildSttAdapter } from './stt_factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
-import { getProvider } from '../../../providers';
+import { getProvider, loadProviderCatalog } from '../../../providers';
 import type { Provider as CatalogProvider } from '../../../../shared/providers_definitions';
 import {
 	getModelId as getTranscribeModelId,
@@ -266,7 +266,7 @@ function getProviderSpecFromProviderStore(providerId: SpeechToTextProviderId): S
 }
 
 function defaultProvider(providerId: string): CatalogProvider | undefined {
-	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+	return loadProviderCatalog().find((provider) => provider.id === providerId);
 }
 
 function publicProvider(providerId: string): PublicProvider | undefined {

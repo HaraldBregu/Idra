@@ -1,11 +1,10 @@
-import { DEFAULT_PROVIDERS } from '../../../shared';
 import {
 	MUSIC_PROVIDER_IDS,
 	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
 	normalizeProviderId,
 } from '../../../shared/provider_models_definitions';
 import type { SoundRequest, SoundResult } from '../../../shared/sound_types';
-import { getProvider } from '../../providers';
+import { getProvider, loadProviderCatalog } from '../../providers';
 import {
 	generateMusic,
 	MusicProviderAuthError,
@@ -56,7 +55,7 @@ function resolveApiKey(providerId: string): string {
 	const stored = getProvider(providerId);
 	const apiKey = stored?.apiKey.trim() ?? '';
 	if (!apiKey) {
-		const defaults = DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+		const defaults = loadProviderCatalog().find((provider) => provider.id === providerId);
 		throw new MusicProviderAuthError(
 			`${stored?.name || defaults?.name || providerId} API key not configured.`
 		);

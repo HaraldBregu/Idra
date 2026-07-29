@@ -5,7 +5,8 @@ import { wrapSimpleHandler } from './core/error_handler';
 import { AgentChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import type { LoggerService } from '../shared';
-import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers_definitions';
+import type { PublicProvider } from '../../shared/providers_definitions';
+import { loadProviderCatalog } from '../providers';
 import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
 import { workspacePath } from '../agent/system';
@@ -116,7 +117,7 @@ function normalizeAgentSessionId(value: unknown): string {
 }
 
 function toPublicProvider(providerId: string): PublicProvider | undefined {
-	const catalogProvider = DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+	const catalogProvider = loadProviderCatalog().find((provider) => provider.id === providerId);
 	if (!catalogProvider) return undefined;
 	return {
 		id: catalogProvider.id,

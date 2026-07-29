@@ -1,4 +1,3 @@
-import { DEFAULT_PROVIDERS } from '../../../../shared';
 import {
 	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_PROVIDER_ID,
@@ -11,7 +10,7 @@ import {
 	type SpeechSynthesisRequest,
 	type SpeechSynthesisResult,
 } from '../../../../shared/speech_types';
-import { getProvider } from '../../../providers';
+import { getProvider, loadProviderCatalog } from '../../../providers';
 import { buildSpeechAdapter } from './tts_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
 import { getModelId, getProviderId } from '../../../models/models_store';
@@ -69,7 +68,7 @@ function configuredModelId(providerId: TextToSpeechProviderId): string | undefin
 
 function resolveProvider(providerId: TextToSpeechProviderId): SpeechProviderSpec {
 	const stored = getProvider(providerId);
-	const defaults = DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+	const defaults = loadProviderCatalog().find((provider) => provider.id === providerId);
 	const spec: SpeechProviderSpec = {
 		id: providerId,
 		name: stored?.name || defaults?.name || providerId,
