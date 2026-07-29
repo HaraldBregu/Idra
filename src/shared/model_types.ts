@@ -1,3 +1,5 @@
+import type { PublicProvider } from './provider_types';
+
 export type ProviderModelStatus = 'active' | 'deprecated' | 'verify';
 
 export type SpeechToTextApiType = 'batch' | 'stream';
