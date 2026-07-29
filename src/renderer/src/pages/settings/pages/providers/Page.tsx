@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, Boxes, ChevronRight } from 'lucide-react';
+import { Boxes, ChevronRight, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
