@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Boxes, ChevronRight, ExternalLink, LoaderCircle, Pencil, Sparkles } from 'lucide-react';
+import { AlertTriangle, Boxes, ChevronRight, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ProviderAvatar } from '@/components/provider-avatar';
@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
-import type { StoredProvider } from '../../../../../shared/provider_types';
+import type { StoredProvider } from '@shared/provider_types';
 import { providers } from '@/lib/providers';
 import {
 	actionableProviderCatalog,
