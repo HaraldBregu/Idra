@@ -14,6 +14,9 @@ export const provider: ProviderApi = {
 	set: (provider: Provider): Promise<Provider> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.set, provider);
 	},
+	list: (): Promise<Provider[]> => {
+		return typedInvokeUnwrap(ProviderStoreChannels.list);
+	},
 	getVectorDatabaseProviders: async (): Promise<PublicProvider[]> => {
 		// ponytail: aggregates app.models() and filters for embedding providers
 		const models: CatalogModel[] = await window.app.models();
