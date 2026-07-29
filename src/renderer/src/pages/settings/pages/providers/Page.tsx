@@ -54,6 +54,76 @@ const ProvidersPage: React.FC = () => {
 			</SettingsPanel>
 
 			<SettingsSection
+				title={t('settings.overview.groups.mlModels')}
+				description={t('settings.providers.mlModelsDescription')}
+			>
+				<SettingsPanel>
+					{SETTINGS_ML_MODELS_ITEMS.map((item) => (
+						<Item
+							key={item.path}
+							as="button"
+							type="button"
+							onClick={() => navigate(item.path)}
+							variant="outline"
+							size="md"
+							className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left last:border-b-0"
+						>
+							<ItemIcon icon={item.icon} className="size-8 [&_svg]:size-4" />
+							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+								<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
+									{t(item.labelKey)}
+								</ItemTitle>
+								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+									{t(item.descriptionKey)}
+								</p>
+							</ItemContent>
+							<ItemActions className="ml-0 flex-none justify-end">
+								<ChevronRight
+									className="size-3 shrink-0 text-muted-foreground/40"
+									strokeWidth={1.8}
+								/>
+							</ItemActions>
+						</Item>
+					))}
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection
+				title={t('settings.overview.groups.vectorDatabases')}
+				description={t('settings.providers.vectorDatabasesDescription')}
+			>
+				<SettingsPanel>
+					{SETTINGS_VECTOR_DATABASE_ITEMS.map((item) => (
+						<Item
+							key={item.path}
+							as="button"
+							type="button"
+							onClick={() => navigate(item.path)}
+							variant="outline"
+							size="md"
+							className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left last:border-b-0"
+						>
+							<ItemIcon icon={item.icon} className="size-8 [&_svg]:size-4" />
+							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+								<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
+									{t(item.labelKey)}
+								</ItemTitle>
+								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+									{t(item.descriptionKey)}
+								</p>
+							</ItemContent>
+							<ItemActions className="ml-0 flex-none justify-end">
+								<ChevronRight
+									className="size-3 shrink-0 text-muted-foreground/40"
+									strokeWidth={1.8}
+								/>
+							</ItemActions>
+						</Item>
+					))}
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection
 				title={t('settings.overview.groups.modelServices')}
 				description={t('settings.providers.modelsDescription')}
 			>
