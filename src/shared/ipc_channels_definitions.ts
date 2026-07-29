@@ -153,6 +153,7 @@ export const SoundChannels = {
 export const ProviderChannels = {
 	get: 'provider-store:get',
 	set: 'provider-store:set',
+	list: 'provider-store:list',
 } as const;
 
 export const ProviderStoreChannels = ProviderChannels;
