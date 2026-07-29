@@ -14,6 +14,7 @@ export {
 	providerEntry,
 	providerIdsFor,
 	providerModels,
+	realtimeSpeechToTextModelId,
 	speechToTextApiTypes,
 	speechToTextBaseUrl,
 	speechToTextSampleRate,
