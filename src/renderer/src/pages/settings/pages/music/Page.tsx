@@ -2,10 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, LoaderCircle, Music, Sparkles } from 'lucide-react';
 import type { SoundFile } from '../../../../../../shared/sound_types';
-import {
-	MUSIC_PROVIDER_IDS,
-	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
-} from '../../../../../../shared/provider_models_definitions';
+import { providerIdsFor, providerModels } from '@/lib/providers';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
