@@ -130,15 +130,17 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 export const SETUP_STEPS: readonly SetupStep[] = [
 	'presentation',
 	'providers',
-	'models',
 	'storage',
+	'channels',
+	'models',
 ];
 
 export const SETUP_STEP_TITLES: Record<SetupStep, string> = {
 	presentation: 'Welcome',
-	providers: 'Providers',
+	providers: 'Model provider',
+	storage: 'Object storage',
+	channels: 'Channel provider',
 	models: 'Models',
-	storage: 'Cloud storage',
 };
 
 export const MASKED_API_KEY_LABEL = 'sk-************' as const;
