@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import { loadProviders } from './lib/providers';
+import { loadModels } from './lib/providers';
 import './i18n';
 import './index.css';
 
@@ -13,7 +13,7 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-void loadProviders().then(() => {
+void loadModels().then(() => {
 	root.render(
 		<StrictMode>
 			<App />

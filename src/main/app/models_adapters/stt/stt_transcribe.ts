@@ -21,7 +21,7 @@ import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors'
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
 import { loadProviders, providerIdsFor, providerModels, speechToTextApiTypes, speechToTextBaseUrl, speechToTextSampleRate, supportsCapability, supportsSpeechToTextApiType } from '../../models';
 import { getProvider } from '../../settings_store';
-import type { Provider as CatalogProvider } from '../../../../shared/provider_types';
+import type { PublicProvider as CatalogProvider } from '../../../../shared/provider_types';
 import {
 	getModelId as getTranscribeModelId,
 	getProviderId as getTranscribeProviderId,

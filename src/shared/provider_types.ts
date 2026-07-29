@@ -32,8 +32,6 @@ export interface ProviderCatalogEntry extends Provider {
 	readonly sampleRate?: number;
 }
 
-export type PublicProviderCatalogEntry = Omit<ProviderCatalogEntry, 'apiKey'>;
-
 export interface ModelSelection {
 	provider: PublicProvider;
 	model: ProviderModel;
