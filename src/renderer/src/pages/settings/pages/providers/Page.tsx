@@ -344,9 +344,7 @@ const ProvidersPage: React.FC = () => {
 					<Card className="rounded-lg border-border bg-card shadow-none">
 						<CardContent className="p-0">
 							<div className="grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5">
-								<div className="size-8 rounded-md bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xs font-semibold">
-									P
-								</div>
+								<ProviderAvatar providerId="pinecone" name="Pinecone" />
 								<div className="min-w-0 flex-1">
 									<div className="flex min-w-0 items-center gap-1.5">
 										<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
