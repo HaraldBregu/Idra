@@ -23,7 +23,6 @@ import {
 	SettingsLoadingRows,
 } from '../../components';
 import { ProviderCard } from '../storage/ProviderCard';
-import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../storage/constants';
 
 const PINECONE_BASE_URL = 'https://api.pinecone.io';
 
