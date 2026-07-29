@@ -31,6 +31,25 @@ import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/component
 import { ProviderCard } from '../storage/ProviderCard';
 import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../storage/constants';
 
+const PINECONE_BASE_URL = 'https://api.pinecone.io';
+const BLANK_STORAGE: StorageConfig = {
+	id: '',
+	name: '',
+	endpoint: '',
+	region: 'us-east-1',
+	accessKeyId: '',
+	secretAccessKey: '',
+	bucket: '',
+	forcePathStyle: false,
+	paths: [],
+	syncIntervalMinutes: DEFAULT_SYNC_INTERVAL_MINUTES,
+};
+
+interface StorageEntry {
+	key: string;
+	storage: StorageConfig;
+}
+
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -44,6 +63,12 @@ const ProvidersPage: React.FC = () => {
 	);
 	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [vectorDbApiKey, setVectorDbApiKey] = useState('');
+	const [vectorDbSaving, setVectorDbSaving] = useState(false);
+	const [vectorDbSaved, setVectorDbSaved] = useState(false);
+	const [vectorDbError, setVectorDbError] = useState<string | null>(null);
+	const [storageEntries, setStorageEntries] = useState<StorageEntry[] | null>(null);
+	const [storageError, setStorageError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let cancelled = false;
