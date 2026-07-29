@@ -21,6 +21,10 @@ function manifest(overrides: Record<string, unknown> = {}): Record<string, unkno
 					apiKeyUrl: 'https://acme.test/keys',
 				},
 			],
+			skills: [{ id: 'summarizer', path: 'skills/summarizer' }],
+			mcpServers: [
+				{ id: 'acme-docs', name: 'Acme Docs', type: 'http', url: 'https://mcp.acme.test' },
+			],
 			widgets: [
 				{
 					id: 'dashboard',
@@ -29,6 +33,11 @@ function manifest(overrides: Record<string, unknown> = {}): Record<string, unkno
 					category: 'integration',
 					entry: 'widgets/dashboard/index.html',
 				},
+			],
+			languages: [{ id: 'fr', name: 'Français', entry: 'languages/fr.json' }],
+			themes: [{ id: 'ocean', name: 'Ocean', entry: 'themes/ocean.json' }],
+			channels: [
+				{ id: 'helpdesk', name: 'Helpdesk', description: 'Acme support chat.', entry: 'channels/helpdesk.mjs' },
 			],
 		},
 		...overrides,
@@ -43,9 +52,18 @@ function install(root: string, folder: string, value: unknown, withEntry = true)
 		typeof value === 'string' ? value : JSON.stringify(value)
 	);
 	if (withEntry) {
-		const entry = path.join(directory, 'widgets', 'dashboard', 'index.html');
-		fs.mkdirSync(path.dirname(entry), { recursive: true });
-		fs.writeFileSync(entry, '<h1>Acme</h1>');
+		const files = [
+			['widgets/dashboard/index.html', '<h1>Acme</h1>'],
+			['skills/summarizer/SKILL.md', '# Summarizer'],
+			['languages/fr.json', '{}'],
+			['themes/ocean.json', '{}'],
+			['channels/helpdesk.mjs', 'export default {}'],
+		] as const;
+		for (const [relativePath, contents] of files) {
+			const file = path.join(directory, ...relativePath.split('/'));
+			fs.mkdirSync(path.dirname(file), { recursive: true });
+			fs.writeFileSync(file, contents);
+		}
 	}
 }
 
@@ -72,7 +90,7 @@ describe('plugin repository', () => {
 		expect(repository.scan().issues).toEqual([]);
 	});
 
-	it('returns provider and widget contributions with plugin ownership', () => {
+	it('returns all contribution types with plugin ownership', () => {
 		install(root, 'acme-tools', manifest());
 		const repository = new PluginRepository({ root });
 
@@ -97,6 +115,29 @@ describe('plugin repository', () => {
 				widgetId: 'dashboard',
 			})
 		).toBe(path.join(root, 'acme-tools', 'widgets', 'dashboard', 'index.html'));
+		expect(repository.skills()).toEqual([
+			expect.objectContaining({
+				pluginId: 'acme-tools',
+				id: 'summarizer',
+				skillPath: path.join(root, 'acme-tools', 'skills', 'summarizer', 'SKILL.md'),
+			}),
+		]);
+		expect(repository.mcpServers()).toEqual([
+			expect.objectContaining({ pluginId: 'acme-tools', id: 'acme-docs', type: 'http' }),
+		]);
+		expect(repository.languages()).toEqual([
+			expect.objectContaining({ pluginId: 'acme-tools', id: 'fr' }),
+		]);
+		expect(repository.themes()).toEqual([
+			expect.objectContaining({ pluginId: 'acme-tools', id: 'ocean' }),
+		]);
+		expect(repository.channels()).toEqual([
+			expect.objectContaining({
+				pluginId: 'acme-tools',
+				id: 'helpdesk',
+				entry: path.join(root, 'acme-tools', 'channels', 'helpdesk.mjs'),
+			}),
+		]);
 	});
 
 	it('reports malformed manifests and folder id mismatches', () => {
