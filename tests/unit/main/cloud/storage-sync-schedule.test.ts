@@ -34,6 +34,15 @@ describe('storage sync scheduling', () => {
 	};
 
 	beforeEach(() => {
+		stopStorageSync();
+		schedule.mockClear();
+		validate.mockClear();
+		destroy.mockClear();
+		getStorages.mockClear();
+		isAutoSyncable.mockClear();
+		runProviderSync.mockClear();
+		logger.info.mockClear();
+		logger.error.mockClear();
 		schedule.mockReturnValue({ destroy });
 		validate.mockReturnValue(true);
 		getStorages.mockReturnValue([storage]);

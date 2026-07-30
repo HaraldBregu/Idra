@@ -121,7 +121,13 @@ describe('plugin repository', () => {
 			expect.objectContaining({
 				pluginId: 'acme-tools',
 				id: 'summarizer',
-				skillPath: path.join(root, 'acme-tools', 'skills', 'summarizer', 'SKILL.md'),
+				skillPath: path.join(
+					fs.realpathSync(root),
+					'acme-tools',
+					'skills',
+					'summarizer',
+					'SKILL.md'
+				),
 			}),
 		]);
 		expect(repository.mcpServers()).toEqual([
@@ -137,7 +143,7 @@ describe('plugin repository', () => {
 			expect.objectContaining({
 				pluginId: 'acme-tools',
 				id: 'helpdesk',
-				entry: path.join(root, 'acme-tools', 'channels', 'helpdesk.mjs'),
+				entry: path.join(fs.realpathSync(root), 'acme-tools', 'channels', 'helpdesk.mjs'),
 			}),
 		]);
 	});
