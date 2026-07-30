@@ -415,13 +415,13 @@ export interface StorageInvokeChannelMap {
 		args: [];
 		result: import('./storage_types').StorageConfig[];
 	};
-	[StorageChannels.getSelectedStorageId]: {
+	[StorageChannels.getStorageConfiguration]: {
 		args: [];
-		result: string | undefined;
+		result: import('./storage_types').StorageConfiguration;
 	};
-	[StorageChannels.setSelectedStorageId]: {
-		args: [id: string];
-		result: void;
+	[StorageChannels.saveStorageConfiguration]: {
+		args: [configuration: import('./storage_types').StorageConfiguration];
+		result: import('./storage_types').StorageConfiguration;
 	};
 	[StorageChannels.saveStorageConfig]: {
 		args: [config: import('./storage_types').StorageConfig];
