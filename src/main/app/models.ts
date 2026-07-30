@@ -128,6 +128,7 @@ function toPublicProvider(entry: ProviderCatalogEntry): PublicProvider {
 		id: entry.id,
 		name: entry.name,
 		baseUrl: '',
+		...(entry.apiKeyUrl ? { apiKeyUrl: entry.apiKeyUrl } : {}),
 	};
 }
 
