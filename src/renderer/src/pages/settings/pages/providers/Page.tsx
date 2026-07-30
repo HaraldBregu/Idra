@@ -298,7 +298,7 @@ const ProvidersPage: React.FC = () => {
 								onChange={(event) => handleProviderApiKeyChange(provider.id, event.target.value)}
 								onKeyDown={(event) => {
 									if (event.key === 'Enter' && canSaveProvider) {
-										void saveProviderEntry(provider.id, type);
+										void saveProviderEntry(provider.id, kind);
 									}
 								}}
 								placeholder={t('settings.providers.apiKeyPlaceholder')}
