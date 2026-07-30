@@ -227,6 +227,12 @@ function readCatalog(): Catalog {
 					provider,
 				}))
 			);
+			webSearches.push(
+				...readEntries<CatalogEntryWebSearch>(providerDir, 'web_search.json').map((search) => ({
+					...search,
+					provider,
+				}))
+			);
 		} catch {
 			// ponytail: a provider dir mid-edit (malformed JSON) drops out until fixed
 		}
