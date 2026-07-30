@@ -151,10 +151,8 @@ describe('Settings overview', () => {
 		expect(
 			screen.queryByText('settings.modelServices.speechTranscriberName')
 		).not.toBeInTheDocument();
-		expect(screen.getByText('settings.tabs.database')).toBeInTheDocument();
-		const database = screen.getByText('settings.tabs.database');
-		const search = screen.getByText('Search engine');
-		expect(database.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+		expect(screen.queryByText('settings.tabs.database')).not.toBeInTheDocument();
+		expect(screen.getByText('Search engine')).toBeInTheDocument();
 		const assistantGroup = screen
 			.getByText('settings.overview.groups.assistant')
 			.closest('section');

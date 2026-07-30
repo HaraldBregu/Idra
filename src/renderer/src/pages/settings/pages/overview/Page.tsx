@@ -38,7 +38,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		titleKey: 'settings.overview.groups.services',
 		paths: [
 			'/settings/storage',
-			'/settings/database',
 			'/settings/search',
 			'/settings/vectordb',
 			'/settings/tasks',
