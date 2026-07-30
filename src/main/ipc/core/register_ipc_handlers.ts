@@ -38,6 +38,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
 	safeRegister('storage', () => new StorageIpc().register(undefined, eventBus));
+	safeRegister('database', () => new DatabaseIpc().register(undefined, eventBus));
 	safeRegister('extensions', () =>
 		new ExtensionsIpc().register({ windowFactory, pluginRepository }, eventBus)
 	);
