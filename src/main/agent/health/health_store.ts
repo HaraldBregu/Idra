@@ -1,13 +1,13 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { agentLocation } from '../../shared/agent_location';
+import { userDataLocation } from '../../shared/user_data_location';
 import { DEFAULT_HEALTH_SETTINGS, type HealthSettings } from './health_types';
 
 const HEALTH_STORE_NAME = 'settings.health';
 
 const store = new Store<HealthSettings>({
 	name: HEALTH_STORE_NAME,
-	cwd: path.resolve(agentLocation(), 'agent'),
+	cwd: path.resolve(userDataLocation(), 'agent'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_HEALTH_SETTINGS,
 });
