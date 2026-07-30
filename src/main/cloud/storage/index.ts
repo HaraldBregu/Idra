@@ -1,9 +1,9 @@
 export {
 	getStorages,
 	getStorage,
-	getSelectedStorageId,
+	getStorageConfiguration,
 	saveStorageConfig,
-	setSelectedStorageId,
+	saveStorageConfiguration,
 	deleteStorageConfig,
 } from './storage_store';
 export { deleteObject } from './storage_delete';
