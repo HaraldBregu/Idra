@@ -168,27 +168,26 @@ const ProvidersPage: React.FC = () => {
 	const toStoredProvider = (
 		providerId: string,
 		apiKey: string,
-		type: ProviderType
+		kind: StoredProviderKind
 	): StoredProvider | undefined => {
-		const catalog = type === 'vector_db' ? databaseProviders() : providers();
+		const catalog = kind === 'databases' ? databaseProviders() : providers();
 		const provider = catalog.find((item) => item.id === providerId);
 		if (!provider) return undefined;
 
 		const baseUrl =
-			type === 'vector_db'
+			kind === 'databases'
 				? (databases().find((entry) => entry.provider.id === providerId)?.url ?? '')
 				: provider.baseUrl;
 
 		return {
 			id: provider.id,
 			name: provider.name,
-			type,
 			apiKey,
 			baseUrl,
 		};
 	};
 
-	const saveProviderEntry = async (providerId: string, type: ProviderType): Promise<void> => {
+	const saveProviderEntry = async (providerId: string, kind: StoredProviderKind): Promise<void> => {
 		const entry = providerEntries.find((item) => item.providerId === providerId);
 		const apiKey = entry?.apiKey.trim() ?? '';
 		if (!entry || !apiKey) return;
@@ -196,9 +195,9 @@ const ProvidersPage: React.FC = () => {
 		setSavingProviderId(providerId);
 		setError(null);
 		try {
-			const provider = toStoredProvider(providerId, apiKey, type);
+			const provider = toStoredProvider(providerId, apiKey, kind);
 			if (!provider) throw new Error('Unknown provider.');
-			await window.provider.set(provider);
+			await window.provider.set(provider, kind);
 			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 		} catch (err) {
 			setError(getErrorMessage(err, 'Could not save provider API key.'));
@@ -209,7 +208,7 @@ const ProvidersPage: React.FC = () => {
 
 	const renderProviderCard = (
 		provider: ProviderCatalogItem,
-		type: ProviderType
+		kind: StoredProviderKind
 	): React.ReactElement => {
 		const entry = providerEntries.find((item) => item.providerId === provider.id);
 		const connected = entry?.apiKeySaved ?? false;
