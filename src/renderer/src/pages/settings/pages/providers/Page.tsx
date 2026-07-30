@@ -98,6 +98,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 		}))
 	);
 	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
+	const [showOtherProviders, setShowOtherProviders] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [storageEntries, setStorageEntries] = useState<StorageEntry[] | null>(null);
 	const [storageError, setStorageError] = useState<string | null>(null);
