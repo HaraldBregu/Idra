@@ -8,7 +8,7 @@ import type {
 } from '../../shared/provider_types';
 import type { StorageConfig, StorageConfiguration } from '../../shared/storage_types';
 import { userDataLocation } from '../shared/user_data_location';
-import { DEFAULT_SYNC_CRON_EXPRESSION } from '../cloud/storage/storage_sync_types';
+import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
 import { loadStorages } from './models';
 import type { PersistedCronState } from './cron/cron_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';

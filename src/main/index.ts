@@ -28,7 +28,7 @@ import {
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 import { sync as syncSkills } from './agent/skills';
-import { startStorageSync, stopStorageSync } from './cloud/storage';
+import { startStorageSync, stopStorageSync } from './app/storage';
 import { CHANNEL_PROVIDER_IDS } from '../shared';
 import { startWiki, stopWiki } from './wiki';
 
