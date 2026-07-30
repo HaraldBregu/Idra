@@ -34,6 +34,19 @@ export function providers(): readonly PublicProvider[] {
 	return [...unique.values()];
 }
 
+export function databases(): readonly CatalogService[] {
+	return databaseCatalog;
+}
+
+/** One record per provider, derived from the databases they serve. */
+export function databaseProviders(): readonly PublicProvider[] {
+	const unique = new Map<string, PublicProvider>();
+	for (const entry of databaseCatalog) {
+		if (!unique.has(entry.provider.id)) unique.set(entry.provider.id, entry.provider);
+	}
+	return [...unique.values()];
+}
+
 export function providerIdsFor(type: ModelCapability): string[] {
 	return [...new Set(modelsFor(type).map((model) => model.provider.id))];
 }
