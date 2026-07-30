@@ -39,6 +39,11 @@ const searchApi = {
 	selectEngine: jest.fn(),
 };
 
+beforeAll(() => {
+	Object.defineProperty(globalThis, '__APP_NAME__', { configurable: true, value: 'Friday' });
+	Object.defineProperty(globalThis, '__APP_VERSION__', { configurable: true, value: '1.0.0' });
+});
+
 beforeEach(() => {
 	Object.defineProperty(window, 'app', {
 		configurable: true,
