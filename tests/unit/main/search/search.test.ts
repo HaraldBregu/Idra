@@ -61,6 +61,16 @@ describe('search settings', () => {
 			engineId: 'tavily',
 			configured: { brave: false, tavily: true },
 		});
+		expect(searchStore.store).toMatchObject({
+			providers: [
+				{
+					id: 'tavily',
+					name: 'Tavily',
+					apiKey: 'tavily-key',
+					baseUrl: 'https://api.tavily.com/search',
+				},
+			],
+		});
 		saveSearchEngine('brave', { apiKey: 'brave-key' });
 		expect(getSearchSettings().engineId).toBe('tavily');
 		expect(getSearchKey('tavily')).toBe('tavily-key');
@@ -81,7 +91,7 @@ describe('search settings', () => {
 	it('normalizes malformed persisted state', () => {
 		searchStore.store = {
 			engineId: 'invalid',
-			engines: { brave: { apiKey: 42 }, tavily: null },
+			providers: [{ id: 'brave', name: 'Brave', apiKey: 42, baseUrl: 'https://brave.test' }],
 		} as never;
 		expect(getSearchSettings()).toEqual({
 			engineId: 'brave',

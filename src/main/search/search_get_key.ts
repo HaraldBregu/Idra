@@ -1,19 +1,9 @@
 import type { SearchEngineId } from '../../shared/search_types';
-import { searchStore } from './search_store';
+import { getStoredSearchProviders } from './search_get_providers';
 
 export function getSearchKey(engineId: SearchEngineId): string | undefined {
-	const rawEngines = searchStore.get('engines') as unknown;
-	const engines =
-		typeof rawEngines === 'object' && rawEngines !== null
-			? (rawEngines as Record<string, unknown>)
-			: {};
-	const engine = engines[engineId];
 	const storedKey =
-		typeof engine === 'object' &&
-		engine !== null &&
-		typeof (engine as Record<string, unknown>).apiKey === 'string'
-			? (engine as Record<string, string>).apiKey.trim()
-			: '';
+		getStoredSearchProviders().find((provider) => provider.id === engineId)?.apiKey.trim() ?? '';
 	if (storedKey) return storedKey;
 
 	const environmentKey =

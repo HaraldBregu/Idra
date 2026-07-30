@@ -1,19 +1,30 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { SearchEngineId, SearchEngineInput } from '../../shared/search_types';
+import type { StoredProvider } from '../../shared/provider_types';
+import type { SearchEngineId } from '../../shared/search_types';
 import { userDataLocation } from '../shared/user_data_location';
 
 export interface SearchStoreState {
 	engineId: SearchEngineId;
-	engines: Record<SearchEngineId, SearchEngineInput>;
+	providers: StoredProvider[];
 }
+
+export const SEARCH_PROVIDERS: readonly Omit<StoredProvider, 'apiKey'>[] = [
+	{
+		id: 'brave',
+		name: 'Brave',
+		baseUrl: 'https://api.search.brave.com/res/v1/web/search',
+	},
+	{
+		id: 'tavily',
+		name: 'Tavily',
+		baseUrl: 'https://api.tavily.com/search',
+	},
+];
 
 export const DEFAULT_SEARCH_STORE: SearchStoreState = {
 	engineId: 'brave',
-	engines: {
-		brave: { apiKey: '' },
-		tavily: { apiKey: '' },
-	},
+	providers: [],
 };
 
 export const searchStore = new Store<SearchStoreState>({

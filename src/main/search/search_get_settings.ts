@@ -3,6 +3,7 @@ import {
 	type SearchEngineId,
 	type SearchSettings,
 } from '../../shared/search_types';
+import { getStoredSearchProviders } from './search_get_providers';
 import { searchStore } from './search_store';
 
 export function getSearchSettings(): SearchSettings {
@@ -11,21 +12,10 @@ export function getSearchSettings(): SearchSettings {
 		typeof rawEngineId === 'string' && SEARCH_ENGINE_IDS.includes(rawEngineId as SearchEngineId)
 			? (rawEngineId as SearchEngineId)
 			: 'brave';
-	const rawEngines = searchStore.get('engines') as unknown;
-	const engines =
-		typeof rawEngines === 'object' && rawEngines !== null
-			? (rawEngines as Record<string, unknown>)
-			: {};
+	const providers = getStoredSearchProviders();
 	const configured = Object.fromEntries(
 		SEARCH_ENGINE_IDS.map((id) => {
-			const value = engines[id];
-			const apiKey =
-				typeof value === 'object' &&
-				value !== null &&
-				typeof (value as Record<string, unknown>).apiKey === 'string'
-					? (value as Record<string, string>).apiKey.trim()
-					: '';
-			return [id, apiKey.length > 0];
+			return [id, providers.some((provider) => provider.id === id && provider.apiKey.trim())];
 		})
 	) as Record<SearchEngineId, boolean>;
 
