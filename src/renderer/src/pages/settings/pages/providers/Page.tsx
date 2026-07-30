@@ -393,17 +393,12 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				)}
 			</SettingsSection>
 
-			{!embedded && (
-				<SettingsSection title={t('settings.overview.groups.vectorDatabases')}>
-					<div className="space-y-3 pb-4">
-						{actionableDatabaseCatalog().map((provider) =>
-							renderProviderCard(provider, 'databases')
-						)}
-					</div>
-				</SettingsSection>
-			)}
+			<SettingsSection title={t('settings.overview.groups.vectorDatabases')}>
+				<div className="space-y-3 pb-4">
+					{actionableDatabaseCatalog().map((provider) => renderProviderCard(provider, 'databases'))}
+				</div>
+			</SettingsSection>
 
-			{!embedded && (
 			<SettingsSection title={t('settings.tabs.storage')}>
 				{storageError && (
 					<SettingsNotice variant="destructive" icon={AlertTriangle}>
