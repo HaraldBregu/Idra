@@ -163,12 +163,16 @@ function toProviderModel(model: CatalogModel): ProviderModel {
 	};
 }
 
-function toPublicProvider(entry: ProviderCatalogEntry): PublicProvider {
-	// ponytail: catalog no longer carries connection details; the settings store does.
+function toPublicProvider(
+	entry: ProviderCatalogEntry,
+	models: readonly CatalogEntryModel[]
+): PublicProvider {
+	// ponytail: the provider's base URL is its first http(s) model API url
+	const baseUrl = models.find((model) => model.url?.startsWith('http'))?.url ?? '';
 	return {
 		id: entry.id,
 		name: entry.name,
-		baseUrl: '',
+		baseUrl,
 		...(entry.apiKeyUrl ? { apiKeyUrl: entry.apiKeyUrl } : {}),
 	};
 }
