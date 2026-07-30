@@ -12,6 +12,7 @@ import type {
 	SearchApi,
 	SkillsApi,
 	StorageApi,
+	DatabaseApi,
 	ExtensionsApi,
 	WikiApi,
 	WindowApi,
