@@ -12,16 +12,10 @@ import { DEFAULT_SYNC_CRON_EXPRESSION } from '../cloud/storage/storage_sync_type
 import { loadStorages } from './models';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
-type StoredStorage = Omit<
-	StorageConfig,
-	'forcePathStyle' | 'paths' | 'syncEnabled' | 'syncCronExpression'
-> & {
+type StoredStorage = Omit<StorageConfig, 'forcePathStyle'> & {
 	/** API base of the catalog storage entry this config belongs to. */
 	baseUrl: string;
 	forcePathStyle?: boolean;
-	paths?: string[];
-	syncEnabled?: boolean;
-	syncCronExpression?: string;
 };
 
 export type AppSettingsState = {
@@ -31,14 +25,21 @@ export type AppSettingsState = {
 	theme: AppTheme;
 	modelProviderId: string | undefined;
 	modelId: string | undefined;
-	storageProviderId: string | undefined;
-	storageId: string | undefined;
 	models: StoredProvider[];
 	databases: StoredProvider[];
 	storages: StoredStorage[];
+	storage_configuration: StorageConfiguration;
 };
 
 const APP_SETTINGS_STORE_NAME = 'settings';
+
+const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
+	providerId: undefined,
+	storageId: undefined,
+	paths: [],
+	syncEnabled: false,
+	syncCronExpression: DEFAULT_SYNC_CRON_EXPRESSION,
+};
 
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	trayEnabled: true,
@@ -47,11 +48,10 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	theme: 'system',
 	modelProviderId: undefined,
 	modelId: undefined,
-	storageProviderId: undefined,
-	storageId: undefined,
 	models: [],
 	databases: [],
 	storages: [],
+	storage_configuration: DEFAULT_STORAGE_CONFIGURATION,
 };
 
 const store = new Store<AppSettingsState>({
