@@ -61,17 +61,23 @@ describe('search settings', () => {
 			engineId: 'tavily',
 			configured: { brave: false, tavily: true },
 		});
+		saveSearchEngine('brave', { apiKey: 'brave-key' });
 		expect(searchStore.store).toMatchObject({
 			providers: [
 				{
+					id: 'brave',
+					name: 'Brave',
+					baseUrl: 'https://api.search.brave.com/res/v1/web/search',
+					apiKey: 'brave-key',
+				},
+				{
 					id: 'tavily',
 					name: 'Tavily',
-					apiKey: 'tavily-key',
 					baseUrl: 'https://api.tavily.com/search',
+					apiKey: 'tavily-key',
 				},
 			],
 		});
-		saveSearchEngine('brave', { apiKey: 'brave-key' });
 		expect(getSearchSettings().engineId).toBe('tavily');
 		expect(getSearchKey('tavily')).toBe('tavily-key');
 		expect(selectSearchEngine('brave').engineId).toBe('brave');

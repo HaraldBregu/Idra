@@ -19,12 +19,15 @@ export function saveSearchEngine(
 	const previousSettings = getSearchSettings();
 	const catalogProvider = SEARCH_PROVIDERS.find((provider) => provider.id === engineId);
 	if (!catalogProvider) throw new Error('Unknown search engine.');
-	const providers = getStoredSearchProviders();
-	const provider = { ...catalogProvider, apiKey };
-	searchStore.set('providers', [
-		...providers.filter((entry) => entry.id !== engineId),
-		provider,
-	]);
+	const providersById = new Map(getStoredSearchProviders().map((provider) => [provider.id, provider]));
+	providersById.set(engineId, { ...catalogProvider, apiKey });
+	searchStore.set(
+		'providers',
+		SEARCH_PROVIDERS.flatMap((provider) => {
+			const stored = providersById.get(provider.id);
+			return stored ? [{ ...provider, apiKey: stored.apiKey }] : [];
+		})
+	);
 	if (!previousSettings.configured[previousSettings.engineId]) {
 		searchStore.set('engineId', engineId);
 	}
