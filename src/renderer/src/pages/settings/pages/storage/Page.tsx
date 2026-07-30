@@ -368,7 +368,6 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 									</div>
 
 									<SettingsRow
-										icon={CalendarClock}
 										title={t('settings.storage.autoSync.interval')}
 										description={t('settings.storage.autoSync.description')}
 										actions={
