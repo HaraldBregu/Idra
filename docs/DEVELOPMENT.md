@@ -69,14 +69,14 @@ Stop it with `Ctrl+C`.
 
 Available application modes:
 
-| Command                 | Mode          | Use case                                      |
-| ----------------------- | ------------- | --------------------------------------------- |
-| `npm run dev`           | development   | Normal local development                      |
-| `npm run dev:staging`   | staging       | Verify staging configuration                  |
-| `npm run dev:prod`      | production    | Exercise production configuration without packaging |
-| `npm run dev-linux`     | development   | Linux host that requires the sandbox override |
-| `npm run dev-linux:staging` | staging   | Staging with the Linux sandbox override       |
-| `npm run dev-linux:prod` | production   | Production with the Linux sandbox override    |
+| Command                     | Mode        | Use case                                            |
+| --------------------------- | ----------- | --------------------------------------------------- |
+| `npm run dev`               | development | Normal local development                            |
+| `npm run dev:staging`       | staging     | Verify staging configuration                        |
+| `npm run dev:prod`          | production  | Exercise production configuration without packaging |
+| `npm run dev-linux`         | development | Linux host that requires the sandbox override       |
+| `npm run dev-linux:staging` | staging     | Staging with the Linux sandbox override             |
+| `npm run dev-linux:prod`    | production  | Production with the Linux sandbox override          |
 
 Friday reads an optional root `.env` file when the Electron main process starts. Keep
 local credentials in `.env`; the file is ignored by Git. Provider credentials can also be
@@ -284,11 +284,11 @@ Open a pull request, wait for the latest CI run to pass, and merge it into `main
 
 Deployment is tag-driven:
 
-| Tag             | Workflow               | Result                                |
-| --------------- | ---------------------- | ------------------------------------- |
-| `v1.2.3`        | `Release Electron app` | Signed installers in a GitHub Release |
-| `sdk-v1.2.3`    | `Publish npm package`  | `@friday/sdk@1.2.3` on npm            |
-| `cli-v1.2.3`    | `Publish npm package`  | `@friday/cli@1.2.3` on npm            |
+| Tag          | Workflow               | Result                                |
+| ------------ | ---------------------- | ------------------------------------- |
+| `v1.2.3`     | `Release Electron app` | Signed installers in a GitHub Release |
+| `sdk-v1.2.3` | `Publish npm package`  | `@friday/sdk@1.2.3` on npm            |
+| `cli-v1.2.3` | `Publish npm package`  | `@friday/cli@1.2.3` on npm            |
 
 Versions are independent. Releasing the SDK does not release the CLI or Electron app.
 A normal push to `main` runs CI only.
