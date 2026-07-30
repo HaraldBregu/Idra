@@ -3,6 +3,7 @@ import type { StoredProvider as Provider } from './provider_types';
 import type { SearchEngineId, SearchEngineInput, SearchSettings } from './search_types';
 import type {
 	StorageConfig,
+	StorageConfiguration,
 	StorageObjectInfo,
 	StoragePullResult,
 	StoragePushResult,
