@@ -32,7 +32,7 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json",
 		"test": "npm run smoke",
 		"smoke": "npm run build && node smoke.js",
-		"prepublishOnly": "npm run build"
+		"prepack": "npm run build"
 	},
 	"publishConfig": {
 		"access": "public",
