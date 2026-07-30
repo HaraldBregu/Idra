@@ -63,4 +63,4 @@ npm link ./packages/cli
 ```
 
 CLI releases use `cli-v<version>` tags and npm trusted publishing. See the repository
-[release guide](../../docs/RELEASING.md).
+[development and deployment guide](../../docs/DEVELOPMENT.md#release-the-cli).

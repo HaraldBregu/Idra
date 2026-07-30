@@ -114,4 +114,4 @@ npm run sdk:test
 ## Publishing
 
 SDK releases use `sdk-v<version>` tags and npm trusted publishing. See the repository
-[release guide](../../docs/RELEASING.md).
+[development and deployment guide](../../docs/DEVELOPMENT.md#release-the-sdk).

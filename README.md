@@ -122,8 +122,9 @@ See [SECURITY.md](SECURITY.md) for the security policy and vulnerability reporti
 ## Releases
 
 The Electron app, SDK, and CLI are versioned and deployed independently from this repository.
-See [docs/RELEASING.md](docs/RELEASING.md) for tag conventions, npm trusted publishing,
-desktop signing, and recovery procedures.
+See [Development, Testing, and Deployment](docs/DEVELOPMENT.md) for local setup, test
+commands, normal pushes, tag conventions, npm trusted publishing, desktop signing, and
+recovery procedures.
 
 ## Contributing
 

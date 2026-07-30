@@ -6,8 +6,8 @@ Thanks for your interest in contributing! This document describes how to set up 
 
 Requirements:
 
-- Node.js 22+
-- npm (included with Node.js)
+- Node.js 22.14+
+- npm 11.5.1+
 
 ```bash
 npm ci
@@ -24,7 +24,7 @@ On Linux environments that require Electron sandbox changes, use `npm run dev-li
 - `src/shared` — cross-process types and API contracts.
 - `resources` — icons, i18n resources, templates.
 - `tests` — unit tests (Jest) split into `main` and `renderer` projects; e2e via Playwright.
-- `docs` — product documentation ([docs/overview.md](docs/overview.md)).
+- `docs` — product, development, testing, and deployment documentation.
 
 ## Quality Gates
 
@@ -50,6 +50,9 @@ npm run test:e2e         # Playwright end-to-end tests
 npm run format           # prettier --write .
 npm run format:check     # prettier --check .
 ```
+
+The complete workflow, including targeted workspace tests and end-to-end setup, is in
+[Development, Testing, and Deployment](docs/DEVELOPMENT.md).
 
 ## Code Standards
 
