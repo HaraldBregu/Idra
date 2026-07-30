@@ -111,10 +111,10 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 	const storage = draft ?? selectedEntry?.storage;
 	const builtInPaths = new Set(availableFolders.map((folder) => folder.path));
 	const customPaths = storage?.paths.filter((path) => !builtInPaths.has(path)) ?? [];
-	const intervalValue = storage
-		? (SYNC_INTERVALS.find((interval) => interval.cron === storage.syncCronExpression)?.key ??
-			'custom')
-		: 'custom';
+	const intervalValue = !storage?.syncEnabled
+		? 'off'
+		: (SYNC_INTERVALS.find((interval) => interval.cron === storage.syncCronExpression)?.key ??
+			'custom');
 
 	const updateDraft = (next: StorageConfig): void => {
 		setDraft(next);
