@@ -162,8 +162,8 @@ npm run cli:test            # CLI test suite
 Run one Jest test file by passing its path:
 
 ```sh
-npm run test:main -- tests/unit/main/example.test.ts
-npm run test:renderer -- tests/unit/renderer/example.test.tsx
+npm run test:main -- tests/unit/main/agent/session/session-model-messages.test.ts
+npm run test:renderer -- tests/unit/renderer/wiki-settings.test.tsx
 ```
 
 ### Full local quality gate
@@ -382,19 +382,25 @@ The workflow uses GitHub OpenID Connect with `id-token: write`; it does not need
 - Never publish all workspaces together. Use one explicit `--workspace` value.
 - Wait for CI on the version commit before pushing its deployment tag.
 
+### Release preflight for every product
+
+Run this preflight before the Electron, SDK, or CLI instructions below:
+
+```sh
+git switch main
+git pull --ff-only origin main
+git status --short
+```
+
+Continue only when `git status --short` has no output. This ensures the version commit and
+release tag are created from the current `main` branch rather than an unmerged feature
+branch.
+
 ### Release the Electron app
 
 The root manifest version and tag must match exactly.
 
-1. Start from an up-to-date `main` branch:
-
-   ```sh
-   git switch main
-   git pull --ff-only origin main
-   git status --short
-   ```
-
-   Continue only when `git status --short` has no output.
+1. Complete the shared [release preflight](#release-preflight-for-every-product).
 
 2. Set the next version without creating npm's automatic tag:
 
@@ -446,13 +452,15 @@ Verify:
 
 ### Release the SDK
 
-1. Update only the SDK version:
+1. Complete the shared [release preflight](#release-preflight-for-every-product).
+
+2. Update only the SDK version:
 
    ```sh
    npm version 0.1.1 --workspace @friday/sdk --no-git-tag-version
    ```
 
-2. Verify the manifest, tests, build, and tarball:
+3. Verify the manifest, tests, build, and tarball:
 
    ```sh
    node -p "require('./packages/sdk/package.json').version"
@@ -461,7 +469,7 @@ Verify:
    npm pack --dry-run --workspace @friday/sdk
    ```
 
-3. Commit and push:
+4. Commit and push:
 
    ```sh
    git add packages/sdk/package.json package-lock.json
@@ -469,14 +477,14 @@ Verify:
    git push origin main
    ```
 
-4. Wait for CI, then tag the same commit:
+5. Wait for CI, then tag the same commit:
 
    ```sh
    git tag -a sdk-v0.1.1 -m "@friday/sdk v0.1.1"
    git push origin sdk-v0.1.1
    ```
 
-5. Verify the published version and provenance:
+6. Verify the published version and provenance:
 
    ```sh
    npm view @friday/sdk@0.1.1 version
@@ -485,37 +493,46 @@ Verify:
 
 ### Release the CLI
 
-1. Update only the CLI version:
+1. Complete the shared [release preflight](#release-preflight-for-every-product).
+
+2. Update the CLI package version:
 
    ```sh
    npm version 0.1.1 --workspace @friday/cli --no-git-tag-version
    ```
 
-2. Verify the manifest, tests, build, and tarball:
+   The CLI currently also declares its displayed version in
+   `packages/cli/src/program.ts`. Update the `.version('...')` value to exactly `0.1.1`.
+
+3. Verify the manifest, displayed version, tests, build, and tarball:
 
    ```sh
    node -p "require('./packages/cli/package.json').version"
    npm run typecheck --workspace @friday/cli
    npm test --workspace @friday/cli
+   npm run build --workspace @friday/cli
+   node packages/cli/dist/bin.js --version
    npm pack --dry-run --workspace @friday/cli
    ```
 
-3. Commit and push:
+   The two version commands must both print `0.1.1`.
+
+4. Commit and push:
 
    ```sh
-   git add packages/cli/package.json package-lock.json
+   git add packages/cli/package.json packages/cli/src/program.ts package-lock.json
    git commit -m "release cli v0.1.1"
    git push origin main
    ```
 
-4. Wait for CI, then tag the same commit:
+5. Wait for CI, then tag the same commit:
 
    ```sh
    git tag -a cli-v0.1.1 -m "@friday/cli v0.1.1"
    git push origin cli-v0.1.1
    ```
 
-5. Verify the published package:
+6. Verify the published package:
 
    ```sh
    npm view @friday/cli@0.1.1 version
