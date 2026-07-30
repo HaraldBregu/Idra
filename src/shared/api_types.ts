@@ -156,7 +156,7 @@ export interface ProviderApi {
 	list: () => Promise<Provider[]>;
 	getVectorDatabaseProviders: () => Promise<PublicProvider[]>;
 	getModelProviders: () => Promise<PublicProvider[]>;
-	getObjectStorageProviders: () => Promise<StorageConfig[]>;
+	getObjectStorageProviders: () => Promise<PublicProvider[]>;
 	getChannels: () => Promise<Channel>;
 }
 
