@@ -139,7 +139,7 @@ function readModels(): readonly CatalogModel[] {
 	return readdirSync(dir, { withFileTypes: true })
 		.filter((entry) => entry.isDirectory())
 		.flatMap((dirent) => {
-			const providerPath = path.join(dir, dirent.name, 'provider.json');
+			const providerPath = path.join(dir, dirent.name, 'info.json');
 			const modelsPath = path.join(dir, dirent.name, 'models.json');
 			if (!existsSync(providerPath) || !existsSync(modelsPath)) return [];
 			const entry = JSON.parse(readFileSync(providerPath, 'utf-8')) as ProviderCatalogEntry;
