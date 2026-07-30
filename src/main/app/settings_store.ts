@@ -214,7 +214,9 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 	const index = storages.findIndex((storage) => storage.id === saved.id);
 	store.set(
 		'storages',
-		index >= 0 ? storages.map((storage, i) => (i === index ? saved : storage)) : [...storages, saved]
+		index >= 0
+			? storages.map((storage, i) => (i === index ? saved : storage))
+			: [...storages, saved]
 	);
 	if (!store.get('selectedStorageId')) store.set('selectedStorageId', saved.id);
 	return toStorageConfig(saved);

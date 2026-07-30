@@ -22,10 +22,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import type {
-	StorageConfig,
-	StorageSyncFolder,
-} from '../../../../../../shared/storage_types';
+import type { StorageConfig, StorageSyncFolder } from '../../../../../../shared/storage_types';
 import { getErrorMessage } from '../../../start/constants';
 import {
 	SettingsLoadingRows,
@@ -113,10 +110,11 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 	const customPaths = selectedStorage?.paths.filter((path) => !builtInPaths.has(path)) ?? [];
 
 	const updateSelectedStorage = (storage: StorageConfig): void => {
-		setEntries((current) =>
-			current?.map((entry) =>
-				entry.storage.id === storage.id ? { ...entry, storage } : entry
-			) ?? current
+		setEntries(
+			(current) =>
+				current?.map((entry) =>
+					entry.storage.id === storage.id ? { ...entry, storage } : entry
+				) ?? current
 		);
 		setSyncStatus(null);
 	};
@@ -196,34 +194,35 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 				<SettingsLoadingRows rows={4} />
 			) : (
 				<>
-					{entries.length === 0 && (
-						<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
-					)}
+					{entries.length === 0 && <SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>}
 
 					{entries.map((entry) => (
 						<ProviderCard
 							key={entry.key}
 							storage={entry.storage}
 							onSaved={(saved) => {
-									setEntries((current) =>
+								setEntries(
+									(current) =>
 										current?.map((item) =>
 											item.key === entry.key ? { ...item, storage: saved } : item
 										) ?? current
-									);
-									if (!selectedStorageId) {
-										setSelectedStorageId(saved.id);
-										void window.storage.setSelectedStorageId(saved.id);
-									}
-								}}
+								);
+								if (!selectedStorageId) {
+									setSelectedStorageId(saved.id);
+									void window.storage.setSelectedStorageId(saved.id);
+								}
+							}}
 							onRemoved={() => {
-									setEntries((current) => {
-										const remaining = current?.filter((item) => item.key !== entry.key) ?? current;
-										if (entry.storage.id === selectedStorageId) {
-											setSelectedStorageId(remaining?.find((item) => item.storage.id)?.storage.id ?? '');
-										}
-										return remaining;
-									});
-								}}
+								setEntries((current) => {
+									const remaining = current?.filter((item) => item.key !== entry.key) ?? current;
+									if (entry.storage.id === selectedStorageId) {
+										setSelectedStorageId(
+											remaining?.find((item) => item.storage.id)?.storage.id ?? ''
+										);
+									}
+									return remaining;
+								});
+							}}
 						/>
 					))}
 
@@ -253,10 +252,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 													if (id) {
 														void window.storage.setSelectedStorageId(id).catch((err) => {
 															setError(
-																getErrorMessage(
-																	err,
-																	t('settings.storage.errors.selectProfile')
-																)
+																getErrorMessage(err, t('settings.storage.errors.selectProfile'))
 															);
 														});
 													}
@@ -382,9 +378,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 												variant="outline"
 												size="sm"
 												onClick={() => void runSync()}
-												disabled={
-													savingSync || runningSync || selectedStorage.paths.length === 0
-												}
+												disabled={savingSync || runningSync || selectedStorage.paths.length === 0}
 											>
 												<Play className="size-3" />
 												{runningSync

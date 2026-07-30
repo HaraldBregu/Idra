@@ -105,10 +105,7 @@ export function ProviderCard({
 	const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const update = (
-		key: StringConfigKey,
-		value: string | number
-	): void => {
+	const update = (key: StringConfigKey, value: string | number): void => {
 		setDraft((current) => ({ ...current, [key]: value }));
 		setStatus(null);
 	};
@@ -202,9 +199,7 @@ export function ProviderCard({
 	return (
 		<Card size="sm">
 			<Collapsible open={expanded} onOpenChange={setExpanded} className="flex flex-col gap-3">
-				<CardHeader
-					className={cn('select-none items-center', expanded && 'border-b')}
-				>
+				<CardHeader className={cn('select-none items-center', expanded && 'border-b')}>
 					<div className="flex items-center gap-2.5 min-w-0 flex-1">
 						<div className="flex size-8 flex-shrink-0 items-center justify-center rounded-md bg-muted">
 							<HardDrive className="size-4 text-muted-foreground" />
@@ -317,7 +312,6 @@ export function ProviderCard({
 									<GroupHeading>{t('settings.storage.credentialsTitle')}</GroupHeading>
 									{CREDENTIAL_FIELDS.map((field) => renderField(field, draft[field.key]))}
 								</section>
-
 							</div>
 						) : (
 							<div className="space-y-5">
@@ -331,7 +325,6 @@ export function ProviderCard({
 										</div>
 									))}
 								</dl>
-
 							</div>
 						)}
 					</CardContent>

@@ -67,7 +67,8 @@ function mergedStorageEntries(saved: StorageEntry[]): StorageEntry[] {
 	const savedById = new Map(saved.map((entry) => [entry.storage.id, entry]));
 	const catalog = storageProviders();
 	const fromCatalog = catalog.map(
-		(provider) => savedById.get(provider.id) ?? { key: provider.id, storage: blankStorage(provider) }
+		(provider) =>
+			savedById.get(provider.id) ?? { key: provider.id, storage: blankStorage(provider) }
 	);
 	const extras = saved.filter(
 		(entry) => !catalog.some((provider) => provider.id === entry.storage.id)
@@ -130,7 +131,8 @@ const ProvidersPage: React.FC = () => {
 		// Load Storage configs
 		void window.storage.getStorages().then(
 			(storages) => {
-				if (!cancelled) setStorageEntries(storages.map((storage) => ({ key: storage.id, storage })));
+				if (!cancelled)
+					setStorageEntries(storages.map((storage) => ({ key: storage.id, storage })));
 			},
 			(err) => {
 				if (!cancelled) setStorageError(getErrorMessage(err, t('settings.storage.errors.load')));

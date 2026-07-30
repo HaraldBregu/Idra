@@ -37,7 +37,12 @@ function manifest(overrides: Record<string, unknown> = {}): Record<string, unkno
 			languages: [{ id: 'fr', name: 'Français', entry: 'languages/fr.json' }],
 			themes: [{ id: 'ocean', name: 'Ocean', entry: 'themes/ocean.json' }],
 			channels: [
-				{ id: 'helpdesk', name: 'Helpdesk', description: 'Acme support chat.', entry: 'channels/helpdesk.mjs' },
+				{
+					id: 'helpdesk',
+					name: 'Helpdesk',
+					description: 'Acme support chat.',
+					entry: 'channels/helpdesk.mjs',
+				},
 			],
 		},
 		...overrides,
@@ -114,9 +119,7 @@ describe('plugin repository', () => {
 				pluginId: 'acme-tools',
 				extensionId: 'dashboard',
 			})
-		).toBe(
-			path.join(fs.realpathSync(root), 'acme-tools', 'extensions', 'dashboard', 'index.html')
-		);
+		).toBe(path.join(fs.realpathSync(root), 'acme-tools', 'extensions', 'dashboard', 'index.html'));
 		expect(repository.skills()).toEqual([
 			expect.objectContaining({
 				pluginId: 'acme-tools',
@@ -154,10 +157,7 @@ describe('plugin repository', () => {
 		const result = new PluginRepository({ root }).scan();
 
 		expect(result.plugins).toEqual([]);
-		expect(result.issues.map((issue) => issue.code)).toEqual([
-			'invalid-json',
-			'invalid-manifest',
-		]);
+		expect(result.issues.map((issue) => issue.code)).toEqual(['invalid-json', 'invalid-manifest']);
 	});
 
 	it('rejects missing extension entries and unsafe entry paths', () => {
@@ -185,10 +185,7 @@ describe('plugin repository', () => {
 		const result = new PluginRepository({ root }).scan();
 
 		expect(result.plugins).toEqual([]);
-		expect(result.issues.map((issue) => issue.code)).toEqual([
-			'invalid-entry',
-			'invalid-manifest',
-		]);
+		expect(result.issues.map((issue) => issue.code)).toEqual(['invalid-entry', 'invalid-manifest']);
 	});
 
 	it('rejects reserved and duplicate provider ids deterministically', () => {

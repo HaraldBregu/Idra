@@ -5,10 +5,10 @@ import type { StorageSyncLogger } from './storage_sync_types';
 export function isAutoSyncable(storage: StorageConfig): boolean {
 	return Boolean(
 		storage.bucket &&
-			storage.accessKeyId &&
-			storage.secretAccessKey &&
-			storage.paths.length > 0 &&
-			storage.syncEnabled
+		storage.accessKeyId &&
+		storage.secretAccessKey &&
+		storage.paths.length > 0 &&
+		storage.syncEnabled
 	);
 }
 

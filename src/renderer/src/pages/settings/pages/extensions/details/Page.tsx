@@ -124,7 +124,11 @@ const ExtensionDetailsPage: React.FC = () => {
 						label={t('settings.extensions.detailCategory')}
 						value={extension.metadata.category}
 					/>
-					<ExtensionDetail label={t('settings.extensions.detailEntry')} value={extension.metadata.entry} mono />
+					<ExtensionDetail
+						label={t('settings.extensions.detailEntry')}
+						value={extension.metadata.entry}
+						mono
+					/>
 					{extraMetadata.map(([key, value]) => (
 						<ExtensionDetail
 							key={key}
