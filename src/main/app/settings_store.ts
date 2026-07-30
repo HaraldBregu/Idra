@@ -80,8 +80,10 @@ const store = new Store<LegacyAppSettingsState>({
 
 export const appSettingsStorePath = store.path;
 
-function migrateConfiguration<T>(name: string, value: T): T {
-	return existsSync(path.join(appSettingsDirectory, `${name}.json`)) ? value : value;
+function migrateConfiguration<T>(name: string, legacyValue: T | undefined, defaultValue: T): T {
+	return existsSync(path.join(appSettingsDirectory, `${name}.json`))
+		? defaultValue
+		: (legacyValue ?? defaultValue);
 }
 
 const storageConfigurationStore = new Store<StorageSettingsState>({
@@ -91,7 +93,8 @@ const storageConfigurationStore = new Store<StorageSettingsState>({
 	defaults: {
 		storage_configuration: migrateConfiguration(
 			'settings.storage',
-			store.get('storage_configuration') ?? DEFAULT_STORAGE_CONFIGURATION
+			store.get('storage_configuration'),
+			DEFAULT_STORAGE_CONFIGURATION
 		),
 	},
 });
@@ -103,7 +106,8 @@ const databaseConfigurationStore = new Store<DatabaseSettingsState>({
 	defaults: {
 		database_configuration: migrateConfiguration(
 			'settings.database',
-			store.get('database_configuration') ?? DEFAULT_DATABASE_CONFIGURATION
+			store.get('database_configuration'),
+			DEFAULT_DATABASE_CONFIGURATION
 		),
 	},
 });
@@ -115,7 +119,8 @@ const cronConfigurationStore = new Store<CronSettingsState>({
 	defaults: {
 		cron_configuration: migrateConfiguration(
 			'settings.cron',
-			store.get('cron_configuration') ?? { schedules: [] }
+			store.get('cron_configuration'),
+			{ schedules: [] }
 		),
 	},
 });
