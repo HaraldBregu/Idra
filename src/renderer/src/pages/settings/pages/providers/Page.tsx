@@ -366,20 +366,23 @@ const ProvidersPage: React.FC = () => {
 					<SettingsLoadingRows rows={4} />
 				) : (
 					<div className="space-y-3 py-4">
-						{storageEntries.length === 0 && (
+						{mergedStorageEntries(storageEntries).length === 0 && (
 							<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
 						)}
 
-						{storageEntries.map((entry) => (
+						{mergedStorageEntries(storageEntries).map((entry) => (
 							<ProviderCard
 								key={entry.key}
 								storage={entry.storage}
 								onSaved={(saved) =>
-									setStorageEntries((current) =>
-										current?.map((item) =>
-											item.key === entry.key ? { ...item, storage: saved } : item
-										) ?? current
-									)
+									setStorageEntries((current) => {
+										const list = current ?? [];
+										return list.some((item) => item.storage.id === saved.id)
+											? list.map((item) =>
+													item.storage.id === saved.id ? { ...item, storage: saved } : item
+												)
+											: [...list, { key: saved.id, storage: saved }];
+									})
 								}
 								onRemoved={() => {}}
 								hideDelete={true}
