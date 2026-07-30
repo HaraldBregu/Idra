@@ -92,11 +92,7 @@ function FridayTui({ install, launch }: TuiProps): React.JSX.Element {
 					<Text
 						key={message.id}
 						color={
-							message.type === 'error'
-								? 'red'
-								: message.type === 'success'
-									? 'green'
-									: undefined
+							message.type === 'error' ? 'red' : message.type === 'success' ? 'green' : undefined
 						}
 					>
 						{message.type === 'success' ? '✓ ' : message.type === 'error' ? '✗ ' : '  '}

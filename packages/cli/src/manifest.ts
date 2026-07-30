@@ -4,9 +4,7 @@ import { z } from 'zod';
 import { isPluginPath } from './pluginpath.js';
 
 const idSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
-const versionSchema = z
-	.string()
-	.regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
+const versionSchema = z.string().regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
 const modelSchema = z
 	.object({
 		id: idSchema,

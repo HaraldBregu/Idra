@@ -5,7 +5,11 @@ export interface RunResult {
 	readonly stderr: string;
 }
 
-export async function run(command: string, args: readonly string[], cwd: string): Promise<RunResult> {
+export async function run(
+	command: string,
+	args: readonly string[],
+	cwd: string
+): Promise<RunResult> {
 	return await new Promise((resolve, reject) => {
 		const child = spawn(command, args, {
 			cwd,

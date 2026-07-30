@@ -24,7 +24,8 @@ test('installs a local plugin and requires force to replace it', async () => {
 		await createPluginFixture(root, '2.0.0');
 		const updated = await installPlugin(fixture, { dataDir, force: true });
 		assert.equal(
-			JSON.parse(await fs.readFile(path.join(updated.destination, 'manifest.json'), 'utf8')).version,
+			JSON.parse(await fs.readFile(path.join(updated.destination, 'manifest.json'), 'utf8'))
+				.version,
 			'2.0.0'
 		);
 	} finally {
