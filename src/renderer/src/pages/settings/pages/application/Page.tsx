@@ -93,7 +93,7 @@ const ApplicationPage: React.FC = () => {
 		void window.search
 			.selectEngine(next as SearchEngineId)
 			.then(setSearchSettings)
-			.catch(() => {});
+			.catch(() => undefined);
 	};
 
 	const selectedSearchProvider = SEARCH_ENGINES.find(
