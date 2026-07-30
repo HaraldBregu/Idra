@@ -3,7 +3,7 @@ import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
 	Card,
-	CardAction,
+	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
@@ -83,14 +83,13 @@ const SearchPage: React.FC = () => {
 			{settings && (
 				<SettingsSection title={t('settings.searchEngine.defaultTitle')}>
 					<Card size="sm">
-						<CardHeader className="items-center">
-							<div className="min-w-0 flex-1">
-									<CardTitle>{t('settings.searchEngine.provider')}</CardTitle>
-									<CardDescription>
-										{t('settings.searchEngine.defaultDescription')}
-									</CardDescription>
-							</div>
-							<CardAction className="self-center">
+						<CardHeader>
+							<CardTitle>{t('settings.searchEngine.provider')}</CardTitle>
+							<CardDescription>
+								{t('settings.searchEngine.defaultDescription')}
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
 								<Select
 									value={settings.engineId}
 									onValueChange={handleEngineChange}
@@ -98,7 +97,7 @@ const SearchPage: React.FC = () => {
 								>
 									<SelectTrigger
 										size="sm"
-										className="w-32 text-xs [&_svg]:size-3"
+										className="w-full text-xs [&_svg]:size-3"
 										aria-label={t('settings.searchEngine.defaultTitle')}
 									>
 										<SelectValue>{selectedEngine?.name}</SelectValue>
@@ -115,8 +114,7 @@ const SearchPage: React.FC = () => {
 										))}
 									</SelectContent>
 								</Select>
-							</CardAction>
-						</CardHeader>
+						</CardContent>
 					</Card>
 				</SettingsSection>
 			)}
