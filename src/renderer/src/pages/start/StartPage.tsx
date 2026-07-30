@@ -2,34 +2,25 @@ import React, { useEffect, useReducer, useState } from 'react';
 import { AlertCircle, ArrowRight, LoaderCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ChannelStep } from './components/ChannelStep';
-import { CloudStep } from './components/CloudStep';
 import { ModelsStep } from './components/ModelsStep';
 import { PresentationStep } from './components/PresentationStep';
 import { ProviderStep } from './components/ProviderStep';
 import { StepProgress } from './components/StepProgress';
 import {
+	actionableProviderCatalog,
+	getErrorMessage,
 	getSelectedServiceModel,
 	MODEL_SERVICE_DEFINITIONS,
 	SETUP_STEPS,
 } from './constants';
 import { useModelServices } from './hooks/useModelServices';
-import { useProviderSetup } from './hooks/useProviderSetup';
 import { createInitialSetupState, setupReducer } from './state/reducer';
 
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [checkingSetup, setCheckingSetup] = useState(true);
 	const [state, dispatch] = useReducer(setupReducer, undefined, createInitialSetupState);
-	const {
-		step,
-		providerEntries,
-		savingProviderId,
-		serviceStates,
-		loadingModels,
-		savingConfig,
-		errorMessage,
-	} = state;
+	const { step, serviceStates, loadingModels, savingConfig, errorMessage } = state;
 
 	useEffect(() => {
 		let cancelled = false;
@@ -49,30 +40,45 @@ const StartPage: React.FC = () => {
 		};
 	}, [navigate]);
 
-	const {
-		updateProviderEntry,
-		handleProviderApiKeyChange,
-		saveProviderEntry,
-		handleContinueProviders,
-		handleOpenProviderLink,
-	} = useProviderSetup(state, dispatch);
-
 	const { handleServiceChange, handleSaveModels } = useModelServices(state, dispatch);
 
 	const stepIndex = SETUP_STEPS.indexOf(step);
-	const hasProviderDraft = providerEntries.some(
-		(entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0
-	);
-	const canContinueProviders = hasProviderDraft && savingProviderId === null;
 	const canContinueModels =
 		getSelectedServiceModel(serviceStates.assistant) !== undefined &&
 		!loadingModels &&
 		!savingConfig;
-	const isBusy = savingProviderId !== null || savingConfig;
+	const isBusy = savingConfig;
 
 	function handleBack(): void {
 		const previousStep = SETUP_STEPS[Math.max(0, stepIndex - 1)];
 		dispatch({ type: 'GO_TO_STEP', step: previousStep });
+	}
+
+	function handleContinueProviders(): void {
+		void window.provider
+			.list()
+			.then((storedProviders) => {
+				const modelProviderIds = new Set(
+					actionableProviderCatalog().map((provider) => provider.id)
+				);
+				const hasSavedKey = storedProviders.some(
+					(provider) => modelProviderIds.has(provider.id) && provider.apiKey.trim().length > 0
+				);
+				if (hasSavedKey) {
+					dispatch({ type: 'GO_TO_STEP', step: 'models' });
+				} else {
+					dispatch({
+						type: 'SET_ERROR',
+						message: 'Add at least one model provider API key to continue.',
+					});
+				}
+			})
+			.catch((error) => {
+				dispatch({
+					type: 'SET_ERROR',
+					message: getErrorMessage(error, 'Could not check saved provider access.'),
+				});
+			});
 	}
 
 	function handlePrimaryAction(): void {
@@ -82,17 +88,7 @@ const StartPage: React.FC = () => {
 		}
 
 		if (step === 'providers') {
-			void handleContinueProviders();
-			return;
-		}
-
-		if (step === 'storage') {
-			dispatch({ type: 'GO_TO_STEP', step: 'channels' });
-			return;
-		}
-
-		if (step === 'channels') {
-			dispatch({ type: 'GO_TO_STEP', step: 'models' });
+			handleContinueProviders();
 			return;
 		}
 
@@ -109,31 +105,13 @@ const StartPage: React.FC = () => {
 	}
 
 	function isPrimaryDisabled(): boolean {
-		if (step === 'providers') return !canContinueProviders;
 		if (step === 'models') return !canContinueModels;
 		return isBusy;
 	}
 
 	function renderStepContent(): React.JSX.Element {
 		if (step === 'providers') {
-			return (
-				<ProviderStep
-					providerEntries={providerEntries}
-					savingProviderId={savingProviderId}
-					onUpdateEntry={updateProviderEntry}
-					onApiKeyChange={handleProviderApiKeyChange}
-					onSave={saveProviderEntry}
-					onOpenLink={handleOpenProviderLink}
-				/>
-			);
-		}
-
-		if (step === 'storage') {
-			return <CloudStep />;
-		}
-
-		if (step === 'channels') {
-			return <ChannelStep />;
+			return <ProviderStep />;
 		}
 
 		if (step === 'models') {
