@@ -277,6 +277,38 @@ export function saveStorageConfiguration(configuration: StorageConfiguration): S
 	return saved;
 }
 
+export function getDatabaseConfiguration(): DatabaseConfiguration {
+	const configuration = {
+		...DEFAULT_DATABASE_CONFIGURATION,
+		...store.get('database_configuration'),
+	};
+	if (configuration.databaseId && !findDatabase(configuration)) {
+		configuration.providerId = undefined;
+		configuration.databaseId = undefined;
+	}
+	return configuration;
+}
+
+export function saveDatabaseConfiguration(
+	configuration: DatabaseConfiguration
+): DatabaseConfiguration {
+	if (configuration.databaseId && !findDatabase(configuration)) {
+		throw new Error(`Database not found: ${configuration.databaseId}`);
+	}
+	const saved: DatabaseConfiguration = {
+		providerId: configuration.providerId,
+		databaseId: configuration.databaseId,
+	};
+	store.set('database_configuration', saved);
+	return saved;
+}
+
+function findDatabase(configuration: DatabaseConfiguration): CatalogService | undefined {
+	return loadDatabases().find(
+		(entry) => entry.id === configuration.databaseId && entry.provider.id === configuration.providerId
+	);
+}
+
 function getAssistantConfiguration(): AssistantConfiguration {
 	return { ...DEFAULT_ASSISTANT_CONFIGURATION, ...store.get('assistant_configuration') };
 }
