@@ -114,7 +114,9 @@ describe('plugin repository', () => {
 				pluginId: 'acme-tools',
 				extensionId: 'dashboard',
 			})
-		).toBe(path.join(root, 'acme-tools', 'extensions', 'dashboard', 'index.html'));
+		).toBe(
+			path.join(fs.realpathSync(root), 'acme-tools', 'extensions', 'dashboard', 'index.html')
+		);
 		expect(repository.skills()).toEqual([
 			expect.objectContaining({
 				pluginId: 'acme-tools',

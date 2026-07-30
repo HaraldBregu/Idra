@@ -65,7 +65,7 @@ describe('plugin extension integration', () => {
 						partition: 'friday-plugin-extensions',
 					},
 				}),
-				{ file: entry }
+				{ file: fs.realpathSync(entry) }
 			);
 		} finally {
 			fs.rmSync(appLocation, { recursive: true, force: true });
