@@ -78,6 +78,10 @@ Available application modes:
 | `npm run dev-linux:staging` | staging     | Staging with the Linux sandbox override             |
 | `npm run dev-linux:prod`    | production  | Production with the Linux sandbox override          |
 
+The `dev:*` commands always run a live development server; they do not create installers.
+The `dev-linux*` commands disable Electron's sandbox and are only for local hosts where the
+normal command cannot start. Do not use that override for production distribution.
+
 Friday reads an optional root `.env` file when the Electron main process starts. Keep
 local credentials in `.env`; the file is ignored by Git. Provider credentials can also be
 configured from the application settings.
@@ -164,7 +168,7 @@ npm run test:renderer -- tests/unit/renderer/example.test.tsx
 
 ### Full local quality gate
 
-Before opening a pull request or creating a release commit, run:
+The intended comprehensive local gate is:
 
 ```sh
 npm run quality:check
@@ -184,8 +188,12 @@ Also verify formatting without rewriting files:
 npm run format:check
 ```
 
-If either command fails, fix the reported failure or document an existing unrelated
-failure in the pull request. Do not create a release tag while a relevant gate is failing.
+At the time this guide was written, `quality:check` is not green on `main`: existing ESLint
+errors and stale main/renderer Jest expectations still need to be reconciled with recent
+application changes. The deployable CI gate is the exact command sequence in
+[Match the automated CI gate](#match-the-automated-ci-gate). Run the individual checks
+relevant to your change, and record any unrelated baseline failures in the pull request.
+Do not claim that `quality:check` passed when it did not.
 
 ### Production build
 
@@ -209,6 +217,34 @@ npm run build:all
 
 Successful Electron output is written to `out/`. SDK and CLI output is written below each
 package's `dist/` directory.
+
+Run the compiled Electron app without creating an installer:
+
+```sh
+npm run build
+npx --no-install electron .
+```
+
+### Build installers locally
+
+Build installers on the native target operating system:
+
+| Operating system | Command                                              | Output                      |
+| ---------------- | ---------------------------------------------------- | --------------------------- |
+| Windows          | `npm run dist:win`                                   | x64 NSIS `.exe`             |
+| macOS            | `npm run dist:mac`                                   | x64/arm64 `.dmg` and `.pkg` |
+| macOS            | `npm run dist:mac:dmg`                               | x64/arm64 `.dmg` only       |
+| Linux            | `npm run dist:linux:appimage`                        | x64 `.AppImage`             |
+| Linux            | `npm run build && npx electron-builder --linux`      | `.AppImage` and `.deb`      |
+
+Artifacts are written to the root `dist/` directory. Local packaging never uploads because
+`electron-builder.json` sets `publish` to `null`.
+
+Production Windows packaging requires the signing certificate configured through
+`CSC_LINK` and `CSC_KEY_PASSWORD`. Production macOS packaging requires signing and
+notarization credentials. The development/staging `dist:*:dev` and `dist:*:staging`
+scripts currently reference missing helper scripts and must not be used until those
+helpers are restored.
 
 ### End-to-end tests
 
@@ -316,7 +352,10 @@ the initial bootstrap, confirm that the `@friday` scope belongs to the intended 
 or organization, then publish each package once from a protected maintainer machine:
 
 ```sh
+npm ci
+npm run test:packages
 npm login
+npm whoami
 npm publish --workspace @friday/sdk --access public
 npm publish --workspace @friday/cli --access public
 ```
@@ -333,6 +372,15 @@ After both packages exist:
 
 The workflow uses GitHub OpenID Connect with `id-token: write`; it does not need an
 `NPM_TOKEN`.
+
+### Release safety rules
+
+- Always pass `--no-git-tag-version` to `npm version`. A bare `npm version` creates a
+  generic `vX.Y.Z` tag that can trigger the Electron workflow accidentally.
+- Push one explicit product tag. Never use `git push --tags`.
+- Never move or reuse a release tag.
+- Never publish all workspaces together. Use one explicit `--workspace` value.
+- Wait for CI on the version commit before pushing its deployment tag.
 
 ### Release the Electron app
 

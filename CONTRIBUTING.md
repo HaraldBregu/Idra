@@ -28,28 +28,30 @@ On Linux environments that require Electron sandbox changes, use `npm run dev-li
 
 ## Quality Gates
 
-Run the full baseline before opening a pull request:
+Match the current automated CI gate before opening a pull request:
 
 ```bash
-npm run quality:check
-```
-
-This runs, in order:
-
-```bash
-npm run typecheck        # tsc for node + web configs
-npm run lint             # eslint
-npm run test:main        # Jest, main-process project
-npm run test:renderer    # Jest, renderer project
+npm ci
+npm run typecheck
+npm run build
+npm run test:packages
+npm run build:packages
+npm pack --dry-run --workspace @friday/sdk
+npm pack --dry-run --workspace @friday/cli
 ```
 
 Additional commands:
 
 ```bash
-npm run test:e2e         # Playwright end-to-end tests
+npm run quality:check    # Full lint and app/package test suite
+npm run build            # Required before npm run test:e2e
+npm run test:e2e         # Playwright Electron end-to-end tests
 npm run format           # prettier --write .
 npm run format:check     # prettier --check .
 ```
+
+The full `quality:check` currently exposes known baseline lint and stale Jest failures.
+Run the checks relevant to your change and report unrelated failures accurately.
 
 The complete workflow, including targeted workspace tests and end-to-end setup, is in
 [Development, Testing, and Deployment](docs/DEVELOPMENT.md).
@@ -80,7 +82,8 @@ See [SECURITY.md](SECURITY.md) for the security policy.
 
 - Keep commits small and focused — one logical change per commit.
 - Write descriptive, lower-case subjects that state what changed and where, matching the existing history (e.g. `early return added when sessionsPath is missing in persist`).
-- Before opening a PR: run `npm run quality:check`, describe what changed and why, and note any follow-up work.
+- Before opening a PR: run the automated CI gate above, describe what changed and why,
+  and note any full-suite baseline failures or follow-up work.
 - Don't bundle unrelated refactors or formatting changes with a functional change.
 
 ## Reporting Issues
