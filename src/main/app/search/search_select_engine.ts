@@ -3,9 +3,9 @@ import {
 	type SearchEngineId,
 	type SearchSettings,
 } from '../../../shared/search_types';
-import { setSearchProviders } from '../settings_store';
 import { getSearchSettings } from './search_get_settings';
 import { getStoredSearchProviders } from './search_get_providers';
+import { setSearchProviders } from './search_store';
 
 export function selectSearchEngine(engineId: SearchEngineId): SearchSettings {
 	if (!SEARCH_ENGINE_IDS.includes(engineId)) throw new Error('Unknown search engine.');

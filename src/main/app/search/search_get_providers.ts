@@ -1,5 +1,5 @@
 import type { StoredProvider } from '../../../shared/provider_types';
-import { getSearchProviders } from '../settings_store';
+import { getSearchProviders } from './search_store';
 
 export function getStoredSearchProviders(): StoredProvider[] {
 	const stored = getSearchProviders() as unknown;

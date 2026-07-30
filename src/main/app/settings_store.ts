@@ -28,7 +28,6 @@ export type AppSettingsState = {
 	theme: AppTheme;
 	models: StoredProvider[];
 	databases: StoredProvider[];
-	search: StoredProvider[];
 	storages: StoredStorage[];
 };
 
@@ -54,7 +53,6 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	theme: 'system',
 	models: [],
 	databases: [],
-	search: [],
 	storages: [],
 };
 
@@ -166,15 +164,6 @@ export function deleteProvider(id: string): void {
 export function clearProviders(): void {
 	store.set('models', []);
 	store.set('databases', []);
-}
-
-export function getSearchProviders(): StoredProvider[] {
-	const raw = store.get('search');
-	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
-}
-
-export function setSearchProviders(providers: StoredProvider[]): void {
-	store.set('search', providers.filter(isStoredProvider));
 }
 
 /** The selected provider resolved to the shape model adapters consume. */

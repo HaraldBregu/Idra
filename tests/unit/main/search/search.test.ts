@@ -19,13 +19,13 @@ jest.mock('electron-store', () =>
 );
 
 import { getWebSearchTools } from '../../../../src/main/agent/tools/web/search';
-import { getSearchProviders, setSearchProviders } from '../../../../src/main/app/settings_store';
 import { searchBrave } from '../../../../src/main/app/search/adapters/brave';
 import { searchTavily } from '../../../../src/main/app/search/adapters/tavily';
 import { getSearchKey } from '../../../../src/main/app/search/search_get_key';
 import { getSearchSettings } from '../../../../src/main/app/search/search_get_settings';
 import { saveSearchEngine } from '../../../../src/main/app/search/search_save_engine';
 import { selectSearchEngine } from '../../../../src/main/app/search/search_select_engine';
+import { getSearchProviders, setSearchProviders } from '../../../../src/main/app/search/search_store';
 import { searchWeb } from '../../../../src/main/app/search/search_web';
 
 const originalFetch = global.fetch;
