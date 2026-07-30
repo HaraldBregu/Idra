@@ -32,14 +32,14 @@ export const provider: ProviderApi = {
 	list: (): Promise<Provider[]> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.list);
 	},
-	getVectorDatabaseProviders: async (): Promise<PublicProvider[]> => {
-		return uniqueProvidersWithStored(await window.app.databases());
-	},
 	getModelProviders: async (): Promise<PublicProvider[]> => {
 		return uniqueProvidersWithStored(await window.app.models());
 	},
-	getObjectStorageProviders: async (): Promise<PublicProvider[]> => {
+	getStorageProviders: async (): Promise<PublicProvider[]> => {
 		return uniqueProvidersWithStored(await window.app.storages());
+	},
+	getDatabaseProviders: async (): Promise<PublicProvider[]> => {
+		return uniqueProvidersWithStored(await window.app.databases());
 	},
 	getChannels: async (): Promise<Channel> => {
 		return window.channels.getConfig();
