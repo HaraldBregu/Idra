@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { AlertTriangle, ExternalLink, LayoutGrid } from 'lucide-react';
+import { AlertTriangle, Blocks, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { Extension } from '../../../../../../../shared/extension_types';
@@ -80,7 +80,7 @@ const ExtensionDetailsPage: React.FC = () => {
 				)}
 				<SettingsPanel>
 					<SettingsEmptyState
-						icon={LayoutGrid}
+						icon={Blocks}
 						title={decodedExtensionId || t('settings.extensions.empty')}
 						description={t('settings.extensions.emptyDescription')}
 						className="min-h-28"
