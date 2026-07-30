@@ -155,8 +155,15 @@ function toStorageConfig(stored: StoredStorage): StorageConfig {
 }
 
 function toStoredStorage(config: StorageConfig): StoredStorage {
-	const { forcePathStyle, paths, syncIntervalMinutes, ...stored } = config;
-	return stored;
+	return {
+		id: config.id,
+		name: config.name,
+		endpoint: config.endpoint,
+		region: config.region,
+		accessKeyId: config.accessKeyId,
+		secretAccessKey: config.secretAccessKey,
+		bucket: config.bucket,
+	};
 }
 
 export function getStorages(): StorageConfig[] {
