@@ -153,7 +153,7 @@ describe('Settings overview', () => {
 		).not.toBeInTheDocument();
 		expect(screen.getByText('settings.tabs.database')).toBeInTheDocument();
 		const database = screen.getByText('settings.tabs.database');
-		const search = screen.getByText('settings.tabs.searchEngine');
+		const search = screen.getByText('Search engine');
 		expect(database.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 		const assistantGroup = screen
 			.getByText('settings.overview.groups.assistant')
