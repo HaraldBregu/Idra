@@ -313,6 +313,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 											key={folder.path}
 											title={t(`settings.storage.folders.${folder.key}`)}
 											description={folder.path}
+											className="grid-cols-[minmax(0,1fr)_auto]"
 											actionClassName="w-auto ml-auto justify-end"
 											actions={
 												<Switch
