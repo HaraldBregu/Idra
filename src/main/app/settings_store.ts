@@ -292,3 +292,13 @@ export function getModelId(): string | undefined {
 export function setModelId(modelId: string): void {
 	saveAssistantConfiguration({ modelId });
 }
+
+export function getCronConfiguration(): PersistedCronState {
+	const configuration = store.get('cron_configuration');
+	// Fresh array so in-place mutations never touch the shared defaults object
+	return { ...configuration, schedules: [...(configuration.schedules ?? [])] };
+}
+
+export function setCronConfiguration(configuration: PersistedCronState): void {
+	store.set('cron_configuration', configuration);
+}
