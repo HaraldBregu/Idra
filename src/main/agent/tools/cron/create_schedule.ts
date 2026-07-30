@@ -1,4 +1,4 @@
-import { createSchedule } from '../../../cron';
+import { createSchedule } from '../../../app/cron';
 import { tool } from '../tool';
 import { z } from 'zod';
 import { createScheduleRequestSchema } from './schema';

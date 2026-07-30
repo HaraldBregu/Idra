@@ -148,14 +148,14 @@ export interface RecorderEventChannelMap {
 }
 
 export interface CronInvokeChannelMap {
-	[CronChannels.list]: { args: []; result: import('../main/cron').CronSchedule[] };
+	[CronChannels.list]: { args: []; result: import('../main/app/cron').CronSchedule[] };
 	[CronChannels.getRuntime]: {
 		args: [];
-		result: import('../main/cron').CronRuntime | undefined;
+		result: import('../main/app/cron').CronRuntime | undefined;
 	};
 	[CronChannels.setRuntime]: {
 		args: [providerId: string, modelId: string];
-		result: import('../main/cron').CronRuntime;
+		result: import('../main/app/cron').CronRuntime;
 	};
 }
 

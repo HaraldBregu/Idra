@@ -1,4 +1,4 @@
-import { listSchedules } from '../../../cron';
+import { listSchedules } from '../../../app/cron';
 import { tool } from '../tool';
 import { z } from 'zod';
 

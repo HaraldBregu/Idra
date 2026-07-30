@@ -1,4 +1,4 @@
-import { runScheduleNow } from '../../../cron';
+import { runScheduleNow } from '../../../app/cron';
 import { tool } from '../tool';
 import { scheduleIdSchema } from './schema';
 

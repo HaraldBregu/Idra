@@ -1,7 +1,7 @@
-import { clone } from '../../../../../src/main/cron/cron_clone';
-import { isActiveSchedule } from '../../../../../src/main/cron/cron_is_active_schedule';
-import { buildTask } from '../../../../../src/main/cron/cron_build_task';
-import type { CronSchedule } from '../../../../../src/main/cron/cron_types';
+import { clone } from '../../../../../src/main/app/cron/cron_clone';
+import { isActiveSchedule } from '../../../../../src/main/app/cron/cron_is_active_schedule';
+import { buildTask } from '../../../../../src/main/app/cron/cron_build_task';
+import type { CronSchedule } from '../../../../../src/main/app/cron/cron_types';
 
 function schedule(overrides: Partial<CronSchedule> = {}): CronSchedule {
 	return {

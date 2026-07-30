@@ -12,7 +12,7 @@ import {
 } from './session';
 import { stream } from './run/run_stream';
 import { agentLocation } from '../shared/agent_location';
-import { destroyCron, getRuntime, initCron, setCronRunner, startCron } from '../cron';
+import { destroyCron, getRuntime, initCron, setCronRunner, startCron } from '../app/cron';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './policy';
 import { resolveSkillCommand } from './skills';

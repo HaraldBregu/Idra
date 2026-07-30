@@ -30,7 +30,7 @@ export type * from '../../src/shared/text_types';
 export type * from '../../src/shared/video_types';
 export type * from '../../src/shared/extension_types';
 export type * from '../../src/shared/wiki_types';
-export type * from '../../src/main/cron/cron_types';
+export type * from '../../src/main/app/cron/cron_types';
 export type * from '../../src/main/agent/health/health_types';
 export type * from '../../src/main/agent/policy/policy_types';
 

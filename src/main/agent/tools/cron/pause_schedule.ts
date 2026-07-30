@@ -1,4 +1,4 @@
-import { pauseSchedule } from '../../../cron';
+import { pauseSchedule } from '../../../app/cron';
 import { tool } from '../tool';
 import { scheduleIdSchema } from './schema';
 

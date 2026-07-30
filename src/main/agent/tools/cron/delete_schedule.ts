@@ -1,4 +1,4 @@
-import { deleteSchedule } from '../../../cron';
+import { deleteSchedule } from '../../../app/cron';
 import { tool } from '../tool';
 import { scheduleIdSchema } from './schema';
 

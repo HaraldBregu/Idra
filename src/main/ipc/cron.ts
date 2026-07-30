@@ -1,6 +1,6 @@
 import type { EventBus } from '../app/event_bus';
 import { CronChannels } from '../../shared/ipc_channels_definitions';
-import { getRuntime, listSchedules, setRuntime } from '../cron';
+import { getRuntime, listSchedules, setRuntime } from '../app/cron';
 import { registerCommand, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 

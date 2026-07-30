@@ -1,4 +1,4 @@
-import { updateSchedule } from '../../../cron';
+import { updateSchedule } from '../../../app/cron';
 import { tool } from '../tool';
 import { scheduleIdSchema, updateScheduleRequestSchema } from './schema';
 
