@@ -1,6 +1,7 @@
 import {
 	normalizeProviderId,
 	type CatalogService,
+	type CatalogWebSearch,
 	type PublicProvider,
 } from '@shared/provider_types';
 import type {
@@ -13,12 +14,14 @@ import type {
 let catalog: readonly CatalogModel[] = [];
 let databaseCatalog: readonly CatalogService[] = [];
 let storageCatalog: readonly CatalogService[] = [];
+let webSearchCatalog: readonly CatalogWebSearch[] = [];
 
 export async function loadModels(): Promise<void> {
-	[catalog, databaseCatalog, storageCatalog] = await Promise.all([
+	[catalog, databaseCatalog, storageCatalog, webSearchCatalog] = await Promise.all([
 		window.app.models(),
 		window.app.databases(),
 		window.app.storages(),
+		window.app.webSearches(),
 	]);
 }
 
@@ -59,6 +62,15 @@ export function storages(): readonly CatalogService[] {
 /** One record per provider, derived from the storages they serve. */
 export function storageProviders(): readonly PublicProvider[] {
 	return uniqueProviders(storageCatalog);
+}
+
+export function webSearches(): readonly CatalogWebSearch[] {
+	return webSearchCatalog;
+}
+
+/** One record per provider, derived from the web search catalog. */
+export function searchProviders(): readonly PublicProvider[] {
+	return uniqueProviders(webSearchCatalog);
 }
 
 export function providerIdsFor(type: ModelCapability): string[] {

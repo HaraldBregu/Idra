@@ -5,6 +5,8 @@ import {
 	providerIdsFor,
 	providerModels,
 	providers,
+	searchProviders,
+	webSearches,
 } from '@/lib/providers';
 import type { ModelCapability } from '../../../../shared/model_types';
 import type { PublicProvider } from '../../../../shared';
@@ -195,6 +197,21 @@ export function actionableDatabaseCatalog(): readonly ProviderCatalogItem[] {
 				.filter((entry) => entry.provider.id === provider.id)
 				.map((entry) => entry.name)
 				.join(' - ') || 'Database',
+		supported: true,
+		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
+	}));
+}
+
+/** Providers with at least one web search service, shaped like the models catalog cards. */
+export function actionableSearchCatalog(): readonly ProviderCatalogItem[] {
+	return searchProviders().map((provider) => ({
+		id: provider.id,
+		name: provider.name,
+		capabilities:
+			webSearches()
+				.filter((entry) => entry.provider.id === provider.id)
+				.map((entry) => entry.name)
+				.join(' - ') || 'Web search',
 		supported: true,
 		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
 	}));
