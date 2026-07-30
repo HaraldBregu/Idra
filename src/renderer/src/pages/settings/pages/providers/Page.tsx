@@ -14,6 +14,7 @@ import {
 	type StoredProviderKind,
 } from '@shared/provider_types';
 import type { StorageConfig } from '@shared/storage_types';
+import type { SearchEngineId, SearchSettings } from '@shared/search_types';
 import {
 	databaseProviders,
 	databases,
@@ -24,6 +25,7 @@ import {
 import {
 	actionableDatabaseCatalog,
 	actionableProviderCatalog,
+	actionableSearchCatalog,
 	getErrorMessage,
 	MASKED_API_KEY_LABEL,
 } from '../../../start/constants';
@@ -41,6 +43,8 @@ interface StorageEntry {
 	storage: StorageConfig;
 }
 
+type ProviderKind = StoredProviderKind | 'search';
+
 /** Providers pinned on top of the start-flow models list; the rest collapse behind a toggle. */
 const FEATURED_PROVIDER_IDS = [
 	'openai',
@@ -52,7 +56,11 @@ const FEATURED_PROVIDER_IDS = [
 ] as const;
 
 function allCatalogItems(): ProviderCatalogItem[] {
-	return [...actionableProviderCatalog(), ...actionableDatabaseCatalog()];
+	return [
+		...actionableProviderCatalog(),
+		...actionableDatabaseCatalog(),
+		...actionableSearchCatalog(),
+	];
 }
 
 function blankStorage(provider: PublicProvider): StorageConfig {
@@ -101,6 +109,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 	const [error, setError] = useState<string | null>(null);
 	const [storageEntries, setStorageEntries] = useState<StorageEntry[] | null>(null);
 	const [storageError, setStorageError] = useState<string | null>(null);
+	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
 
 	useEffect(() => {
 		let cancelled = false;
