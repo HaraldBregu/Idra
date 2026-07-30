@@ -129,20 +129,22 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 			});
 
 		// Load Storage configs
-		void window.storage.getStorages().then(
-			(storages) => {
-				if (!cancelled)
-					setStorageEntries(storages.map((storage) => ({ key: storage.id, storage })));
-			},
-			(err) => {
-				if (!cancelled) setStorageError(getErrorMessage(err, t('settings.storage.errors.load')));
-			}
-		);
+		if (!embedded) {
+			void window.storage.getStorages().then(
+				(storages) => {
+					if (!cancelled)
+						setStorageEntries(storages.map((storage) => ({ key: storage.id, storage })));
+				},
+				(err) => {
+					if (!cancelled) setStorageError(getErrorMessage(err, t('settings.storage.errors.load')));
+				}
+			);
+		}
 
 		return () => {
 			cancelled = true;
 		};
-	}, [t]);
+	}, [t, embedded]);
 
 	const updateProviderEntry = (providerId: string, patch: Partial<ProviderSetupEntry>): void => {
 		setProviderEntries((currentEntries) => {
