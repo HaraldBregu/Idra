@@ -36,13 +36,11 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'services',
 		titleKey: 'settings.overview.groups.services',
-		paths: [
-			'/settings/storage',
-			'/settings/vectordb',
-			'/settings/channels',
-			'/settings/extensions',
-			'/settings/tasks',
-		],
+		paths: ['/settings/storage', '/settings/vectordb', '/settings/tasks'],
+	},
+	{
+		id: 'integrations',
+		paths: ['/settings/extensions', '/settings/channels'],
 	},
 	{
 		id: 'plugins',
