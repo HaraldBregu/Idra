@@ -133,19 +133,11 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	},
 ];
 
-export const SETUP_STEPS: readonly SetupStep[] = [
-	'presentation',
-	'providers',
-	'storage',
-	'channels',
-	'models',
-];
+export const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
 
 export const SETUP_STEP_TITLES: Record<SetupStep, string> = {
 	presentation: 'Welcome',
-	providers: 'Model provider',
-	storage: 'Object storage',
-	channels: 'Channel provider',
+	providers: 'Providers',
 	models: 'Models',
 };
 
