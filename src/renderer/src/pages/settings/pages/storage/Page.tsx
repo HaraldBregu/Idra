@@ -188,8 +188,8 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 		}
 	};
 
-	const selectInterval = (value: string): void => {
-		if (!selectedStorage) return;
+	const selectInterval = (value: string | null): void => {
+		if (!selectedStorage || !value) return;
 		if (value === 'off') {
 			updateSelectedStorage({ ...selectedStorage, syncEnabled: false });
 			return;
