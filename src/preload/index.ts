@@ -72,6 +72,8 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.storage = storage;
 	// @ts-ignore (define in dts)
+	globalThis.database = database;
+	// @ts-ignore (define in dts)
 	globalThis.provider = provider;
 	// @ts-ignore (define in dts)
 	globalThis.search = search;
