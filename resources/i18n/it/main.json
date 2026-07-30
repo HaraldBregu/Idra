@@ -1366,13 +1366,7 @@
 			"apiKeyDescription": "La chiave viene usata per creare l'indice e caricare i vettori.",
 			"apiKeyPlaceholder": "Incolla la tua chiave API...",
 			"empty": "Nessun provider di database disponibile.",
-			"notConfigured": "Nessuna chiave API salvata.",
-			"edit": "Modifica",
-			"expand": "Espandi",
-			"collapse": "Comprimi",
-			"cancel": "Annulla",
 			"save": "Salva",
-			"saving": "Salvataggio…",
 			"saved": "Chiave API salvata.",
 			"errors": {
 				"load": "Impossibile caricare la configurazione del database.",
