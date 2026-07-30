@@ -246,6 +246,9 @@ export class AppIpc implements IpcModule {
 			}, AppChannels.models)
 		);
 
+		// Re-read the catalog and tell renderers when resources/providers changes on disk
+		watchModels(() => eventBus.broadcast(AppChannels.modelsChanged));
+
 		ipcMain.handle(
 			AppChannels.openExternalUrl,
 			wrapSimpleHandler(async (url: string) => {
