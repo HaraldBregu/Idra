@@ -7,7 +7,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-	} from '@/components/ui/card';
+} from '@/components/ui/card';
 import {
 	Select,
 	SelectContent,
@@ -22,6 +22,7 @@ import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
+	SettingsPanel,
 	SettingsSection,
 } from '../../components';
 import { SEARCH_ENGINES } from './catalog';
