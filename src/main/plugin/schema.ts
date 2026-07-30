@@ -144,7 +144,7 @@ const contributionsSchema = z
 
 export const pluginManifestSchema = z
 	.object({
-		schemaVersion: z.literal(1),
+		schemaVersion: z.literal(2),
 		id: idSchema,
 		name: z.string().trim().min(1),
 		version: versionSchema,

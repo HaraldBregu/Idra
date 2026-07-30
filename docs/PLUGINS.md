@@ -39,7 +39,7 @@ A plugin keeps each contribution kind in its own folder:
 
 ```json
 {
-	"schemaVersion": 1,
+	"schemaVersion": 2,
 	"id": "acme-tools",
 	"name": "Acme Tools",
 	"version": "1.0.0",

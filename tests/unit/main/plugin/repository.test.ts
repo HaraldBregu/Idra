@@ -5,7 +5,7 @@ import { PluginRepository } from '../../../../src/main/plugin';
 
 function manifest(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 	return {
-		schemaVersion: 1,
+		schemaVersion: 2,
 		id: 'acme-tools',
 		name: 'Acme Tools',
 		version: '1.0.0',
