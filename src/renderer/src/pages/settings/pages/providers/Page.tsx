@@ -7,9 +7,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
-import type { ProviderType, PublicProvider, StoredProvider } from '@shared/provider_types';
+import {
+	getProviderApiConfigurationUrl,
+	type ProviderType,
+	type PublicProvider,
+	type StoredProvider,
+} from '@shared/provider_types';
 import type { StorageConfig } from '@shared/storage_types';
-import { databaseProviders, databases, providers, storageProviders } from '@/lib/providers';
+import {
+	databaseProviders,
+	databases,
+	providers,
+	storageProviders,
+	storages,
+} from '@/lib/providers';
 import {
 	actionableDatabaseCatalog,
 	actionableProviderCatalog,
