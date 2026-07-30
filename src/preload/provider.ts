@@ -3,9 +3,24 @@ import { ProviderStoreChannels } from '../shared/ipc_channels_definitions';
 import type { ProviderApi } from './index.d';
 import type { StoredProvider as Provider } from '../shared/provider_types';
 import type { PublicProvider } from '../shared/provider_types';
-import type { CatalogModel } from '../shared/model_types';
-import type { StorageConfig } from '../shared/storage_types';
 import type { Channel } from '../shared/channels_types';
+
+/** Unique providers from catalog entries, overlaid with stored settings data. */
+async function uniqueProvidersWithStored(
+	entries: readonly { provider: PublicProvider }[]
+): Promise<PublicProvider[]> {
+	const stored = await provider.list();
+	const storedById = new Map(stored.map((entry) => [entry.id, entry]));
+	const providersMap = new Map<string, PublicProvider>();
+	entries.forEach((entry) => {
+		const saved = storedById.get(entry.provider.id);
+		providersMap.set(entry.provider.id, {
+			...entry.provider,
+			baseUrl: saved?.baseUrl || entry.provider.baseUrl,
+		});
+	});
+	return Array.from(providersMap.values());
+}
 
 export const provider: ProviderApi = {
 	get: (id: string): Promise<Provider | undefined> => {
@@ -18,35 +33,13 @@ export const provider: ProviderApi = {
 		return typedInvokeUnwrap(ProviderStoreChannels.list);
 	},
 	getVectorDatabaseProviders: async (): Promise<PublicProvider[]> => {
-		// ponytail: aggregates app.models() and filters for embedding providers
-		const models: CatalogModel[] = await window.app.models();
-		const providersMap = new Map<string, PublicProvider>();
-		models.forEach((model) => {
-			if (model.type === 'embedding') {
-				providersMap.set(model.provider.id, model.provider);
-			}
-		});
-		return Array.from(providersMap.values());
+		return uniqueProvidersWithStored(await window.app.databases());
 	},
 	getModelProviders: async (): Promise<PublicProvider[]> => {
-		// ponytail: unique providers from app.models(), overlaid with stored settings data
-		const [models, stored] = await Promise.all([
-			window.app.models() as Promise<CatalogModel[]>,
-			provider.list(),
-		]);
-		const storedById = new Map(stored.map((entry) => [entry.id, entry]));
-		const providersMap = new Map<string, PublicProvider>();
-		models.forEach((model) => {
-			const saved = storedById.get(model.provider.id);
-			providersMap.set(model.provider.id, {
-				...model.provider,
-				baseUrl: saved?.baseUrl || model.provider.baseUrl,
-			});
-		});
-		return Array.from(providersMap.values());
+		return uniqueProvidersWithStored(await window.app.models());
 	},
-	getObjectStorageProviders: async (): Promise<StorageConfig[]> => {
-		return window.storage.getStorages();
+	getObjectStorageProviders: async (): Promise<PublicProvider[]> => {
+		return uniqueProvidersWithStored(await window.app.storages());
 	},
 	getChannels: async (): Promise<Channel> => {
 		return window.channels.getConfig();
