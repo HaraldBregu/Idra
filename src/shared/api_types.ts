@@ -162,8 +162,8 @@ export interface ProviderApi {
 
 export interface StorageApi {
 	getStorages: () => Promise<StorageConfig[]>;
-	getSelectedStorageId: () => Promise<string | undefined>;
-	setSelectedStorageId: (id: string) => Promise<void>;
+	getStorageConfiguration: () => Promise<StorageConfiguration>;
+	saveStorageConfiguration: (configuration: StorageConfiguration) => Promise<StorageConfiguration>;
 	saveStorageConfig: (config: StorageConfig) => Promise<StorageConfig>;
 	deleteStorageConfig: (id: string) => Promise<void>;
 	testConnection: (config: StorageConfig) => Promise<StorageTestResult>;
