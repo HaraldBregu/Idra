@@ -245,11 +245,11 @@ export function setSelectedStorageId(id: string): void {
 }
 
 export function getProviderId(): string | undefined {
-	return store.get('providerId');
+	return store.get('modelProviderId');
 }
 
 export function setProviderId(providerId: string): void {
-	store.set('providerId', providerId);
+	store.set('modelProviderId', providerId);
 }
 
 export function getModelId(): string | undefined {
