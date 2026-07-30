@@ -35,7 +35,9 @@ class SearchStore {
 				this.store = legacy.providers as SearchStoreState;
 				return legacy.providers as SearchStoreState;
 			}
-		} catch {}
+		} catch {
+			return [];
+		}
 		return [];
 	}
 
