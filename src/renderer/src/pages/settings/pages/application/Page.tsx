@@ -240,7 +240,7 @@ const ApplicationPage: React.FC = () => {
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
 							<Select
-								value={searchSettings?.engineId}
+								value={searchSettings?.engineId ?? null}
 								onValueChange={handleSearchProviderChange}
 								disabled={searchSettings === null}
 							>
