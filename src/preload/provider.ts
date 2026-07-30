@@ -1,7 +1,7 @@
 import { typedInvokeUnwrap } from '../shared/ipc_types';
 import { ProviderStoreChannels } from '../shared/ipc_channels_definitions';
 import type { ProviderApi } from './index.d';
-import type { StoredProvider as Provider } from '../shared/provider_types';
+import type { StoredProvider as Provider, StoredProviderKind } from '../shared/provider_types';
 import type { PublicProvider } from '../shared/provider_types';
 import type { Channel } from '../shared/channels_types';
 
