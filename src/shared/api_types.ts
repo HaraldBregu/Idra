@@ -14,6 +14,7 @@ import type {
 import type { DatabaseConfiguration } from './database_types';
 import type { McpOAuthStart, McpSettings } from './mcp_types';
 import type { Extension } from './extension_types';
+import type { PluginInstallResult, PluginSummary } from './plugin_types';
 import type { CronRuntime, CronSchedule } from '../main/app/cron/cron_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { RagIndexResult, RagMatch } from '../main/rag';
