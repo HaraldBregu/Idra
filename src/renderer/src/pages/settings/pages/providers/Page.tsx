@@ -368,10 +368,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection
-				title={t('settings.overview.groups.mlModels')}
-				description={t('settings.providers.mlModelsDescription')}
-			>
+			<SettingsSection title={t('settings.overview.groups.mlModels')}>
 				{embedded ? (
 					<div className="space-y-3 pb-4">
 						{featuredProviders.map((provider) => renderProviderCard(provider, 'models'))}
