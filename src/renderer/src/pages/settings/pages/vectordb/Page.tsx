@@ -94,10 +94,19 @@ const VectorDbPage: React.FC = () => {
 			) : entries.length === 0 ? (
 				<SettingsNotice>{t('settings.vectorDb.empty')}</SettingsNotice>
 			) : (
-				<Card size="sm">
-					<CardHeader className="border-b">
-						<CardTitle>{t('settings.vectorDb.defaultTitle')}</CardTitle>
-					</CardHeader>
+				<>
+					{providers.map((entry) => (
+						<ProviderCard
+							key={entry.provider.id}
+							provider={entry.provider}
+							baseUrl={entry.url ?? ''}
+						/>
+					))}
+
+					<Card size="sm">
+						<CardHeader className="border-b">
+							<CardTitle>{t('settings.vectorDb.defaultTitle')}</CardTitle>
+						</CardHeader>
 
 					<CardContent className="p-0!">
 						<SettingsRow
