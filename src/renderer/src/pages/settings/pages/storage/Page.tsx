@@ -287,7 +287,6 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 
 						<CardContent className="p-0!">
 							<SettingsRow
-								icon={HardDrive}
 								title={t('settings.storage.profile.label')}
 								description={t('settings.storage.profile.help')}
 								actions={
