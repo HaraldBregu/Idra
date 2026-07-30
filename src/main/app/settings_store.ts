@@ -197,9 +197,6 @@ export function getStorage(id: string): StorageConfig | undefined {
 }
 
 export function saveStorageConfig(config: StorageConfig): StorageConfig {
-	if (config.syncEnabled && !cron.validate(config.syncCronExpression)) {
-		throw new Error('Storage sync schedule must be a valid cron expression.');
-	}
 	const saved = toStoredStorage({ ...config, id: config.id || crypto.randomUUID() });
 	const storages = store.get('storages');
 	const index = storages.findIndex((storage) => storage.id === saved.id);
@@ -209,36 +206,54 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 			? storages.map((storage, i) => (i === index ? saved : storage))
 			: [...storages, saved]
 	);
-	if (!store.get('storageProviderId')) setSelectedStorageId(saved.id);
+	if (!store.get('storage_configuration').providerId) {
+		saveStorageConfiguration({ ...getStorageConfiguration(), providerId: saved.id });
+	}
 	return toStorageConfig(saved);
 }
 
 export function deleteStorageConfig(id: string): void {
 	const storages = store.get('storages').filter((storage) => storage.id !== id);
 	store.set('storages', storages);
-	if (store.get('storageProviderId') === id) {
-		const next = storages[0]?.id;
-		if (next) setSelectedStorageId(next);
-		else {
-			store.delete('storageProviderId');
-			store.delete('storageId');
-		}
+	const configuration = store.get('storage_configuration');
+	if (configuration.providerId === id) {
+		saveStorageConfiguration({ ...configuration, providerId: storages[0]?.id });
 	}
 }
 
-export function getSelectedStorageId(): string | undefined {
-	const id = store.get('storageProviderId');
-	return id && store.get('storages').some((storage) => storage.id === id) ? id : undefined;
+export function getStorageConfiguration(): StorageConfiguration {
+	const configuration = { ...DEFAULT_STORAGE_CONFIGURATION, ...store.get('storage_configuration') };
+	if (
+		configuration.providerId &&
+		!store.get('storages').some((storage) => storage.id === configuration.providerId)
+	) {
+		configuration.providerId = undefined;
+		configuration.storageId = undefined;
+	}
+	return configuration;
 }
 
-export function setSelectedStorageId(id: string): void {
-	if (!store.get('storages').some((storage) => storage.id === id)) {
-		throw new Error(`Storage not found: ${id}`);
+export function saveStorageConfiguration(configuration: StorageConfiguration): StorageConfiguration {
+	if (configuration.syncEnabled && !cron.validate(configuration.syncCronExpression)) {
+		throw new Error('Storage sync schedule must be a valid cron expression.');
 	}
-	store.set('storageProviderId', id);
-	const storageId = loadStorages().find((entry) => entry.provider.id === id)?.id;
-	if (storageId) store.set('storageId', storageId);
-	else store.delete('storageId');
+	if (
+		configuration.providerId &&
+		!store.get('storages').some((storage) => storage.id === configuration.providerId)
+	) {
+		throw new Error(`Storage not found: ${configuration.providerId}`);
+	}
+	const saved: StorageConfiguration = {
+		providerId: configuration.providerId,
+		storageId: configuration.providerId
+			? loadStorages().find((entry) => entry.provider.id === configuration.providerId)?.id
+			: undefined,
+		paths: configuration.paths.filter((entry) => typeof entry === 'string'),
+		syncEnabled: configuration.syncEnabled,
+		syncCronExpression: configuration.syncCronExpression.trim().replace(/\s+/g, ' '),
+	};
+	store.set('storage_configuration', saved);
+	return saved;
 }
 
 export function getProviderId(): string | undefined {
