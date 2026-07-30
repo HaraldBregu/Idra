@@ -83,8 +83,9 @@ const VectorDbPage: React.FC = () => {
 	const selected = providerDatabases.find((entry) => entry.id === configuration.databaseId);
 
 	const selectProvider = (providerId: string | null): void => {
-		if (!providerId) return;
+		if (!providerId || providerId === configuration.providerId) return;
 		setSaved(false);
+		setApiKey('');
 		setConfiguration({
 			providerId,
 			databaseId: entries.find((entry) => entry.provider.id === providerId)?.id,
