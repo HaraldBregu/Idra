@@ -1,6 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { agentLocation } from '../../shared/agent_location';
+import { userDataLocation } from '../../shared/user_data_location';
 import { isToolPermission } from './policy_is_tool_permission';
 import { normalizeDirectoryPermissions } from './policy_normalize_directories';
 import { normalizeToolPermission } from './policy_normalize';
@@ -25,7 +26,7 @@ export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 const store = new Store<PermissionsSchema>({
 	name: POLICY_STORE_NAME,
-	cwd: path.resolve(agentLocation()),
+	cwd: path.resolve(userDataLocation(), 'agent'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_PERMISSIONS,
 });
