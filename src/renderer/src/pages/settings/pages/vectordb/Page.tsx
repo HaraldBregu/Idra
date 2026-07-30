@@ -19,6 +19,7 @@ import {
 	SettingsPageShell,
 	SettingsRow,
 } from '../../components';
+import { ProviderCard } from './ProviderCard';
 
 const VALUE_SEPARATOR = '\u001F';
 
