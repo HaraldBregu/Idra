@@ -1,8 +1,6 @@
 import type { EventBus } from '../app/event_bus';
 import { PluginChannels } from '../../shared/ipc_channels_definitions';
-import type { PluginRepository } from '../plugin';
-import { installPlugins } from '../plugin/install';
-import { pluginSummary } from '../plugin/summary';
+import { installPlugins, pluginSummary, type PluginRepository } from '../plugin';
 import { registerCommand, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 
