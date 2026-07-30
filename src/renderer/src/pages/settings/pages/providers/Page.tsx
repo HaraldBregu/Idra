@@ -367,6 +367,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				</div>
 			</SettingsSection>
 
+			{!embedded && (
 			<SettingsSection
 				title={t('settings.tabs.storage')}
 				description={t('settings.storage.description')}
