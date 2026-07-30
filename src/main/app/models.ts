@@ -203,13 +203,9 @@ function readCatalog(): Catalog {
 			const infoPath = path.join(providerDir, 'info.json');
 			if (!existsSync(infoPath)) continue;
 			const entry = JSON.parse(readFileSync(infoPath, 'utf-8')) as ProviderCatalogEntry;
-			const provider = toPublicProvider(entry);
-			models.push(
-				...readEntries<CatalogEntryModel>(providerDir, 'models.json').map((model) => ({
-					...model,
-					provider,
-				}))
-			);
+			const modelEntries = readEntries<CatalogEntryModel>(providerDir, 'models.json');
+			const provider = toPublicProvider(entry, modelEntries);
+			models.push(...modelEntries.map((model) => ({ ...model, provider })));
 			databases.push(
 				...readEntries<CatalogEntryService>(providerDir, 'databases.json').map((service) => ({
 					...service,
