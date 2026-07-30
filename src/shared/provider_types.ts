@@ -62,14 +62,13 @@ export interface ModelSelection {
 	model: ProviderModel;
 }
 
-/** What a stored provider provides. */
-export type ProviderType = 'ml_model' | 'vector_db' | 'object_storage';
+/** Which settings-store collection a provider credential belongs to. */
+export type StoredProviderKind = 'models' | 'databases';
 
 /** A provider's credentials as saved by the user. */
 export interface StoredProvider {
 	id: string;
 	name: string;
-	type: ProviderType;
 	apiKey: string;
 	baseUrl: string;
 }
