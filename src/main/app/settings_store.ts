@@ -170,14 +170,6 @@ function toStorageConfig(stored: StoredStorage): StorageConfig {
 		secretAccessKey: stored.secretAccessKey,
 		bucket: stored.bucket,
 		forcePathStyle: stored.forcePathStyle === true,
-		paths: Array.isArray(stored.paths)
-			? stored.paths.filter((entry): entry is string => typeof entry === 'string')
-			: [],
-		syncEnabled: stored.syncEnabled === true,
-		syncCronExpression:
-			typeof stored.syncCronExpression === 'string' && stored.syncCronExpression.trim()
-				? stored.syncCronExpression
-				: DEFAULT_SYNC_CRON_EXPRESSION,
 	};
 }
 
@@ -191,9 +183,6 @@ function toStoredStorage(config: StorageConfig): StoredStorage {
 		secretAccessKey: config.secretAccessKey,
 		bucket: config.bucket,
 		forcePathStyle: config.forcePathStyle,
-		paths: config.paths,
-		syncEnabled: config.syncEnabled,
-		syncCronExpression: config.syncCronExpression.trim().replace(/\s+/g, ' '),
 		baseUrl: loadStorages().find((entry) => entry.provider.id === config.id)?.url ?? '',
 	};
 }
