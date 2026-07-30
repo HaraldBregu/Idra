@@ -199,9 +199,33 @@ export function ProviderCard({
 						<div className="flex size-8 flex-shrink-0 items-center justify-center rounded-md bg-muted">
 							<HardDrive className="size-4 text-muted-foreground" />
 						</div>
-						<CardTitle className="min-w-0">
-							{canonical.name || t('settings.storage.newProviderTitle')}
-						</CardTitle>
+						<div className="min-w-0 flex-1">
+							<div className="flex min-w-0 items-center gap-1.5">
+								<CardTitle className="min-w-0 truncate">
+									{canonical.name || t('settings.storage.newProviderTitle')}
+								</CardTitle>
+								{linkUrl && (
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-xs"
+										className="size-5 text-muted-foreground hover:text-foreground"
+										aria-label={`Open ${canonical.name} setup`}
+										onClick={(event) => {
+											event.stopPropagation();
+											openExternalUrl(linkUrl);
+										}}
+									>
+										<ExternalLink className="size-3" />
+									</Button>
+								)}
+							</div>
+							{(subtitle || isConfigured(canonical)) && (
+								<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
+									{isConfigured(canonical) ? MASKED_API_KEY_LABEL : subtitle}
+								</p>
+							)}
+						</div>
 					</div>
 					<CardAction
 						className="row-span-1 flex items-center gap-2 self-center"
