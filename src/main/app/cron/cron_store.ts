@@ -1,23 +1,16 @@
-import path from 'node:path';
-import Store from 'electron-store';
-import { userDataLocation } from '../../shared/user_data_location';
+import {
+	appSettingsStorePath,
+	getCronConfiguration,
+	setCronConfiguration,
+} from '../settings_store';
 import type { PersistedCronState } from './cron_types';
 
-const CRON_STORE_NAME = 'settings';
-
-const store = new Store<PersistedCronState>({
-	name: CRON_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'cron'),
-	accessPropertiesByDotNotation: false,
-	defaults: { schedules: [] },
-});
-
-export const cronStorePath = store.path;
+export const cronStorePath = appSettingsStorePath;
 
 export function getCronState(): PersistedCronState {
-	return store.store;
+	return getCronConfiguration();
 }
 
 export function setCronState(value: PersistedCronState): void {
-	store.store = value;
+	setCronConfiguration(value);
 }
