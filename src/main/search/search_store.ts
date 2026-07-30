@@ -34,9 +34,7 @@ class SearchStore {
 				this.store = parsed.providers as SearchStoreState;
 				return parsed.providers as SearchStoreState;
 			}
-		} catch {
-			// An invalid settings file behaves as an empty provider list.
-		}
+		} catch {}
 		return [];
 	}
 
