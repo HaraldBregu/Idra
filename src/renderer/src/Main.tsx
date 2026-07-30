@@ -13,10 +13,13 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-void loadModels().then(() => {
+const render = (): void => {
 	root.render(
 		<StrictMode>
 			<App />
 		</StrictMode>,
 	);
-});
+};
+
+void loadModels().then(render);
+window.app.onModelsChanged(() => void loadModels().then(render));
