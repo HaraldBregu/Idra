@@ -3,6 +3,7 @@ import {
 	AlertTriangle,
 	CheckCircle2,
 	ChevronDown,
+	ExternalLink,
 	HardDrive,
 	Pencil,
 	Trash2,
