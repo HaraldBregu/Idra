@@ -60,6 +60,10 @@ beforeAll(() => {
 		configurable: true,
 		value: () => 'storage-draft',
 	});
+	Object.defineProperty(window, 'PointerEvent', {
+		configurable: true,
+		value: MouseEvent,
+	});
 });
 
 beforeEach(() => {
