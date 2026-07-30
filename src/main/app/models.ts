@@ -22,6 +22,7 @@ interface Catalog {
 	readonly models: readonly CatalogModel[];
 	readonly databases: readonly CatalogService[];
 	readonly storages: readonly CatalogService[];
+	readonly webSearches: readonly CatalogWebSearch[];
 }
 
 let cache: Catalog | undefined;
