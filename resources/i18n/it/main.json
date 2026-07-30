@@ -201,7 +201,7 @@
 			"providers": "Provider",
 			"searchEngine": "Motore di ricerca",
 			"database": "Database",
-			"storage": "Archiviazione oggetti",
+			"storage": "Archiviazione",
 			"media": "Media",
 			"devices": "Dispositivi",
 			"tools": "Strumenti",
