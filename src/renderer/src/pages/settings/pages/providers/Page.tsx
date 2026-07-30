@@ -319,7 +319,7 @@ const ProvidersPage: React.FC = () => {
 								type="button"
 								size="sm"
 								disabled={!canSaveProvider}
-								onClick={() => void saveProviderEntry(provider.id, type)}
+								onClick={() => void saveProviderEntry(provider.id, kind)}
 							>
 								{savingThisProvider ? <LoaderCircle className="size-3.5 animate-spin" /> : null}
 								{t('common.save')}
