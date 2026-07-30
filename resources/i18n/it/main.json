@@ -1169,6 +1169,19 @@
 			"detailCategory": "Categoria",
 			"detailEntry": "File di ingresso"
 		},
+		"plugins": {
+			"title": "Plugin installati",
+			"description": "Plugin che aggiungono provider, abilità, extension e altro a Friday.",
+			"refresh": "Aggiorna",
+			"upload": "Carica plugin",
+			"uploading": "Caricamento...",
+			"uploaded": "{{count}} plugin installato/i. Saltati {{skipped}}.",
+			"uploadError": "Impossibile installare il plugin.",
+			"empty": "Nessun plugin installato",
+			"emptyDescription": "Carica una cartella plugin che contiene manifest.json.",
+			"loadError": "Impossibile caricare i plugin.",
+			"contributions": "{{count}} contributo/i"
+		},
 		"skills": {
 			"title": "Abilità installate",
 			"description": "Carica, scarica, ispeziona o rimuovi le abilità locali disponibili per Friday.",
