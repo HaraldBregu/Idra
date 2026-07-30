@@ -1,4 +1,9 @@
-import type { CatalogService, PublicProvider, StoredProviderKind } from './provider_types';
+import type {
+	CatalogService,
+	CatalogWebSearch,
+	PublicProvider,
+	StoredProviderKind,
+} from './provider_types';
 import type { StoredProvider as Provider } from './provider_types';
 import type { SearchEngineId, SearchEngineInput, SearchSettings } from './search_types';
 import type {
