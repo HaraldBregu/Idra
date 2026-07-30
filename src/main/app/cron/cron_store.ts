@@ -1,11 +1,11 @@
 import {
-	appSettingsStorePath,
+	cronConfigurationStorePath,
 	getCronConfiguration,
 	setCronConfiguration,
 } from '../settings_store';
 import type { PersistedCronState } from './cron_types';
 
-export const cronStorePath = appSettingsStorePath;
+export const cronStorePath = cronConfigurationStorePath;
 
 export function getCronState(): PersistedCronState {
 	return getCronConfiguration();

@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import Store from 'electron-store';
 import cron from 'node-cron';
@@ -30,10 +31,17 @@ export type AppSettingsState = {
 	databases: StoredProvider[];
 	search: StoredProvider[];
 	storages: StoredStorage[];
-	storage_configuration: StorageConfiguration;
-	database_configuration: DatabaseConfiguration;
-	cron_configuration: PersistedCronState;
 };
+
+type LegacyAppSettingsState = AppSettingsState & {
+	storage_configuration?: StorageConfiguration;
+	database_configuration?: DatabaseConfiguration;
+	cron_configuration?: PersistedCronState;
+};
+
+type StorageSettingsState = Pick<Required<LegacyAppSettingsState>, 'storage_configuration'>;
+type DatabaseSettingsState = Pick<Required<LegacyAppSettingsState>, 'database_configuration'>;
+type CronSettingsState = Pick<Required<LegacyAppSettingsState>, 'cron_configuration'>;
 
 const APP_SETTINGS_STORE_NAME = 'settings';
 
@@ -59,19 +67,62 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	databases: [],
 	search: [],
 	storages: [],
-	storage_configuration: DEFAULT_STORAGE_CONFIGURATION,
-	database_configuration: DEFAULT_DATABASE_CONFIGURATION,
-	cron_configuration: { schedules: [] },
 };
 
-const store = new Store<AppSettingsState>({
+const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
+
+const store = new Store<LegacyAppSettingsState>({
 	name: APP_SETTINGS_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'app'),
+	cwd: appSettingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_APP_SETTINGS,
 });
 
 export const appSettingsStorePath = store.path;
+
+function migrateConfiguration<T>(name: string, value: T): T {
+	return existsSync(path.join(appSettingsDirectory, `${name}.json`)) ? value : value;
+}
+
+const storageConfigurationStore = new Store<StorageSettingsState>({
+	name: 'settings.storage',
+	cwd: appSettingsDirectory,
+	accessPropertiesByDotNotation: false,
+	defaults: {
+		storage_configuration: migrateConfiguration(
+			'settings.storage',
+			store.get('storage_configuration') ?? DEFAULT_STORAGE_CONFIGURATION
+		),
+	},
+});
+
+const databaseConfigurationStore = new Store<DatabaseSettingsState>({
+	name: 'settings.database',
+	cwd: appSettingsDirectory,
+	accessPropertiesByDotNotation: false,
+	defaults: {
+		database_configuration: migrateConfiguration(
+			'settings.database',
+			store.get('database_configuration') ?? DEFAULT_DATABASE_CONFIGURATION
+		),
+	},
+});
+
+const cronConfigurationStore = new Store<CronSettingsState>({
+	name: 'settings.cron',
+	cwd: appSettingsDirectory,
+	accessPropertiesByDotNotation: false,
+	defaults: {
+		cron_configuration: migrateConfiguration(
+			'settings.cron',
+			store.get('cron_configuration') ?? { schedules: [] }
+		),
+	},
+});
+
+export const storageConfigurationStorePath = storageConfigurationStore.path;
+export const databaseConfigurationStorePath = databaseConfigurationStore.path;
+export const cronConfigurationStorePath = cronConfigurationStore.path;
 
 export function getTrayEnabled(): boolean {
 	return store.get('trayEnabled');
@@ -227,7 +278,7 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 			? storages.map((storage, i) => (i === index ? saved : storage))
 			: [...storages, saved]
 	);
-	if (!store.get('storage_configuration').providerId) {
+	if (!storageConfigurationStore.get('storage_configuration').providerId) {
 		saveStorageConfiguration({ ...getStorageConfiguration(), providerId: saved.id });
 	}
 	return toStorageConfig(saved);
@@ -236,14 +287,17 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 export function deleteStorageConfig(id: string): void {
 	const storages = store.get('storages').filter((storage) => storage.id !== id);
 	store.set('storages', storages);
-	const configuration = store.get('storage_configuration');
+	const configuration = storageConfigurationStore.get('storage_configuration');
 	if (configuration.providerId === id) {
 		saveStorageConfiguration({ ...configuration, providerId: storages[0]?.id });
 	}
 }
 
 export function getStorageConfiguration(): StorageConfiguration {
-	const configuration = { ...DEFAULT_STORAGE_CONFIGURATION, ...store.get('storage_configuration') };
+	const configuration = {
+		...DEFAULT_STORAGE_CONFIGURATION,
+		...storageConfigurationStore.get('storage_configuration'),
+	};
 	if (
 		configuration.providerId &&
 		!store.get('storages').some((storage) => storage.id === configuration.providerId)
@@ -273,14 +327,14 @@ export function saveStorageConfiguration(configuration: StorageConfiguration): S
 		syncEnabled: configuration.syncEnabled,
 		syncCronExpression: configuration.syncCronExpression.trim().replace(/\s+/g, ' '),
 	};
-	store.set('storage_configuration', saved);
+	storageConfigurationStore.set('storage_configuration', saved);
 	return saved;
 }
 
 export function getDatabaseConfiguration(): DatabaseConfiguration {
 	const configuration = {
 		...DEFAULT_DATABASE_CONFIGURATION,
-		...store.get('database_configuration'),
+		...databaseConfigurationStore.get('database_configuration'),
 	};
 	if (configuration.databaseId && !findDatabase(configuration)) {
 		configuration.providerId = undefined;
@@ -299,7 +353,7 @@ export function saveDatabaseConfiguration(
 		providerId: configuration.providerId,
 		databaseId: configuration.databaseId,
 	};
-	store.set('database_configuration', saved);
+	databaseConfigurationStore.set('database_configuration', saved);
 	return saved;
 }
 
@@ -310,11 +364,11 @@ function findDatabase(configuration: DatabaseConfiguration): CatalogService | un
 }
 
 export function getCronConfiguration(): PersistedCronState {
-	const configuration = store.get('cron_configuration');
+	const configuration = cronConfigurationStore.get('cron_configuration');
 	// Fresh array so in-place mutations never touch the shared defaults object
 	return { ...configuration, schedules: [...(configuration.schedules ?? [])] };
 }
 
 export function setCronConfiguration(configuration: PersistedCronState): void {
-	store.set('cron_configuration', configuration);
+	cronConfigurationStore.set('cron_configuration', configuration);
 }
