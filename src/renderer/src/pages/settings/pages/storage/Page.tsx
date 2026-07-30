@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
 	AlertTriangle,
-	CalendarClock,
 	Cloud,
 	FolderPlus,
 	FolderSync,
-	HardDrive,
 	Play,
 	Plus,
 	Save,
