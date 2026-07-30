@@ -419,6 +419,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 					</div>
 				)}
 			</SettingsSection>
+			)}
 		</SettingsPageShell>
 	);
 };
