@@ -11,6 +11,7 @@ import type {
 	StorageSyncResult,
 	StorageTestResult,
 } from './storage_types';
+import type { DatabaseConfiguration } from './database_types';
 import type { McpOAuthStart, McpSettings } from './mcp_types';
 import type { Extension } from './extension_types';
 import type { CronRuntime, CronSchedule } from '../main/app/cron/cron_types';
