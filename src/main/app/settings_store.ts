@@ -21,17 +21,11 @@ type StoredStorage = Omit<StorageConfig, 'forcePathStyle'> & {
 	forcePathStyle?: boolean;
 };
 
-export type AssistantConfiguration = {
-	providerId: string | undefined;
-	modelId: string | undefined;
-};
-
 export type AppSettingsState = {
 	trayEnabled: boolean;
 	keepAwake: boolean;
 	language: AppLanguage;
 	theme: AppTheme;
-	assistant_configuration: AssistantConfiguration;
 	models: StoredProvider[];
 	databases: StoredProvider[];
 	storages: StoredStorage[];
