@@ -1357,12 +1357,22 @@
 		},
 		"vectorDb": {
 			"description": "Vector database used by RAG to store and search embeddings.",
-			"connectionTitle": "Pinecone",
+			"connectionTitle": "Connection",
+			"connectionDescription": "Provider and database used to store and search embeddings.",
+			"provider": "Provider",
+			"providerDescription": "Service hosting the vector database.",
+			"database": "Database",
+			"databaseDescription": "Database offered by the selected provider.",
 			"apiKey": "API key",
 			"apiKeyDescription": "The key is used to create the index and upsert vectors.",
-			"apiKeyPlaceholder": "Paste your Pinecone API key...",
+			"apiKeyPlaceholder": "Paste your API key...",
+			"empty": "No database provider is available.",
 			"save": "Save",
-			"saved": "API key saved."
+			"saved": "Database configuration saved.",
+			"errors": {
+				"load": "Unable to load the database configuration.",
+				"save": "Unable to save the database configuration."
+			}
 		}
 	},
 	"dialogs": {
