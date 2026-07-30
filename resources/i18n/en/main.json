@@ -152,7 +152,7 @@
 				"agent": "Agent",
 				"modelServices": "Models",
 				"mlModels": "Models",
-				"vectorDatabases": "Vector Databases",
+				"vectorDatabases": "Database",
 				"connectors": "Connectors",
 				"channels": "Channels",
 				"automation": "Automation",
