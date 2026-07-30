@@ -180,6 +180,11 @@ export interface StorageApi {
 	pull: (id: string) => Promise<StoragePullResult>;
 }
 
+export interface DatabaseApi {
+	getConfiguration: () => Promise<DatabaseConfiguration>;
+	saveConfiguration: (configuration: DatabaseConfiguration) => Promise<DatabaseConfiguration>;
+}
+
 export interface ExtensionsApi {
 	list: () => Promise<Extension[]>;
 	open: (extensionId: string) => Promise<void>;
