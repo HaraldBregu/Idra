@@ -5,7 +5,8 @@ import type { CronRuntime } from './cron_types';
 export function setRuntime(providerId: string, modelId: string): CronRuntime {
 	const runtime: CronRuntime = { providerId: providerId.trim(), modelId: modelId.trim() };
 	return writeState((state) => {
-		state.runtime = clone(runtime);
+		state.providerId = runtime.providerId;
+		state.modelId = runtime.modelId;
 		return clone(runtime);
 	});
 }

@@ -75,7 +75,8 @@ export interface CronRuntime {
 /** Shape persisted to the cron electron-store file. */
 export interface PersistedCronState {
 	enabled?: boolean;
-	runtime?: CronRuntime;
+	providerId?: string;
+	modelId?: string;
 	schedules: CronSchedule[];
 }
 
