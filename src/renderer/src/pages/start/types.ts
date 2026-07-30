@@ -56,4 +56,4 @@ export type ModelServiceState = {
 
 export type ModelServiceStateMap = Record<ModelServiceId, ModelServiceState>;
 
-export type SetupStep = 'presentation' | 'providers' | 'storage' | 'channels' | 'models';
+export type SetupStep = 'presentation' | 'providers' | 'models';
