@@ -935,6 +935,7 @@
 				"running": "Sincronizzazione…",
 				"save": "Salva pianificazione"
 			},
+			"cardTitle": "Object Storage",
 			"syncSaved": "Pianificazione della sincronizzazione salvata.",
 			"autoSync": {
 				"title": "Sincronizzazione automatica",
