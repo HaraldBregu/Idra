@@ -1,4 +1,3 @@
-import { existsSync } from 'node:fs';
 import path from 'node:path';
 import Store from 'electron-store';
 import cron from 'node-cron';
@@ -33,16 +32,6 @@ export type AppSettingsState = {
 	storages: StoredStorage[];
 };
 
-type LegacyAppSettingsState = AppSettingsState & {
-	storage_configuration?: StorageConfiguration;
-	database_configuration?: DatabaseConfiguration;
-	cron_configuration?: PersistedCronState;
-};
-
-type StorageSettingsState = Pick<Required<LegacyAppSettingsState>, 'storage_configuration'>;
-type DatabaseSettingsState = Pick<Required<LegacyAppSettingsState>, 'database_configuration'>;
-type CronSettingsState = Pick<Required<LegacyAppSettingsState>, 'cron_configuration'>;
-
 const APP_SETTINGS_STORE_NAME = 'settings';
 
 const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
@@ -71,7 +60,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 
 const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
 
-const store = new Store<LegacyAppSettingsState>({
+const store = new Store<AppSettingsState>({
 	name: APP_SETTINGS_STORE_NAME,
 	cwd: appSettingsDirectory,
 	accessPropertiesByDotNotation: false,
@@ -80,49 +69,25 @@ const store = new Store<LegacyAppSettingsState>({
 
 export const appSettingsStorePath = store.path;
 
-function migrateConfiguration<T>(name: string, legacyValue: T | undefined, defaultValue: T): T {
-	return existsSync(path.join(appSettingsDirectory, `${name}.json`))
-		? defaultValue
-		: (legacyValue ?? defaultValue);
-}
-
-const storageConfigurationStore = new Store<StorageSettingsState>({
+const storageConfigurationStore = new Store<StorageConfiguration>({
 	name: 'settings.storage',
 	cwd: appSettingsDirectory,
 	accessPropertiesByDotNotation: false,
-	defaults: {
-		storage_configuration: migrateConfiguration(
-			'settings.storage',
-			store.get('storage_configuration'),
-			DEFAULT_STORAGE_CONFIGURATION
-		),
-	},
+	defaults: DEFAULT_STORAGE_CONFIGURATION,
 });
 
-const databaseConfigurationStore = new Store<DatabaseSettingsState>({
+const databaseConfigurationStore = new Store<DatabaseConfiguration>({
 	name: 'settings.database',
 	cwd: appSettingsDirectory,
 	accessPropertiesByDotNotation: false,
-	defaults: {
-		database_configuration: migrateConfiguration(
-			'settings.database',
-			store.get('database_configuration'),
-			DEFAULT_DATABASE_CONFIGURATION
-		),
-	},
+	defaults: DEFAULT_DATABASE_CONFIGURATION,
 });
 
-const cronConfigurationStore = new Store<CronSettingsState>({
+const cronConfigurationStore = new Store<PersistedCronState>({
 	name: 'settings.cron',
 	cwd: appSettingsDirectory,
 	accessPropertiesByDotNotation: false,
-	defaults: {
-		cron_configuration: migrateConfiguration(
-			'settings.cron',
-			store.get('cron_configuration'),
-			{ schedules: [] }
-		),
-	},
+	defaults: { schedules: [] },
 });
 
 export const storageConfigurationStorePath = storageConfigurationStore.path;
@@ -283,7 +248,7 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 			? storages.map((storage, i) => (i === index ? saved : storage))
 			: [...storages, saved]
 	);
-	if (!storageConfigurationStore.get('storage_configuration').providerId) {
+	if (!getStorageConfiguration().providerId) {
 		saveStorageConfiguration({ ...getStorageConfiguration(), providerId: saved.id });
 	}
 	return toStorageConfig(saved);
@@ -292,7 +257,7 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 export function deleteStorageConfig(id: string): void {
 	const storages = store.get('storages').filter((storage) => storage.id !== id);
 	store.set('storages', storages);
-	const configuration = storageConfigurationStore.get('storage_configuration');
+	const configuration = getStorageConfiguration();
 	if (configuration.providerId === id) {
 		saveStorageConfiguration({ ...configuration, providerId: storages[0]?.id });
 	}
@@ -301,7 +266,7 @@ export function deleteStorageConfig(id: string): void {
 export function getStorageConfiguration(): StorageConfiguration {
 	const configuration = {
 		...DEFAULT_STORAGE_CONFIGURATION,
-		...storageConfigurationStore.get('storage_configuration'),
+		...storageConfigurationStore.store,
 	};
 	if (
 		configuration.providerId &&
@@ -332,14 +297,14 @@ export function saveStorageConfiguration(configuration: StorageConfiguration): S
 		syncEnabled: configuration.syncEnabled,
 		syncCronExpression: configuration.syncCronExpression.trim().replace(/\s+/g, ' '),
 	};
-	storageConfigurationStore.set('storage_configuration', saved);
+	storageConfigurationStore.store = saved;
 	return saved;
 }
 
 export function getDatabaseConfiguration(): DatabaseConfiguration {
 	const configuration = {
 		...DEFAULT_DATABASE_CONFIGURATION,
-		...databaseConfigurationStore.get('database_configuration'),
+		...databaseConfigurationStore.store,
 	};
 	if (configuration.databaseId && !findDatabase(configuration)) {
 		configuration.providerId = undefined;
@@ -358,7 +323,7 @@ export function saveDatabaseConfiguration(
 		providerId: configuration.providerId,
 		databaseId: configuration.databaseId,
 	};
-	databaseConfigurationStore.set('database_configuration', saved);
+	databaseConfigurationStore.store = saved;
 	return saved;
 }
 
@@ -369,11 +334,11 @@ function findDatabase(configuration: DatabaseConfiguration): CatalogService | un
 }
 
 export function getCronConfiguration(): PersistedCronState {
-	const configuration = cronConfigurationStore.get('cron_configuration');
+	const configuration = cronConfigurationStore.store;
 	// Fresh array so in-place mutations never touch the shared defaults object
 	return { ...configuration, schedules: [...(configuration.schedules ?? [])] };
 }
 
 export function setCronConfiguration(configuration: PersistedCronState): void {
-	cronConfigurationStore.set('cron_configuration', configuration);
+	cronConfigurationStore.store = configuration;
 }
