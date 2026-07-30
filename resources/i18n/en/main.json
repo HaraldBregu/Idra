@@ -935,6 +935,7 @@
 				"running": "Syncing…",
 				"save": "Save schedule"
 			},
+			"cardTitle": "Object Storage",
 			"syncSaved": "Folder sync schedule saved.",
 			"autoSync": {
 				"title": "Automatic sync",
