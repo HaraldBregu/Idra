@@ -11,8 +11,14 @@ try {
 		executablePath: 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron',
 		args: ['.'],
 	});
+	app.process().stdout?.on('data', (d) => console.log('[main]', String(d).trim()));
+	app.process().stderr?.on('data', (d) => console.log('[main:err]', String(d).trim()));
 	const page = await app.firstWindow();
+	page.on('console', (msg) => {
+		if (msg.type() === 'error') console.log('[renderer:err]', msg.text());
+	});
 	await page.waitForLoadState('domcontentloaded');
+	console.log('page url:', page.url());
 	await page.getByRole('button', { name: 'Get started' }).waitFor({ timeout: 30000 });
 
 	const result = await page.evaluate(async () => {
