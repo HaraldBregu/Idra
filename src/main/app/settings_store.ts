@@ -78,12 +78,13 @@ export function setTheme(theme: AppTheme): void {
 	store.set('theme', theme);
 }
 
-export function listProviders(type?: ProviderType): StoredProvider[] {
-	const raw = store.get('providers');
-	const providers = Array.isArray(raw)
-		? raw.filter(isStoredProvider).map(normalizeStoredProvider)
-		: [];
-	return type ? providers.filter((provider) => provider.type === type) : providers;
+function readProviders(kind: StoredProviderKind): StoredProvider[] {
+	const raw = store.get(kind);
+	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
+}
+
+export function listProviders(kind?: StoredProviderKind): StoredProvider[] {
+	return kind ? readProviders(kind) : [...readProviders('models'), ...readProviders('databases')];
 }
 
 export function getProvider(id: string): StoredProvider | undefined {
@@ -94,24 +95,29 @@ export function hasProvider(id: string): boolean {
 	return getProvider(id) !== undefined;
 }
 
-export function setProvider(provider: StoredProvider): StoredProvider {
-	const providers = listProviders();
+export function setProvider(
+	provider: StoredProvider,
+	kind: StoredProviderKind = 'models'
+): StoredProvider {
+	const providers = readProviders(kind);
 	const index = providers.findIndex((entry) => entry.id === provider.id);
 	if (index === -1) providers.push(provider);
 	else providers[index] = provider;
-	store.set('providers', providers);
+	store.set(kind, providers);
 	return provider;
 }
 
 export function deleteProvider(id: string): void {
-	const providers = listProviders();
-	const remaining = providers.filter((provider) => provider.id !== id);
-	if (remaining.length === providers.length) return;
-	store.set('providers', remaining);
+	for (const kind of ['models', 'databases'] as const) {
+		const providers = readProviders(kind);
+		const remaining = providers.filter((provider) => provider.id !== id);
+		if (remaining.length !== providers.length) store.set(kind, remaining);
+	}
 }
 
 export function clearProviders(): void {
-	store.set('providers', []);
+	store.set('models', []);
+	store.set('databases', []);
 }
 
 /** The selected provider resolved to the shape model adapters consume. */
