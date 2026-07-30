@@ -1,4 +1,5 @@
 {
 	"id": "pika",
-	"name": "Pika"
+	"name": "Pika",
+	"apiKeyUrl": "https://pika.art"
 }

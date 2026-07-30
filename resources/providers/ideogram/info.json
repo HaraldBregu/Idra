@@ -1,4 +1,5 @@
 {
 	"id": "ideogram",
-	"name": "Ideogram"
+	"name": "Ideogram",
+	"apiKeyUrl": "https://ideogram.ai/manage-api"
 }

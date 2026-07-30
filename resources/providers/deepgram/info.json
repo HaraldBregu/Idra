@@ -1,4 +1,5 @@
 {
 	"id": "deepgram",
-	"name": "Deepgram"
+	"name": "Deepgram",
+	"apiKeyUrl": "https://console.deepgram.com"
 }

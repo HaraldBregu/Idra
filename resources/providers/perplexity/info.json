@@ -1,4 +1,5 @@
 {
 	"id": "perplexity",
-	"name": "Perplexity"
+	"name": "Perplexity",
+	"apiKeyUrl": "https://www.perplexity.ai/settings/api"
 }

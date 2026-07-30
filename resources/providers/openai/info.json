@@ -1,4 +1,5 @@
 {
 	"id": "openai",
-	"name": "OpenAI"
+	"name": "OpenAI",
+	"apiKeyUrl": "https://platform.openai.com/api-keys"
 }

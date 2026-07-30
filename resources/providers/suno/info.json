@@ -1,4 +1,5 @@
 {
 	"id": "suno",
-	"name": "Suno"
+	"name": "Suno",
+	"apiKeyUrl": "https://suno.com/account"
 }

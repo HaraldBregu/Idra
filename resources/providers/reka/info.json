@@ -1,4 +1,5 @@
 {
 	"id": "reka",
-	"name": "Reka AI"
+	"name": "Reka AI",
+	"apiKeyUrl": "https://platform.reka.ai/apikeys"
 }

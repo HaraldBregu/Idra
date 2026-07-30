@@ -1,4 +1,5 @@
 {
 	"id": "elevenlabs",
-	"name": "ElevenLabs"
+	"name": "ElevenLabs",
+	"apiKeyUrl": "https://elevenlabs.io/app/settings/api-keys"
 }

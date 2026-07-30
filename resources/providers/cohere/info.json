@@ -1,4 +1,5 @@
 {
 	"id": "cohere",
-	"name": "Cohere"
+	"name": "Cohere",
+	"apiKeyUrl": "https://dashboard.cohere.com/api-keys"
 }

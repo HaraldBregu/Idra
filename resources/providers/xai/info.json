@@ -1,4 +1,5 @@
 {
 	"id": "xai",
-	"name": "xAI"
+	"name": "xAI",
+	"apiKeyUrl": "https://console.x.ai"
 }

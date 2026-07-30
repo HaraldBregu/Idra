@@ -1,4 +1,5 @@
 {
 	"id": "kling",
-	"name": "Kuaishou / Kling AI"
+	"name": "Kuaishou / Kling AI",
+	"apiKeyUrl": "https://app.klingai.com/global/dev"
 }

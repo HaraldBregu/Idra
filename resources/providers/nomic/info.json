@@ -1,4 +1,5 @@
 {
 	"id": "nomic",
-	"name": "Nomic"
+	"name": "Nomic",
+	"apiKeyUrl": "https://atlas.nomic.ai"
 }

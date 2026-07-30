@@ -30,7 +30,16 @@ export async function preparePluginSource(spec: string): Promise<PreparedPluginS
 		const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 		const result = await run(
 			npm,
-			['pack', spec, '--json', '--ignore-scripts', '--pack-destination', temporaryDirectory],
+			[
+				'pack',
+				spec,
+				'--json',
+				'--ignore-scripts',
+				'--cache',
+				path.join(temporaryDirectory, '.npm-cache'),
+				'--pack-destination',
+				temporaryDirectory,
+			],
 			temporaryDirectory
 		);
 		const output = JSON.parse(result.stdout) as PackResult[];

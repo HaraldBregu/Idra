@@ -1,4 +1,5 @@
 {
 	"id": "midjourney",
-	"name": "Midjourney"
+	"name": "Midjourney",
+	"apiKeyUrl": "https://www.midjourney.com/account"
 }

@@ -1,4 +1,5 @@
 {
 	"id": "deepseek",
-	"name": "DeepSeek"
+	"name": "DeepSeek",
+	"apiKeyUrl": "https://platform.deepseek.com/api_keys"
 }

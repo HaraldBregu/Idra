@@ -1,4 +1,5 @@
 {
 	"id": "jina",
-	"name": "Jina AI"
+	"name": "Jina AI",
+	"apiKeyUrl": "https://jina.ai/api-dashboard"
 }

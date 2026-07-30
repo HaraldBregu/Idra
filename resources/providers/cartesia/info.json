@@ -1,4 +1,5 @@
 {
 	"id": "cartesia",
-	"name": "Cartesia"
+	"name": "Cartesia",
+	"apiKeyUrl": "https://play.cartesia.ai/keys"
 }

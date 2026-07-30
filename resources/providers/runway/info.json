@@ -1,4 +1,5 @@
 {
 	"id": "runway",
-	"name": "Runway"
+	"name": "Runway",
+	"apiKeyUrl": "https://dev.runwayml.com"
 }
