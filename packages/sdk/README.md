@@ -6,7 +6,7 @@ The same API in two shapes:
 
 - **`connect()`** — for other apps. Friday serves its API over loopback HTTP, so any
   Node, browser, or Electron app can drive it.
-- **named exports** — for code embedded in Friday (a extension window, or any renderer
+- **named exports** — for code embedded in Friday (an extension window, or any renderer
   bundle), bound to the preload globals (`window.agent`, `window.image`, …).
 
 The types are generated from the app's own contract (`src/shared/api_types.ts`), so the

@@ -36,7 +36,7 @@ The same code runs in either place, decided at startup by `isFriday()`:
 
 | Where it runs           | How it reaches Friday                        |
 | ----------------------- | -------------------------------------------- |
-| Installed as a extension   | the preload globals, via the named exports   |
+| Installed as an extension  | the preload globals, via the named exports   |
 | Any browser or Node app | `connect({ token, url })` over the local API |
 
 Outside the app the extension asks for the token from
@@ -49,7 +49,7 @@ The SDK builds from the app sources, so build it first:
 ```sh
 npm --prefix ../../sdk run build
 npm install
-npm run dev      # or: npm run build, then install dist/ as a extension
+npm run dev      # or: npm run build, then install dist/ as an extension
 ```
 
 `manifest.json` points at `dist/index.html`, so a built copy of this folder drops

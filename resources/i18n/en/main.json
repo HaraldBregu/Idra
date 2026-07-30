@@ -186,7 +186,7 @@
 				"rag": "Document index and vector search",
 				"wiki": "Persistent LLM-maintained Markdown knowledge",
 				"vectorDb": "Pinecone vector database",
-				"plugins": "App extensions",
+				"plugins": "Installable app plugins",
 				"configurationDescription": "Configure models, storage, and integrations"
 			}
 		},
@@ -1156,7 +1156,7 @@
 			"description": "External extension apps that open in their own window and can call the app API.",
 			"refresh": "Refresh",
 			"empty": "No extensions installed",
-			"emptyDescription": "Add a extension folder that contains a manifest.json and entry file.",
+			"emptyDescription": "Add an extension folder that contains a manifest.json and entry file.",
 			"loadError": "Unable to load extensions.",
 			"open": "Open",
 			"openError": "Unable to open the extension.",
