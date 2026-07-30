@@ -1,14 +1,17 @@
-import type { StorageConfig } from '../../../shared/storage_types';
+import type { StorageConfig, StorageConfiguration } from '../../../shared/storage_types';
 import { pushFiles } from './storage_push';
 import type { StorageSyncLogger } from './storage_sync_types';
 
-export function isAutoSyncable(storage: StorageConfig): boolean {
+export function isAutoSyncable(
+	storage: StorageConfig,
+	configuration: StorageConfiguration
+): boolean {
 	return Boolean(
 		storage.bucket &&
 		storage.accessKeyId &&
 		storage.secretAccessKey &&
-		storage.paths.length > 0 &&
-		storage.syncEnabled
+		configuration.paths.length > 0 &&
+		configuration.syncEnabled
 	);
 }
 
