@@ -348,6 +348,13 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 		);
 	};
 
+	const modelCatalog = actionableProviderCatalog();
+	const featuredIds = new Set<string>(FEATURED_PROVIDER_IDS);
+	const featuredProviders = FEATURED_PROVIDER_IDS.flatMap((id) =>
+		modelCatalog.filter((provider) => provider.id === id)
+	);
+	const otherProviders = modelCatalog.filter((provider) => !featuredIds.has(provider.id));
+
 	return (
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
 			{error && (
