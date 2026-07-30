@@ -26,8 +26,8 @@ export const provider: ProviderApi = {
 	get: (id: string): Promise<Provider | undefined> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.get, id);
 	},
-	set: (provider: Provider): Promise<Provider> => {
-		return typedInvokeUnwrap(ProviderStoreChannels.set, provider);
+	set: (provider: Provider, kind?: StoredProviderKind): Promise<Provider> => {
+		return typedInvokeUnwrap(ProviderStoreChannels.set, provider, kind);
 	},
 	list: (): Promise<Provider[]> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.list);
