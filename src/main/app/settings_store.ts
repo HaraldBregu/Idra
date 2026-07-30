@@ -49,17 +49,11 @@ const DEFAULT_DATABASE_CONFIGURATION: DatabaseConfiguration = {
 	databaseId: undefined,
 };
 
-const DEFAULT_ASSISTANT_CONFIGURATION: AssistantConfiguration = {
-	providerId: undefined,
-	modelId: undefined,
-};
-
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	trayEnabled: true,
 	keepAwake: false,
 	language: 'en',
 	theme: 'system',
-	assistant_configuration: DEFAULT_ASSISTANT_CONFIGURATION,
 	models: [],
 	databases: [],
 	storages: [],
