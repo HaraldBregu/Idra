@@ -451,6 +451,10 @@ export interface StorageInvokeChannelMap {
 		args: [];
 		result: import('./storage_types').StorageSyncFolder[];
 	};
+	[StorageChannels.pickFolders]: {
+		args: [];
+		result: string[];
+	};
 	[StorageChannels.push]: {
 		args: [id: string];
 		result: import('./storage_types').StoragePushResult;

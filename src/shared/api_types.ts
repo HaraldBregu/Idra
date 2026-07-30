@@ -171,6 +171,7 @@ export interface StorageApi {
 	deleteObject: (id: string, key: string) => Promise<void>;
 	sync: (id: string, localDir: string, prefix?: string) => Promise<StorageSyncResult>;
 	syncFolders: () => Promise<StorageSyncFolder[]>;
+	pickFolders: () => Promise<string[]>;
 	push: (id: string) => Promise<StoragePushResult>;
 	pull: (id: string) => Promise<StoragePullResult>;
 }

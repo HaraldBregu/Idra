@@ -8,6 +8,7 @@ import {
 	getObject,
 	getStorages,
 	listObjects,
+	pickFolders,
 	pullFiles,
 	putObject,
 	pushFiles,
@@ -43,6 +44,7 @@ export class StorageIpc implements IpcModule {
 			syncDirectory(id, localDir, prefix)
 		);
 		registerQuery(StorageChannels.syncFolders, () => syncFolders());
+		registerCommand(StorageChannels.pickFolders, () => pickFolders());
 		registerCommand(StorageChannels.push, (id) => pushFiles(id));
 		registerCommand(StorageChannels.pull, (id) => pullFiles(id));
 	}
