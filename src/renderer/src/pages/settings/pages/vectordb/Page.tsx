@@ -93,47 +93,37 @@ const VectorDbPage: React.FC = () => {
 			) : entries.length === 0 ? (
 				<SettingsNotice>{t('settings.vectorDb.empty')}</SettingsNotice>
 			) : (
-				<>
-					{providers.map((entry) => (
-						<ProviderCard
-							key={entry.provider.id}
-							provider={entry.provider}
-							baseUrl={entry.url ?? ''}
+				<Card size="sm">
+					<CardHeader className="border-b">
+						<CardTitle>{t('settings.vectorDb.defaultTitle')}</CardTitle>
+					</CardHeader>
+
+					<CardContent className="p-0!">
+						<SettingsRow
+							title={t('settings.vectorDb.database')}
+							description={t('settings.vectorDb.databaseDescription')}
+							actions={
+								<Select
+									value={selected ? databaseKey(selected) : null}
+									onValueChange={(value) => void selectDatabase(value)}
+								>
+									<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+										<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
+											{selected && databaseLabel(selected)}
+										</SelectValue>
+									</SelectTrigger>
+									<SelectContent>
+										{entries.map((entry) => (
+											<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
+												{databaseLabel(entry)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							}
 						/>
-					))}
-
-					<Card size="sm">
-						<CardHeader className="border-b">
-							<CardTitle>{t('settings.vectorDb.defaultTitle')}</CardTitle>
-						</CardHeader>
-
-						<CardContent className="p-0!">
-							<SettingsRow
-								title={t('settings.vectorDb.database')}
-								description={t('settings.vectorDb.databaseDescription')}
-								actions={
-									<Select
-										value={selected ? databaseKey(selected) : null}
-										onValueChange={(value) => void selectDatabase(value)}
-									>
-										<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-											<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
-												{selected && databaseLabel(selected)}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											{entries.map((entry) => (
-												<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
-													{databaseLabel(entry)}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								}
-							/>
-						</CardContent>
-					</Card>
-				</>
+					</CardContent>
+				</Card>
 			)}
 		</SettingsPageShell>
 	);
