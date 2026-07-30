@@ -14,6 +14,9 @@ export const app: AppApi = {
 	storages: () => {
 		return typedInvokeUnwrap(AppChannels.storages);
 	},
+	webSearches: () => {
+		return typedInvokeUnwrap(AppChannels.webSearches);
+	},
 	onModelsChanged: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.modelsChanged, callback);
 	},
