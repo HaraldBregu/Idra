@@ -474,6 +474,17 @@ export interface StorageInvokeChannelMap {
 	};
 }
 
+export interface DatabaseInvokeChannelMap {
+	[DatabaseChannels.getConfiguration]: {
+		args: [];
+		result: import('./database_types').DatabaseConfiguration;
+	};
+	[DatabaseChannels.saveConfiguration]: {
+		args: [configuration: import('./database_types').DatabaseConfiguration];
+		result: import('./database_types').DatabaseConfiguration;
+	};
+}
+
 export interface EmbeddingInvokeChannelMap {
 	[EmbeddingChannels.createEmbedding]: {
 		args: [request: EmbeddingRequest];
