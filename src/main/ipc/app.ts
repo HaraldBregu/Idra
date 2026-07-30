@@ -260,6 +260,13 @@ export class AppIpc implements IpcModule {
 			}, AppChannels.storages)
 		);
 
+		ipcMain.handle(
+			AppChannels.webSearches,
+			wrapSimpleHandler(() => {
+				return [...loadWebSearches()];
+			}, AppChannels.webSearches)
+		);
+
 		// Re-read the catalog and tell renderers when resources/providers changes on disk
 		watchModels(() => eventBus.broadcast(AppChannels.modelsChanged));
 
