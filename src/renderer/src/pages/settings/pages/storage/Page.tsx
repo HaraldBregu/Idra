@@ -335,7 +335,6 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 									{customPaths.map((path) => (
 										<SettingsRow
 											key={path}
-											icon={FolderSync}
 											title={t('settings.storage.sync.folder')}
 											description={path}
 											actions={
