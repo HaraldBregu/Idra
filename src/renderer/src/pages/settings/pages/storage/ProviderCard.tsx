@@ -134,12 +134,7 @@ export function ProviderCard({
 		setSaving(true);
 		setError(null);
 		try {
-			const saved = await window.storage.saveStorageConfig({
-				...target,
-				paths: storage.paths,
-				syncEnabled: storage.syncEnabled,
-				syncCronExpression: storage.syncCronExpression,
-			});
+			const saved = await window.storage.saveStorageConfig(target);
 			setCanonical(saved);
 			setDraft(saved);
 			setEditing(false);
