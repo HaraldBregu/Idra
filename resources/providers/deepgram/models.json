@@ -6,6 +6,7 @@
 			"batch",
 			"stream"
 		],
+		"type": "speech-to-text",
 		"url": "https://api.deepgram.com/v1",
 		"sampleRate": 24000
 	},
@@ -16,12 +17,14 @@
 			"stream"
 		],
 		"realtime": true,
+		"type": "speech-to-text",
 		"url": "https://api.deepgram.com/v1",
 		"sampleRate": 24000
 	},
 	{
 		"id": "aura-2",
 		"name": "Aura 2",
+		"type": "text-to-speech",
 		"url": "https://api.deepgram.com/v1"
 	}
 ]

@@ -2,56 +2,67 @@
 	{
 		"id": "gemini-3.1-pro-preview",
 		"name": "Gemini 3.1 Pro Preview",
+		"type": "llm",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "gemini-3.1-flash-lite",
 		"name": "Gemini 3.1 Flash Lite",
+		"type": "llm",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "gemini-3.1-flash-tts-preview",
 		"name": "Gemini 3.1 Flash TTS Preview",
+		"type": "text-to-speech",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "gemini-3.1-flash-live-preview",
 		"name": "Gemini 3.1 Flash Live Preview",
+		"type": "realtime-voice",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "gemini-3.1-flash-image-preview",
 		"name": "Gemini 3.1 Flash Image Preview",
+		"type": "text-to-image",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "gemini-3-pro-image-preview",
 		"name": "Gemini 3 Pro Image Preview",
+		"type": "text-to-image",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "veo-3.1",
 		"name": "Veo 3.1",
+		"type": "text-to-video",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "veo-3.1-fast",
 		"name": "Veo 3.1 Fast",
+		"type": "text-to-video",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "lyria-3-pro-preview",
 		"name": "Lyria 3 Pro Preview",
+		"type": "text-to-audio",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "lyria-3-clip-preview",
 		"name": "Lyria 3 Clip Preview",
+		"type": "text-to-audio",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	},
 	{
 		"id": "lyria-realtime",
 		"name": "Lyria Realtime",
+		"type": "text-to-audio",
 		"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 	}
 ]

@@ -2,6 +2,7 @@
 	{
 		"id": "voyage-3-large",
 		"name": "Voyage 3 Large",
+		"type": "embedding",
 		"url": "https://api.voyageai.com/v1"
 	}
 ]

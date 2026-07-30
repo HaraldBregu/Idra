@@ -2,6 +2,7 @@
 	{
 		"id": "embed-v4.0",
 		"name": "Embed v4",
+		"type": "embedding",
 		"url": "https://api.cohere.com/v2"
 	}
 ]

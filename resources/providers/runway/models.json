@@ -2,11 +2,13 @@
 	{
 		"id": "gen4_turbo",
 		"name": "Gen-4 Turbo",
+		"type": "text-to-video",
 		"url": "https://api.dev.runwayml.com/v1"
 	},
 	{
 		"id": "gen3a_turbo",
 		"name": "Gen-3 Alpha Turbo",
+		"type": "text-to-video",
 		"url": "https://api.dev.runwayml.com/v1"
 	}
 ]

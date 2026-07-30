@@ -2,6 +2,7 @@
 	{
 		"id": "jina-embeddings-v3",
 		"name": "Jina Embeddings v3",
+		"type": "embedding",
 		"url": "https://api.jina.ai/v1"
 	}
 ]
