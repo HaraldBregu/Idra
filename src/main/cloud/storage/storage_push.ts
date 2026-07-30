@@ -5,13 +5,12 @@ import { deleteObject } from './storage_delete';
 import { describeStorageError } from './storage_error';
 import { listObjects } from './storage_list';
 import { putObject } from './storage_put';
-import { getStorage } from './storage_store';
+import { getStorageConfiguration } from './storage_store';
 import { walkFiles } from './storage_walk';
 
 // ponytail: full replace mirror — uploads everything, deletes remote extras; diff-only if bandwidth matters
 export async function pushFiles(id: string): Promise<StoragePushResult> {
-	const config = getStorage(id);
-	const paths = config?.paths ?? [];
+	const paths = getStorageConfiguration().paths;
 	const uploaded: string[] = [];
 	const failed: StoragePushResult['failed'] = [];
 
