@@ -8,6 +8,7 @@ import type {
 import type { StorageConfig } from '../../shared/storage_types';
 import { userDataLocation } from '../shared/user_data_location';
 import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../cloud/storage/storage_sync_types';
+import { loadStorages } from './models';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
 /** ponytail: runtime/sync fields are not persisted; reads rebuild them with defaults. */
