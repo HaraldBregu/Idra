@@ -870,6 +870,8 @@
 			"apiKeysTitle": "Chiavi API dei modelli",
 			"apiKeysDescription": "Gestisci le chiavi API usate da Friday per i modelli AI e i provider.",
 			"mlModelsDescription": "Configura il tuo modello AI principale e il provider.",
+			"showOtherProviders": "Mostra altri modelli",
+			"hideOtherProviders": "Nascondi altri modelli",
 			"vectorDatabasesDescription": "Configura il database vettoriale per embedding e recupero.",
 			"modelsDescription": "Scegli un servizio modello per configurarne provider e modello.",
 			"registeredProviders": "Provider Registrati",
