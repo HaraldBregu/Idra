@@ -1,55 +1,47 @@
 import cron, { type ScheduledTask } from 'node-cron';
-import type { StorageConfig } from '../../../shared/storage_types';
 import { isAutoSyncable, runProviderSync } from './storage_auto_sync';
-import { getStorages } from './storage_store';
+import { getStorage, getStorageConfiguration } from './storage_store';
 import type { StorageSyncLogger } from './storage_sync_types';
 
-const tasks = new Map<string, ScheduledTask>();
+let task: ScheduledTask | undefined;
 let syncLogger: StorageSyncLogger | undefined;
 
 export function startStorageSync(logger: StorageSyncLogger): void {
 	syncLogger = logger;
-	scheduleAll();
+	schedule();
 }
 
 export function stopStorageSync(): void {
-	for (const task of tasks.values()) task.destroy();
-	tasks.clear();
+	task?.destroy();
+	task = undefined;
 	syncLogger = undefined;
 }
 
 export function rescheduleStorageSync(): void {
-	if (syncLogger) scheduleAll();
+	if (syncLogger) schedule();
 }
 
-function scheduleAll(): void {
-	for (const task of tasks.values()) task.destroy();
-	tasks.clear();
+function schedule(): void {
+	task?.destroy();
+	task = undefined;
 	const logger = syncLogger;
 	if (!logger) return;
-	for (const storage of getStorages()) {
-		scheduleStorage(storage, logger);
-	}
-}
-
-function scheduleStorage(storage: StorageConfig, logger: StorageSyncLogger): void {
-	if (!isAutoSyncable(storage)) return;
-	if (!cron.validate(storage.syncCronExpression)) {
+	const configuration = getStorageConfiguration();
+	const storage = configuration.providerId ? getStorage(configuration.providerId) : undefined;
+	if (!storage || !isAutoSyncable(storage, configuration)) return;
+	if (!cron.validate(configuration.syncCronExpression)) {
 		logger.error('Storage', `Invalid sync schedule for "${storage.name}"`);
 		return;
 	}
 	logger.info(
 		'Storage',
-		`Auto sync "${storage.name}" scheduled with ${storage.syncCronExpression}`
+		`Auto sync "${storage.name}" scheduled with ${configuration.syncCronExpression}`
 	);
-	tasks.set(
-		storage.id,
-		cron.schedule(
-			storage.syncCronExpression,
-			async () => {
-				await runProviderSync(storage, logger);
-			},
-			{ noOverlap: true }
-		)
+	task = cron.schedule(
+		configuration.syncCronExpression,
+		async () => {
+			await runProviderSync(storage, logger);
+		},
+		{ noOverlap: true }
 	);
 }
