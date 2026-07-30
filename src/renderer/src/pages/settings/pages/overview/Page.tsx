@@ -20,7 +20,7 @@ import {
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
-		paths: ['/settings/application', '/settings/search', '/settings/system', '/settings/providers'],
+		paths: ['/settings/application', '/settings/system', '/settings/providers'],
 	},
 	{
 		id: 'primary',
@@ -36,7 +36,13 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'services',
 		titleKey: 'settings.overview.groups.services',
-		paths: ['/settings/storage', '/settings/vectordb', '/settings/tasks'],
+		paths: [
+			'/settings/storage',
+			'/settings/database',
+			'/settings/search',
+			'/settings/vectordb',
+			'/settings/tasks',
+		],
 	},
 	{
 		id: 'integrations',
