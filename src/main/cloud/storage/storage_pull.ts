@@ -4,13 +4,12 @@ import type { StoragePullResult } from '../../../shared/storage_types';
 import { describeStorageError } from './storage_error';
 import { getObject } from './storage_get';
 import { listObjects } from './storage_list';
-import { getStorage } from './storage_store';
+import { getStorageConfiguration } from './storage_store';
 import { walkFiles } from './storage_walk';
 
 // ponytail: full replace mirror — downloads everything, deletes local extras; diff-only if bandwidth matters
 export async function pullFiles(id: string): Promise<StoragePullResult> {
-	const config = getStorage(id);
-	const paths = config?.paths ?? [];
+	const paths = getStorageConfiguration().paths;
 	const downloaded: string[] = [];
 	const failed: StoragePullResult['failed'] = [];
 
