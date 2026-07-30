@@ -229,13 +229,13 @@ npx --no-install electron .
 
 Build installers on the native target operating system:
 
-| Operating system | Command                                              | Output                      |
-| ---------------- | ---------------------------------------------------- | --------------------------- |
-| Windows          | `npm run dist:win`                                   | x64 NSIS `.exe`             |
-| macOS            | `npm run dist:mac`                                   | x64/arm64 `.dmg` and `.pkg` |
-| macOS            | `npm run dist:mac:dmg`                               | x64/arm64 `.dmg` only       |
-| Linux            | `npm run dist:linux:appimage`                        | x64 `.AppImage`             |
-| Linux            | `npm run build && npx electron-builder --linux`      | `.AppImage` and `.deb`      |
+| Operating system | Command                                         | Output                      |
+| ---------------- | ----------------------------------------------- | --------------------------- |
+| Windows          | `npm run dist:win`                              | x64 NSIS `.exe`             |
+| macOS            | `npm run dist:mac`                              | x64/arm64 `.dmg` and `.pkg` |
+| macOS            | `npm run dist:mac:dmg`                          | x64/arm64 `.dmg` only       |
+| Linux            | `npm run dist:linux:appimage`                   | x64 `.AppImage`             |
+| Linux            | `npm run build && npx electron-builder --linux` | `.AppImage` and `.deb`      |
 
 Artifacts are written to the root `dist/` directory. Local packaging never uploads because
 `electron-builder.json` sets `publish` to `null`.
