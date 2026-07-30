@@ -41,13 +41,15 @@ const VectorDbPage: React.FC = () => {
 		setSaved(false);
 		setError(null);
 		try {
-			await window.provider.set({
-				id: 'pinecone',
-				name: 'Pinecone',
-				type: 'vector_db',
-				apiKey: apiKey.trim(),
-				baseUrl: PINECONE_BASE_URL,
-			});
+			await window.provider.set(
+				{
+					id: 'pinecone',
+					name: 'Pinecone',
+					apiKey: apiKey.trim(),
+					baseUrl: PINECONE_BASE_URL,
+				},
+				'databases'
+			);
 			setSaved(true);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
