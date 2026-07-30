@@ -159,6 +159,15 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 			}
 		);
 
+		void window.search.getSettings().then(
+			(settings) => {
+				if (!cancelled) setSearchSettings(settings);
+			},
+			(err) => {
+				if (!cancelled) setError(getErrorMessage(err, 'Could not load search providers.'));
+			}
+		);
+
 		return () => {
 			cancelled = true;
 		};
@@ -229,12 +238,32 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 		}
 	};
 
+	const saveSearchEntry = async (providerId: string): Promise<void> => {
+		const entry = providerEntries.find((item) => item.providerId === providerId);
+		const apiKey = entry?.apiKey.trim() ?? '';
+		if (!entry || !apiKey) return;
+
+		setSavingProviderId(providerId);
+		setError(null);
+		try {
+			setSearchSettings(await window.search.saveEngine(providerId as SearchEngineId, { apiKey }));
+			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
+		} catch (err) {
+			setError(getErrorMessage(err, 'Could not save search provider API key.'));
+		} finally {
+			setSavingProviderId(null);
+		}
+	};
+
 	const renderProviderCard = (
 		provider: ProviderCatalogItem,
-		kind: StoredProviderKind
+		kind: ProviderKind
 	): React.ReactElement => {
 		const entry = providerEntries.find((item) => item.providerId === provider.id);
-		const connected = entry?.apiKeySaved ?? false;
+		const connected =
+			kind === 'search'
+				? (searchSettings?.configured[provider.id as SearchEngineId] ?? false)
+				: (entry?.apiKeySaved ?? false);
 		const editing = entry?.editing ?? false;
 		const savingThisProvider = savingProviderId === provider.id;
 		const canSaveProvider = !!entry && !savingThisProvider && entry.apiKey.trim().length > 0;
