@@ -55,9 +55,6 @@ function blankStorage(provider: PublicProvider): StorageConfig {
 		secretAccessKey: '',
 		bucket: '',
 		forcePathStyle: false,
-		paths: [],
-		syncEnabled: false,
-		syncCronExpression: DEFAULT_SYNC_CRON_EXPRESSION,
 	};
 }
 
