@@ -72,7 +72,11 @@ function mergedStorageEntries(saved: StorageEntry[]): StorageEntry[] {
 	return [...fromCatalog, ...extras];
 }
 
-const ProvidersPage: React.FC = () => {
+interface ProvidersPageProps {
+	readonly embedded?: boolean;
+}
+
+const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 	const { t } = useTranslation();
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		allCatalogItems().map((provider, index) => ({
