@@ -12,6 +12,7 @@ import { skills } from './skills';
 import { storage } from './storage';
 import { database } from './database';
 import { extensions } from './extensions';
+import { plugins } from './plugins';
 import { wiki } from './wiki';
 import { win } from './win';
 
