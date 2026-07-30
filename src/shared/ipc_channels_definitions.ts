@@ -163,8 +163,8 @@ export const ProviderStoreChannels = ProviderChannels;
 
 export const StorageChannels = {
 	getStorages: 'storage:get-all',
-	getSelectedStorageId: 'storage:selected:get',
-	setSelectedStorageId: 'storage:selected:set',
+	getStorageConfiguration: 'storage:configuration:get',
+	saveStorageConfiguration: 'storage:configuration:save',
 	saveStorageConfig: 'storage:save',
 	deleteStorageConfig: 'storage:delete',
 	testConnection: 'storage:test-connection',
