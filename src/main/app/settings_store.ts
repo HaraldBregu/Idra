@@ -298,30 +298,6 @@ function findDatabase(configuration: DatabaseConfiguration): CatalogService | un
 	);
 }
 
-function getAssistantConfiguration(): AssistantConfiguration {
-	return { ...DEFAULT_ASSISTANT_CONFIGURATION, ...store.get('assistant_configuration') };
-}
-
-function saveAssistantConfiguration(patch: Partial<AssistantConfiguration>): void {
-	store.set('assistant_configuration', { ...getAssistantConfiguration(), ...patch });
-}
-
-export function getProviderId(): string | undefined {
-	return getAssistantConfiguration().providerId;
-}
-
-export function setProviderId(providerId: string): void {
-	saveAssistantConfiguration({ providerId });
-}
-
-export function getModelId(): string | undefined {
-	return getAssistantConfiguration().modelId;
-}
-
-export function setModelId(modelId: string): void {
-	saveAssistantConfiguration({ modelId });
-}
-
 export function getCronConfiguration(): PersistedCronState {
 	const configuration = store.get('cron_configuration');
 	// Fresh array so in-place mutations never touch the shared defaults object
