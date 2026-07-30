@@ -30,6 +30,7 @@ declare global {
 		channels: ChannelsApi;
 		models: ModelsApi;
 		storage: StorageApi;
+		database: DatabaseApi;
 		provider: ProviderApi;
 		search: SearchApi;
 		extensions: ExtensionsApi;
