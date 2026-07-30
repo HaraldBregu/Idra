@@ -16,6 +16,8 @@ export interface Provider {
 	readonly baseUrl: string;
 	readonly apiKey: string;
 	readonly capabilities?: string;
+	/** Provider dashboard page where API keys are created. */
+	readonly apiKeyUrl?: string;
 	readonly apiConfiguration?: ProviderApiConfiguration;
 }
 
