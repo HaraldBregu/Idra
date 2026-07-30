@@ -33,7 +33,7 @@ export interface CatalogEntryModel extends ProviderModel {
 	readonly sampleRate?: number;
 }
 
-/** Provider identity, as stored in resources/providers/<id>/provider.json. */
+/** Provider identity, as stored in resources/providers/<id>/info.json. */
 export interface ProviderCatalogEntry {
 	readonly id: string;
 	readonly name: string;
