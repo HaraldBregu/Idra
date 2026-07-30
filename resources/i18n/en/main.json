@@ -260,6 +260,7 @@
 		"application": {
 			"information": "Information",
 			"actions": "Actions",
+			"search": "Search",
 			"name": "Name",
 			"nameDescription": "Installed application name",
 			"version": "Version",

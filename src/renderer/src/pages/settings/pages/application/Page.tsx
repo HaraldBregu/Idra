@@ -5,6 +5,7 @@ import {
 	FolderOpen,
 	Languages,
 	PanelTop,
+	Search,
 	SunMoon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,11 +20,13 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage, type AppTheme } from '@/contexts';
+import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
+import { SEARCH_ENGINES } from '../search/catalog';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -51,10 +54,12 @@ const ApplicationPage: React.FC = () => {
 	const { language, setLanguage, theme, setTheme } = useApp();
 	const [trayEnabled, setTrayEnabled] = useState(true);
 	const [keepAwake, setKeepAwake] = useState(false);
+	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
 
 	useEffect(() => {
 		void window.app.getTrayEnabled().then(setTrayEnabled);
 		void window.app.getKeepAwake().then(setKeepAwake);
+		void window.search.getSettings().then(setSearchSettings);
 	}, []);
 
 	const handleTrayToggle = useCallback((checked: boolean) => {
@@ -82,6 +87,18 @@ const ApplicationPage: React.FC = () => {
 		const option = THEME_OPTIONS.find((o) => o.value === next);
 		if (option) setTheme(option.value);
 	};
+
+	const handleSearchProviderChange = (next: string | null): void => {
+		if (next === null) return;
+		void window.search
+			.selectEngine(next as SearchEngineId)
+			.then(setSearchSettings)
+			.catch(() => {});
+	};
+
+	const selectedSearchProvider = SEARCH_ENGINES.find(
+		(engine) => engine.id === searchSettings?.engineId
+	);
 
 	return (
 		<SettingsPageShell>
@@ -200,6 +217,48 @@ const ApplicationPage: React.FC = () => {
 									{THEME_OPTIONS.map((option) => (
 										<SelectItem key={option.value} value={option.value}>
 											{t(option.labelKey)}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</ItemActions>
+					</Item>
+				</Card>
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.application.search')}>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<Search className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.searchEngine.defaultTitle')}</ItemTitle>
+							<p className="text-xs text-muted-foreground">
+								{t('settings.searchEngine.defaultDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Select
+								value={searchSettings?.engineId}
+								onValueChange={handleSearchProviderChange}
+								disabled={searchSettings === null}
+							>
+								<SelectTrigger
+									size="sm"
+									className="w-32 text-xs [&_svg]:size-3"
+									aria-label={t('settings.searchEngine.defaultTitle')}
+								>
+									<SelectValue>{selectedSearchProvider?.name}</SelectValue>
+								</SelectTrigger>
+								<SelectContent>
+									{SEARCH_ENGINES.map((engine) => (
+										<SelectItem
+											key={engine.id}
+											value={engine.id}
+											disabled={!searchSettings?.configured[engine.id]}
+										>
+											{engine.name}
 										</SelectItem>
 									))}
 								</SelectContent>
