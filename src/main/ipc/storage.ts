@@ -15,7 +15,7 @@ import {
 	pushFiles,
 	rescheduleStorageSync,
 	saveStorageConfig,
-	setSelectedStorageId,
+	saveStorageConfiguration,
 	syncDirectory,
 	syncFolders,
 	testConnection,
