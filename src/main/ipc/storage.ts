@@ -6,6 +6,7 @@ import {
 	deleteObject,
 	deleteStorageConfig,
 	getObject,
+	getSelectedStorageId,
 	getStorages,
 	listObjects,
 	pickFolders,
@@ -14,6 +15,7 @@ import {
 	pushFiles,
 	rescheduleStorageSync,
 	saveStorageConfig,
+	setSelectedStorageId,
 	syncDirectory,
 	syncFolders,
 	testConnection,
@@ -24,6 +26,8 @@ export class StorageIpc implements IpcModule {
 
 	register(_deps: void, _eventBus: EventBus): void {
 		registerQuery(StorageChannels.getStorages, () => getStorages());
+		registerQuery(StorageChannels.getSelectedStorageId, () => getSelectedStorageId());
+		registerCommand(StorageChannels.setSelectedStorageId, (id) => setSelectedStorageId(id));
 		registerCommand(StorageChannels.saveStorageConfig, (config) => {
 			const saved = saveStorageConfig(config);
 			rescheduleStorageSync();

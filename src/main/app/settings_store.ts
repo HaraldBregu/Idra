@@ -1,5 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
+import cron from 'node-cron';
 import type {
 	ResolvedProvider,
 	StoredProvider,
@@ -7,16 +8,20 @@ import type {
 } from '../../shared/provider_types';
 import type { StorageConfig } from '../../shared/storage_types';
 import { userDataLocation } from '../shared/user_data_location';
-import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../cloud/storage/storage_sync_types';
+import { DEFAULT_SYNC_CRON_EXPRESSION } from '../cloud/storage/storage_sync_types';
 import { loadStorages } from './models';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
-type StoredStorage = Omit<StorageConfig, 'forcePathStyle' | 'paths' | 'syncIntervalMinutes'> & {
+type StoredStorage = Omit<
+	StorageConfig,
+	'forcePathStyle' | 'paths' | 'syncEnabled' | 'syncCronExpression'
+> & {
 	/** API base of the catalog storage entry this config belongs to. */
 	baseUrl: string;
 	forcePathStyle?: boolean;
 	paths?: string[];
-	syncIntervalMinutes?: number;
+	syncEnabled?: boolean;
+	syncCronExpression?: string;
 };
 
 export type AppSettingsState = {
@@ -26,6 +31,7 @@ export type AppSettingsState = {
 	theme: AppTheme;
 	providerId: string | undefined;
 	modelId: string | undefined;
+	selectedStorageId: string | undefined;
 	models: StoredProvider[];
 	databases: StoredProvider[];
 	storages: StoredStorage[];
@@ -40,6 +46,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	theme: 'system',
 	providerId: undefined,
 	modelId: undefined,
+	selectedStorageId: undefined,
 	models: [],
 	databases: [],
 	storages: [],
@@ -164,10 +171,11 @@ function toStorageConfig(stored: StoredStorage): StorageConfig {
 		paths: Array.isArray(stored.paths)
 			? stored.paths.filter((entry): entry is string => typeof entry === 'string')
 			: [],
-		syncIntervalMinutes:
-			typeof stored.syncIntervalMinutes === 'number' && stored.syncIntervalMinutes >= 0
-				? stored.syncIntervalMinutes
-				: DEFAULT_SYNC_INTERVAL_MINUTES,
+		syncEnabled: stored.syncEnabled === true,
+		syncCronExpression:
+			typeof stored.syncCronExpression === 'string' && stored.syncCronExpression.trim()
+				? stored.syncCronExpression
+				: DEFAULT_SYNC_CRON_EXPRESSION,
 	};
 }
 
@@ -182,7 +190,8 @@ function toStoredStorage(config: StorageConfig): StoredStorage {
 		bucket: config.bucket,
 		forcePathStyle: config.forcePathStyle,
 		paths: config.paths,
-		syncIntervalMinutes: config.syncIntervalMinutes,
+		syncEnabled: config.syncEnabled,
+		syncCronExpression: config.syncCronExpression.trim().replace(/\s+/g, ' '),
 		baseUrl: loadStorages().find((entry) => entry.provider.id === config.id)?.url ?? '',
 	};
 }
@@ -197,6 +206,9 @@ export function getStorage(id: string): StorageConfig | undefined {
 }
 
 export function saveStorageConfig(config: StorageConfig): StorageConfig {
+	if (config.syncEnabled && !cron.validate(config.syncCronExpression)) {
+		throw new Error('Storage sync schedule must be a valid cron expression.');
+	}
 	const saved = toStoredStorage({ ...config, id: config.id || crypto.randomUUID() });
 	const storages = store.get('storages');
 	const index = storages.findIndex((storage) => storage.id === saved.id);
@@ -204,14 +216,28 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 		'storages',
 		index >= 0 ? storages.map((storage, i) => (i === index ? saved : storage)) : [...storages, saved]
 	);
+	if (!store.get('selectedStorageId')) store.set('selectedStorageId', saved.id);
 	return toStorageConfig(saved);
 }
 
 export function deleteStorageConfig(id: string): void {
-	store.set(
-		'storages',
-		store.get('storages').filter((storage) => storage.id !== id)
-	);
+	const storages = store.get('storages').filter((storage) => storage.id !== id);
+	store.set('storages', storages);
+	if (store.get('selectedStorageId') === id) {
+		store.set('selectedStorageId', storages[0]?.id);
+	}
+}
+
+export function getSelectedStorageId(): string | undefined {
+	const id = store.get('selectedStorageId');
+	return id && store.get('storages').some((storage) => storage.id === id) ? id : undefined;
+}
+
+export function setSelectedStorageId(id: string): void {
+	if (!store.get('storages').some((storage) => storage.id === id)) {
+		throw new Error(`Storage not found: ${id}`);
+	}
+	store.set('selectedStorageId', id);
 }
 
 export function getProviderId(): string | undefined {

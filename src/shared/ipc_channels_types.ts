@@ -415,6 +415,14 @@ export interface StorageInvokeChannelMap {
 		args: [];
 		result: import('./storage_types').StorageConfig[];
 	};
+	[StorageChannels.getSelectedStorageId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[StorageChannels.setSelectedStorageId]: {
+		args: [id: string];
+		result: void;
+	};
 	[StorageChannels.saveStorageConfig]: {
 		args: [config: import('./storage_types').StorageConfig];
 		result: import('./storage_types').StorageConfig;

@@ -1,4 +1,11 @@
-export { getStorages, getStorage, saveStorageConfig, deleteStorageConfig } from './storage_store';
+export {
+	getStorages,
+	getStorage,
+	getSelectedStorageId,
+	saveStorageConfig,
+	setSelectedStorageId,
+	deleteStorageConfig,
+} from './storage_store';
 export { deleteObject } from './storage_delete';
 export { getObject } from './storage_get';
 export { listObjects } from './storage_list';
@@ -10,5 +17,5 @@ export { pushFiles } from './storage_push';
 export { syncDirectory } from './storage_sync';
 export { isAutoSyncable, runProviderSync } from './storage_auto_sync';
 export { startStorageSync, stopStorageSync, rescheduleStorageSync } from './storage_sync_schedule';
-export { DEFAULT_SYNC_INTERVAL_MINUTES, type StorageSyncLogger } from './storage_sync_types';
+export { DEFAULT_SYNC_CRON_EXPRESSION, type StorageSyncLogger } from './storage_sync_types';
 export { testConnection } from './storage_test';

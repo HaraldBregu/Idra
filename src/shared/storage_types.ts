@@ -8,8 +8,8 @@ export interface StorageConfig {
 	bucket: string;
 	forcePathStyle: boolean;
 	paths: string[];
-	/** Minutes between automatic syncs for this provider. 0 disables automatic sync. */
-	syncIntervalMinutes: number;
+	syncEnabled: boolean;
+	syncCronExpression: string;
 }
 
 export interface StorageSyncFolder {

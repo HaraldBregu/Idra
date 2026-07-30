@@ -8,7 +8,7 @@ export function isAutoSyncable(storage: StorageConfig): boolean {
 			storage.accessKeyId &&
 			storage.secretAccessKey &&
 			storage.paths.length > 0 &&
-			storage.syncIntervalMinutes > 0
+			storage.syncEnabled
 	);
 }
 

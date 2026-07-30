@@ -2,6 +2,8 @@
 export {
 	getStorages,
 	getStorage,
+	getSelectedStorageId,
 	saveStorageConfig,
+	setSelectedStorageId,
 	deleteStorageConfig,
 } from '../../app/settings_store';
