@@ -180,7 +180,7 @@ const VectorDbPage: React.FC = () => {
 									disabled={providerDatabases.length === 0}
 								>
 									<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-										<SelectValue />
+										<SelectValue>{selected?.name}</SelectValue>
 									</SelectTrigger>
 									<SelectContent>
 										{providerDatabases.map((entry) => (
