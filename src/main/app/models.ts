@@ -16,15 +16,35 @@ import type {
 	SpeechToTextApiType,
 } from '../../shared/model_types';
 
-let cache: readonly CatalogModel[] | undefined;
+interface Catalog {
+	readonly models: readonly CatalogModel[];
+	readonly databases: readonly CatalogService[];
+	readonly storages: readonly CatalogService[];
+}
+
+let cache: Catalog | undefined;
 let watching = false;
+
+function loadCatalog(): Catalog {
+	// ponytail: without a watcher there is no safe cache — read fresh every call
+	if (!watching) return readCatalog();
+	if (!cache) cache = readCatalog();
+	return cache;
+}
 
 /** Every model across resources/providers, each carrying the provider that serves it. */
 export function loadModels(): readonly CatalogModel[] {
-	// ponytail: without a watcher there is no safe cache — read fresh every call
-	if (!watching) return readModels();
-	if (!cache) cache = readModels();
-	return cache;
+	return loadCatalog().models;
+}
+
+/** Every database across resources/providers/<id>/databases.json. */
+export function loadDatabases(): readonly CatalogService[] {
+	return loadCatalog().databases;
+}
+
+/** Every storage across resources/providers/<id>/storages.json. */
+export function loadStorages(): readonly CatalogService[] {
+	return loadCatalog().storages;
 }
 
 /** Keep the catalog in sync with resources/providers; onChange fires after edits settle. */
