@@ -151,39 +151,38 @@ function normalizeStoredProvider(provider: StoredProvider): StoredProvider {
 	return { ...provider, type: provider.id === 'pinecone' ? 'vector_db' : 'ml_model' };
 }
 
-// Reads saved before the `filePaths` -> `paths` rename won't have `paths` yet,
-// reads saved before `syncIntervalMinutes` was introduced won't have it either,
-// and reads saved before the library folder moved out of agent/ point at the old path.
-function normalizeStorage(config: StorageConfig & { filePaths?: string[] }): StorageConfig {
-	const { filePaths, ...rest } = config;
-	const legacyLibrary = path.join(agentLocation(), 'library');
+function toStorageConfig(stored: StoredStorage): StorageConfig {
 	return {
-		...rest,
-		paths: (rest.paths ?? filePaths ?? []).map((entry) =>
-			entry === legacyLibrary ? libraryLocation() : entry
-		),
-		syncIntervalMinutes: rest.syncIntervalMinutes ?? DEFAULT_SYNC_INTERVAL_MINUTES,
+		...stored,
+		forcePathStyle: false,
+		paths: [],
+		syncIntervalMinutes: DEFAULT_SYNC_INTERVAL_MINUTES,
 	};
 }
 
+function toStoredStorage(config: StorageConfig): StoredStorage {
+	const { forcePathStyle, paths, syncIntervalMinutes, ...stored } = config;
+	return stored;
+}
+
 export function getStorages(): StorageConfig[] {
-	return store.get('storages').map(normalizeStorage);
+	return store.get('storages').map(toStorageConfig);
 }
 
 export function getStorage(id: string): StorageConfig | undefined {
 	const storage = store.get('storages').find((storage) => storage.id === id);
-	return storage ? normalizeStorage(storage) : undefined;
+	return storage ? toStorageConfig(storage) : undefined;
 }
 
 export function saveStorageConfig(config: StorageConfig): StorageConfig {
-	const saved: StorageConfig = { ...config, id: config.id || crypto.randomUUID() };
+	const saved = toStoredStorage({ ...config, id: config.id || crypto.randomUUID() });
 	const storages = store.get('storages');
 	const index = storages.findIndex((storage) => storage.id === saved.id);
 	store.set(
 		'storages',
 		index >= 0 ? storages.map((storage, i) => (i === index ? saved : storage)) : [...storages, saved]
 	);
-	return saved;
+	return toStorageConfig(saved);
 }
 
 export function deleteStorageConfig(id: string): void {
