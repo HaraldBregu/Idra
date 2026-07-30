@@ -26,8 +26,12 @@ export class StorageIpc implements IpcModule {
 
 	register(_deps: void, _eventBus: EventBus): void {
 		registerQuery(StorageChannels.getStorages, () => getStorages());
-		registerQuery(StorageChannels.getSelectedStorageId, () => getSelectedStorageId());
-		registerCommand(StorageChannels.setSelectedStorageId, (id) => setSelectedStorageId(id));
+		registerQuery(StorageChannels.getStorageConfiguration, () => getStorageConfiguration());
+		registerCommand(StorageChannels.saveStorageConfiguration, (configuration) => {
+			const saved = saveStorageConfiguration(configuration);
+			rescheduleStorageSync();
+			return saved;
+		});
 		registerCommand(StorageChannels.saveStorageConfig, (config) => {
 			const saved = saveStorageConfig(config);
 			rescheduleStorageSync();
