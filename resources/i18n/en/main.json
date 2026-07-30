@@ -990,7 +990,7 @@
 			"pathsTitle": "Folders to sync",
 			"pathsSubtitle": "Choose which folders sync with this bucket.",
 			"folders": {
-				"agent": "Agent"
+				"agent": "Assistant workspace"
 			},
 			"push": "Push to bucket",
 			"pushing": "Pushing…",
