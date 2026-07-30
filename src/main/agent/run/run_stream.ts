@@ -1,4 +1,5 @@
-import { getModelId, getResolvedProvider } from '../../app/settings_store';
+import { getResolvedProvider } from '../../app/settings_store';
+import { getModelId, getProviderId } from '../agent_store';
 import {
 	addAssistantMessage,
 	addToolResults,
