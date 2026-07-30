@@ -43,13 +43,12 @@ interface StorageEntry {
 
 /** Providers pinned on top of the start-flow models list; the rest collapse behind a toggle. */
 const FEATURED_PROVIDER_IDS = [
-	'anthropic',
 	'openai',
+	'anthropic',
+	'kimi',
 	'deepseek',
-	'elevenlabs',
-	'minimax',
 	'mistral',
-	'xai',
+	'elevenlabs',
 ] as const;
 
 function allCatalogItems(): ProviderCatalogItem[] {
