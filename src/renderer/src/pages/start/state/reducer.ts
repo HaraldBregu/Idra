@@ -1,17 +1,10 @@
-import { actionableProviderCatalog, createInitialModelServiceState } from '../constants';
+import { createInitialModelServiceState } from '../constants';
 import type { SetupAction } from './actions';
 import type { SetupState } from './types';
 
 export function createInitialSetupState(): SetupState {
 	return {
 		step: 'presentation',
-		providerEntries: actionableProviderCatalog().map((provider, index) => ({
-			providerId: provider.id,
-			apiKey: '',
-			apiKeySaved: false,
-			editing: index === 0,
-		})),
-		savingProviderId: null,
 		serviceStates: createInitialModelServiceState(),
 		loadingModels: false,
 		savingConfig: false,
@@ -29,52 +22,6 @@ export function setupReducer(state: SetupState, action: SetupAction): SetupState
 
 		case 'CLEAR_ERROR':
 			return { ...state, errorMessage: '' };
-
-		case 'UPDATE_PROVIDER_ENTRY':
-			return {
-				...state,
-				providerEntries: state.providerEntries.map((entry) =>
-					entry.providerId === action.providerId ? { ...entry, ...action.patch } : entry
-				),
-			};
-
-		case 'MERGE_PROVIDER_SAVED_STATUS': {
-			const hasSavedProvider = Object.values(action.savedStatus).some(Boolean);
-			return {
-				...state,
-				providerEntries: actionableProviderCatalog().map((provider, index) => {
-					const current = state.providerEntries.find((e) => e.providerId === provider.id);
-					const saved = action.savedStatus[provider.id] ?? false;
-					const draft = current?.apiKey ?? '';
-					const hasDraft = draft.trim().length > 0;
-					return {
-						providerId: provider.id,
-						apiKey: draft,
-						apiKeySaved: saved,
-						editing: hasDraft
-							? (current?.editing ?? false)
-							: saved
-								? false
-								: (current?.editing ?? (!hasSavedProvider && index === 0)),
-					};
-				}),
-			};
-		}
-
-		case 'MARK_PROVIDERS_SAVED': {
-			const savedSet = new Set(action.providerIds);
-			return {
-				...state,
-				providerEntries: state.providerEntries.map((entry) =>
-					savedSet.has(entry.providerId)
-						? { ...entry, apiKey: '', apiKeySaved: true, editing: false }
-						: entry
-				),
-			};
-		}
-
-		case 'SET_SAVING_PROVIDER':
-			return { ...state, savingProviderId: action.providerId };
 
 		case 'SET_LOADING_MODELS':
 			return { ...state, loadingModels: action.loading };
