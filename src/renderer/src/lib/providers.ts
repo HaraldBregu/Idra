@@ -30,13 +30,17 @@ export function modelsFor(type: ModelCapability): CatalogModel[] {
 	return catalog.filter((model) => model.type === type);
 }
 
-/** One record per provider, derived from the models they serve. */
-export function providers(): readonly PublicProvider[] {
+function uniqueProviders(entries: readonly { provider: PublicProvider }[]): PublicProvider[] {
 	const unique = new Map<string, PublicProvider>();
-	for (const model of catalog) {
-		if (!unique.has(model.provider.id)) unique.set(model.provider.id, model.provider);
+	for (const entry of entries) {
+		if (!unique.has(entry.provider.id)) unique.set(entry.provider.id, entry.provider);
 	}
 	return [...unique.values()];
+}
+
+/** One record per provider, derived from the models they serve. */
+export function providers(): readonly PublicProvider[] {
+	return uniqueProviders(catalog);
 }
 
 export function databases(): readonly CatalogService[] {
@@ -45,11 +49,12 @@ export function databases(): readonly CatalogService[] {
 
 /** One record per provider, derived from the databases they serve. */
 export function databaseProviders(): readonly PublicProvider[] {
-	const unique = new Map<string, PublicProvider>();
-	for (const entry of databaseCatalog) {
-		if (!unique.has(entry.provider.id)) unique.set(entry.provider.id, entry.provider);
-	}
-	return [...unique.values()];
+	return uniqueProviders(databaseCatalog);
+}
+
+/** One record per provider, derived from the storages they serve. */
+export function storageProviders(): readonly PublicProvider[] {
+	return uniqueProviders(storageCatalog);
 }
 
 export function providerIdsFor(type: ModelCapability): string[] {
