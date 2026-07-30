@@ -152,6 +152,28 @@ export function connect(options: ConnectOptions): FridayClient {
 			},
 		}) as T;
 
+	const recorderNamespace = (
+		channels: Record<string, string> & { command: string; event: string }
+	): RecorderApi['microphone'] =>
+		namespace<RecorderApi['microphone']>(channels, {
+			onCommand: (callback) => {
+				const pending = listen((channel, data) => {
+					if (channel === channels.command) callback(data as never);
+				});
+				return (): void => {
+					void pending.then((off) => off());
+				};
+			},
+			onEvent: (callback) => {
+				const pending = listen((channel, data) => {
+					if (channel === channels.event) callback(data as never);
+				});
+				return (): void => {
+					void pending.then((off) => off());
+				};
+			},
+		});
+
 	return {
 		agent: namespace<AgentApi>(AgentChannels, {
 			send: async (message, sendOptions, onEvent) => {
@@ -202,9 +224,9 @@ export function connect(options: ConnectOptions): FridayClient {
 		},
 		provider: namespace<ProviderApi>(ProviderChannels),
 		recorder: {
-			microphone: namespace<RecorderApi['microphone']>(RecorderChannels.microphone),
-			camera: namespace<RecorderApi['camera']>(RecorderChannels.camera),
-			screen: namespace<RecorderApi['screen']>(RecorderChannels.screen),
+			microphone: recorderNamespace(RecorderChannels.microphone),
+			camera: recorderNamespace(RecorderChannels.camera),
+			screen: recorderNamespace(RecorderChannels.screen),
 		},
 		search: namespace<SearchApi>(SearchChannels),
 		skills: namespace<SkillsApi>(SkillsChannels),
