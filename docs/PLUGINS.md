@@ -6,6 +6,17 @@ Friday discovers user-installed plugins from:
 <Electron userData>/plugins/<plugin-id>/manifest.json
 ```
 
+Install a published or local plugin with the Friday CLI:
+
+```sh
+friday install package-one
+friday install ./path/to/plugin
+```
+
+Use `friday tui` for the interactive terminal interface, then enter `/install package-one`.
+The CLI fetches npm packages without running lifecycle scripts, validates their manifest and
+contributed files, and installs them atomically. Restart Friday after installation.
+
 The installed application directory is not used because packaged application files may be read-only
 or replaced by an update. Plugin IDs and contribution IDs use lowercase kebab-case. The plugin folder
 name must match the manifest `id`.

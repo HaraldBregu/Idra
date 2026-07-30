@@ -92,7 +92,9 @@
 		"generate-icons": "electron-icon-builder --input=resources/icons/icon.png --output=./resources",
 		"shadcn": "shadcn-ui",
 		"format": "prettier --write .",
-		"format:check": "prettier --check ."
+		"format:check": "prettier --check .",
+		"cli:build": "npm --prefix packages/cli run build",
+		"cli:test": "npm --prefix packages/cli test"
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.92.0",

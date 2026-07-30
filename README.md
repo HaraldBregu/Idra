@@ -58,6 +58,24 @@ For Linux environments that require Electron sandbox changes, run:
 npm run dev-linux
 ```
 
+### Command-line interface
+
+The TypeScript CLI lives in `packages/cli`. It launches the desktop app, installs validated Friday
+plugins, and includes an interactive terminal interface:
+
+```bash
+npm --prefix packages/cli install
+npm run cli:build
+npm link ./packages/cli
+
+friday
+friday install package-one
+friday tui
+```
+
+Inside the TUI, enter `/install package-one`. See
+[`packages/cli/README.md`](packages/cli/README.md) for the command and plugin-install contracts.
+
 ## Quality Checks
 
 Run the main local checks before submitting changes:
@@ -88,6 +106,7 @@ npm run dist:linux:appimage  # Linux AppImage
 - `src/renderer/src` contains the React user interface.
 - `src/preload` exposes the narrow bridge between the renderer and main process.
 - `src/shared` contains cross-process types and API contracts.
+- `packages/cli` contains the publishable TypeScript command-line and terminal interface.
 - `src/main/agent` contains sessions, tools, skills, memory, schedules, health runs, sandboxing, and permission policy.
 - `src/main/models` contains provider-specific model integrations.
 
