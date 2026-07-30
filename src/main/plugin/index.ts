@@ -24,3 +24,5 @@ export type {
 	PluginExtensionContribution,
 } from './schema';
 export { pluginsRoot } from './root';
+export { installPlugins } from './install';
+export { pluginSummary } from './summary';
