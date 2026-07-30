@@ -8,6 +8,9 @@ export const app: AppApi = {
 	models: () => {
 		return typedInvokeUnwrap(AppChannels.models);
 	},
+	onModelsChanged: (callback: () => void): (() => void) => {
+		return typedOn(AppChannels.modelsChanged, callback);
+	},
 	getPathForFile: (file: File): string => {
 		return webUtils.getPathForFile(file);
 	},
