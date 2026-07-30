@@ -10,7 +10,7 @@ const AGENT_FILES: Record<string, string> = {
 	memory_save: 'MEMORY.md',
 	memory_forget: 'MEMORY.md',
 	health_update: 'HEALTH.md',
-	health_settings_update: 'settings.health.json',
+	health_settings_update: 'agent/settings.health.json',
 	complete_bootstrap: 'BOOTSTRAP.md',
 };
 const MEDIA_TOOLS = new Set(['create_image', 'create_video', 'create_sound']);
