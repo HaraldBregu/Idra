@@ -138,6 +138,48 @@ function normalizeStoredProvider(provider: StoredProvider): StoredProvider {
 	return { ...provider, type: provider.id === 'pinecone' ? 'vector_db' : 'ml_model' };
 }
 
+// Reads saved before the `filePaths` -> `paths` rename won't have `paths` yet,
+// reads saved before `syncIntervalMinutes` was introduced won't have it either,
+// and reads saved before the library folder moved out of agent/ point at the old path.
+function normalizeStorage(config: StorageConfig & { filePaths?: string[] }): StorageConfig {
+	const { filePaths, ...rest } = config;
+	const legacyLibrary = path.join(agentLocation(), 'library');
+	return {
+		...rest,
+		paths: (rest.paths ?? filePaths ?? []).map((entry) =>
+			entry === legacyLibrary ? libraryLocation() : entry
+		),
+		syncIntervalMinutes: rest.syncIntervalMinutes ?? DEFAULT_SYNC_INTERVAL_MINUTES,
+	};
+}
+
+export function getStorages(): StorageConfig[] {
+	return store.get('storages').map(normalizeStorage);
+}
+
+export function getStorage(id: string): StorageConfig | undefined {
+	const storage = store.get('storages').find((storage) => storage.id === id);
+	return storage ? normalizeStorage(storage) : undefined;
+}
+
+export function saveStorageConfig(config: StorageConfig): StorageConfig {
+	const saved: StorageConfig = { ...config, id: config.id || crypto.randomUUID() };
+	const storages = store.get('storages');
+	const index = storages.findIndex((storage) => storage.id === saved.id);
+	store.set(
+		'storages',
+		index >= 0 ? storages.map((storage, i) => (i === index ? saved : storage)) : [...storages, saved]
+	);
+	return saved;
+}
+
+export function deleteStorageConfig(id: string): void {
+	store.set(
+		'storages',
+		store.get('storages').filter((storage) => storage.id !== id)
+	);
+}
+
 export function getProviderId(): string | undefined {
 	return store.get('providerId');
 }
