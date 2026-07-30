@@ -1,5 +1,5 @@
 import { webUtils } from 'electron';
-import { typedInvokeUnwrap } from '../shared/ipc_types';
+import { typedInvokeUnwrap, typedOn } from '../shared/ipc_types';
 import { AppChannels } from '../shared/ipc_channels_definitions';
 import type { AppApi } from './index.d';
 import { optionalTrimmedString } from './normalize';
