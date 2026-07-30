@@ -2,7 +2,7 @@ const getSearchSettings = jest.fn();
 const saveSearchEngine = jest.fn();
 const selectSearchEngine = jest.fn();
 
-jest.mock('../../../../src/main/search', () => ({
+jest.mock('../../../../src/main/app/search', () => ({
 	getSearchSettings,
 	saveSearchEngine,
 	selectSearchEngine,

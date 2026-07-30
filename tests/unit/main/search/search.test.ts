@@ -19,14 +19,14 @@ jest.mock('electron-store', () =>
 );
 
 import { getWebSearchTools } from '../../../../src/main/agent/tools/web/search';
-import { searchBrave } from '../../../../src/main/search/adapters/brave';
-import { searchTavily } from '../../../../src/main/search/adapters/tavily';
-import { getSearchKey } from '../../../../src/main/search/search_get_key';
-import { getSearchSettings } from '../../../../src/main/search/search_get_settings';
-import { saveSearchEngine } from '../../../../src/main/search/search_save_engine';
-import { selectSearchEngine } from '../../../../src/main/search/search_select_engine';
-import { DEFAULT_SEARCH_STORE, searchStore } from '../../../../src/main/search/search_store';
-import { searchWeb } from '../../../../src/main/search/search_web';
+import { getSearchProviders, setSearchProviders } from '../../../../src/main/app/settings_store';
+import { searchBrave } from '../../../../src/main/app/search/adapters/brave';
+import { searchTavily } from '../../../../src/main/app/search/adapters/tavily';
+import { getSearchKey } from '../../../../src/main/app/search/search_get_key';
+import { getSearchSettings } from '../../../../src/main/app/search/search_get_settings';
+import { saveSearchEngine } from '../../../../src/main/app/search/search_save_engine';
+import { selectSearchEngine } from '../../../../src/main/app/search/search_select_engine';
+import { searchWeb } from '../../../../src/main/app/search/search_web';
 
 const originalFetch = global.fetch;
 
@@ -40,7 +40,7 @@ function response(body: unknown, status = 200, statusText = 'OK'): Response {
 }
 
 beforeEach(() => {
-	searchStore.store = structuredClone(DEFAULT_SEARCH_STORE);
+	setSearchProviders([]);
 	delete process.env.BRAVE_API_KEY;
 	delete process.env.TAVILY_API_KEY;
 	global.fetch = jest.fn();
@@ -62,7 +62,7 @@ describe('search settings', () => {
 			configured: { brave: false, tavily: true },
 		});
 		saveSearchEngine('brave', { apiKey: 'brave-key' });
-		expect(searchStore.store).toEqual([
+		expect(getSearchProviders()).toEqual([
 			{
 				id: 'tavily',
 				name: 'Tavily',
@@ -79,7 +79,7 @@ describe('search settings', () => {
 		expect(getSearchSettings().engineId).toBe('tavily');
 		expect(getSearchKey('tavily')).toBe('tavily-key');
 		expect(selectSearchEngine('brave').engineId).toBe('brave');
-		expect(searchStore.store.map((provider) => provider.id)).toEqual(['brave', 'tavily']);
+		expect(getSearchProviders().map((provider) => provider.id)).toEqual(['brave', 'tavily']);
 	});
 
 	it('rejects empty credentials and unconfigured selections', () => {
@@ -94,9 +94,9 @@ describe('search settings', () => {
 	});
 
 	it('normalizes malformed persisted state', () => {
-		searchStore.store = [
+		setSearchProviders([
 			{ id: 'brave', name: 'Brave', apiKey: 42, baseUrl: 'https://brave.test' },
-		] as never;
+		] as never);
 		expect(getSearchSettings()).toEqual({
 			engineId: 'brave',
 			configured: { brave: false, tavily: false },
