@@ -41,6 +41,7 @@ import {
 	TextChannels,
 	VideoChannels,
 	ExtensionChannels,
+	PluginChannels,
 	WikiChannels,
 	WindowChannels,
 } from './ipc_channels_definitions';
