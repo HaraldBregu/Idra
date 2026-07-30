@@ -381,25 +381,36 @@ const ProvidersPage: React.FC = () => {
 							<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
 						)}
 
-						{mergedStorageEntries(storageEntries).map((entry) => (
-							<ProviderCard
-								key={entry.key}
-								storage={entry.storage}
-								onSaved={(saved) =>
-									setStorageEntries((current) => {
-										const list = current ?? [];
-										return list.some((item) => item.storage.id === saved.id)
-											? list.map((item) =>
-													item.storage.id === saved.id ? { ...item, storage: saved } : item
-												)
-											: [...list, { key: saved.id, storage: saved }];
-									})
-								}
-								onRemoved={() => {}}
-								hideDelete={true}
-								hideDropdown={true}
-							/>
-						))}
+						{mergedStorageEntries(storageEntries).map((entry) => {
+							const provider = storageProviders().find((item) => item.id === entry.storage.id);
+							const subtitle = storages()
+								.filter((service) => service.provider.id === entry.storage.id)
+								.map((service) => service.name)
+								.join(' - ');
+							return (
+								<ProviderCard
+									key={entry.key}
+									storage={entry.storage}
+									subtitle={subtitle || undefined}
+									linkUrl={
+										provider ? getProviderApiConfigurationUrl(provider) || undefined : undefined
+									}
+									onSaved={(saved) =>
+										setStorageEntries((current) => {
+											const list = current ?? [];
+											return list.some((item) => item.storage.id === saved.id)
+												? list.map((item) =>
+														item.storage.id === saved.id ? { ...item, storage: saved } : item
+													)
+												: [...list, { key: saved.id, storage: saved }];
+										})
+									}
+									onRemoved={() => {}}
+									hideDelete={true}
+									hideDropdown={true}
+								/>
+							);
+						})}
 					</div>
 				)}
 			</SettingsSection>
