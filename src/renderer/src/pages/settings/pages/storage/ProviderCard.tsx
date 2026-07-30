@@ -76,6 +76,8 @@ interface ProviderCardProps {
 	readonly onRemoved: () => void;
 	readonly hideDelete?: boolean;
 	readonly hideDropdown?: boolean;
+	readonly subtitle?: string;
+	readonly linkUrl?: string;
 }
 
 export function ProviderCard({
@@ -84,6 +86,8 @@ export function ProviderCard({
 	onRemoved,
 	hideDelete = false,
 	hideDropdown = false,
+	subtitle,
+	linkUrl,
 }: ProviderCardProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const [instanceId] = useState(() => storage.id || crypto.randomUUID());
