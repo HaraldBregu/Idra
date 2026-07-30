@@ -8,6 +8,12 @@ export const app: AppApi = {
 	models: () => {
 		return typedInvokeUnwrap(AppChannels.models);
 	},
+	databases: () => {
+		return typedInvokeUnwrap(AppChannels.databases);
+	},
+	storages: () => {
+		return typedInvokeUnwrap(AppChannels.storages);
+	},
 	onModelsChanged: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.modelsChanged, callback);
 	},
