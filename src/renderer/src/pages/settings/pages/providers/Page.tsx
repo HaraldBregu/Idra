@@ -348,7 +348,7 @@ const ProvidersPage: React.FC = () => {
 				title={t('settings.overview.groups.mlModels')}
 				description={t('settings.providers.mlModelsDescription')}
 			>
-				<div className="space-y-3 py-4">
+				<div className="space-y-3 pb-4">
 					{actionableProviderCatalog().map((provider) => renderProviderCard(provider, 'models'))}
 				</div>
 			</SettingsSection>
@@ -357,7 +357,7 @@ const ProvidersPage: React.FC = () => {
 				title={t('settings.overview.groups.vectorDatabases')}
 				description={t('settings.providers.vectorDatabasesDescription')}
 			>
-				<div className="space-y-3 py-4">
+				<div className="space-y-3 pb-4">
 					{actionableDatabaseCatalog().map((provider) => renderProviderCard(provider, 'databases'))}
 				</div>
 			</SettingsSection>
@@ -375,7 +375,7 @@ const ProvidersPage: React.FC = () => {
 				{!storageEntries ? (
 					<SettingsLoadingRows rows={4} />
 				) : (
-					<div className="space-y-3 py-4">
+					<div className="space-y-3 pb-4">
 						{mergedStorageEntries(storageEntries).length === 0 && (
 							<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
 						)}
