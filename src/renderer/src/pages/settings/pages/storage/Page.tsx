@@ -27,7 +27,11 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import type { StorageConfig, StorageSyncFolder } from '../../../../../../shared/storage_types';
+import type {
+	StorageConfig,
+	StorageConfiguration,
+	StorageSyncFolder,
+} from '../../../../../../shared/storage_types';
 import { getErrorMessage } from '../../../start/constants';
 import {
 	SettingsLoadingRows,
@@ -37,7 +41,7 @@ import {
 	SettingsRow,
 } from '../../components';
 import { ProviderCard } from './ProviderCard';
-import { DEFAULT_SYNC_CRON_EXPRESSION, SYNC_INTERVALS } from './constants';
+import { SYNC_INTERVALS } from './constants';
 
 const BLANK_STORAGE: StorageConfig = {
 	id: '',
@@ -48,9 +52,6 @@ const BLANK_STORAGE: StorageConfig = {
 	secretAccessKey: '',
 	bucket: '',
 	forcePathStyle: false,
-	paths: [],
-	syncEnabled: false,
-	syncCronExpression: DEFAULT_SYNC_CRON_EXPRESSION,
 };
 
 interface StorageEntry {
@@ -66,8 +67,8 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 	const { t } = useTranslation();
 	const [entries, setEntries] = useState<StorageEntry[] | null>(null);
 	const [availableFolders, setAvailableFolders] = useState<StorageSyncFolder[]>([]);
-	const [selectedStorageId, setSelectedStorageId] = useState('');
-	const [draft, setDraft] = useState<StorageConfig | null>(null);
+	const [config, setConfig] = useState<StorageConfiguration | null>(null);
+	const [draft, setDraft] = useState<StorageConfiguration | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [syncStatus, setSyncStatus] = useState<string | null>(null);
 	const [savingSync, setSavingSync] = useState(false);
@@ -78,17 +79,13 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 		void Promise.all([
 			window.storage.getStorages(),
 			window.storage.syncFolders(),
-			window.storage.getSelectedStorageId(),
+			window.storage.getStorageConfiguration(),
 		]).then(
-			([storages, folders, storedSelection]) => {
+			([storages, folders, configuration]) => {
 				if (cancelled) return;
 				setEntries(storages.map((storage) => ({ key: storage.id, storage })));
 				setAvailableFolders(folders);
-				setSelectedStorageId(
-					storages.some((storage) => storage.id === storedSelection)
-						? (storedSelection ?? '')
-						: (storages[0]?.id ?? '')
-				);
+				setConfig(configuration);
 			},
 			(err) => {
 				if (!cancelled) setError(getErrorMessage(err, t('settings.storage.errors.load')));
@@ -107,16 +104,15 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 	};
 
 	const savedEntries = (entries ?? []).filter((entry) => Boolean(entry.storage.id));
-	const selectedEntry = savedEntries.find((entry) => entry.storage.id === selectedStorageId);
-	const storage = draft ?? selectedEntry?.storage;
+	const configuration = draft ?? config;
 	const builtInPaths = new Set(availableFolders.map((folder) => folder.path));
-	const customPaths = storage?.paths.filter((path) => !builtInPaths.has(path)) ?? [];
-	const intervalValue = !storage?.syncEnabled
+	const customPaths = configuration?.paths.filter((path) => !builtInPaths.has(path)) ?? [];
+	const intervalValue = !configuration?.syncEnabled
 		? 'off'
-		: (SYNC_INTERVALS.find((interval) => interval.cron === storage.syncCronExpression)?.key ??
-			'custom');
+		: (SYNC_INTERVALS.find((interval) => interval.cron === configuration.syncCronExpression)
+				?.key ?? 'custom');
 
-	const updateDraft = (next: StorageConfig): void => {
+	const updateDraft = (next: StorageConfiguration): void => {
 		setDraft(next);
 		setSyncStatus(null);
 	};
@@ -128,33 +124,28 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 	};
 
 	const pickFolders = async (): Promise<void> => {
-		if (!storage) return;
+		if (!configuration) return;
 		setError(null);
 		try {
 			const paths = await window.storage.pickFolders();
 			if (paths.length === 0) return;
 			updateDraft({
-				...storage,
-				paths: [...new Set([...storage.paths, ...paths])],
+				...configuration,
+				paths: [...new Set([...configuration.paths, ...paths])],
 			});
 		} catch (err) {
 			setError(getErrorMessage(err, t('settings.storage.errors.pickFolders')));
 		}
 	};
 
-	const saveSync = async (): Promise<StorageConfig | undefined> => {
-		if (!storage) return undefined;
+	const saveSync = async (): Promise<StorageConfiguration | undefined> => {
+		if (!configuration) return undefined;
 		setSavingSync(true);
 		setError(null);
 		setSyncStatus(null);
 		try {
-			const saved = await window.storage.saveStorageConfig(storage);
-			setEntries(
-				(current) =>
-					current?.map((entry) =>
-						entry.storage.id === saved.id ? { ...entry, storage: saved } : entry
-					) ?? current
-			);
+			const saved = await window.storage.saveStorageConfiguration(configuration);
+			setConfig(saved);
 			setDraft(null);
 			setSyncStatus(t('settings.storage.syncSaved'));
 			return saved;
@@ -172,8 +163,8 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 		setSyncStatus(null);
 		try {
 			const saved = await saveSync();
-			if (!saved) return;
-			const result = await window.storage.push(saved.id);
+			if (!saved?.providerId) return;
+			const result = await window.storage.push(saved.providerId);
 			setSyncStatus(
 				result.failed.length > 0
 					? t('settings.storage.pushPartial', {
@@ -189,29 +180,22 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 		}
 	};
 
-	const selectProfile = (value: string | null): void => {
-		const id = value ?? '';
-		setSelectedStorageId(id);
-		setDraft(null);
-		setSyncStatus(null);
-		if (id) {
-			void window.storage.setSelectedStorageId(id).catch((err) => {
-				setError(getErrorMessage(err, t('settings.storage.errors.selectProfile')));
-			});
-		}
+	const selectProvider = (value: string | null): void => {
+		if (!configuration || !value) return;
+		updateDraft({ ...configuration, providerId: value });
 	};
 
 	const selectInterval = (value: string | null): void => {
-		if (!storage || !value) return;
+		if (!configuration || !value) return;
 		if (value === 'off') {
-			updateDraft({ ...storage, syncEnabled: false });
+			updateDraft({ ...configuration, syncEnabled: false });
 			return;
 		}
 		const cron = SYNC_INTERVALS.find((interval) => interval.key === value)?.cron;
 		updateDraft({
-			...storage,
+			...configuration,
 			syncEnabled: true,
-			syncCronExpression: cron ?? storage.syncCronExpression,
+			syncCronExpression: cron ?? configuration.syncCronExpression,
 		});
 	};
 
@@ -247,21 +231,11 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 											item.key === entry.key ? { ...item, storage: saved } : item
 										) ?? current
 								);
-								if (!selectedStorageId) {
-									setSelectedStorageId(saved.id);
-									void window.storage.setSelectedStorageId(saved.id);
-								}
 							}}
 							onRemoved={() => {
-								setEntries((current) => {
-									const remaining = current?.filter((item) => item.key !== entry.key) ?? current;
-									if (entry.storage.id === selectedStorageId) {
-										setSelectedStorageId(
-											remaining?.find((item) => item.storage.id)?.storage.id ?? ''
-										);
-									}
-									return remaining;
-								});
+								setEntries(
+									(current) => current?.filter((item) => item.key !== entry.key) ?? current
+								);
 							}}
 						/>
 					))}
@@ -288,7 +262,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 								title={t('settings.storage.profile.label')}
 								description={t('settings.storage.profile.help')}
 								actions={
-									<Select value={selectedStorageId} onValueChange={selectProfile}>
+									<Select value={configuration?.providerId ?? ''} onValueChange={selectProvider}>
 										<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
 											<SelectValue />
 										</SelectTrigger>
@@ -306,7 +280,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 								}
 							/>
 
-							{storage && (
+							{configuration && (
 								<>
 									{availableFolders.map((folder) => (
 										<SettingsRow
@@ -317,14 +291,14 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 											actionClassName="w-auto ml-auto justify-end"
 											actions={
 												<Switch
-													checked={storage.paths.includes(folder.path)}
+													checked={configuration.paths.includes(folder.path)}
 													aria-label={t(`settings.storage.folders.${folder.key}`)}
 													onCheckedChange={(checked) =>
 														updateDraft({
-															...storage,
+															...configuration,
 															paths: checked
-																? [...new Set([...storage.paths, folder.path])]
-																: storage.paths.filter((path) => path !== folder.path),
+																? [...new Set([...configuration.paths, folder.path])]
+																: configuration.paths.filter((path) => path !== folder.path),
 														})
 													}
 												/>
@@ -346,8 +320,8 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 													aria-label={t('settings.storage.sync.removeFolder')}
 													onClick={() =>
 														updateDraft({
-															...storage,
-															paths: storage.paths.filter((entry) => entry !== path),
+															...configuration,
+															paths: configuration.paths.filter((entry) => entry !== path),
 														})
 													}
 												>
@@ -385,7 +359,9 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 														</SelectItem>
 													))}
 													{intervalValue === 'custom' && (
-														<SelectItem value="custom">{storage.syncCronExpression}</SelectItem>
+														<SelectItem value="custom">
+															{configuration.syncCronExpression}
+														</SelectItem>
 													)}
 												</SelectContent>
 											</Select>
@@ -400,7 +376,12 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 								variant="outline"
 								size="sm"
 								onClick={() => void runSync()}
-								disabled={savingSync || runningSync || !storage || storage.paths.length === 0}
+								disabled={
+									savingSync ||
+									runningSync ||
+									!configuration?.providerId ||
+									configuration.paths.length === 0
+								}
 							>
 								<Play className="size-3" />
 								{runningSync
