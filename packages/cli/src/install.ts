@@ -26,13 +26,15 @@ export async function installPlugin(
 		const destination = path.join(pluginsDirectory, manifest.id);
 		await fs.mkdir(pluginsDirectory, { recursive: true });
 
+		let destinationExists = true;
 		try {
 			await fs.access(destination);
-			if (!options.force) {
-				throw new Error(`Plugin "${manifest.id}" is already installed. Use --force to replace it.`);
-			}
 		} catch (error) {
-			if (error instanceof Error && error.message.includes('already installed')) throw error;
+			if ((error as NodeJS.ErrnoException).code === 'ENOENT') destinationExists = false;
+			else throw error;
+		}
+		if (destinationExists && !options.force) {
+			throw new Error(`Plugin "${manifest.id}" is already installed. Use --force to replace it.`);
 		}
 
 		stagingDirectory = path.join(pluginsDirectory, `.install-${randomUUID()}`);
@@ -44,12 +46,9 @@ export async function installPlugin(
 		});
 		await validatePluginEntries(stagingDirectory, manifest);
 
-		if (options.force) {
-			try {
-				await fs.access(destination);
-				backupDirectory = path.join(pluginsDirectory, `.backup-${randomUUID()}`);
-				await fs.rename(destination, backupDirectory);
-			} catch {}
+		if (options.force && destinationExists) {
+			backupDirectory = path.join(pluginsDirectory, `.backup-${randomUUID()}`);
+			await fs.rename(destination, backupDirectory);
 		}
 
 		try {

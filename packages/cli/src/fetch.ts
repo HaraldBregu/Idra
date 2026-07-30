@@ -19,7 +19,9 @@ export async function preparePluginSource(spec: string): Promise<PreparedPluginS
 		if ((await fs.stat(localPath)).isDirectory()) {
 			return { directory: localPath, dispose: async () => undefined };
 		}
-	} catch {}
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+	}
 
 	const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-cli-'));
 	const dispose = async (): Promise<void> => {
