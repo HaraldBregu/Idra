@@ -1,4 +1,8 @@
-import { normalizeProviderId, type PublicProvider } from '@shared/provider_types';
+import {
+	normalizeProviderId,
+	type CatalogService,
+	type PublicProvider,
+} from '@shared/provider_types';
 import type {
 	CatalogModel,
 	ModelCapability,
@@ -7,9 +11,10 @@ import type {
 } from '@shared/model_types';
 
 let catalog: readonly CatalogModel[] = [];
+let databaseCatalog: readonly CatalogService[] = [];
 
 export async function loadModels(): Promise<void> {
-	catalog = await window.app.models();
+	[catalog, databaseCatalog] = await Promise.all([window.app.models(), window.app.databases()]);
 }
 
 export function models(): readonly CatalogModel[] {
