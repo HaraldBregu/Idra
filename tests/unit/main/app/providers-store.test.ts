@@ -25,8 +25,14 @@ import {
 	setProvider,
 	deleteProvider,
 	clearProviders,
+	deleteStorageConfig,
+	getSelectedStorageId,
+	getStorages,
+	saveStorageConfig,
+	setSelectedStorageId,
 } from '../../../../src/main/app/settings_store';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
+import type { StorageConfig } from '../../../../src/shared/storage_types';
 
 function provider(id: string, name: string): StoredProvider {
 	return { id, name, apiKey: 'k', baseUrl: 'https://api' };
@@ -81,5 +87,48 @@ describe('providers in app settings', () => {
 		setProvider(provider('a', 'A'));
 		clearProviders();
 		expect(listProviders()).toEqual([]);
+	});
+});
+
+describe('storages in app settings', () => {
+	const storage = (id: string): StorageConfig => ({
+		id,
+		name: id,
+		endpoint: 'https://storage.example.com',
+		region: 'us-east-1',
+		accessKeyId: 'access',
+		secretAccessKey: 'secret',
+		bucket: 'friday',
+		forcePathStyle: true,
+		paths: ['/data/agent'],
+		syncEnabled: true,
+		syncCronExpression: '0 3 * * *',
+	});
+
+	beforeEach(() => {
+		getStorages().forEach((entry) => deleteStorageConfig(entry.id));
+	});
+
+	it('round-trips folder sync and cron settings', () => {
+		saveStorageConfig(storage('backup'));
+
+		expect(getStorages()).toEqual([storage('backup')]);
+		expect(getSelectedStorageId()).toBe('backup');
+	});
+
+	it('persists the selected storage and falls back after deletion', () => {
+		saveStorageConfig(storage('first'));
+		saveStorageConfig(storage('second'));
+		setSelectedStorageId('second');
+
+		expect(getSelectedStorageId()).toBe('second');
+		deleteStorageConfig('second');
+		expect(getSelectedStorageId()).toBe('first');
+	});
+
+	it('rejects an invalid enabled cron schedule', () => {
+		expect(() =>
+			saveStorageConfig({ ...storage('backup'), syncCronExpression: 'not cron' })
+		).toThrow('valid cron expression');
 	});
 });
