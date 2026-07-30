@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Search } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
 	Card,
@@ -84,16 +84,11 @@ const SearchPage: React.FC = () => {
 				<SettingsSection title={t('settings.searchEngine.defaultTitle')}>
 					<Card size="sm">
 						<CardHeader className="items-center">
-							<div className="flex min-w-0 flex-1 items-center gap-2.5">
-								<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
-									<Search className="size-4 text-muted-foreground" />
-								</div>
-								<div className="min-w-0">
+							<div className="min-w-0 flex-1">
 									<CardTitle>{t('settings.searchEngine.provider')}</CardTitle>
 									<CardDescription>
 										{t('settings.searchEngine.defaultDescription')}
 									</CardDescription>
-								</div>
 							</div>
 							<CardAction className="self-center">
 								<Select
