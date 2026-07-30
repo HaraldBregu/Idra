@@ -39,6 +39,8 @@ export interface CatalogEntryModel extends ProviderModel {
 export interface ProviderCatalogEntry {
 	readonly id: string;
 	readonly name: string;
+	/** Provider dashboard page where API keys are created. */
+	readonly apiKeyUrl?: string;
 }
 
 export interface ModelSelection {
