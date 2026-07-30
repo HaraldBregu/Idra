@@ -4,6 +4,8 @@ import { is } from '@electron-toolkit/utils';
 import {
 	normalizeProviderId,
 	type CatalogEntryModel,
+	type CatalogEntryService,
+	type CatalogService,
 	type ProviderCatalogEntry,
 	type PublicProvider,
 } from '../../shared/provider_types';
