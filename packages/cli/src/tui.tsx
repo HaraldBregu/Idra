@@ -77,8 +77,8 @@ function FridayTui({ install, launch }: TuiProps): React.JSX.Element {
 		}
 	};
 
-	useInput((_, key) => {
-		if (key.ctrl && key.name === 'c') exit();
+	useInput((character, key) => {
+		if (key.ctrl && character === 'c') exit();
 		if (key.tab && suggestions[0]) setInput(`${suggestions[0]} `);
 	});
 
