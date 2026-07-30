@@ -1,0 +1,7 @@
+[
+    {
+        "id": "tavily-web-search",
+        "name": "Tavily Web Search",
+        "url": "https://api.tavily.com/search"
+    }
+]
