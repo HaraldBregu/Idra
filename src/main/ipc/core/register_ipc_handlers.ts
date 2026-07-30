@@ -43,6 +43,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('extensions', () =>
 		new ExtensionsIpc().register({ windowFactory, pluginRepository }, eventBus)
 	);
+	safeRegister('plugins', () => new PluginsIpc().register({ pluginRepository }, eventBus));
 	safeRegister('wiki', () => new WikiIpc().register(undefined, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
