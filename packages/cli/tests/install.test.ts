@@ -46,3 +46,22 @@ test('rejects a plugin with a missing contributed file', async () => {
 		await fs.rm(root, { recursive: true, force: true });
 	}
 });
+
+test('rejects duplicate contribution ids', async () => {
+	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-duplicate-test-'));
+	try {
+		const fixture = await createPluginFixture(root);
+		const manifestPath = path.join(fixture, 'manifest.json');
+		const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8')) as {
+			contributes: { skills: unknown[] };
+		};
+		manifest.contributes.skills.push(manifest.contributes.skills[0]);
+		await fs.writeFile(manifestPath, JSON.stringify(manifest));
+		await assert.rejects(
+			installPlugin(fixture, { dataDir: path.join(root, 'data') }),
+			/Duplicate skill id/
+		);
+	} finally {
+		await fs.rm(root, { recursive: true, force: true });
+	}
+});

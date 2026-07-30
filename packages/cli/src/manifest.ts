@@ -114,6 +114,27 @@ const contributionsSchema = z
 				message: 'A plugin must contribute at least one extension.',
 			});
 		}
+		for (const key of [
+			'providers',
+			'skills',
+			'widgets',
+			'mcpServers',
+			'languages',
+			'themes',
+			'channels',
+		] as const) {
+			const ids = new Set<string>();
+			contributions[key].forEach((contribution, index) => {
+				if (ids.has(contribution.id)) {
+					context.addIssue({
+						code: 'custom',
+						message: `Duplicate ${key.slice(0, -1)} id: ${contribution.id}`,
+						path: [key, index, 'id'],
+					});
+				}
+				ids.add(contribution.id);
+			});
+		}
 	});
 
 export const pluginManifestSchema = z
