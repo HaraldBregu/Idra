@@ -151,20 +151,29 @@ function toPublicProvider(entry: ProviderCatalogEntry): PublicProvider {
 	};
 }
 
-function readModels(): readonly CatalogModel[] {
-	const dir = is.dev
+function providersDir(): string {
+	return is.dev
 		? path.join(__dirname, '../../resources/providers')
 		: path.join(process.resourcesPath, 'resources/providers');
+}
+
+function readModels(): readonly CatalogModel[] {
+	const dir = providersDir();
 
 	return readdirSync(dir, { withFileTypes: true })
 		.filter((entry) => entry.isDirectory())
 		.flatMap((dirent) => {
-			const providerPath = path.join(dir, dirent.name, 'info.json');
-			const modelsPath = path.join(dir, dirent.name, 'models.json');
-			if (!existsSync(providerPath) || !existsSync(modelsPath)) return [];
-			const entry = JSON.parse(readFileSync(providerPath, 'utf-8')) as ProviderCatalogEntry;
-			const models = JSON.parse(readFileSync(modelsPath, 'utf-8')) as CatalogEntryModel[];
-			const provider = toPublicProvider(entry);
-			return models.map((model) => ({ ...model, provider }));
+			try {
+				const providerPath = path.join(dir, dirent.name, 'info.json');
+				const modelsPath = path.join(dir, dirent.name, 'models.json');
+				if (!existsSync(providerPath) || !existsSync(modelsPath)) return [];
+				const entry = JSON.parse(readFileSync(providerPath, 'utf-8')) as ProviderCatalogEntry;
+				const models = JSON.parse(readFileSync(modelsPath, 'utf-8')) as CatalogEntryModel[];
+				const provider = toPublicProvider(entry);
+				return models.map((model) => ({ ...model, provider }));
+			} catch {
+				// ponytail: a provider dir mid-edit (malformed JSON) drops out until fixed
+				return [];
+			}
 		});
 }
