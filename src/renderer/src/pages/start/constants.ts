@@ -203,6 +203,21 @@ export function actionableProviderCatalog(): readonly ProviderCatalogItem[] {
 	}));
 }
 
+/** Providers with at least one database, shaped like the models catalog cards. */
+export function actionableDatabaseCatalog(): readonly ProviderCatalogItem[] {
+	return databaseProviders().map((provider) => ({
+		id: provider.id,
+		name: provider.name,
+		capabilities:
+			databases()
+				.filter((entry) => entry.provider.id === provider.id)
+				.map((entry) => entry.name)
+				.join(' - ') || 'Database',
+		supported: true,
+		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
+	}));
+}
+
 export function getErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim().length > 0) {
 		return error.message;
