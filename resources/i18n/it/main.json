@@ -1358,17 +1358,16 @@
 		"vectorDb": {
 			"description": "Database vettoriale usato dal RAG per salvare e cercare gli embedding.",
 			"connectionTitle": "Connessione",
-			"connectionDescription": "Provider e database usati per salvare e cercare gli embedding.",
-			"provider": "Provider",
-			"providerDescription": "Servizio che ospita il database vettoriale.",
+			"defaultTitle": "Database predefinito",
 			"database": "Database",
-			"databaseDescription": "Database offerto dal provider selezionato.",
+			"databaseDescription": "Database usato per salvare e cercare gli embedding.",
+			"databasePlaceholder": "Seleziona un database...",
 			"apiKey": "Chiave API",
 			"apiKeyDescription": "La chiave viene usata per creare l'indice e caricare i vettori.",
 			"apiKeyPlaceholder": "Incolla la tua chiave API...",
 			"empty": "Nessun provider di database disponibile.",
 			"save": "Salva",
-			"saved": "Configurazione del database salvata.",
+			"saved": "Chiave API salvata.",
 			"errors": {
 				"load": "Impossibile caricare la configurazione del database.",
 				"save": "Impossibile salvare la configurazione del database."
