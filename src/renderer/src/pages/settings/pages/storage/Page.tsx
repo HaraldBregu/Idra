@@ -177,7 +177,8 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 		}
 	};
 
-	const selectProfile = (id: string): void => {
+	const selectProfile = (value: string | null): void => {
+		const id = value ?? '';
 		setSelectedStorageId(id);
 		setSyncStatus(null);
 		if (id) {
