@@ -2,11 +2,11 @@
 
 Friday uses one npm workspace and one repository for three independently versioned products:
 
-| Product | Manifest | Release tag | Destination |
-| --- | --- | --- | --- |
-| Electron app | `package.json` | `v1.2.3` | GitHub Release |
-| SDK | `packages/sdk/package.json` | `sdk-v1.2.3` | npm as `@friday/sdk` |
-| CLI | `packages/cli/package.json` | `cli-v1.2.3` | npm as `@friday/cli` |
+| Product      | Manifest                    | Release tag  | Destination          |
+| ------------ | --------------------------- | ------------ | -------------------- |
+| Electron app | `package.json`              | `v1.2.3`     | GitHub Release       |
+| SDK          | `packages/sdk/package.json` | `sdk-v1.2.3` | npm as `@friday/sdk` |
+| CLI          | `packages/cli/package.json` | `cli-v1.2.3` | npm as `@friday/cli` |
 
 `packages/examples/projects` is a standalone example fixture. It is intentionally not a
 workspace and keeps its own lockfile.
@@ -45,11 +45,11 @@ Release after all builds pass.
 
 Production desktop releases require these GitHub Actions secrets:
 
-| Platform | Secret |
-| --- | --- |
-| macOS | `MAC_CSC_LINK`, `MAC_CSC_KEY_PASSWORD` |
+| Platform           | Secret                                                     |
+| ------------------ | ---------------------------------------------------------- |
+| macOS              | `MAC_CSC_LINK`, `MAC_CSC_KEY_PASSWORD`                     |
 | macOS notarization | `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` |
-| Windows | `WIN_CSC_LINK`, `WIN_CSC_KEY_PASSWORD` |
+| Windows            | `WIN_CSC_LINK`, `WIN_CSC_KEY_PASSWORD`                     |
 
 `MAC_CSC_LINK` and `WIN_CSC_LINK` may contain the appropriate base64-encoded certificate
 or a secure URL supported by electron-builder. Signing is mandatory so a missing or

@@ -62,22 +62,22 @@ const result = await models.image.createImage(request);
 Both shapes expose the same namespaces, with the same method names and types as the app's
 own preload API (`win` is embedded-only — it drives the window hosting your code):
 
-| Export       | What it covers                                                                    |
-| ------------ | --------------------------------------------------------------------------------- |
-| `agent`      | Chat turns, sessions, provider/model, tool policy, health                         |
-| `app`        | App data folder, external URLs, tray, theme, language, permissions, context menus |
-| `channels`   | Channel config, provider/model, Telegram lifecycle, status                        |
-| `cron`       | Scheduled jobs and their runtime                                                  |
-| `mcp`        | MCP server config and OAuth                                                       |
-| `models`     | Embedding, image, sound, text, transcription, video, and voice models             |
-| `provider`   | Provider credentials store                                                        |
-| `recorder`   | Microphone, camera, and screen capture                                             |
-| `search`     | Search engine settings                                                            |
-| `skills`     | Install, enable, load skills                                                      |
-| `storage`    | Remote storage config, objects, sync/push/pull                                    |
-| `widgets`    | Installed widgets                                                                 |
-| `wiki`       | Wiki generation settings and runs                                                 |
-| `win`        | Window controls for the hosting window                                            |
+| Export     | What it covers                                                                    |
+| ---------- | --------------------------------------------------------------------------------- |
+| `agent`    | Chat turns, sessions, provider/model, tool policy, health                         |
+| `app`      | App data folder, external URLs, tray, theme, language, permissions, context menus |
+| `channels` | Channel config, provider/model, Telegram lifecycle, status                        |
+| `cron`     | Scheduled jobs and their runtime                                                  |
+| `mcp`      | MCP server config and OAuth                                                       |
+| `models`   | Embedding, image, sound, text, transcription, video, and voice models             |
+| `provider` | Provider credentials store                                                        |
+| `recorder` | Microphone, camera, and screen capture                                            |
+| `search`   | Search engine settings                                                            |
+| `skills`   | Install, enable, load skills                                                      |
+| `storage`  | Remote storage config, objects, sync/push/pull                                    |
+| `widgets`  | Installed widgets                                                                 |
+| `wiki`     | Wiki generation settings and runs                                                 |
+| `win`      | Window controls for the hosting window                                            |
 
 All request/result types are re-exported (`ImageRequest`, `AgentResponseEvent`,
 `CronSchedule`, `SkillInfo`, `StorageConfig`, `PermissionsSchema`, …), and `Uint8Array`
