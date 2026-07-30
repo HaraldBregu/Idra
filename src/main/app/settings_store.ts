@@ -145,12 +145,6 @@ function isStoredProvider(value: unknown): value is StoredProvider {
 	);
 }
 
-/** ponytail: entries saved before `type` existed get one on read; pinecone was the only vector db. */
-function normalizeStoredProvider(provider: StoredProvider): StoredProvider {
-	if (provider.type) return provider;
-	return { ...provider, type: provider.id === 'pinecone' ? 'vector_db' : 'ml_model' };
-}
-
 function toStorageConfig(stored: StoredStorage): StorageConfig {
 	return {
 		...stored,
