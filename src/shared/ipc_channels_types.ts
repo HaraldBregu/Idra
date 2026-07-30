@@ -698,8 +698,13 @@ export interface InvokeChannelMap
 
 export interface SendChannelMap extends WindowSendChannelMap {}
 
+export interface AppEventChannelMap {
+	[AppChannels.modelsChanged]: { data: void };
+}
+
 export interface EventChannelMap
 	extends
+		AppEventChannelMap,
 		AgentEventChannelMap,
 		RecorderEventChannelMap,
 		WindowEventChannelMap,
