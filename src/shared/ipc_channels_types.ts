@@ -720,6 +720,7 @@ export interface InvokeChannelMap
 		SearchInvokeChannelMap,
 		WikiInvokeChannelMap,
 		StorageInvokeChannelMap,
+		DatabaseInvokeChannelMap,
 		WindowInvokeChannelMap,
 		ChannelsInvokeChannelMap,
 		EmbeddingInvokeChannelMap,
