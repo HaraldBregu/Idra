@@ -397,10 +397,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 			</SettingsSection>
 
 			{!embedded && (
-				<SettingsSection
-					title={t('settings.overview.groups.vectorDatabases')}
-					description={t('settings.providers.vectorDatabasesDescription')}
-				>
+				<SettingsSection title={t('settings.overview.groups.vectorDatabases')}>
 					<div className="space-y-3 pb-4">
 						{actionableDatabaseCatalog().map((provider) =>
 							renderProviderCard(provider, 'databases')
