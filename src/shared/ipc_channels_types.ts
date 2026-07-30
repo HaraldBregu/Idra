@@ -263,6 +263,10 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: import('./provider_types').CatalogService[];
 	};
+	[AppChannels.webSearches]: {
+		args: [];
+		result: import('./provider_types').CatalogWebSearch[];
+	};
 	[AppChannels.openVideo]: {
 		args: [path: string];
 		result: void;
