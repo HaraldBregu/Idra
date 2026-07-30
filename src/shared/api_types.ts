@@ -152,7 +152,7 @@ export interface ChannelsApi {
 
 export interface ProviderApi {
 	get: (id: string) => Promise<Provider | undefined>;
-	set: (provider: Provider) => Promise<Provider>;
+	set: (provider: Provider, kind?: StoredProviderKind) => Promise<Provider>;
 	list: () => Promise<Provider[]>;
 	getModelProviders: () => Promise<PublicProvider[]>;
 	getStorageProviders: () => Promise<PublicProvider[]>;
