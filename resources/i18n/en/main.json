@@ -919,6 +919,23 @@
 		},
 		"storage": {
 			"description": "Configure one or more S3-compatible storage providers for your files.",
+			"profile": {
+				"title": "Storage profile",
+				"description": "Choose the saved storage used for folder sync.",
+				"label": "Storage to use",
+				"help": "Sync settings below apply to this storage."
+			},
+			"sync": {
+				"title": "Folder sync",
+				"description": "Choose local folders and automatically upload them to the selected bucket on a schedule.",
+				"addFolders": "Add folders",
+				"folder": "Selected folder",
+				"removeFolder": "Remove folder",
+				"runNow": "Run now",
+				"running": "Syncing…",
+				"save": "Save schedule"
+			},
+			"syncSaved": "Folder sync schedule saved.",
 			"autoSync": {
 				"title": "Automatic sync",
 				"description": "Automatically push your configured files and folders to each storage provider on a schedule.",
@@ -960,6 +977,8 @@
 				"save": "Could not save storage settings.",
 				"delete": "Could not remove the provider.",
 				"test": "Connection failed.",
+				"pickFolders": "Could not select folders.",
+				"saveSync": "Could not save the folder sync schedule.",
 				"push": "Could not push files.",
 				"pull": "Could not pull files."
 			},

@@ -919,6 +919,23 @@
 		},
 		"storage": {
 			"description": "Configura uno o più provider di archiviazione compatibili con S3 per i tuoi file.",
+			"profile": {
+				"title": "Profilo di archiviazione",
+				"description": "Scegli lo storage salvato da usare per la sincronizzazione delle cartelle.",
+				"label": "Storage da usare",
+				"help": "Le impostazioni seguenti si applicano a questo storage."
+			},
+			"sync": {
+				"title": "Sincronizzazione cartelle",
+				"description": "Scegli le cartelle locali e caricale automaticamente nel bucket selezionato secondo una pianificazione.",
+				"addFolders": "Aggiungi cartelle",
+				"folder": "Cartella selezionata",
+				"removeFolder": "Rimuovi cartella",
+				"runNow": "Esegui ora",
+				"running": "Sincronizzazione…",
+				"save": "Salva pianificazione"
+			},
+			"syncSaved": "Pianificazione della sincronizzazione salvata.",
 			"autoSync": {
 				"title": "Sincronizzazione automatica",
 				"description": "Carica automaticamente i file e le cartelle configurati su ogni provider di archiviazione secondo una pianificazione.",
@@ -960,6 +977,8 @@
 				"save": "Impossibile salvare le impostazioni di archiviazione.",
 				"delete": "Impossibile rimuovere il provider.",
 				"test": "Connessione non riuscita.",
+				"pickFolders": "Impossibile selezionare le cartelle.",
+				"saveSync": "Impossibile salvare la pianificazione della sincronizzazione.",
 				"push": "Impossibile caricare i file.",
 				"pull": "Impossibile scaricare i file."
 			},

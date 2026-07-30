@@ -304,9 +304,9 @@ export function ProviderCard({
 							<div className="space-y-5">
 								<section className="space-y-3">
 									<GroupHeading>{t('settings.storage.connectionTitle')}</GroupHeading>
-									{renderField(CONNECTION_FIELDS[0], draft.endpoint)}
+									{renderField(CONNECTION_FIELDS[0], draft.name)}
+									{renderField(CONNECTION_FIELDS[1], draft.endpoint)}
 									<div className="grid gap-3 sm:grid-cols-2">
-										{renderField(CONNECTION_FIELDS[1], draft[CONNECTION_FIELDS[1].key])}
 										{renderField(CONNECTION_FIELDS[2], draft.region)}
 										{renderField(CONNECTION_FIELDS[3], draft.bucket)}
 									</div>
