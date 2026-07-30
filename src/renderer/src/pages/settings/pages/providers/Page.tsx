@@ -349,7 +349,7 @@ const ProvidersPage: React.FC = () => {
 				description={t('settings.providers.mlModelsDescription')}
 			>
 				<div className="space-y-3 py-4">
-					{actionableProviderCatalog().map((provider) => renderProviderCard(provider, 'ml_model'))}
+					{actionableProviderCatalog().map((provider) => renderProviderCard(provider, 'models'))}
 				</div>
 			</SettingsSection>
 
