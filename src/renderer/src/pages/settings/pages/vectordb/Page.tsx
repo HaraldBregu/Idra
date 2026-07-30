@@ -60,10 +60,7 @@ const VectorDbPage: React.FC = () => {
 
 	useEffect(() => {
 		const providerId = configuration.providerId;
-		if (!providerId) {
-			setApiKey('');
-			return;
-		}
+		if (!providerId) return;
 		let cancelled = false;
 		void window.provider.get(providerId).then(
 			(stored) => {
