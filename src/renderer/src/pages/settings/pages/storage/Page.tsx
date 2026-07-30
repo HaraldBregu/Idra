@@ -369,32 +369,22 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 										title={t('settings.storage.autoSync.interval')}
 										description={t('settings.storage.autoSync.description')}
 										actions={
-											<>
-												<Select
-													value={intervalValue}
-													onValueChange={selectInterval}
-													disabled={!storage.syncEnabled}
-												>
-													<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-														<SelectValue />
-													</SelectTrigger>
-													<SelectContent>
-														{SYNC_INTERVALS.map((interval) => (
-															<SelectItem key={interval.key} value={interval.key}>
-																{t(`settings.storage.autoSync.${interval.key}`)}
-															</SelectItem>
-														))}
-														{intervalValue === 'custom' && (
-															<SelectItem value="custom">{storage.syncCronExpression}</SelectItem>
-														)}
-													</SelectContent>
-												</Select>
-												<Switch
-													checked={storage.syncEnabled}
-													aria-label={t('settings.storage.autoSync.enabled')}
-													onCheckedChange={(syncEnabled) => updateDraft({ ...storage, syncEnabled })}
-												/>
-											</>
+											<Select value={intervalValue} onValueChange={selectInterval}>
+												<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+													<SelectValue />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="off">{t('settings.storage.autoSync.off')}</SelectItem>
+													{SYNC_INTERVALS.map((interval) => (
+														<SelectItem key={interval.key} value={interval.key}>
+															{t(`settings.storage.autoSync.${interval.key}`)}
+														</SelectItem>
+													))}
+													{intervalValue === 'custom' && (
+														<SelectItem value="custom">{storage.syncCronExpression}</SelectItem>
+													)}
+												</SelectContent>
+											</Select>
 										}
 									/>
 								</>
