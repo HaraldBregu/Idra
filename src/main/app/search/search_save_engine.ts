@@ -26,7 +26,9 @@ export function saveSearchEngine(
 	providersById.set(engineId, { ...provider, apiKey });
 	const providers = SEARCH_PROVIDERS.flatMap((provider) => {
 		const stored = providersById.get(provider.id);
-		return stored ? [{ ...provider, apiKey: stored.apiKey }] : [];
+		if (!stored) return [];
+		const { searchId: _searchId, ...catalogProvider } = provider;
+		return [{ ...catalogProvider, apiKey: stored.apiKey }];
 	});
 	setSearchProviders(providers);
 	if (!previousSettings.configured[previousSettings.engineId]) {
