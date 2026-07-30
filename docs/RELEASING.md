@@ -17,7 +17,10 @@ Install every workspace from the repository root:
 
 ```sh
 npm ci
-npm run quality:check
+npm run typecheck
+npm run test:main
+npm run test:renderer
+npm run test:packages
 npm run build:packages
 npm pack --dry-run --workspace @friday/sdk
 npm pack --dry-run --workspace @friday/cli
