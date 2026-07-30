@@ -218,7 +218,7 @@
 			"plugins": "Plugin",
 			"rag": "RAG",
 			"wiki": "Wiki",
-			"vectorDb": "Vector database"
+			"vectorDb": "Database"
 		},
 		"breadcrumb": {
 			"label": "Navigazione impostazioni",
