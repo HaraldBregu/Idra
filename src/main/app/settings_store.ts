@@ -34,6 +34,7 @@ export type AppSettingsState = {
 	databases: StoredProvider[];
 	storages: StoredStorage[];
 	storage_configuration: StorageConfiguration;
+	cron_configuration: PersistedCronState;
 };
 
 const APP_SETTINGS_STORE_NAME = 'settings';
