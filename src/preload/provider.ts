@@ -29,11 +29,19 @@ export const provider: ProviderApi = {
 		return Array.from(providersMap.values());
 	},
 	getModelProviders: async (): Promise<PublicProvider[]> => {
-		// ponytail: aggregates app.models() and returns unique providers
-		const models: CatalogModel[] = await window.app.models();
+		// ponytail: unique providers from app.models(), overlaid with stored settings data
+		const [models, stored] = await Promise.all([
+			window.app.models() as Promise<CatalogModel[]>,
+			provider.list(),
+		]);
+		const storedById = new Map(stored.map((entry) => [entry.id, entry]));
 		const providersMap = new Map<string, PublicProvider>();
 		models.forEach((model) => {
-			providersMap.set(model.provider.id, model.provider);
+			const saved = storedById.get(model.provider.id);
+			providersMap.set(model.provider.id, {
+				...model.provider,
+				baseUrl: saved?.baseUrl || model.provider.baseUrl,
+			});
 		});
 		return Array.from(providersMap.values());
 	},
