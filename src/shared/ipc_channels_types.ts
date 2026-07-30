@@ -30,6 +30,7 @@ import {
 	McpChannels,
 	SkillsChannels,
 	StorageChannels,
+	DatabaseChannels,
 	EmbeddingChannels,
 	ImageChannels,
 	SoundChannels,
