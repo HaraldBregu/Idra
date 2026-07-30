@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { agent, connect, image, isFriday } from './dist/packages/sdk/index.js';
+import { agent, connect, isFriday, models } from './dist/packages/sdk/index.js';
 
 // --- embedded mode: bound to the app's preload globals ----------------------
 
 assert.equal(isFriday(), false);
-assert.throws(() => image.createImage, /must run inside the Friday app/);
+assert.throws(() => models.image, /must run inside the Friday app/);
 
 globalThis.agent = {
 	sent: [],
@@ -51,7 +51,7 @@ const friday = connect({ url: `http://127.0.0.1:${server.address().port}`, token
 assert.deepEqual(await friday.ping(), { name: 'friday', version: '1.0.0' });
 
 // method names map onto the app's channels, including the aliased ones
-await friday.image.createImage({ prompt: 'x' });
+await friday.models.image.createImage({ prompt: 'x' });
 await friday.agent.getLastMessages('session-1');
 await friday.agent.healthGetSettings();
 assert.deepEqual(
@@ -64,7 +64,8 @@ const bytes = new Uint8Array([0, 1, 2, 250, 255]);
 assert.deepEqual(await friday.storage.getObject(bytes, 'key'), bytes);
 
 // members that only exist inside a window are refused
-assert.throws(() => friday.transcribe.onRealtimeEvent, /not available over the API/);
+const offRealtime = friday.models.transcribe.onRealtimeEvent(() => undefined);
+offRealtime();
 
 // events reach subscribers over the stream
 const seen = [];

@@ -4,10 +4,11 @@ import {
 	AppChannels,
 	ChannelsChannels,
 	CronChannels,
+	EmbeddingChannels,
 	ImageChannels,
-	LibraryChannels,
 	McpChannels,
 	ProviderChannels,
+	RecorderChannels,
 	SearchChannels,
 	SkillsChannels,
 	SoundChannels,
@@ -17,25 +18,22 @@ import {
 	TextChannels,
 	VideoChannels,
 	WidgetChannels,
+	WikiChannels,
 } from '../../src/shared/ipc_channels_definitions';
 import type {
 	AgentApi,
 	AppApi,
 	ChannelsApi,
 	CronApi,
-	ImageApi,
-	LibraryApi,
 	McpApi,
+	ModelsApi,
 	ProviderApi,
+	RecorderApi,
 	SearchApi,
 	SkillsApi,
-	SoundApi,
 	StorageApi,
-	TextApi,
-	TranscribeApi,
-	VideoApi,
-	VoiceApi,
 	WidgetsApi,
+	WikiApi,
 } from '../../src/shared/api_types';
 import type { AgentResponseEvent } from '../../src/shared/agent_types';
 import type { ChannelStatusEvent } from '../../src/shared/channels_types';
@@ -54,19 +52,15 @@ export interface FridayClient {
 	app: AppApi;
 	channels: ChannelsApi;
 	cron: CronApi;
-	image: ImageApi;
-	library: LibraryApi;
 	mcp: McpApi;
+	models: ModelsApi;
 	provider: ProviderApi;
+	recorder: RecorderApi;
 	search: SearchApi;
 	skills: SkillsApi;
-	sound: SoundApi;
 	storage: StorageApi;
-	text: TextApi;
-	transcribe: TranscribeApi;
-	video: VideoApi;
-	voice: VoiceApi;
 	widgets: WidgetsApi;
+	wiki: WikiApi;
 	/** Verify the app is reachable and the token is accepted. */
 	ping: () => Promise<{ name: string; version: string }>;
 	/** Close the event stream, if one was opened. */
@@ -187,19 +181,36 @@ export function connect(options: ConnectOptions): FridayClient {
 			},
 		}),
 		cron: namespace<CronApi>(CronChannels),
-		image: namespace<ImageApi>(ImageChannels),
-		library: namespace<LibraryApi>(LibraryChannels),
 		mcp: namespace<McpApi>(McpChannels),
+		models: {
+			embedding: namespace<ModelsApi['embedding']>(EmbeddingChannels),
+			image: namespace<ModelsApi['image']>(ImageChannels),
+			sound: namespace<ModelsApi['sound']>(SoundChannels),
+			text: namespace<ModelsApi['text']>(TextChannels),
+			transcribe: namespace<ModelsApi['transcribe']>(SttChannels, {
+				onRealtimeEvent: (callback) => {
+					const pending = listen((channel, data) => {
+						if (channel === SttChannels.realtimeEvent) callback(data as never);
+					});
+					return (): void => {
+						void pending.then((off) => off());
+					};
+				},
+			}),
+			video: namespace<ModelsApi['video']>(VideoChannels),
+			voice: namespace<ModelsApi['voice']>(SpeechChannels),
+		},
 		provider: namespace<ProviderApi>(ProviderChannels),
+		recorder: {
+			microphone: namespace<RecorderApi['microphone']>(RecorderChannels.microphone),
+			camera: namespace<RecorderApi['camera']>(RecorderChannels.camera),
+			screen: namespace<RecorderApi['screen']>(RecorderChannels.screen),
+		},
 		search: namespace<SearchApi>(SearchChannels),
 		skills: namespace<SkillsApi>(SkillsChannels),
-		sound: namespace<SoundApi>(SoundChannels),
 		storage: namespace<StorageApi>(StorageChannels),
-		text: namespace<TextApi>(TextChannels),
-		transcribe: namespace<TranscribeApi>(SttChannels),
-		video: namespace<VideoApi>(VideoChannels),
-		voice: namespace<VoiceApi>(SpeechChannels),
 		widgets: namespace<WidgetsApi>(WidgetChannels),
+		wiki: namespace<WikiApi>(WikiChannels),
 		ping: async () => {
 			const response = await call(`${base}/health`, { headers });
 			if (!response.ok) throw new Error(`Friday API unreachable: ${response.status}`);

@@ -47,14 +47,14 @@ Pass `url` to reach a non-default port, and `fetch` to supply your own implement
 ## Usage inside Friday
 
 ```ts
-import { agent, image, isFriday, type ImageRequest } from '@friday/sdk';
+import { agent, isFriday, models, type ImageRequest } from '@friday/sdk';
 
 if (!isFriday()) throw new Error('Not running inside Friday');
 
 const reply = await agent.send('Summarize my day', {}, (event) => console.log(event));
 
 const request: ImageRequest = { prompt: 'a red bicycle' };
-const result = await image.createImage(request);
+const result = await models.image.createImage(request);
 ```
 
 ## What's available
@@ -68,19 +68,15 @@ own preload API (`win` is embedded-only — it drives the window hosting your co
 | `app`        | App data folder, external URLs, tray, theme, language, permissions, context menus |
 | `channels`   | Channel config, provider/model, Telegram lifecycle, status                        |
 | `cron`       | Scheduled jobs and their runtime                                                  |
-| `image`      | Image generation and its provider/model                                           |
-| `library`    | Generated file library                                                            |
 | `mcp`        | MCP server config and OAuth                                                       |
+| `models`     | Embedding, image, sound, text, transcription, video, and voice models             |
 | `provider`   | Provider credentials store                                                        |
+| `recorder`   | Microphone, camera, and screen capture                                             |
 | `search`     | Search engine settings                                                            |
 | `skills`     | Install, enable, load skills                                                      |
-| `sound`      | Sound generation and listing                                                      |
 | `storage`    | Remote storage config, objects, sync/push/pull                                    |
-| `text`       | Text generation and its provider/model                                            |
-| `transcribe` | Batch and realtime speech-to-text                                                 |
-| `video`      | Video generation and its provider/model                                           |
-| `voice`      | Text-to-speech synthesis                                                          |
 | `widgets`    | Installed widgets                                                                 |
+| `wiki`       | Wiki generation settings and runs                                                 |
 | `win`        | Window controls for the hosting window                                            |
 
 All request/result types are re-exported (`ImageRequest`, `AgentResponseEvent`,

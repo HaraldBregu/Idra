@@ -3,19 +3,15 @@ import type {
 	AppApi,
 	ChannelsApi,
 	CronApi,
-	ImageApi,
-	LibraryApi,
 	McpApi,
+	ModelsApi,
 	ProviderApi,
+	RecorderApi,
 	SearchApi,
 	SkillsApi,
-	SoundApi,
 	StorageApi,
-	TextApi,
-	TranscribeApi,
-	VideoApi,
-	VoiceApi,
 	WidgetsApi,
+	WikiApi,
 	WindowApi,
 } from '../../src/shared/api_types';
 
@@ -24,14 +20,16 @@ export { connect, type ConnectOptions, type FridayClient } from './connect';
 export type * from '../../src/shared';
 export type * from '../../src/shared/api_types';
 export type * from '../../src/shared/agent_types';
+export type * from '../../src/shared/embedding_types';
 export type * from '../../src/shared/image_types';
-export type * from '../../src/shared/library_types';
+export type * from '../../src/shared/recorder_types';
 export type * from '../../src/shared/sound_types';
 export type * from '../../src/shared/speech_types';
 export type * from '../../src/shared/storage_types';
 export type * from '../../src/shared/text_types';
 export type * from '../../src/shared/video_types';
 export type * from '../../src/shared/widget_types';
+export type * from '../../src/shared/wiki_types';
 export type * from '../../src/main/cron/cron_types';
 export type * from '../../src/main/agent/health/health_types';
 export type * from '../../src/main/agent/policy/policy_types';
@@ -62,17 +60,13 @@ export const agent = bridge<AgentApi>('agent');
 export const app = bridge<AppApi>('app');
 export const channels = bridge<ChannelsApi>('channels');
 export const cron = bridge<CronApi>('cron');
-export const image = bridge<ImageApi>('image');
-export const library = bridge<LibraryApi>('library');
 export const mcp = bridge<McpApi>('mcp');
+export const models = bridge<ModelsApi>('models');
 export const provider = bridge<ProviderApi>('provider');
+export const recorder = bridge<RecorderApi>('recorder');
 export const search = bridge<SearchApi>('search');
 export const skills = bridge<SkillsApi>('skills');
-export const sound = bridge<SoundApi>('sound');
 export const storage = bridge<StorageApi>('storage');
-export const text = bridge<TextApi>('text');
-export const transcribe = bridge<TranscribeApi>('transcribe');
-export const video = bridge<VideoApi>('video');
-export const voice = bridge<VoiceApi>('voice');
 export const widgets = bridge<WidgetsApi>('widgets');
+export const wiki = bridge<WikiApi>('wiki');
 export const win = bridge<WindowApi>('win');
