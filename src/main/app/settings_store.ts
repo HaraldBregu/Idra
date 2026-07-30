@@ -233,7 +233,7 @@ export function deleteStorageConfig(id: string): void {
 }
 
 export function getSelectedStorageId(): string | undefined {
-	const id = store.get('selectedStorageId');
+	const id = store.get('storageProviderId');
 	return id && store.get('storages').some((storage) => storage.id === id) ? id : undefined;
 }
 
@@ -241,7 +241,10 @@ export function setSelectedStorageId(id: string): void {
 	if (!store.get('storages').some((storage) => storage.id === id)) {
 		throw new Error(`Storage not found: ${id}`);
 	}
-	store.set('selectedStorageId', id);
+	store.set('storageProviderId', id);
+	const storageId = loadStorages().find((entry) => entry.provider.id === id)?.id;
+	if (storageId) store.set('storageId', storageId);
+	else store.delete('storageId');
 }
 
 export function getProviderId(): string | undefined {

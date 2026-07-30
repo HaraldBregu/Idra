@@ -2,7 +2,6 @@
 	{
 		"id": "vector-database",
 		"name": "Vector Database",
-		"type": "vector",
 		"url": "https://api.pinecone.io"
 	}
 ]
