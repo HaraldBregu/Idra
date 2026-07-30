@@ -4,15 +4,13 @@ import {
 	type SearchSettings,
 } from '../../shared/search_types';
 import { getStoredSearchProviders } from './search_get_providers';
-import { searchStore } from './search_store';
 
 export function getSearchSettings(): SearchSettings {
-	const rawEngineId = searchStore.get('engineId') as unknown;
-	const engineId =
-		typeof rawEngineId === 'string' && SEARCH_ENGINE_IDS.includes(rawEngineId as SearchEngineId)
-			? (rawEngineId as SearchEngineId)
-			: 'brave';
 	const providers = getStoredSearchProviders();
+	const engineId =
+		providers[0] && SEARCH_ENGINE_IDS.includes(providers[0].id as SearchEngineId)
+			? (providers[0].id as SearchEngineId)
+			: 'brave';
 	const configured = Object.fromEntries(
 		SEARCH_ENGINE_IDS.map((id) => {
 			return [id, providers.some((provider) => provider.id === id && provider.apiKey.trim())];

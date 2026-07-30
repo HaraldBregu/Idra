@@ -62,25 +62,24 @@ describe('search settings', () => {
 			configured: { brave: false, tavily: true },
 		});
 		saveSearchEngine('brave', { apiKey: 'brave-key' });
-		expect(searchStore.store).toMatchObject({
-			providers: [
-				{
-					id: 'brave',
-					name: 'Brave',
-					baseUrl: 'https://api.search.brave.com/res/v1/web/search',
-					apiKey: 'brave-key',
-				},
-				{
-					id: 'tavily',
-					name: 'Tavily',
-					baseUrl: 'https://api.tavily.com/search',
-					apiKey: 'tavily-key',
-				},
-			],
-		});
+		expect(searchStore.store).toEqual([
+			{
+				id: 'tavily',
+				name: 'Tavily',
+				baseUrl: 'https://api.tavily.com/search',
+				apiKey: 'tavily-key',
+			},
+			{
+				id: 'brave',
+				name: 'Brave',
+				baseUrl: 'https://api.search.brave.com/res/v1/web/search',
+				apiKey: 'brave-key',
+			},
+		]);
 		expect(getSearchSettings().engineId).toBe('tavily');
 		expect(getSearchKey('tavily')).toBe('tavily-key');
 		expect(selectSearchEngine('brave').engineId).toBe('brave');
+		expect(searchStore.store.map((provider) => provider.id)).toEqual(['brave', 'tavily']);
 	});
 
 	it('rejects empty credentials and unconfigured selections', () => {
@@ -95,10 +94,9 @@ describe('search settings', () => {
 	});
 
 	it('normalizes malformed persisted state', () => {
-		searchStore.store = {
-			engineId: 'invalid',
-			providers: [{ id: 'brave', name: 'Brave', apiKey: 42, baseUrl: 'https://brave.test' }],
-		} as never;
+		searchStore.store = [
+			{ id: 'brave', name: 'Brave', apiKey: 42, baseUrl: 'https://brave.test' },
+		] as never;
 		expect(getSearchSettings()).toEqual({
 			engineId: 'brave',
 			configured: { brave: false, tavily: false },
