@@ -35,7 +35,6 @@ import {
 	SettingsLoadingRows,
 } from '../../components';
 import { ProviderCard } from '../storage/ProviderCard';
-import { DEFAULT_SYNC_CRON_EXPRESSION } from '../storage/constants';
 
 interface StorageEntry {
 	key: string;
