@@ -4,10 +4,11 @@ import {
 	type SearchEngineInput,
 	type SearchSettings,
 } from '../../../shared/search_types';
+import { setSearchProviders } from '../settings_store';
 import { getSearchSettings } from './search_get_settings';
 import { getStoredSearchProviders } from './search_get_providers';
 import { SEARCH_PROVIDERS } from './catalog';
-import { setSearchProviders } from './search_store';
+import { getSearchConfiguration, saveSearchConfiguration } from './search_store';
 
 export function saveSearchEngine(
 	engineId: SearchEngineId,
@@ -26,17 +27,10 @@ export function saveSearchEngine(
 		const stored = providersById.get(provider.id);
 		return stored ? [{ ...provider, apiKey: stored.apiKey }] : [];
 	});
-	setSearchProviders(
-		previousSettings.configured[previousSettings.engineId]
-			? [
-					...providers.filter((provider) => provider.id === previousSettings.engineId),
-					...providers.filter((provider) => provider.id !== previousSettings.engineId),
-				]
-			: [
-					...providers.filter((provider) => provider.id === engineId),
-					...providers.filter((provider) => provider.id !== engineId),
-				]
-	);
+	setSearchProviders(providers);
+	if (!previousSettings.configured[previousSettings.engineId]) {
+		saveSearchConfiguration({ providerId: engineId, searchId: catalogProvider.searchId });
+	}
 
 	return getSearchSettings();
 }

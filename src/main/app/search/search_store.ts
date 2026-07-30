@@ -1,25 +1,25 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { StoredProvider } from '../../../shared/provider_types';
 import { userDataLocation } from '../../shared/user_data_location';
 
 interface SearchSettingsState {
-	providers: StoredProvider[];
+	providerId?: string;
+	searchId?: string;
 }
 
 const store = new Store<SearchSettingsState>({
 	name: 'settings.search',
 	cwd: path.resolve(userDataLocation(), 'app'),
 	accessPropertiesByDotNotation: false,
-	defaults: { providers: [] },
+	defaults: { providerId: undefined, searchId: undefined },
 });
 
 export const searchStorePath = store.path;
 
-export function getSearchProviders(): StoredProvider[] {
-	return store.get('providers');
+export function getSearchConfiguration(): SearchSettingsState {
+	return store.store;
 }
 
-export function setSearchProviders(providers: StoredProvider[]): void {
-	store.set('providers', providers);
+export function saveSearchConfiguration(configuration: SearchSettingsState): void {
+	store.store = configuration;
 }
