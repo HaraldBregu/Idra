@@ -238,5 +238,5 @@ function readCatalog(): Catalog {
 		}
 	}
 
-	return { models, databases, storages };
+	return { models, databases, storages, webSearches };
 }
