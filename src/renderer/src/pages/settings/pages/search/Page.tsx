@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, KeyRound } from 'lucide-react';
+import { AlertTriangle, KeyRound, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import {
+	Card,
+	CardAction,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	} from '@/components/ui/card';
 import {
 	Select,
 	SelectContent,
@@ -15,8 +22,6 @@ import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
-	SettingsPanel,
-	SettingsRow,
 	SettingsSection,
 } from '../../components';
 import { SEARCH_ENGINES } from './catalog';
@@ -99,11 +104,20 @@ const SearchPage: React.FC = () => {
 
 			{settings && (
 				<SettingsSection title={t('settings.searchEngine.defaultTitle')}>
-					<SettingsPanel>
-						<SettingsRow
-							title={t('settings.searchEngine.provider')}
-							description={t('settings.searchEngine.defaultDescription')}
-							actions={
+					<Card size="sm">
+						<CardHeader className="items-center">
+							<div className="flex min-w-0 flex-1 items-center gap-2.5">
+								<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
+									<Search className="size-4 text-muted-foreground" />
+								</div>
+								<div className="min-w-0">
+									<CardTitle>{t('settings.searchEngine.provider')}</CardTitle>
+									<CardDescription>
+										{t('settings.searchEngine.defaultDescription')}
+									</CardDescription>
+								</div>
+							</div>
+							<CardAction className="self-center">
 								<Select
 									value={settings.engineId}
 									onValueChange={handleEngineChange}
@@ -128,9 +142,9 @@ const SearchPage: React.FC = () => {
 										))}
 									</SelectContent>
 								</Select>
-							}
-						/>
-					</SettingsPanel>
+							</CardAction>
+						</CardHeader>
+					</Card>
 				</SettingsSection>
 			)}
 
