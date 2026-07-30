@@ -27,12 +27,20 @@
 		"url": "https://github.com/HaraldBregu/friday/issues"
 	},
 	"scripts": {
-		"build": "rm -rf dist && tsc -p tsconfig.json && node postbuild.js",
+		"clean": "rimraf dist",
+		"build": "npm run clean && tsc -p tsconfig.json && node postbuild.js",
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"test": "npm run smoke",
 		"smoke": "npm run build && node smoke.js",
 		"prepublishOnly": "npm run build"
 	},
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"devDependencies": {
+		"rimraf": "^6.0.1",
+		"typescript": "^5.9.2"
 	},
 	"keywords": [
 		"friday",

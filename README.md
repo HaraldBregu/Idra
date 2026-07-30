@@ -43,12 +43,15 @@ Friday runs on Windows, macOS, and Linux, with English and Italian interfaces an
 
 ## Getting Started
 
-Requirements: Node.js 22+ (npm is included with Node.js).
+Requirements: Node.js 22.14+ and npm 11.5.1+.
 
 ```bash
 npm ci
 npm run dev
 ```
+
+The root install includes the Electron app, `@friday/sdk`, and `@friday/cli` through npm
+workspaces and one lockfile.
 
 On first launch, add an API key under **Settings → Providers**, then select the provider and model for the assistant. Configure speech and media models only for the capabilities you plan to use.
 
@@ -64,7 +67,6 @@ The TypeScript CLI lives in `packages/cli`. It launches the desktop app, install
 plugins, and includes an interactive terminal interface:
 
 ```bash
-npm --prefix packages/cli install
 npm run cli:build
 npm link ./packages/cli
 
@@ -107,6 +109,7 @@ npm run dist:linux:appimage  # Linux AppImage
 - `src/preload` exposes the narrow bridge between the renderer and main process.
 - `src/shared` contains cross-process types and API contracts.
 - `packages/cli` contains the publishable TypeScript command-line and terminal interface.
+- `packages/sdk` contains the publishable typed client for Friday's local API.
 - `src/main/agent` contains sessions, tools, skills, memory, schedules, health runs, sandboxing, and permission policy.
 - `src/main/models` contains provider-specific model integrations.
 
@@ -115,6 +118,12 @@ npm run dist:linux:appimage  # Linux AppImage
 Renderer windows use sandboxing, context isolation, disabled Node integration, and web security. Preload APIs expose narrow typed IPC methods, and agent writes, edits, patches, and command execution are subject to the permission policy.
 
 See [SECURITY.md](SECURITY.md) for the security policy and vulnerability reporting process.
+
+## Releases
+
+The Electron app, SDK, and CLI are versioned and deployed independently from this repository.
+See [docs/RELEASING.md](docs/RELEASING.md) for tag conventions, npm trusted publishing,
+desktop signing, and recovery procedures.
 
 ## Contributing
 

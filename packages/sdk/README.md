@@ -107,21 +107,15 @@ Routes: `GET /health`, `POST /invoke` (`{ channel, args }`), `GET /events` (SSE)
 
 ## Development
 
+Run these commands from the repository root:
+
 ```sh
-npm run build   # tsc from the app's shared types into dist/
-npm run smoke   # build, then a self-check of both the embedded and remote paths
+npm ci
+npm run sdk:build
+npm run sdk:test
 ```
 
 ## Publishing
 
-The scope `@friday` must exist on npm and be yours — create it once with
-`npm org create friday`, or claim the username. Then:
-
-```sh
-npm login
-npm pack --dry-run   # inspect what ships (dist/ + README + LICENSE)
-npm publish          # prepublishOnly rebuilds dist/, publishConfig.access is public
-```
-
-Bump with `npm version patch|minor|major` (semver: patch = fix, minor = added API,
-major = breaking). Releases before `1.0.0` may break on minor bumps.
+SDK releases use `sdk-v<version>` tags and npm trusted publishing. See the repository
+[release guide](../../docs/RELEASING.md).

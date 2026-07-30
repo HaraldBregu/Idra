@@ -147,7 +147,7 @@
 		"target": "nsis",
 		"signAndEditExecutable": true,
 		"artifactName": "${productName}.${ext}",
-		"forceCodeSigning": false,
+		"forceCodeSigning": true,
 		"signtoolOptions": {
 			"publisherName": "Friday Project"
 		},

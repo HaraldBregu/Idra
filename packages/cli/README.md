@@ -52,10 +52,15 @@ desktop executable is in a custom location, including a downloaded Linux AppImag
 
 ## Development
 
+Run these commands from the repository root:
+
 ```sh
-npm install
-npm run typecheck
-npm test
-npm run build
-npm link
+npm ci
+npm run typecheck --workspace @friday/cli
+npm run cli:test
+npm run cli:build
+npm link ./packages/cli
 ```
+
+CLI releases use `cli-v<version>` tags and npm trusted publishing. See the repository
+[release guide](../../docs/RELEASING.md).
