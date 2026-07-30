@@ -1,6 +1,6 @@
 [
 	{
-		"id": "Object s3 storage",
+		"id": "object-storage",
 		"name": "Object Storage",
 		"type": "object-storage",
 		"url": "https://r2.cloudflarestorage.com"

@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
 	Select,
 	SelectContent,
@@ -26,7 +25,6 @@ import type { StorageConfig, StorageSyncFolder } from '../../../../../../shared/
 import { getErrorMessage } from '../../../start/constants';
 import {
 	SettingsLoadingRows,
-	SettingsField,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -35,7 +33,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { ProviderCard } from './ProviderCard';
-import { DEFAULT_SYNC_CRON_EXPRESSION } from './constants';
+import { DEFAULT_SYNC_CRON_EXPRESSION, SYNC_INTERVALS } from './constants';
 
 const BLANK_STORAGE: StorageConfig = {
 	id: '',
@@ -108,6 +106,10 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 	const selectedStorage = selectedEntry?.storage;
 	const builtInPaths = new Set(availableFolders.map((folder) => folder.path));
 	const customPaths = selectedStorage?.paths.filter((path) => !builtInPaths.has(path)) ?? [];
+	const intervalValue = !selectedStorage?.syncEnabled
+		? 'off'
+		: (SYNC_INTERVALS.find((interval) => interval.cron === selectedStorage.syncCronExpression)
+				?.key ?? 'custom');
 
 	const updateSelectedStorage = (storage: StorageConfig): void => {
 		setEntries(
@@ -175,6 +177,30 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 		}
 	};
 
+	const selectProfile = (id: string): void => {
+		setSelectedStorageId(id);
+		setSyncStatus(null);
+		if (id) {
+			void window.storage.setSelectedStorageId(id).catch((err) => {
+				setError(getErrorMessage(err, t('settings.storage.errors.selectProfile')));
+			});
+		}
+	};
+
+	const selectInterval = (value: string): void => {
+		if (!selectedStorage) return;
+		if (value === 'off') {
+			updateSelectedStorage({ ...selectedStorage, syncEnabled: false });
+			return;
+		}
+		const cron = SYNC_INTERVALS.find((interval) => interval.key === value)?.cron;
+		updateSelectedStorage({
+			...selectedStorage,
+			syncEnabled: true,
+			syncCronExpression: cron ?? selectedStorage.syncCronExpression,
+		});
+	};
+
 	return (
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
 			{!embedded && (
@@ -192,7 +218,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 
 			{!entries ? (
 				<SettingsLoadingRows rows={4} />
-			) : (
+			) : embedded ? (
 				<>
 					{entries.length === 0 && <SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>}
 
@@ -230,179 +256,153 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 						<Plus className="size-3" />
 						{t('settings.storage.addProvider')}
 					</Button>
-
-					{!embedded && savedEntries.length > 0 && (
-						<>
-							<SettingsSection
-								title={t('settings.storage.profile.title')}
-								description={t('settings.storage.profile.description')}
+				</>
+			) : savedEntries.length === 0 ? (
+				<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
+			) : (
+				<>
+					<SettingsSection
+						title={t('settings.storage.sync.title')}
+						description={t('settings.storage.sync.description')}
+						action={
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => void pickFolders()}
+								disabled={!selectedStorage || savingSync || runningSync}
 							>
-								<SettingsPanel>
-									<SettingsRow
-										icon={HardDrive}
-										title={t('settings.storage.profile.label')}
-										description={t('settings.storage.profile.help')}
-										actions={
-											<Select
-												value={selectedStorageId}
-												onValueChange={(value) => {
-													const id = value ?? '';
-													setSelectedStorageId(id);
-													setSyncStatus(null);
-													if (id) {
-														void window.storage.setSelectedStorageId(id).catch((err) => {
-															setError(
-																getErrorMessage(err, t('settings.storage.errors.selectProfile'))
-															);
-														});
-													}
-												}}
-											>
-												<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-													<SelectValue />
-												</SelectTrigger>
-												<SelectContent>
-													{savedEntries.map(({ storage }) => (
-														<SelectItem key={storage.id} value={storage.id}>
-															{storage.name || storage.bucket || storage.endpoint || storage.id}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										}
-									/>
-								</SettingsPanel>
-							</SettingsSection>
+								<FolderPlus className="size-3" />
+								{t('settings.storage.sync.addFolders')}
+							</Button>
+						}
+					>
+						<SettingsPanel>
+							<SettingsRow
+								icon={HardDrive}
+								title={t('settings.storage.profile.label')}
+								description={t('settings.storage.profile.help')}
+								actions={
+									<Select value={selectedStorageId} onValueChange={selectProfile}>
+										<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											{savedEntries.map(({ storage }) => (
+												<SelectItem key={storage.id} value={storage.id}>
+													{storage.name || storage.bucket || storage.endpoint || storage.id}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								}
+							/>
 
 							{selectedStorage && (
-								<SettingsSection
-									title={t('settings.storage.sync.title')}
-									description={t('settings.storage.sync.description')}
-									action={
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => void pickFolders()}
-											disabled={savingSync || runningSync}
-										>
-											<FolderPlus className="size-3" />
-											{t('settings.storage.sync.addFolders')}
-										</Button>
-									}
-								>
-									<SettingsPanel>
-										{availableFolders.map((folder) => (
-											<SettingsRow
-												key={folder.path}
-												icon={FolderSync}
-												title={t(`settings.storage.folders.${folder.key}`)}
-												description={folder.path}
-												actions={
-													<Switch
-														checked={selectedStorage.paths.includes(folder.path)}
-														aria-label={t(`settings.storage.folders.${folder.key}`)}
-														onCheckedChange={(checked) =>
-															updateSelectedStorage({
-																...selectedStorage,
-																paths: checked
-																	? [...new Set([...selectedStorage.paths, folder.path])]
-																	: selectedStorage.paths.filter((path) => path !== folder.path),
-															})
-														}
-													/>
-												}
-											/>
-										))}
-
-										{customPaths.map((path) => (
-											<SettingsRow
-												key={path}
-												icon={FolderSync}
-												title={t('settings.storage.sync.folder')}
-												description={path}
-												actions={
-													<Button
-														variant="ghost"
-														size="icon-sm"
-														aria-label={t('settings.storage.sync.removeFolder')}
-														onClick={() =>
-															updateSelectedStorage({
-																...selectedStorage,
-																paths: selectedStorage.paths.filter((entry) => entry !== path),
-															})
-														}
-													>
-														<Trash2 className="size-3" />
-													</Button>
-												}
-											/>
-										))}
-
+								<>
+									{availableFolders.map((folder) => (
 										<SettingsRow
-											icon={CalendarClock}
-											title={t('settings.storage.autoSync.title')}
-											description={t('settings.storage.autoSync.description')}
+											key={folder.path}
+											icon={FolderSync}
+											title={t(`settings.storage.folders.${folder.key}`)}
+											description={folder.path}
 											actions={
 												<Switch
-													checked={selectedStorage.syncEnabled}
-													aria-label={t('settings.storage.autoSync.enabled')}
-													onCheckedChange={(syncEnabled) =>
-														updateSelectedStorage({ ...selectedStorage, syncEnabled })
+													checked={selectedStorage.paths.includes(folder.path)}
+													aria-label={t(`settings.storage.folders.${folder.key}`)}
+													onCheckedChange={(checked) =>
+														updateSelectedStorage({
+															...selectedStorage,
+															paths: checked
+																? [...new Set([...selectedStorage.paths, folder.path])]
+																: selectedStorage.paths.filter((path) => path !== folder.path),
+														})
 													}
 												/>
 											}
 										/>
-										<div className="p-3">
-											<SettingsField
-												id="storage-sync-cron"
-												label={t('settings.storage.autoSync.cronExpression')}
-												description={t('settings.storage.autoSync.cronDescription')}
-											>
-												<Input
-													id="storage-sync-cron"
-													value={selectedStorage.syncCronExpression}
-													disabled={!selectedStorage.syncEnabled}
-													placeholder={DEFAULT_SYNC_CRON_EXPRESSION}
-													onChange={(event) =>
+									))}
+
+									{customPaths.map((path) => (
+										<SettingsRow
+											key={path}
+											icon={FolderSync}
+											title={t('settings.storage.sync.folder')}
+											description={path}
+											actions={
+												<Button
+													variant="ghost"
+													size="icon-sm"
+													aria-label={t('settings.storage.sync.removeFolder')}
+													onClick={() =>
 														updateSelectedStorage({
 															...selectedStorage,
-															syncCronExpression: event.target.value,
+															paths: selectedStorage.paths.filter((entry) => entry !== path),
 														})
 													}
-												/>
-											</SettingsField>
-										</div>
+												>
+													<Trash2 className="size-3" />
+												</Button>
+											}
+										/>
+									))}
 
-										<div className="flex flex-wrap justify-end gap-2 p-3">
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => void runSync()}
-												disabled={savingSync || runningSync || selectedStorage.paths.length === 0}
-											>
-												<Play className="size-3" />
-												{runningSync
-													? t('settings.storage.sync.running')
-													: t('settings.storage.sync.runNow')}
-											</Button>
-											<Button
-												size="sm"
-												onClick={() => void saveSync()}
-												disabled={savingSync || runningSync}
-											>
-												<Save className="size-3" />
-												{savingSync
-													? t('settings.storage.saving')
-													: t('settings.storage.sync.save')}
-											</Button>
-										</div>
-									</SettingsPanel>
-								</SettingsSection>
+									<SettingsRow
+										icon={CalendarClock}
+										title={t('settings.storage.autoSync.interval')}
+										description={t('settings.storage.autoSync.description')}
+										actions={
+											<Select value={intervalValue} onValueChange={selectInterval}>
+												<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+													<SelectValue />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="off">
+														{t('settings.storage.autoSync.off')}
+													</SelectItem>
+													{SYNC_INTERVALS.map((interval) => (
+														<SelectItem key={interval.key} value={interval.key}>
+															{t(`settings.storage.autoSync.${interval.key}`)}
+														</SelectItem>
+													))}
+													{intervalValue === 'custom' && (
+														<SelectItem value="custom">
+															{selectedStorage.syncCronExpression}
+														</SelectItem>
+													)}
+												</SelectContent>
+											</Select>
+										}
+									/>
+
+									<div className="flex flex-wrap justify-end gap-2 p-3">
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => void runSync()}
+											disabled={savingSync || runningSync || selectedStorage.paths.length === 0}
+										>
+											<Play className="size-3" />
+											{runningSync
+												? t('settings.storage.sync.running')
+												: t('settings.storage.sync.runNow')}
+										</Button>
+										<Button
+											size="sm"
+											onClick={() => void saveSync()}
+											disabled={savingSync || runningSync}
+										>
+											<Save className="size-3" />
+											{savingSync
+												? t('settings.storage.saving')
+												: t('settings.storage.sync.save')}
+										</Button>
+									</div>
+								</>
 							)}
+						</SettingsPanel>
+					</SettingsSection>
 
-							{syncStatus && <SettingsNotice icon={FolderSync}>{syncStatus}</SettingsNotice>}
-						</>
-					)}
+					{syncStatus && <SettingsNotice icon={FolderSync}>{syncStatus}</SettingsNotice>}
 				</>
 			)}
 
