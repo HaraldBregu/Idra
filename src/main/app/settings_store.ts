@@ -49,6 +49,11 @@ const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
 	syncCronExpression: DEFAULT_SYNC_CRON_EXPRESSION,
 };
 
+const DEFAULT_DATABASE_CONFIGURATION: DatabaseConfiguration = {
+	providerId: undefined,
+	databaseId: undefined,
+};
+
 const DEFAULT_ASSISTANT_CONFIGURATION: AssistantConfiguration = {
 	providerId: undefined,
 	modelId: undefined,
