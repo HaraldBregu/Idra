@@ -62,6 +62,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	databases: [],
 	storages: [],
 	storage_configuration: DEFAULT_STORAGE_CONFIGURATION,
+	cron_configuration: { schedules: [] },
 };
 
 const store = new Store<AppSettingsState>({
@@ -70,6 +71,8 @@ const store = new Store<AppSettingsState>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_APP_SETTINGS,
 });
+
+export const appSettingsStorePath = store.path;
 
 export function getTrayEnabled(): boolean {
 	return store.get('trayEnabled');
