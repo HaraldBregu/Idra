@@ -279,7 +279,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 				<>
 					<Card size="sm">
 						<CardHeader className="border-b">
-							<CardTitle>{t('settings.storage.sync.title')}</CardTitle>
+							<CardTitle>{t('settings.storage.cardTitle')}</CardTitle>
 							<CardDescription className="text-xs">
 								{t('settings.storage.sync.description')}
 							</CardDescription>
