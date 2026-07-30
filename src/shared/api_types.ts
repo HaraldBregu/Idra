@@ -293,6 +293,8 @@ export interface ModelsApi {
 
 export interface AppApi {
 	models: () => Promise<CatalogModel[]>;
+	/** Fires when resources/providers changes on disk; returns an unsubscribe function. */
+	onModelsChanged: (callback: () => void) => () => void;
 	getPathForFile: (file: File) => string;
 	openAppDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
