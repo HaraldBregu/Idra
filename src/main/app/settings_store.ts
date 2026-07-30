@@ -11,7 +11,10 @@ import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../cloud/storage/storage_sync_typ
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
 /** ponytail: runtime/sync fields are not persisted; reads rebuild them with defaults. */
-type StoredStorage = Omit<StorageConfig, 'forcePathStyle' | 'paths' | 'syncIntervalMinutes'>;
+type StoredStorage = Omit<StorageConfig, 'forcePathStyle' | 'paths' | 'syncIntervalMinutes'> & {
+	/** API base of the catalog storage entry this config belongs to. */
+	baseUrl: string;
+};
 
 export type AppSettingsState = {
 	trayEnabled: boolean;
