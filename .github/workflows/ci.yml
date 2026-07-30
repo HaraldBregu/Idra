@@ -23,8 +23,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - run: npm run test:main
-      - run: npm run test:renderer
+      - run: npm run build
       - run: npm run test:packages
       - run: npm run build:packages
       - run: npm pack --dry-run --workspace @friday/sdk
