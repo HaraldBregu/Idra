@@ -227,8 +227,13 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 export function deleteStorageConfig(id: string): void {
 	const storages = store.get('storages').filter((storage) => storage.id !== id);
 	store.set('storages', storages);
-	if (store.get('selectedStorageId') === id) {
-		store.set('selectedStorageId', storages[0]?.id);
+	if (store.get('storageProviderId') === id) {
+		const next = storages[0]?.id;
+		if (next) setSelectedStorageId(next);
+		else {
+			store.delete('storageProviderId');
+			store.delete('storageId');
+		}
 	}
 }
 
