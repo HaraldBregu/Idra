@@ -50,6 +50,11 @@ export function loadStorages(): readonly CatalogService[] {
 	return loadCatalog().storages;
 }
 
+/** Every web search provider across resources/providers/<id>/web_search.json. */
+export function loadWebSearches(): readonly CatalogWebSearch[] {
+	return loadCatalog().webSearches;
+}
+
 /** Keep the catalog in sync with resources/providers; onChange fires after edits settle. */
 export function watchModels(onChange: () => void): void {
 	if (watching) return;
