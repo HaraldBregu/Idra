@@ -21,8 +21,9 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { openExternalUrl } from '@/lib/external-links';
 import type { StorageConfig } from '../../../../../../shared/storage_types';
-import { getErrorMessage } from '../../../start/constants';
+import { getErrorMessage, MASKED_API_KEY_LABEL } from '../../../start/constants';
 import { SettingsField, SettingsNotice } from '../../components';
 
 type StringConfigKey =
