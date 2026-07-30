@@ -1,8 +1,8 @@
-import type { StoredProvider } from '../../shared/provider_types';
-import { searchStore } from './search_store';
+import type { StoredProvider } from '../../../shared/provider_types';
+import { getSearchProviders } from '../settings_store';
 
 export function getStoredSearchProviders(): StoredProvider[] {
-	const stored = searchStore.store as unknown;
+	const stored = getSearchProviders() as unknown;
 	if (!Array.isArray(stored)) return [];
 	return stored.filter(
 		(value): value is StoredProvider =>
