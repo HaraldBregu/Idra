@@ -157,7 +157,7 @@ const VectorDbPage: React.FC = () => {
 							actions={
 								<Select value={configuration.providerId ?? ''} onValueChange={selectProvider}>
 									<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-										<SelectValue />
+										<SelectValue>{selectedProvider?.name}</SelectValue>
 									</SelectTrigger>
 									<SelectContent>
 										{providers.map((provider) => (
