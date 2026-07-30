@@ -7,6 +7,11 @@ export interface StorageConfig {
 	secretAccessKey: string;
 	bucket: string;
 	forcePathStyle: boolean;
+}
+
+export interface StorageConfiguration {
+	providerId: string | undefined;
+	storageId: string | undefined;
 	paths: string[];
 	syncEnabled: boolean;
 	syncCronExpression: string;
