@@ -358,7 +358,7 @@ const ProvidersPage: React.FC = () => {
 				description={t('settings.providers.vectorDatabasesDescription')}
 			>
 				<div className="space-y-3 py-4">
-					{actionableDatabaseCatalog().map((provider) => renderProviderCard(provider, 'vector_db'))}
+					{actionableDatabaseCatalog().map((provider) => renderProviderCard(provider, 'databases'))}
 				</div>
 			</SettingsSection>
 
