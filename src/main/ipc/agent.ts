@@ -27,12 +27,7 @@ import {
 } from '../agent/health/health_store';
 import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
 import type { HealthSettings } from '../agent/health/health_types';
-import {
-	getModelId,
-	getProviderId,
-	setModelId,
-	setProviderId,
-} from '../app/settings_store';
+import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/agent_store';
 import { indexRag, ragLocation, searchRag, type RagIndexResult, type RagMatch } from '../rag';
 
 export interface AgentIpcDeps {
