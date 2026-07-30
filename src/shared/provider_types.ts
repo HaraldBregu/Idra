@@ -71,9 +71,10 @@ export function normalizeProviderId(providerId: string): string {
 }
 
 export function getProviderApiConfigurationUrl(
-	provider: Pick<Provider, 'apiConfiguration' | 'baseUrl'>
+	provider: Pick<Provider, 'apiKeyUrl' | 'apiConfiguration' | 'baseUrl'>
 ): string {
 	return (
+		provider.apiKeyUrl?.trim() ||
 		provider.apiConfiguration?.apiKeyManagementUrl?.trim() ||
 		provider.apiConfiguration?.configurationDocsUrl?.trim() ||
 		provider.baseUrl.trim()
