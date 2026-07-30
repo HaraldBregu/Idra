@@ -18,13 +18,17 @@ type StoredStorage = Omit<StorageConfig, 'forcePathStyle'> & {
 	forcePathStyle?: boolean;
 };
 
+export type AssistantConfiguration = {
+	providerId: string | undefined;
+	modelId: string | undefined;
+};
+
 export type AppSettingsState = {
 	trayEnabled: boolean;
 	keepAwake: boolean;
 	language: AppLanguage;
 	theme: AppTheme;
-	modelProviderId: string | undefined;
-	modelId: string | undefined;
+	assistant_configuration: AssistantConfiguration;
 	models: StoredProvider[];
 	databases: StoredProvider[];
 	storages: StoredStorage[];
@@ -41,13 +45,17 @@ const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
 	syncCronExpression: DEFAULT_SYNC_CRON_EXPRESSION,
 };
 
+const DEFAULT_ASSISTANT_CONFIGURATION: AssistantConfiguration = {
+	providerId: undefined,
+	modelId: undefined,
+};
+
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	trayEnabled: true,
 	keepAwake: false,
 	language: 'en',
 	theme: 'system',
-	modelProviderId: undefined,
-	modelId: undefined,
+	assistant_configuration: DEFAULT_ASSISTANT_CONFIGURATION,
 	models: [],
 	databases: [],
 	storages: [],
