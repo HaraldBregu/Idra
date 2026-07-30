@@ -6,7 +6,7 @@ import {
 	deleteObject,
 	deleteStorageConfig,
 	getObject,
-	getSelectedStorageId,
+	getStorageConfiguration,
 	getStorages,
 	listObjects,
 	pickFolders,
