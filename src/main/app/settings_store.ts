@@ -150,7 +150,13 @@ function isStoredProvider(value: unknown): value is StoredProvider {
 
 function toStorageConfig(stored: StoredStorage): StorageConfig {
 	return {
-		...stored,
+		id: stored.id,
+		name: stored.name,
+		endpoint: stored.endpoint,
+		region: stored.region,
+		accessKeyId: stored.accessKeyId,
+		secretAccessKey: stored.secretAccessKey,
+		bucket: stored.bucket,
 		forcePathStyle: false,
 		paths: [],
 		syncIntervalMinutes: DEFAULT_SYNC_INTERVAL_MINUTES,
@@ -166,6 +172,7 @@ function toStoredStorage(config: StorageConfig): StoredStorage {
 		accessKeyId: config.accessKeyId,
 		secretAccessKey: config.secretAccessKey,
 		bucket: config.bucket,
+		baseUrl: loadStorages().find((entry) => entry.provider.id === config.id)?.url ?? '',
 	};
 }
 
