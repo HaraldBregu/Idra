@@ -35,6 +35,20 @@ export interface CatalogEntryModel extends ProviderModel {
 	readonly sampleRate?: number;
 }
 
+/** One entry in resources/providers/<id>/databases.json or storages.json. */
+export interface CatalogEntryService {
+	readonly id: string;
+	readonly name: string;
+	readonly type: string;
+	/** Base URL of the API serving this service. */
+	readonly url?: string;
+}
+
+/** A database or storage offering, carrying the provider that serves it. */
+export interface CatalogService extends CatalogEntryService {
+	readonly provider: PublicProvider;
+}
+
 /** Provider identity, as stored in resources/providers/<id>/info.json. */
 export interface ProviderCatalogEntry {
 	readonly id: string;

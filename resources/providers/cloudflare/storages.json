@@ -1,0 +1,7 @@
+[
+	{
+		"id": "Object s3 storage",
+		"name": "Object Storage",
+		"type":"object-storage"
+	}
+]
