@@ -43,6 +43,11 @@ interface FieldDef {
 
 const CONNECTION_FIELDS: readonly FieldDef[] = [
 	{
+		key: 'name',
+		labelKey: 'settings.storage.name',
+		placeholder: 'e.g. Cloudflare R2, AWS backup',
+	},
+	{
 		key: 'endpoint',
 		labelKey: 'settings.storage.endpoint',
 		placeholder: 'https://s3.amazonaws.com',
@@ -132,7 +137,11 @@ export function ProviderCard({
 		setSaving(true);
 		setError(null);
 		try {
-			const saved = await window.storage.saveStorageConfig(target);
+			const saved = await window.storage.saveStorageConfig({
+				...target,
+				paths: storage.paths,
+				syncIntervalMinutes: storage.syncIntervalMinutes,
+			});
 			setCanonical(saved);
 			setDraft(saved);
 			setEditing(false);
@@ -297,8 +306,9 @@ export function ProviderCard({
 									<GroupHeading>{t('settings.storage.connectionTitle')}</GroupHeading>
 									{renderField(CONNECTION_FIELDS[0], draft.endpoint)}
 									<div className="grid gap-3 sm:grid-cols-2">
-										{renderField(CONNECTION_FIELDS[1], draft.region)}
-										{renderField(CONNECTION_FIELDS[2], draft.bucket)}
+										{renderField(CONNECTION_FIELDS[1], draft[CONNECTION_FIELDS[1].key])}
+										{renderField(CONNECTION_FIELDS[2], draft.region)}
+										{renderField(CONNECTION_FIELDS[3], draft.bucket)}
 									</div>
 								</section>
 
