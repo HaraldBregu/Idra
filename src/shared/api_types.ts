@@ -191,6 +191,11 @@ export interface ExtensionsApi {
 	open: (extensionId: string) => Promise<void>;
 }
 
+export interface PluginsApi {
+	list: () => Promise<PluginSummary[]>;
+	install: () => Promise<PluginInstallResult | undefined>;
+}
+
 export interface SearchApi {
 	getSettings: () => Promise<SearchSettings>;
 	saveEngine: (engineId: SearchEngineId, input: SearchEngineInput) => Promise<SearchSettings>;
