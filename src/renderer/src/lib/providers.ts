@@ -12,9 +12,14 @@ import type {
 
 let catalog: readonly CatalogModel[] = [];
 let databaseCatalog: readonly CatalogService[] = [];
+let storageCatalog: readonly CatalogService[] = [];
 
 export async function loadModels(): Promise<void> {
-	[catalog, databaseCatalog] = await Promise.all([window.app.models(), window.app.databases()]);
+	[catalog, databaseCatalog, storageCatalog] = await Promise.all([
+		window.app.models(),
+		window.app.databases(),
+		window.app.storages(),
+	]);
 }
 
 export function models(): readonly CatalogModel[] {
