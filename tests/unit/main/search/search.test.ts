@@ -19,13 +19,17 @@ jest.mock('electron-store', () =>
 );
 
 import { getWebSearchTools } from '../../../../src/main/agent/tools/web/search';
+import { getSearchProviders, setSearchProviders } from '../../../../src/main/app/settings_store';
 import { searchBrave } from '../../../../src/main/app/search/adapters/brave';
 import { searchTavily } from '../../../../src/main/app/search/adapters/tavily';
 import { getSearchKey } from '../../../../src/main/app/search/search_get_key';
 import { getSearchSettings } from '../../../../src/main/app/search/search_get_settings';
 import { saveSearchEngine } from '../../../../src/main/app/search/search_save_engine';
 import { selectSearchEngine } from '../../../../src/main/app/search/search_select_engine';
-import { getSearchProviders, setSearchProviders } from '../../../../src/main/app/search/search_store';
+import {
+	getSearchConfiguration,
+	saveSearchConfiguration,
+} from '../../../../src/main/app/search/search_store';
 import { searchWeb } from '../../../../src/main/app/search/search_web';
 
 const originalFetch = global.fetch;
@@ -41,6 +45,7 @@ function response(body: unknown, status = 200, statusText = 'OK'): Response {
 
 beforeEach(() => {
 	setSearchProviders([]);
+	saveSearchConfiguration({});
 	delete process.env.BRAVE_API_KEY;
 	delete process.env.TAVILY_API_KEY;
 	global.fetch = jest.fn();
@@ -64,22 +69,25 @@ describe('search settings', () => {
 		saveSearchEngine('brave', { apiKey: 'brave-key' });
 		expect(getSearchProviders()).toEqual([
 			{
-				id: 'tavily',
-				name: 'Tavily',
-				baseUrl: 'https://api.tavily.com/search',
-				apiKey: 'tavily-key',
-			},
-			{
 				id: 'brave',
 				name: 'Brave',
 				baseUrl: 'https://api.search.brave.com/res/v1/web/search',
 				apiKey: 'brave-key',
 			},
+			{
+				id: 'tavily',
+				name: 'Tavily',
+				baseUrl: 'https://api.tavily.com/search',
+				apiKey: 'tavily-key',
+			},
 		]);
 		expect(getSearchSettings().engineId).toBe('tavily');
 		expect(getSearchKey('tavily')).toBe('tavily-key');
 		expect(selectSearchEngine('brave').engineId).toBe('brave');
-		expect(getSearchProviders().map((provider) => provider.id)).toEqual(['brave', 'tavily']);
+		expect(getSearchConfiguration()).toEqual({
+			providerId: 'brave',
+			searchId: 'brave-web-search',
+		});
 	});
 
 	it('rejects empty credentials and unconfigured selections', () => {
