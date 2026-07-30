@@ -35,7 +35,7 @@ import {
 	SettingsLoadingRows,
 } from '../../components';
 import { ProviderCard } from '../storage/ProviderCard';
-import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../storage/constants';
+import { DEFAULT_SYNC_CRON_EXPRESSION } from '../storage/constants';
 
 interface StorageEntry {
 	key: string;
@@ -57,7 +57,8 @@ function blankStorage(provider: PublicProvider): StorageConfig {
 		bucket: '',
 		forcePathStyle: false,
 		paths: [],
-		syncIntervalMinutes: DEFAULT_SYNC_INTERVAL_MINUTES,
+		syncEnabled: false,
+		syncCronExpression: DEFAULT_SYNC_CRON_EXPRESSION,
 	};
 }
 

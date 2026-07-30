@@ -939,6 +939,9 @@
 			"autoSync": {
 				"title": "Sincronizzazione automatica",
 				"description": "Carica automaticamente i file e le cartelle configurati su ogni provider di archiviazione secondo una pianificazione.",
+				"enabled": "Attiva sincronizzazione pianificata",
+				"cronExpression": "Espressione cron",
+				"cronDescription": "Pianificazione cron a cinque campi nell'ora locale. Ad esempio, 0 3 * * * viene eseguita ogni giorno alle 03:00.",
 				"interval": "Intervallo di sincronizzazione",
 				"off": "Disattivata",
 				"every15m": "Ogni 15 minuti",
@@ -978,6 +981,7 @@
 				"delete": "Impossibile rimuovere il provider.",
 				"test": "Connessione non riuscita.",
 				"pickFolders": "Impossibile selezionare le cartelle.",
+				"selectProfile": "Impossibile selezionare il profilo di archiviazione.",
 				"saveSync": "Impossibile salvare la pianificazione della sincronizzazione.",
 				"push": "Impossibile caricare i file.",
 				"pull": "Impossibile scaricare i file."

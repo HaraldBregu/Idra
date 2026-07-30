@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
 	Select,
 	SelectContent,
@@ -28,6 +29,7 @@ import type {
 import { getErrorMessage } from '../../../start/constants';
 import {
 	SettingsLoadingRows,
+	SettingsField,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -36,7 +38,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { ProviderCard } from './ProviderCard';
-import { DEFAULT_SYNC_INTERVAL_MINUTES, SYNC_INTERVAL_OPTIONS } from './constants';
+import { DEFAULT_SYNC_CRON_EXPRESSION } from './constants';
 
 const BLANK_STORAGE: StorageConfig = {
 	id: '',
@@ -48,7 +50,8 @@ const BLANK_STORAGE: StorageConfig = {
 	bucket: '',
 	forcePathStyle: false,
 	paths: [],
-	syncIntervalMinutes: DEFAULT_SYNC_INTERVAL_MINUTES,
+	syncEnabled: false,
+	syncCronExpression: DEFAULT_SYNC_CRON_EXPRESSION,
 };
 
 interface StorageEntry {
@@ -72,12 +75,20 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 
 	useEffect(() => {
 		let cancelled = false;
-		void Promise.all([window.storage.getStorages(), window.storage.syncFolders()]).then(
-			([storages, folders]) => {
+		void Promise.all([
+			window.storage.getStorages(),
+			window.storage.syncFolders(),
+			window.storage.getSelectedStorageId(),
+		]).then(
+			([storages, folders, storedSelection]) => {
 				if (cancelled) return;
 				setEntries(storages.map((storage) => ({ key: storage.id, storage })));
 				setAvailableFolders(folders);
-				setSelectedStorageId(storages[0]?.id ?? '');
+				setSelectedStorageId(
+					storages.some((storage) => storage.id === storedSelection)
+						? (storedSelection ?? '')
+						: (storages[0]?.id ?? '')
+				);
 			},
 			(err) => {
 				if (!cancelled) setError(getErrorMessage(err, t('settings.storage.errors.load')));
@@ -193,18 +204,18 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 						<ProviderCard
 							key={entry.key}
 							storage={entry.storage}
-							onSaved={(saved) =>
-								{
+							onSaved={(saved) => {
 									setEntries((current) =>
 										current?.map((item) =>
 											item.key === entry.key ? { ...item, storage: saved } : item
 										) ?? current
 									);
-									if (!selectedStorageId) setSelectedStorageId(saved.id);
-								}
-							}
-							onRemoved={() =>
-								{
+									if (!selectedStorageId) {
+										setSelectedStorageId(saved.id);
+										void window.storage.setSelectedStorageId(saved.id);
+									}
+								}}
+							onRemoved={() => {
 									setEntries((current) => {
 										const remaining = current?.filter((item) => item.key !== entry.key) ?? current;
 										if (entry.storage.id === selectedStorageId) {
@@ -212,8 +223,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 										}
 										return remaining;
 									});
-								}
-							}
+								}}
 						/>
 					))}
 
@@ -237,8 +247,19 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 											<Select
 												value={selectedStorageId}
 												onValueChange={(value) => {
-													setSelectedStorageId(value ?? '');
+													const id = value ?? '';
+													setSelectedStorageId(id);
 													setSyncStatus(null);
+													if (id) {
+														void window.storage.setSelectedStorageId(id).catch((err) => {
+															setError(
+																getErrorMessage(
+																	err,
+																	t('settings.storage.errors.selectProfile')
+																)
+															);
+														});
+													}
 												}}
 											>
 												<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
@@ -326,28 +347,35 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 											title={t('settings.storage.autoSync.title')}
 											description={t('settings.storage.autoSync.description')}
 											actions={
-												<Select
-													value={String(selectedStorage.syncIntervalMinutes)}
-													onValueChange={(value) =>
-														updateSelectedStorage({
-															...selectedStorage,
-															syncIntervalMinutes: Number(value),
-														})
+												<Switch
+													checked={selectedStorage.syncEnabled}
+													aria-label={t('settings.storage.autoSync.enabled')}
+													onCheckedChange={(syncEnabled) =>
+														updateSelectedStorage({ ...selectedStorage, syncEnabled })
 													}
-												>
-													<SelectTrigger size="sm" className="w-44 text-xs">
-														<SelectValue />
-													</SelectTrigger>
-													<SelectContent>
-														{SYNC_INTERVAL_OPTIONS.map((option) => (
-															<SelectItem key={option.minutes} value={String(option.minutes)}>
-																{t(option.labelKey)}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
+												/>
 											}
 										/>
+										<div className="p-3">
+											<SettingsField
+												id="storage-sync-cron"
+												label={t('settings.storage.autoSync.cronExpression')}
+												description={t('settings.storage.autoSync.cronDescription')}
+											>
+												<Input
+													id="storage-sync-cron"
+													value={selectedStorage.syncCronExpression}
+													disabled={!selectedStorage.syncEnabled}
+													placeholder={DEFAULT_SYNC_CRON_EXPRESSION}
+													onChange={(event) =>
+														updateSelectedStorage({
+															...selectedStorage,
+															syncCronExpression: event.target.value,
+														})
+													}
+												/>
+											</SettingsField>
+										</div>
 
 										<div className="flex flex-wrap justify-end gap-2 p-3">
 											<Button

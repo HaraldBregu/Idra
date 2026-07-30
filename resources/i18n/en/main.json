@@ -939,6 +939,9 @@
 			"autoSync": {
 				"title": "Automatic sync",
 				"description": "Automatically push your configured files and folders to each storage provider on a schedule.",
+				"enabled": "Enable scheduled sync",
+				"cronExpression": "Cron expression",
+				"cronDescription": "Five-field cron schedule in local time. For example, 0 3 * * * runs daily at 03:00.",
 				"interval": "Sync interval",
 				"off": "Off",
 				"every15m": "Every 15 minutes",
@@ -978,6 +981,7 @@
 				"delete": "Could not remove the provider.",
 				"test": "Connection failed.",
 				"pickFolders": "Could not select folders.",
+				"selectProfile": "Could not select the storage profile.",
 				"saveSync": "Could not save the folder sync schedule.",
 				"push": "Could not push files.",
 				"pull": "Could not pull files."
