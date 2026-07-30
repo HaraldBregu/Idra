@@ -15,11 +15,30 @@ import type {
 } from '../../shared/model_types';
 
 let cache: readonly CatalogModel[] | undefined;
+let watching = false;
 
 /** Every model across resources/providers, each carrying the provider that serves it. */
 export function loadModels(): readonly CatalogModel[] {
+	// ponytail: without a watcher there is no safe cache — read fresh every call
+	if (!watching) return readModels();
 	if (!cache) cache = readModels();
 	return cache;
+}
+
+/** Keep the catalog in sync with resources/providers; onChange fires after edits settle. */
+export function watchModels(onChange: () => void): void {
+	if (watching) return;
+	try {
+		let timer: NodeJS.Timeout | undefined;
+		watch(providersDir(), { recursive: true }, () => {
+			cache = undefined;
+			clearTimeout(timer);
+			timer = setTimeout(onChange, 100);
+		});
+		watching = true;
+	} catch {
+		// ponytail: watcher unavailable → loadModels() keeps reading fresh
+	}
 }
 
 export function modelsFor(type: ModelCapability): CatalogModel[] {
