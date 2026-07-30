@@ -337,6 +337,8 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 											key={path}
 											title={t('settings.storage.sync.folder')}
 											description={path}
+											className="grid-cols-[minmax(0,1fr)_auto]"
+											actionClassName="w-auto ml-auto justify-end"
 											actions={
 												<Button
 													variant="ghost"
