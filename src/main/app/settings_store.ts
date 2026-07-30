@@ -7,9 +7,10 @@ import type {
 	StoredProviderKind,
 } from '../../shared/provider_types';
 import type { StorageConfig, StorageConfiguration } from '../../shared/storage_types';
+import type { DatabaseConfiguration } from '../../shared/database_types';
 import { userDataLocation } from '../shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
-import { loadStorages } from './models';
+import { loadDatabases, loadStorages } from './models';
 import type { PersistedCronState } from './cron/cron_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
