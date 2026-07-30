@@ -2,7 +2,7 @@ import {
 	SEARCH_ENGINE_IDS,
 	type SearchEngineId,
 	type SearchSettings,
-} from '../../shared/search_types';
+} from '../../../shared/search_types';
 import { getStoredSearchProviders } from './search_get_providers';
 
 export function getSearchSettings(): SearchSettings {

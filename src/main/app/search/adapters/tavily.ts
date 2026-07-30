@@ -1,4 +1,4 @@
-import type { SearchRequest, SearchResponse } from '../../../shared/search_types';
+import type { SearchRequest, SearchResponse } from '../../../../shared/search_types';
 
 export async function searchTavily(
 	request: Required<SearchRequest>,

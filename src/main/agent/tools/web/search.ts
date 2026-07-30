@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getSearchSettings, searchWeb } from '../../../search';
+import { getSearchSettings, searchWeb } from '../../../app/search';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
