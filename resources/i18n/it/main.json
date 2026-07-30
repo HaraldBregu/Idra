@@ -990,7 +990,7 @@
 			"pathsTitle": "Cartelle da sincronizzare",
 			"pathsSubtitle": "Scegli quali cartelle sincronizzare con questo bucket.",
 			"folders": {
-				"agent": "Agente"
+				"agent": "Area di lavoro dell'assistente"
 			},
 			"push": "Carica sul bucket",
 			"pushing": "Caricamento…",
