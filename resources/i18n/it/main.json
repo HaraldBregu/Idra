@@ -1357,12 +1357,22 @@
 		},
 		"vectorDb": {
 			"description": "Database vettoriale usato dal RAG per salvare e cercare gli embedding.",
-			"connectionTitle": "Pinecone",
+			"connectionTitle": "Connessione",
+			"connectionDescription": "Provider e database usati per salvare e cercare gli embedding.",
+			"provider": "Provider",
+			"providerDescription": "Servizio che ospita il database vettoriale.",
+			"database": "Database",
+			"databaseDescription": "Database offerto dal provider selezionato.",
 			"apiKey": "Chiave API",
 			"apiKeyDescription": "La chiave viene usata per creare l'indice e caricare i vettori.",
-			"apiKeyPlaceholder": "Incolla la tua chiave API Pinecone...",
+			"apiKeyPlaceholder": "Incolla la tua chiave API...",
+			"empty": "Nessun provider di database disponibile.",
 			"save": "Salva",
-			"saved": "Chiave API salvata."
+			"saved": "Configurazione del database salvata.",
+			"errors": {
+				"load": "Impossibile caricare la configurazione del database.",
+				"save": "Impossibile salvare la configurazione del database."
+			}
 		}
 	},
 	"dialogs": {
