@@ -264,18 +264,26 @@ export function saveStorageConfiguration(configuration: StorageConfiguration): S
 	return saved;
 }
 
+function getAssistantConfiguration(): AssistantConfiguration {
+	return { ...DEFAULT_ASSISTANT_CONFIGURATION, ...store.get('assistant_configuration') };
+}
+
+function saveAssistantConfiguration(patch: Partial<AssistantConfiguration>): void {
+	store.set('assistant_configuration', { ...getAssistantConfiguration(), ...patch });
+}
+
 export function getProviderId(): string | undefined {
-	return store.get('modelProviderId');
+	return getAssistantConfiguration().providerId;
 }
 
 export function setProviderId(providerId: string): void {
-	store.set('modelProviderId', providerId);
+	saveAssistantConfiguration({ providerId });
 }
 
 export function getModelId(): string | undefined {
-	return store.get('modelId');
+	return getAssistantConfiguration().modelId;
 }
 
 export function setModelId(modelId: string): void {
-	store.set('modelId', modelId);
+	saveAssistantConfiguration({ modelId });
 }
