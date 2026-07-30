@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from 'ink';
 import { FridayTui, type TuiProps } from './app.js';
 
