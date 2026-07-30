@@ -170,26 +170,6 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/tasks')}
-					onKeyDown={(event) => {
-						if (event.key === 'Enter' || event.key === ' ') {
-							event.preventDefault();
-							navigate('/settings/tasks');
-						}
-					}}
-				>
-					<SettingsRow
-						title={t('settings.tabs.taskScheduler')}
-						description={t('settings.overview.descriptions.cron')}
-						className="grid-cols-[minmax(0,1fr)_auto]"
-						actionClassName="w-auto justify-end"
-						actions={<ChevronRight className="size-4 text-muted-foreground" />}
-					/>
-				</div>
-				<div
-					role="button"
-					tabIndex={0}
-					className="cursor-pointer hover:bg-muted/40"
 					onClick={() => navigate('/settings/assistant/health')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
