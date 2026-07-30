@@ -435,6 +435,5 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.plugins',
 		descriptionKey: 'settings.overview.descriptions.plugins',
 		icon: Puzzle,
-		comingSoon: true,
 	},
 ] satisfies readonly SettingsNavigationItem[];
