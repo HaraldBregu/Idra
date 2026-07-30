@@ -7,7 +7,7 @@ const HEALTH_STORE_NAME = 'settings.health';
 
 const store = new Store<HealthSettings>({
 	name: HEALTH_STORE_NAME,
-	cwd: path.resolve(agentLocation()),
+	cwd: path.resolve(agentLocation(), 'agent'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_HEALTH_SETTINGS,
 });
