@@ -9,6 +9,7 @@ import { SkillsIpc } from '../skills';
 import { ProviderStoreIpc } from '../provider';
 import { SearchIpc } from '../search';
 import { StorageIpc } from '../storage';
+import { DatabaseIpc } from '../database';
 import { ExtensionsIpc } from '../extensions';
 import { WikiIpc } from '../wiki';
 import { WindowIpc } from '../window';
