@@ -337,7 +337,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 	};
 
 	return (
-		<SettingsPageShell>
+		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
