@@ -58,6 +58,7 @@ const VectorDbPage: React.FC = () => {
 	}, [t]);
 
 	const entries = databases ?? [];
+	const providers = [...new Map(entries.map((entry) => [entry.provider.id, entry])).values()];
 	const selected = entries.find(
 		(entry) =>
 			entry.id === configuration.databaseId && entry.provider.id === configuration.providerId
