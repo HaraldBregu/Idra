@@ -20,7 +20,7 @@ import {
 	SettingsRow,
 } from '../../components';
 
-const VALUE_SEPARATOR = '';
+const VALUE_SEPARATOR = '\u001F';
 
 function databaseKey(entry: CatalogService): string {
 	return `${entry.provider.id}${VALUE_SEPARATOR}${entry.id}`;

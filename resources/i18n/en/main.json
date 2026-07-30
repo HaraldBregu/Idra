@@ -1358,17 +1358,16 @@
 		"vectorDb": {
 			"description": "Vector database used by RAG to store and search embeddings.",
 			"connectionTitle": "Connection",
-			"connectionDescription": "Provider and database used to store and search embeddings.",
-			"provider": "Provider",
-			"providerDescription": "Service hosting the vector database.",
+			"defaultTitle": "Default database",
 			"database": "Database",
-			"databaseDescription": "Database offered by the selected provider.",
+			"databaseDescription": "Database used to store and search embeddings.",
+			"databasePlaceholder": "Select a database...",
 			"apiKey": "API key",
 			"apiKeyDescription": "The key is used to create the index and upsert vectors.",
 			"apiKeyPlaceholder": "Paste your API key...",
 			"empty": "No database provider is available.",
 			"save": "Save",
-			"saved": "Database configuration saved.",
+			"saved": "API key saved.",
 			"errors": {
 				"load": "Unable to load the database configuration.",
 				"save": "Unable to save the database configuration."
