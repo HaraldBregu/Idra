@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { PublicProvider } from '../../shared/provider_types';
-import type { PluginWidgetSource, Widget } from '../../shared/widget_types';
+import type { PluginExtensionSource, Extension } from '../../shared/extension_types';
 import { realPath } from '../shared/real_path';
 import {
 	pluginManifestSchema,
@@ -66,8 +66,8 @@ export interface PluginChannel {
 	readonly entry: string;
 }
 
-export interface PluginWidget extends Widget {
-	readonly source: PluginWidgetSource;
+export interface PluginExtension extends Extension {
+	readonly source: PluginExtensionSource;
 }
 
 export interface PluginRepositoryOptions {
@@ -128,20 +128,20 @@ export class PluginRepository {
 				continue;
 			}
 
-			const invalidWidget = parsed.data.contributes.widgets.find((widget) => {
+			const invalidExtension = parsed.data.contributes.extensions.find((extension) => {
 				try {
-					const entry = this.resolveEntry(pluginDirectory, widget.entry);
+					const entry = this.resolveEntry(pluginDirectory, extension.entry);
 					return !fs.statSync(entry).isFile();
 				} catch {
 					return true;
 				}
 			});
-			if (invalidWidget) {
+			if (invalidExtension) {
 				issues.push({
 					pluginId,
 					manifestPath,
 					code: 'invalid-entry',
-					message: `Widget entry is missing or outside the plugin folder: ${invalidWidget.entry}`,
+					message: `Extension entry is missing or outside the plugin folder: ${invalidExtension.entry}`,
 				});
 				continue;
 			}
@@ -287,36 +287,36 @@ export class PluginRepository {
 		);
 	}
 
-	widgets(): readonly PluginWidget[] {
+	extensions(): readonly PluginExtension[] {
 		return this.list().flatMap((plugin) =>
-			plugin.manifest.contributes.widgets.map((widget) => ({
-				id: `${plugin.manifest.id}/${widget.id}`,
-				title: widget.title,
-				description: widget.description,
+			plugin.manifest.contributes.extensions.map((extension) => ({
+				id: `${plugin.manifest.id}/${extension.id}`,
+				title: extension.title,
+				description: extension.description,
 				metadata: {
-					version: widget.version ?? plugin.manifest.version,
-					category: widget.category,
-					entry: widget.entry,
+					version: extension.version ?? plugin.manifest.version,
+					category: extension.category,
+					entry: extension.entry,
 				},
 				source: {
 					kind: 'plugin' as const,
 					pluginId: plugin.manifest.id,
-					widgetId: widget.id,
+					extensionId: extension.id,
 				},
 			}))
 		);
 	}
 
-	resolveWidgetEntry(source: PluginWidgetSource): string {
+	resolveExtensionEntry(source: PluginExtensionSource): string {
 		const plugin = this.get(source.pluginId);
-		const widget = plugin?.manifest.contributes.widgets.find(
-			(contribution) => contribution.id === source.widgetId
+		const extension = plugin?.manifest.contributes.extensions.find(
+			(contribution) => contribution.id === source.extensionId
 		);
-		if (!plugin || !widget)
-			throw new Error(`Plugin widget not found: ${source.pluginId}/${source.widgetId}`);
-		const entry = this.resolveEntry(plugin.directory, widget.entry);
+		if (!plugin || !extension)
+			throw new Error(`Plugin extension not found: ${source.pluginId}/${source.extensionId}`);
+		const entry = this.resolveEntry(plugin.directory, extension.entry);
 		if (!fs.statSync(entry).isFile())
-			throw new Error(`Plugin widget entry not found: ${source.pluginId}/${source.widgetId}`);
+			throw new Error(`Plugin extension entry not found: ${source.pluginId}/${source.extensionId}`);
 		return entry;
 	}
 

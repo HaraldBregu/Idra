@@ -25,13 +25,13 @@ function manifest(overrides: Record<string, unknown> = {}): Record<string, unkno
 			mcpServers: [
 				{ id: 'acme-docs', name: 'Acme Docs', type: 'http', url: 'https://mcp.acme.test' },
 			],
-			widgets: [
+			extensions: [
 				{
 					id: 'dashboard',
 					title: 'Acme Dashboard',
 					description: 'Account usage and status.',
 					category: 'integration',
-					entry: 'widgets/dashboard/index.html',
+					entry: 'extensions/dashboard/index.html',
 				},
 			],
 			languages: [{ id: 'fr', name: 'Français', entry: 'languages/fr.json' }],
@@ -53,7 +53,7 @@ function install(root: string, folder: string, value: unknown, withEntry = true)
 	);
 	if (withEntry) {
 		const files = [
-			['widgets/dashboard/index.html', '<h1>Acme</h1>'],
+			['extensions/dashboard/index.html', '<h1>Acme</h1>'],
 			['skills/summarizer/SKILL.md', '# Summarizer'],
 			['languages/fr.json', '{}'],
 			['themes/ocean.json', '{}'],
@@ -102,19 +102,19 @@ describe('plugin repository', () => {
 				models: [{ id: 'acme-chat', name: 'Acme Chat' }],
 			}),
 		]);
-		expect(repository.widgets()).toEqual([
+		expect(repository.extensions()).toEqual([
 			expect.objectContaining({
 				id: 'acme-tools/dashboard',
-				source: { kind: 'plugin', pluginId: 'acme-tools', widgetId: 'dashboard' },
+				source: { kind: 'plugin', pluginId: 'acme-tools', extensionId: 'dashboard' },
 			}),
 		]);
 		expect(
-			repository.resolveWidgetEntry({
+			repository.resolveExtensionEntry({
 				kind: 'plugin',
 				pluginId: 'acme-tools',
-				widgetId: 'dashboard',
+				extensionId: 'dashboard',
 			})
-		).toBe(path.join(root, 'acme-tools', 'widgets', 'dashboard', 'index.html'));
+		).toBe(path.join(root, 'acme-tools', 'extensions', 'dashboard', 'index.html'));
 		expect(repository.skills()).toEqual([
 			expect.objectContaining({
 				pluginId: 'acme-tools',
@@ -152,7 +152,7 @@ describe('plugin repository', () => {
 		]);
 	});
 
-	it('rejects missing widget entries and unsafe entry paths', () => {
+	it('rejects missing extension entries and unsafe entry paths', () => {
 		install(root, 'acme-tools', manifest(), false);
 		install(
 			root,
@@ -161,7 +161,7 @@ describe('plugin repository', () => {
 				id: 'unsafe-tools',
 				contributes: {
 					providers: [],
-					widgets: [
+					extensions: [
 						{
 							id: 'dashboard',
 							title: 'Unsafe',
@@ -201,7 +201,7 @@ describe('plugin repository', () => {
 							models: [{ id: 'second-chat', name: 'Second Chat' }],
 						},
 					],
-					widgets: [],
+					extensions: [],
 				},
 			}),
 			false

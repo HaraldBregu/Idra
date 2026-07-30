@@ -11,7 +11,7 @@ import type {
 	StorageTestResult,
 } from './storage_types';
 import type { McpOAuthStart, McpSettings } from './mcp_types';
-import type { Widget } from './widget_types';
+import type { Extension } from './extension_types';
 import type { CronRuntime, CronSchedule } from '../main/cron/cron_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { RagIndexResult, RagMatch } from '../main/rag';
@@ -175,9 +175,9 @@ export interface StorageApi {
 	pull: (id: string) => Promise<StoragePullResult>;
 }
 
-export interface WidgetsApi {
-	list: () => Promise<Widget[]>;
-	open: (widgetId: string) => Promise<void>;
+export interface ExtensionsApi {
+	list: () => Promise<Extension[]>;
+	open: (extensionId: string) => Promise<void>;
 }
 
 export interface SearchApi {

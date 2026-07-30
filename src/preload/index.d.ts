@@ -12,7 +12,7 @@ import type {
 	SearchApi,
 	SkillsApi,
 	StorageApi,
-	WidgetsApi,
+	ExtensionsApi,
 	WikiApi,
 	WindowApi,
 } from '../shared/api_types';
@@ -31,7 +31,7 @@ declare global {
 		storage: StorageApi;
 		provider: ProviderApi;
 		search: SearchApi;
-		widgets: WidgetsApi;
+		extensions: ExtensionsApi;
 		wiki: WikiApi;
 	}
 }

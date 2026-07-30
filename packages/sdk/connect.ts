@@ -17,7 +17,7 @@ import {
 	StorageChannels,
 	TextChannels,
 	VideoChannels,
-	WidgetChannels,
+	ExtensionChannels,
 	WikiChannels,
 } from '../../src/shared/ipc_channels_definitions';
 import type {
@@ -32,7 +32,7 @@ import type {
 	SearchApi,
 	SkillsApi,
 	StorageApi,
-	WidgetsApi,
+	ExtensionsApi,
 	WikiApi,
 } from '../../src/shared/api_types';
 import type { AgentResponseEvent } from '../../src/shared/agent_types';
@@ -59,7 +59,7 @@ export interface FridayClient {
 	search: SearchApi;
 	skills: SkillsApi;
 	storage: StorageApi;
-	widgets: WidgetsApi;
+	extensions: ExtensionsApi;
 	wiki: WikiApi;
 	/** Verify the app is reachable and the token is accepted. */
 	ping: () => Promise<{ name: string; version: string }>;
@@ -231,7 +231,7 @@ export function connect(options: ConnectOptions): FridayClient {
 		search: namespace<SearchApi>(SearchChannels),
 		skills: namespace<SkillsApi>(SkillsChannels),
 		storage: namespace<StorageApi>(StorageChannels),
-		widgets: namespace<WidgetsApi>(WidgetChannels),
+		extensions: namespace<ExtensionsApi>(ExtensionChannels),
 		wiki: namespace<WikiApi>(WikiChannels),
 		ping: async () => {
 			const response = await call(`${base}/health`, { headers });

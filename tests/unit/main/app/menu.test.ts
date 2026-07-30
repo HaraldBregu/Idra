@@ -4,7 +4,7 @@ import { Menu } from '../../../../src/main/app/menu';
 jest.mock('@electron-toolkit/utils', () => ({ is: { dev: true } }));
 jest.mock('../../../../src/main/app/i18n', () => ({
 	loadTranslations: () => ({
-		widgets: 'Widgets',
+		extensions: 'Extensions',
 	}),
 }));
 
@@ -14,9 +14,9 @@ type MenuEntry = {
 	click?: () => void;
 };
 
-describe('application menu widgets', () => {
-	it('opens manifest-defined widgets from the Widgets menu', () => {
-		const widgetConfigurations = [
+describe('application menu extensions', () => {
+	it('opens manifest-defined extensions from the Extensions menu', () => {
+		const extensionConfigurations = [
 			{
 				id: 'weather',
 				title: 'Weather',
@@ -30,29 +30,29 @@ describe('application menu widgets', () => {
 				metadata: { version: '2.0.0', category: 'utility', entry: 'index.html' },
 			},
 		];
-		const onOpenWidget = jest.fn();
+		const onOpenExtension = jest.fn();
 		const buildFromTemplate = ElectronMenu.buildFromTemplate as jest.Mock;
 		buildFromTemplate.mockImplementation((template: MenuEntry[]) => template);
 		const menu = new Menu({
 			onLanguageChange: jest.fn(),
 			onNewWindow: jest.fn(),
-			getWidgets: () => widgetConfigurations,
-			onOpenWidget,
+			getExtensions: () => extensionConfigurations,
+			onOpenExtension,
 		});
 
 		menu.create();
 
 		const template = buildFromTemplate.mock.calls[0][0] as MenuEntry[];
-		const widgetsMenu = template.find((entry) => entry.label === 'Widgets');
-		widgetsMenu?.submenu?.find((entry) => entry.label === 'Weather')?.click?.();
-		widgetsMenu?.submenu?.find((entry) => entry.label === 'World Clock')?.click?.();
+		const extensionsMenu = template.find((entry) => entry.label === 'Extensions');
+		extensionsMenu?.submenu?.find((entry) => entry.label === 'Weather')?.click?.();
+		extensionsMenu?.submenu?.find((entry) => entry.label === 'World Clock')?.click?.();
 
-		expect(onOpenWidget).toHaveBeenNthCalledWith(1, widgetConfigurations[0]);
-		expect(onOpenWidget).toHaveBeenNthCalledWith(2, widgetConfigurations[1]);
+		expect(onOpenExtension).toHaveBeenNthCalledWith(1, extensionConfigurations[0]);
+		expect(onOpenExtension).toHaveBeenNthCalledWith(2, extensionConfigurations[1]);
 	});
 
-	it('rebuilds the Widgets submenu from the current widget list', () => {
-		let widgets = [
+	it('rebuilds the Extensions submenu from the current extension list', () => {
+		let extensions = [
 			{
 				id: 'weather',
 				title: 'Weather',
@@ -66,11 +66,11 @@ describe('application menu widgets', () => {
 		const menu = new Menu({
 			onLanguageChange: jest.fn(),
 			onNewWindow: jest.fn(),
-			getWidgets: () => widgets,
-			onOpenWidget: jest.fn(),
+			getExtensions: () => extensions,
+			onOpenExtension: jest.fn(),
 		});
 		menu.create();
-		widgets = [
+		extensions = [
 			{
 				id: 'clock',
 				title: 'World Clock',
@@ -82,7 +82,7 @@ describe('application menu widgets', () => {
 		menu.create();
 
 		const template = buildFromTemplate.mock.calls[1][0] as MenuEntry[];
-		const widgetsMenu = template.find((entry) => entry.label === 'Widgets');
-		expect(widgetsMenu?.submenu?.map((entry) => entry.label)).toEqual(['World Clock']);
+		const extensionsMenu = template.find((entry) => entry.label === 'Extensions');
+		expect(extensionsMenu?.submenu?.map((entry) => entry.label)).toEqual(['World Clock']);
 	});
 });

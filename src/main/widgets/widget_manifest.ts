@@ -1,8 +1,8 @@
 import path from 'node:path';
-import { isWidgetId } from './widget_id';
-import { widgetsRoot } from './widget_root';
+import { isExtensionId } from './extension_id';
+import { extensionsRoot } from './extension_root';
 
-export function widgetManifestPath(id: string, appLocation?: string): string {
-	if (!isWidgetId(id)) throw new Error(`Invalid widget id: ${id}`);
-	return path.join(widgetsRoot(appLocation), id, 'manifest.json');
+export function extensionManifestPath(id: string, appLocation?: string): string {
+	if (!isExtensionId(id)) throw new Error(`Invalid extension id: ${id}`);
+	return path.join(extensionsRoot(appLocation), id, 'manifest.json');
 }

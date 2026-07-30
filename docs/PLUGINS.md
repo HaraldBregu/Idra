@@ -28,7 +28,7 @@ A plugin keeps each contribution kind in its own folder:
   manifest.json
   providers/
   skills/<skill-id>/SKILL.md
-  widgets/<widget-id>/index.html
+  extensions/<extension-id>/index.html
   mcp/
   languages/<locale>.json
   themes/<theme-id>.json
@@ -64,13 +64,13 @@ A plugin keeps each contribution kind in its own folder:
 				"url": "https://mcp.acme.test"
 			}
 		],
-		"widgets": [
+		"extensions": [
 			{
 				"id": "dashboard",
 				"title": "Acme Dashboard",
 				"description": "Account usage and status.",
 				"category": "integration",
-				"entry": "widgets/dashboard/index.html"
+				"entry": "extensions/dashboard/index.html"
 			}
 		],
 		"languages": [{ "id": "fr", "name": "Français", "entry": "languages/fr.json" }],
@@ -91,8 +91,8 @@ Provider credentials do not belong in the manifest. They remain in Friday's prov
 Version 1 supports declarative OpenAI-compatible chat providers; custom executable provider adapters
 are not loaded into the Electron main process.
 
-Widget entries must be relative HTML paths inside the plugin folder. Friday verifies that each entry is
-a regular file and remains inside its plugin before exposing it. Plugin widgets run without Friday's
+Extension entries must be relative HTML paths inside the plugin folder. Friday verifies that each entry is
+a regular file and remains inside its plugin before exposing it. Plugin extensions run without Friday's
 preload API.
 
 Skills must contain `SKILL.md`. Language and theme contributions are JSON assets. MCP server
@@ -101,7 +101,7 @@ contained JavaScript modules but are not executed by this foundation; channel ac
 an explicit trust decision and lifecycle integration with Friday's channel registry.
 
 The main-process `PluginRepository` is the filesystem source of truth. It validates manifests, returns
-structured scan issues, rejects provider ID collisions, and catalogs providers, skills, widgets, MCP
-servers, languages, themes, and chatbot communication channels. Provider and widget contributions are
+structured scan issues, rejects provider ID collisions, and catalogs providers, skills, extensions, MCP
+servers, languages, themes, and chatbot communication channels. Provider and extension contributions are
 already supplied to their existing IPC and menu flows; the other catalogs are ready for their
 respective runtime registries.

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isPluginWidgetEntry } from './entry';
+import { isPluginExtensionEntry } from './entry';
 import { isPluginPath } from './path';
 
 const idSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
@@ -22,13 +22,13 @@ const providerSchema = z
 		apiKeyUrl: z.string().url().optional(),
 	})
 	.strict();
-const widgetSchema = z
+const extensionSchema = z
 	.object({
 		id: idSchema,
 		title: z.string().trim().min(1),
 		description: z.string().trim().min(1),
 		category: z.string().trim().min(1),
-		entry: z.string().refine(isPluginWidgetEntry),
+		entry: z.string().refine(isPluginExtensionEntry),
 		version: versionSchema.optional(),
 	})
 	.strict();
@@ -97,7 +97,7 @@ const contributionsSchema = z
 	.object({
 		providers: z.array(providerSchema).default([]),
 		skills: z.array(skillSchema).default([]),
-		widgets: z.array(widgetSchema).default([]),
+		extensions: z.array(extensionSchema).default([]),
 		mcpServers: z.array(mcpServerSchema).default([]),
 		languages: z.array(languageSchema).default([]),
 		themes: z.array(themeSchema).default([]),
@@ -108,7 +108,7 @@ const contributionsSchema = z
 		const contributionCount =
 			contributions.providers.length +
 			contributions.skills.length +
-			contributions.widgets.length +
+			contributions.extensions.length +
 			contributions.mcpServers.length +
 			contributions.languages.length +
 			contributions.themes.length +
@@ -122,7 +122,7 @@ const contributionsSchema = z
 		for (const key of [
 			'providers',
 			'skills',
-			'widgets',
+			'extensions',
 			'mcpServers',
 			'languages',
 			'themes',
@@ -156,7 +156,7 @@ export const pluginManifestSchema = z
 export type PluginManifest = z.infer<typeof pluginManifestSchema>;
 export type PluginProviderContribution = z.infer<typeof providerSchema>;
 export type PluginSkillContribution = z.infer<typeof skillSchema>;
-export type PluginWidgetContribution = z.infer<typeof widgetSchema>;
+export type PluginExtensionContribution = z.infer<typeof extensionSchema>;
 export type PluginMcpServerContribution = z.infer<typeof mcpServerSchema>;
 export type PluginLanguageContribution = z.infer<typeof languageSchema>;
 export type PluginThemeContribution = z.infer<typeof themeSchema>;

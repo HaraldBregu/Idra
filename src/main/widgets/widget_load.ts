@@ -1,21 +1,21 @@
 import { existsSync } from 'node:fs';
 import type { BrowserWindow } from 'electron';
 import type { WindowFactory } from '../app/window_factory';
-import { widgetEntryPath } from './widget_entry';
-import { render } from './widget_render';
-import type { Widget } from './widget_types';
+import { extensionEntryPath } from './extension_entry';
+import { render } from './extension_render';
+import type { Extension } from './extension_types';
 import type { PluginRepository } from '../plugin';
 
-export function loadWidget(
+export function loadExtension(
 	windowFactory: WindowFactory,
-	widget: Widget,
+	extension: Extension,
 	appLocation?: string,
 	pluginRepository?: PluginRepository
 ): BrowserWindow {
-	const entry = widget.source
-		? pluginRepository?.resolveWidgetEntry(widget.source)
-		: widgetEntryPath(widget.id, widget.metadata.entry, appLocation);
-	if (!entry) throw new Error(`Plugin repository is required to load widget: ${widget.id}`);
-	if (!existsSync(entry)) throw new Error(`Widget entry not found: ${widget.id}`);
-	return render(windowFactory, entry, widget.title, Boolean(widget.source));
+	const entry = extension.source
+		? pluginRepository?.resolveExtensionEntry(extension.source)
+		: extensionEntryPath(extension.id, extension.metadata.entry, appLocation);
+	if (!entry) throw new Error(`Plugin repository is required to load extension: ${extension.id}`);
+	if (!existsSync(entry)) throw new Error(`Extension entry not found: ${extension.id}`);
+	return render(windowFactory, entry, extension.title, Boolean(extension.source));
 }

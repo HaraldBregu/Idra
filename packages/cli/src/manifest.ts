@@ -21,7 +21,7 @@ const providerSchema = z
 		apiKeyUrl: z.string().url().optional(),
 	})
 	.strict();
-const widgetSchema = z
+const extensionSchema = z
 	.object({
 		id: idSchema,
 		title: z.string().trim().min(1),
@@ -99,7 +99,7 @@ const contributionsSchema = z
 	.object({
 		providers: z.array(providerSchema).default([]),
 		skills: z.array(skillSchema).default([]),
-		widgets: z.array(widgetSchema).default([]),
+		extensions: z.array(extensionSchema).default([]),
 		mcpServers: z.array(mcpServerSchema).default([]),
 		languages: z.array(languageSchema).default([]),
 		themes: z.array(themeSchema).default([]),
@@ -117,7 +117,7 @@ const contributionsSchema = z
 		for (const key of [
 			'providers',
 			'skills',
-			'widgets',
+			'extensions',
 			'mcpServers',
 			'languages',
 			'themes',

@@ -34,7 +34,7 @@ Friday provides:
 - An agent loop that can use files, patches, commands, long-running processes, the web, a browser, memory, skills, MCP tools, media generation, automation tools, and one-level subagents.
 - Image and PDF attachments for multimodal requests, and live or recorded speech-to-text input with text-to-speech playback.
 - Independent provider and model selection for chat, transcription, speech, image, video, audio, scheduled work, and health checks.
-- Local skills, remote HTTP MCP servers, local stdio MCP servers, and standalone widget windows.
+- Local skills, remote HTTP MCP servers, local stdio MCP servers, and standalone extension windows.
 - Persistent schedules, periodic `HEALTH.md` checks, and S3-compatible cloud storage sync for local folders.
 - Telegram and Discord bot connections with sender policies.
 - Local configuration, conversation history, memory, generated-media storage, and operational logs.
@@ -459,23 +459,23 @@ The Channels screen configures both adapters with enable state, token, DM policy
 
 ### Settings navigation
 
-- The Settings overview groups pages as: **General** (Application, System, Providers), **Primary** (Assistant, Skills, MCP, Library, Tasks — Health lives nested under Assistant rather than as its own overview card), **Model services** (Transcribe, Voice, Image, Video, Audio/Music Creator), **Channels**, **Widgets**, **Cloud** (Storage, Database), and **Search**.
+- The Settings overview groups pages as: **General** (Application, System, Providers), **Primary** (Assistant, Skills, MCP, Library, Tasks — Health lives nested under Assistant rather than as its own overview card), **Model services** (Transcribe, Voice, Image, Video, Audio/Music Creator), **Channels**, **Extensions**, **Cloud** (Storage, Database), and **Search**.
 - Deep pages use breadcrumbs.
 - `Cmd/Ctrl+F` opens a route and setting search palette.
 - Unknown routes show a 404 recovery view; route failures show retry, restart, or Home actions.
 - Page transitions respect the operating system's reduced-motion preference.
 - The Search settings page configures the same Brave/Tavily engine and API key used by the agent's web search tool; it is not a separate local-search feature.
 
-### Widgets
+### Extensions
 
-Widgets are standalone mini-app windows:
+Extensions are standalone mini-app windows:
 
-- Each widget lives in its own folder under the app's local data directory with a `manifest.json` declaring a title, description, and entry point.
-- The application menu and a `window.widgets` API can list installed widgets and open each one in its own `BrowserWindow`.
-- The main process watches widget folders and supports hot-reload.
-- The Widgets settings page lists installed widgets with title, description, and category, but has no install, remove, or enable/disable control yet.
+- Each extension lives in its own folder under the app's local data directory with a `manifest.json` declaring a title, description, and entry point.
+- The application menu and a `window.extensions` API can list installed extensions and open each one in its own `BrowserWindow`.
+- The main process watches extension folders and supports hot-reload.
+- The Extensions settings page lists installed extensions with title, description, and category, but has no install, remove, or enable/disable control yet.
 
-**Partial:** the widget-loading backend is fully implemented; the Settings UI is view-only.
+**Partial:** the extension-loading backend is fully implemented; the Settings UI is view-only.
 
 ### Cloud storage sync
 
@@ -562,7 +562,7 @@ The main implementation areas behind this reference are:
 - [Chat and renderer UI](../src/renderer/src/pages/home/)
 - [Settings pages](../src/renderer/src/pages/settings/)
 - [Agent runtime and tools](../src/main/agent/)
-- [Widgets](../src/main/widgets/)
+- [Extensions](../src/main/extensions/)
 - [Cloud storage sync](../src/renderer/src/pages/settings/pages/storage/)
 - [Provider catalog and models](../src/shared/provider_models_definitions.ts)
 - [Provider metadata](../src/shared/providers_definitions.ts)

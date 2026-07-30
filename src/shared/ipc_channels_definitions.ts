@@ -232,9 +232,9 @@ export const VideoChannels = {
 	setProviderId: 'video:set-provider-id',
 } as const;
 
-export const WidgetChannels = {
-	list: 'widgets:list',
-	open: 'widgets:open',
+export const ExtensionChannels = {
+	list: 'extensions:list',
+	open: 'extensions:open',
 } as const;
 
 export const WindowChannels = {

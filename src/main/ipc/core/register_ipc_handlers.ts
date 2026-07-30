@@ -9,7 +9,7 @@ import { SkillsIpc } from '../skills';
 import { ProviderStoreIpc } from '../provider';
 import { SearchIpc } from '../search';
 import { StorageIpc } from '../storage';
-import { WidgetsIpc } from '../widgets';
+import { ExtensionsIpc } from '../extensions';
 import { WikiIpc } from '../wiki';
 import { WindowIpc } from '../window';
 import type { EventBus } from '../../app';
@@ -37,8 +37,8 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
 	safeRegister('storage', () => new StorageIpc().register(undefined, eventBus));
-	safeRegister('widgets', () =>
-		new WidgetsIpc().register({ windowFactory, pluginRepository }, eventBus)
+	safeRegister('extensions', () =>
+		new ExtensionsIpc().register({ windowFactory, pluginRepository }, eventBus)
 	);
 	safeRegister('wiki', () => new WikiIpc().register(undefined, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));

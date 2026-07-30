@@ -1,12 +1,12 @@
 import { mkdirSync } from 'node:fs';
-import { listWidgets } from './widget_list';
-import { widgetsRoot } from './widget_root';
-import { readWidgetSettings } from './widget_settings_read';
-import { storeWidgetSettings } from './widget_store';
-import type { Widget } from './widget_types';
+import { listExtensions } from './extension_list';
+import { extensionsRoot } from './extension_root';
+import { readExtensionSettings } from './extension_settings_read';
+import { storeExtensionSettings } from './extension_store';
+import type { Extension } from './extension_types';
 
-export function ensureWidgets(appLocation?: string): Widget[] {
-	mkdirSync(widgetsRoot(appLocation), { recursive: true });
-	storeWidgetSettings(readWidgetSettings(appLocation), appLocation);
-	return listWidgets(appLocation);
+export function ensureExtensions(appLocation?: string): Extension[] {
+	mkdirSync(extensionsRoot(appLocation), { recursive: true });
+	storeExtensionSettings(readExtensionSettings(appLocation), appLocation);
+	return listExtensions(appLocation);
 }

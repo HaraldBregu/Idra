@@ -57,8 +57,8 @@ const ImagePage = lazy(() => import('./pages/settings/pages/image/Page'));
 const EmbeddingPage = lazy(() => import('./pages/settings/pages/embedding/Page'));
 const VideoPage = lazy(() => import('./pages/settings/pages/video/Page'));
 const MusicPage = lazy(() => import('./pages/settings/pages/music/Page'));
-const WidgetsPage = lazy(() => import('./pages/settings/pages/widgets/Page'));
-const WidgetDetailsPage = lazy(() => import('./pages/settings/pages/widgets/details/Page'));
+const ExtensionsPage = lazy(() => import('./pages/settings/pages/extensions/Page'));
+const ExtensionDetailsPage = lazy(() => import('./pages/settings/pages/extensions/details/Page'));
 
 function ModelServiceLegacyRedirect(): React.JSX.Element {
 	const location = useLocation();
@@ -482,21 +482,21 @@ const routes: RouteObject[] = [
 						element: <Navigate to="/settings/providers/music" replace />,
 					},
 					{
-						path: 'widgets',
+						path: 'extensions',
 						children: [
 							{
 								index: true,
 								element: (
 									<SettingsRouteWrapper>
-										<WidgetsPage />
+										<ExtensionsPage />
 									</SettingsRouteWrapper>
 								),
 							},
 							{
-								path: 'widgetdetails/:widgetId',
+								path: 'extensiondetails/:extensionId',
 								element: (
 									<SettingsRouteWrapper>
-										<WidgetDetailsPage />
+										<ExtensionDetailsPage />
 									</SettingsRouteWrapper>
 								),
 							},

@@ -1,8 +1,8 @@
-export { ensureWidgets } from './widget_ensure';
-export { listWidgets } from './widget_list';
-export { loadWidget } from './widget_load';
-export { readWidgetManifest } from './widget_read';
-export { readWidgetSettings } from './widget_settings_read';
-export { storeWidgetSettings } from './widget_store';
-export { watchWidgets } from './widget_watch';
-export type { Widget, WidgetManifest, WidgetMetadata, WidgetSettings } from './widget_types';
+export { ensureExtensions } from './extension_ensure';
+export { listExtensions } from './extension_list';
+export { loadExtension } from './extension_load';
+export { readExtensionManifest } from './extension_read';
+export { readExtensionSettings } from './extension_settings_read';
+export { storeExtensionSettings } from './extension_store';
+export { watchExtensions } from './extension_watch';
+export type { Extension, ExtensionManifest, ExtensionMetadata, ExtensionSettings } from './extension_types';

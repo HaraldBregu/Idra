@@ -10,7 +10,7 @@ export type {
 	PluginScanResult,
 	PluginSkill,
 	PluginTheme,
-	PluginWidget,
+	PluginExtension,
 } from './repository';
 export { pluginManifestSchema } from './schema';
 export type {
@@ -21,6 +21,6 @@ export type {
 	PluginProviderContribution,
 	PluginSkillContribution,
 	PluginThemeContribution,
-	PluginWidgetContribution,
+	PluginExtensionContribution,
 } from './schema';
 export { pluginsRoot } from './root';

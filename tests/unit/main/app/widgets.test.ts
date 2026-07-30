@@ -4,16 +4,16 @@ import path from 'node:path';
 import type { BrowserWindow } from 'electron';
 import type { WindowFactory } from '../../../../src/main/app/window_factory';
 import {
-	ensureWidgets,
-	listWidgets,
-	loadWidget,
-	readWidgetSettings,
-	storeWidgetSettings,
-} from '../../../../src/main/widgets/widget_index';
-import { widgetEntryPath } from '../../../../src/main/widgets/widget_entry';
-import { widgetManifestPath } from '../../../../src/main/widgets/widget_manifest';
-import { widgetsSettingsPath } from '../../../../src/main/widgets/widget_settings';
-import type { WidgetManifest } from '../../../../src/main/widgets/widget_types';
+	ensureExtensions,
+	listExtensions,
+	loadExtension,
+	readExtensionSettings,
+	storeExtensionSettings,
+} from '../../../../src/main/extensions/extension_index';
+import { extensionEntryPath } from '../../../../src/main/extensions/extension_entry';
+import { extensionManifestPath } from '../../../../src/main/extensions/extension_manifest';
+import { extensionsSettingsPath } from '../../../../src/main/extensions/extension_settings';
+import type { ExtensionManifest } from '../../../../src/main/extensions/extension_types';
 
 function createWindowHarness() {
 	const handlers = new Map<string, () => void>();
@@ -28,22 +28,22 @@ function createWindowHarness() {
 	return { create, handlers, win, windowFactory };
 }
 
-function installWidget(
+function installExtension(
 	appLocation: string,
 	id: string,
-	manifest: WidgetManifest,
-	contents = '<h1>Widget</h1>'
+	manifest: ExtensionManifest,
+	contents = '<h1>Extension</h1>'
 ): string {
-	const entry = widgetEntryPath(id, manifest.metadata.entry, appLocation);
+	const entry = extensionEntryPath(id, manifest.metadata.entry, appLocation);
 	fs.mkdirSync(path.dirname(entry), { recursive: true });
 	fs.writeFileSync(entry, contents);
-	fs.writeFileSync(widgetManifestPath(id, appLocation), JSON.stringify(manifest));
+	fs.writeFileSync(extensionManifestPath(id, appLocation), JSON.stringify(manifest));
 	return entry;
 }
 
-describe('widget storage and loading', () => {
+describe('extension storage and loading', () => {
 	let appLocation: string;
-	const projectManifest: WidgetManifest = {
+	const projectManifest: ExtensionManifest = {
 		title: 'Project',
 		description: 'A compact project board for tracking work from backlog to completion.',
 		metadata: {
@@ -54,7 +54,7 @@ describe('widget storage and loading', () => {
 	};
 
 	beforeEach(() => {
-		appLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-widgets-'));
+		appLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-extensions-'));
 	});
 
 	afterEach(() => {
@@ -62,43 +62,43 @@ describe('widget storage and loading', () => {
 	});
 
 	it('initializes settings with only the enabled property', () => {
-		expect(ensureWidgets(appLocation)).toEqual([]);
-		expect(JSON.parse(fs.readFileSync(widgetsSettingsPath(appLocation), 'utf8'))).toEqual({
+		expect(ensureExtensions(appLocation)).toEqual([]);
+		expect(JSON.parse(fs.readFileSync(extensionsSettingsPath(appLocation), 'utf8'))).toEqual({
 			enabled: true,
 		});
-		expect(fs.readdirSync(path.join(appLocation, 'widgets'))).toEqual(['settings.json']);
+		expect(fs.readdirSync(path.join(appLocation, 'extensions'))).toEqual(['settings.json']);
 	});
 
-	it('stores and reads only the enabled widget setting', () => {
-		storeWidgetSettings({ enabled: false }, appLocation);
+	it('stores and reads only the enabled extension setting', () => {
+		storeExtensionSettings({ enabled: false }, appLocation);
 
-		expect(readWidgetSettings(appLocation)).toEqual({ enabled: false });
-		expect(JSON.parse(fs.readFileSync(widgetsSettingsPath(appLocation), 'utf8'))).toEqual({
+		expect(readExtensionSettings(appLocation)).toEqual({ enabled: false });
+		expect(JSON.parse(fs.readFileSync(extensionsSettingsPath(appLocation), 'utf8'))).toEqual({
 			enabled: false,
 		});
 	});
 
 	it('removes legacy catalog data while preserving the enabled setting', () => {
-		fs.mkdirSync(path.dirname(widgetsSettingsPath(appLocation)), { recursive: true });
+		fs.mkdirSync(path.dirname(extensionsSettingsPath(appLocation)), { recursive: true });
 		fs.writeFileSync(
-			widgetsSettingsPath(appLocation),
-			JSON.stringify({ enabled: false, widgets: [{ id: 'project' }] })
+			extensionsSettingsPath(appLocation),
+			JSON.stringify({ enabled: false, extensions: [{ id: 'project' }] })
 		);
 
-		expect(ensureWidgets(appLocation)).toEqual([]);
-		expect(JSON.parse(fs.readFileSync(widgetsSettingsPath(appLocation), 'utf8'))).toEqual({
+		expect(ensureExtensions(appLocation)).toEqual([]);
+		expect(JSON.parse(fs.readFileSync(extensionsSettingsPath(appLocation), 'utf8'))).toEqual({
 			enabled: false,
 		});
 	});
 
-	it('discovers widget folders from their manifests', () => {
-		installWidget(appLocation, 'project', projectManifest);
+	it('discovers extension folders from their manifests', () => {
+		installExtension(appLocation, 'project', projectManifest);
 
-		expect(listWidgets(appLocation)).toEqual([{ id: 'project', ...projectManifest }]);
+		expect(listExtensions(appLocation)).toEqual([{ id: 'project', ...projectManifest }]);
 	});
 
 	it('uses metadata.entry and preserves additional metadata', () => {
-		const manifest: WidgetManifest = {
+		const manifest: ExtensionManifest = {
 			...projectManifest,
 			metadata: {
 				...projectManifest.metadata,
@@ -106,63 +106,63 @@ describe('widget storage and loading', () => {
 				author: 'Friday',
 			},
 		};
-		installWidget(appLocation, 'project', manifest);
+		installExtension(appLocation, 'project', manifest);
 
-		expect(listWidgets(appLocation)).toEqual([{ id: 'project', ...manifest }]);
+		expect(listExtensions(appLocation)).toEqual([{ id: 'project', ...manifest }]);
 	});
 
-	it('sorts discovered widgets by folder name', () => {
-		installWidget(appLocation, 'weather', { ...projectManifest, title: 'Weather' });
-		installWidget(appLocation, 'clock', { ...projectManifest, title: 'Clock' });
+	it('sorts discovered extensions by folder name', () => {
+		installExtension(appLocation, 'weather', { ...projectManifest, title: 'Weather' });
+		installExtension(appLocation, 'clock', { ...projectManifest, title: 'Clock' });
 
-		expect(listWidgets(appLocation).map(({ id }) => id)).toEqual(['clock', 'weather']);
+		expect(listExtensions(appLocation).map(({ id }) => id)).toEqual(['clock', 'weather']);
 	});
 
-	it('returns no widgets when widgets are disabled', () => {
-		installWidget(appLocation, 'project', projectManifest);
-		storeWidgetSettings({ enabled: false }, appLocation);
+	it('returns no extensions when extensions are disabled', () => {
+		installExtension(appLocation, 'project', projectManifest);
+		storeExtensionSettings({ enabled: false }, appLocation);
 
-		expect(listWidgets(appLocation)).toEqual([]);
+		expect(listExtensions(appLocation)).toEqual([]);
 	});
 
 	it('omits folders whose manifest is missing or invalid', () => {
-		const entry = widgetEntryPath('notes', 'index.html', appLocation);
+		const entry = extensionEntryPath('notes', 'index.html', appLocation);
 		fs.mkdirSync(path.dirname(entry), { recursive: true });
 		fs.writeFileSync(entry, '<h1>Notes</h1>');
-		expect(listWidgets(appLocation)).toEqual([]);
+		expect(listExtensions(appLocation)).toEqual([]);
 
 		fs.writeFileSync(
-			widgetManifestPath('notes', appLocation),
+			extensionManifestPath('notes', appLocation),
 			JSON.stringify({ name: 'Notes', description: 'Old schema', metadata: {} })
 		);
-		expect(listWidgets(appLocation)).toEqual([]);
+		expect(listExtensions(appLocation)).toEqual([]);
 	});
 
-	it('omits widgets whose manifest entry is missing or unsafe', () => {
-		fs.mkdirSync(path.dirname(widgetManifestPath('missing', appLocation)), { recursive: true });
-		fs.writeFileSync(widgetManifestPath('missing', appLocation), JSON.stringify(projectManifest));
-		fs.mkdirSync(path.dirname(widgetManifestPath('unsafe', appLocation)), { recursive: true });
+	it('omits extensions whose manifest entry is missing or unsafe', () => {
+		fs.mkdirSync(path.dirname(extensionManifestPath('missing', appLocation)), { recursive: true });
+		fs.writeFileSync(extensionManifestPath('missing', appLocation), JSON.stringify(projectManifest));
+		fs.mkdirSync(path.dirname(extensionManifestPath('unsafe', appLocation)), { recursive: true });
 		fs.writeFileSync(
-			widgetManifestPath('unsafe', appLocation),
+			extensionManifestPath('unsafe', appLocation),
 			JSON.stringify({
 				...projectManifest,
 				metadata: { ...projectManifest.metadata, entry: '../outside.html' },
 			})
 		);
 
-		expect(listWidgets(appLocation)).toEqual([]);
+		expect(listExtensions(appLocation)).toEqual([]);
 	});
 
 	it('loads the manifest entry in a standalone window using its title', () => {
-		const manifest: WidgetManifest = {
+		const manifest: ExtensionManifest = {
 			...projectManifest,
 			metadata: { ...projectManifest.metadata, entry: 'pages/project.html' },
 		};
-		const entry = installWidget(appLocation, 'project', manifest);
-		const widget = { id: 'project', ...manifest };
+		const entry = installExtension(appLocation, 'project', manifest);
+		const extension = { id: 'project', ...manifest };
 		const { create, handlers, win, windowFactory } = createWindowHarness();
 
-		expect(loadWidget(windowFactory, widget, appLocation)).toBe(win);
+		expect(loadExtension(windowFactory, extension, appLocation)).toBe(win);
 		expect(create).toHaveBeenCalledWith(
 			expect.objectContaining({
 				title: 'Project',
@@ -177,21 +177,21 @@ describe('widget storage and loading', () => {
 	});
 
 	it('does not open a window when the manifest entry is missing', () => {
-		const widget = { id: 'project', ...projectManifest };
+		const extension = { id: 'project', ...projectManifest };
 		const { create, windowFactory } = createWindowHarness();
 
-		expect(() => loadWidget(windowFactory, widget, appLocation)).toThrow(
-			'Widget entry not found: project'
+		expect(() => loadExtension(windowFactory, extension, appLocation)).toThrow(
+			'Extension entry not found: project'
 		);
 		expect(create).not.toHaveBeenCalled();
 	});
 
-	it('rejects widget paths outside the widgets folder', () => {
-		expect(() => widgetEntryPath('../outside', 'index.html', appLocation)).toThrow(
-			'Invalid widget id'
+	it('rejects extension paths outside the extensions folder', () => {
+		expect(() => extensionEntryPath('../outside', 'index.html', appLocation)).toThrow(
+			'Invalid extension id'
 		);
-		expect(() => widgetEntryPath('project', '../outside.html', appLocation)).toThrow(
-			'Invalid widget entry'
+		expect(() => extensionEntryPath('project', '../outside.html', appLocation)).toThrow(
+			'Invalid extension entry'
 		);
 	});
 });

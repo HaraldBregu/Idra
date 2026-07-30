@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { widgetsRoot } from './widget_root';
+import { extensionsRoot } from './extension_root';
 
-export function widgetsSettingsPath(appLocation?: string): string {
-	return path.join(widgetsRoot(appLocation), 'settings.json');
+export function extensionsSettingsPath(appLocation?: string): string {
+	return path.join(extensionsRoot(appLocation), 'settings.json');
 }

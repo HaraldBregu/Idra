@@ -25,7 +25,7 @@ export function connected() {
 function api() {
 	if (isFriday()) return agent;
 	if (remote) return remote.agent;
-	throw new Error('Not connected to Friday. Open this widget in the app, or paste an API token.');
+	throw new Error('Not connected to Friday. Open this extension in the app, or paste an API token.');
 }
 
 async function run(prompt, tool, handlers = {}) {
@@ -38,7 +38,7 @@ async function run(prompt, tool, handlers = {}) {
 				handlers.onState?.(event.state);
 				break;
 			case 'tool_permission_request':
-				// delete_project always asks; approving here keeps the flow in the widget.
+				// delete_project always asks; approving here keeps the flow in the extension.
 				handlers.onPermission?.(event, (decision) =>
 					assistant.respondToolPermission(event.toolCallId, decision)
 				);

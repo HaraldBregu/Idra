@@ -10,7 +10,7 @@ import type {
 	SearchApi,
 	SkillsApi,
 	StorageApi,
-	WidgetsApi,
+	ExtensionsApi,
 	WikiApi,
 	WindowApi,
 } from '../../src/shared/api_types';
@@ -28,7 +28,7 @@ export type * from '../../src/shared/speech_types';
 export type * from '../../src/shared/storage_types';
 export type * from '../../src/shared/text_types';
 export type * from '../../src/shared/video_types';
-export type * from '../../src/shared/widget_types';
+export type * from '../../src/shared/extension_types';
 export type * from '../../src/shared/wiki_types';
 export type * from '../../src/main/cron/cron_types';
 export type * from '../../src/main/agent/health/health_types';
@@ -67,6 +67,6 @@ export const recorder = bridge<RecorderApi>('recorder');
 export const search = bridge<SearchApi>('search');
 export const skills = bridge<SkillsApi>('skills');
 export const storage = bridge<StorageApi>('storage');
-export const widgets = bridge<WidgetsApi>('widgets');
+export const extensions = bridge<ExtensionsApi>('extensions');
 export const wiki = bridge<WikiApi>('wiki');
 export const win = bridge<WindowApi>('win');

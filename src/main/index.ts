@@ -12,7 +12,7 @@ import {
 } from './app/settings_store';
 import type { AppLanguage } from '../shared/app_types';
 import { Menu } from './app/menu';
-import { ensureWidgets, listWidgets, loadWidget, watchWidgets } from './widgets/widget_index';
+import { ensureExtensions, listExtensions, loadExtension, watchExtensions } from './extensions/extension_index';
 import { ShortcutManager } from './app/shortcuts';
 import { setupAppLifecycle } from './app/lifecycle';
 import {
@@ -135,20 +135,20 @@ const menuManager = new Menu({
 		logger.info('Menu', 'Creating new launcher window');
 		mainWindow.createAdditionalWindow();
 	},
-	getWidgets: () => listWidgets(undefined, pluginRepository),
-	onOpenWidget: (widget) => loadWidget(windowFactory, widget, undefined, pluginRepository),
+	getExtensions: () => listExtensions(undefined, pluginRepository),
+	onOpenExtension: (extension) => loadExtension(windowFactory, extension, undefined, pluginRepository),
 });
 
 app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
 	setupMediaPermissionHandlers();
-	ensureWidgets();
-	const stopWatchingWidgets = watchWidgets(
+	ensureExtensions();
+	const stopWatchingExtensions = watchExtensions(
 		() => menuManager.create(),
-		(error) => logger.error('Widgets', 'Widget watcher failed', error)
+		(error) => logger.error('Extensions', 'Extension watcher failed', error)
 	);
 	app.once('before-quit', () => {
-		void stopWatchingWidgets();
+		void stopWatchingExtensions();
 	});
 	syncSkills();
 	startWiki();

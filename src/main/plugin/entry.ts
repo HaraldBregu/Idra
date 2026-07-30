@@ -1,4 +1,4 @@
-export function isPluginWidgetEntry(value: unknown): value is string {
+export function isPluginExtensionEntry(value: unknown): value is string {
 	if (typeof value !== 'string' || !value.trim() || value.includes('\\')) return false;
 	const segments = value.split('/');
 	return (

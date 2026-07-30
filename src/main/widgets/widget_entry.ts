@@ -1,10 +1,10 @@
 import path from 'node:path';
-import { isWidgetEntry } from './widget_entry_validate';
-import { isWidgetId } from './widget_id';
-import { widgetsRoot } from './widget_root';
+import { isExtensionEntry } from './extension_entry_validate';
+import { isExtensionId } from './extension_id';
+import { extensionsRoot } from './extension_root';
 
-export function widgetEntryPath(id: string, entry: string, appLocation?: string): string {
-	if (!isWidgetId(id)) throw new Error(`Invalid widget id: ${id}`);
-	if (!isWidgetEntry(entry)) throw new Error(`Invalid widget entry: ${entry}`);
-	return path.join(widgetsRoot(appLocation), id, ...entry.split('/'));
+export function extensionEntryPath(id: string, entry: string, appLocation?: string): string {
+	if (!isExtensionId(id)) throw new Error(`Invalid extension id: ${id}`);
+	if (!isExtensionEntry(entry)) throw new Error(`Invalid extension entry: ${entry}`);
+	return path.join(extensionsRoot(appLocation), id, ...entry.split('/'));
 }

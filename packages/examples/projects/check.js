@@ -1,4 +1,4 @@
-// Self-check for the widget's SDK seam: a stub Friday API replays the events a real
+// Self-check for the extension's SDK seam: a stub Friday API replays the events a real
 // agent run emits, so the tool-result and permission plumbing is verified without a model.
 // Run against a real app instead with: node check.js <path-to-sdk-token> [url]
 import assert from 'node:assert/strict';
@@ -103,4 +103,4 @@ assert.deepEqual(
 
 server.close();
 stream?.end();
-console.log('projects widget check ok');
+console.log('projects extension check ok');

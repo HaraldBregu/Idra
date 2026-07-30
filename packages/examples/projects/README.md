@@ -1,6 +1,6 @@
-# Projects widget
+# Projects extension
 
-A React widget that lists, creates, edits and deletes Friday projects through
+A React extension that lists, creates, edits and deletes Friday projects through
 [`@friday/sdk`](../../sdk). It is the reference example for driving the app from
 outside its own renderer.
 
@@ -21,13 +21,13 @@ await agent.send(
 ```
 
 Nothing parses the assistant's prose. `src/lib/projects.js` is the whole seam — the rest
-of the widget is ordinary React.
+of the extension is ordinary React.
 
 It also shows the two things a real integration needs:
 
 - **Run state** — `run_state` events drive the status line, so the UI reflects what the
   agent is doing.
-- **Tool permission** — `delete_project` always asks. The widget surfaces the
+- **Tool permission** — `delete_project` always asks. The extension surfaces the
   `tool_permission_request` event and answers with `agent.respondToolPermission()`.
 
 ## Both SDK modes
@@ -36,10 +36,10 @@ The same code runs in either place, decided at startup by `isFriday()`:
 
 | Where it runs           | How it reaches Friday                        |
 | ----------------------- | -------------------------------------------- |
-| Installed as a widget   | the preload globals, via the named exports   |
+| Installed as a extension   | the preload globals, via the named exports   |
 | Any browser or Node app | `connect({ token, url })` over the local API |
 
-Outside the app the widget asks for the token from
+Outside the app the extension asks for the token from
 `~/Library/Application Support/Friday/sdk-token`.
 
 ## Run it
@@ -49,11 +49,11 @@ The SDK builds from the app sources, so build it first:
 ```sh
 npm --prefix ../../sdk run build
 npm install
-npm run dev      # or: npm run build, then install dist/ as a widget
+npm run dev      # or: npm run build, then install dist/ as a extension
 ```
 
 `manifest.json` points at `dist/index.html`, so a built copy of this folder drops
-straight into `~/Library/Application Support/Friday/widgets/`.
+straight into `~/Library/Application Support/Friday/extensions/`.
 
 ## Verify
 

@@ -39,7 +39,7 @@ import {
 	SttChannels,
 	TextChannels,
 	VideoChannels,
-	WidgetChannels,
+	ExtensionChannels,
 	WikiChannels,
 	WindowChannels,
 } from './ipc_channels_definitions';
@@ -662,9 +662,9 @@ export interface SttEventChannelMap {
 	[SttChannels.realtimeEvent]: { data: SttRealtimeEvent };
 }
 
-export interface WidgetsInvokeChannelMap {
-	[WidgetChannels.list]: { args: []; result: import('./widget_types').Widget[] };
-	[WidgetChannels.open]: { args: [widgetId: string]; result: void };
+export interface ExtensionsInvokeChannelMap {
+	[ExtensionChannels.list]: { args: []; result: import('./extension_types').Extension[] };
+	[ExtensionChannels.open]: { args: [extensionId: string]; result: void };
 }
 
 export interface WindowInvokeChannelMap {
@@ -705,7 +705,7 @@ export interface InvokeChannelMap
 		SttInvokeChannelMap,
 		TextInvokeChannelMap,
 		VideoInvokeChannelMap,
-		WidgetsInvokeChannelMap {}
+		ExtensionsInvokeChannelMap {}
 
 export interface SendChannelMap extends WindowSendChannelMap {}
 

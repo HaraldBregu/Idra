@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { widgetsSettingsPath } from './widget_settings';
-import type { WidgetSettings } from './widget_types';
+import { extensionsSettingsPath } from './extension_settings';
+import type { ExtensionSettings } from './extension_types';
 
-export function readWidgetSettings(appLocation?: string): WidgetSettings {
-	const file = widgetsSettingsPath(appLocation);
+export function readExtensionSettings(appLocation?: string): ExtensionSettings {
+	const file = extensionsSettingsPath(appLocation);
 	if (!existsSync(file)) return { enabled: true };
 	try {
 		const value = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>;

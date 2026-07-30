@@ -245,12 +245,12 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		descriptionKey: 'settings.mcp.emptyDescription',
 		keywords: 'new mcp server command url transport connect',
 	},
-	// Widgets
+	// Extensions
 	{
-		path: '/settings/widgets',
-		labelKey: 'settings.widgets.title',
-		descriptionKey: 'settings.widgets.description',
-		keywords: 'external widget apps window manifest api install folder entry',
+		path: '/settings/extensions',
+		labelKey: 'settings.extensions.title',
+		descriptionKey: 'settings.extensions.description',
+		keywords: 'external extension apps window manifest api install folder entry',
 	},
 	// Channels
 	{
@@ -425,9 +425,9 @@ export const SETTINGS_NAVIGATION = [
 		icon: RadioTower,
 	},
 	{
-		path: '/settings/widgets',
-		labelKey: 'settings.tabs.widgets',
-		descriptionKey: 'settings.overview.descriptions.widgets',
+		path: '/settings/extensions',
+		labelKey: 'settings.tabs.extensions',
+		descriptionKey: 'settings.overview.descriptions.extensions',
 		icon: LayoutGrid,
 	},
 	{

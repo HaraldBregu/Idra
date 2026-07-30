@@ -1,6 +1,6 @@
 export type {
-	Widget,
-	WidgetManifest,
-	WidgetMetadata,
-	WidgetSettings,
-} from '../../shared/widget_types';
+	Extension,
+	ExtensionManifest,
+	ExtensionMetadata,
+	ExtensionSettings,
+} from '../../shared/extension_types';

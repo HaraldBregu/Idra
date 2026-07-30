@@ -1,27 +1,27 @@
-export type WidgetMetadata = {
+export type ExtensionMetadata = {
 	version: string;
 	category: string;
 	entry: string;
 	[key: string]: unknown;
 };
 
-export type WidgetManifest = {
+export type ExtensionManifest = {
 	title: string;
 	description: string;
-	metadata: WidgetMetadata;
+	metadata: ExtensionMetadata;
 };
 
-export type PluginWidgetSource = {
+export type PluginExtensionSource = {
 	kind: 'plugin';
 	pluginId: string;
-	widgetId: string;
+	extensionId: string;
 };
 
-export type Widget = WidgetManifest & {
+export type Extension = ExtensionManifest & {
 	id: string;
-	source?: PluginWidgetSource;
+	source?: PluginExtensionSource;
 };
 
-export type WidgetSettings = {
+export type ExtensionSettings = {
 	enabled: boolean;
 };

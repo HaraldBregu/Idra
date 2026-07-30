@@ -6,7 +6,7 @@ The same API in two shapes:
 
 - **`connect()`** — for other apps. Friday serves its API over loopback HTTP, so any
   Node, browser, or Electron app can drive it.
-- **named exports** — for code embedded in Friday (a widget window, or any renderer
+- **named exports** — for code embedded in Friday (a extension window, or any renderer
   bundle), bound to the preload globals (`window.agent`, `window.image`, …).
 
 The types are generated from the app's own contract (`src/shared/api_types.ts`), so the
@@ -75,7 +75,7 @@ own preload API (`win` is embedded-only — it drives the window hosting your co
 | `search`   | Search engine settings                                                            |
 | `skills`   | Install, enable, load skills                                                      |
 | `storage`  | Remote storage config, objects, sync/push/pull                                    |
-| `widgets`  | Installed widgets                                                                 |
+| `extensions`  | Installed extensions                                                                 |
 | `wiki`     | Wiki generation settings and runs                                                 |
 | `win`      | Window controls for the hosting window                                            |
 

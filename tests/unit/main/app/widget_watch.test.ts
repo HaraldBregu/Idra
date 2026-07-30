@@ -1,12 +1,12 @@
 import path from 'node:path';
 import { watch } from 'chokidar';
-import { watchWidgets } from '../../../../src/main/widgets/widget_watch';
+import { watchExtensions } from '../../../../src/main/extensions/extension_watch';
 
 jest.mock('chokidar', () => ({ watch: jest.fn() }));
 
 type WatchHandler = (...args: unknown[]) => void;
 
-describe('widget folder watcher', () => {
+describe('extension folder watcher', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
 	});
@@ -15,7 +15,7 @@ describe('widget folder watcher', () => {
 		jest.useRealTimers();
 	});
 
-	it('coalesces widget changes and forwards watcher errors', async () => {
+	it('coalesces extension changes and forwards watcher errors', async () => {
 		const handlers = new Map<string, WatchHandler>();
 		const watcher = {
 			on: jest.fn((event: string, handler: WatchHandler) => {
@@ -28,9 +28,9 @@ describe('widget folder watcher', () => {
 		const onChange = jest.fn();
 		const onError = jest.fn();
 
-		const stop = watchWidgets(onChange, onError, '/tmp/friday');
+		const stop = watchExtensions(onChange, onError, '/tmp/friday');
 
-		expect(watch).toHaveBeenCalledWith(path.join('/tmp/friday', 'widgets'), {
+		expect(watch).toHaveBeenCalledWith(path.join('/tmp/friday', 'extensions'), {
 			ignoreInitial: true,
 			followSymlinks: false,
 			awaitWriteFinish: { stabilityThreshold: 100, pollInterval: 25 },

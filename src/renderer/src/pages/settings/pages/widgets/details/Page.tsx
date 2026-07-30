@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { AlertTriangle, ExternalLink, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { Widget } from '../../../../../../../shared/widget_types';
+import type { Extension } from '../../../../../../../shared/extension_types';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -17,51 +17,51 @@ import {
 
 const KNOWN_METADATA_KEYS = ['version', 'category', 'entry'];
 
-const WidgetDetailsPage: React.FC = () => {
+const ExtensionDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
-	const { widgetId } = useParams<{ widgetId: string }>();
-	const decodedWidgetId = decodeURIComponent(widgetId ?? '');
-	const [widget, setWidget] = useState<Widget | null>(null);
+	const { extensionId } = useParams<{ extensionId: string }>();
+	const decodedExtensionId = decodeURIComponent(extensionId ?? '');
+	const [extension, setExtension] = useState<Extension | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [opening, setOpening] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
-	const loadErrorFallback = t('settings.widgets.loadError');
+	const loadErrorFallback = t('settings.extensions.loadError');
 
-	const loadWidget = useCallback(async (): Promise<void> => {
+	const loadExtension = useCallback(async (): Promise<void> => {
 		setLoading(true);
 		setErrorMessage('');
 		try {
-			const list = await window.widgets.list();
-			setWidget(list.find((item) => item.id === decodedWidgetId) ?? null);
+			const list = await window.extensions.list();
+			setExtension(list.find((item) => item.id === decodedExtensionId) ?? null);
 		} catch {
 			setErrorMessage(loadErrorFallback);
-			setWidget(null);
+			setExtension(null);
 		} finally {
 			setLoading(false);
 		}
-	}, [decodedWidgetId, loadErrorFallback]);
+	}, [decodedExtensionId, loadErrorFallback]);
 
 	useEffect(() => {
-		void loadWidget();
-	}, [loadWidget]);
+		void loadExtension();
+	}, [loadExtension]);
 
 	const handleOpen = useCallback(async (): Promise<void> => {
-		if (!widget) return;
+		if (!extension) return;
 		setOpening(true);
 		setErrorMessage('');
 		try {
-			await window.widgets.open(widget.id);
+			await window.extensions.open(extension.id);
 		} catch {
-			setErrorMessage(t('settings.widgets.openError'));
+			setErrorMessage(t('settings.extensions.openError'));
 		} finally {
 			setOpening(false);
 		}
-	}, [widget, t]);
+	}, [extension, t]);
 
 	if (loading) {
 		return (
 			<SettingsPageShell>
-				<SettingsPageHeader title={t('settings.widgets.details')} />
+				<SettingsPageHeader title={t('settings.extensions.details')} />
 				<SettingsPanel>
 					<SettingsLoadingRows rows={3} />
 				</SettingsPanel>
@@ -69,10 +69,10 @@ const WidgetDetailsPage: React.FC = () => {
 		);
 	}
 
-	if (!widget) {
+	if (!extension) {
 		return (
 			<SettingsPageShell>
-				<SettingsPageHeader title={t('settings.widgets.details')} />
+				<SettingsPageHeader title={t('settings.extensions.details')} />
 				{errorMessage && (
 					<SettingsNotice variant="destructive" icon={AlertTriangle}>
 						{errorMessage}
@@ -81,8 +81,8 @@ const WidgetDetailsPage: React.FC = () => {
 				<SettingsPanel>
 					<SettingsEmptyState
 						icon={LayoutGrid}
-						title={decodedWidgetId || t('settings.widgets.empty')}
-						description={t('settings.widgets.emptyDescription')}
+						title={decodedExtensionId || t('settings.extensions.empty')}
+						description={t('settings.extensions.emptyDescription')}
 						className="min-h-28"
 					/>
 				</SettingsPanel>
@@ -90,19 +90,19 @@ const WidgetDetailsPage: React.FC = () => {
 		);
 	}
 
-	const extraMetadata = Object.entries(widget.metadata).filter(
+	const extraMetadata = Object.entries(extension.metadata).filter(
 		([key]) => !KNOWN_METADATA_KEYS.includes(key)
 	);
 
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={widget.title}
-				description={widget.description}
+				title={extension.title}
+				description={extension.description}
 				action={
 					<Button variant="outline" size="xs" onClick={() => void handleOpen()} disabled={opening}>
 						<ExternalLink className="size-3" />
-						{t('settings.widgets.open')}
+						{t('settings.extensions.open')}
 					</Button>
 				}
 			/>
@@ -113,20 +113,20 @@ const WidgetDetailsPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.widgets.details')}>
+			<SettingsSection title={t('settings.extensions.details')}>
 				<SettingsPanel>
-					<WidgetDetail label={t('settings.widgets.detailId')} value={widget.id} mono />
-					<WidgetDetail
-						label={t('settings.widgets.detailVersion')}
-						value={widget.metadata.version}
+					<ExtensionDetail label={t('settings.extensions.detailId')} value={extension.id} mono />
+					<ExtensionDetail
+						label={t('settings.extensions.detailVersion')}
+						value={extension.metadata.version}
 					/>
-					<WidgetDetail
-						label={t('settings.widgets.detailCategory')}
-						value={widget.metadata.category}
+					<ExtensionDetail
+						label={t('settings.extensions.detailCategory')}
+						value={extension.metadata.category}
 					/>
-					<WidgetDetail label={t('settings.widgets.detailEntry')} value={widget.metadata.entry} mono />
+					<ExtensionDetail label={t('settings.extensions.detailEntry')} value={extension.metadata.entry} mono />
 					{extraMetadata.map(([key, value]) => (
-						<WidgetDetail
+						<ExtensionDetail
 							key={key}
 							label={key}
 							value={typeof value === 'string' ? value : JSON.stringify(value)}
@@ -138,7 +138,7 @@ const WidgetDetailsPage: React.FC = () => {
 	);
 };
 
-function WidgetDetail({
+function ExtensionDetail({
 	label,
 	value,
 	mono,
@@ -167,4 +167,4 @@ function WidgetDetail({
 	);
 }
 
-export default WidgetDetailsPage;
+export default ExtensionDetailsPage;

@@ -1,7 +1,7 @@
-import { isWidgetEntry } from './widget_entry_validate';
-import type { WidgetManifest } from './widget_types';
+import { isExtensionEntry } from './extension_entry_validate';
+import type { ExtensionManifest } from './extension_types';
 
-export function isWidgetManifest(value: unknown): value is WidgetManifest {
+export function isExtensionManifest(value: unknown): value is ExtensionManifest {
 	if (!value || typeof value !== 'object') return false;
 	const manifest = value as Record<string, unknown>;
 	const metadata = manifest.metadata as Record<string, unknown> | undefined;
@@ -17,6 +17,6 @@ export function isWidgetManifest(value: unknown): value is WidgetManifest {
 		metadata.version.trim().length > 0 &&
 		typeof metadata.category === 'string' &&
 		metadata.category.trim().length > 0 &&
-		isWidgetEntry(metadata.entry)
+		isExtensionEntry(metadata.entry)
 	);
 }

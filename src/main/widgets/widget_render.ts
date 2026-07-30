@@ -26,7 +26,7 @@ export function render(
 							sandbox: true,
 							nodeIntegration: false,
 							contextIsolation: true,
-							partition: 'friday-plugin-widgets',
+							partition: 'friday-plugin-extensions',
 						},
 					}
 				: { webPreferences: { preload: undefined } }),

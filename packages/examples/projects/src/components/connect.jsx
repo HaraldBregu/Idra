@@ -10,7 +10,7 @@ export default function Connect({ onConnect }) {
 		<main className="app connect">
 			<h1>Connect to Friday</h1>
 			<p className="muted">
-				Open this widget inside Friday, or paste the token from
+				Open this extension inside Friday, or paste the token from
 				<code> ~/Library/Application Support/Friday/sdk-token</code>.
 			</p>
 

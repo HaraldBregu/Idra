@@ -1,12 +1,12 @@
 import { typedInvokeUnwrap } from '../shared/ipc_types';
-import { WidgetChannels } from '../shared/ipc_channels_definitions';
-import type { WidgetsApi } from './index.d';
+import { ExtensionChannels } from '../shared/ipc_channels_definitions';
+import type { ExtensionsApi } from './index.d';
 
-export const widgets: WidgetsApi = {
+export const extensions: ExtensionsApi = {
 	list: () => {
-		return typedInvokeUnwrap(WidgetChannels.list);
+		return typedInvokeUnwrap(ExtensionChannels.list);
 	},
-	open: (widgetId) => {
-		return typedInvokeUnwrap(WidgetChannels.open, widgetId);
+	open: (extensionId) => {
+		return typedInvokeUnwrap(ExtensionChannels.open, extensionId);
 	},
 };

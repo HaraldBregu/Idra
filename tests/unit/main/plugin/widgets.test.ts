@@ -4,14 +4,14 @@ import path from 'node:path';
 import type { BrowserWindow } from 'electron';
 import type { WindowFactory } from '../../../../src/main/app/window_factory';
 import { PluginRepository } from '../../../../src/main/plugin';
-import { listWidgets, loadWidget } from '../../../../src/main/widgets/widget_index';
+import { listExtensions, loadExtension } from '../../../../src/main/extensions/extension_index';
 
-describe('plugin widget integration', () => {
-	it('lists and opens plugin widgets in a restricted window', () => {
-		const appLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-plugin-widget-'));
+describe('plugin extension integration', () => {
+	it('lists and opens plugin extensions in a restricted window', () => {
+		const appLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-plugin-extension-'));
 		try {
 			const pluginDirectory = path.join(appLocation, 'plugins', 'acme-tools');
-			const entry = path.join(pluginDirectory, 'widgets', 'dashboard', 'index.html');
+			const entry = path.join(pluginDirectory, 'extensions', 'dashboard', 'index.html');
 			fs.mkdirSync(path.dirname(entry), { recursive: true });
 			fs.writeFileSync(entry, '<h1>Dashboard</h1>');
 			fs.writeFileSync(
@@ -23,13 +23,13 @@ describe('plugin widget integration', () => {
 					version: '1.0.0',
 					description: 'Acme dashboard integration.',
 					contributes: {
-						widgets: [
+						extensions: [
 							{
 								id: 'dashboard',
 								title: 'Acme Dashboard',
 								description: 'Account usage and status.',
 								category: 'integration',
-								entry: 'widgets/dashboard/index.html',
+								entry: 'extensions/dashboard/index.html',
 							},
 						],
 					},
@@ -37,11 +37,11 @@ describe('plugin widget integration', () => {
 			);
 
 			const repository = new PluginRepository({ root: path.join(appLocation, 'plugins') });
-			const widget = listWidgets(appLocation, repository)[0];
-			expect(widget).toEqual(
+			const extension = listExtensions(appLocation, repository)[0];
+			expect(extension).toEqual(
 				expect.objectContaining({
 					id: 'acme-tools/dashboard',
-					source: { kind: 'plugin', pluginId: 'acme-tools', widgetId: 'dashboard' },
+					source: { kind: 'plugin', pluginId: 'acme-tools', extensionId: 'dashboard' },
 				})
 			);
 
@@ -54,7 +54,7 @@ describe('plugin widget integration', () => {
 			const create = jest.fn(() => win);
 			const windowFactory = { create } as unknown as WindowFactory;
 
-			expect(loadWidget(windowFactory, widget, appLocation, repository)).toBe(win);
+			expect(loadExtension(windowFactory, extension, appLocation, repository)).toBe(win);
 			expect(create).toHaveBeenCalledWith(
 				expect.objectContaining({
 					webPreferences: {
@@ -62,7 +62,7 @@ describe('plugin widget integration', () => {
 						sandbox: true,
 						nodeIntegration: false,
 						contextIsolation: true,
-						partition: 'friday-plugin-widgets',
+						partition: 'friday-plugin-extensions',
 					},
 				}),
 				{ file: entry }
