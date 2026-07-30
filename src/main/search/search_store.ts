@@ -30,9 +30,10 @@ class SearchStore {
 		try {
 			const parsed = JSON.parse(readFileSync(this.path, 'utf8')) as unknown;
 			if (Array.isArray(parsed)) return parsed as SearchStoreState;
-			if (typeof parsed === 'object' && parsed !== null && Array.isArray(parsed.providers)) {
-				this.store = parsed.providers as SearchStoreState;
-				return parsed.providers as SearchStoreState;
+			const legacy = parsed as { providers?: unknown };
+			if (typeof parsed === 'object' && parsed !== null && Array.isArray(legacy.providers)) {
+				this.store = legacy.providers as SearchStoreState;
+				return legacy.providers as SearchStoreState;
 			}
 		} catch {}
 		return [];
