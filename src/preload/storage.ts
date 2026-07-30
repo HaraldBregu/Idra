@@ -4,8 +4,9 @@ import type { StorageApi } from './index.d';
 
 export const storage: StorageApi = {
 	getStorages: () => typedInvokeUnwrap(StorageChannels.getStorages),
-	getSelectedStorageId: () => typedInvokeUnwrap(StorageChannels.getSelectedStorageId),
-	setSelectedStorageId: (id) => typedInvokeUnwrap(StorageChannels.setSelectedStorageId, id),
+	getStorageConfiguration: () => typedInvokeUnwrap(StorageChannels.getStorageConfiguration),
+	saveStorageConfiguration: (configuration) =>
+		typedInvokeUnwrap(StorageChannels.saveStorageConfiguration, configuration),
 	saveStorageConfig: (config) => typedInvokeUnwrap(StorageChannels.saveStorageConfig, config),
 	deleteStorageConfig: (id) => typedInvokeUnwrap(StorageChannels.deleteStorageConfig, id),
 	testConnection: (config) => typedInvokeUnwrap(StorageChannels.testConnection, config),
