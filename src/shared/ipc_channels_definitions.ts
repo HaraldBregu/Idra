@@ -179,6 +179,11 @@ export const StorageChannels = {
 	pull: 'storage:pull',
 } as const;
 
+export const DatabaseChannels = {
+	getConfiguration: 'database:configuration:get',
+	saveConfiguration: 'database:configuration:save',
+} as const;
+
 export const SearchChannels = {
 	getSettings: 'search:settings:get',
 	saveEngine: 'search:engine:save',
