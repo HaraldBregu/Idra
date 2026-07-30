@@ -203,8 +203,16 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 
 	const selectInterval = (value: string | null): void => {
 		if (!storage || !value) return;
+		if (value === 'off') {
+			updateDraft({ ...storage, syncEnabled: false });
+			return;
+		}
 		const cron = SYNC_INTERVALS.find((interval) => interval.key === value)?.cron;
-		if (cron) updateDraft({ ...storage, syncCronExpression: cron });
+		updateDraft({
+			...storage,
+			syncEnabled: true,
+			syncCronExpression: cron ?? storage.syncCronExpression,
+		});
 	};
 
 	return (
