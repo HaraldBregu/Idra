@@ -105,6 +105,8 @@ export const AppChannels = {
 	showVideoContextMenu: 'app:show-video-context-menu',
 	showAudioContextMenu: 'app:show-audio-context-menu',
 	models: 'app:models',
+	databases: 'app:databases',
+	storages: 'app:storages',
 	modelsChanged: 'app:models-changed',
 } as const;
 
