@@ -35,6 +35,7 @@ export type AppSettingsState = {
 	databases: StoredProvider[];
 	storages: StoredStorage[];
 	storage_configuration: StorageConfiguration;
+	database_configuration: DatabaseConfiguration;
 	cron_configuration: PersistedCronState;
 };
 
