@@ -246,6 +246,20 @@ export class AppIpc implements IpcModule {
 			}, AppChannels.models)
 		);
 
+		ipcMain.handle(
+			AppChannels.databases,
+			wrapSimpleHandler(() => {
+				return [...loadDatabases()];
+			}, AppChannels.databases)
+		);
+
+		ipcMain.handle(
+			AppChannels.storages,
+			wrapSimpleHandler(() => {
+				return [...loadStorages()];
+			}, AppChannels.storages)
+		);
+
 		// Re-read the catalog and tell renderers when resources/providers changes on disk
 		watchModels(() => eventBus.broadcast(AppChannels.modelsChanged));
 
