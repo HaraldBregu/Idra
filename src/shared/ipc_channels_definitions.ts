@@ -107,6 +107,7 @@ export const AppChannels = {
 	models: 'app:models',
 	databases: 'app:databases',
 	storages: 'app:storages',
+	webSearches: 'app:web-searches',
 	modelsChanged: 'app:models-changed',
 } as const;
 
