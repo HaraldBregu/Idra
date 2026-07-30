@@ -49,6 +49,19 @@ export interface CatalogService extends CatalogEntryService {
 	readonly provider: PublicProvider;
 }
 
+/** One entry in resources/providers/<id>/web_search.json. */
+export interface CatalogEntryWebSearch {
+	readonly id: string;
+	readonly name: string;
+	/** Base URL of the web search API. */
+	readonly url: string;
+}
+
+/** A web search offering, carrying the provider that serves it. */
+export interface CatalogWebSearch extends CatalogEntryWebSearch {
+	readonly provider: PublicProvider;
+}
+
 /** Provider identity, as stored in resources/providers/<id>/info.json. */
 export interface ProviderCatalogEntry {
 	readonly id: string;
