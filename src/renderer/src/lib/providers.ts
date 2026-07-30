@@ -52,6 +52,10 @@ export function databaseProviders(): readonly PublicProvider[] {
 	return uniqueProviders(databaseCatalog);
 }
 
+export function storages(): readonly CatalogService[] {
+	return storageCatalog;
+}
+
 /** One record per provider, derived from the storages they serve. */
 export function storageProviders(): readonly PublicProvider[] {
 	return uniqueProviders(storageCatalog);
