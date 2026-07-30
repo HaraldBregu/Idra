@@ -179,23 +179,49 @@ function providersDir(): string {
 		: path.join(process.resourcesPath, 'resources/providers');
 }
 
-function readModels(): readonly CatalogModel[] {
-	const dir = providersDir();
+function readEntries<T>(providerDir: string, file: string): T[] {
+	const entriesPath = path.join(providerDir, file);
+	if (!existsSync(entriesPath)) return [];
+	const parsed = JSON.parse(readFileSync(entriesPath, 'utf-8')) as T[];
+	return Array.isArray(parsed) ? parsed : [];
+}
 
-	return readdirSync(dir, { withFileTypes: true })
-		.filter((entry) => entry.isDirectory())
-		.flatMap((dirent) => {
-			try {
-				const providerPath = path.join(dir, dirent.name, 'info.json');
-				const modelsPath = path.join(dir, dirent.name, 'models.json');
-				if (!existsSync(providerPath) || !existsSync(modelsPath)) return [];
-				const entry = JSON.parse(readFileSync(providerPath, 'utf-8')) as ProviderCatalogEntry;
-				const models = JSON.parse(readFileSync(modelsPath, 'utf-8')) as CatalogEntryModel[];
-				const provider = toPublicProvider(entry);
-				return models.map((model) => ({ ...model, provider }));
-			} catch {
-				// ponytail: a provider dir mid-edit (malformed JSON) drops out until fixed
-				return [];
-			}
-		});
+function readCatalog(): Catalog {
+	const dir = providersDir();
+	const models: CatalogModel[] = [];
+	const databases: CatalogService[] = [];
+	const storages: CatalogService[] = [];
+
+	for (const dirent of readdirSync(dir, { withFileTypes: true })) {
+		if (!dirent.isDirectory()) continue;
+		try {
+			const providerDir = path.join(dir, dirent.name);
+			const infoPath = path.join(providerDir, 'info.json');
+			if (!existsSync(infoPath)) continue;
+			const entry = JSON.parse(readFileSync(infoPath, 'utf-8')) as ProviderCatalogEntry;
+			const provider = toPublicProvider(entry);
+			models.push(
+				...readEntries<CatalogEntryModel>(providerDir, 'models.json').map((model) => ({
+					...model,
+					provider,
+				}))
+			);
+			databases.push(
+				...readEntries<CatalogEntryService>(providerDir, 'databases.json').map((service) => ({
+					...service,
+					provider,
+				}))
+			);
+			storages.push(
+				...readEntries<CatalogEntryService>(providerDir, 'storages.json').map((service) => ({
+					...service,
+					provider,
+				}))
+			);
+		} catch {
+			// ponytail: a provider dir mid-edit (malformed JSON) drops out until fixed
+		}
+	}
+
+	return { models, databases, storages };
 }
