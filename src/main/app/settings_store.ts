@@ -1,7 +1,11 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import type { ProviderType, ResolvedProvider, StoredProvider } from '../../shared/provider_types';
+import type { StorageConfig } from '../../shared/storage_types';
 import { userDataLocation } from '../shared/user_data_location';
+import { agentLocation } from '../shared/agent_location';
+import { libraryLocation } from '../shared/library_location';
+import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../cloud/storage/storage_sync_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
 export type AppSettingsState = {
@@ -12,6 +16,7 @@ export type AppSettingsState = {
 	providerId: string | undefined;
 	modelId: string | undefined;
 	providers: StoredProvider[];
+	storages: StorageConfig[];
 };
 
 const APP_SETTINGS_STORE_NAME = 'settings';
@@ -24,6 +29,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	providerId: undefined,
 	modelId: undefined,
 	providers: [],
+	storages: [],
 };
 
 const store = new Store<AppSettingsState>({
