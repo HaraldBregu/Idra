@@ -190,26 +190,6 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/search')}
-					onKeyDown={(event) => {
-						if (event.key === 'Enter' || event.key === ' ') {
-							event.preventDefault();
-							navigate('/settings/search');
-						}
-					}}
-				>
-					<SettingsRow
-						title={t('settings.tabs.searchEngine')}
-						description={t('settings.overview.descriptions.searchEngine')}
-						className="grid-cols-[minmax(0,1fr)_auto]"
-						actionClassName="w-auto justify-end"
-						actions={<ChevronRight className="size-4 text-muted-foreground" />}
-					/>
-				</div>
-				<div
-					role="button"
-					tabIndex={0}
-					className="cursor-pointer hover:bg-muted/40"
 					onClick={() => navigate('/settings/assistant/policies')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
