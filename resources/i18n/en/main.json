@@ -1169,6 +1169,19 @@
 			"detailCategory": "Category",
 			"detailEntry": "Entry file"
 		},
+		"plugins": {
+			"title": "Installed plugins",
+			"description": "Plugins that add providers, skills, extensions, and more to Friday.",
+			"refresh": "Refresh",
+			"upload": "Upload Plugin",
+			"uploading": "Uploading...",
+			"uploaded": "Installed {{count}} plugin(s). Skipped {{skipped}}.",
+			"uploadError": "Unable to install the plugin.",
+			"empty": "No plugins installed",
+			"emptyDescription": "Upload a plugin folder that contains a manifest.json.",
+			"loadError": "Unable to load plugins.",
+			"contributions": "{{count}} contribution(s)"
+		},
 		"skills": {
 			"title": "Installed skills",
 			"description": "Upload, download, inspect, or remove local skills available to Friday.",
