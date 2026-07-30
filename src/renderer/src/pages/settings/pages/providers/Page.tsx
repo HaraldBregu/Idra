@@ -407,10 +407,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 			)}
 
 			{!embedded && (
-			<SettingsSection
-				title={t('settings.tabs.storage')}
-				description={t('settings.storage.description')}
-			>
+			<SettingsSection title={t('settings.tabs.storage')}>
 				{storageError && (
 					<SettingsNotice variant="destructive" icon={AlertTriangle}>
 						{storageError}
