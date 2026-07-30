@@ -10,6 +10,7 @@ import { provider } from './provider';
 import { search } from './search';
 import { skills } from './skills';
 import { storage } from './storage';
+import { database } from './database';
 import { extensions } from './extensions';
 import { wiki } from './wiki';
 import { win } from './win';
@@ -25,6 +26,7 @@ export { provider } from './provider';
 export { search } from './search';
 export { skills } from './skills';
 export { storage } from './storage';
+export { database } from './database';
 export { extensions } from './extensions';
 export { wiki } from './wiki';
 
@@ -40,6 +42,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('models', models);
 		contextBridge.exposeInMainWorld('storage', storage);
+		contextBridge.exposeInMainWorld('database', database);
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('search', search);
 		contextBridge.exposeInMainWorld('extensions', extensions);
