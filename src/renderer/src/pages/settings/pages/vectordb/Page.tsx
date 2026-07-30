@@ -20,6 +20,12 @@ import {
 	SettingsRow,
 } from '../../components';
 
+const VALUE_SEPARATOR = '';
+
+function databaseKey(entry: CatalogService): string {
+	return `${entry.provider.id}${VALUE_SEPARATOR}${entry.id}`;
+}
+
 function databaseLabel(entry: CatalogService): string {
 	return `${entry.provider.name} / ${entry.name || entry.id}`;
 }
