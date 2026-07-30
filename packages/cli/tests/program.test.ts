@@ -36,6 +36,6 @@ test('launches by default and accepts the slash install alias', async () => {
 		'/tmp/friday',
 	]);
 	assert.deepEqual(installs, [
-		{ spec: 'package-one', options: { dataDir: '/tmp/friday', force: undefined } },
+		{ spec: 'package-one', options: { dataDir: '/tmp/friday' } },
 	]);
 });
