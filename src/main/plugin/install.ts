@@ -13,10 +13,10 @@ import type { PluginRepository } from './repository';
 export async function installPlugins(
 	repository: PluginRepository
 ): Promise<PluginInstallResult | undefined> {
-	const options = {
+	const options: Electron.OpenDialogOptions = {
 		title: 'Select plugin folder(s) to install',
 		properties: ['openDirectory', 'multiSelections'],
-	} as const;
+	};
 	const window = BrowserWindow.getFocusedWindow();
 	const result = await (window ? dialog.showOpenDialog(window, options) : dialog.showOpenDialog(options));
 	if (result.canceled || result.filePaths.length === 0) return undefined;
