@@ -6,7 +6,7 @@ import type {
 	StoredProvider,
 	StoredProviderKind,
 } from '../../shared/provider_types';
-import type { StorageConfig } from '../../shared/storage_types';
+import type { StorageConfig, StorageConfiguration } from '../../shared/storage_types';
 import { userDataLocation } from '../shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from '../cloud/storage/storage_sync_types';
 import { loadStorages } from './models';
