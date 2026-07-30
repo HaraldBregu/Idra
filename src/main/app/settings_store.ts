@@ -69,6 +69,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	databases: [],
 	storages: [],
 	storage_configuration: DEFAULT_STORAGE_CONFIGURATION,
+	database_configuration: DEFAULT_DATABASE_CONFIGURATION,
 	cron_configuration: { schedules: [] },
 };
 
