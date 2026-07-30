@@ -1381,13 +1381,7 @@
 			"apiKeyDescription": "The key is used to create the index and upsert vectors.",
 			"apiKeyPlaceholder": "Paste your API key...",
 			"empty": "No database provider is available.",
-			"notConfigured": "Not set",
-			"edit": "Edit",
-			"expand": "Expand",
-			"collapse": "Collapse",
-			"cancel": "Cancel",
 			"save": "Save",
-			"saving": "Saving…",
 			"saved": "API key saved.",
 			"errors": {
 				"load": "Unable to load the database configuration.",
