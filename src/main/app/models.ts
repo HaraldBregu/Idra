@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, watch } from 'node:fs';
 import { is } from '@electron-toolkit/utils';
 import {
 	normalizeProviderId,
