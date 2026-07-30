@@ -5,7 +5,9 @@ import {
 	normalizeProviderId,
 	type CatalogEntryModel,
 	type CatalogEntryService,
+	type CatalogEntryWebSearch,
 	type CatalogService,
+	type CatalogWebSearch,
 	type ProviderCatalogEntry,
 	type PublicProvider,
 } from '../../shared/provider_types';
