@@ -40,7 +40,7 @@ describe('directoryPermissionTargets', () => {
 	it.each([
 		['memory_save', 'MEMORY.md'],
 		['health_update', 'HEALTH.md'],
-		['health_settings_update', 'health.json'],
+		['health_settings_update', 'settings.health.json'],
 		['complete_bootstrap', 'BOOTSTRAP.md'],
 		['create_schedule', 'cron.json'],
 	] as const)('maps %s to its agent-owned resource', (toolName, fileName) => {
