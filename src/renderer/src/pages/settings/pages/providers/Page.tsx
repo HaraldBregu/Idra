@@ -365,9 +365,31 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				title={t('settings.overview.groups.mlModels')}
 				description={t('settings.providers.mlModelsDescription')}
 			>
-				<div className="space-y-3 pb-4">
-					{actionableProviderCatalog().map((provider) => renderProviderCard(provider, 'models'))}
-				</div>
+				{embedded ? (
+					<div className="space-y-3 pb-4">
+						{featuredProviders.map((provider) => renderProviderCard(provider, 'models'))}
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							className="w-full"
+							onClick={() => setShowOtherProviders((current) => !current)}
+						>
+							{showOtherProviders
+								? t('settings.providers.hideOtherProviders')
+								: t('settings.providers.showOtherProviders')}
+							<ChevronDown
+								className={cn('size-3 transition-transform', showOtherProviders && 'rotate-180')}
+							/>
+						</Button>
+						{showOtherProviders &&
+							otherProviders.map((provider) => renderProviderCard(provider, 'models'))}
+					</div>
+				) : (
+					<div className="space-y-3 pb-4">
+						{actionableProviderCatalog().map((provider) => renderProviderCard(provider, 'models'))}
+					</div>
+				)}
 			</SettingsSection>
 
 			{!embedded && (
