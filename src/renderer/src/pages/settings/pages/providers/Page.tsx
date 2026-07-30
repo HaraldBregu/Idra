@@ -24,6 +24,7 @@ import {
 	SettingsLoadingRows,
 } from '../../components';
 import { ProviderCard } from '../storage/ProviderCard';
+import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../storage/constants';
 
 interface StorageEntry {
 	key: string;
@@ -32,6 +33,34 @@ interface StorageEntry {
 
 function allCatalogItems(): ProviderCatalogItem[] {
 	return [...actionableProviderCatalog(), ...actionableDatabaseCatalog()];
+}
+
+function blankStorage(provider: PublicProvider): StorageConfig {
+	return {
+		id: provider.id,
+		name: provider.name,
+		endpoint: '',
+		region: 'us-east-1',
+		accessKeyId: '',
+		secretAccessKey: '',
+		bucket: '',
+		forcePathStyle: false,
+		paths: [],
+		syncIntervalMinutes: DEFAULT_SYNC_INTERVAL_MINUTES,
+	};
+}
+
+/** Catalog storage providers (saved config when one exists) plus saved configs outside the catalog. */
+function mergedStorageEntries(saved: StorageEntry[]): StorageEntry[] {
+	const savedById = new Map(saved.map((entry) => [entry.storage.id, entry]));
+	const catalog = storageProviders();
+	const fromCatalog = catalog.map(
+		(provider) => savedById.get(provider.id) ?? { key: provider.id, storage: blankStorage(provider) }
+	);
+	const extras = saved.filter(
+		(entry) => !catalog.some((provider) => provider.id === entry.storage.id)
+	);
+	return [...fromCatalog, ...extras];
 }
 
 const ProvidersPage: React.FC = () => {
