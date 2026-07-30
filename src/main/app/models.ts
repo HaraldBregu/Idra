@@ -203,6 +203,7 @@ function readCatalog(): Catalog {
 	const models: CatalogModel[] = [];
 	const databases: CatalogService[] = [];
 	const storages: CatalogService[] = [];
+	const webSearches: CatalogWebSearch[] = [];
 
 	for (const dirent of readdirSync(dir, { withFileTypes: true })) {
 		if (!dirent.isDirectory()) continue;
