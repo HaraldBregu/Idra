@@ -443,6 +443,12 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				</div>
 			</SettingsSection>
 
+			<SettingsSection title="Search">
+				<div className="space-y-3 pb-4">
+					{actionableSearchCatalog().map((provider) => renderProviderCard(provider, 'search'))}
+				</div>
+			</SettingsSection>
+
 			<SettingsSection title={t('settings.tabs.storage')}>
 				{storageError && (
 					<SettingsNotice variant="destructive" icon={AlertTriangle}>
