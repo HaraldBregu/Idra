@@ -29,9 +29,10 @@ export type AppSettingsState = {
 	keepAwake: boolean;
 	language: AppLanguage;
 	theme: AppTheme;
-	providerId: string | undefined;
+	modelProviderId: string | undefined;
 	modelId: string | undefined;
-	selectedStorageId: string | undefined;
+	storageProviderId: string | undefined;
+	storageId: string | undefined;
 	models: StoredProvider[];
 	databases: StoredProvider[];
 	storages: StoredStorage[];
