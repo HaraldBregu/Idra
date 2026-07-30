@@ -1,12 +1,17 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { ProviderType, ResolvedProvider, StoredProvider } from '../../shared/provider_types';
+import type {
+	ResolvedProvider,
+	StoredProvider,
+	StoredProviderKind,
+} from '../../shared/provider_types';
 import type { StorageConfig } from '../../shared/storage_types';
 import { userDataLocation } from '../shared/user_data_location';
-import { agentLocation } from '../shared/agent_location';
-import { libraryLocation } from '../shared/library_location';
 import { DEFAULT_SYNC_INTERVAL_MINUTES } from '../cloud/storage/storage_sync_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
+
+/** ponytail: runtime/sync fields are not persisted; reads rebuild them with defaults. */
+type StoredStorage = Omit<StorageConfig, 'forcePathStyle' | 'paths' | 'syncIntervalMinutes'>;
 
 export type AppSettingsState = {
 	trayEnabled: boolean;
@@ -15,8 +20,9 @@ export type AppSettingsState = {
 	theme: AppTheme;
 	providerId: string | undefined;
 	modelId: string | undefined;
-	providers: StoredProvider[];
-	storages: StorageConfig[];
+	models: StoredProvider[];
+	databases: StoredProvider[];
+	storages: StoredStorage[];
 };
 
 const APP_SETTINGS_STORE_NAME = 'settings';
@@ -28,7 +34,8 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	theme: 'system',
 	providerId: undefined,
 	modelId: undefined,
-	providers: [],
+	models: [],
+	databases: [],
 	storages: [],
 };
 
