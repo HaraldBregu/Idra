@@ -9,9 +9,9 @@ import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
 import {
 	getProviderApiConfigurationUrl,
-	type ProviderType,
 	type PublicProvider,
 	type StoredProvider,
+	type StoredProviderKind,
 } from '@shared/provider_types';
 import type { StorageConfig } from '@shared/storage_types';
 import {
