@@ -12,7 +12,7 @@ import {
 	type IpcMainInvokeEvent,
 } from 'electron';
 import { existsSync, realpathSync } from 'node:fs';
-import { copyFile, cp } from 'node:fs/promises';
+import { copyFile, cp, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { agentLocation } from '../shared/agent_location';
 import { libraryLocation } from '../shared/library_location';
