@@ -131,7 +131,7 @@ export class LoggerService implements Disposable {
 	 * Set the log directory to the application data folder.
 	 */
 	private updateLogDirectory(): void {
-		this.logDirectory = path.join(app.getPath('userData'), 'logs');
+		this.logDirectory = path.join(userDataLocation(), 'logs');
 	}
 
 	/**
