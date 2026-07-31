@@ -11,7 +11,6 @@ import { SearchIpc } from '../search';
 import { StorageIpc } from '../storage';
 import { DatabaseIpc } from '../database';
 import { ExtensionsIpc } from '../extensions';
-import { PluginsIpc } from '../plugins';
 import { WikiIpc } from '../wiki';
 import { WindowIpc } from '../window';
 import type { EventBus } from '../../app';
