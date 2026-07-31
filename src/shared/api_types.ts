@@ -335,4 +335,6 @@ export interface AppApi {
 	showImageContextMenu: (path: string) => Promise<void>;
 	showVideoContextMenu: (path: string) => Promise<void>;
 	showAudioContextMenu: (path: string) => Promise<void>;
+	/** Pick a provider folder and copy it into the providers catalog; null when canceled. */
+	uploadProvider: () => Promise<string | null>;
 }
