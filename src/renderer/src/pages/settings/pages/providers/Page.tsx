@@ -18,6 +18,7 @@ import type { SearchEngineId, SearchSettings } from '@shared/search_types';
 import {
 	databaseProviders,
 	databases,
+	loadModels,
 	providers,
 	storageProviders,
 	storages,
