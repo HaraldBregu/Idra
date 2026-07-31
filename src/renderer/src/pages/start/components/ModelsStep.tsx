@@ -52,21 +52,29 @@ export function ModelsStep({
 			<LogoView className="mb-6 size-11 rounded-xl" />
 			<StepHeader title={STEP_COPY.models.title} description={STEP_COPY.models.description} />
 
-			<div className="mt-8 grid gap-2">
+			<div className="mt-8 grid gap-6">
 				{MODEL_SERVICE_DEFINITIONS.map((service, index) => (
-					<ModelProviderConfiguration
-						key={service.id}
-						configState={toModelConfigurationState(
-							serviceStates[service.id],
-							loadingModels,
-							savingConfig
-						)}
-						idPrefix={`setup-${service.id}`}
-						triggerTitle={service.title}
-						triggerDescription={getSelectionSummary(serviceStates[service.id], service.description)}
-						defaultOpen={index === 0}
-						onChange={(providerId, modelId) => onServiceChange(service.id, providerId, modelId)}
-					/>
+					<section key={service.id}>
+						<div className="mb-2">
+							<h2 className="text-sm font-semibold text-foreground">{service.title}</h2>
+							<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+								{service.description}
+							</p>
+						</div>
+						<ModelProviderConfiguration
+							configState={toModelConfigurationState(
+								serviceStates[service.id],
+								loadingModels,
+								savingConfig
+							)}
+							idPrefix={`setup-${service.id}`}
+							description={service.description}
+							triggerTitle={getSelectionSummary(serviceStates[service.id], 'Select a model')}
+							triggerDescription="Choose a provider and model"
+							defaultOpen={index === 0}
+							onChange={(providerId, modelId) => onServiceChange(service.id, providerId, modelId)}
+						/>
+					</section>
 				))}
 			</div>
 		</div>
