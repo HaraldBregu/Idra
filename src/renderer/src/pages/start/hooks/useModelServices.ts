@@ -35,7 +35,7 @@ export function useModelServices(
 	const modelsLoadedRef = useRef(false);
 
 	useEffect(() => {
-		if (step === 'providers') {
+		if (step === 'modelProvider') {
 			modelsLoadedRef.current = false;
 		}
 	}, [step]);
