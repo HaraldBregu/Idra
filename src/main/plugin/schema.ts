@@ -163,8 +163,12 @@ export const pluginManifestSchema = z
 	})
 	.strict();
 
+export { providerInfoSchema, providerModelsSchema };
+
 export type PluginManifest = z.infer<typeof pluginManifestSchema>;
 export type PluginProviderContribution = z.infer<typeof providerSchema>;
+export type PluginProviderInfo = z.infer<typeof providerInfoSchema>;
+export type PluginProviderModels = z.infer<typeof providerModelsSchema>;
 export type PluginSkillContribution = z.infer<typeof skillSchema>;
 export type PluginExtensionContribution = z.infer<typeof extensionSchema>;
 export type PluginMcpServerContribution = z.infer<typeof mcpServerSchema>;
