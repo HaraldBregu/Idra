@@ -51,6 +51,16 @@ function install(root: string, folder: string, value: unknown, withEntry = true)
 		const files = [
 			['extensions/dashboard/index.html', '<h1>Acme</h1>'],
 			['skills/summarizer/SKILL.md', '# Summarizer'],
+			[
+				'providers/acme/info.json',
+				JSON.stringify({
+					name: 'Acme AI',
+					protocol: 'openai-compatible',
+					baseUrl: 'https://api.acme.test/v1',
+					apiKeyUrl: 'https://acme.test/keys',
+				}),
+			],
+			['providers/acme/models.json', JSON.stringify([{ id: 'acme-chat', name: 'Acme Chat' }])],
 			['languages/fr.json', '{}'],
 			['themes/ocean.json', '{}'],
 			['channels/helpdesk.mjs', 'export default {}'],
