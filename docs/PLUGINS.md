@@ -83,8 +83,25 @@ built-in `resources/providers/<id>/` catalog:
 }
 ```
 
+A provider contribution only declares its `id`; the definition lives in `providers/<provider-id>/`:
+
+```json
+// providers/acme/info.json
+{
+	"name": "Acme AI",
+	"protocol": "openai-compatible",
+	"baseUrl": "https://api.acme.test/v1",
+	"apiKeyUrl": "https://acme.test/keys"
+}
+```
+
+```json
+// providers/acme/models.json
+[{ "id": "acme-chat", "name": "Acme Chat" }]
+```
+
 Provider credentials do not belong in the manifest. They remain in Friday's provider settings store.
-Version 1 supports declarative OpenAI-compatible chat providers; custom executable provider adapters
+Only declarative OpenAI-compatible chat providers are supported; custom executable provider adapters
 are not loaded into the Electron main process.
 
 Extension entries must be relative HTML paths inside the plugin folder. Friday verifies that each entry is
