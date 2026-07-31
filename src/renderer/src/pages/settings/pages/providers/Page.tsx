@@ -49,9 +49,7 @@ type ProviderKind = StoredProviderKind | 'search';
 const FEATURED_PROVIDER_IDS = [
 	'openai',
 	'anthropic',
-	'kimi',
 	'deepseek',
-	'mistral',
 	'elevenlabs',
 ] as const;
 
