@@ -27,7 +27,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 		}
 	};
 
-	safeRegister('app', () => new AppIpc().register({ logger, pluginRepository }, eventBus));
+	safeRegister('app', () => new AppIpc().register({ logger }, eventBus));
 	safeRegister('agent', () => new AgentIpc().register({ logger, agent: agentService }, eventBus));
 	safeRegister('recorder', () => new RecorderIpc().register(undefined, eventBus));
 	safeRegister('channels', () => new ChannelsIpc().register({ logger, channelRegistry }, eventBus));
