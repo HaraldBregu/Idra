@@ -315,6 +315,7 @@ export interface AppApi {
 	onModelsChanged: (callback: () => void) => () => void;
 	getPathForFile: (file: File) => string;
 	openAppDataFolder: () => Promise<void>;
+	openDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;
