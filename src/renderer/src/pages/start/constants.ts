@@ -89,6 +89,38 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		},
 	},
 	{
+		id: 'health',
+		title: 'Health check',
+		description: 'Runs your scheduled health checks and follow-up work.',
+		getSelection: async () => {
+			const settings = await window.agent.healthGetSettings();
+			return settings.providerId && settings.modelId
+				? { providerId: settings.providerId, modelId: settings.modelId }
+				: undefined;
+		},
+		loadModelGroups: () => Promise.resolve(getLlmModelGroups()),
+		saveSelection: async (provider, model) => {
+			await window.agent.healthSaveSettings({ providerId: provider.id, modelId: model.id });
+			return true;
+		},
+	},
+	{
+		id: 'tasks',
+		title: 'Tasks',
+		description: 'Runs scheduled tasks and automations.',
+		getSelection: async () => {
+			const runtime = await window.cron.getRuntime();
+			return runtime?.providerId && runtime.modelId
+				? { providerId: runtime.providerId, modelId: runtime.modelId }
+				: undefined;
+		},
+		loadModelGroups: () => Promise.resolve(getLlmModelGroups()),
+		saveSelection: async (provider, model) => {
+			await window.cron.setRuntime(provider.id, model.id);
+			return true;
+		},
+	},
+	{
 		id: 'voice',
 		title: 'Voice',
 		description: 'Reads responses aloud with text-to-speech.',
@@ -179,9 +211,9 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 		description: 'Add a database provider if you want Friday to work with your data.',
 	},
 	models: {
-		title: 'Choose your models',
+		title: 'Select your services',
 		description:
-			'Pick the model each service should use. Only the assistant is required — you can change any of these later in settings.',
+			'Choose the model each service should use. Only the assistant is required — you can change any of these later in settings.',
 	},
 };
 

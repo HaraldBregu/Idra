@@ -28,6 +28,8 @@ export type ProviderModelGroup = {
 
 export type ModelServiceId =
 	| 'assistant'
+	| 'health'
+	| 'tasks'
 	| 'voice'
 	| 'transcription'
 	| 'image'
