@@ -6,8 +6,6 @@ import {
 } from './app';
 import { LoggerService } from './shared';
 import { createChannelRegistry, type ChannelRegistry } from './channels';
-import { loadProviders } from './app/models';
-import { PluginRepository } from './plugin';
 
 import { Agent } from './agent/agent';
 
@@ -17,7 +15,6 @@ export interface MainServices {
 	logger: LoggerService;
 	agentService: Agent;
 	channelRegistry: ChannelRegistry;
-	pluginRepository: PluginRepository;
 	windowFactory: WindowFactory;
 	windowContextManager: WindowContextManager;
 }

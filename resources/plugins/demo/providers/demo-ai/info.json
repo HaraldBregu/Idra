@@ -1,6 +1,0 @@
-{
-	"name": "Demo AI",
-	"protocol": "openai-compatible",
-	"baseUrl": "https://api.demo-ai.test/v1",
-	"apiKeyUrl": "https://demo-ai.test/keys"
-}
