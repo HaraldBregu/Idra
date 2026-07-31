@@ -146,7 +146,7 @@ export const SETUP_STEPS: readonly SetupStep[] = [
 
 export const SETUP_STEP_TITLES: Record<SetupStep, string> = {
 	presentation: 'Welcome',
-	modelProvider: 'Model provider',
+	modelProvider: 'Model',
 	search: 'Search',
 	storage: 'Storage',
 	database: 'Database',
