@@ -5,12 +5,8 @@ import { readExtensionManifest } from './extension_read';
 import { extensionsRoot } from './extension_root';
 import { readExtensionSettings } from './extension_settings_read';
 import type { Extension } from './extension_types';
-import type { PluginRepository } from '../plugin';
 
-export function listExtensions(
-	appLocation?: string,
-	pluginRepository?: PluginRepository
-): Extension[] {
+export function listExtensions(appLocation?: string): Extension[] {
 	if (!readExtensionSettings(appLocation).enabled) return [];
 	const root = extensionsRoot(appLocation);
 	const extensions: Extension[] = [];
