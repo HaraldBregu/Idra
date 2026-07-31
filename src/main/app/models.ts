@@ -185,7 +185,7 @@ function toPublicProvider(
 	};
 }
 
-function providersDir(): string {
+export function providersDir(): string {
 	return is.dev
 		? path.join(__dirname, '../../resources/providers')
 		: path.join(process.resourcesPath, 'resources/providers');
