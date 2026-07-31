@@ -17,7 +17,7 @@ describe('plugin extension integration', () => {
 			fs.writeFileSync(
 				path.join(pluginDirectory, 'manifest.json'),
 				JSON.stringify({
-					schemaVersion: 2,
+					schemaVersion: 3,
 					id: 'acme-tools',
 					name: 'Acme Tools',
 					version: '1.0.0',
