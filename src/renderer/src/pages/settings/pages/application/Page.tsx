@@ -51,12 +51,10 @@ const ApplicationPage: React.FC = () => {
 	const { language, setLanguage, theme, setTheme } = useApp();
 	const [trayEnabled, setTrayEnabled] = useState(true);
 	const [keepAwake, setKeepAwake] = useState(false);
-	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
 
 	useEffect(() => {
 		void window.app.getTrayEnabled().then(setTrayEnabled);
 		void window.app.getKeepAwake().then(setKeepAwake);
-		void window.search.getSettings().then(setSearchSettings);
 	}, []);
 
 	const handleTrayToggle = useCallback((checked: boolean) => {
