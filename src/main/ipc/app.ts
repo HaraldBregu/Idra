@@ -41,14 +41,11 @@ import {
 	setTheme as setStoredTheme,
 } from '../app/settings_store';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
-import type { CatalogModel } from '../../shared/model_types';
 import { loadDatabases, loadModels, loadStorages, loadWebSearches, watchModels } from '../app/models';
-import type { PluginProvider, PluginRepository } from '../plugin';
 import type { LoggerService } from '../shared';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
-	pluginRepository: PluginRepository;
 }
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
