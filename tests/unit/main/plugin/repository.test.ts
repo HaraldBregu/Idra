@@ -5,22 +5,13 @@ import { PluginRepository } from '../../../../src/main/plugin';
 
 function manifest(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 	return {
-		schemaVersion: 2,
+		schemaVersion: 3,
 		id: 'acme-tools',
 		name: 'Acme Tools',
 		version: '1.0.0',
 		description: 'Acme provider and dashboard integrations.',
 		contributes: {
-			providers: [
-				{
-					id: 'acme',
-					name: 'Acme AI',
-					protocol: 'openai-compatible',
-					baseUrl: 'https://api.acme.test/v1',
-					models: [{ id: 'acme-chat', name: 'Acme Chat' }],
-					apiKeyUrl: 'https://acme.test/keys',
-				},
-			],
+			providers: [{ id: 'acme' }],
 			skills: [{ id: 'summarizer', path: 'skills/summarizer' }],
 			mcpServers: [
 				{ id: 'acme-docs', name: 'Acme Docs', type: 'http', url: 'https://mcp.acme.test' },
