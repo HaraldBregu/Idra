@@ -46,7 +46,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('search', search);
 		contextBridge.exposeInMainWorld('extensions', extensions);
-		contextBridge.exposeInMainWorld('plugins', plugins);
 		contextBridge.exposeInMainWorld('wiki', wiki);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
