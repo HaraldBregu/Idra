@@ -1,0 +1,9 @@
+{
+	"name": "Sunrise",
+	"appearance": "light",
+	"colors": {
+		"background": "#fff8f0",
+		"foreground": "#2b2118",
+		"accent": "#ff8c42"
+	}
+}
