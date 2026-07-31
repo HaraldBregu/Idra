@@ -430,10 +430,4 @@ export const SETTINGS_NAVIGATION = [
 		descriptionKey: 'settings.overview.descriptions.extensions',
 		icon: Blocks,
 	},
-	{
-		path: '/settings/plugins',
-		labelKey: 'settings.tabs.plugins',
-		descriptionKey: 'settings.overview.descriptions.plugins',
-		icon: Puzzle,
-	},
 ] satisfies readonly SettingsNavigationItem[];
