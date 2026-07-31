@@ -34,7 +34,6 @@ declare global {
 		provider: ProviderApi;
 		search: SearchApi;
 		extensions: ExtensionsApi;
-		plugins: PluginsApi;
 		wiki: WikiApi;
 	}
 }
