@@ -10,6 +10,10 @@ export async function validatePluginEntries(
 	const entries = [
 		...manifest.contributes.extensions.map((item) => item.entry),
 		...manifest.contributes.skills.map((item) => `${item.path}/SKILL.md`),
+		...manifest.contributes.providers.flatMap((item) => [
+			`providers/${item.id}/info.json`,
+			`providers/${item.id}/models.json`,
+		]),
 		...manifest.contributes.languages.map((item) => item.entry),
 		...manifest.contributes.themes.map((item) => item.entry),
 		...manifest.contributes.channels.map((item) => item.entry),
