@@ -27,10 +27,6 @@ export function bootstrapServices(): BootstrapResult {
 	const logger = new LoggerService(eventBus);
 	const agentService = new Agent();
 	const channelRegistry = createChannelRegistry({ logger, eventBus, agentService });
-	const pluginRepository = new PluginRepository({
-		reservedProviderIds: loadProviders().map((provider) => provider.id),
-	});
-	pluginRepository.ensure();
 	const windowFactory = new WindowFactory(logger);
 	const windowContextManager = new WindowContextManager(logger, eventBus);
 
