@@ -54,7 +54,7 @@ const StartPage: React.FC = () => {
 		dispatch({ type: 'GO_TO_STEP', step: previousStep });
 	}
 
-	function handleContinueProviders(): void {
+	function handleContinueModelProvider(): void {
 		void window.provider
 			.list()
 			.then((storedProviders) => {
@@ -63,9 +63,9 @@ const StartPage: React.FC = () => {
 				);
 				const hasSavedKey = storedProviders.some(
 					(provider) => modelProviderIds.has(provider.id) && provider.apiKey.trim().length > 0
-				);
-				if (hasSavedKey) {
-					dispatch({ type: 'GO_TO_STEP', step: 'models' });
+			);
+			if (hasSavedKey) {
+				dispatch({ type: 'GO_TO_STEP', step: 'search' });
 				} else {
 					dispatch({
 						type: 'SET_ERROR',
@@ -83,12 +83,18 @@ const StartPage: React.FC = () => {
 
 	function handlePrimaryAction(): void {
 		if (step === 'presentation') {
-			dispatch({ type: 'GO_TO_STEP', step: 'providers' });
+			dispatch({ type: 'GO_TO_STEP', step: 'modelProvider' });
 			return;
 		}
 
-		if (step === 'providers') {
-			handleContinueProviders();
+		if (step === 'modelProvider') {
+			handleContinueModelProvider();
+			return;
+		}
+
+		if (step !== 'models') {
+			const nextStep = SETUP_STEPS[stepIndex + 1];
+			if (nextStep) dispatch({ type: 'GO_TO_STEP', step: nextStep });
 			return;
 		}
 
@@ -110,8 +116,44 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderStepContent(): React.JSX.Element {
-		if (step === 'providers') {
-			return <ProviderStep />;
+		if (step === 'modelProvider') {
+			return (
+				<ProviderStep
+					section="models"
+					title={STEP_COPY.modelProvider.title}
+					description={STEP_COPY.modelProvider.description}
+				/>
+			);
+		}
+
+		if (step === 'search') {
+			return (
+				<ProviderStep
+					section="search"
+					title={STEP_COPY.search.title}
+					description={STEP_COPY.search.description}
+				/>
+			);
+		}
+
+		if (step === 'storage') {
+			return (
+				<ProviderStep
+					section="storage"
+					title={STEP_COPY.storage.title}
+					description={STEP_COPY.storage.description}
+				/>
+			);
+		}
+
+		if (step === 'database') {
+			return (
+				<ProviderStep
+					section="databases"
+					title={STEP_COPY.database.title}
+					description={STEP_COPY.database.description}
+				/>
+			);
 		}
 
 		if (step === 'models') {
