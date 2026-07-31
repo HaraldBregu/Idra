@@ -80,7 +80,5 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.extensions = extensions;
 	// @ts-ignore (define in dts)
-	globalThis.plugins = plugins;
-	// @ts-ignore (define in dts)
 	globalThis.wiki = wiki;
 }
