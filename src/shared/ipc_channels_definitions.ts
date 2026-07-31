@@ -109,6 +109,7 @@ export const AppChannels = {
 	storages: 'app:storages',
 	webSearches: 'app:web-searches',
 	modelsChanged: 'app:models-changed',
+	uploadProvider: 'app:upload-provider',
 } as const;
 
 export const ChannelsChannels = {
