@@ -226,47 +226,6 @@ const ApplicationPage: React.FC = () => {
 				</Card>
 			</SettingsSection>
 
-			<SettingsSection title={t('settings.application.search')}>
-				<Card size="sm" className="gap-0! p-0!">
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<Search className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent>
-							<ItemTitle>{t('settings.searchEngine.defaultTitle')}</ItemTitle>
-							<p className="text-xs text-muted-foreground">
-								{t('settings.searchEngine.defaultDescription')}
-							</p>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<Select
-								value={searchSettings?.engineId ?? null}
-								onValueChange={handleSearchProviderChange}
-								disabled={searchSettings === null}
-							>
-								<SelectTrigger
-									size="sm"
-									className="w-32 text-xs [&_svg]:size-3"
-									aria-label={t('settings.searchEngine.defaultTitle')}
-								>
-									<SelectValue>{selectedSearchProvider?.name}</SelectValue>
-								</SelectTrigger>
-								<SelectContent>
-									{SEARCH_ENGINES.map((engine) => (
-										<SelectItem
-											key={engine.id}
-											value={engine.id}
-											disabled={!searchSettings?.configured[engine.id]}
-										>
-											{engine.name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</ItemActions>
-					</Item>
-				</Card>
-			</SettingsSection>
 		</SettingsPageShell>
 	);
 };
