@@ -198,19 +198,10 @@ describe('plugin repository', () => {
 				id: 'second-tools',
 				name: 'Second Tools',
 				contributes: {
-					providers: [
-						{
-							id: 'acme',
-							name: 'Second Acme',
-							protocol: 'openai-compatible',
-							baseUrl: 'https://second.test/v1',
-							models: [{ id: 'second-chat', name: 'Second Chat' }],
-						},
-					],
+					providers: [{ id: 'acme' }],
 					extensions: [],
 				},
-			}),
-			false
+			})
 		);
 		const result = new PluginRepository({ root }).scan();
 
