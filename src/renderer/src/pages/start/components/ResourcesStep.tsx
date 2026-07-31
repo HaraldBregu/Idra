@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
 	Select,
 	SelectContent,
@@ -199,36 +195,36 @@ export function ResourcesStep(): React.JSX.Element {
 					<CollapsibleContent className="border-t border-border/60">
 						<div className="px-3 py-3">
 							<Select
-					value={
-						databaseConfiguration?.providerId && databaseConfiguration.databaseId
-							? `${databaseConfiguration.providerId}${VALUE_SEPARATOR}${databaseConfiguration.databaseId}`
-							: null
-					}
-					disabled={!databaseConfiguration || databases().length === 0}
-					onValueChange={(value) => {
-						const entry = databases().find(
-							(item) => `${item.provider.id}${VALUE_SEPARATOR}${item.id}` === value
-						);
-						if (!entry) return;
-						const next = { providerId: entry.provider.id, databaseId: entry.id };
-						void window.database
-							.saveConfiguration(next)
-							.then(setDatabaseConfiguration)
-							.catch(() => undefined);
-					}}
-				>
+								value={
+									databaseConfiguration?.providerId && databaseConfiguration.databaseId
+										? `${databaseConfiguration.providerId}${VALUE_SEPARATOR}${databaseConfiguration.databaseId}`
+										: null
+								}
+								disabled={!databaseConfiguration || databases().length === 0}
+								onValueChange={(value) => {
+									const entry = databases().find(
+										(item) => `${item.provider.id}${VALUE_SEPARATOR}${item.id}` === value
+									);
+									if (!entry) return;
+									const next = { providerId: entry.provider.id, databaseId: entry.id };
+									void window.database
+										.saveConfiguration(next)
+										.then(setDatabaseConfiguration)
+										.catch(() => undefined);
+								}}
+							>
 								<SelectTrigger className="w-full text-xs">
-						<SelectValue placeholder="Connect a database first" />
+									<SelectValue placeholder="Connect a database first" />
 								</SelectTrigger>
 								<SelectContent>
-						{databases().map((database) => (
-							<SelectItem
-								key={`${database.provider.id}${VALUE_SEPARATOR}${database.id}`}
-								value={`${database.provider.id}${VALUE_SEPARATOR}${database.id}`}
-							>
-								{database.provider.name} / {database.name || database.id}
-							</SelectItem>
-						))}
+									{databases().map((database) => (
+										<SelectItem
+											key={`${database.provider.id}${VALUE_SEPARATOR}${database.id}`}
+											value={`${database.provider.id}${VALUE_SEPARATOR}${database.id}`}
+										>
+											{database.provider.name} / {database.name || database.id}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 						</div>
