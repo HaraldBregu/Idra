@@ -149,6 +149,19 @@ const ApplicationPage: React.FC = () => {
 							</Button>
 						</ItemActions>
 					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<FolderOpen className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.dataFolder')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Button variant="outline" size="xs" onClick={handleOpenDataFolder}>
+								{t('settings.application.openDataFolder')}
+							</Button>
+						</ItemActions>
+					</Item>
 				</Card>
 			</SettingsSection>
 
