@@ -45,7 +45,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 	{
 		id: 'integrations',
-		paths: ['/settings/extensions', '/settings/channels'],
+		paths: ['/settings/providers', '/settings/extensions', '/settings/channels'],
 	},
 	{
 		id: 'plugins',
