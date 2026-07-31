@@ -734,8 +734,7 @@ export interface InvokeChannelMap
 		SttInvokeChannelMap,
 		TextInvokeChannelMap,
 		VideoInvokeChannelMap,
-		ExtensionsInvokeChannelMap,
-		PluginsInvokeChannelMap {}
+		ExtensionsInvokeChannelMap {}
 
 export interface SendChannelMap extends WindowSendChannelMap {}
 
