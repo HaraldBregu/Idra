@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Database as DatabaseIcon, HardDrive, Search } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
 	Select,
@@ -63,6 +63,9 @@ export function ResourcesStep(): React.JSX.Element {
 					className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
 				>
 					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+						<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+							<Search className="size-4" aria-hidden="true" />
+						</div>
 						<div className="min-w-0 flex-1">
 							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
 								{SEARCH_ENGINES.find((engine) => engine.id === searchSettings?.engineId)?.name ??
@@ -120,6 +123,9 @@ export function ResourcesStep(): React.JSX.Element {
 					className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
 				>
 					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+						<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+							<HardDrive className="size-4" aria-hidden="true" />
+						</div>
 						<div className="min-w-0 flex-1">
 							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
 								{storageEntries.find((storage) => storage.id === storageConfiguration?.storageId)
@@ -178,6 +184,9 @@ export function ResourcesStep(): React.JSX.Element {
 					className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
 				>
 					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+						<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+							<DatabaseIcon className="size-4" aria-hidden="true" />
+						</div>
 						<div className="min-w-0 flex-1">
 							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
 								{databases().find(
