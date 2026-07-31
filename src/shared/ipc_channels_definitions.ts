@@ -246,11 +246,6 @@ export const ExtensionChannels = {
 	open: 'extensions:open',
 } as const;
 
-export const PluginChannels = {
-	list: 'plugins:list',
-	install: 'plugins:install',
-} as const;
-
 export const WindowChannels = {
 	minimize: 'window:minimize',
 	maximize: 'window:maximize',
