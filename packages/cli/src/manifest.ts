@@ -14,11 +14,6 @@ const modelSchema = z
 const providerSchema = z
 	.object({
 		id: idSchema,
-		name: z.string().trim().min(1),
-		protocol: z.literal('openai-compatible'),
-		baseUrl: z.string().url(),
-		models: z.array(modelSchema).min(1),
-		apiKeyUrl: z.string().url().optional(),
 	})
 	.strict();
 const extensionSchema = z
@@ -30,14 +25,18 @@ const extensionSchema = z
 		entry: z
 			.string()
 			.refine(isPluginPath)
-			.refine((entry) => entry.toLowerCase().endsWith('.html')),
+			.refine((entry) => entry.toLowerCase().endsWith('.html'))
+			.refine((entry) => entry.startsWith('extensions/')),
 		version: versionSchema.optional(),
 	})
 	.strict();
 const skillSchema = z
 	.object({
 		id: idSchema,
-		path: z.string().refine(isPluginPath),
+		path: z
+			.string()
+			.refine(isPluginPath)
+			.refine((path) => path.startsWith('skills/')),
 	})
 	.strict();
 const mcpServerSchema = z.discriminatedUnion('type', [
