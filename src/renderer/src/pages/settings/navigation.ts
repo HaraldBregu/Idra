@@ -15,7 +15,6 @@ import {
 	MonitorCog,
 	Music,
 	Plug,
-	Puzzle,
 	RadioTower,
 	Search,
 	Server,
