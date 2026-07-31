@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, ChevronDown, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
+import { AlertTriangle, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,7 @@ interface StorageEntry {
 type ProviderKind = StoredProviderKind | 'search';
 export type ProviderSetupSection = 'models' | 'search' | 'storage' | 'databases';
 
-/** Providers pinned on top of the start-flow models list; the rest collapse behind a toggle. */
+/** Providers pinned on top of the start-flow models list. */
 const FEATURED_PROVIDER_IDS = [
 	'openai',
 	'anthropic',
@@ -105,7 +105,6 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 		}))
 	);
 	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
-	const [showOtherProviders, setShowOtherProviders] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [storageEntries, setStorageEntries] = useState<StorageEntry[] | null>(null);
 	const [storageError, setStorageError] = useState<string | null>(null);
@@ -418,23 +417,12 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 					<div className="space-y-3 pb-4">
 						{featuredProviders.map((provider) => renderProviderCard(provider, 'models'))}
 						{otherProviders.length > 0 && (
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								className="w-full"
-								onClick={() => setShowOtherProviders((current) => !current)}
-							>
-								{showOtherProviders
-									? t('settings.providers.hideOtherProviders')
-									: t('settings.providers.showOtherProviders')}
-								<ChevronDown
-									className={cn('size-3 transition-transform', showOtherProviders && 'rotate-180')}
-								/>
-							</Button>
+							<div className="border-t border-border/80 pt-3">
+								<div className="space-y-3">
+									{otherProviders.map((provider) => renderProviderCard(provider, 'models'))}
+								</div>
+							</div>
 						)}
-						{showOtherProviders &&
-							otherProviders.map((provider) => renderProviderCard(provider, 'models'))}
 					</div>
 				) : (
 					<div className="space-y-3 pb-4">
