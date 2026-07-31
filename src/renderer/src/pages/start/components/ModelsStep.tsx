@@ -1,6 +1,7 @@
 import React from 'react';
 import { LogoView } from '@/components/app/base/logo-view';
 import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
+import { ResourcesStep } from './ResourcesStep';
 import { StepHeader } from './StepHeader';
 import { getProviderCatalogItem, MODEL_SERVICE_DEFINITIONS, STEP_COPY } from '../constants';
 import type { ModelConfigurationState } from '@pages/settings/components/model-configuration-state';
@@ -77,6 +78,7 @@ export function ModelsStep({
 					</section>
 				))}
 			</div>
+			<ResourcesStep />
 		</div>
 	);
 }
