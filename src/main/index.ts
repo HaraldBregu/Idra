@@ -134,8 +134,8 @@ const menuManager = new Menu({
 		logger.info('Menu', 'Creating new launcher window');
 		mainWindow.createAdditionalWindow();
 	},
-	getExtensions: () => listExtensions(undefined, pluginRepository),
-	onOpenExtension: (extension) => loadExtension(windowFactory, extension, undefined, pluginRepository),
+	getExtensions: () => listExtensions(),
+	onOpenExtension: (extension) => loadExtension(windowFactory, extension),
 });
 
 app.whenReady().then(async () => {
