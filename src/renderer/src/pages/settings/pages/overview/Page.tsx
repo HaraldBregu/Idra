@@ -46,10 +46,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		id: 'integrations',
 		paths: ['/settings/providers', '/settings/extensions', '/settings/channels'],
 	},
-	{
-		id: 'plugins',
-		paths: ['/settings/plugins'],
-	},
 ] as const;
 
 function getSettingsOverviewItem(path: string): SettingsNavigationItem | SettingsModelServiceItem {
