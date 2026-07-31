@@ -504,14 +504,6 @@ const routes: RouteObject[] = [
 						],
 					},
 					{
-						path: 'plugins',
-						element: (
-							<SettingsRouteWrapper>
-								<PluginsPage />
-							</SettingsRouteWrapper>
-						),
-					},
-					{
 						path: 'model-services/:serviceId/details/*',
 						element: <ModelServiceLegacyRedirect />,
 					},
