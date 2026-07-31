@@ -18,32 +18,31 @@ export function PresentationStep(): React.JSX.Element {
 				{title}
 			</h1>
 			<p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{description}</p>
-				</div>
 
 			<div className="mt-8 w-full border-t border-border/80 pt-5">
 				<p className="text-xs font-semibold text-foreground">A quick setup, then you’re ready to work.</p>
 				<ol className="mt-4 grid gap-3 sm:grid-cols-3">
-						<li className="flex items-start gap-2.5 text-left">
-							<KeyRound className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-							<span className="text-xs leading-5 text-muted-foreground">
-								<span className="block font-medium text-foreground">Connect</span>
-								Add a provider key.
-							</span>
-						</li>
-						<li className="flex items-start gap-2.5 text-left">
-							<SlidersHorizontal className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-							<span className="text-xs leading-5 text-muted-foreground">
-								<span className="block font-medium text-foreground">Choose</span>
-								Pick your assistant model.
-							</span>
-						</li>
-						<li className="flex items-start gap-2.5 text-left">
-							<MessageSquareText className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-							<span className="text-xs leading-5 text-muted-foreground">
-								<span className="block font-medium text-foreground">Start</span>
-								Take on your first task.
-							</span>
-						</li>
+					<li className="flex items-start gap-2.5 text-left">
+						<KeyRound className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+						<span className="text-xs leading-5 text-muted-foreground">
+							<span className="block font-medium text-foreground">Connect</span>
+							Add a provider key.
+						</span>
+					</li>
+					<li className="flex items-start gap-2.5 text-left">
+						<SlidersHorizontal className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+						<span className="text-xs leading-5 text-muted-foreground">
+							<span className="block font-medium text-foreground">Choose</span>
+							Pick your assistant model.
+						</span>
+					</li>
+					<li className="flex items-start gap-2.5 text-left">
+						<MessageSquareText className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+						<span className="text-xs leading-5 text-muted-foreground">
+							<span className="block font-medium text-foreground">Start</span>
+							Take on your first task.
+						</span>
+					</li>
 				</ol>
 			</div>
 		</div>
