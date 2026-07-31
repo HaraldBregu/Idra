@@ -19,13 +19,11 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage, type AppTheme } from '@/contexts';
-import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
-import { SEARCH_ENGINES } from '../search/catalog';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
