@@ -26,6 +26,5 @@ export function listExtensions(appLocation?: string): Extension[] {
 		}
 		extensions.push({ id: directory.name, ...manifest });
 	}
-	extensions.push(...(pluginRepository?.extensions() ?? []));
 	return extensions.sort((left, right) => left.id.localeCompare(right.id));
 }
