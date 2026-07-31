@@ -5,7 +5,6 @@ import {
 	FolderOpen,
 	Languages,
 	PanelTop,
-	Search,
 	SunMoon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
