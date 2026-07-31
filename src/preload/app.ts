@@ -94,4 +94,7 @@ export const app: AppApi = {
 		if (!normalizedPath) throw new Error('Invalid audio path.');
 		return typedInvokeUnwrap(AppChannels.showAudioContextMenu, normalizedPath);
 	},
+	uploadProvider: (): Promise<string | null> => {
+		return typedInvokeUnwrap(AppChannels.uploadProvider);
+	},
 };
