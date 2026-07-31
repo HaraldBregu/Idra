@@ -14,7 +14,6 @@ import type {
 	StorageApi,
 	DatabaseApi,
 	ExtensionsApi,
-	PluginsApi,
 	WikiApi,
 	WindowApi,
 } from '../shared/api_types';
