@@ -92,7 +92,6 @@ const {
 	logger,
 	windowContextManager,
 	agentService,
-	pluginRepository,
 } = services;
 agentService.start(logger);
 startStorageSync(logger);
