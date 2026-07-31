@@ -204,23 +204,6 @@ function showVideoContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 	menu.popup(window ? { window } : {});
 }
 
-/** Plugin providers are openai-compatible chat endpoints, so their models join as `llm`. */
-function pluginModels(provider: PluginProvider): CatalogModel[] {
-	const publicProvider = {
-		id: provider.id,
-		name: provider.name,
-		baseUrl: provider.baseUrl,
-		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
-		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
-	};
-	return provider.models.map((model) => ({
-		...model,
-		status: 'active' as const,
-		type: 'llm' as const,
-		provider: publicProvider,
-	}));
-}
-
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
