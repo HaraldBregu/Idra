@@ -395,7 +395,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 	const otherProviders = modelCatalog.filter((provider) => !featuredIds.has(provider.id));
 	const databaseCatalog = actionableDatabaseCatalog();
 	const searchCatalog = actionableSearchCatalog();
-	const storageCatalog = storageEntries ? mergedStorageEntries(storageEntries) : undefined;
+	const storageCatalog = mergedStorageEntries(storageEntries ?? []);
 
 	return (
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
@@ -458,7 +458,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				</SettingsSection>
 			)}
 
-			{(!embedded || !storageCatalog || storageCatalog.length > 0) && (
+			{(!embedded || storageEntries === null || storageCatalog.length > 0) && (
 				<SettingsSection title={t('settings.tabs.storage')}>
 				{storageError && (
 					<SettingsNotice variant="destructive" icon={AlertTriangle}>
