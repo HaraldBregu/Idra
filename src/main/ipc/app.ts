@@ -222,7 +222,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.models,
 			wrapSimpleHandler(() => {
-				return [...loadModels(), ...pluginRepository.providers().flatMap(pluginModels)];
+				return [...loadModels()];
 			}, AppChannels.models)
 		);
 
