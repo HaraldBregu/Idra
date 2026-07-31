@@ -419,6 +419,13 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.uploadProvider,
+			wrapIpcHandler((event) => {
+				return uploadProvider(event);
+			}, AppChannels.uploadProvider)
+		);
+
+		ipcMain.handle(
 			AppChannels.requestCameraPermission,
 			wrapSimpleHandler(async () => {
 				if (process.platform === 'darwin') {
