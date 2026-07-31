@@ -54,7 +54,7 @@ export function ResourcesStep(): React.JSX.Element {
 				<div className="mb-2">
 					<h2 className="text-sm font-semibold text-foreground">Search engine</h2>
 					<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-						Select the connected engine Friday should use for web search.
+						Choose the web search engine.
 					</p>
 				</div>
 				<Collapsible
@@ -114,7 +114,7 @@ export function ResourcesStep(): React.JSX.Element {
 				<div className="mb-2">
 					<h2 className="text-sm font-semibold text-foreground">Storage</h2>
 					<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-						Select the connected storage Friday should use for files and sync.
+						Choose storage for files and sync.
 					</p>
 				</div>
 				<Collapsible
@@ -175,7 +175,7 @@ export function ResourcesStep(): React.JSX.Element {
 				<div className="mb-2">
 					<h2 className="text-sm font-semibold text-foreground">Database</h2>
 					<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-						Select the connected database Friday should use for your data.
+						Choose a database for your data.
 					</p>
 				</div>
 				<Collapsible

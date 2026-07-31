@@ -74,7 +74,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: 'assistant',
 		title: 'Assistant',
-		description: 'Powers chat replies, reasoning, summaries, and planning.',
+		description: 'Chat, reasoning, and planning.',
 		getSelection: async () => {
 			const [provider, modelId] = await Promise.all([
 				window.agent.getProvider(),
@@ -91,7 +91,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: 'health',
 		title: 'Health check',
-		description: 'Runs your scheduled health checks and follow-up work.',
+		description: 'Scheduled health checks.',
 		getSelection: async () => {
 			const settings = await window.agent.healthGetSettings();
 			return settings.providerId && settings.modelId
@@ -107,7 +107,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: 'tasks',
 		title: 'Tasks',
-		description: 'Runs scheduled tasks and automations.',
+		description: 'Scheduled tasks and automations.',
 		getSelection: async () => {
 			const runtime = await window.cron.getRuntime();
 			return runtime?.providerId && runtime.modelId
@@ -123,7 +123,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: 'voice',
 		title: 'Voice',
-		description: 'Reads responses aloud with text-to-speech.',
+		description: 'Read responses aloud.',
 		loadModelGroups: () =>
 			Promise.resolve(toModelGroups('text-to-speech')),
 		...toIdSelectionHandlers(() => window.models.voice),
@@ -131,7 +131,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: 'transcription',
 		title: 'Transcription',
-		description: 'Converts your speech into text.',
+		description: 'Speech to text.',
 		getSelection: async () => {
 			const selection = await window.models.transcribe.getSelection();
 			return selection
@@ -144,7 +144,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: 'image',
 		title: 'Image',
-		description: 'Generates images from your prompts.',
+		description: 'Generate images.',
 		loadModelGroups: () =>
 			Promise.resolve(toModelGroups('text-to-image')),
 		...toIdSelectionHandlers(() => window.models.image),
@@ -152,7 +152,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: 'video',
 		title: 'Video',
-		description: 'Generates videos from your prompts.',
+		description: 'Generate videos.',
 		loadModelGroups: () =>
 			Promise.resolve(toModelGroups('text-to-video')),
 		...toIdSelectionHandlers(() => window.models.video),
@@ -160,7 +160,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: 'audio',
 		title: 'Audio',
-		description: 'Generates music and sounds from your prompts.',
+		description: 'Generate music and sounds.',
 		loadModelGroups: () =>
 			Promise.resolve(toModelGroups('text-to-audio')),
 		...toIdSelectionHandlers(() => window.models.sound),
