@@ -8,6 +8,7 @@ import {
 	type PluginManifest,
 	type PluginMcpServerContribution,
 } from './schema';
+import { readPluginProvider } from './provider';
 import { pluginsRoot } from './root';
 
 export interface InstalledPlugin {
