@@ -20,8 +20,7 @@ export function PresentationStep(): React.JSX.Element {
 			<p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{description}</p>
 
 			<div className="mt-8 w-full border-t border-border/80 pt-5">
-				<p className="text-xs font-semibold text-foreground">A quick setup, then you’re ready to work.</p>
-				<ol className="mt-4 grid gap-3 sm:grid-cols-3">
+				<ol className="grid gap-3 sm:grid-cols-3">
 					<li className="flex items-start gap-2.5 text-left">
 						<KeyRound className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
 						<span className="text-xs leading-5 text-muted-foreground">
