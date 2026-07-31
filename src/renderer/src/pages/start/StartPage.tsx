@@ -12,6 +12,7 @@ import {
 	getSelectedServiceModel,
 	MODEL_SERVICE_DEFINITIONS,
 	SETUP_STEPS,
+	STEP_COPY,
 } from './constants';
 import { useModelServices } from './hooks/useModelServices';
 import { createInitialSetupState, setupReducer } from './state/reducer';
