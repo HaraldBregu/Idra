@@ -107,6 +107,23 @@ function cameraSettings(): CameraPermissionSettings {
 	};
 }
 
+async function uploadProvider(event: IpcMainInvokeEvent): Promise<string | null> {
+	const window = BrowserWindow.fromWebContents(event.sender);
+	const options: Electron.OpenDialogOptions = { properties: ['openDirectory'] };
+	const result = window
+		? await dialog.showOpenDialog(window, options)
+		: await dialog.showOpenDialog(options);
+	const source = result.filePaths[0];
+	if (result.canceled || !source) return null;
+
+	if (!existsSync(path.join(source, 'info.json'))) {
+		throw new Error('Selected folder is not a provider (missing info.json).');
+	}
+	const name = path.basename(source);
+	await cp(source, path.join(providersDir(), name), { recursive: true });
+	return name;
+}
+
 async function openPathOrThrow(target: string): Promise<void> {
 	const error = await shell.openPath(target);
 	if (error) {
