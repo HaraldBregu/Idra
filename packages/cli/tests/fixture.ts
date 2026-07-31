@@ -8,7 +8,7 @@ export async function createPluginFixture(root: string, version = '1.0.0'): Prom
 	await fs.writeFile(
 		path.join(plugin, 'manifest.json'),
 		JSON.stringify({
-			schemaVersion: 2,
+			schemaVersion: 3,
 			id: 'package-one',
 			name: 'Package One',
 			version,
