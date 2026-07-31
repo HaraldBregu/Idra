@@ -83,18 +83,6 @@ const ApplicationPage: React.FC = () => {
 		if (option) setTheme(option.value);
 	};
 
-	const handleSearchProviderChange = (next: string | null): void => {
-		if (next === null) return;
-		void window.search
-			.selectEngine(next as SearchEngineId)
-			.then(setSearchSettings)
-			.catch(() => undefined);
-	};
-
-	const selectedSearchProvider = SEARCH_ENGINES.find(
-		(engine) => engine.id === searchSettings?.engineId
-	);
-
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader title={t('settings.tabs.application')} />
