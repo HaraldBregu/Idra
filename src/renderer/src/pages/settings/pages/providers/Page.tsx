@@ -420,6 +420,12 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 
 	return (
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
+			{!embedded && (
+				<SettingsPageHeader
+					title={t('settings.tabs.providers')}
+					description={t('settings.overview.descriptions.providers')}
+				/>
+			)}
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
