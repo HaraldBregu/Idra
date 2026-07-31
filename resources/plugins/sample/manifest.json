@@ -1,0 +1,46 @@
+{
+	"schemaVersion": 3,
+	"id": "sample",
+	"name": "Sample Plugin",
+	"version": "1.0.0",
+	"description": "A second reference plugin covering every Friday contribution kind.",
+	"contributes": {
+		"providers": [{ "id": "sample-ai" }],
+		"skills": [{ "id": "translator", "path": "skills/translator" }],
+		"extensions": [
+			{
+				"id": "todo",
+				"title": "Sample Todo",
+				"description": "A sample todo list page contributed by the sample plugin.",
+				"category": "demo",
+				"entry": "extensions/todo/index.html"
+			},
+			{
+				"id": "about",
+				"title": "Sample About",
+				"description": "An informational page about the sample plugin.",
+				"category": "demo",
+				"entry": "extensions/about/index.html"
+			}
+		],
+		"mcpServers": [
+			{
+				"id": "sample-tools",
+				"name": "Sample Tools",
+				"type": "stdio",
+				"command": "sample-mcp",
+				"args": ["--stdio"]
+			}
+		],
+		"languages": [{ "id": "la", "name": "Latina", "entry": "languages/la.json" }],
+		"themes": [{ "id": "sunrise", "name": "Sunrise", "entry": "themes/sunrise.json" }],
+		"channels": [
+			{
+				"id": "relay",
+				"name": "Relay",
+				"description": "Forwards messages between two rooms.",
+				"entry": "channels/relay.mjs"
+			}
+		]
+	}
+}
