@@ -240,28 +240,31 @@ export class PluginRepository {
 
 	providers(): readonly PluginProvider[] {
 		return this.list().flatMap((plugin) =>
-			plugin.manifest.contributes.providers.map((provider) => ({
-				pluginId: plugin.manifest.id,
-				id: provider.id,
-				name: provider.name,
-				baseUrl: provider.baseUrl,
-				capabilities: 'Chat',
-				protocol: provider.protocol,
-				models: provider.models,
-				...(provider.apiKeyUrl
-					? {
-							apiConfiguration: {
-								credentialType: 'API key',
-								apiKeyManagementUrl: provider.apiKeyUrl,
-								configurationDocsUrl: null,
-								authMethod: 'HTTP Bearer token',
-								recommendedEnvVars: [],
-								baseUrls: [provider.baseUrl],
-								importantNotes: [],
-							},
-						}
-					: {}),
-			}))
+			plugin.manifest.contributes.providers.map((provider) => {
+				const files = readPluginProvider(plugin.directory, provider.id);
+				return {
+					pluginId: plugin.manifest.id,
+					id: provider.id,
+					name: files.name,
+					baseUrl: files.baseUrl,
+					capabilities: 'Chat',
+					protocol: files.protocol,
+					models: files.models,
+					...(files.apiKeyUrl
+						? {
+								apiConfiguration: {
+									credentialType: 'API key',
+									apiKeyManagementUrl: files.apiKeyUrl,
+									configurationDocsUrl: null,
+									authMethod: 'HTTP Bearer token',
+									recommendedEnvVars: [],
+									baseUrls: [files.baseUrl],
+									importantNotes: [],
+								},
+							}
+						: {}),
+				};
+			})
 		);
 	}
 
