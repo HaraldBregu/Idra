@@ -393,6 +393,9 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 		modelCatalog.filter((provider) => provider.id === id)
 	);
 	const otherProviders = modelCatalog.filter((provider) => !featuredIds.has(provider.id));
+	const databaseCatalog = actionableDatabaseCatalog();
+	const searchCatalog = actionableSearchCatalog();
+	const storageCatalog = storageEntries ? mergedStorageEntries(storageEntries) : undefined;
 
 	return (
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
@@ -407,24 +410,27 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.overview.groups.mlModels')}>
+			{(!embedded || modelCatalog.length > 0) && (
+				<SettingsSection title={t('settings.overview.groups.mlModels')}>
 				{embedded ? (
 					<div className="space-y-3 pb-4">
 						{featuredProviders.map((provider) => renderProviderCard(provider, 'models'))}
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							className="w-full"
-							onClick={() => setShowOtherProviders((current) => !current)}
-						>
-							{showOtherProviders
-								? t('settings.providers.hideOtherProviders')
-								: t('settings.providers.showOtherProviders')}
-							<ChevronDown
-								className={cn('size-3 transition-transform', showOtherProviders && 'rotate-180')}
-							/>
-						</Button>
+						{otherProviders.length > 0 && (
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								className="w-full"
+								onClick={() => setShowOtherProviders((current) => !current)}
+							>
+								{showOtherProviders
+									? t('settings.providers.hideOtherProviders')
+									: t('settings.providers.showOtherProviders')}
+								<ChevronDown
+									className={cn('size-3 transition-transform', showOtherProviders && 'rotate-180')}
+								/>
+							</Button>
+						)}
 						{showOtherProviders &&
 							otherProviders.map((provider) => renderProviderCard(provider, 'models'))}
 					</div>
@@ -433,21 +439,27 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 						{actionableProviderCatalog().map((provider) => renderProviderCard(provider, 'models'))}
 					</div>
 				)}
-			</SettingsSection>
+				</SettingsSection>
+			)}
 
-			<SettingsSection title={t('settings.overview.groups.vectorDatabases')}>
-				<div className="space-y-3 pb-4">
-					{actionableDatabaseCatalog().map((provider) => renderProviderCard(provider, 'databases'))}
-				</div>
-			</SettingsSection>
+			{(!embedded || databaseCatalog.length > 0) && (
+				<SettingsSection title={t('settings.overview.groups.vectorDatabases')}>
+					<div className="space-y-3 pb-4">
+						{databaseCatalog.map((provider) => renderProviderCard(provider, 'databases'))}
+					</div>
+				</SettingsSection>
+			)}
 
-			<SettingsSection title="Search">
-				<div className="space-y-3 pb-4">
-					{actionableSearchCatalog().map((provider) => renderProviderCard(provider, 'search'))}
-				</div>
-			</SettingsSection>
+			{(!embedded || searchCatalog.length > 0) && (
+				<SettingsSection title="Search">
+					<div className="space-y-3 pb-4">
+						{searchCatalog.map((provider) => renderProviderCard(provider, 'search'))}
+					</div>
+				</SettingsSection>
+			)}
 
-			<SettingsSection title={t('settings.tabs.storage')}>
+			{(!embedded || !storageCatalog || storageCatalog.length > 0) && (
+				<SettingsSection title={t('settings.tabs.storage')}>
 				{storageError && (
 					<SettingsNotice variant="destructive" icon={AlertTriangle}>
 						{storageError}
@@ -458,11 +470,11 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 					<SettingsLoadingRows rows={4} />
 				) : (
 					<div className="space-y-3 pb-4">
-						{mergedStorageEntries(storageEntries).length === 0 && (
+						{storageCatalog.length === 0 && (
 							<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
 						)}
 
-						{mergedStorageEntries(storageEntries).map((entry) => {
+						{storageCatalog.map((entry) => {
 							const provider = storageProviders().find((item) => item.id === entry.storage.id);
 							const subtitle = storages()
 								.filter((service) => service.provider.id === entry.storage.id)
@@ -494,7 +506,8 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 						})}
 					</div>
 				)}
-			</SettingsSection>
+				</SettingsSection>
+			)}
 		</SettingsPageShell>
 	);
 };
