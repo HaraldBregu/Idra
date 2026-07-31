@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { app } from 'electron';
+import { userDataLocation } from './user_data_location';
 import type { EventBus } from '../app/event_bus';
 import type { AppLogEntry } from '../../shared/app_types';
 
