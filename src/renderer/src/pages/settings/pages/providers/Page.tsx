@@ -44,6 +44,7 @@ interface StorageEntry {
 }
 
 type ProviderKind = StoredProviderKind | 'search';
+export type ProviderSetupSection = 'models' | 'search' | 'storage' | 'databases';
 
 /** Providers pinned on top of the start-flow models list; the rest collapse behind a toggle. */
 const FEATURED_PROVIDER_IDS = [
@@ -90,9 +91,10 @@ function mergedStorageEntries(saved: StorageEntry[]): StorageEntry[] {
 
 interface ProvidersPageProps {
 	readonly embedded?: boolean;
+	readonly section?: ProviderSetupSection;
 }
 
-const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
+const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section }) => {
 	const { t } = useTranslation();
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		allCatalogItems().map((provider, index) => ({
@@ -410,7 +412,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				</SettingsNotice>
 			)}
 
-			{(!embedded || modelCatalog.length > 0) && (
+			{(section === undefined || section === 'models') && (!embedded || modelCatalog.length > 0) && (
 				<SettingsSection title={t('settings.overview.groups.mlModels')}>
 				{embedded ? (
 					<div className="space-y-3 pb-4">
@@ -442,7 +444,8 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				</SettingsSection>
 			)}
 
-			{(!embedded || databaseCatalog.length > 0) && (
+			{(section === undefined || section === 'databases') &&
+				(!embedded || databaseCatalog.length > 0) && (
 				<SettingsSection title={t('settings.overview.groups.vectorDatabases')}>
 					<div className="space-y-3 pb-4">
 						{databaseCatalog.map((provider) => renderProviderCard(provider, 'databases'))}
@@ -450,7 +453,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				</SettingsSection>
 			)}
 
-			{(!embedded || searchCatalog.length > 0) && (
+			{(section === undefined || section === 'search') && (!embedded || searchCatalog.length > 0) && (
 				<SettingsSection title="Search">
 					<div className="space-y-3 pb-4">
 						{searchCatalog.map((provider) => renderProviderCard(provider, 'search'))}
@@ -458,7 +461,8 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false }) => {
 				</SettingsSection>
 			)}
 
-			{(!embedded || storageEntries === null || storageCatalog.length > 0) && (
+			{(section === undefined || section === 'storage') &&
+				(!embedded || storageEntries === null || storageCatalog.length > 0) && (
 				<SettingsSection title={t('settings.tabs.storage')}>
 				{storageError && (
 					<SettingsNotice variant="destructive" icon={AlertTriangle}>
