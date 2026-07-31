@@ -246,7 +246,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.openDataFolder,
 			wrapSimpleHandler(async () => {
-				await fs.promises.mkdir(userDataLocation(), { recursive: true });
+				await mkdir(userDataLocation(), { recursive: true });
 				await openPathOrThrow(userDataLocation());
 			}, AppChannels.openDataFolder)
 		);
