@@ -190,6 +190,26 @@ export class PluginRepository {
 				continue;
 			}
 
+			let invalidProvider: string | undefined;
+			for (const provider of parsed.data.contributes.providers) {
+				try {
+					readPluginProvider(pluginDirectory, provider.id);
+				} catch (error) {
+					invalidProvider =
+						error instanceof Error ? error.message : `Provider is invalid: ${provider.id}`;
+					break;
+				}
+			}
+			if (invalidProvider) {
+				issues.push({
+					pluginId,
+					manifestPath,
+					code: 'invalid-entry',
+					message: invalidProvider,
+				});
+				continue;
+			}
+
 			const conflictingProvider = parsed.data.contributes.providers.find((provider) =>
 				providerIds.has(provider.id)
 			);
