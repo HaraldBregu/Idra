@@ -282,6 +282,10 @@ export interface AppInvokeChannelMap {
 		args: [path: string];
 		result: void;
 	};
+	[AppChannels.uploadProvider]: {
+		args: [];
+		result: string | null;
+	};
 }
 
 export interface ChannelsInvokeChannelMap {
