@@ -695,14 +695,6 @@ export interface ExtensionsInvokeChannelMap {
 	[ExtensionChannels.open]: { args: [extensionId: string]; result: void };
 }
 
-export interface PluginsInvokeChannelMap {
-	[PluginChannels.list]: { args: []; result: import('./plugin_types').PluginSummary[] };
-	[PluginChannels.install]: {
-		args: [];
-		result: import('./plugin_types').PluginInstallResult | undefined;
-	};
-}
-
 export interface WindowInvokeChannelMap {
 	[WindowChannels.isMaximized]: { args: []; result: boolean };
 	[WindowChannels.isFullScreen]: { args: []; result: boolean };
