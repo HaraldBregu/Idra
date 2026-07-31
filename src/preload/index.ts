@@ -28,7 +28,6 @@ export { skills } from './skills';
 export { storage } from './storage';
 export { database } from './database';
 export { extensions } from './extensions';
-export { plugins } from './plugins';
 export { wiki } from './wiki';
 
 if (process.contextIsolated) {
