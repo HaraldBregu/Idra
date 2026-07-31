@@ -135,11 +135,21 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	},
 ];
 
-export const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
+export const SETUP_STEPS: readonly SetupStep[] = [
+	'presentation',
+	'modelProvider',
+	'search',
+	'storage',
+	'database',
+	'models',
+];
 
 export const SETUP_STEP_TITLES: Record<SetupStep, string> = {
 	presentation: 'Welcome',
-	providers: 'Providers',
+	modelProvider: 'Model provider',
+	search: 'Search',
+	storage: 'Storage',
+	database: 'Database',
 	models: 'Models',
 };
 
@@ -151,10 +161,22 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 		description:
 			"Your personal AI agent. I can help with everyday tasks, write code, and keep working in the background while you're away.",
 	},
-	providers: {
-		title: 'Connect your providers',
+	modelProvider: {
+		title: 'Connect a model provider',
 		description:
-			'Add at least one model provider API key to continue. You can connect more providers at any time.',
+			'Add an API key for the model provider you want to use. You can connect more providers at any time.',
+	},
+	search: {
+		title: 'Connect search',
+		description: 'Add a search provider if you want Friday to look things up on the web.',
+	},
+	storage: {
+		title: 'Connect storage',
+		description: 'Add storage if you want Friday to access files in an external bucket.',
+	},
+	database: {
+		title: 'Connect a database',
+		description: 'Add a database provider if you want Friday to work with your data.',
 	},
 	models: {
 		title: 'Choose your models',
