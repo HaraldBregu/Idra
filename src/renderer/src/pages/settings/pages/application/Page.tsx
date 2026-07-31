@@ -71,6 +71,10 @@ const ApplicationPage: React.FC = () => {
 		void window.app.openAppDataFolder();
 	}, []);
 
+	const handleOpenDataFolder = useCallback(() => {
+		void window.app.openDataFolder();
+	}, []);
+
 	const handleLanguageChange = (next: string | null): void => {
 		if (next === null) return;
 		const option = LANGUAGE_OPTIONS.find((o) => o.value === next);

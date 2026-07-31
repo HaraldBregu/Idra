@@ -280,7 +280,9 @@
 			"keepAwakeDescription": "Impedisci a Friday di essere sospeso mentre lavora in background",
 			"appData": "Dati Applicazione",
 			"appDataDescription": "Cartella in cui Friday salva impostazioni e log dell'applicazione",
-			"openAppData": "Apri Cartella"
+			"openAppData": "Apri Cartella",
+			"dataFolder": "Cartella Dati",
+			"openDataFolder": "Apri Cartella"
 		},
 		"system": {
 			"description": "Gestisci i permessi del sistema operativo.",

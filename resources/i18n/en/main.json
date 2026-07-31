@@ -281,7 +281,9 @@
 			"keepAwakeDescription": "Prevent Friday from being suspended while it works in the background",
 			"appData": "Application Data",
 			"appDataDescription": "Folder where Friday stores application settings and logs",
-			"openAppData": "Open Folder"
+			"openAppData": "Open Folder",
+			"dataFolder": "Data Folder",
+			"openDataFolder": "Open Folder"
 		},
 		"system": {
 			"description": "Manage operating system permissions.",
