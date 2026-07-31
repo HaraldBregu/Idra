@@ -33,6 +33,7 @@ import {
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../../../start/types';
 import {
 	SettingsNotice,
+	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
 	SettingsLoadingRows,
