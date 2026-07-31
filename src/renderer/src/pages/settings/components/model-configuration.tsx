@@ -1,11 +1,7 @@
 import React, { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Bot, ChevronDown } from 'lucide-react';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ModelProviderSelect, toModelProviderGroups } from '@/components/model-provider-select';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { getProviderCatalogItem } from '../../start/constants';
@@ -37,9 +33,7 @@ export function ModelProviderConfiguration({
 }: ModelProviderConfigurationProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const [isOpen, setIsOpen] = useState(defaultOpen);
-	const group = configState.modelGroups.find(
-		(item) => item.provider.id === configState.providerId
-	);
+	const group = configState.modelGroups.find((item) => item.provider.id === configState.providerId);
 	const provider = group?.provider;
 	const model = group?.models.find((item) => item.id === configState.modelId);
 	const providerName = provider
@@ -47,55 +41,54 @@ export function ModelProviderConfiguration({
 		: t('settings.modelServices.providerPlaceholder');
 	const modelName = model?.name ?? model?.id ?? t('settings.modelServices.modelUnavailable');
 
-	const configurationBody =
-		configState.loading ? (
-			<SettingsLoadingRows rows={2} />
-		) : (
-			<div className="grid gap-3 px-3 py-3">
-				{showInlineError && configState.error && (
-					<SettingsNotice variant="destructive" icon={AlertTriangle}>
-						{configState.error}
-					</SettingsNotice>
-				)}
+	const configurationBody = configState.loading ? (
+		<SettingsLoadingRows rows={2} />
+	) : (
+		<div className="grid gap-3 px-3 py-3">
+			{showInlineError && configState.error && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{configState.error}
+				</SettingsNotice>
+			)}
 
-				<ModelProviderSelect
-					idPrefix={idPrefix}
-					providerGroups={toModelProviderGroups(configState.modelGroups)}
-					providerId={configState.providerId}
-					modelId={configState.modelId}
-					onChange={onChange}
-					disabled={
-						configState.loading || configState.saving || configState.modelGroups.length === 0
-					}
-					labels={{
-						description,
-						placeholder: configState.loadingModels
-							? t('settings.modelServices.modelsLoading')
-							: undefined,
-					}}
-				/>
+			<ModelProviderSelect
+				idPrefix={idPrefix}
+				providerGroups={toModelProviderGroups(configState.modelGroups)}
+				providerId={configState.providerId}
+				modelId={configState.modelId}
+				onChange={onChange}
+				disabled={configState.loading || configState.saving || configState.modelGroups.length === 0}
+				labels={{
+					description,
+					placeholder: configState.loadingModels
+						? t('settings.modelServices.modelsLoading')
+						: undefined,
+				}}
+			/>
 
-				{configState.providers.length === 0 && (
-					<p className="text-[11px] leading-4 text-muted-foreground">
-						{t('settings.providers.noProviders')}
-					</p>
-				)}
-				{configState.providers.length > 0 && configState.modelGroups.length === 0 && (
-					<p className="text-[11px] leading-4 text-muted-foreground">
-						{t('settings.modelServices.noModels')}
-					</p>
-				)}
-				{configState.saved && (
-					<p className="text-[11px] leading-4 text-muted-foreground">
-						{t('settings.modelServices.saved')}
-					</p>
-				)}
-			</div>
-		);
+			{configState.providers.length === 0 && (
+				<p className="text-[11px] leading-4 text-muted-foreground">
+					{t('settings.providers.noProviders')}
+				</p>
+			)}
+			{configState.providers.length > 0 && configState.modelGroups.length === 0 && (
+				<p className="text-[11px] leading-4 text-muted-foreground">
+					{t('settings.modelServices.noModels')}
+				</p>
+			)}
+			{configState.saved && (
+				<p className="text-[11px] leading-4 text-muted-foreground">
+					{t('settings.modelServices.saved')}
+				</p>
+			)}
+		</div>
+	);
 
 	if (!collapsible) {
 		return (
-			<div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">{configurationBody}</div>
+			<div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+				{configurationBody}
+			</div>
 		);
 	}
 
