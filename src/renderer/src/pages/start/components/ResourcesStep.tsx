@@ -31,13 +31,15 @@ export function ResourcesStep(): React.JSX.Element {
 			window.storage.getStorages(),
 			window.storage.getStorageConfiguration(),
 			window.database.getConfiguration(),
-		]).then(([search, storages, storage, database]) => {
-			if (cancelled) return;
-			setSearchSettings(search);
-			setStorageEntries(storages);
-			setStorageConfiguration(storage);
-			setDatabaseConfiguration(database);
-		});
+		])
+			.then(([search, storages, storage, database]) => {
+				if (cancelled) return;
+				setSearchSettings(search);
+				setStorageEntries(storages);
+				setStorageConfiguration(storage);
+				setDatabaseConfiguration(database);
+			})
+			.catch(() => undefined);
 		return () => {
 			cancelled = true;
 		};
@@ -59,7 +61,8 @@ export function ResourcesStep(): React.JSX.Element {
 						if (!value) return;
 						void window.search
 							.selectEngine(value as SearchEngineId)
-							.then(setSearchSettings);
+							.then(setSearchSettings)
+							.catch(() => undefined);
 					}}
 				>
 					<SelectTrigger className="w-full bg-card text-xs">
@@ -96,7 +99,10 @@ export function ResourcesStep(): React.JSX.Element {
 							providerId: value,
 							storageId: value,
 						};
-						void window.storage.saveStorageConfiguration(next).then(setStorageConfiguration);
+						void window.storage
+							.saveStorageConfiguration(next)
+							.then(setStorageConfiguration)
+							.catch(() => undefined);
 					}}
 				>
 					<SelectTrigger className="w-full bg-card text-xs">
@@ -132,7 +138,10 @@ export function ResourcesStep(): React.JSX.Element {
 						);
 						if (!entry) return;
 						const next = { providerId: entry.provider.id, databaseId: entry.id };
-						void window.database.saveConfiguration(next).then(setDatabaseConfiguration);
+						void window.database
+							.saveConfiguration(next)
+							.then(setDatabaseConfiguration)
+							.catch(() => undefined);
 					}}
 				>
 					<SelectTrigger className="w-full bg-card text-xs">
