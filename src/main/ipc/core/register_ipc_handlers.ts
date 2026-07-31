@@ -39,10 +39,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
 	safeRegister('storage', () => new StorageIpc().register(undefined, eventBus));
 	safeRegister('database', () => new DatabaseIpc().register(undefined, eventBus));
-	safeRegister('extensions', () =>
-		new ExtensionsIpc().register({ windowFactory, pluginRepository }, eventBus)
-	);
-	safeRegister('plugins', () => new PluginsIpc().register({ pluginRepository }, eventBus));
+	safeRegister('extensions', () => new ExtensionsIpc().register({ windowFactory }, eventBus));
 	safeRegister('wiki', () => new WikiIpc().register(undefined, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
