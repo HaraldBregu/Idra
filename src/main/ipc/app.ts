@@ -41,7 +41,14 @@ import {
 	setTheme as setStoredTheme,
 } from '../app/settings_store';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
-import { loadDatabases, loadModels, loadStorages, loadWebSearches, watchModels } from '../app/models';
+import {
+	loadDatabases,
+	loadModels,
+	loadStorages,
+	loadWebSearches,
+	providersDir,
+	watchModels,
+} from '../app/models';
 import type { LoggerService } from '../shared';
 
 export interface AppIpcDeps {
