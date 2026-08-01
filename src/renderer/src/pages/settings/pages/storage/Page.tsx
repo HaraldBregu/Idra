@@ -256,14 +256,21 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 			) : (
 				<>
 					<Card size="sm">
-						<CardHeader className="border-b">
-							<CardTitle>{t('settings.storage.cardTitle')}</CardTitle>
-							<CardDescription className="text-xs">
-								{t('settings.storage.sync.description')}
-							</CardDescription>
-						</CardHeader>
+						<Collapsible>
+							<CollapsibleTrigger className="group w-full text-left">
+								<CardHeader>
+									<CardTitle className="flex items-center justify-between">
+										{t('settings.storage.cardTitle')}
+										<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+									</CardTitle>
+									<CardDescription className="text-xs">
+										{t('settings.storage.sync.description')}
+									</CardDescription>
+								</CardHeader>
+							</CollapsibleTrigger>
 
-						<CardContent className="p-0!">
+							<CollapsibleContent className="border-t border-border/60">
+								<CardContent className="p-0!">
 							<SettingsRow
 								title={t('settings.storage.profile.label')}
 								description={t('settings.storage.profile.help')}
