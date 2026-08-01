@@ -230,4 +230,4 @@ const GeneralPage: React.FC = () => {
 	);
 };
 
-export default ApplicationPage;
+export default GeneralPage;
