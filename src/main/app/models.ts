@@ -250,10 +250,10 @@ function readCatalog(): Catalog {
 		});
 		models.push(...modelEntries.map((model) => ({ ...model, provider })));
 		databases.push(
-			...entry.services.filter((service): service is CatalogEntryService => service.type === 'database').map((service) => ({ ...service, provider }))
+			...entry.services.filter((service) => service.type === 'database').map((service) => ({ ...service, provider }))
 		);
 		storages.push(
-			...entry.services.filter((service): service is CatalogEntryService => service.type === 'storage').map((service) => ({ ...service, provider }))
+			...entry.services.filter((service) => service.type === 'storage').map((service) => ({ ...service, provider }))
 		);
 		webSearches.push(
 			...entry.services.filter((service): service is CatalogEntryWebSearch => service.type === 'web-search').map((search) => ({ ...search, provider }))
