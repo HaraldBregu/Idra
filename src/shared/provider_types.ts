@@ -35,6 +35,18 @@ export interface CatalogEntryModel extends ProviderModel {
 	readonly sampleRate?: number;
 }
 
+export type ProviderServiceType =
+	| Exclude<ModelCapability, 'llm'>
+	| 'large-language-model'
+	| 'web-search'
+	| 'database'
+	| 'storage';
+
+/** A service as represented in a provider manifest. */
+export interface ProviderManifestService extends Omit<CatalogEntryModel, 'type'> {
+	readonly type: ProviderServiceType;
+}
+
 /** A non-model service in resources/providers/<id>/manifest.json. */
 export interface CatalogEntryService {
 	readonly id: string;
@@ -66,7 +78,7 @@ export interface ProviderManifest {
 	readonly providerName: string;
 	/** Provider dashboard page where API keys are created. */
 	readonly apiKeyUrl?: string;
-	readonly services: readonly (CatalogEntryModel | CatalogEntryService)[];
+	readonly services: readonly ProviderManifestService[];
 }
 
 export interface ModelSelection {

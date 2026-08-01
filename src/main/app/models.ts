@@ -172,6 +172,13 @@ function toProviderModel(model: CatalogModel): ProviderModel {
 	};
 }
 
+function toModelCapability(type: string): ModelCapability | undefined {
+	if (type === 'large-language-model') return 'llm';
+	return ['research-chat', 'speech-to-text', 'text-to-speech', 'realtime-voice', 'text-to-image', 'text-to-video', 'text-to-audio', 'embedding'].includes(type)
+		? (type as ModelCapability)
+		: undefined;
+}
+
 function toPublicProvider(entry: ProviderManifest): PublicProvider {
 	const baseUrl = entry.services.find((service) => service.url?.startsWith('http'))?.url ?? '';
 	return {
@@ -229,9 +236,10 @@ function readCatalog(): Catalog {
 
 	for (const entry of manifests.values()) {
 		const provider = toPublicProvider(entry);
-		const modelEntries = entry.services.filter((service): service is CatalogEntryModel =>
-			['llm', 'research-chat', 'speech-to-text', 'text-to-speech', 'realtime-voice', 'text-to-image', 'text-to-video', 'text-to-audio', 'embedding'].includes(service.type)
-		);
+		const modelEntries = entry.services.flatMap((service): CatalogEntryModel[] => {
+			const type = toModelCapability(service.type);
+			return type ? [{ ...service, type }] : [];
+		});
 		models.push(...modelEntries.map((model) => ({ ...model, provider })));
 		databases.push(
 			...entry.services.filter((service): service is CatalogEntryService => service.type === 'database').map((service) => ({ ...service, provider }))

@@ -2,7 +2,6 @@ import type { ModelCapability } from '../model_types';
 import type { ProviderManifest } from '../provider_types';
 
 const MODEL_CAPABILITIES: readonly ModelCapability[] = [
-	'llm',
 	'research-chat',
 	'speech-to-text',
 	'text-to-speech',
@@ -12,6 +11,8 @@ const MODEL_CAPABILITIES: readonly ModelCapability[] = [
 	'text-to-audio',
 	'embedding',
 ];
+
+const MODEL_SERVICE_TYPES = ['large-language-model', ...MODEL_CAPABILITIES] as const;
 
 function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;
@@ -43,7 +44,7 @@ export function validateProviderManifest(value: unknown): string[] {
 		if (!isNonEmptyString(service.id)) serviceErrors.push(`manifest.json: services[${index}].id must be a non-empty string.`);
 		if (!isNonEmptyString(service.name)) serviceErrors.push(`manifest.json: services[${index}].name must be a non-empty string.`);
 		if (!isNonEmptyString(service.type)) serviceErrors.push(`manifest.json: services[${index}].type must be a non-empty string.`);
-		if (service.type === 'web-search' || MODEL_CAPABILITIES.includes(service.type as ModelCapability)) {
+		if (service.type === 'web-search' || MODEL_SERVICE_TYPES.includes(service.type as (typeof MODEL_SERVICE_TYPES)[number])) {
 			if (!isNonEmptyString(service.url)) serviceErrors.push(`manifest.json: services[${index}].url must be a non-empty string.`);
 		}
 		return serviceErrors;
