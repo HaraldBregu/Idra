@@ -426,8 +426,6 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 					{syncStatus && <SettingsNotice icon={FolderSync}>{syncStatus}</SettingsNotice>}
 				</>
 			)}
-
-			<SettingsNotice icon={Cloud}>{t('settings.storage.localNote')}</SettingsNotice>
 		</SettingsPageShell>
 	);
 };
