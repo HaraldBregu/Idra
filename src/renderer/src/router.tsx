@@ -253,9 +253,45 @@ const routes: RouteObject[] = [
 						children: [
 							{
 								index: true,
+								element: <Navigate to="/settings/providers/models" replace />,
+							},
+							{
+								path: 'models',
 								element: (
 									<SettingsRouteWrapper>
-										<ProvidersPage />
+										<ProvidersPage section="models" />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'search',
+								element: (
+									<SettingsRouteWrapper>
+										<ProvidersPage section="search" />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'databases',
+								element: (
+									<SettingsRouteWrapper>
+										<ProvidersPage section="databases" />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'storage',
+								element: (
+									<SettingsRouteWrapper>
+										<ProvidersPage section="storage" />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'mcp',
+								element: (
+									<SettingsRouteWrapper>
+										<ProvidersPage section="mcp" />
 									</SettingsRouteWrapper>
 								),
 							},
