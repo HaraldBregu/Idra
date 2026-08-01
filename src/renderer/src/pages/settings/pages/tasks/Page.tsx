@@ -200,6 +200,7 @@ const TasksPage: React.FC = () => {
 					)}
 				</SettingsPanel>
 			</SettingsSection>
+			</SettingsCollapsibleCard>
 		</SettingsPageShell>
 	);
 };
