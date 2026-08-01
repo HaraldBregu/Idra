@@ -67,11 +67,10 @@ const SearchPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader
+			<SettingsCollapsibleCard
 				title={t('settings.tabs.searchEngine')}
 				description={t('settings.searchEngine.description')}
-			/>
-
+			>
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
