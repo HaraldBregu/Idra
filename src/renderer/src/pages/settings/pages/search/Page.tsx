@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
 	Select,
 	SelectContent,
@@ -81,15 +79,26 @@ const SearchPage: React.FC = () => {
 			)}
 
 			{settings && (
-				<SettingsSection title={t('settings.searchEngine.defaultTitle')}>
-					<Card size="sm">
-						<CardHeader>
-							<CardTitle>{t('settings.searchEngine.provider')}</CardTitle>
-							<CardDescription>
-								{t('settings.searchEngine.defaultDescription')}
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
+				<SettingsSection
+					title={t('settings.searchEngine.defaultTitle')}
+					description={t('settings.searchEngine.defaultDescription')}
+				>
+					<Collapsible className="rounded-lg border border-border/70 bg-card">
+						<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+							<div className="min-w-0 flex-1">
+								<div className="truncate text-[13px] font-medium leading-4 text-foreground">
+									{selectedEngine?.name ?? t('settings.searchEngine.provider')}
+								</div>
+								<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
+									{selectedEngine
+										? t(selectedEngine.descriptionKey)
+										: t('settings.searchEngine.defaultDescription')}
+								</p>
+							</div>
+							<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+						</CollapsibleTrigger>
+						<CollapsibleContent className="border-t border-border/60">
+							<div className="grid gap-3 px-3 py-3">
 								<Select
 									value={settings.engineId}
 									onValueChange={handleEngineChange}
@@ -114,8 +123,9 @@ const SearchPage: React.FC = () => {
 										))}
 									</SelectContent>
 								</Select>
-						</CardContent>
-					</Card>
+							</div>
+						</CollapsibleContent>
+					</Collapsible>
 				</SettingsSection>
 			)}
 
