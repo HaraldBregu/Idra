@@ -192,7 +192,7 @@ function iconUrl(providerDir: string, iconPath: string | undefined): string | un
 	if (!iconPath) return undefined;
 	const filePath = path.resolve(providerDir, iconPath.replace(/^\/+/, ''));
 	if (!filePath.startsWith(`${providerDir}${path.sep}`) || !existsSync(filePath)) return undefined;
-	return `local-resource://${pathToFileURL(filePath).pathname}`;
+	return `local-resource://file${pathToFileURL(filePath).pathname}`;
 }
 
 function toPublicProvider(entry: ProviderManifest, providerDir: string): PublicProvider {
