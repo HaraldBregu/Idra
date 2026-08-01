@@ -143,7 +143,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		keywords: 'locale english italian i18n',
 	},
 	{
-		path: '/settings/application',
+		path: '/settings/general',
 		labelKey: 'settings.application.menuBar',
 		descriptionKey: 'settings.application.menuBarDescription',
 		keywords: 'tray dock icon toggle',
