@@ -238,6 +238,8 @@ export function actionableProviderCatalog(): readonly ProviderCatalogItem[] {
 		capabilities: provider.capabilities ?? 'AI provider',
 		supported: true,
 		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
+		iconDarkUrl: provider.iconDarkUrl,
+		iconLightUrl: provider.iconLightUrl,
 	}));
 }
 
@@ -253,6 +255,8 @@ export function actionableDatabaseCatalog(): readonly ProviderCatalogItem[] {
 				.join(' - ') || 'Database',
 		supported: true,
 		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
+		iconDarkUrl: provider.iconDarkUrl,
+		iconLightUrl: provider.iconLightUrl,
 	}));
 }
 
@@ -268,6 +272,8 @@ export function actionableSearchCatalog(): readonly ProviderCatalogItem[] {
 				.join(' - ') || 'Web search',
 		supported: true,
 		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
+		iconDarkUrl: provider.iconDarkUrl,
+		iconLightUrl: provider.iconLightUrl,
 	}));
 }
 

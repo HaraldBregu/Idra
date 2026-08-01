@@ -19,6 +19,8 @@ export type ProviderCatalogItem = {
 	capabilities: string;
 	supported: boolean;
 	apiConfigurationUrl?: string;
+	iconDarkUrl?: string;
+	iconLightUrl?: string;
 };
 
 export type ProviderModelGroup = {
