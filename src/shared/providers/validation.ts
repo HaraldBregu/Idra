@@ -34,6 +34,11 @@ export function validateProviderManifest(value: unknown): string[] {
 	if (manifest.apiKeyUrl !== undefined && !isNonEmptyString(manifest.apiKeyUrl)) {
 		errors.push('manifest.json: "apiKeyUrl" must be a non-empty string when present.');
 	}
+	for (const field of ['icon_dark_url', 'icon_light_url'] as const) {
+		if (manifest[field] !== undefined && (!isNonEmptyString(manifest[field]) || !manifest[field].startsWith('/images/'))) {
+			errors.push(`manifest.json: "${field}" must be an /images/ path when present.`);
+		}
+	}
 	if (!Array.isArray(manifest.services)) return [...errors, 'manifest.json: "services" must be an array.'];
 	return manifest.services.flatMap((value, index) => {
 		if (typeof value !== 'object' || value === null || Array.isArray(value)) {

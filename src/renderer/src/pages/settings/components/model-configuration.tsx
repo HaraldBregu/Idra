@@ -100,7 +100,7 @@ export function ModelProviderConfiguration({
 		>
 			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 				{provider ? (
-					<ProviderAvatar providerId={provider.id} name={providerName} className="size-10" />
+					<ProviderAvatar providerId={provider.id} name={providerName} iconDarkUrl={provider.iconDarkUrl} iconLightUrl={provider.iconLightUrl} className="size-10" />
 				) : (
 					<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
 						<Bot className="size-4" aria-hidden="true" />

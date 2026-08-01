@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { existsSync, mkdirSync, readdirSync, readFileSync, watch } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { is } from '@electron-toolkit/utils';
 import {
 	normalizeProviderId,
@@ -189,13 +190,22 @@ function toModelCapability(type: string): ModelCapability | undefined {
 	return capabilities[type];
 }
 
-function toPublicProvider(entry: ProviderManifest): PublicProvider {
+function iconUrl(providerDir: string, iconPath: string | undefined): string | undefined {
+	if (!iconPath) return undefined;
+	const filePath = path.resolve(providerDir, iconPath.replace(/^\/+/, ''));
+	if (!filePath.startsWith(`${providerDir}${path.sep}`) || !existsSync(filePath)) return undefined;
+	return `local-resource://${pathToFileURL(filePath).pathname}`;
+}
+
+function toPublicProvider(entry: ProviderManifest, providerDir: string): PublicProvider {
 	const baseUrl = entry.services.find((service) => service.url?.startsWith('http'))?.url ?? '';
 	return {
 		id: entry.providerId,
 		name: entry.providerName,
 		baseUrl,
 		...(entry.apiKeyUrl ? { apiKeyUrl: entry.apiKeyUrl } : {}),
+		...(iconUrl(providerDir, entry.icon_dark_url) ? { iconDarkUrl: iconUrl(providerDir, entry.icon_dark_url) } : {}),
+		...(iconUrl(providerDir, entry.icon_light_url) ? { iconLightUrl: iconUrl(providerDir, entry.icon_light_url) } : {}),
 	};
 }
 
@@ -218,7 +228,7 @@ function readCatalog(): Catalog {
 	const databases: CatalogService[] = [];
 	const storages: CatalogService[] = [];
 	const webSearches: CatalogWebSearch[] = [];
-	const manifests = new Map<string, ProviderManifest>();
+	const manifests = new Map<string, { entry: ProviderManifest; providerDir: string }>();
 
 	for (const directory of [bundledProvidersDir(), providersDir()]) {
 		if (!existsSync(directory)) continue;
@@ -230,15 +240,15 @@ function readCatalog(): Catalog {
 				if (!existsSync(manifestPath)) continue;
 				const entry = parseProviderManifest(JSON.parse(readFileSync(manifestPath, 'utf-8')));
 				if (!entry) continue;
-				manifests.set(normalizeProviderId(entry.providerId), entry);
+				manifests.set(normalizeProviderId(entry.providerId), { entry, providerDir });
 			} catch {
 				// ponytail: a provider dir mid-edit (malformed JSON) drops out until fixed
 			}
 		}
 	}
 
-	for (const entry of manifests.values()) {
-		const provider = toPublicProvider(entry);
+	for (const { entry, providerDir } of manifests.values()) {
+		const provider = toPublicProvider(entry, providerDir);
 		const modelEntries = entry.services.flatMap((service): CatalogEntryModel[] => {
 			const type = toModelCapability(service.type);
 			return type ? [{ ...service, type }] : [];
