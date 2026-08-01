@@ -14,6 +14,7 @@ import {
 	Mic,
 	MonitorCog,
 	Music,
+	PlugZap,
 	RadioTower,
 	Search,
 	Server,
