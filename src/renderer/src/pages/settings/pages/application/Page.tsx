@@ -3,7 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { SettingsPageHeader, SettingsPageShell, SettingsPanel } from '../../components';
 import { getSettingsOverviewItem, SettingsOverviewCard } from '../overview/Page';
 
-const APPLICATION_PATHS = ['/settings/general', '/settings/system'] as const;
+const APPLICATION_PATHS = [
+	'/settings/general',
+	'/settings/system',
+	'/settings/storage',
+	'/settings/vectordb',
+	'/settings/search',
+	'/settings/tasks',
+] as const;
 
 const ApplicationPage: React.FC = () => {
 	const { t } = useTranslation();
