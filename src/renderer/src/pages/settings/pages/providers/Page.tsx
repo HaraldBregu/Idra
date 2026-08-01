@@ -424,6 +424,22 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 				<SettingsPageHeader
 					title={t('settings.tabs.providers')}
 					description={t('settings.overview.descriptions.providers')}
+					action={
+						<Button
+							type="button"
+							variant="outline"
+							size="xs"
+							disabled={uploadingProvider}
+							onClick={() => void handleUploadProvider()}
+						>
+							{uploadingProvider ? (
+								<LoaderCircle className="size-3.5 animate-spin" />
+							) : (
+								<Upload className="size-3.5" />
+							)}
+							Upload provider
+						</Button>
+					}
 				/>
 			)}
 			{error && (
