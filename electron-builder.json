@@ -2,7 +2,13 @@
 	"productName": "Friday",
 	"appId": "com.friday.friday",
 	"copyright": "© 2026 Friday Project. All rights reserved.",
-	"files": ["out/**", "resources/**"],
+	"files": [
+		"out/**",
+		"resources/**",
+		"!resources/skills/**",
+		"!resources/sounds/**",
+		"!resources/**/*.svg"
+	],
 	"icon": "./resources/icons/win/icon.ico",
 	"fileAssociations": [
 		{
@@ -72,7 +78,7 @@
 			{
 				"from": "./resources",
 				"to": "resources",
-				"filter": []
+				"filter": ["**/*", "!skills/**", "!sounds/**", "!**/*.svg"]
 			}
 		]
 	},
@@ -113,7 +119,7 @@
 			{
 				"from": "./resources",
 				"to": "resources",
-				"filter": []
+				"filter": ["**/*", "!skills/**", "!sounds/**", "!**/*.svg"]
 			}
 		]
 	},
@@ -156,7 +162,7 @@
 			{
 				"from": "./resources",
 				"to": "resources",
-				"filter": []
+				"filter": ["**/*", "!skills/**", "!sounds/**", "!**/*.svg"]
 			}
 		]
 	},
