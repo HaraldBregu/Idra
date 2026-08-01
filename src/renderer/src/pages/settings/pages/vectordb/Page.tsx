@@ -102,6 +102,9 @@ const VectorDbPage: React.FC = () => {
 									{t('settings.vectorDb.defaultTitle')}
 									<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
 								</CardTitle>
+								<CardDescription className="text-xs">
+									{t('settings.vectorDb.description')}
+								</CardDescription>
 							</CardHeader>
 						</CollapsibleTrigger>
 
