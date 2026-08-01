@@ -413,7 +413,9 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 								<Save className="size-3" />
 								{savingSync ? t('settings.storage.saving') : t('settings.storage.sync.save')}
 							</Button>
-						</CardFooter>
+							</CardFooter>
+							</CollapsibleContent>
+						</Collapsible>
 					</Card>
 
 					{syncStatus && <SettingsNotice icon={FolderSync}>{syncStatus}</SettingsNotice>}
