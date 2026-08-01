@@ -369,18 +369,6 @@ export const SETTINGS_NAVIGATION = [
 		icon: PlugZap,
 	},
 	{
-		path: '/settings/search',
-		labelKey: 'settings.tabs.searchEngine',
-		descriptionKey: 'settings.overview.descriptions.searchEngine',
-		icon: Search,
-	},
-	{
-		path: '/settings/storage',
-		labelKey: 'settings.tabs.storage',
-		descriptionKey: 'settings.overview.descriptions.storage',
-		icon: Folder,
-	},
-	{
 		path: '/settings/database',
 		labelKey: 'settings.tabs.database',
 		descriptionKey: 'settings.overview.descriptions.database',
