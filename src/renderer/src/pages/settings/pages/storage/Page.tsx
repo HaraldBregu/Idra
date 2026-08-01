@@ -405,6 +405,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 			)}
 
 			<SettingsNotice icon={Cloud}>{t('settings.storage.localNote')}</SettingsNotice>
+			</SettingsCollapsibleCard>
 		</SettingsPageShell>
 	);
 };
