@@ -57,31 +57,29 @@ interface StorageEntry {
 type ProviderKind = StoredProviderKind | 'search';
 export type ProviderSetupSection = 'models' | 'search' | 'storage' | 'databases' | 'mcp';
 
-const SECTION_HEADERS: Record<
-	ProviderSetupSection,
-	{ titleKey: string; descriptionKey: string }
-> = {
-	models: {
-		titleKey: 'settings.overview.groups.mlModels',
-		descriptionKey: 'settings.overview.descriptions.providers',
-	},
-	search: {
-		titleKey: 'settings.tabs.searchEngines',
-		descriptionKey: 'settings.overview.descriptions.searchEngine',
-	},
-	databases: {
-		titleKey: 'settings.tabs.databases',
-		descriptionKey: 'settings.overview.descriptions.database',
-	},
-	storage: {
-		titleKey: 'settings.tabs.storage',
-		descriptionKey: 'settings.overview.descriptions.storage',
-	},
-	mcp: {
-		titleKey: 'settings.tabs.mcp',
-		descriptionKey: 'settings.overview.descriptions.mcp',
-	},
-};
+const SECTION_HEADERS: Record<ProviderSetupSection, { titleKey: string; descriptionKey: string }> =
+	{
+		models: {
+			titleKey: 'settings.overview.groups.mlModels',
+			descriptionKey: 'settings.overview.descriptions.providers',
+		},
+		search: {
+			titleKey: 'settings.tabs.searchEngines',
+			descriptionKey: 'settings.overview.descriptions.searchEngine',
+		},
+		databases: {
+			titleKey: 'settings.tabs.databases',
+			descriptionKey: 'settings.overview.descriptions.database',
+		},
+		storage: {
+			titleKey: 'settings.tabs.storage',
+			descriptionKey: 'settings.overview.descriptions.storage',
+		},
+		mcp: {
+			titleKey: 'settings.tabs.mcp',
+			descriptionKey: 'settings.overview.descriptions.mcp',
+		},
+	};
 
 /** Providers pinned on top of the start-flow models list. */
 const FEATURED_PROVIDER_IDS = ['openai', 'anthropic', 'deepseek', 'elevenlabs'] as const;
@@ -473,36 +471,6 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 							? SECTION_HEADERS[section].descriptionKey
 							: 'settings.overview.descriptions.providers'
 					)}
-					action={
-						section !== undefined && section !== 'models' ? undefined : (
-							<>
-							<Button
-								type="button"
-								variant="outline"
-								size="icon-xs"
-								aria-label="Open providers folder"
-								title="Open providers folder"
-								onClick={() => void handleOpenProvidersFolder()}
-							>
-								<FolderOpen className="size-3.5" />
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								size="xs"
-								disabled={uploadingProvider}
-								onClick={() => void handleUploadProvider()}
-							>
-								{uploadingProvider ? (
-									<LoaderCircle className="size-3.5 animate-spin" />
-								) : (
-									<Upload className="size-3.5" />
-								)}
-								Upload provider
-							</Button>
-							</>
-						)
-					}
 				/>
 			)}
 			{error && (
