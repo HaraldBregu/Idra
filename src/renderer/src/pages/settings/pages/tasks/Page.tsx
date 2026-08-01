@@ -146,8 +146,9 @@ const TasksPage: React.FC = () => {
 							)}
 						</div>
 					)}
-				</CollapsibleContent>
-			</Collapsible>
+					</CollapsibleContent>
+				</Collapsible>
+			</Card>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
