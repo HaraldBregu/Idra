@@ -205,7 +205,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 				setCatalogVersion((version) => version + 1);
 			}
 		} catch (err) {
-			setError(getErrorMessage(err, 'Could not upload provider folder.'));
+			setError(getErrorMessage(err, 'Could not upload provider.'));
 		} finally {
 			setUploadingProvider(false);
 		}
