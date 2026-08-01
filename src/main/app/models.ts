@@ -30,7 +30,6 @@ let cache: Catalog | undefined;
 let watching = false;
 
 function loadCatalog(): Catalog {
-	seedProviders();
 	// ponytail: without a watcher there is no safe cache — read fresh every call
 	if (!watching) return readCatalog();
 	if (!cache) cache = readCatalog();
@@ -61,7 +60,6 @@ export function loadWebSearches(): readonly CatalogWebSearch[] {
 export function watchModels(onChange: () => void): void {
 	if (watching) return;
 	try {
-		seedProviders();
 		let timer: NodeJS.Timeout | undefined;
 		watch(providersDir(), { recursive: true }, () => {
 			cache = undefined;
@@ -211,9 +209,10 @@ function readCatalog(): Catalog {
 	const databases: CatalogService[] = [];
 	const storages: CatalogService[] = [];
 	const webSearches: CatalogWebSearch[] = [];
+	const manifests = new Map<string, ProviderManifest>();
 
-	const directory = providersDir();
-	if (existsSync(directory)) {
+	for (const directory of [bundledProvidersDir(), providersDir()]) {
+		if (!existsSync(directory)) continue;
 		for (const dirent of readdirSync(directory, { withFileTypes: true })) {
 			if (!dirent.isDirectory()) continue;
 			try {
@@ -221,33 +220,28 @@ function readCatalog(): Catalog {
 				const manifestPath = path.join(providerDir, 'manifest.json');
 				if (!existsSync(manifestPath)) continue;
 				const entry = JSON.parse(readFileSync(manifestPath, 'utf-8')) as ProviderManifest;
-				const provider = toPublicProvider(entry);
-				const modelEntries = entry.services.filter((service): service is CatalogEntryModel =>
-					['llm', 'research-chat', 'speech-to-text', 'text-to-speech', 'realtime-voice', 'text-to-image', 'text-to-video', 'text-to-audio', 'embedding'].includes(service.type)
-				);
-				models.push(...modelEntries.map((model) => ({ ...model, provider })));
-				databases.push(
-					...entry.services.filter((service): service is CatalogEntryService => service.type === 'database').map((service) => ({
-						...service,
-						provider,
-					}))
-				);
-				storages.push(
-					...entry.services.filter((service): service is CatalogEntryService => service.type === 'storage').map((service) => ({
-						...service,
-						provider,
-					}))
-				);
-				webSearches.push(
-					...entry.services.filter((service): service is CatalogEntryWebSearch => service.type === 'web-search').map((search) => ({
-						...search,
-						provider,
-					}))
-				);
+				manifests.set(normalizeProviderId(entry.providerId), entry);
 			} catch {
 				// ponytail: a provider dir mid-edit (malformed JSON) drops out until fixed
 			}
 		}
+	}
+
+	for (const entry of manifests.values()) {
+		const provider = toPublicProvider(entry);
+		const modelEntries = entry.services.filter((service): service is CatalogEntryModel =>
+			['llm', 'research-chat', 'speech-to-text', 'text-to-speech', 'realtime-voice', 'text-to-image', 'text-to-video', 'text-to-audio', 'embedding'].includes(service.type)
+		);
+		models.push(...modelEntries.map((model) => ({ ...model, provider })));
+		databases.push(
+			...entry.services.filter((service): service is CatalogEntryService => service.type === 'database').map((service) => ({ ...service, provider }))
+		);
+		storages.push(
+			...entry.services.filter((service): service is CatalogEntryService => service.type === 'storage').map((service) => ({ ...service, provider }))
+		);
+		webSearches.push(
+			...entry.services.filter((service): service is CatalogEntryWebSearch => service.type === 'web-search').map((search) => ({ ...search, provider }))
+		);
 	}
 
 	return { models, databases, storages, webSearches };
