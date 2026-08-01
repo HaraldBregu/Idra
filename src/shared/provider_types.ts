@@ -49,7 +49,8 @@ export type ProviderServiceType =
 	| 'embedding-model'
 	| 'web-search'
 	| 'database'
-	| 'storage';
+	| 'storage'
+	| 'mcp';
 
 /** A service as represented in a provider manifest. */
 export interface ProviderManifestService extends Omit<CatalogEntryModel, 'type'> {

@@ -16,6 +16,13 @@ describe('provider manifest validation', () => {
 		};
 
 		expect(parseProviderManifest(manifest)).toEqual(manifest);
+		expect(
+			parseProviderManifest({
+				providerId: 'notion',
+				providerName: 'Notion',
+				services: [{ id: 'notion-mcp', name: 'Notion MCP', type: 'mcp', url: 'https://mcp.notion.com/mcp' }],
+			})
+		).toBeDefined();
 		expect(validateProviderManifest({ ...manifest, services: [{ ...manifest.services[0], type: 'chat' }] })).toEqual([
 			expect.stringContaining('services[0].type must be one of'),
 		]);

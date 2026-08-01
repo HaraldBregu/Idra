@@ -12,7 +12,7 @@ const MODEL_SERVICE_TYPES = [
 	'embedding-model',
 ] as const;
 
-const SERVICE_TYPES = [...MODEL_SERVICE_TYPES, 'web-search', 'database', 'storage'] as const;
+const SERVICE_TYPES = [...MODEL_SERVICE_TYPES, 'web-search', 'database', 'storage', 'mcp'] as const;
 
 function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;
