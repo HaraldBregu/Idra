@@ -1,18 +1,17 @@
 import type { ModelCapability } from '../model_types';
 import type { ProviderManifest } from '../provider_types';
 
-const MODEL_CAPABILITIES: readonly ModelCapability[] = [
-	'research-chat',
-	'speech-to-text',
-	'text-to-speech',
-	'realtime-voice',
-	'text-to-image',
-	'text-to-video',
-	'text-to-audio',
-	'embedding',
-];
-
-const MODEL_SERVICE_TYPES = ['large-language-model', ...MODEL_CAPABILITIES] as const;
+const MODEL_SERVICE_TYPES = [
+	'large-language-model',
+	'research-chat-model',
+	'speech-to-text-model',
+	'text-to-speech-model',
+	'realtime-voice-model',
+	'text-to-image-model',
+	'text-to-video-model',
+	'text-to-audio-model',
+	'embedding-model',
+] as const;
 
 function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;

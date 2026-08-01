@@ -36,8 +36,15 @@ export interface CatalogEntryModel extends ProviderModel {
 }
 
 export type ProviderServiceType =
-	| Exclude<ModelCapability, 'llm'>
 	| 'large-language-model'
+	| 'research-chat-model'
+	| 'speech-to-text-model'
+	| 'text-to-speech-model'
+	| 'realtime-voice-model'
+	| 'text-to-image-model'
+	| 'text-to-video-model'
+	| 'text-to-audio-model'
+	| 'embedding-model'
 	| 'web-search'
 	| 'database'
 	| 'storage';

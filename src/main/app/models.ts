@@ -173,10 +173,18 @@ function toProviderModel(model: CatalogModel): ProviderModel {
 }
 
 function toModelCapability(type: string): ModelCapability | undefined {
-	if (type === 'large-language-model') return 'llm';
-	return ['research-chat', 'speech-to-text', 'text-to-speech', 'realtime-voice', 'text-to-image', 'text-to-video', 'text-to-audio', 'embedding'].includes(type)
-		? (type as ModelCapability)
-		: undefined;
+	const capabilities: Record<string, ModelCapability> = {
+		'large-language-model': 'llm',
+		'research-chat-model': 'research-chat',
+		'speech-to-text-model': 'speech-to-text',
+		'text-to-speech-model': 'text-to-speech',
+		'realtime-voice-model': 'realtime-voice',
+		'text-to-image-model': 'text-to-image',
+		'text-to-video-model': 'text-to-video',
+		'text-to-audio-model': 'text-to-audio',
+		'embedding-model': 'embedding',
+	};
+	return capabilities[type];
 }
 
 function toPublicProvider(entry: ProviderManifest): PublicProvider {
