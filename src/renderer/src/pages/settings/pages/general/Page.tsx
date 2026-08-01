@@ -46,7 +46,7 @@ const THEME_OPTIONS: readonly ThemeOption[] = [
 	{ value: 'system', labelKey: 'settings.theme.system' },
 ] as const;
 
-const ApplicationPage: React.FC = () => {
+const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { language, setLanguage, theme, setTheme } = useApp();
 	const [trayEnabled, setTrayEnabled] = useState(true);
