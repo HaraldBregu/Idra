@@ -42,8 +42,6 @@ const ProviderKeysPage = lazy(() => import('./pages/settings/pages/providers/key
 const ProviderVectorDbPage = lazy(() => import('./pages/settings/pages/providers/vectordb/Page'));
 const RagPage = lazy(() => import('./pages/settings/pages/rag/Page'));
 const WikiPage = lazy(() => import('./pages/settings/pages/wiki/Page'));
-const VectorDbPage = lazy(() => import('./pages/settings/pages/vectordb/Page'));
-const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const PoliciesPage = lazy(() => import('./pages/settings/pages/policies/Page'));
 const HealthPage = lazy(() => import('./pages/settings/pages/tasks/health/Page'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
