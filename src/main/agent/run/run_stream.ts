@@ -21,7 +21,7 @@ import { editTool } from '../tools/file/edit';
 import { applyPatchTool } from '../tools/file/apply_patch';
 import { execTool } from '../tools/run_exec';
 import { processTool } from '../tools/run_process';
-import { getWebSearchTools } from '../tools/web/search';
+import { getWebSearchTools } from '../tools/search/search';
 import { webFetchTool } from '../tools/web/fetch';
 import { webBrowserTool } from '../tools/web/browser';
 import { createImageTool } from '../tools/media/image_create';
