@@ -1378,7 +1378,7 @@
 		"vectorDb": {
 			"description": "Vector database used by RAG to store and search embeddings.",
 			"connectionTitle": "Connection",
-			"defaultTitle": "Default database",
+			"defaultTitle": "Vector database",
 			"database": "Database",
 			"databaseDescription": "Database used to store and search embeddings.",
 			"databasePlaceholder": "Select a database...",
