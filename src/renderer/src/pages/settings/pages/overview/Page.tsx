@@ -130,23 +130,21 @@ const OverviewPage: React.FC = () => {
 	};
 
 	const providersAction = (
-		<>
-			<Button
-				type="button"
-				variant="outline"
-				size="icon-xs"
-				aria-label="Upload provider"
-				title="Upload provider"
-				disabled={uploadingProvider}
-				onClick={() => void handleUploadProvider()}
-			>
-				{uploadingProvider ? (
-					<LoaderCircle className="size-3.5 animate-spin" />
-				) : (
-					<Plus className="size-3.5" />
-				)}
-			</Button>
-		</>
+		<Button
+			type="button"
+			variant="outline"
+			size="icon-xs"
+			aria-label="Upload provider"
+			title="Upload provider"
+			disabled={uploadingProvider}
+			onClick={() => void handleUploadProvider()}
+		>
+			{uploadingProvider ? (
+				<LoaderCircle className="size-3.5 animate-spin" />
+			) : (
+				<Plus className="size-3.5" />
+			)}
+		</Button>
 	);
 
 	return (
