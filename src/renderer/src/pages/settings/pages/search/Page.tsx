@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
 	Select,
 	SelectContent,
@@ -75,50 +71,49 @@ const SearchPage: React.FC = () => {
 
 			{settings && (
 				<Collapsible className="rounded-lg border border-border/70 bg-card">
-						<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-							<div className="min-w-0 flex-1">
-								<div className="truncate text-[13px] font-medium leading-4 text-foreground">
-									{selectedEngine?.name ?? t('settings.searchEngine.provider')}
-								</div>
-								<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-									{selectedEngine
-										? t(selectedEngine.descriptionKey)
-										: t('settings.searchEngine.defaultDescription')}
-								</p>
+					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+						<div className="min-w-0 flex-1">
+							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
+								{selectedEngine?.name ?? t('settings.searchEngine.provider')}
 							</div>
-							<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-						</CollapsibleTrigger>
-						<CollapsibleContent className="border-t border-border/60">
-							<div className="grid gap-3 px-3 py-3">
-								<Select
-									value={settings.engineId}
-									onValueChange={handleEngineChange}
-									disabled={savingEngineId !== null}
+							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
+								{selectedEngine
+									? t(selectedEngine.descriptionKey)
+									: t('settings.searchEngine.defaultDescription')}
+							</p>
+						</div>
+						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+					</CollapsibleTrigger>
+					<CollapsibleContent className="border-t border-border/60">
+						<div className="grid gap-3 px-3 py-3">
+							<Select
+								value={settings.engineId}
+								onValueChange={handleEngineChange}
+								disabled={savingEngineId !== null}
+							>
+								<SelectTrigger
+									size="sm"
+									className="w-full text-xs [&_svg]:size-3"
+									aria-label={t('settings.searchEngine.defaultTitle')}
 								>
-									<SelectTrigger
-										size="sm"
-										className="w-full text-xs [&_svg]:size-3"
-										aria-label={t('settings.searchEngine.defaultTitle')}
-									>
-										<SelectValue>{selectedEngine?.name}</SelectValue>
-									</SelectTrigger>
-									<SelectContent>
-										{SEARCH_ENGINES.map((engine) => (
-											<SelectItem
-												key={engine.id}
-												value={engine.id}
-												disabled={!settings.configured[engine.id]}
-											>
-												{engine.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-						</CollapsibleContent>
-					</Collapsible>
+									<SelectValue>{selectedEngine?.name}</SelectValue>
+								</SelectTrigger>
+								<SelectContent>
+									{SEARCH_ENGINES.map((engine) => (
+										<SelectItem
+											key={engine.id}
+											value={engine.id}
+											disabled={!settings.configured[engine.id]}
+										>
+											{engine.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+					</CollapsibleContent>
+				</Collapsible>
 			)}
-
 		</SettingsPageShell>
 	);
 };

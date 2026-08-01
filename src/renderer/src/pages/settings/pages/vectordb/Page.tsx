@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ChevronDown } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
 	Select,
 	SelectContent,
@@ -111,30 +107,30 @@ const VectorDbPage: React.FC = () => {
 
 						<CollapsibleContent className="border-t border-border/60">
 							<CardContent className="p-0!">
-						<SettingsRow
-							title={t('settings.vectorDb.database')}
-							description={t('settings.vectorDb.databaseDescription')}
-							actions={
-								<Select
-									value={selected ? databaseKey(selected) : null}
-									onValueChange={(value) => void selectDatabase(value)}
-								>
-									<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-										<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
-											{selected && databaseLabel(selected)}
-										</SelectValue>
-									</SelectTrigger>
-									<SelectContent>
-										{entries.map((entry) => (
-											<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
-												{databaseLabel(entry)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							}
-						/>
-					</CardContent>
+								<SettingsRow
+									title={t('settings.vectorDb.database')}
+									description={t('settings.vectorDb.databaseDescription')}
+									actions={
+										<Select
+											value={selected ? databaseKey(selected) : null}
+											onValueChange={(value) => void selectDatabase(value)}
+										>
+											<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+												<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
+													{selected && databaseLabel(selected)}
+												</SelectValue>
+											</SelectTrigger>
+											<SelectContent>
+												{entries.map((entry) => (
+													<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
+														{databaseLabel(entry)}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									}
+								/>
+							</CardContent>
 						</CollapsibleContent>
 					</Collapsible>
 				</Card>

@@ -2,11 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ChevronDown, ListChecks } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	llmProviderGroups,
@@ -99,55 +95,57 @@ const TasksPage: React.FC = () => {
 			/>
 
 			<Collapsible className="rounded-lg border border-border/70 bg-card">
-					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-						<div className="min-w-0 flex-1">
-							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
-								{selectedGroup
-									? getProviderCatalogItem(selectedGroup.id).name
-									: t('settings.cron.runtime.providerPlaceholder')}
-							</div>
-							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-								{selectedModel?.name ?? selectedModel?.id ?? t('settings.cron.runtime.modelPlaceholder')}
-							</p>
+				<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+					<div className="min-w-0 flex-1">
+						<div className="truncate text-[13px] font-medium leading-4 text-foreground">
+							{selectedGroup
+								? getProviderCatalogItem(selectedGroup.id).name
+								: t('settings.cron.runtime.providerPlaceholder')}
 						</div>
-						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-					</CollapsibleTrigger>
-					<CollapsibleContent className="border-t border-border/60">
-						{loading ? (
-							<SettingsLoadingRows rows={1} />
-						) : llmProviderGroups().length === 0 ? (
-							<SettingsEmptyState
-								icon={AlertTriangle}
-								title={t('settings.cron.runtime.noProviders')}
+						<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
+							{selectedModel?.name ??
+								selectedModel?.id ??
+								t('settings.cron.runtime.modelPlaceholder')}
+						</p>
+					</div>
+					<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+				</CollapsibleTrigger>
+				<CollapsibleContent className="border-t border-border/60">
+					{loading ? (
+						<SettingsLoadingRows rows={1} />
+					) : llmProviderGroups().length === 0 ? (
+						<SettingsEmptyState
+							icon={AlertTriangle}
+							title={t('settings.cron.runtime.noProviders')}
+						/>
+					) : (
+						<div className="grid gap-3 px-3 py-3">
+							<ModelProviderSelect
+								idPrefix="task-runtime"
+								providerGroups={llmProviderGroups()}
+								providerId={providerId}
+								modelId={modelId}
+								onChange={(nextProviderId, nextModelId) =>
+									void handleChange(nextProviderId, nextModelId)
+								}
+								disabled={saving}
+								labels={{
+									label: t('settings.cron.runtime.model'),
+									placeholder: t('settings.cron.runtime.modelPlaceholder'),
+								}}
 							/>
-						) : (
-							<div className="grid gap-3 px-3 py-3">
-								<ModelProviderSelect
-									idPrefix="task-runtime"
-									providerGroups={llmProviderGroups()}
-									providerId={providerId}
-									modelId={modelId}
-									onChange={(nextProviderId, nextModelId) =>
-										void handleChange(nextProviderId, nextModelId)
-									}
-									disabled={saving}
-									labels={{
-										label: t('settings.cron.runtime.model'),
-										placeholder: t('settings.cron.runtime.modelPlaceholder'),
-									}}
-								/>
 
-								{runtimeError && (
-									<p className="text-[11px] leading-4 text-destructive">{runtimeError}</p>
-								)}
-								{saved && (
-									<p className="text-[11px] leading-4 text-muted-foreground">
-										{t('settings.cron.runtime.saved')}
-									</p>
-								)}
-							</div>
-						)}
-					</CollapsibleContent>
+							{runtimeError && (
+								<p className="text-[11px] leading-4 text-destructive">{runtimeError}</p>
+							)}
+							{saved && (
+								<p className="text-[11px] leading-4 text-muted-foreground">
+									{t('settings.cron.runtime.saved')}
+								</p>
+							)}
+						</div>
+					)}
+				</CollapsibleContent>
 			</Collapsible>
 
 			{error && (
@@ -187,7 +185,10 @@ const TasksPage: React.FC = () => {
 									)}
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end">
-									<Badge variant={task.enabled ? 'default' : 'secondary'} className="text-[10px] leading-none">
+									<Badge
+										variant={task.enabled ? 'default' : 'secondary'}
+										className="text-[10px] leading-none"
+									>
 										{task.enabled ? t('settings.cron.enabled') : t('settings.cron.disabled')}
 									</Badge>
 								</ItemActions>
