@@ -30,6 +30,7 @@ import HomePage from './pages/home/Page';
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
 const ApplicationPage = lazy(() => import('./pages/settings/pages/application/Page'));
+const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const SystemMediaDetailPage = lazy(() => import('./pages/settings/pages/system/detail/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
