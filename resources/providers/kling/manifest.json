@@ -1,0 +1,25 @@
+{
+	"providerId": "kling",
+	"providerName": "Kuaishou / Kling AI",
+	"apiKeyUrl": "https://app.klingai.com/global/dev",
+	"services": [
+		{
+			"id": "kling-v2.5-turbo",
+			"name": "Kling v2.5 Turbo",
+			"type": "text-to-video",
+			"url": "https://kling.ai"
+		},
+		{
+			"id": "kling-v2.1-master",
+			"name": "Kling v2.1 Master",
+			"type": "text-to-video",
+			"url": "https://kling.ai"
+		},
+		{
+			"id": "kling-audio",
+			"name": "Kling Audio",
+			"type": "text-to-audio",
+			"url": "https://kling.ai"
+		}
+	]
+}

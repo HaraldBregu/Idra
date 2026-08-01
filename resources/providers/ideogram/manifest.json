@@ -1,0 +1,19 @@
+{
+	"providerId": "ideogram",
+	"providerName": "Ideogram",
+	"apiKeyUrl": "https://ideogram.ai/manage-api",
+	"services": [
+		{
+			"id": "ideogram-3.0",
+			"name": "Ideogram 3.0",
+			"type": "text-to-image",
+			"url": "https://api.ideogram.ai"
+		},
+		{
+			"id": "ideogram-2a",
+			"name": "Ideogram 2a",
+			"type": "text-to-image",
+			"url": "https://api.ideogram.ai"
+		}
+	]
+}

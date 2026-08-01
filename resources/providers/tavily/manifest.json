@@ -1,0 +1,13 @@
+{
+	"providerId": "tavily",
+	"providerName": "Tavily",
+	"apiKeyUrl": "https://app.tavily.com/home",
+	"services": [
+		{
+			"id": "tavily-web-search",
+			"name": "Tavily Web Search",
+			"url": "https://api.tavily.com/search",
+			"type": "web-search"
+		}
+	]
+}

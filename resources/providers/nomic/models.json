@@ -1,8 +1,0 @@
-[
-	{
-		"id": "nomic-embed-text-v2-moe",
-		"name": "Nomic Embed v2",
-		"type": "embedding",
-		"url": "https://api-atlas.nomic.ai/v1"
-	}
-]

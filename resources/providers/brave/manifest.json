@@ -1,0 +1,13 @@
+{
+	"providerId": "brave",
+	"providerName": "Brave",
+	"apiKeyUrl": "https://api-dashboard.search.brave.com/app/keys",
+	"services": [
+		{
+			"id": "brave-web-search",
+			"name": "Brave Web Search",
+			"url": "https://api.search.brave.com/res/v1/web/search",
+			"type": "web-search"
+		}
+	]
+}

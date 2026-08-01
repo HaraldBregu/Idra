@@ -1,0 +1,14 @@
+{
+	"providerName": "Demo AI",
+	"apiKeyUrl": "https://demo-ai.test/keys",
+	"services": [
+		{
+			"id": "demo-chat",
+			"name": "Demo Chat"
+		},
+		{
+			"id": "demo-chat-mini",
+			"name": "Demo Chat Mini"
+		}
+	]
+}

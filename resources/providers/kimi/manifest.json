@@ -1,0 +1,37 @@
+{
+	"providerId": "kimi",
+	"providerName": "Moonshot AI / Kimi",
+	"apiKeyUrl": "https://platform.moonshot.ai/console/api-keys",
+	"services": [
+		{
+			"id": "kimi-k3",
+			"name": "Kimi K3",
+			"type": "llm",
+			"url": "https://api.moonshot.ai/v1"
+		},
+		{
+			"id": "kimi-k2.7-code",
+			"name": "Kimi K2.7 Code",
+			"type": "llm",
+			"url": "https://api.moonshot.ai/v1"
+		},
+		{
+			"id": "kimi-k2.7-code-highspeed",
+			"name": "Kimi K2.7 Code Highspeed",
+			"type": "llm",
+			"url": "https://api.moonshot.ai/v1"
+		},
+		{
+			"id": "kimi-k2.6",
+			"name": "Kimi K2.6",
+			"type": "llm",
+			"url": "https://api.moonshot.ai/v1"
+		},
+		{
+			"id": "kimi-k2.5",
+			"name": "Kimi K2.5",
+			"type": "llm",
+			"url": "https://api.moonshot.ai/v1"
+		}
+	]
+}

@@ -1,0 +1,19 @@
+{
+	"providerId": "deepseek",
+	"providerName": "DeepSeek",
+	"apiKeyUrl": "https://platform.deepseek.com/api_keys",
+	"services": [
+		{
+			"id": "deepseek-v4-pro",
+			"name": "DeepSeek V4 Pro",
+			"type": "llm",
+			"url": "https://api.deepseek.com"
+		},
+		{
+			"id": "deepseek-v4-flash",
+			"name": "DeepSeek V4 Flash",
+			"type": "llm",
+			"url": "https://api.deepseek.com"
+		}
+	]
+}

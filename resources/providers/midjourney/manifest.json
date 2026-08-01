@@ -1,0 +1,25 @@
+{
+	"providerId": "midjourney",
+	"providerName": "Midjourney",
+	"apiKeyUrl": "https://www.midjourney.com/account",
+	"services": [
+		{
+			"id": "midjourney-v8.1",
+			"name": "Midjourney v8.1",
+			"type": "text-to-image",
+			"url": "https://www.midjourney.com"
+		},
+		{
+			"id": "midjourney-v7",
+			"name": "Midjourney v7",
+			"type": "text-to-image",
+			"url": "https://www.midjourney.com"
+		},
+		{
+			"id": "midjourney-video-v1",
+			"name": "Midjourney Video v1",
+			"type": "text-to-video",
+			"url": "https://www.midjourney.com"
+		}
+	]
+}
