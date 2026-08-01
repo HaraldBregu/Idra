@@ -94,11 +94,18 @@ const VectorDbPage: React.FC = () => {
 				<SettingsNotice>{t('settings.vectorDb.empty')}</SettingsNotice>
 			) : (
 				<Card size="sm">
-					<CardHeader className="border-b">
-						<CardTitle>{t('settings.vectorDb.defaultTitle')}</CardTitle>
-					</CardHeader>
+					<Collapsible>
+						<CollapsibleTrigger className="group w-full text-left">
+							<CardHeader>
+								<CardTitle className="flex items-center justify-between">
+									{t('settings.vectorDb.defaultTitle')}
+									<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+								</CardTitle>
+							</CardHeader>
+						</CollapsibleTrigger>
 
-					<CardContent className="p-0!">
+						<CollapsibleContent className="border-t border-border/60">
+							<CardContent className="p-0!">
 						<SettingsRow
 							title={t('settings.vectorDb.database')}
 							description={t('settings.vectorDb.databaseDescription')}

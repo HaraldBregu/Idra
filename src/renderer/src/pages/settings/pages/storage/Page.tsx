@@ -20,11 +20,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
 	Select,
 	SelectContent,
@@ -115,8 +111,8 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 	const customPaths = configuration?.paths.filter((path) => !builtInPaths.has(path)) ?? [];
 	const intervalValue = !configuration?.syncEnabled
 		? 'off'
-		: (SYNC_INTERVALS.find((interval) => interval.cron === configuration.syncCronExpression)
-				?.key ?? 'custom');
+		: (SYNC_INTERVALS.find((interval) => interval.cron === configuration.syncCronExpression)?.key ??
+			'custom');
 
 	const updateDraft = (next: StorageConfiguration): void => {
 		setDraft(next);
@@ -271,149 +267,158 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 
 							<CollapsibleContent className="border-t border-border/60">
 								<CardContent className="p-0!">
-							<SettingsRow
-								title={t('settings.storage.profile.label')}
-								description={t('settings.storage.profile.help')}
-								actions={
-									<Select value={configuration?.providerId ?? ''} onValueChange={selectProvider}>
-										<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											{savedEntries.map((entry) => (
-												<SelectItem key={entry.storage.id} value={entry.storage.id}>
-													{entry.storage.name ||
-														entry.storage.bucket ||
-														entry.storage.endpoint ||
-														entry.storage.id}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								}
-							/>
-
-							{configuration && (
-								<>
-									{availableFolders.map((folder) => (
-										<SettingsRow
-											key={folder.path}
-											title={t(`settings.storage.folders.${folder.key}`)}
-											description={folder.path}
-											className="grid-cols-[minmax(0,1fr)_auto]"
-											actionClassName="w-auto ml-auto justify-end"
-											actions={
-												<Switch
-													checked={configuration.paths.includes(folder.path)}
-													aria-label={t(`settings.storage.folders.${folder.key}`)}
-													onCheckedChange={(checked) =>
-														updateDraft({
-															...configuration,
-															paths: checked
-																? [...new Set([...configuration.paths, folder.path])]
-																: configuration.paths.filter((path) => path !== folder.path),
-														})
-													}
-												/>
-											}
-										/>
-									))}
-
-									{customPaths.map((path) => (
-										<SettingsRow
-											key={path}
-											title={t('settings.storage.sync.folder')}
-											description={path}
-											className="grid-cols-[minmax(0,1fr)_auto]"
-											actionClassName="w-auto ml-auto justify-end"
-											actions={
-												<Button
-													variant="ghost"
-													size="icon-sm"
-													aria-label={t('settings.storage.sync.removeFolder')}
-													onClick={() =>
-														updateDraft({
-															...configuration,
-															paths: configuration.paths.filter((entry) => entry !== path),
-														})
-													}
-												>
-													<Trash2 className="size-3" />
-												</Button>
-											}
-										/>
-									))}
-
-									<div className="border-b border-border/60 px-3 py-2">
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => void pickFolders()}
-											disabled={savingSync || runningSync}
-										>
-											<FolderPlus className="size-3" />
-											{t('settings.storage.sync.addFolders')}
-										</Button>
-									</div>
-
 									<SettingsRow
-										title={t('settings.storage.autoSync.interval')}
-										description={t('settings.storage.autoSync.description')}
+										title={t('settings.storage.profile.label')}
+										description={t('settings.storage.profile.help')}
 										actions={
-											<Select value={intervalValue} onValueChange={selectInterval}>
+											<Select
+												value={configuration?.providerId ?? ''}
+												onValueChange={selectProvider}
+											>
 												<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
 													<SelectValue />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="off">{t('settings.storage.autoSync.off')}</SelectItem>
-													{SYNC_INTERVALS.map((interval) => (
-														<SelectItem key={interval.key} value={interval.key}>
-															{t(`settings.storage.autoSync.${interval.key}`)}
+													{savedEntries.map((entry) => (
+														<SelectItem key={entry.storage.id} value={entry.storage.id}>
+															{entry.storage.name ||
+																entry.storage.bucket ||
+																entry.storage.endpoint ||
+																entry.storage.id}
 														</SelectItem>
 													))}
-													{intervalValue === 'custom' && (
-														<SelectItem value="custom">
-															{configuration.syncCronExpression}
-														</SelectItem>
-													)}
 												</SelectContent>
 											</Select>
 										}
 									/>
-								</>
-							)}
-						</CardContent>
 
-						<CardFooter className="justify-end gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => void runSync()}
-								disabled={
-									savingSync ||
-									runningSync ||
-									!configuration?.providerId ||
-									configuration.paths.length === 0
-								}
-							>
-								<Play className="size-3" />
-								{runningSync
-									? t('settings.storage.sync.running')
-									: t('settings.storage.sync.runNow')}
-							</Button>
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={cancelEdits}
-								disabled={!draft || savingSync || runningSync}
-							>
-								{t('settings.storage.cancel')}
-							</Button>
-							<Button size="sm" onClick={() => void saveSync()} disabled={savingSync || runningSync}>
-								<Save className="size-3" />
-								{savingSync ? t('settings.storage.saving') : t('settings.storage.sync.save')}
-							</Button>
-							</CardFooter>
+									{configuration && (
+										<>
+											{availableFolders.map((folder) => (
+												<SettingsRow
+													key={folder.path}
+													title={t(`settings.storage.folders.${folder.key}`)}
+													description={folder.path}
+													className="grid-cols-[minmax(0,1fr)_auto]"
+													actionClassName="w-auto ml-auto justify-end"
+													actions={
+														<Switch
+															checked={configuration.paths.includes(folder.path)}
+															aria-label={t(`settings.storage.folders.${folder.key}`)}
+															onCheckedChange={(checked) =>
+																updateDraft({
+																	...configuration,
+																	paths: checked
+																		? [...new Set([...configuration.paths, folder.path])]
+																		: configuration.paths.filter((path) => path !== folder.path),
+																})
+															}
+														/>
+													}
+												/>
+											))}
+
+											{customPaths.map((path) => (
+												<SettingsRow
+													key={path}
+													title={t('settings.storage.sync.folder')}
+													description={path}
+													className="grid-cols-[minmax(0,1fr)_auto]"
+													actionClassName="w-auto ml-auto justify-end"
+													actions={
+														<Button
+															variant="ghost"
+															size="icon-sm"
+															aria-label={t('settings.storage.sync.removeFolder')}
+															onClick={() =>
+																updateDraft({
+																	...configuration,
+																	paths: configuration.paths.filter((entry) => entry !== path),
+																})
+															}
+														>
+															<Trash2 className="size-3" />
+														</Button>
+													}
+												/>
+											))}
+
+											<div className="border-b border-border/60 px-3 py-2">
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => void pickFolders()}
+													disabled={savingSync || runningSync}
+												>
+													<FolderPlus className="size-3" />
+													{t('settings.storage.sync.addFolders')}
+												</Button>
+											</div>
+
+											<SettingsRow
+												title={t('settings.storage.autoSync.interval')}
+												description={t('settings.storage.autoSync.description')}
+												actions={
+													<Select value={intervalValue} onValueChange={selectInterval}>
+														<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+															<SelectValue />
+														</SelectTrigger>
+														<SelectContent>
+															<SelectItem value="off">
+																{t('settings.storage.autoSync.off')}
+															</SelectItem>
+															{SYNC_INTERVALS.map((interval) => (
+																<SelectItem key={interval.key} value={interval.key}>
+																	{t(`settings.storage.autoSync.${interval.key}`)}
+																</SelectItem>
+															))}
+															{intervalValue === 'custom' && (
+																<SelectItem value="custom">
+																	{configuration.syncCronExpression}
+																</SelectItem>
+															)}
+														</SelectContent>
+													</Select>
+												}
+											/>
+										</>
+									)}
+								</CardContent>
+
+								<CardFooter className="justify-end gap-2">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => void runSync()}
+										disabled={
+											savingSync ||
+											runningSync ||
+											!configuration?.providerId ||
+											configuration.paths.length === 0
+										}
+									>
+										<Play className="size-3" />
+										{runningSync
+											? t('settings.storage.sync.running')
+											: t('settings.storage.sync.runNow')}
+									</Button>
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={cancelEdits}
+										disabled={!draft || savingSync || runningSync}
+									>
+										{t('settings.storage.cancel')}
+									</Button>
+									<Button
+										size="sm"
+										onClick={() => void saveSync()}
+										disabled={savingSync || runningSync}
+									>
+										<Save className="size-3" />
+										{savingSync ? t('settings.storage.saving') : t('settings.storage.sync.save')}
+									</Button>
+								</CardFooter>
 							</CollapsibleContent>
 						</Collapsible>
 					</Card>
