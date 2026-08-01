@@ -530,10 +530,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 				<SettingsSection title={t('settings.tabs.mcp')}>
 					<div className="space-y-3 pb-4">
 						{mcpCatalog.map((provider) => (
-							<Card
-								key={provider.id}
-								className="rounded-lg border-border bg-card py-0 shadow-none"
-							>
+							<Card key={provider.id} className="rounded-lg border-border bg-card py-0 shadow-none">
 								<CardContent className="grid min-h-12 grid-cols-[2rem_minmax(0,1fr)] items-center gap-2.5 px-3 py-2.5">
 									<ProviderAvatar
 										providerId={provider.id}
