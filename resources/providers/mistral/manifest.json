@@ -24,9 +24,7 @@
 		{
 			"id": "voxtral-mini-latest",
 			"name": "Voxtral Mini 2602",
-			"apiTypes": [
-				"batch"
-			],
+			"apiTypes": ["batch"],
 			"type": "speech-to-text-model",
 			"url": "https://api.mistral.ai/v1",
 			"sampleRate": 16000
@@ -34,9 +32,7 @@
 		{
 			"id": "voxtral-mini-transcribe-realtime-2602",
 			"name": "Voxtral Mini Transcribe Realtime 2602",
-			"apiTypes": [
-				"stream"
-			],
+			"apiTypes": ["stream"],
 			"realtime": true,
 			"type": "speech-to-text-model",
 			"url": "https://api.mistral.ai/v1",

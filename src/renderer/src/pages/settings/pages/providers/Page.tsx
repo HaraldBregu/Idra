@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, ExternalLink, FolderOpen, LoaderCircle, Pencil, Upload } from 'lucide-react';
+import {
+	AlertTriangle,
+	ExternalLink,
+	FolderOpen,
+	LoaderCircle,
+	Pencil,
+	Upload,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
@@ -49,12 +56,7 @@ type ProviderKind = StoredProviderKind | 'search';
 export type ProviderSetupSection = 'models' | 'search' | 'storage' | 'databases';
 
 /** Providers pinned on top of the start-flow models list. */
-const FEATURED_PROVIDER_IDS = [
-	'openai',
-	'anthropic',
-	'deepseek',
-	'elevenlabs',
-] as const;
+const FEATURED_PROVIDER_IDS = ['openai', 'anthropic', 'deepseek', 'elevenlabs'] as const;
 
 function allCatalogItems(): ProviderCatalogItem[] {
 	return [
@@ -312,7 +314,12 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 							editing && 'pb-2'
 						)}
 					>
-						<ProviderAvatar providerId={provider.id} name={provider.name} iconDarkUrl={provider.iconDarkUrl} iconLightUrl={provider.iconLightUrl} />
+						<ProviderAvatar
+							providerId={provider.id}
+							name={provider.name}
+							iconDarkUrl={provider.iconDarkUrl}
+							iconLightUrl={provider.iconLightUrl}
+						/>
 						<div className="min-w-0 flex-1">
 							<div className="flex min-w-0 items-center gap-1.5">
 								<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
@@ -474,95 +481,99 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 				</SettingsNotice>
 			)}
 
-			{(section === undefined || section === 'models') && (!embedded || modelCatalog.length > 0) && (
-				<SettingsSection title={t('settings.overview.groups.mlModels')}>
-				{embedded ? (
-					<div className="space-y-3 pb-4">
-						{featuredProviders.map((provider) => renderProviderCard(provider, 'models'))}
-						{otherProviders.length > 0 && (
-							<div className="mt-8 border-t border-border/80 pt-8">
-								<div className="space-y-3">
-									{otherProviders.map((provider) => renderProviderCard(provider, 'models'))}
-								</div>
+			{(section === undefined || section === 'models') &&
+				(!embedded || modelCatalog.length > 0) && (
+					<SettingsSection title={t('settings.overview.groups.mlModels')}>
+						{embedded ? (
+							<div className="space-y-3 pb-4">
+								{featuredProviders.map((provider) => renderProviderCard(provider, 'models'))}
+								{otherProviders.length > 0 && (
+									<div className="mt-8 border-t border-border/80 pt-8">
+										<div className="space-y-3">
+											{otherProviders.map((provider) => renderProviderCard(provider, 'models'))}
+										</div>
+									</div>
+								)}
+							</div>
+						) : (
+							<div className="space-y-3 pb-4">
+								{actionableProviderCatalog().map((provider) =>
+									renderProviderCard(provider, 'models')
+								)}
 							</div>
 						)}
-					</div>
-				) : (
-					<div className="space-y-3 pb-4">
-						{actionableProviderCatalog().map((provider) => renderProviderCard(provider, 'models'))}
-					</div>
+					</SettingsSection>
 				)}
-				</SettingsSection>
-			)}
 
 			{(section === undefined || section === 'databases') &&
 				(!embedded || databaseCatalog.length > 0) && (
-				<SettingsSection title={t('settings.overview.groups.vectorDatabases')}>
-					<div className="space-y-3 pb-4">
-						{databaseCatalog.map((provider) => renderProviderCard(provider, 'databases'))}
-					</div>
-				</SettingsSection>
-			)}
+					<SettingsSection title={t('settings.overview.groups.vectorDatabases')}>
+						<div className="space-y-3 pb-4">
+							{databaseCatalog.map((provider) => renderProviderCard(provider, 'databases'))}
+						</div>
+					</SettingsSection>
+				)}
 
-			{(section === undefined || section === 'search') && (!embedded || searchCatalog.length > 0) && (
-				<SettingsSection title="Search">
-					<div className="space-y-3 pb-4">
-						{searchCatalog.map((provider) => renderProviderCard(provider, 'search'))}
-					</div>
-				</SettingsSection>
-			)}
+			{(section === undefined || section === 'search') &&
+				(!embedded || searchCatalog.length > 0) && (
+					<SettingsSection title="Search">
+						<div className="space-y-3 pb-4">
+							{searchCatalog.map((provider) => renderProviderCard(provider, 'search'))}
+						</div>
+					</SettingsSection>
+				)}
 
 			{(section === undefined || section === 'storage') &&
 				(!embedded || storageEntries === null || storageCatalog.length > 0) && (
-				<SettingsSection title={t('settings.tabs.storage')}>
-				{storageError && (
-					<SettingsNotice variant="destructive" icon={AlertTriangle}>
-						{storageError}
-					</SettingsNotice>
-				)}
-
-				{!storageEntries ? (
-					<SettingsLoadingRows rows={4} />
-				) : (
-					<div className="space-y-3 pb-4">
-						{storageCatalog.length === 0 && (
-							<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
+					<SettingsSection title={t('settings.tabs.storage')}>
+						{storageError && (
+							<SettingsNotice variant="destructive" icon={AlertTriangle}>
+								{storageError}
+							</SettingsNotice>
 						)}
 
-						{storageCatalog.map((entry) => {
-							const provider = storageProviders().find((item) => item.id === entry.storage.id);
-							const subtitle = storages()
-								.filter((service) => service.provider.id === entry.storage.id)
-								.map((service) => service.name)
-								.join(' - ');
-							return (
-								<ProviderCard
-									key={entry.key}
-									storage={entry.storage}
-									subtitle={subtitle || undefined}
-									linkUrl={
-										provider ? getProviderApiConfigurationUrl(provider) || undefined : undefined
-									}
-									onSaved={(saved) =>
-										setStorageEntries((current) => {
-											const list = current ?? [];
-											return list.some((item) => item.storage.id === saved.id)
-												? list.map((item) =>
-														item.storage.id === saved.id ? { ...item, storage: saved } : item
-													)
-												: [...list, { key: saved.id, storage: saved }];
-										})
-									}
-									onRemoved={() => {}}
-									hideDelete={true}
-									hideDropdown={true}
-								/>
-							);
-						})}
-					</div>
+						{!storageEntries ? (
+							<SettingsLoadingRows rows={4} />
+						) : (
+							<div className="space-y-3 pb-4">
+								{storageCatalog.length === 0 && (
+									<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
+								)}
+
+								{storageCatalog.map((entry) => {
+									const provider = storageProviders().find((item) => item.id === entry.storage.id);
+									const subtitle = storages()
+										.filter((service) => service.provider.id === entry.storage.id)
+										.map((service) => service.name)
+										.join(' - ');
+									return (
+										<ProviderCard
+											key={entry.key}
+											storage={entry.storage}
+											subtitle={subtitle || undefined}
+											linkUrl={
+												provider ? getProviderApiConfigurationUrl(provider) || undefined : undefined
+											}
+											onSaved={(saved) =>
+												setStorageEntries((current) => {
+													const list = current ?? [];
+													return list.some((item) => item.storage.id === saved.id)
+														? list.map((item) =>
+																item.storage.id === saved.id ? { ...item, storage: saved } : item
+															)
+														: [...list, { key: saved.id, storage: saved }];
+												})
+											}
+											onRemoved={() => {}}
+											hideDelete={true}
+											hideDropdown={true}
+										/>
+									);
+								})}
+							</div>
+						)}
+					</SettingsSection>
 				)}
-				</SettingsSection>
-			)}
 		</SettingsPageShell>
 	);
 };

@@ -24,9 +24,7 @@
 		{
 			"id": "qwen3-asr-flash-realtime",
 			"name": "Qwen3 ASR Flash Realtime",
-			"apiTypes": [
-				"stream"
-			],
+			"apiTypes": ["stream"],
 			"realtime": true,
 			"type": "speech-to-text-model",
 			"url": "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",

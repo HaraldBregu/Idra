@@ -167,7 +167,12 @@ const ProvidersPage: React.FC = () => {
 											editing && 'pb-2'
 										)}
 									>
-										<ProviderAvatar providerId={provider.id} name={provider.name} iconDarkUrl={provider.iconDarkUrl} iconLightUrl={provider.iconLightUrl} />
+										<ProviderAvatar
+											providerId={provider.id}
+											name={provider.name}
+											iconDarkUrl={provider.iconDarkUrl}
+											iconLightUrl={provider.iconLightUrl}
+										/>
 										<div className="min-w-0 flex-1">
 											<div className="flex min-w-0 items-center gap-1.5">
 												<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">

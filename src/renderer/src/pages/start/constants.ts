@@ -124,8 +124,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		id: 'voice',
 		title: 'Voice',
 		description: 'Read responses aloud.',
-		loadModelGroups: () =>
-			Promise.resolve(toModelGroups('text-to-speech')),
+		loadModelGroups: () => Promise.resolve(toModelGroups('text-to-speech')),
 		...toIdSelectionHandlers(() => window.models.voice),
 	},
 	{
@@ -139,30 +138,28 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 				: undefined;
 		},
 		loadModelGroups: getTranscriptionModelGroups,
-		saveSelection: (provider, model) => window.models.transcribe.saveSelection(provider.id, model.id),
+		saveSelection: (provider, model) =>
+			window.models.transcribe.saveSelection(provider.id, model.id),
 	},
 	{
 		id: 'image',
 		title: 'Image',
 		description: 'Generate images.',
-		loadModelGroups: () =>
-			Promise.resolve(toModelGroups('text-to-image')),
+		loadModelGroups: () => Promise.resolve(toModelGroups('text-to-image')),
 		...toIdSelectionHandlers(() => window.models.image),
 	},
 	{
 		id: 'video',
 		title: 'Video',
 		description: 'Generate videos.',
-		loadModelGroups: () =>
-			Promise.resolve(toModelGroups('text-to-video')),
+		loadModelGroups: () => Promise.resolve(toModelGroups('text-to-video')),
 		...toIdSelectionHandlers(() => window.models.video),
 	},
 	{
 		id: 'audio',
 		title: 'Audio',
 		description: 'Generate music and sounds.',
-		loadModelGroups: () =>
-			Promise.resolve(toModelGroups('text-to-audio')),
+		loadModelGroups: () => Promise.resolve(toModelGroups('text-to-audio')),
 		...toIdSelectionHandlers(() => window.models.sound),
 	},
 ];
@@ -312,9 +309,7 @@ export function getSelectedServiceModel(
 	const selectedProvider = serviceState.modelGroups.find(
 		(group) => group.provider.id === serviceState.providerId
 	);
-	const selectedModel = selectedProvider?.models.find(
-		(model) => model.id === serviceState.modelId
-	);
+	const selectedModel = selectedProvider?.models.find((model) => model.id === serviceState.modelId);
 	return selectedProvider && selectedModel
 		? { provider: selectedProvider.provider, model: selectedModel }
 		: undefined;

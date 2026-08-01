@@ -113,9 +113,7 @@ export function providerIdsFor(type: ModelCapability): string[] {
 
 export function supportsCapability(providerId: string, type: ModelCapability): boolean {
 	const normalized = normalizeProviderId(providerId);
-	return loadModels().some(
-		(model) => model.provider.id === normalized && model.type === type
-	);
+	return loadModels().some((model) => model.provider.id === normalized && model.type === type);
 }
 
 /** Provider marked `default` for a capability, else the first one declaring it. */
@@ -257,13 +255,19 @@ function readCatalog(): Catalog {
 		});
 		models.push(...modelEntries.map((model) => ({ ...model, provider })));
 		databases.push(
-			...entry.services.filter((service) => service.type === 'database').map((service) => ({ ...service, provider }))
+			...entry.services
+				.filter((service) => service.type === 'database')
+				.map((service) => ({ ...service, provider }))
 		);
 		storages.push(
-			...entry.services.filter((service) => service.type === 'storage').map((service) => ({ ...service, provider }))
+			...entry.services
+				.filter((service) => service.type === 'storage')
+				.map((service) => ({ ...service, provider }))
 		);
 		webSearches.push(
-			...entry.services.filter((service): service is CatalogEntryWebSearch => service.type === 'web-search').map((search) => ({ ...search, provider }))
+			...entry.services
+				.filter((service): service is CatalogEntryWebSearch => service.type === 'web-search')
+				.map((search) => ({ ...search, provider }))
 		);
 	}
 

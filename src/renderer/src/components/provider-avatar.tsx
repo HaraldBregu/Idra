@@ -26,9 +26,26 @@ export function ProviderAvatar({
 }): React.JSX.Element {
 	if (iconDarkUrl && iconLightUrl) {
 		return (
-			<div className={cn('flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-background p-1', className)}>
-				<img src={iconLightUrl} alt="" aria-hidden="true" draggable={false} className="size-full object-contain dark:hidden" />
-				<img src={iconDarkUrl} alt="" aria-hidden="true" draggable={false} className="hidden size-full object-contain dark:block" />
+			<div
+				className={cn(
+					'flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-background p-1',
+					className
+				)}
+			>
+				<img
+					src={iconLightUrl}
+					alt=""
+					aria-hidden="true"
+					draggable={false}
+					className="size-full object-contain dark:hidden"
+				/>
+				<img
+					src={iconDarkUrl}
+					alt=""
+					aria-hidden="true"
+					draggable={false}
+					className="hidden size-full object-contain dark:block"
+				/>
 			</div>
 		);
 	}

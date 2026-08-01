@@ -6,9 +6,7 @@
 		{
 			"id": "scribe_v2",
 			"name": "Scribe v2",
-			"apiTypes": [
-				"batch"
-			],
+			"apiTypes": ["batch"],
 			"type": "speech-to-text-model",
 			"url": "https://api.elevenlabs.io/v1",
 			"sampleRate": 16000
@@ -16,9 +14,7 @@
 		{
 			"id": "scribe_v2_realtime",
 			"name": "Scribe v2 Realtime",
-			"apiTypes": [
-				"stream"
-			],
+			"apiTypes": ["stream"],
 			"realtime": true,
 			"type": "speech-to-text-model",
 			"url": "https://api.elevenlabs.io/v1",

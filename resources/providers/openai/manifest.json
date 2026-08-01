@@ -60,9 +60,7 @@
 		{
 			"id": "gpt-4o-transcribe",
 			"name": "GPT-4o Transcribe",
-			"apiTypes": [
-				"batch"
-			],
+			"apiTypes": ["batch"],
 			"type": "speech-to-text-model",
 			"url": "https://api.openai.com/v1",
 			"default": true,
@@ -71,9 +69,7 @@
 		{
 			"id": "gpt-4o-mini-transcribe",
 			"name": "GPT-4o Mini Transcribe",
-			"apiTypes": [
-				"batch"
-			],
+			"apiTypes": ["batch"],
 			"type": "speech-to-text-model",
 			"url": "https://api.openai.com/v1",
 			"default": true,
@@ -82,9 +78,7 @@
 		{
 			"id": "gpt-realtime-whisper",
 			"name": "GPT Realtime Whisper",
-			"apiTypes": [
-				"stream"
-			],
+			"apiTypes": ["stream"],
 			"realtime": true,
 			"type": "speech-to-text-model",
 			"url": "https://api.openai.com/v1",

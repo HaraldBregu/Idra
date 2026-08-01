@@ -18,9 +18,7 @@
 		{
 			"id": "xai-stt-batch",
 			"name": "xAI STT Batch",
-			"apiTypes": [
-				"batch"
-			],
+			"apiTypes": ["batch"],
 			"type": "speech-to-text-model",
 			"url": "https://api.x.ai/v1",
 			"sampleRate": 24000
@@ -28,9 +26,7 @@
 		{
 			"id": "xai-stt-streaming",
 			"name": "xAI STT Streaming",
-			"apiTypes": [
-				"stream"
-			],
+			"apiTypes": ["stream"],
 			"realtime": true,
 			"type": "speech-to-text-model",
 			"url": "https://api.x.ai/v1",
