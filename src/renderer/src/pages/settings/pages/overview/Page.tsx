@@ -148,16 +148,17 @@ const OverviewPage: React.FC = () => {
 			<Button
 				type="button"
 				variant="outline"
-				size="xs"
+				size="icon-xs"
+				aria-label="Upload provider"
+				title="Upload provider"
 				disabled={uploadingProvider}
 				onClick={() => void handleUploadProvider()}
 			>
 				{uploadingProvider ? (
 					<LoaderCircle className="size-3.5 animate-spin" />
 				) : (
-					<Upload className="size-3.5" />
+					<Plus className="size-3.5" />
 				)}
-				Upload provider
 			</Button>
 		</>
 	);
