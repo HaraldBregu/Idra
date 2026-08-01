@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { existsSync, readdirSync, readFileSync, watch } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, watch } from 'node:fs';
 import { is } from '@electron-toolkit/utils';
 import {
 	normalizeProviderId,
@@ -17,6 +17,7 @@ import type {
 	ProviderModel,
 	SpeechToTextApiType,
 } from '../../shared/model_types';
+import { userDataLocation } from '../shared/user_data_location';
 
 interface Catalog {
 	readonly models: readonly CatalogModel[];
@@ -55,16 +56,19 @@ export function loadWebSearches(): readonly CatalogWebSearch[] {
 	return loadCatalog().webSearches;
 }
 
-/** Keep the catalog in sync with resources/providers; onChange fires after edits settle. */
+/** Keep the bundled and uploaded provider catalogs in sync; onChange fires after edits settle. */
 export function watchModels(onChange: () => void): void {
 	if (watching) return;
 	try {
+		mkdirSync(providersDir(), { recursive: true });
 		let timer: NodeJS.Timeout | undefined;
-		watch(providersDir(), { recursive: true }, () => {
-			cache = undefined;
-			clearTimeout(timer);
-			timer = setTimeout(onChange, 100);
-		});
+		for (const directory of [bundledProvidersDir(), providersDir()]) {
+			watch(directory, { recursive: true }, () => {
+				cache = undefined;
+				clearTimeout(timer);
+				timer = setTimeout(onChange, 100);
+			});
+		}
 		watching = true;
 	} catch {
 		// ponytail: watcher unavailable → loadModels() keeps reading fresh
@@ -186,6 +190,10 @@ function toPublicProvider(
 }
 
 export function providersDir(): string {
+	return path.join(userDataLocation(), 'providers');
+}
+
+function bundledProvidersDir(): string {
 	return is.dev
 		? path.join(__dirname, '../../resources/providers')
 		: path.join(process.resourcesPath, 'resources/providers');
@@ -199,42 +207,53 @@ function readEntries<T>(providerDir: string, file: string): T[] {
 }
 
 function readCatalog(): Catalog {
-	const dir = providersDir();
 	const models: CatalogModel[] = [];
 	const databases: CatalogService[] = [];
 	const storages: CatalogService[] = [];
 	const webSearches: CatalogWebSearch[] = [];
 
-	for (const dirent of readdirSync(dir, { withFileTypes: true })) {
-		if (!dirent.isDirectory()) continue;
-		try {
-			const providerDir = path.join(dir, dirent.name);
-			const infoPath = path.join(providerDir, 'info.json');
-			if (!existsSync(infoPath)) continue;
-			const entry = JSON.parse(readFileSync(infoPath, 'utf-8')) as ProviderCatalogEntry;
-			const modelEntries = readEntries<CatalogEntryModel>(providerDir, 'models.json');
-			const provider = toPublicProvider(entry, modelEntries);
-			models.push(...modelEntries.map((model) => ({ ...model, provider })));
-			databases.push(
-				...readEntries<CatalogEntryService>(providerDir, 'databases.json').map((service) => ({
-					...service,
-					provider,
-				}))
-			);
-			storages.push(
-				...readEntries<CatalogEntryService>(providerDir, 'storages.json').map((service) => ({
-					...service,
-					provider,
-				}))
-			);
-			webSearches.push(
-				...readEntries<CatalogEntryWebSearch>(providerDir, 'web_search.json').map((search) => ({
-					...search,
-					provider,
-				}))
-			);
-		} catch {
-			// ponytail: a provider dir mid-edit (malformed JSON) drops out until fixed
+	for (const directory of [bundledProvidersDir(), providersDir()]) {
+		if (!existsSync(directory)) continue;
+		for (const dirent of readdirSync(directory, { withFileTypes: true })) {
+			if (!dirent.isDirectory()) continue;
+			try {
+				const providerDir = path.join(directory, dirent.name);
+				const infoPath = path.join(providerDir, 'info.json');
+				if (!existsSync(infoPath)) continue;
+				const entry = JSON.parse(readFileSync(infoPath, 'utf-8')) as ProviderCatalogEntry;
+				const modelEntries = readEntries<CatalogEntryModel>(providerDir, 'models.json');
+				const provider = toPublicProvider(entry, modelEntries);
+				const replaceProvider = <T extends { provider: PublicProvider }>(entries: T[]): void => {
+					for (let index = entries.length - 1; index >= 0; index -= 1) {
+						if (entries[index].provider.id === provider.id) entries.splice(index, 1);
+					}
+				};
+				replaceProvider(models);
+				replaceProvider(databases);
+				replaceProvider(storages);
+				replaceProvider(webSearches);
+				models.push(...modelEntries.map((model) => ({ ...model, provider })));
+				databases.push(
+					...readEntries<CatalogEntryService>(providerDir, 'databases.json').map((service) => ({
+						...service,
+						provider,
+					}))
+				);
+				storages.push(
+					...readEntries<CatalogEntryService>(providerDir, 'storages.json').map((service) => ({
+						...service,
+						provider,
+					}))
+				);
+				webSearches.push(
+					...readEntries<CatalogEntryWebSearch>(providerDir, 'web_search.json').map((search) => ({
+						...search,
+						provider,
+					}))
+				);
+			} catch {
+				// ponytail: a provider dir mid-edit (malformed JSON) drops out until fixed
+			}
 		}
 	}
 

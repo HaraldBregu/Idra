@@ -148,6 +148,7 @@ async function uploadProvider(event: IpcMainInvokeEvent): Promise<string | null>
 	}
 
 	const name = path.basename(source);
+	await mkdir(providersDir(), { recursive: true });
 	await cp(source, path.join(providersDir(), name), { recursive: true });
 	return name;
 }
