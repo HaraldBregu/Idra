@@ -367,22 +367,6 @@ const routes: RouteObject[] = [
 						],
 					},
 					{
-						path: 'search',
-						element: (
-							<SettingsRouteWrapper>
-								<SearchPage />
-							</SettingsRouteWrapper>
-						),
-					},
-					{
-						path: 'storage',
-						element: (
-							<SettingsRouteWrapper>
-								<StoragePage />
-							</SettingsRouteWrapper>
-						),
-					},
-					{
 						path: 'rag',
 						element: (
 							<SettingsRouteWrapper>
