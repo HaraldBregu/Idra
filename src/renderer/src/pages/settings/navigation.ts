@@ -332,10 +332,34 @@ export const SETTINGS_NAVIGATION = [
 		icon: MonitorCog,
 	},
 	{
-		path: '/settings/providers',
-		labelKey: 'settings.tabs.providers',
+		path: '/settings/providers/models',
+		labelKey: 'settings.overview.groups.mlModels',
 		descriptionKey: 'settings.overview.descriptions.providers',
 		icon: Server,
+	},
+	{
+		path: '/settings/providers/search',
+		labelKey: 'settings.tabs.searchEngines',
+		descriptionKey: 'settings.overview.descriptions.searchEngine',
+		icon: Search,
+	},
+	{
+		path: '/settings/providers/databases',
+		labelKey: 'settings.tabs.databases',
+		descriptionKey: 'settings.overview.descriptions.database',
+		icon: Database,
+	},
+	{
+		path: '/settings/providers/storage',
+		labelKey: 'settings.tabs.storage',
+		descriptionKey: 'settings.overview.descriptions.storage',
+		icon: Folder,
+	},
+	{
+		path: '/settings/providers/mcp',
+		labelKey: 'settings.tabs.mcp',
+		descriptionKey: 'settings.overview.descriptions.mcp',
+		icon: PlugZap,
 	},
 	{
 		path: '/settings/search',
