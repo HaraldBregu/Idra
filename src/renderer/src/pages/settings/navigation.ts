@@ -149,7 +149,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		keywords: 'tray dock icon toggle',
 	},
 	{
-		path: '/settings/application',
+		path: '/settings/general',
 		labelKey: 'settings.application.appData',
 		descriptionKey: 'settings.application.appDataDescription',
 		keywords: 'folder files storage',
