@@ -17,6 +17,9 @@ export const app: AppApi = {
 	webSearches: () => {
 		return typedInvokeUnwrap(AppChannels.webSearches);
 	},
+	mcps: () => {
+		return typedInvokeUnwrap(AppChannels.mcps);
+	},
 	onModelsChanged: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.modelsChanged, callback);
 	},

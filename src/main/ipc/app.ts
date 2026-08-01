@@ -43,6 +43,7 @@ import {
 import { AppChannels } from '../../shared/ipc_channels_definitions';
 import {
 	loadDatabases,
+	loadMcps,
 	loadModels,
 	loadStorages,
 	loadWebSearches,
@@ -307,6 +308,13 @@ export class AppIpc implements IpcModule {
 			wrapSimpleHandler(() => {
 				return [...loadWebSearches()];
 			}, AppChannels.webSearches)
+		);
+
+		ipcMain.handle(
+			AppChannels.mcps,
+			wrapSimpleHandler(() => {
+				return [...loadMcps()];
+			}, AppChannels.mcps)
 		);
 
 		// Re-read the catalog and tell renderers when resources/providers changes on disk

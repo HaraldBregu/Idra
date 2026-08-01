@@ -25,6 +25,7 @@ interface Catalog {
 	readonly databases: readonly CatalogService[];
 	readonly storages: readonly CatalogService[];
 	readonly webSearches: readonly CatalogWebSearch[];
+	readonly mcps: readonly CatalogService[];
 }
 
 let cache: Catalog | undefined;
@@ -56,6 +57,11 @@ export function loadStorages(): readonly CatalogService[] {
 /** Every web search provider across ~/.friday/providers/<id>/manifest.json. */
 export function loadWebSearches(): readonly CatalogWebSearch[] {
 	return loadCatalog().webSearches;
+}
+
+/** Every MCP service across bundled and local provider manifests. */
+export function loadMcps(): readonly CatalogService[] {
+	return loadCatalog().mcps;
 }
 
 export function refreshProviderCatalog(): void {
@@ -236,6 +242,7 @@ function readCatalog(): Catalog {
 	const databases: CatalogService[] = [];
 	const storages: CatalogService[] = [];
 	const webSearches: CatalogWebSearch[] = [];
+	const mcps: CatalogService[] = [];
 	const manifests = new Map<string, { entry: ProviderManifest; providerDir: string }>();
 
 	for (const directory of [bundledProvidersDir(), providersDir()]) {
@@ -277,6 +284,11 @@ function readCatalog(): Catalog {
 				.filter((service): service is CatalogEntryWebSearch => service.type === 'web-search')
 				.map((search) => ({ ...search, provider }))
 		);
+		mcps.push(
+			...entry.services
+				.filter((service) => service.type === 'mcp')
+				.map((service) => ({ ...service, provider }))
+		);
 	}
 
 	return {
@@ -284,5 +296,6 @@ function readCatalog(): Catalog {
 		databases: databases.sort(compareByName),
 		storages: storages.sort(compareByName),
 		webSearches: webSearches.sort(compareByName),
+		mcps: mcps.sort(compareByName),
 	};
 }

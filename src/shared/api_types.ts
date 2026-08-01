@@ -311,6 +311,7 @@ export interface AppApi {
 	databases: () => Promise<CatalogService[]>;
 	storages: () => Promise<CatalogService[]>;
 	webSearches: () => Promise<CatalogWebSearch[]>;
+	mcps: () => Promise<CatalogService[]>;
 	/** Fires when resources/providers changes on disk; returns an unsubscribe function. */
 	onModelsChanged: (callback: () => void) => () => void;
 	getPathForFile: (file: File) => string;

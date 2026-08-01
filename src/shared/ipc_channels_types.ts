@@ -274,6 +274,10 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: import('./provider_types').CatalogWebSearch[];
 	};
+	[AppChannels.mcps]: {
+		args: [];
+		result: import('./provider_types').CatalogService[];
+	};
 	[AppChannels.openVideo]: {
 		args: [path: string];
 		result: void;
