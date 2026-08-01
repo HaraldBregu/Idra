@@ -13,9 +13,9 @@ import type { CatalogService } from '../../../../../../shared/provider_types';
 import type { DatabaseConfiguration } from '../../../../../../shared/database_types';
 import { getErrorMessage } from '../../../start/constants';
 import {
+	SettingsCollapsibleCard,
 	SettingsLoadingRows,
 	SettingsNotice,
-	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsRow,
 } from '../../components';
