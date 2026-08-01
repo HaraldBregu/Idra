@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, watch } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, watch } from 'node:fs';
 import { is } from '@electron-toolkit/utils';
 import {
 	normalizeProviderId,
@@ -30,6 +30,7 @@ let cache: Catalog | undefined;
 let watching = false;
 
 function loadCatalog(): Catalog {
+	ensureProvidersDir();
 	// ponytail: without a watcher there is no safe cache — read fresh every call
 	if (!watching) return readCatalog();
 	if (!cache) cache = readCatalog();
@@ -60,6 +61,7 @@ export function loadWebSearches(): readonly CatalogWebSearch[] {
 export function watchModels(onChange: () => void): void {
 	if (watching) return;
 	try {
+		ensureProvidersDir();
 		let timer: NodeJS.Timeout | undefined;
 		watch(providersDir(), { recursive: true }, () => {
 			cache = undefined;
@@ -201,22 +203,14 @@ export function providersDir(): string {
 	return path.join(userDataLocation(), 'providers');
 }
 
+export function ensureProvidersDir(directory = providersDir()): void {
+	mkdirSync(directory, { recursive: true });
+}
+
 function bundledProvidersDir(): string {
 	return is.dev
 		? path.join(process.cwd(), 'resources/providers')
 		: path.join(process.resourcesPath, 'resources/providers');
-}
-
-export function seedProviders(
-	source = bundledProvidersDir(),
-	destination = providersDir()
-): void {
-	mkdirSync(destination, { recursive: true });
-	if (!existsSync(source)) return;
-	for (const entry of readdirSync(source, { withFileTypes: true })) {
-		const target = path.join(destination, entry.name);
-		if (!existsSync(target)) cpSync(path.join(source, entry.name), target, { recursive: true });
-	}
 }
 
 function readCatalog(): Catalog {
