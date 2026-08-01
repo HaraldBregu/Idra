@@ -56,7 +56,7 @@ function getSettingsOverviewItem(path: string): SettingsNavigationItem | Setting
 	return serviceItem;
 }
 
-export function SettingsOverviewCard({
+function SettingsOverviewCard({
 	item,
 	disabled = false,
 }: {
