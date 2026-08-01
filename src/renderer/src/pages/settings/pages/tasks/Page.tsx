@@ -93,11 +93,10 @@ const TasksPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader
+			<SettingsCollapsibleCard
 				title={t('settings.tabs.taskScheduler')}
 				description={t('settings.cron.description')}
-			/>
-
+			>
 			<SettingsSection
 				title={t('settings.cron.runtime.title')}
 				description={t('settings.cron.runtime.description')}
