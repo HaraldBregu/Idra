@@ -251,10 +251,10 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 				<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
 			) : (
 				<>
-					<Card size="sm">
+					<Card size="sm" className="gap-0! py-0!">
 						<Collapsible>
 							<CollapsibleTrigger className="group w-full text-left">
-								<CardHeader>
+								<CardHeader className="py-3">
 									<CardTitle className="flex items-center justify-between">
 										{t('settings.storage.cardTitle')}
 										<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
