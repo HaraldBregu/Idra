@@ -394,12 +394,6 @@ export const SETTINGS_NAVIGATION = [
 		icon: Sparkles,
 	},
 	{
-		path: '/settings/tasks',
-		labelKey: 'settings.tabs.taskScheduler',
-		descriptionKey: 'settings.overview.descriptions.cron',
-		icon: ListChecks,
-	},
-	{
 		path: '/settings/assistant/health',
 		labelKey: 'settings.tabs.health',
 		descriptionKey: 'settings.overview.descriptions.health',
