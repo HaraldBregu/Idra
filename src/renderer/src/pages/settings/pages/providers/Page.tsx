@@ -467,10 +467,15 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
 			{!embedded && (
 				<SettingsPageHeader
-					title={t('settings.tabs.providers')}
-					description={t('settings.overview.descriptions.providers')}
+					title={t(section ? SECTION_HEADERS[section].titleKey : 'settings.tabs.providers')}
+					description={t(
+						section
+							? SECTION_HEADERS[section].descriptionKey
+							: 'settings.overview.descriptions.providers'
+					)}
 					action={
-						<>
+						section !== undefined && section !== 'models' ? undefined : (
+							<>
 							<Button
 								type="button"
 								variant="outline"
