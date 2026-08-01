@@ -188,7 +188,7 @@ export function providersDir(): string {
 
 function bundledProvidersDir(): string {
 	return is.dev
-		? path.join(__dirname, '../../resources/providers')
+		? path.join(process.cwd(), 'resources/providers')
 		: path.join(process.resourcesPath, 'resources/providers');
 }
 
