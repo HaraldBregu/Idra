@@ -71,8 +71,9 @@ export function validateServiceEntries(value: unknown, file: string): string[] {
 			errors.push(`${file}[${index}]: "id" must be a non-empty string.`);
 		if (!isNonEmptyString(entry.name))
 			errors.push(`${file}[${index}]: "name" must be a non-empty string.`);
-		if (!isNonEmptyString(entry.type))
-			errors.push(`${file}[${index}]: "type" must be a non-empty string.`);
+		if (entry.type !== undefined && !isNonEmptyString(entry.type)) {
+			errors.push(`${file}[${index}]: "type" must be a non-empty string when present.`);
+		}
 		if (entry.url !== undefined && !isNonEmptyString(entry.url)) {
 			errors.push(`${file}[${index}]: "url" must be a non-empty string when present.`);
 		}
