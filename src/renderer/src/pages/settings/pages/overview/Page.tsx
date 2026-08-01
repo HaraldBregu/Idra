@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, FolderOpen, LoaderCircle, Upload } from 'lucide-react';
+import { AlertTriangle, ChevronRight, FolderOpen, LoaderCircle, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { loadModels } from '@/lib/providers';
