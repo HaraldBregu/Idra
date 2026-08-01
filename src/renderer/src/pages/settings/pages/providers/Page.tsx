@@ -454,25 +454,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 			)}
 
 			{(section === undefined || section === 'models') && (!embedded || modelCatalog.length > 0) && (
-				<SettingsSection
-					title={t('settings.overview.groups.mlModels')}
-					action={
-						<Button
-							type="button"
-							variant="outline"
-							size="xs"
-							disabled={uploadingProvider}
-							onClick={() => void handleUploadProvider()}
-						>
-							{uploadingProvider ? (
-								<LoaderCircle className="size-3.5 animate-spin" />
-							) : (
-								<Upload className="size-3.5" />
-							)}
-							Upload folder
-						</Button>
-					}
-				>
+				<SettingsSection title={t('settings.overview.groups.mlModels')}>
 				{embedded ? (
 					<div className="space-y-3 pb-4">
 						{featuredProviders.map((provider) => renderProviderCard(provider, 'models'))}
