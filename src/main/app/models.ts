@@ -199,13 +199,15 @@ function iconUrl(providerDir: string, iconPath: string | undefined): string | un
 
 function toPublicProvider(entry: ProviderManifest, providerDir: string): PublicProvider {
 	const baseUrl = entry.services.find((service) => service.url?.startsWith('http'))?.url ?? '';
+	const iconDarkUrl = iconUrl(providerDir, entry.icon_dark_url);
+	const iconLightUrl = iconUrl(providerDir, entry.icon_light_url);
 	return {
 		id: entry.providerId,
 		name: entry.providerName,
 		baseUrl,
 		...(entry.apiKeyUrl ? { apiKeyUrl: entry.apiKeyUrl } : {}),
-		...(iconUrl(providerDir, entry.icon_dark_url) ? { iconDarkUrl: iconUrl(providerDir, entry.icon_dark_url) } : {}),
-		...(iconUrl(providerDir, entry.icon_light_url) ? { iconLightUrl: iconUrl(providerDir, entry.icon_light_url) } : {}),
+		...(iconDarkUrl ? { iconDarkUrl } : {}),
+		...(iconLightUrl ? { iconLightUrl } : {}),
 	};
 }
 
