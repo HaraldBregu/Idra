@@ -10,7 +10,6 @@ import {
 	ImageIcon,
 	Info,
 	Library,
-	ListChecks,
 	Mic,
 	MonitorCog,
 	Music,
