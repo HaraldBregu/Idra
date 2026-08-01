@@ -1,4 +1,3 @@
-import type { ModelCapability } from '../model_types';
 import type { ProviderManifest } from '../provider_types';
 
 const MODEL_SERVICE_TYPES = [
