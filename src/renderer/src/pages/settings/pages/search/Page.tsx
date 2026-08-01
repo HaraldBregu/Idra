@@ -122,7 +122,6 @@ const SearchPage: React.FC = () => {
 							</div>
 						</CollapsibleContent>
 					</Collapsible>
-				</SettingsSection>
 			)}
 
 		</SettingsPageShell>
