@@ -58,6 +58,10 @@ export function loadWebSearches(): readonly CatalogWebSearch[] {
 	return loadCatalog().webSearches;
 }
 
+export function refreshProviderCatalog(): void {
+	cache = undefined;
+}
+
 /** Keep the local provider catalog in sync; onChange fires after edits settle. */
 export function watchModels(onChange: () => void): void {
 	if (watching) return;
@@ -65,7 +69,7 @@ export function watchModels(onChange: () => void): void {
 		ensureProvidersDir();
 		let timer: NodeJS.Timeout | undefined;
 		watch(providersDir(), { recursive: true }, () => {
-			cache = undefined;
+			refreshProviderCatalog();
 			clearTimeout(timer);
 			timer = setTimeout(onChange, 100);
 		});
@@ -97,7 +101,7 @@ export function loadProviders(): readonly PublicProvider[] {
 	for (const model of loadModels()) {
 		if (!unique.has(model.provider.id)) unique.set(model.provider.id, model.provider);
 	}
-	return [...unique.values()];
+	return [...unique.values()].sort(compareByName);
 }
 
 export function providerModels(providerId: string, type: ModelCapability): ProviderModel[] {
@@ -171,6 +175,10 @@ function toProviderModel(model: CatalogModel): ProviderModel {
 		...(model.apiTypes ? { apiTypes: model.apiTypes } : {}),
 		...(model.realtime ? { realtime: model.realtime } : {}),
 	};
+}
+
+function compareByName<T extends { id: string; name: string }>(left: T, right: T): number {
+	return left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
 }
 
 function toModelCapability(type: string): ModelCapability | undefined {
@@ -271,5 +279,10 @@ function readCatalog(): Catalog {
 		);
 	}
 
-	return { models, databases, storages, webSearches };
+	return {
+		models: models.sort(compareByName),
+		databases: databases.sort(compareByName),
+		storages: storages.sort(compareByName),
+		webSearches: webSearches.sort(compareByName),
+	};
 }

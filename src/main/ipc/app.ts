@@ -47,6 +47,7 @@ import {
 	loadStorages,
 	loadWebSearches,
 	providersDir,
+	refreshProviderCatalog,
 	watchModels,
 } from '../app/models';
 import type { LoggerService } from '../shared';
@@ -118,7 +119,10 @@ function readProviderFile(dir: string, file: string): unknown {
 	}
 }
 
-async function uploadProvider(event: IpcMainInvokeEvent): Promise<string | null> {
+async function uploadProvider(
+	event: IpcMainInvokeEvent,
+	onCatalogChange: () => void
+): Promise<string | null> {
 	const window = BrowserWindow.fromWebContents(event.sender);
 	const options: Electron.OpenDialogOptions = { properties: ['openDirectory'] };
 	const result = window
@@ -139,6 +143,7 @@ async function uploadProvider(event: IpcMainInvokeEvent): Promise<string | null>
 	const name = path.basename(source);
 	await mkdir(providersDir(), { recursive: true });
 	await cp(source, path.join(providersDir(), name), { recursive: true });
+	onCatalogChange();
 	return name;
 }
 
@@ -454,7 +459,10 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.uploadProvider,
 			wrapIpcHandler((event) => {
-				return uploadProvider(event);
+				return uploadProvider(event, () => {
+					refreshProviderCatalog();
+					eventBus.broadcast(AppChannels.modelsChanged);
+				});
 			}, AppChannels.uploadProvider)
 		);
 
