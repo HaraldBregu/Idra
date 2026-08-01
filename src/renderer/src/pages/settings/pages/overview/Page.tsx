@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { loadModels } from '@/lib/providers';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import {
+	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
