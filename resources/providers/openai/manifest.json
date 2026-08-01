@@ -117,5 +117,7 @@
 			"url": "https://api.openai.com/v1",
 			"default": true
 		}
-	]
+	],
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/openai.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/openai.png"
 }

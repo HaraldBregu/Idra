@@ -48,5 +48,7 @@
 			"type": "text-to-speech-model",
 			"url": "https://api.mistral.ai/v1"
 		}
-	]
+	],
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/mistral-color.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/mistral-color.png"
 }

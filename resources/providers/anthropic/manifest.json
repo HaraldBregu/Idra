@@ -2,8 +2,8 @@
 	"providerId": "anthropic",
 	"providerName": "Anthropic",
 	"apiKeyUrl": "https://console.anthropic.com/settings/keys",
-	"icon_dark_url": "/images/example_icon_dark.png",
-	"icon_light_url": "/images/example_icon_light.png",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/anthropic.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/anthropic.png",
 	"services": [
 		{
 			"id": "claude-fable-5",

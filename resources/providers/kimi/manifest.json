@@ -33,5 +33,7 @@
 			"type": "large-language-model",
 			"url": "https://api.moonshot.ai/v1"
 		}
-	]
+	],
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/kimi-color.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/kimi-color.png"
 }

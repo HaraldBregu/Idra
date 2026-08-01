@@ -15,5 +15,7 @@
 			"type": "large-language-model",
 			"url": "https://api.deepseek.com"
 		}
-	]
+	],
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/deepseek-color.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/deepseek-color.png"
 }

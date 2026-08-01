@@ -69,5 +69,7 @@
 			"type": "text-to-audio-model",
 			"url": "https://generativelanguage.googleapis.com/v1beta/openai"
 		}
-	]
+	],
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/google-color.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/google-color.png"
 }

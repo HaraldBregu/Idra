@@ -51,5 +51,7 @@
 			"type": "text-to-audio-model",
 			"url": "https://api.minimax.io/v1"
 		}
-	]
+	],
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/minimax-color.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/minimax-color.png"
 }

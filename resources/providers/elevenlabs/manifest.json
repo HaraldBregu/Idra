@@ -57,5 +57,7 @@
 			"type": "text-to-audio-model",
 			"url": "https://api.elevenlabs.io/v1"
 		}
-	]
+	],
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/elevenlabs.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/elevenlabs.png"
 }
