@@ -16,8 +16,8 @@ import {
 import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
 import { getErrorMessage } from '../../../start/constants';
 import {
+	SettingsCollapsibleCard,
 	SettingsNotice,
-	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
