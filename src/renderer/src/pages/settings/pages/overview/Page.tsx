@@ -63,7 +63,7 @@ export function getSettingsOverviewItem(
 	return serviceItem;
 }
 
-function SettingsOverviewCard({
+export function SettingsOverviewCard({
 	item,
 	disabled = false,
 }: {
