@@ -137,7 +137,7 @@ export const SETTINGS_PROVIDER_CONFIG_ITEMS: readonly SettingsProviderConfigItem
 export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// General
 	{
-		path: '/settings/application',
+		path: '/settings/general',
 		labelKey: 'settings.language.title',
 		descriptionKey: 'settings.language.description',
 		keywords: 'locale english italian i18n',
