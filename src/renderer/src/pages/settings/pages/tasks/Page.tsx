@@ -14,10 +14,10 @@ import {
 	resolveStoredModelProvider,
 } from '@/components/model-provider-select';
 import {
+	SettingsCollapsibleCard,
 	SettingsEmptyState,
 	SettingsLoadingRows,
 	SettingsNotice,
-	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
