@@ -113,40 +113,40 @@ const TasksPage: React.FC = () => {
 						</CardHeader>
 					</CollapsibleTrigger>
 					<CollapsibleContent className="border-t border-border/60">
-					{loading ? (
-						<SettingsLoadingRows rows={1} />
-					) : llmProviderGroups().length === 0 ? (
-						<SettingsEmptyState
-							icon={AlertTriangle}
-							title={t('settings.cron.runtime.noProviders')}
-						/>
-					) : (
-						<div className="grid gap-3 px-3 py-3">
-							<ModelProviderSelect
-								idPrefix="task-runtime"
-								providerGroups={llmProviderGroups()}
-								providerId={providerId}
-								modelId={modelId}
-								onChange={(nextProviderId, nextModelId) =>
-									void handleChange(nextProviderId, nextModelId)
-								}
-								disabled={saving}
-								labels={{
-									label: t('settings.cron.runtime.model'),
-									placeholder: t('settings.cron.runtime.modelPlaceholder'),
-								}}
+						{loading ? (
+							<SettingsLoadingRows rows={1} />
+						) : llmProviderGroups().length === 0 ? (
+							<SettingsEmptyState
+								icon={AlertTriangle}
+								title={t('settings.cron.runtime.noProviders')}
 							/>
+						) : (
+							<div className="grid gap-3 px-3 py-3">
+								<ModelProviderSelect
+									idPrefix="task-runtime"
+									providerGroups={llmProviderGroups()}
+									providerId={providerId}
+									modelId={modelId}
+									onChange={(nextProviderId, nextModelId) =>
+										void handleChange(nextProviderId, nextModelId)
+									}
+									disabled={saving}
+									labels={{
+										label: t('settings.cron.runtime.model'),
+										placeholder: t('settings.cron.runtime.modelPlaceholder'),
+									}}
+								/>
 
-							{runtimeError && (
-								<p className="text-[11px] leading-4 text-destructive">{runtimeError}</p>
-							)}
-							{saved && (
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									{t('settings.cron.runtime.saved')}
-								</p>
-							)}
-						</div>
-					)}
+								{runtimeError && (
+									<p className="text-[11px] leading-4 text-destructive">{runtimeError}</p>
+								)}
+								{saved && (
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.cron.runtime.saved')}
+									</p>
+								)}
+							</div>
+						)}
 					</CollapsibleContent>
 				</Collapsible>
 			</Card>

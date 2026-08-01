@@ -87,33 +87,33 @@ const SearchPage: React.FC = () => {
 							</CardHeader>
 						</CollapsibleTrigger>
 						<CollapsibleContent className="border-t border-border/60">
-						<div className="grid gap-3 px-3 py-3">
-							<Select
-								value={settings.engineId}
-								onValueChange={handleEngineChange}
-								disabled={savingEngineId !== null}
-							>
-								<SelectTrigger
-									size="sm"
-									className="w-full text-xs [&_svg]:size-3"
-									aria-label={t('settings.searchEngine.defaultTitle')}
+							<div className="grid gap-3 px-3 py-3">
+								<Select
+									value={settings.engineId}
+									onValueChange={handleEngineChange}
+									disabled={savingEngineId !== null}
 								>
-									<SelectValue>{selectedEngine?.name}</SelectValue>
-								</SelectTrigger>
-								<SelectContent>
-									{SEARCH_ENGINES.map((engine) => (
-										<SelectItem
-											key={engine.id}
-											value={engine.id}
-											disabled={!settings.configured[engine.id]}
-										>
-											{engine.name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-					</CollapsibleContent>
+									<SelectTrigger
+										size="sm"
+										className="w-full text-xs [&_svg]:size-3"
+										aria-label={t('settings.searchEngine.defaultTitle')}
+									>
+										<SelectValue>{selectedEngine?.name}</SelectValue>
+									</SelectTrigger>
+									<SelectContent>
+										{SEARCH_ENGINES.map((engine) => (
+											<SelectItem
+												key={engine.id}
+												value={engine.id}
+												disabled={!settings.configured[engine.id]}
+											>
+												{engine.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						</CollapsibleContent>
 					</Collapsible>
 				</Card>
 			)}
