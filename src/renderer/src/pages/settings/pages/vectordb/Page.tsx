@@ -77,11 +77,10 @@ const VectorDbPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader
+			<SettingsCollapsibleCard
 				title={t('settings.tabs.vectorDb')}
 				description={t('settings.vectorDb.description')}
-			/>
-
+			>
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
