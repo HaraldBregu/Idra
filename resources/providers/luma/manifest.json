@@ -6,25 +6,25 @@
 		{
 			"id": "uni-1.1",
 			"name": "Uni 1.1",
-			"type": "realtime-voice",
+			"type": "realtime-voice-model",
 			"url": "https://api.lumalabs.ai/dream-machine/v1"
 		},
 		{
 			"id": "uni-1.1",
 			"name": "Uni 1.1",
-			"type": "text-to-image",
+			"type": "text-to-image-model",
 			"url": "https://api.lumalabs.ai/dream-machine/v1"
 		},
 		{
 			"id": "ray-3",
 			"name": "Ray 3",
-			"type": "text-to-video",
+			"type": "text-to-video-model",
 			"url": "https://api.lumalabs.ai/dream-machine/v1"
 		},
 		{
 			"id": "ray-2",
 			"name": "Ray 2",
-			"type": "text-to-video",
+			"type": "text-to-video-model",
 			"url": "https://api.lumalabs.ai/dream-machine/v1"
 		}
 	]

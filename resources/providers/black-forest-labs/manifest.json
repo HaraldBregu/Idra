@@ -6,19 +6,19 @@
 		{
 			"id": "FLUX.2",
 			"name": "FLUX.2",
-			"type": "text-to-image",
+			"type": "text-to-image-model",
 			"url": "https://api.bfl.ai/v1"
 		},
 		{
 			"id": "FLUX.1 Kontext [pro]",
 			"name": "FLUX.1 Kontext [pro]",
-			"type": "text-to-image",
+			"type": "text-to-image-model",
 			"url": "https://api.bfl.ai/v1"
 		},
 		{
 			"id": "FLUX1.1 [pro] Ultra",
 			"name": "FLUX1.1 [pro] Ultra",
-			"type": "text-to-image",
+			"type": "text-to-image-model",
 			"url": "https://api.bfl.ai/v1"
 		}
 	]

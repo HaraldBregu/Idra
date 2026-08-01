@@ -6,13 +6,13 @@
 		{
 			"id": "demo-chat",
 			"name": "Demo Chat",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.demo-ai.test/v1"
 		},
 		{
 			"id": "demo-chat-mini",
 			"name": "Demo Chat Mini",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.demo-ai.test/v1"
 		}
 	]

@@ -6,13 +6,13 @@
 		{
 			"id": "suno-v5.5",
 			"name": "Suno v5.5",
-			"type": "text-to-audio",
+			"type": "text-to-audio-model",
 			"url": "https://suno.com"
 		},
 		{
 			"id": "suno-v4.5-all",
 			"name": "Suno v4.5 All",
-			"type": "text-to-audio",
+			"type": "text-to-audio-model",
 			"url": "https://suno.com"
 		}
 	]

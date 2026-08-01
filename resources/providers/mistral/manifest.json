@@ -6,19 +6,19 @@
 		{
 			"id": "mistral-large-2512",
 			"name": "Mistral Large 2512",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.mistral.ai/v1"
 		},
 		{
 			"id": "mistral-medium-3-5",
 			"name": "Mistral Medium 3.5",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.mistral.ai/v1"
 		},
 		{
 			"id": "devstral-2512",
 			"name": "Devstral 2512",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.mistral.ai/v1"
 		},
 		{
@@ -27,7 +27,7 @@
 			"apiTypes": [
 				"batch"
 			],
-			"type": "speech-to-text",
+			"type": "speech-to-text-model",
 			"url": "https://api.mistral.ai/v1",
 			"sampleRate": 16000
 		},
@@ -38,14 +38,14 @@
 				"stream"
 			],
 			"realtime": true,
-			"type": "speech-to-text",
+			"type": "speech-to-text-model",
 			"url": "https://api.mistral.ai/v1",
 			"sampleRate": 16000
 		},
 		{
 			"id": "voxtral-mini-tts-2603",
 			"name": "Voxtral Mini TTS 2603",
-			"type": "text-to-speech",
+			"type": "text-to-speech-model",
 			"url": "https://api.mistral.ai/v1"
 		}
 	]

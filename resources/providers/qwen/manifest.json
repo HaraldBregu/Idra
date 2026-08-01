@@ -6,19 +6,19 @@
 		{
 			"id": "qwen3.7-max",
 			"name": "Qwen3.7 Max",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		},
 		{
 			"id": "qwen3.6-plus",
 			"name": "Qwen3.6 Plus",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		},
 		{
 			"id": "qwen3.6-flash",
 			"name": "Qwen3.6 Flash",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		},
 		{
@@ -28,50 +28,50 @@
 				"stream"
 			],
 			"realtime": true,
-			"type": "speech-to-text",
+			"type": "speech-to-text-model",
 			"url": "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",
 			"sampleRate": 16000
 		},
 		{
 			"id": "qwen-omni-realtime",
 			"name": "Qwen Omni Realtime",
-			"type": "realtime-voice",
+			"type": "realtime-voice-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		},
 		{
 			"id": "qwen3.5-omni",
 			"name": "Qwen3.5 Omni",
-			"type": "realtime-voice",
+			"type": "realtime-voice-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		},
 		{
 			"id": "qwen3-omni-flash",
 			"name": "Qwen3 Omni Flash",
-			"type": "realtime-voice",
+			"type": "realtime-voice-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		},
 		{
 			"id": "qwen-image",
 			"name": "Qwen Image",
-			"type": "text-to-image",
+			"type": "text-to-image-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		},
 		{
 			"id": "qwen-image-edit",
 			"name": "Qwen Image Edit",
-			"type": "text-to-image",
+			"type": "text-to-image-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		},
 		{
 			"id": "wan2.5-t2v",
 			"name": "Wan 2.5 T2V",
-			"type": "text-to-video",
+			"type": "text-to-video-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		},
 		{
 			"id": "wan2.2-t2v-plus",
 			"name": "Wan 2.2 T2V Plus",
-			"type": "text-to-video",
+			"type": "text-to-video-model",
 			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 		}
 	]

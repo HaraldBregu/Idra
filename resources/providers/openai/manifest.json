@@ -6,55 +6,55 @@
 		{
 			"id": "gpt-5.6-sol",
 			"name": "GPT-5.6 Sol",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "gpt-5.6-terra",
 			"name": "GPT-5.6 Terra",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "gpt-5.6-luna",
 			"name": "GPT-5.6 Luna",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "gpt-5.5",
 			"name": "GPT-5.5",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "gpt-5.5-pro",
 			"name": "GPT-5.5 Pro",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "gpt-5.4",
 			"name": "GPT-5.4",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "gpt-5.4-pro",
 			"name": "GPT-5.4 Pro",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "gpt-5.4-mini",
 			"name": "GPT-5.4 Mini",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "gpt-5.4-nano",
 			"name": "GPT-5.4 Nano",
-			"type": "llm",
+			"type": "large-language-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
@@ -63,7 +63,7 @@
 			"apiTypes": [
 				"batch"
 			],
-			"type": "speech-to-text",
+			"type": "speech-to-text-model",
 			"url": "https://api.openai.com/v1",
 			"default": true,
 			"sampleRate": 24000
@@ -74,7 +74,7 @@
 			"apiTypes": [
 				"batch"
 			],
-			"type": "speech-to-text",
+			"type": "speech-to-text-model",
 			"url": "https://api.openai.com/v1",
 			"default": true,
 			"sampleRate": 24000
@@ -86,7 +86,7 @@
 				"stream"
 			],
 			"realtime": true,
-			"type": "speech-to-text",
+			"type": "speech-to-text-model",
 			"url": "https://api.openai.com/v1",
 			"default": true,
 			"sampleRate": 24000
@@ -94,26 +94,26 @@
 		{
 			"id": "gpt-4o-mini-tts",
 			"name": "GPT-4o Mini TTS",
-			"type": "text-to-speech",
+			"type": "text-to-speech-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "tts-1-hd",
 			"name": "TTS-1 HD",
-			"type": "text-to-speech",
+			"type": "text-to-speech-model",
 			"url": "https://api.openai.com/v1"
 		},
 		{
 			"id": "text-embedding-3-large",
 			"name": "Text Embedding 3 Large",
-			"type": "embedding",
+			"type": "embedding-model",
 			"url": "https://api.openai.com/v1",
 			"default": true
 		},
 		{
 			"id": "text-embedding-3-small",
 			"name": "Text Embedding 3 Small",
-			"type": "embedding",
+			"type": "embedding-model",
 			"url": "https://api.openai.com/v1",
 			"default": true
 		}

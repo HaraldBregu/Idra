@@ -6,19 +6,19 @@
 		{
 			"id": "midjourney-v8.1",
 			"name": "Midjourney v8.1",
-			"type": "text-to-image",
+			"type": "text-to-image-model",
 			"url": "https://www.midjourney.com"
 		},
 		{
 			"id": "midjourney-v7",
 			"name": "Midjourney v7",
-			"type": "text-to-image",
+			"type": "text-to-image-model",
 			"url": "https://www.midjourney.com"
 		},
 		{
 			"id": "midjourney-video-v1",
 			"name": "Midjourney Video v1",
-			"type": "text-to-video",
+			"type": "text-to-video-model",
 			"url": "https://www.midjourney.com"
 		}
 	]

@@ -9,7 +9,7 @@
 			"apiTypes": [
 				"batch"
 			],
-			"type": "speech-to-text",
+			"type": "speech-to-text-model",
 			"url": "https://api.elevenlabs.io/v1",
 			"sampleRate": 16000
 		},
@@ -20,41 +20,41 @@
 				"stream"
 			],
 			"realtime": true,
-			"type": "speech-to-text",
+			"type": "speech-to-text-model",
 			"url": "https://api.elevenlabs.io/v1",
 			"sampleRate": 16000
 		},
 		{
 			"id": "eleven_v3",
 			"name": "Eleven v3",
-			"type": "text-to-speech",
+			"type": "text-to-speech-model",
 			"url": "https://api.elevenlabs.io/v1",
 			"default": true
 		},
 		{
 			"id": "eleven_multilingual_v2",
 			"name": "Eleven Multilingual v2",
-			"type": "text-to-speech",
+			"type": "text-to-speech-model",
 			"url": "https://api.elevenlabs.io/v1",
 			"default": true
 		},
 		{
 			"id": "eleven_flash_v2_5",
 			"name": "Eleven Flash v2.5",
-			"type": "text-to-speech",
+			"type": "text-to-speech-model",
 			"url": "https://api.elevenlabs.io/v1",
 			"default": true
 		},
 		{
 			"id": "eleven-music",
 			"name": "Eleven Music",
-			"type": "text-to-audio",
+			"type": "text-to-audio-model",
 			"url": "https://api.elevenlabs.io/v1"
 		},
 		{
 			"id": "elevenlabs-sound-effects",
 			"name": "ElevenLabs Sound Effects",
-			"type": "text-to-audio",
+			"type": "text-to-audio-model",
 			"url": "https://api.elevenlabs.io/v1"
 		}
 	]
