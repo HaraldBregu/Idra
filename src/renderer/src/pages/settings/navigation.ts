@@ -156,7 +156,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Application
 	{
-		path: '/settings/application',
+		path: '/settings/general',
 		labelKey: 'settings.theme.title',
 		keywords: 'appearance dark light system mode',
 	},
