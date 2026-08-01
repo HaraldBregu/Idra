@@ -4,7 +4,6 @@ import { is } from '@electron-toolkit/utils';
 import {
 	normalizeProviderId,
 	type CatalogEntryModel,
-	type CatalogEntryService,
 	type CatalogEntryWebSearch,
 	type CatalogService,
 	type CatalogWebSearch,
