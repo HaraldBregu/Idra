@@ -34,6 +34,9 @@ export function validateProviderManifest(value: unknown): string[] {
 	if (manifest.apiKeyUrl !== undefined && !isNonEmptyString(manifest.apiKeyUrl)) {
 		errors.push('manifest.json: "apiKeyUrl" must be a non-empty string when present.');
 	}
+	if (manifest.images_url !== undefined && manifest.images_url !== '/images') {
+		errors.push('manifest.json: "images_url" must be "/images" when present.');
+	}
 	for (const field of ['icon_dark_url', 'icon_light_url'] as const) {
 		if (
 			manifest[field] !== undefined &&
