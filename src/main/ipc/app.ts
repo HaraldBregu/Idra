@@ -11,7 +11,7 @@ import {
 	systemPreferences,
 	type IpcMainInvokeEvent,
 } from 'electron';
-import { existsSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { copyFile, cp, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { agentLocation } from '../shared/agent_location';
