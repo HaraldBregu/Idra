@@ -127,7 +127,7 @@ const SearchPage: React.FC = () => {
 					</Collapsible>
 				</SettingsSection>
 			)}
-
+			</SettingsCollapsibleCard>
 		</SettingsPageShell>
 	);
 };
