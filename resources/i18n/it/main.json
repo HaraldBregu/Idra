@@ -1377,7 +1377,7 @@
 		"vectorDb": {
 			"description": "Database vettoriale usato dal RAG per salvare e cercare gli embedding.",
 			"connectionTitle": "Connessione",
-			"defaultTitle": "Database predefinito",
+			"defaultTitle": "Database vettoriale",
 			"database": "Database",
 			"databaseDescription": "Database usato per salvare e cercare gli embedding.",
 			"databasePlaceholder": "Seleziona un database...",
