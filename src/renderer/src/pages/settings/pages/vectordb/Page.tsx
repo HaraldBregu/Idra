@@ -124,6 +124,7 @@ const VectorDbPage: React.FC = () => {
 					</CardContent>
 				</Card>
 			)}
+			</SettingsCollapsibleCard>
 		</SettingsPageShell>
 	);
 };
