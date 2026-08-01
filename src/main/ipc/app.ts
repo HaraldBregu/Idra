@@ -50,6 +50,12 @@ import {
 	watchModels,
 } from '../app/models';
 import type { LoggerService } from '../shared';
+import {
+	validateModelEntries,
+	validateProviderInfo,
+	validateServiceEntries,
+	validateWebSearchEntries,
+} from '../../shared/providers/validation';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
