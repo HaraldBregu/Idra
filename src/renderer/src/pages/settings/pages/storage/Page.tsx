@@ -34,9 +34,9 @@ import type {
 } from '../../../../../../shared/storage_types';
 import { getErrorMessage } from '../../../start/constants';
 import {
+	SettingsCollapsibleCard,
 	SettingsLoadingRows,
 	SettingsNotice,
-	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsRow,
 } from '../../components';
