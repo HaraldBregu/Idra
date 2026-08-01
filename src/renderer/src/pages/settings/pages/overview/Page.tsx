@@ -33,8 +33,19 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: ['/settings/storage', '/settings/vectordb', '/settings/search', '/settings/tasks'],
 	},
 	{
+		id: 'providers',
+		titleKey: 'settings.tabs.providers',
+		paths: [
+			'/settings/providers/models',
+			'/settings/providers/search',
+			'/settings/providers/databases',
+			'/settings/providers/storage',
+			'/settings/providers/mcp',
+		],
+	},
+	{
 		id: 'integrations',
-		paths: ['/settings/providers', '/settings/extensions', '/settings/channels'],
+		paths: ['/settings/extensions', '/settings/channels'],
 	},
 ] as const;
 
