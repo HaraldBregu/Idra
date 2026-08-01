@@ -39,6 +39,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: [
 			'/settings/storage',
 			'/settings/vectordb',
+			'/settings/search',
 			'/settings/tasks',
 		],
 	},
