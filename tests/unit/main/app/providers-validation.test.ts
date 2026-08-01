@@ -1,4 +1,7 @@
-import { parseProviderManifest, validateProviderManifest } from '../../../../src/shared/providers/validation';
+import {
+	parseProviderManifest,
+	validateProviderManifest,
+} from '../../../../src/shared/providers/validation';
 
 describe('provider manifest validation', () => {
 	it('rejects invalid service types and accepts supported manifest services', () => {
@@ -20,11 +23,16 @@ describe('provider manifest validation', () => {
 			parseProviderManifest({
 				providerId: 'notion',
 				providerName: 'Notion',
-				services: [{ id: 'notion-mcp', name: 'Notion MCP', type: 'mcp', url: 'https://mcp.notion.com/mcp' }],
+				services: [
+					{ id: 'notion-mcp', name: 'Notion MCP', type: 'mcp', url: 'https://mcp.notion.com/mcp' },
+				],
 			})
 		).toBeDefined();
-		expect(validateProviderManifest({ ...manifest, services: [{ ...manifest.services[0], type: 'chat' }] })).toEqual([
-			expect.stringContaining('services[0].type must be one of'),
-		]);
+		expect(
+			validateProviderManifest({
+				...manifest,
+				services: [{ ...manifest.services[0], type: 'chat' }],
+			})
+		).toEqual([expect.stringContaining('services[0].type must be one of')]);
 	});
 });
