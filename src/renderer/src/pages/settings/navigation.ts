@@ -4,7 +4,6 @@ import {
 	BookOpenText,
 	Bot,
 	Blocks,
-	Boxes,
 	Database,
 	Folder,
 	HeartPulse,
@@ -122,7 +121,7 @@ export interface SettingsProviderConfigItem {
 
 export const SETTINGS_PROVIDER_CONFIG_ITEMS: readonly SettingsProviderConfigItem[] = [
 	{
-		path: '/settings/storage',
+		path: '/settings/application',
 		labelKey: 'settings.tabs.storage',
 		descriptionKey: 'settings.overview.descriptions.storage',
 		icon: Folder,
@@ -203,31 +202,31 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Search engines
 	{
-		path: '/settings/search',
+		path: '/settings/application',
 		labelKey: 'settings.searchEngine.braveName',
 		descriptionKey: 'settings.searchEngine.braveDescription',
 		keywords: 'brave web search api key',
 	},
 	{
-		path: '/settings/search',
+		path: '/settings/application',
 		labelKey: 'settings.searchEngine.tavilyName',
 		descriptionKey: 'settings.searchEngine.tavilyDescription',
 		keywords: 'tavily web search api key',
 	},
 	// Storage
 	{
-		path: '/settings/storage',
+		path: '/settings/application',
 		labelKey: 'settings.storage.connectionTitle',
 		descriptionKey: 'settings.storage.connectionDescription',
 		keywords: 's3 object storage endpoint region bucket url minio aws provider',
 	},
 	{
-		path: '/settings/storage',
+		path: '/settings/application',
 		labelKey: 'settings.storage.credentialsTitle',
 		keywords: 'access key id secret access key api credentials token',
 	},
 	{
-		path: '/settings/storage',
+		path: '/settings/application',
 		labelKey: 'settings.storage.forcePathStyle',
 		descriptionKey: 'settings.storage.forcePathStyleDescription',
 		keywords: 'minio path style option compatible',
@@ -277,13 +276,13 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Tasks
 	{
-		path: '/settings/tasks',
+		path: '/settings/application',
 		labelKey: 'settings.cron.runtime.title',
 		descriptionKey: 'settings.cron.runtime.description',
 		keywords: 'scheduled agent provider model runtime',
 	},
 	{
-		path: '/settings/tasks',
+		path: '/settings/application',
 		labelKey: 'settings.cron.schedulesTitle',
 		descriptionKey: 'settings.cron.schedulesDescription',
 		keywords: 'cron schedule recurring task',
