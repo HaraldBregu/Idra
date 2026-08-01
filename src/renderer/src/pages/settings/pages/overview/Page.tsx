@@ -135,20 +135,6 @@ const OverviewPage: React.FC = () => {
 				type="button"
 				variant="outline"
 				size="icon-xs"
-				aria-label="Open providers folder"
-				title="Open providers folder"
-				onClick={() =>
-					void window.app.openProvidersFolder().catch(() => {
-						setProviderError('Could not open the providers folder.');
-					})
-				}
-			>
-				<FolderOpen className="size-3.5" />
-			</Button>
-			<Button
-				type="button"
-				variant="outline"
-				size="icon-xs"
 				aria-label="Upload provider"
 				title="Upload provider"
 				disabled={uploadingProvider}
