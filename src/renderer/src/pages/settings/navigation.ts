@@ -320,9 +320,9 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 
 export const SETTINGS_NAVIGATION = [
 	{
-		path: '/settings/application',
-		labelKey: 'settings.tabs.application',
-		descriptionKey: 'settings.overview.descriptions.application',
+		path: '/settings/general',
+		labelKey: 'settings.tabs.general',
+		descriptionKey: 'settings.overview.descriptions.general',
 		icon: Info,
 	},
 	{
@@ -330,6 +330,12 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.system',
 		descriptionKey: 'settings.overview.descriptions.system',
 		icon: MonitorCog,
+	},
+	{
+		path: '/settings/application',
+		labelKey: 'settings.tabs.application',
+		descriptionKey: 'settings.overview.descriptions.application',
+		icon: AppWindow,
 	},
 	{
 		path: '/settings/providers/models',
