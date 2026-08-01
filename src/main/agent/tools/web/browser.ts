@@ -1,8 +1,8 @@
 import os from 'node:os';
 import path from 'node:path';
-import { app } from 'electron';
 import { chromium, type BrowserContext, type Page } from 'playwright-core';
 import { z } from 'zod';
+import { userDataLocation } from '../../../shared/user_data_location';
 import { tool } from '../tool';
 
 const ACTIONS = [
@@ -61,7 +61,7 @@ function trackPage(page: Page): string {
 
 async function ensureStarted(): Promise<BrowserContext> {
 	if (context) return context;
-	const userDataDir = path.join(app.getPath('userData'), 'agent-browser');
+	const userDataDir = path.join(userDataLocation(), 'agent-browser');
 	context = await chromium.launchPersistentContext(userDataDir, {
 		channel: 'chrome',
 		headless: false,
