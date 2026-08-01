@@ -46,7 +46,12 @@ export function McpCard({ service }: { readonly service: CatalogService }): Reac
 			)}
 		>
 			<CardContent className="p-0">
-				<div className={cn('grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5', editing && 'pb-2')}>
+				<div
+					className={cn(
+						'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
+						editing && 'pb-2'
+					)}
+				>
 					<ProviderAvatar
 						providerId={service.provider.id}
 						name={service.provider.name}

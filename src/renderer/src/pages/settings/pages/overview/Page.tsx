@@ -25,22 +25,12 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'primary',
 		titleKey: 'settings.overview.groups.assistant',
-		paths: [
-			'/settings/assistant',
-			'/settings/skills',
-			'/settings/rag',
-			'/settings/wiki',
-		],
+		paths: ['/settings/assistant', '/settings/skills', '/settings/rag', '/settings/wiki'],
 	},
 	{
 		id: 'services',
 		titleKey: 'settings.overview.groups.services',
-		paths: [
-			'/settings/storage',
-			'/settings/vectordb',
-			'/settings/search',
-			'/settings/tasks',
-		],
+		paths: ['/settings/storage', '/settings/vectordb', '/settings/search', '/settings/tasks'],
 	},
 	{
 		id: 'integrations',
