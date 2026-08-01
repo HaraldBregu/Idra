@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, ExternalLink, LoaderCircle, Pencil, Upload } from 'lucide-react';
+import { AlertTriangle, ExternalLink, FolderOpen, LoaderCircle, Pencil, Upload } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
@@ -208,6 +208,15 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 			setError(getErrorMessage(err, 'Could not upload provider.'));
 		} finally {
 			setUploadingProvider(false);
+		}
+	};
+
+	const handleOpenProvidersFolder = async (): Promise<void> => {
+		setError(null);
+		try {
+			await window.app.openProvidersFolder();
+		} catch (err) {
+			setError(getErrorMessage(err, 'Could not open the providers folder.'));
 		}
 	};
 
@@ -425,20 +434,32 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 					title={t('settings.tabs.providers')}
 					description={t('settings.overview.descriptions.providers')}
 					action={
-						<Button
-							type="button"
-							variant="outline"
-							size="xs"
-							disabled={uploadingProvider}
-							onClick={() => void handleUploadProvider()}
-						>
-							{uploadingProvider ? (
-								<LoaderCircle className="size-3.5 animate-spin" />
-							) : (
-								<Upload className="size-3.5" />
-							)}
-							Upload provider
-						</Button>
+						<>
+							<Button
+								type="button"
+								variant="outline"
+								size="icon-xs"
+								aria-label="Open providers folder"
+								title="Open providers folder"
+								onClick={() => void handleOpenProvidersFolder()}
+							>
+								<FolderOpen className="size-3.5" />
+							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								size="xs"
+								disabled={uploadingProvider}
+								onClick={() => void handleUploadProvider()}
+							>
+								{uploadingProvider ? (
+									<LoaderCircle className="size-3.5 animate-spin" />
+								) : (
+									<Upload className="size-3.5" />
+								)}
+								Upload provider
+							</Button>
+						</>
 					}
 				/>
 			)}

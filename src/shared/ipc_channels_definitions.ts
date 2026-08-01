@@ -85,6 +85,7 @@ export const McpChannels = {
 export const AppChannels = {
 	openAppDataFolder: 'app:open-app-data-folder',
 	openDataFolder: 'app:open-data-folder',
+	openProvidersFolder: 'app:open-providers-folder',
 	openExternalUrl: 'app:open-external-url',
 	openSystemPreference: 'app:open-system-preference',
 	setTrayEnabled: 'app:set-tray-enabled',

@@ -316,6 +316,7 @@ export interface AppApi {
 	getPathForFile: (file: File) => string;
 	openAppDataFolder: () => Promise<void>;
 	openDataFolder: () => Promise<void>;
+	openProvidersFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;

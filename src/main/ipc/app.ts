@@ -280,6 +280,13 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.openProvidersFolder,
+			wrapSimpleHandler(async () => {
+				await openPathOrThrow(providersDir());
+			}, AppChannels.openProvidersFolder)
+		);
+
+		ipcMain.handle(
 			AppChannels.models,
 			wrapSimpleHandler(() => {
 				return [...loadModels()];

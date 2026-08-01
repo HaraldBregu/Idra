@@ -214,6 +214,10 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: void;
 	};
+	[AppChannels.openProvidersFolder]: {
+		args: [];
+		result: void;
+	};
 	[AppChannels.openExternalUrl]: {
 		args: [url: string];
 		result: void;
