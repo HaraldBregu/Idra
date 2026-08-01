@@ -14,10 +14,10 @@ import {
 	resolveStoredModelProvider,
 } from '@/components/model-provider-select';
 import {
-	SettingsCollapsibleCard,
 	SettingsEmptyState,
 	SettingsLoadingRows,
 	SettingsNotice,
+	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
@@ -93,10 +93,11 @@ const TasksPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsCollapsibleCard
+			<SettingsPageHeader
 				title={t('settings.tabs.taskScheduler')}
 				description={t('settings.cron.description')}
-			>
+			/>
+
 			<SettingsSection
 				title={t('settings.cron.runtime.title')}
 				description={t('settings.cron.runtime.description')}
@@ -200,7 +201,6 @@ const TasksPage: React.FC = () => {
 					)}
 				</SettingsPanel>
 			</SettingsSection>
-			</SettingsCollapsibleCard>
 		</SettingsPageShell>
 	);
 };

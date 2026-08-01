@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
 	AlertTriangle,
+	ChevronDown,
 	Cloud,
 	FolderPlus,
 	FolderSync,
@@ -34,9 +35,9 @@ import type {
 } from '../../../../../../shared/storage_types';
 import { getErrorMessage } from '../../../start/constants';
 import {
-	SettingsCollapsibleCard,
 	SettingsLoadingRows,
 	SettingsNotice,
+	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsRow,
 } from '../../components';
@@ -201,10 +202,13 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 
 	return (
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
-			<SettingsCollapsibleCard
-				title={t('settings.tabs.storage')}
-				description={t('settings.storage.description')}
-			>
+			{!embedded && (
+				<SettingsPageHeader
+					title={t('settings.tabs.storage')}
+					description={t('settings.storage.description')}
+				/>
+			)}
+
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
@@ -405,7 +409,6 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 			)}
 
 			<SettingsNotice icon={Cloud}>{t('settings.storage.localNote')}</SettingsNotice>
-			</SettingsCollapsibleCard>
 		</SettingsPageShell>
 	);
 };

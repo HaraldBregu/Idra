@@ -1,11 +1,6 @@
 import React, { type ReactNode } from 'react';
-import { ChevronDown, type LucideIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import {
 	Empty,
 	EmptyDescription,
@@ -30,37 +25,6 @@ export function SettingsPageShell({
 		<div className={cn('mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 pb-5', className)}>
 			{children}
 		</div>
-	);
-}
-
-interface SettingsCollapsibleCardProps {
-	readonly title: ReactNode;
-	readonly description?: ReactNode;
-	readonly children: ReactNode;
-}
-
-export function SettingsCollapsibleCard({
-	title,
-	description,
-	children,
-}: SettingsCollapsibleCardProps): React.JSX.Element {
-	return (
-		<Collapsible className="rounded-lg border border-border/70 bg-card">
-			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-				<div className="min-w-0 flex-1">
-					<div className="truncate text-[13px] font-medium leading-4 text-foreground">{title}</div>
-					{description && (
-						<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-							{description}
-						</p>
-					)}
-				</div>
-				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-			</CollapsibleTrigger>
-			<CollapsibleContent className="border-t border-border/60">
-				<div className="flex flex-col gap-4 px-3 py-3">{children}</div>
-			</CollapsibleContent>
-		</Collapsible>
 	);
 }
 

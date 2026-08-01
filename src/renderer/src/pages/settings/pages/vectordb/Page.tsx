@@ -13,9 +13,9 @@ import type { CatalogService } from '../../../../../../shared/provider_types';
 import type { DatabaseConfiguration } from '../../../../../../shared/database_types';
 import { getErrorMessage } from '../../../start/constants';
 import {
-	SettingsCollapsibleCard,
 	SettingsLoadingRows,
 	SettingsNotice,
+	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsRow,
 } from '../../components';
@@ -77,10 +77,11 @@ const VectorDbPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsCollapsibleCard
+			<SettingsPageHeader
 				title={t('settings.tabs.vectorDb')}
 				description={t('settings.vectorDb.description')}
-			>
+			/>
+
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
@@ -124,7 +125,6 @@ const VectorDbPage: React.FC = () => {
 					</CardContent>
 				</Card>
 			)}
-			</SettingsCollapsibleCard>
 		</SettingsPageShell>
 	);
 };

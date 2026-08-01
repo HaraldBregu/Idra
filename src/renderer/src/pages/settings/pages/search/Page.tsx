@@ -16,8 +16,8 @@ import {
 import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
 import { getErrorMessage } from '../../../start/constants';
 import {
-	SettingsCollapsibleCard,
 	SettingsNotice,
+	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
@@ -67,10 +67,11 @@ const SearchPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsCollapsibleCard
+			<SettingsPageHeader
 				title={t('settings.tabs.searchEngine')}
 				description={t('settings.searchEngine.description')}
-			>
+			/>
+
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
@@ -127,7 +128,7 @@ const SearchPage: React.FC = () => {
 					</Collapsible>
 				</SettingsSection>
 			)}
-			</SettingsCollapsibleCard>
+
 		</SettingsPageShell>
 	);
 };
