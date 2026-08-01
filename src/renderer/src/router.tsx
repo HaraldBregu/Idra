@@ -34,8 +34,6 @@ const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const SystemMediaDetailPage = lazy(() => import('./pages/settings/pages/system/detail/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const ChannelDetailPage = lazy(() => import('./pages/settings/pages/channels/detail/Page'));
-const McpPage = lazy(() => import('./pages/settings/pages/mcp/Page'));
-const McpDetailsPage = lazy(() => import('./pages/settings/pages/mcp/details/Page'));
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
@@ -224,35 +222,6 @@ const routes: RouteObject[] = [
 								element: (
 									<SettingsRouteWrapper>
 										<ChannelDetailPage />
-									</SettingsRouteWrapper>
-								),
-							},
-						],
-					},
-					{
-						path: 'mcp',
-						children: [
-							{
-								index: true,
-								element: (
-									<SettingsRouteWrapper>
-										<McpPage />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: 'details/:mcpServerId',
-								element: (
-									<SettingsRouteWrapper>
-										<McpDetailsPage />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: 'configure/:mcpServerId',
-								element: (
-									<SettingsRouteWrapper>
-										<McpDetailsPage />
 									</SettingsRouteWrapper>
 								),
 							},

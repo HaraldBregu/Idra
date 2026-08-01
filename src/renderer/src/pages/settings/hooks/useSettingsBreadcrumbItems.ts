@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared';
@@ -19,32 +18,6 @@ const ASSISTANT_SUBPAGE_LABEL_KEYS: Record<string, string> = {
 export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
 	const { t } = useTranslation();
 	const location = useLocation();
-	const mcpServerDetailId = location.pathname.startsWith('/settings/mcp/details/')
-		? decodeURIComponent(location.pathname.split('/').at(-1) ?? '')
-		: null;
-	const [mcpServerDetailName, setMcpServerDetailName] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (!mcpServerDetailId) {
-			setMcpServerDetailName(null);
-			return;
-		}
-
-		let mounted = true;
-		setMcpServerDetailName(null);
-		void window.mcp.list().then(
-			() => {
-				if (mounted) setMcpServerDetailName(mcpServerDetailId);
-			},
-			() => {
-				if (mounted) setMcpServerDetailName(null);
-			}
-		);
-
-		return () => {
-			mounted = false;
-		};
-	}, [mcpServerDetailId]);
 
 	if (location.pathname === '/settings') return [];
 
@@ -92,11 +65,6 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		const channelLabel = getChannelCatalogEntry(channelId)?.label ?? channelId;
 		items[0] = { ...items[0], path: current.path };
 		items.push({ label: channelLabel });
-	}
-
-	if (location.pathname.startsWith('/settings/mcp/details/')) {
-		items[0] = { ...items[0], path: current.path };
-		items.push({ label: mcpServerDetailName ?? t('settings.mcp.detailsTitle') });
 	}
 
 	if (location.pathname.startsWith('/settings/skills/skilldetails/')) {

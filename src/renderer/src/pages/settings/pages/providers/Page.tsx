@@ -26,7 +26,6 @@ import {
 	databaseProviders,
 	databases,
 	loadModels,
-	mcpProviders,
 	mcps,
 	providers,
 	storageProviders,
@@ -48,6 +47,7 @@ import {
 	SettingsLoadingRows,
 } from '../../components';
 import { ProviderCard } from '../storage/ProviderCard';
+import { McpCard } from './McpCard';
 
 interface StorageEntry {
 	key: string;
@@ -434,7 +434,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 	const otherProviders = modelCatalog.filter((provider) => !featuredIds.has(provider.id));
 	const databaseCatalog = actionableDatabaseCatalog();
 	const searchCatalog = actionableSearchCatalog();
-	const mcpCatalog = mcpProviders();
+	const mcpCatalog = mcps();
 	const storageCatalog = mergedStorageEntries(storageEntries ?? []);
 
 	return (
@@ -529,28 +529,8 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 			{section === undefined && (!embedded || mcpCatalog.length > 0) && (
 				<SettingsSection title={t('settings.tabs.mcp')}>
 					<div className="space-y-3 pb-4">
-						{mcpCatalog.map((provider) => (
-							<Card key={provider.id} className="rounded-lg border-border bg-card py-0 shadow-none">
-								<CardContent className="grid min-h-12 grid-cols-[2rem_minmax(0,1fr)] items-center gap-2.5 px-3 py-2.5">
-									<ProviderAvatar
-										providerId={provider.id}
-										name={provider.name}
-										iconDarkUrl={provider.iconDarkUrl}
-										iconLightUrl={provider.iconLightUrl}
-									/>
-									<div className="min-w-0">
-										<h2 className="truncate text-sm font-semibold leading-tight text-foreground">
-											{provider.name}
-										</h2>
-										<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
-											{mcps()
-												.filter((service) => service.provider.id === provider.id)
-												.map((service) => service.name)
-												.join(' - ')}
-										</p>
-									</div>
-								</CardContent>
-							</Card>
+						{mcpCatalog.map((service) => (
+							<McpCard key={`${service.provider.id}-${service.id}`} service={service} />
 						))}
 					</div>
 				</SettingsSection>

@@ -14,7 +14,6 @@ import {
 	Mic,
 	MonitorCog,
 	Music,
-	Plug,
 	RadioTower,
 	Search,
 	Server,
@@ -231,19 +230,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		descriptionKey: 'settings.storage.forcePathStyleDescription',
 		keywords: 'minio path style option compatible',
 	},
-	// MCP
-	{
-		path: '/settings/mcp',
-		labelKey: 'settings.mcp.title',
-		descriptionKey: 'settings.mcp.description',
-		keywords: 'model context protocol server external tools remote local stdio sse http',
-	},
-	{
-		path: '/settings/mcp',
-		labelKey: 'settings.mcp.addServer',
-		descriptionKey: 'settings.mcp.emptyDescription',
-		keywords: 'new mcp server command url transport connect',
-	},
 	// Extensions
 	{
 		path: '/settings/extensions',
@@ -392,12 +378,6 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.skills',
 		descriptionKey: 'settings.overview.descriptions.skills',
 		icon: Sparkles,
-	},
-	{
-		path: '/settings/mcp',
-		labelKey: 'settings.tabs.mcp',
-		descriptionKey: 'settings.overview.descriptions.mcp',
-		icon: Plug,
 	},
 	{
 		path: '/settings/tasks',

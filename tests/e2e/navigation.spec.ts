@@ -25,7 +25,6 @@ const routes = [
 	'/settings/application',
 	'/settings/system',
 	'/settings/channels',
-	'/settings/mcp',
 	'/settings/skills',
 	'/settings/providers',
 	'/settings/providers/keys',

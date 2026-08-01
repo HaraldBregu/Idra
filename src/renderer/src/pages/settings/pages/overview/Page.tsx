@@ -28,7 +28,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: [
 			'/settings/assistant',
 			'/settings/skills',
-			'/settings/mcp',
 			'/settings/rag',
 			'/settings/wiki',
 		],
