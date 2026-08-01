@@ -1,5 +1,6 @@
 import {
 	loadDatabases,
+	loadMcps,
 	loadModels,
 	loadStorages,
 	loadWebSearches,
@@ -48,9 +49,18 @@ describe('provider manifests', () => {
 				}),
 			])
 		);
+		expect(loadMcps()).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+				id: 'notion-mcp',
+				provider: expect.objectContaining({ id: 'notion' }),
+			}),
+		])
+		);
 		expect(namesAreAlphabetical(loadModels())).toBe(true);
 		expect(namesAreAlphabetical(loadDatabases())).toBe(true);
 		expect(namesAreAlphabetical(loadStorages())).toBe(true);
 		expect(namesAreAlphabetical(loadWebSearches())).toBe(true);
+		expect(namesAreAlphabetical(loadMcps())).toBe(true);
 	});
 });

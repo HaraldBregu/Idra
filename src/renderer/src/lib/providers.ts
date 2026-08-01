@@ -15,13 +15,15 @@ let catalog: readonly CatalogModel[] = [];
 let databaseCatalog: readonly CatalogService[] = [];
 let storageCatalog: readonly CatalogService[] = [];
 let webSearchCatalog: readonly CatalogWebSearch[] = [];
+let mcpCatalog: readonly CatalogService[] = [];
 
 export async function loadModels(): Promise<void> {
-	[catalog, databaseCatalog, storageCatalog, webSearchCatalog] = await Promise.all([
+	[catalog, databaseCatalog, storageCatalog, webSearchCatalog, mcpCatalog] = await Promise.all([
 		window.app.models(),
 		window.app.databases(),
 		window.app.storages(),
 		window.app.webSearches(),
+		window.app.mcps(),
 	]);
 }
 
@@ -71,6 +73,14 @@ export function webSearches(): readonly CatalogWebSearch[] {
 /** One record per provider, derived from the web search catalog. */
 export function searchProviders(): readonly PublicProvider[] {
 	return uniqueProviders(webSearchCatalog);
+}
+
+export function mcps(): readonly CatalogService[] {
+	return mcpCatalog;
+}
+
+export function mcpProviders(): readonly PublicProvider[] {
+	return uniqueProviders(mcpCatalog);
 }
 
 export function providerIdsFor(type: ModelCapability): string[] {
