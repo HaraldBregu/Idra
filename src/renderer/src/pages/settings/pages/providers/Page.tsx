@@ -223,31 +223,6 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 		setError(null);
 	};
 
-	const handleUploadProvider = async (): Promise<void> => {
-		setUploadingProvider(true);
-		setError(null);
-		try {
-			const uploaded = await window.app.uploadProvider();
-			if (uploaded) {
-				await loadModels();
-				setCatalogVersion((version) => version + 1);
-			}
-		} catch (err) {
-			setError(getErrorMessage(err, 'Could not upload provider.'));
-		} finally {
-			setUploadingProvider(false);
-		}
-	};
-
-	const handleOpenProvidersFolder = async (): Promise<void> => {
-		setError(null);
-		try {
-			await window.app.openProvidersFolder();
-		} catch (err) {
-			setError(getErrorMessage(err, 'Could not open the providers folder.'));
-		}
-	};
-
 	const handleOpenProviderLink = (provider: ProviderCatalogItem): void => {
 		if (!provider.apiConfigurationUrl) return;
 		openExternalUrl(provider.apiConfigurationUrl);
