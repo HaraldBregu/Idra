@@ -113,7 +113,8 @@ const SearchPage: React.FC = () => {
 							</Select>
 						</div>
 					</CollapsibleContent>
-				</Collapsible>
+					</Collapsible>
+				</Card>
 			)}
 		</SettingsPageShell>
 	);
