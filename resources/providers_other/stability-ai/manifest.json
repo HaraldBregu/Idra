@@ -1,0 +1,25 @@
+{
+	"providerId": "stability-ai",
+	"providerName": "Stability AI",
+	"apiKeyUrl": "https://platform.stability.ai/account/keys",
+	"services": [
+		{
+			"id": "stable-image-ultra",
+			"name": "Stable Image Ultra",
+			"type": "text-to-image-model",
+			"url": "https://api.stability.ai/v2beta"
+		},
+		{
+			"id": "stable-image-core",
+			"name": "Stable Image Core",
+			"type": "text-to-image-model",
+			"url": "https://api.stability.ai/v2beta"
+		},
+		{
+			"id": "stable-audio-2.5",
+			"name": "Stable Audio 2.5",
+			"type": "text-to-audio-model",
+			"url": "https://api.stability.ai/v2beta"
+		}
+	]
+}

@@ -1,0 +1,19 @@
+{
+	"providerId": "reka",
+	"providerName": "Reka AI",
+	"apiKeyUrl": "https://platform.reka.ai/apikeys",
+	"services": [
+		{
+			"id": "reka-flash",
+			"name": "Reka Flash",
+			"type": "large-language-model",
+			"url": "https://api.reka.ai/v1"
+		},
+		{
+			"id": "reka-edge-2603",
+			"name": "Reka Edge 2603",
+			"type": "large-language-model",
+			"url": "https://api.reka.ai/v1"
+		}
+	]
+}
