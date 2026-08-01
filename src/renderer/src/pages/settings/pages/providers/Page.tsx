@@ -135,8 +135,6 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 		}))
 	);
 	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
-	const [uploadingProvider, setUploadingProvider] = useState(false);
-	const [, setCatalogVersion] = useState(0);
 	const [error, setError] = useState<string | null>(null);
 	const [storageEntries, setStorageEntries] = useState<StorageEntry[] | null>(null);
 	const [storageError, setStorageError] = useState<string | null>(null);
