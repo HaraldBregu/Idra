@@ -201,13 +201,10 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 
 	return (
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
-			{!embedded && (
-				<SettingsPageHeader
-					title={t('settings.tabs.storage')}
-					description={t('settings.storage.description')}
-				/>
-			)}
-
+			<SettingsCollapsibleCard
+				title={t('settings.tabs.storage')}
+				description={t('settings.storage.description')}
+			>
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
