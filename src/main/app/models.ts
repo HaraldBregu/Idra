@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { existsSync, mkdirSync, readdirSync, readFileSync, watch } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, watch } from 'node:fs';
 import { is } from '@electron-toolkit/utils';
 import {
 	normalizeProviderId,
@@ -30,45 +30,44 @@ let cache: Catalog | undefined;
 let watching = false;
 
 function loadCatalog(): Catalog {
+	seedProviders();
 	// ponytail: without a watcher there is no safe cache — read fresh every call
 	if (!watching) return readCatalog();
 	if (!cache) cache = readCatalog();
 	return cache;
 }
 
-/** Every model across resources/providers, each carrying the provider that serves it. */
+/** Every model in Friday's local provider catalog, each carrying the provider that serves it. */
 export function loadModels(): readonly CatalogModel[] {
 	return loadCatalog().models;
 }
 
-/** Every database across resources/providers/<id>/databases.json. */
+/** Every database across ~/.friday/providers/<id>/databases.json. */
 export function loadDatabases(): readonly CatalogService[] {
 	return loadCatalog().databases;
 }
 
-/** Every storage across resources/providers/<id>/storages.json. */
+/** Every storage across ~/.friday/providers/<id>/storages.json. */
 export function loadStorages(): readonly CatalogService[] {
 	return loadCatalog().storages;
 }
 
-/** Every web search provider across resources/providers/<id>/web_search.json. */
+/** Every web search provider across ~/.friday/providers/<id>/web_search.json. */
 export function loadWebSearches(): readonly CatalogWebSearch[] {
 	return loadCatalog().webSearches;
 }
 
-/** Keep the bundled and uploaded provider catalogs in sync; onChange fires after edits settle. */
+/** Keep the local provider catalog in sync; onChange fires after edits settle. */
 export function watchModels(onChange: () => void): void {
 	if (watching) return;
 	try {
-		mkdirSync(providersDir(), { recursive: true });
+		seedProviders();
 		let timer: NodeJS.Timeout | undefined;
-		for (const directory of [bundledProvidersDir(), providersDir()]) {
-			watch(directory, { recursive: true }, () => {
-				cache = undefined;
-				clearTimeout(timer);
-				timer = setTimeout(onChange, 100);
-			});
-		}
+		watch(providersDir(), { recursive: true }, () => {
+			cache = undefined;
+			clearTimeout(timer);
+			timer = setTimeout(onChange, 100);
+		});
 		watching = true;
 	} catch {
 		// ponytail: watcher unavailable → loadModels() keeps reading fresh
@@ -199,6 +198,18 @@ function bundledProvidersDir(): string {
 		: path.join(process.resourcesPath, 'resources/providers');
 }
 
+export function seedProviders(
+	source = bundledProvidersDir(),
+	destination = providersDir()
+): void {
+	mkdirSync(destination, { recursive: true });
+	if (!existsSync(source)) return;
+	for (const entry of readdirSync(source, { withFileTypes: true })) {
+		const target = path.join(destination, entry.name);
+		if (!existsSync(target)) cpSync(path.join(source, entry.name), target, { recursive: true });
+	}
+}
+
 function readEntries<T>(providerDir: string, file: string): T[] {
 	const entriesPath = path.join(providerDir, file);
 	if (!existsSync(entriesPath)) return [];
@@ -212,8 +223,8 @@ function readCatalog(): Catalog {
 	const storages: CatalogService[] = [];
 	const webSearches: CatalogWebSearch[] = [];
 
-	for (const directory of [bundledProvidersDir(), providersDir()]) {
-		if (!existsSync(directory)) continue;
+	const directory = providersDir();
+	if (existsSync(directory)) {
 		for (const dirent of readdirSync(directory, { withFileTypes: true })) {
 			if (!dirent.isDirectory()) continue;
 			try {
@@ -223,15 +234,6 @@ function readCatalog(): Catalog {
 				const entry = JSON.parse(readFileSync(infoPath, 'utf-8')) as ProviderCatalogEntry;
 				const modelEntries = readEntries<CatalogEntryModel>(providerDir, 'models.json');
 				const provider = toPublicProvider(entry, modelEntries);
-				const replaceProvider = <T extends { provider: PublicProvider }>(entries: T[]): void => {
-					for (let index = entries.length - 1; index >= 0; index -= 1) {
-						if (entries[index].provider.id === provider.id) entries.splice(index, 1);
-					}
-				};
-				replaceProvider(models);
-				replaceProvider(databases);
-				replaceProvider(storages);
-				replaceProvider(webSearches);
 				models.push(...modelEntries.map((model) => ({ ...model, provider })));
 				databases.push(
 					...readEntries<CatalogEntryService>(providerDir, 'databases.json').map((service) => ({
