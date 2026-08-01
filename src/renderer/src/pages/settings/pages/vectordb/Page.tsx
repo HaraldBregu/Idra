@@ -94,10 +94,10 @@ const VectorDbPage: React.FC = () => {
 			) : entries.length === 0 ? (
 				<SettingsNotice>{t('settings.vectorDb.empty')}</SettingsNotice>
 			) : (
-				<Card size="sm">
+				<Card size="sm" className="gap-0! py-0!">
 					<Collapsible>
 						<CollapsibleTrigger className="group w-full text-left">
-							<CardHeader>
+							<CardHeader className="py-3">
 								<CardTitle className="flex items-center justify-between">
 									{t('settings.vectorDb.defaultTitle')}
 									<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
