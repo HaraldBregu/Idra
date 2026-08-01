@@ -15,12 +15,7 @@ import {
 } from '@/components/ui/select';
 import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
 import { getErrorMessage } from '../../../start/constants';
-import {
-	SettingsNotice,
-	SettingsPageHeader,
-	SettingsPageShell,
-	SettingsSection,
-} from '../../components';
+import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../components';
 import { SEARCH_ENGINES } from './catalog';
 
 const SearchPage: React.FC = () => {
