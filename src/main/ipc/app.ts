@@ -113,6 +113,16 @@ function cameraSettings(): CameraPermissionSettings {
 	};
 }
 
+function readProviderFile(dir: string, file: string): unknown {
+	const filePath = path.join(dir, file);
+	if (!existsSync(filePath)) return undefined;
+	try {
+		return JSON.parse(readFileSync(filePath, 'utf-8'));
+	} catch {
+		throw new Error(`Invalid provider format: ${file} is not valid JSON.`);
+	}
+}
+
 async function uploadProvider(event: IpcMainInvokeEvent): Promise<string | null> {
 	const window = BrowserWindow.fromWebContents(event.sender);
 	const options: Electron.OpenDialogOptions = { properties: ['openDirectory'] };
@@ -122,9 +132,21 @@ async function uploadProvider(event: IpcMainInvokeEvent): Promise<string | null>
 	const source = result.filePaths[0];
 	if (result.canceled || !source) return null;
 
-	if (!existsSync(path.join(source, 'info.json'))) {
+	const info = readProviderFile(source, 'info.json');
+	if (info === undefined) {
 		throw new Error('Selected folder is not a provider (missing info.json).');
 	}
+	const errors = [
+		...validateProviderInfo(info),
+		...validateModelEntries(readProviderFile(source, 'models.json')),
+		...validateServiceEntries(readProviderFile(source, 'databases.json'), 'databases.json'),
+		...validateServiceEntries(readProviderFile(source, 'storages.json'), 'storages.json'),
+		...validateWebSearchEntries(readProviderFile(source, 'web_search.json')),
+	];
+	if (errors.length > 0) {
+		throw new Error(`Invalid provider format: ${errors.join(' ')}`);
+	}
+
 	const name = path.basename(source);
 	await cp(source, path.join(providersDir(), name), { recursive: true });
 	return name;
