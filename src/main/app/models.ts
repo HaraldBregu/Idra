@@ -17,6 +17,7 @@ import type {
 	SpeechToTextApiType,
 } from '../../shared/model_types';
 import { userDataLocation } from '../shared/user_data_location';
+import { parseProviderManifest } from '../../shared/providers/validation';
 
 interface Catalog {
 	readonly models: readonly CatalogModel[];
@@ -233,7 +234,8 @@ function readCatalog(): Catalog {
 				const providerDir = path.join(directory, dirent.name);
 				const manifestPath = path.join(providerDir, 'manifest.json');
 				if (!existsSync(manifestPath)) continue;
-				const entry = JSON.parse(readFileSync(manifestPath, 'utf-8')) as ProviderManifest;
+				const entry = parseProviderManifest(JSON.parse(readFileSync(manifestPath, 'utf-8')));
+				if (!entry) continue;
 				manifests.set(normalizeProviderId(entry.providerId), entry);
 			} catch {
 				// ponytail: a provider dir mid-edit (malformed JSON) drops out until fixed

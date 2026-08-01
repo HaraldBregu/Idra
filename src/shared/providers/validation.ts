@@ -12,6 +12,8 @@ const MODEL_SERVICE_TYPES = [
 	'embedding-model',
 ] as const;
 
+const SERVICE_TYPES = [...MODEL_SERVICE_TYPES, 'web-search', 'database', 'storage'] as const;
+
 function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;
 }
@@ -41,10 +43,10 @@ export function validateProviderManifest(value: unknown): string[] {
 		const serviceErrors: string[] = [];
 		if (!isNonEmptyString(service.id)) serviceErrors.push(`manifest.json: services[${index}].id must be a non-empty string.`);
 		if (!isNonEmptyString(service.name)) serviceErrors.push(`manifest.json: services[${index}].name must be a non-empty string.`);
-		if (!isNonEmptyString(service.type)) serviceErrors.push(`manifest.json: services[${index}].type must be a non-empty string.`);
-		if (service.type === 'web-search' || MODEL_SERVICE_TYPES.includes(service.type as (typeof MODEL_SERVICE_TYPES)[number])) {
-			if (!isNonEmptyString(service.url)) serviceErrors.push(`manifest.json: services[${index}].url must be a non-empty string.`);
+		if (!SERVICE_TYPES.includes(service.type as (typeof SERVICE_TYPES)[number])) {
+			serviceErrors.push(`manifest.json: services[${index}].type must be one of ${SERVICE_TYPES.join(', ')}.`);
 		}
+		if (!isNonEmptyString(service.url)) serviceErrors.push(`manifest.json: services[${index}].url must be a non-empty string.`);
 		return serviceErrors;
 	});
 }
