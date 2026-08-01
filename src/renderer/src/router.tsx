@@ -40,8 +40,6 @@ const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/detail
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 const ProviderKeysPage = lazy(() => import('./pages/settings/pages/providers/keys/Page'));
 const ProviderVectorDbPage = lazy(() => import('./pages/settings/pages/providers/vectordb/Page'));
-const SearchPage = lazy(() => import('./pages/settings/pages/search/Page'));
-const StoragePage = lazy(() => import('./pages/settings/pages/storage/Page'));
 const RagPage = lazy(() => import('./pages/settings/pages/rag/Page'));
 const WikiPage = lazy(() => import('./pages/settings/pages/wiki/Page'));
 const VectorDbPage = lazy(() => import('./pages/settings/pages/vectordb/Page'));
