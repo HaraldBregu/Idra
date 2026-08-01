@@ -187,6 +187,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'general',
+						element: (
+							<SettingsRouteWrapper>
+								<GeneralPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'system',
 						children: [
 							{
