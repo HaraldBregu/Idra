@@ -4,8 +4,6 @@ import { SettingsPageHeader, SettingsPageShell, SettingsPanel } from '../../comp
 import { getSettingsOverviewItem, SettingsOverviewCard } from '../overview/Page';
 
 const APPLICATION_PATHS = [
-	'/settings/general',
-	'/settings/system',
 	'/settings/storage',
 	'/settings/vectordb',
 	'/settings/search',
