@@ -1,14 +1,19 @@
 {
+	"providerId": "demo-ai",
 	"providerName": "Demo AI",
 	"apiKeyUrl": "https://demo-ai.test/keys",
 	"services": [
 		{
 			"id": "demo-chat",
-			"name": "Demo Chat"
+			"name": "Demo Chat",
+			"type": "llm",
+			"url": "https://api.demo-ai.test/v1"
 		},
 		{
 			"id": "demo-chat-mini",
-			"name": "Demo Chat Mini"
+			"name": "Demo Chat Mini",
+			"type": "llm",
+			"url": "https://api.demo-ai.test/v1"
 		}
 	]
 }
