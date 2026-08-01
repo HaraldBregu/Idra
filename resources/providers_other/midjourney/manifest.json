@@ -2,6 +2,8 @@
 	"providerId": "midjourney",
 	"providerName": "Midjourney",
 	"apiKeyUrl": "https://www.midjourney.com/account",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/midjourney.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/midjourney.png",
 	"services": [
 		{
 			"id": "midjourney-v8.1",

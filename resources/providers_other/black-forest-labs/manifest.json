@@ -2,6 +2,8 @@
 	"providerId": "black-forest-labs",
 	"providerName": "Black Forest Labs",
 	"apiKeyUrl": "https://dashboard.bfl.ai",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/bfl.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/bfl.png",
 	"services": [
 		{
 			"id": "FLUX.2",

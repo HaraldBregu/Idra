@@ -2,6 +2,8 @@
 	"providerId": "deepgram",
 	"providerName": "Deepgram",
 	"apiKeyUrl": "https://console.deepgram.com",
+	"icon_dark_url": "/images/fallback_simpleicons/png/deepgram.png",
+	"icon_light_url": "/images/fallback_simpleicons/png/deepgram.png",
 	"services": [
 		{
 			"id": "nova-3",

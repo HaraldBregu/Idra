@@ -2,6 +2,8 @@
 	"providerId": "runway",
 	"providerName": "Runway",
 	"apiKeyUrl": "https://dev.runwayml.com",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/runway.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/runway.png",
 	"services": [
 		{
 			"id": "gen4_turbo",
