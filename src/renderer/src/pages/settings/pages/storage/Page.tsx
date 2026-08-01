@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
 	AlertTriangle,
 	ChevronDown,
-	Cloud,
 	FolderPlus,
 	FolderSync,
 	Play,
