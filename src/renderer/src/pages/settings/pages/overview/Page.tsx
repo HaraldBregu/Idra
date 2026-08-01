@@ -113,6 +113,54 @@ function SettingsOverviewCard({
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
 	const disabledOverviewPaths = new Set<string>([]);
+	const [uploadingProvider, setUploadingProvider] = useState(false);
+	const [providerError, setProviderError] = useState<string | null>(null);
+
+	const handleUploadProvider = async (): Promise<void> => {
+		setUploadingProvider(true);
+		setProviderError(null);
+		try {
+			const uploaded = await window.app.uploadProvider();
+			if (uploaded) await loadModels();
+		} catch {
+			setProviderError('Could not upload provider.');
+		} finally {
+			setUploadingProvider(false);
+		}
+	};
+
+	const providersAction = (
+		<>
+			<Button
+				type="button"
+				variant="outline"
+				size="icon-xs"
+				aria-label="Open providers folder"
+				title="Open providers folder"
+				onClick={() =>
+					void window.app.openProvidersFolder().catch(() => {
+						setProviderError('Could not open the providers folder.');
+					})
+				}
+			>
+				<FolderOpen className="size-3.5" />
+			</Button>
+			<Button
+				type="button"
+				variant="outline"
+				size="xs"
+				disabled={uploadingProvider}
+				onClick={() => void handleUploadProvider()}
+			>
+				{uploadingProvider ? (
+					<LoaderCircle className="size-3.5 animate-spin" />
+				) : (
+					<Upload className="size-3.5" />
+				)}
+				Upload provider
+			</Button>
+		</>
+	);
 
 	return (
 		<SettingsPageShell>
@@ -134,7 +182,16 @@ const OverviewPage: React.FC = () => {
 				);
 
 				return 'titleKey' in group ? (
-					<SettingsSection key={group.id} title={t(group.titleKey)}>
+					<SettingsSection
+						key={group.id}
+						title={t(group.titleKey)}
+						action={group.id === 'providers' ? providersAction : undefined}
+					>
+						{group.id === 'providers' && providerError && (
+							<SettingsNotice variant="destructive" icon={AlertTriangle}>
+								{providerError}
+							</SettingsNotice>
+						)}
 						{panel}
 					</SettingsSection>
 				) : (
