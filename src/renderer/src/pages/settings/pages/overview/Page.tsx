@@ -52,7 +52,9 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 ] as const;
 
-function getSettingsOverviewItem(path: string): SettingsNavigationItem | SettingsModelServiceItem {
+export function getSettingsOverviewItem(
+	path: string
+): SettingsNavigationItem | SettingsModelServiceItem {
 	const navigationItem = SETTINGS_NAVIGATION.find((item) => item.path === path);
 	if (navigationItem) return navigationItem;
 
