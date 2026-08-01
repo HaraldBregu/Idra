@@ -1,4 +1,5 @@
 import {
+	AppWindow,
 	Binary,
 	BookOpenText,
 	Bot,
