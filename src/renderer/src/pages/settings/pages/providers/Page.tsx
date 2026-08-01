@@ -500,7 +500,8 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 								)}
 								Upload provider
 							</Button>
-						</>
+							</>
+						)
 					}
 				/>
 			)}
