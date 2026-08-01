@@ -2,6 +2,7 @@
 	"providerId": "cloudflare",
 	"providerName": "CloudFlare",
 	"apiKeyUrl": "https://dash.cloudflare.com",
+	"images_url": "/images",
 	"services": [
 		{
 			"id": "object-storage",

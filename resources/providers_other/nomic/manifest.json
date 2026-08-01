@@ -2,6 +2,7 @@
 	"providerId": "nomic",
 	"providerName": "Nomic",
 	"apiKeyUrl": "https://atlas.nomic.ai",
+	"images_url": "/images",
 	"services": [
 		{
 			"id": "nomic-embed-text-v2-moe",

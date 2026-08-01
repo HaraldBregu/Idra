@@ -2,6 +2,9 @@
 	"providerId": "xai",
 	"providerName": "xAI",
 	"apiKeyUrl": "https://console.x.ai",
+	"images_url": "/images",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/xai.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/xai.png",
 	"services": [
 		{
 			"id": "grok-4.3",
@@ -18,7 +21,9 @@
 		{
 			"id": "xai-stt-batch",
 			"name": "xAI STT Batch",
-			"apiTypes": ["batch"],
+			"apiTypes": [
+				"batch"
+			],
 			"type": "speech-to-text-model",
 			"url": "https://api.x.ai/v1",
 			"sampleRate": 24000
@@ -26,7 +31,9 @@
 		{
 			"id": "xai-stt-streaming",
 			"name": "xAI STT Streaming",
-			"apiTypes": ["stream"],
+			"apiTypes": [
+				"stream"
+			],
 			"realtime": true,
 			"type": "speech-to-text-model",
 			"url": "https://api.x.ai/v1",
@@ -56,7 +63,5 @@
 			"type": "text-to-video-model",
 			"url": "https://api.x.ai/v1"
 		}
-	],
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/xai.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/xai.png"
+	]
 }

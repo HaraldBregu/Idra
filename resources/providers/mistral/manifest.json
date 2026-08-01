@@ -2,6 +2,9 @@
 	"providerId": "mistral",
 	"providerName": "Mistral AI",
 	"apiKeyUrl": "https://console.mistral.ai/api-keys",
+	"images_url": "/images",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/mistral-color.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/mistral-color.png",
 	"services": [
 		{
 			"id": "mistral-large-2512",
@@ -24,7 +27,9 @@
 		{
 			"id": "voxtral-mini-latest",
 			"name": "Voxtral Mini 2602",
-			"apiTypes": ["batch"],
+			"apiTypes": [
+				"batch"
+			],
 			"type": "speech-to-text-model",
 			"url": "https://api.mistral.ai/v1",
 			"sampleRate": 16000
@@ -32,7 +37,9 @@
 		{
 			"id": "voxtral-mini-transcribe-realtime-2602",
 			"name": "Voxtral Mini Transcribe Realtime 2602",
-			"apiTypes": ["stream"],
+			"apiTypes": [
+				"stream"
+			],
 			"realtime": true,
 			"type": "speech-to-text-model",
 			"url": "https://api.mistral.ai/v1",
@@ -44,7 +51,5 @@
 			"type": "text-to-speech-model",
 			"url": "https://api.mistral.ai/v1"
 		}
-	],
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/mistral-color.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/mistral-color.png"
+	]
 }

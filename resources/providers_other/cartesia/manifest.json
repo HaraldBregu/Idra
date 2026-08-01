@@ -2,6 +2,7 @@
 	"providerId": "cartesia",
 	"providerName": "Cartesia",
 	"apiKeyUrl": "https://play.cartesia.ai/keys",
+	"images_url": "/images",
 	"icon_dark_url": "/images/Archie/png/white-archie.png",
 	"icon_light_url": "/images/Archie/png/black-archie.png",
 	"services": [

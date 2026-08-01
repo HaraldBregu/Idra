@@ -2,6 +2,7 @@
 	"providerId": "jina",
 	"providerName": "Jina AI",
 	"apiKeyUrl": "https://jina.ai/api-dashboard",
+	"images_url": "/images",
 	"services": [
 		{
 			"id": "jina-embeddings-v3",

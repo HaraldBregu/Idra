@@ -2,6 +2,7 @@
 	"providerId": "suno",
 	"providerName": "Suno",
 	"apiKeyUrl": "https://suno.com/account",
+	"images_url": "/images",
 	"icon_dark_url": "/images/fallback_lobehub/png_dark/suno.png",
 	"icon_light_url": "/images/fallback_lobehub/png_light/suno.png",
 	"services": [

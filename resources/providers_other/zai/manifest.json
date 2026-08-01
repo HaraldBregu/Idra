@@ -2,6 +2,7 @@
 	"providerId": "zai",
 	"providerName": "Z.ai / Zhipu AI",
 	"apiKeyUrl": "https://z.ai/manage-apikey/apikey-list",
+	"images_url": "/images",
 	"icon_dark_url": "/images/fallback_lobehub/png_dark/zai.png",
 	"icon_light_url": "/images/fallback_lobehub/png_light/zai.png",
 	"services": [

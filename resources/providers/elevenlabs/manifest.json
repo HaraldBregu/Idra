@@ -2,11 +2,16 @@
 	"providerId": "elevenlabs",
 	"providerName": "ElevenLabs",
 	"apiKeyUrl": "https://elevenlabs.io/app/settings/api-keys",
+	"images_url": "/images",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/elevenlabs.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/elevenlabs.png",
 	"services": [
 		{
 			"id": "scribe_v2",
 			"name": "Scribe v2",
-			"apiTypes": ["batch"],
+			"apiTypes": [
+				"batch"
+			],
 			"type": "speech-to-text-model",
 			"url": "https://api.elevenlabs.io/v1",
 			"sampleRate": 16000
@@ -14,7 +19,9 @@
 		{
 			"id": "scribe_v2_realtime",
 			"name": "Scribe v2 Realtime",
-			"apiTypes": ["stream"],
+			"apiTypes": [
+				"stream"
+			],
 			"realtime": true,
 			"type": "speech-to-text-model",
 			"url": "https://api.elevenlabs.io/v1",
@@ -53,7 +60,5 @@
 			"type": "text-to-audio-model",
 			"url": "https://api.elevenlabs.io/v1"
 		}
-	],
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/elevenlabs.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/elevenlabs.png"
+	]
 }

@@ -2,6 +2,7 @@
 	"providerId": "stability-ai",
 	"providerName": "Stability AI",
 	"apiKeyUrl": "https://platform.stability.ai/account/keys",
+	"images_url": "/images",
 	"icon_dark_url": "/images/fallback_lobehub/png_dark/stability-color.png",
 	"icon_light_url": "/images/fallback_lobehub/png_light/stability-color.png",
 	"services": [

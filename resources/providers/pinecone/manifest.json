@@ -2,6 +2,7 @@
 	"providerId": "pinecone",
 	"providerName": "Pinecone",
 	"apiKeyUrl": "https://app.pinecone.io",
+	"images_url": "/images",
 	"services": [
 		{
 			"id": "vector-database",

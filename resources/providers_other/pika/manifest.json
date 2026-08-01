@@ -2,6 +2,7 @@
 	"providerId": "pika",
 	"providerName": "Pika",
 	"apiKeyUrl": "https://pika.art",
+	"images_url": "/images",
 	"services": [
 		{
 			"id": "pika-2.2",

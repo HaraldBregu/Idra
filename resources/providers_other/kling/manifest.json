@@ -2,6 +2,7 @@
 	"providerId": "kling",
 	"providerName": "Kuaishou / Kling AI",
 	"apiKeyUrl": "https://app.klingai.com/global/dev",
+	"images_url": "/images",
 	"icon_dark_url": "/images/fallback_lobehub/png_dark/kling-color.png",
 	"icon_light_url": "/images/fallback_lobehub/png_light/kling-color.png",
 	"services": [

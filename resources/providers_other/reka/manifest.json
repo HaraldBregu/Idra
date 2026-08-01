@@ -2,6 +2,7 @@
 	"providerId": "reka",
 	"providerName": "Reka AI",
 	"apiKeyUrl": "https://platform.reka.ai/apikeys",
+	"images_url": "/images",
 	"services": [
 		{
 			"id": "reka-flash",

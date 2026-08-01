@@ -2,6 +2,7 @@
 	"providerId": "voyage",
 	"providerName": "Voyage AI",
 	"apiKeyUrl": "https://dashboard.voyageai.com",
+	"images_url": "/images",
 	"services": [
 		{
 			"id": "voyage-3-large",

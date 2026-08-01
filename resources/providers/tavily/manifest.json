@@ -2,6 +2,7 @@
 	"providerId": "tavily",
 	"providerName": "Tavily",
 	"apiKeyUrl": "https://app.tavily.com/home",
+	"images_url": "/images",
 	"services": [
 		{
 			"id": "tavily-web-search",

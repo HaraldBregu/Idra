@@ -2,13 +2,17 @@
 	"providerId": "deepgram",
 	"providerName": "Deepgram",
 	"apiKeyUrl": "https://console.deepgram.com",
+	"images_url": "/images",
 	"icon_dark_url": "/images/fallback_simpleicons/png/deepgram.png",
 	"icon_light_url": "/images/fallback_simpleicons/png/deepgram.png",
 	"services": [
 		{
 			"id": "nova-3",
 			"name": "Nova 3",
-			"apiTypes": ["batch", "stream"],
+			"apiTypes": [
+				"batch",
+				"stream"
+			],
 			"type": "speech-to-text-model",
 			"url": "https://api.deepgram.com/v1",
 			"sampleRate": 24000
@@ -16,7 +20,9 @@
 		{
 			"id": "flux-general-en",
 			"name": "Flux",
-			"apiTypes": ["stream"],
+			"apiTypes": [
+				"stream"
+			],
 			"realtime": true,
 			"type": "speech-to-text-model",
 			"url": "https://api.deepgram.com/v1",

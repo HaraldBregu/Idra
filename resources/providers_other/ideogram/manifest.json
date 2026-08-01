@@ -2,6 +2,7 @@
 	"providerId": "ideogram",
 	"providerName": "Ideogram",
 	"apiKeyUrl": "https://ideogram.ai/manage-api",
+	"images_url": "/images",
 	"icon_dark_url": "/images/fallback_lobehub/png_dark/ideogram.png",
 	"icon_light_url": "/images/fallback_lobehub/png_light/ideogram.png",
 	"services": [

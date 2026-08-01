@@ -2,6 +2,9 @@
 	"providerId": "kimi",
 	"providerName": "Moonshot AI / Kimi",
 	"apiKeyUrl": "https://platform.moonshot.ai/console/api-keys",
+	"images_url": "/images",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/kimi-color.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/kimi-color.png",
 	"services": [
 		{
 			"id": "kimi-k3",
@@ -33,7 +36,5 @@
 			"type": "large-language-model",
 			"url": "https://api.moonshot.ai/v1"
 		}
-	],
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/kimi-color.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/kimi-color.png"
+	]
 }

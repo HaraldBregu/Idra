@@ -2,6 +2,7 @@
 	"providerId": "perplexity",
 	"providerName": "Perplexity",
 	"apiKeyUrl": "https://www.perplexity.ai/settings/api",
+	"images_url": "/images",
 	"icon_dark_url": "/images/fallback_lobehub/png_dark/perplexity-color.png",
 	"icon_light_url": "/images/fallback_lobehub/png_light/perplexity-color.png",
 	"services": [
