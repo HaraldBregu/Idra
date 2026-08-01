@@ -8,7 +8,7 @@ import {
 	type CatalogEntryWebSearch,
 	type CatalogService,
 	type CatalogWebSearch,
-	type ProviderCatalogEntry,
+	type ProviderManifest,
 	type PublicProvider,
 } from '../../shared/provider_types';
 import type {
@@ -42,17 +42,17 @@ export function loadModels(): readonly CatalogModel[] {
 	return loadCatalog().models;
 }
 
-/** Every database across ~/.friday/providers/<id>/databases.json. */
+/** Every database across ~/.friday/providers/<id>/manifest.json. */
 export function loadDatabases(): readonly CatalogService[] {
 	return loadCatalog().databases;
 }
 
-/** Every storage across ~/.friday/providers/<id>/storages.json. */
+/** Every storage across ~/.friday/providers/<id>/manifest.json. */
 export function loadStorages(): readonly CatalogService[] {
 	return loadCatalog().storages;
 }
 
-/** Every web search provider across ~/.friday/providers/<id>/web_search.json. */
+/** Every web search provider across ~/.friday/providers/<id>/manifest.json. */
 export function loadWebSearches(): readonly CatalogWebSearch[] {
 	return loadCatalog().webSearches;
 }
@@ -174,15 +174,11 @@ function toProviderModel(model: CatalogModel): ProviderModel {
 	};
 }
 
-function toPublicProvider(
-	entry: ProviderCatalogEntry,
-	models: readonly CatalogEntryModel[]
-): PublicProvider {
-	// ponytail: the provider's base URL is its first http(s) model API url
-	const baseUrl = models.find((model) => model.url?.startsWith('http'))?.url ?? '';
+function toPublicProvider(entry: ProviderManifest): PublicProvider {
+	const baseUrl = entry.services.find((service) => service.url?.startsWith('http'))?.url ?? '';
 	return {
-		id: entry.id,
-		name: entry.name,
+		id: entry.providerId,
+		name: entry.providerName,
 		baseUrl,
 		...(entry.apiKeyUrl ? { apiKeyUrl: entry.apiKeyUrl } : {}),
 	};
@@ -210,13 +206,6 @@ export function seedProviders(
 	}
 }
 
-function readEntries<T>(providerDir: string, file: string): T[] {
-	const entriesPath = path.join(providerDir, file);
-	if (!existsSync(entriesPath)) return [];
-	const parsed = JSON.parse(readFileSync(entriesPath, 'utf-8')) as T[];
-	return Array.isArray(parsed) ? parsed : [];
-}
-
 function readCatalog(): Catalog {
 	const models: CatalogModel[] = [];
 	const databases: CatalogService[] = [];
@@ -229,26 +218,28 @@ function readCatalog(): Catalog {
 			if (!dirent.isDirectory()) continue;
 			try {
 				const providerDir = path.join(directory, dirent.name);
-				const infoPath = path.join(providerDir, 'info.json');
-				if (!existsSync(infoPath)) continue;
-				const entry = JSON.parse(readFileSync(infoPath, 'utf-8')) as ProviderCatalogEntry;
-				const modelEntries = readEntries<CatalogEntryModel>(providerDir, 'models.json');
-				const provider = toPublicProvider(entry, modelEntries);
+				const manifestPath = path.join(providerDir, 'manifest.json');
+				if (!existsSync(manifestPath)) continue;
+				const entry = JSON.parse(readFileSync(manifestPath, 'utf-8')) as ProviderManifest;
+				const provider = toPublicProvider(entry);
+				const modelEntries = entry.services.filter((service): service is CatalogEntryModel =>
+					['llm', 'research-chat', 'speech-to-text', 'text-to-speech', 'realtime-voice', 'text-to-image', 'text-to-video', 'text-to-audio', 'embedding'].includes(service.type)
+				);
 				models.push(...modelEntries.map((model) => ({ ...model, provider })));
 				databases.push(
-					...readEntries<CatalogEntryService>(providerDir, 'databases.json').map((service) => ({
+					...entry.services.filter((service): service is CatalogEntryService => service.type === 'database').map((service) => ({
 						...service,
 						provider,
 					}))
 				);
 				storages.push(
-					...readEntries<CatalogEntryService>(providerDir, 'storages.json').map((service) => ({
+					...entry.services.filter((service): service is CatalogEntryService => service.type === 'storage').map((service) => ({
 						...service,
 						provider,
 					}))
 				);
 				webSearches.push(
-					...readEntries<CatalogEntryWebSearch>(providerDir, 'web_search.json').map((search) => ({
+					...entry.services.filter((service): service is CatalogEntryWebSearch => service.type === 'web-search').map((search) => ({
 						...search,
 						provider,
 					}))

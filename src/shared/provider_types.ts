@@ -24,7 +24,7 @@ export interface Provider {
 export type PublicProvider = Omit<Provider, 'apiKey'>;
 export type ProviderInput = Provider;
 
-/** One model in resources/providers/<id>/models.json. */
+/** A model service in resources/providers/<id>/manifest.json. */
 export interface CatalogEntryModel extends ProviderModel {
 	readonly type: ModelCapability;
 	/** Base URL of the API serving this model. */
@@ -35,7 +35,7 @@ export interface CatalogEntryModel extends ProviderModel {
 	readonly sampleRate?: number;
 }
 
-/** One entry in resources/providers/<id>/databases.json or storages.json. */
+/** A non-model service in resources/providers/<id>/manifest.json. */
 export interface CatalogEntryService {
 	readonly id: string;
 	readonly name: string;
@@ -49,11 +49,9 @@ export interface CatalogService extends CatalogEntryService {
 	readonly provider: PublicProvider;
 }
 
-/** One entry in resources/providers/<id>/web_search.json. */
-export interface CatalogEntryWebSearch {
-	readonly id: string;
-	readonly name: string;
-	/** Base URL of the web search API. */
+/** One web search service in resources/providers/<id>/manifest.json. */
+export interface CatalogEntryWebSearch extends CatalogEntryService {
+	readonly type: 'web-search';
 	readonly url: string;
 }
 
@@ -62,12 +60,13 @@ export interface CatalogWebSearch extends CatalogEntryWebSearch {
 	readonly provider: PublicProvider;
 }
 
-/** Provider identity, as stored in resources/providers/<id>/info.json. */
-export interface ProviderCatalogEntry {
-	readonly id: string;
-	readonly name: string;
+/** Provider definition stored in resources/providers/<id>/manifest.json. */
+export interface ProviderManifest {
+	readonly providerId: string;
+	readonly providerName: string;
 	/** Provider dashboard page where API keys are created. */
 	readonly apiKeyUrl?: string;
+	readonly services: readonly (CatalogEntryModel | CatalogEntryService)[];
 }
 
 export interface ModelSelection {

@@ -50,12 +50,7 @@ import {
 	watchModels,
 } from '../app/models';
 import type { LoggerService } from '../shared';
-import {
-	validateModelEntries,
-	validateProviderInfo,
-	validateServiceEntries,
-	validateWebSearchEntries,
-} from '../../shared/providers/validation';
+import { validateProviderManifest } from '../../shared/providers/validation';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
@@ -132,17 +127,11 @@ async function uploadProvider(event: IpcMainInvokeEvent): Promise<string | null>
 	const source = result.filePaths[0];
 	if (result.canceled || !source) return null;
 
-	const info = readProviderFile(source, 'info.json');
-	if (info === undefined) {
-		throw new Error('Selected folder is not a provider (missing info.json).');
+	const manifest = readProviderFile(source, 'manifest.json');
+	if (manifest === undefined) {
+		throw new Error('Selected folder is not a provider (missing manifest.json).');
 	}
-	const errors = [
-		...validateProviderInfo(info),
-		...validateModelEntries(readProviderFile(source, 'models.json')),
-		...validateServiceEntries(readProviderFile(source, 'databases.json'), 'databases.json'),
-		...validateServiceEntries(readProviderFile(source, 'storages.json'), 'storages.json'),
-		...validateWebSearchEntries(readProviderFile(source, 'web_search.json')),
-	];
+	const errors = validateProviderManifest(manifest);
 	if (errors.length > 0) {
 		throw new Error(`Invalid provider format: ${errors.join(' ')}`);
 	}

@@ -32,8 +32,7 @@ built-in `resources/providers/<id>/` catalog:
   extensions/<extension-id>/index.html
   skills/<skill-id>/SKILL.md
   providers/<provider-id>/
-    info.json
-    models.json
+    manifest.json
   mcp/
   languages/<locale>.json
   themes/<theme-id>.json
@@ -86,18 +85,13 @@ built-in `resources/providers/<id>/` catalog:
 A provider contribution only declares its `id`; the definition lives in `providers/<provider-id>/`:
 
 ```json
-// providers/acme/info.json
+// providers/acme/manifest.json
 {
-	"name": "Acme AI",
-	"protocol": "openai-compatible",
-	"baseUrl": "https://api.acme.test/v1",
-	"apiKeyUrl": "https://acme.test/keys"
+	"providerId": "acme",
+	"providerName": "Acme AI",
+	"apiKeyUrl": "https://acme.test/keys",
+	"services": [{ "id": "acme-chat", "name": "Acme Chat", "type": "llm", "url": "https://api.acme.test/v1" }]
 }
-```
-
-```json
-// providers/acme/models.json
-[{ "id": "acme-chat", "name": "Acme Chat" }]
 ```
 
 Provider credentials do not belong in the manifest. They remain in Friday's provider settings store.

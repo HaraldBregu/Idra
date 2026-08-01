@@ -15,15 +15,15 @@ describe('providersDir', () => {
 		const destination = path.join(root, 'destination');
 		mkdirSync(path.join(source, 'openai'), { recursive: true });
 		mkdirSync(path.join(destination, 'openai'), { recursive: true });
-		writeFileSync(path.join(source, 'openai', 'info.json'), 'bundled');
-		writeFileSync(path.join(destination, 'openai', 'info.json'), 'local');
+		writeFileSync(path.join(source, 'openai', 'manifest.json'), 'bundled');
+		writeFileSync(path.join(destination, 'openai', 'manifest.json'), 'local');
 		mkdirSync(path.join(source, 'anthropic'), { recursive: true });
-		writeFileSync(path.join(source, 'anthropic', 'info.json'), 'bundled');
+		writeFileSync(path.join(source, 'anthropic', 'manifest.json'), 'bundled');
 
 		try {
 			seedProviders(source, destination);
-			expect(readFileSync(path.join(destination, 'openai', 'info.json'), 'utf8')).toBe('local');
-			expect(readFileSync(path.join(destination, 'anthropic', 'info.json'), 'utf8')).toBe('bundled');
+			expect(readFileSync(path.join(destination, 'openai', 'manifest.json'), 'utf8')).toBe('local');
+			expect(readFileSync(path.join(destination, 'anthropic', 'manifest.json'), 'utf8')).toBe('bundled');
 		} finally {
 			rmSync(root, { recursive: true, force: true });
 		}
