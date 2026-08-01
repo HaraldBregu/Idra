@@ -7,6 +7,7 @@
 		"resources/**",
 		"!resources/skills/**",
 		"!resources/sounds/**",
+		"!resources/svgs/**",
 		"!resources/**/*.svg"
 	],
 	"icon": "./resources/icons/win/icon.ico",
@@ -78,7 +79,7 @@
 			{
 				"from": "./resources",
 				"to": "resources",
-				"filter": ["**/*", "!skills/**", "!sounds/**", "!**/*.svg"]
+				"filter": ["**/*", "!skills/**", "!sounds/**", "!svgs/**", "!**/*.svg"]
 			}
 		]
 	},
@@ -119,7 +120,7 @@
 			{
 				"from": "./resources",
 				"to": "resources",
-				"filter": ["**/*", "!skills/**", "!sounds/**", "!**/*.svg"]
+				"filter": ["**/*", "!skills/**", "!sounds/**", "!svgs/**", "!**/*.svg"]
 			}
 		]
 	},
@@ -162,7 +163,7 @@
 			{
 				"from": "./resources",
 				"to": "resources",
-				"filter": ["**/*", "!skills/**", "!sounds/**", "!**/*.svg"]
+				"filter": ["**/*", "!skills/**", "!sounds/**", "!svgs/**", "!**/*.svg"]
 			}
 		]
 	},
