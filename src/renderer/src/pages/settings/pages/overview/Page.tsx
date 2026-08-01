@@ -31,11 +31,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: ['/settings/assistant', '/settings/skills', '/settings/rag', '/settings/wiki'],
 	},
 	{
-		id: 'services',
-		titleKey: 'settings.overview.groups.services',
-		paths: ['/settings/storage', '/settings/vectordb', '/settings/search', '/settings/tasks'],
-	},
-	{
 		id: 'providers',
 		titleKey: 'settings.tabs.providers',
 		paths: [
