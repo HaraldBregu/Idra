@@ -1,5 +1,7 @@
 import { getProviderApiConfigurationUrl } from '../../../../shared';
 import {
+	botProviders,
+	bots,
 	databaseProviders,
 	databases,
 	providerIdsFor,
