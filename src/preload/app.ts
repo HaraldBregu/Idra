@@ -21,6 +21,9 @@ export const app: AppApi = {
 	mcps: () => {
 		return typedInvokeUnwrap(AppChannels.mcps);
 	},
+	bots: () => {
+		return typedInvokeUnwrap(AppChannels.bots);
+	},
 	onModelsChanged: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.modelsChanged, callback);
 	},
