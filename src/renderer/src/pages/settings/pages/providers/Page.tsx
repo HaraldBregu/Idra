@@ -74,6 +74,10 @@ const SECTION_HEADERS: Record<ProviderSetupSection, { titleKey: string; descript
 			titleKey: 'settings.tabs.mcp',
 			descriptionKey: 'settings.overview.descriptions.mcp',
 		},
+		bots: {
+			titleKey: 'settings.tabs.bots',
+			descriptionKey: 'settings.overview.descriptions.bots',
+		},
 	};
 
 /** Providers pinned on top of the start-flow models list. */
