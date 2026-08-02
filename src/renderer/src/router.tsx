@@ -301,6 +301,14 @@ const routes: RouteObject[] = [
 								),
 							},
 							{
+								path: 'bots',
+								element: (
+									<SettingsRouteWrapper>
+										<ProvidersPage section="bots" />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
 								path: 'keys',
 								element: (
 									<SettingsRouteWrapper>
