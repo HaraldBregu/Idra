@@ -129,7 +129,6 @@ const OverviewPage: React.FC = () => {
 			type="button"
 			variant="outline"
 			size="icon-xs"
-			className="ml-auto"
 			aria-label="Upload provider"
 			title="Upload provider"
 			disabled={uploadingProvider}
@@ -162,22 +161,33 @@ const OverviewPage: React.FC = () => {
 					</SettingsPanel>
 				);
 
+				if (group.id === 'providers') {
+					return (
+						<section key={group.id} className="flex flex-col gap-2">
+							<Item size="sm" className="px-0.5">
+								<ItemContent className="min-w-0 flex-col items-start gap-0">
+									<ItemTitle>{t(group.titleKey)}</ItemTitle>
+									<p className="mt-0.5 max-w-2xl text-[10px] leading-4 text-muted-foreground">
+										{t('settings.overview.descriptions.providers')}
+									</p>
+								</ItemContent>
+								<ItemActions className="justify-end">{providersAction}</ItemActions>
+							</Item>
+							{providerError && (
+								<SettingsNotice variant="destructive" icon={AlertTriangle}>
+									{providerError}
+								</SettingsNotice>
+							)}
+							{panel}
+						</section>
+					);
+				}
+
 				return 'titleKey' in group ? (
 					<SettingsSection
 						key={group.id}
 						title={t(group.titleKey)}
-						description={
-							group.id === 'providers'
-								? t('settings.overview.descriptions.providers')
-								: undefined
-						}
-						action={group.id === 'providers' ? providersAction : undefined}
 					>
-						{group.id === 'providers' && providerError && (
-							<SettingsNotice variant="destructive" icon={AlertTriangle}>
-								{providerError}
-							</SettingsNotice>
-						)}
 						{panel}
 					</SettingsSection>
 				) : (
