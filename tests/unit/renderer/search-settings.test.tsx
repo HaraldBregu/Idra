@@ -6,8 +6,6 @@ import OverviewPage from '../../../src/renderer/src/pages/settings/pages/overvie
 
 jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
-		'settings.tabs.providers': 'Providers',
-		'settings.overview.descriptions.providers': 'API keys and providers',
 		'settings.tabs.searchEngine': 'Search engine',
 		'settings.searchEngine.description': 'Choose the web search provider.',
 		'settings.searchEngine.defaultTitle': 'Default search engine',
@@ -79,20 +77,5 @@ describe('Settings overview', () => {
 			.closest('section');
 		expect(assistantGroup).not.toBeNull();
 		expect(within(assistantGroup as HTMLElement).getByText('settings.tabs.wiki')).toBeInTheDocument();
-	});
-
-	it('shows the Providers subtitle and keeps its upload action right aligned', () => {
-		render(
-			<MemoryRouter initialEntries={['/settings']}>
-				<OverviewPage />
-			</MemoryRouter>
-		);
-
-		const providersGroup = screen.getByText('Providers').closest('section');
-		expect(providersGroup).not.toBeNull();
-		expect(within(providersGroup as HTMLElement).getByText('API keys and providers')).toBeInTheDocument();
-		expect(
-			within(providersGroup as HTMLElement).getByRole('button', { name: 'Upload provider' })
-		).toHaveClass('ml-auto');
 	});
 });
