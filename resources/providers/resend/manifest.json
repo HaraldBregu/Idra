@@ -1,0 +1,14 @@
+{
+	"providerId": "resend",
+	"providerName": "Resend",
+	"apiKeyUrl": "https://resend.com/api-keys",
+	"images_url": "/images",
+	"services": [
+		{
+			"id": "resend-email",
+			"name": "Resend Email API",
+			"type": "transactional-email",
+			"url": "https://api.resend.com"
+		}
+	]
+}
