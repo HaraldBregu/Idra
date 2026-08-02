@@ -42,6 +42,6 @@ export const provider: ProviderApi = {
 		return uniqueProvidersWithStored(await window.app.databases());
 	},
 	getChannels: async (): Promise<Channel> => {
-		return window.channels.getConfig();
+		return window.app.getChannels();
 	},
 };
