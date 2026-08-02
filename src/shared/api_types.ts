@@ -325,10 +325,6 @@ export interface AppApi {
 	/** Pick a provider folder and copy it into the providers catalog; null when canceled. */
 	uploadProvider: () => Promise<string | null>;
 	getChannels: () => Promise<Channel>;
-	saveChannelConfig: <TKey extends ChannelType>(
-		type: TKey,
-		config: Channel[TKey]
-	) => Promise<Channel[TKey]>;
 	setDefaultChannel: (providerId: string, channelId: string) => Promise<void>;
 	getChannelsStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
 	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
