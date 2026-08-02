@@ -64,8 +64,7 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 	}
 
 	async function handleMessage(message: ChannelInboundMessage): Promise<void> {
-		const config = getChannelConfig(message.channel);
-		const decision = canReceive(message, config);
+		const decision = canReceive(message, botCredential(message.channel));
 		if (!decision.allowed) {
 			logger.info('ChannelRegistry', 'Dropped channel message', {
 				channel: message.channel,
