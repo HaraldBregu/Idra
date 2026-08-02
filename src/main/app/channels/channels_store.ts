@@ -1,6 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { userDataLocation } from '../shared/user_data_location';
+import { userDataLocation } from '../../shared/user_data_location';
 import {
 	CHANNEL_DEFAULT_DM_POLICY,
 	CHANNEL_DM_POLICIES,
@@ -9,11 +9,11 @@ import {
 	type ChannelDmPolicy,
 	type ChannelHeartbeatVisibilityConfig,
 	type ChannelType,
-} from '../../shared';
+} from '../../../shared';
 
 export type ChannelsStoreState = Partial<Channel>;
 
-const CHANNELS_STORE_NAME = 'settings';
+const CHANNELS_STORE_NAME = 'settings.channels';
 
 const ACCOUNT_STRING_KEYS = [
 	'label',

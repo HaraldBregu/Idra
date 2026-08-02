@@ -1,4 +1,4 @@
-import type { Channel, ChannelType } from '../../shared';
+import type { Channel, ChannelType } from '../../../shared';
 import type { ChannelInboundMessage } from './channels_types';
 
 export interface ChannelSecurityDecision {
