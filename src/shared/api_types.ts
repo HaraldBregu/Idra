@@ -324,4 +324,18 @@ export interface AppApi {
 	showAudioContextMenu: (path: string) => Promise<void>;
 	/** Pick a provider folder and copy it into the providers catalog; null when canceled. */
 	uploadProvider: () => Promise<string | null>;
+	getChannels: () => Promise<Channel>;
+	saveChannelConfig: <TKey extends ChannelType>(
+		type: TKey,
+		config: Channel[TKey]
+	) => Promise<Channel[TKey]>;
+	getChannelsProviderId: () => Promise<string>;
+	setChannelsProviderId: (providerId: string) => Promise<void>;
+	getChannelsModelId: () => Promise<string>;
+	setChannelsModelId: (modelId: string) => Promise<void>;
+	getChannelsStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
+	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
+	stopTelegram: () => Promise<void>;
+	restartTelegram: () => Promise<ChannelStatusEvent | undefined>;
+	onChannelsStatusChanged: (callback: (event: ChannelStatusEvent) => void) => () => void;
 }
