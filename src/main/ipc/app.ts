@@ -55,13 +55,7 @@ import {
 import type { LoggerService } from '../shared';
 import { validateProviderManifest } from '../../shared/providers/validation';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../../shared';
-import {
-	getChannels,
-	setChannelConfig,
-	setChannelId,
-	setProviderId,
-	type ChannelRegistry,
-} from '../app/channels';
+import { getChannels, setChannelId, setProviderId, type ChannelRegistry } from '../app/channels';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
