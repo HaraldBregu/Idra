@@ -16,6 +16,8 @@ import {
 import type { StorageConfig } from '@shared/storage_types';
 import type { SearchEngineId, SearchSettings } from '@shared/search_types';
 import {
+	botProviders,
+	bots,
 	databaseProviders,
 	databases,
 	mcps,
@@ -24,6 +26,7 @@ import {
 	storages,
 } from '@/lib/providers';
 import {
+	actionableBotCatalog,
 	actionableDatabaseCatalog,
 	actionableProviderCatalog,
 	actionableSearchCatalog,
