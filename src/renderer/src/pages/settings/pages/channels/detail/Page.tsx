@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import {
-	Hash,
-	KeyRound,
-	Plus,
-	ShieldCheck,
-	UserRound,
-	X,
-} from 'lucide-react';
+import { Hash, KeyRound, Plus, ShieldCheck, UserRound, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,281 +12,205 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
-import {
-	SettingsNotice,
-	SettingsPageHeader,
-	SettingsPageShell,
-} from '../../../components';
-import type {
-	Channel,
-	ChannelAccountProperties,
-	ChannelDmPolicy,
-	ChannelType,
-} from '../../../../../../../shared';
-import {
-	getChannelCatalogEntry,
-	isChannelId,
-} from '../../../../../../../shared';
+import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../../components';
+import type { CatalogService } from '@shared/provider_types';
+import { CHANNEL_DM_POLICIES } from '@shared/channels_types';
+import type { ChannelDmPolicy, StoredBotProvider } from '@shared/channels_types';
 
-type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
 
-const DM_POLICY_OPTIONS: readonly ChannelDmPolicy[] = ['allowlist', 'pairing', 'open', 'deny'];
 const SETTINGS_INPUT_CLASS = 'h-8 w-full text-xs sm:w-80';
 
 const ChannelDetailPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { channelId } = useParams<{ channelId: string }>();
-	const selectedId = channelId && isChannelId(channelId) ? channelId : null;
-	const [configs, setConfigs] = useState<Channel | null>(null);
+	const providerId = channelId ?? '';
+	const [service, setService] = useState<CatalogService | null>(null);
+	const [credential, setCredential] = useState<StoredBotProvider | null>(null);
 	const [listDrafts, setListDrafts] = useState<Record<ListField, string>>({
 		allowFrom: '',
 		groupAllowFrom: '',
 	});
-	const [loadError, setLoadError] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
 
-		window.app
-			.getChannels()
-			.then((nextConfig) => {
+		void Promise.all([window.app.bots(), window.provider.get(providerId)])
+			.then(([services, stored]) => {
 				if (!mounted) return;
-				setConfigs(nextConfig);
+				const entry = services.find((item) => item.provider.id === providerId) ?? null;
+				setService(entry);
+				setCredential(stored ?? blankCredential(providerId, entry));
 			})
-			.catch((error) => {
-				console.error('[ChannelDetailPage] Failed to load channel settings:', error);
-				if (mounted) setLoadError(error instanceof Error ? error.message : String(error));
+			.catch((err) => {
+				console.error('[ChannelDetailPage] Failed to load channel:', err);
+				if (mounted) setError(err instanceof Error ? err.message : String(err));
 			});
 
 		return () => {
 			mounted = false;
 		};
-	}, []);
+	}, [providerId]);
 
-	useEffect(() => {
-		setListDrafts({ allowFrom: '', groupAllowFrom: '' });
-	}, [selectedId]);
-
-	const selectedEntry = selectedId ? getChannelCatalogEntry(selectedId) ?? null : null;
-	const selectedConfig = selectedId ? configs?.[selectedId] ?? null : null;
-	const selectedAccount = selectedConfig
-		? getDefaultAccountConfig(selectedConfig)
-		: emptyAccountConfig();
-	const selectedTitle = selectedEntry?.label ?? t('settings.channels.configuration');
-
-	const setSelectedConfig = (nextConfig: EditableChannelConfig): void => {
-		if (!selectedId) return;
-		setConfigs((current) => {
-			if (!current) return current;
-			return { ...current, [selectedId]: nextConfig };
-		});
-	};
-
-	const saveChannelConfig = async (
-		channelId: ChannelType,
-		config: EditableChannelConfig
-	): Promise<void> => {
-		setLoadError(null);
+	const save = async (next: StoredBotProvider): Promise<void> => {
+		setCredential(next);
+		setError(null);
 		try {
-			const saved = await window.app.saveChannelConfig(channelId, config);
-			setConfigs((current) => {
-				if (!current) return current;
-				return { ...current, [channelId]: saved };
-			});
-		} catch (error) {
-			setLoadError(error instanceof Error ? error.message : String(error));
+			await window.provider.set(next, 'bots');
+		} catch (err) {
+			setError(err instanceof Error ? err.message : String(err));
 		}
-	};
-
-	const saveSelectedConfig = async (): Promise<void> => {
-		if (!configs || !selectedId) return;
-		await saveChannelConfig(selectedId, configs[selectedId]);
-	};
-
-	const updateSelectedConfig = (
-		updater: (config: EditableChannelConfig) => EditableChannelConfig,
-		options?: { save?: boolean }
-	): void => {
-		if (!selectedConfig || !selectedId) return;
-		const nextConfig = updater(selectedConfig);
-		setSelectedConfig(nextConfig);
-		if (options?.save) void saveChannelConfig(selectedId, nextConfig);
-	};
-
-	const updateAccountField = (
-		field: keyof ChannelAccountProperties,
-		value: ChannelAccountProperties[keyof ChannelAccountProperties],
-		options?: { save?: boolean }
-	): void => {
-		if (!selectedId) return;
-		updateSelectedConfig(
-			(config) => updateDefaultAccountConfig(config, { [field]: value }),
-			options
-		);
 	};
 
 	const addListValue = (field: ListField): void => {
 		const value = listDrafts[field].trim();
-		if (!value) return;
-		const nextValues = normalizeList([...(selectedAccount[field] ?? []), value]);
+		if (!value || !credential) return;
 		setListDrafts((current) => ({ ...current, [field]: '' }));
-		updateAccountField(field, nextValues, { save: true });
+		void save({
+			...credential,
+			[field]: [...new Set([...(credential[field] ?? []), value])],
+		});
 	};
 
 	const removeListValue = (field: ListField, value: string): void => {
-		updateAccountField(
-			field,
-			(selectedAccount[field] ?? []).filter((item) => item !== value),
-			{ save: true }
-		);
+		if (!credential) return;
+		void save({
+			...credential,
+			[field]: (credential[field] ?? []).filter((item) => item !== value),
+		});
 	};
 
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={selectedTitle}
-				description={selectedEntry?.blurb}
+				title={service?.provider.name ?? t('settings.channels.configuration')}
+				description={service?.name}
 			/>
 
-			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
+			{error && <SettingsNotice variant="destructive">{error}</SettingsNotice>}
 
-			{selectedId ? (
-					<Card size="sm" className="gap-0! p-0!">
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<ShieldCheck className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.enabled')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Switch
-									checked={isChannelEnabled(selectedConfig)}
-									onCheckedChange={(checked) =>
-										updateSelectedConfig((config) => updateChannelEnabled(config, checked), {
-											save: true,
-										})
-									}
-									aria-label={t('settings.channels.enabled')}
-								/>
-							</ItemActions>
-						</Item>
-
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<KeyRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent className="min-w-0 flex-col items-start gap-0.5">
-								<ItemTitle>{t('settings.channels.token')}</ItemTitle>
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									{t('settings.channels.tokenDescription')}
-								</p>
-							</ItemContent>
-							<ItemActions className="ml-auto w-full flex-none justify-end sm:w-80">
-								<Input
-									id={`${selectedId}-token`}
-									type="password"
-									autoComplete="off"
-									value={selectedAccount.token ?? ''}
-									onChange={(event) => updateAccountField('token', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={getTokenPlaceholder(selectedId, t)}
-									className={SETTINGS_INPUT_CLASS}
-									aria-label={t('settings.channels.token')}
-								/>
-							</ItemActions>
-						</Item>
-
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<ShieldCheck className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent className="min-w-0 flex-col items-start gap-0.5">
-								<ItemTitle>{t('settings.channels.dmPolicy')}</ItemTitle>
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									{t('settings.channels.dmPolicyDescription')}
-								</p>
-							</ItemContent>
-							<ItemActions className="ml-auto w-full flex-none justify-end sm:w-56">
-								<Select
-									value={selectedAccount.dmPolicy ?? 'allowlist'}
-									onValueChange={(value) =>
-										updateAccountField('dmPolicy', value as ChannelDmPolicy, { save: true })
-									}
-								>
-									<SelectTrigger id={`${selectedId}-dm-policy`} className="w-full text-xs">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										{DM_POLICY_OPTIONS.map((policy) => (
-											<SelectItem key={policy} value={policy}>
-												{t(`settings.channels.dmPolicies.${policy}`)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</ItemActions>
-						</Item>
-
-						<Item variant="outline" size="md" className="flex-col items-stretch gap-3 border-b border-border/60">
-							<div className="flex w-full min-w-0 items-start gap-3">
-								<ItemMedia variant="icon">
-									<UserRound className="size-3" strokeWidth={1.8} />
-								</ItemMedia>
-								<div className="min-w-0 flex-1">
-									<ItemTitle className="w-full">{t('settings.channels.allowFrom')}</ItemTitle>
-									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-										{t('settings.channels.allowFromDescription')}
-									</p>
-								</div>
-							</div>
-							<ListEditor
-								id={`${selectedId}-allow-from`}
-								value={listDrafts.allowFrom}
-								items={selectedAccount.allowFrom ?? []}
-								placeholder={t('settings.channels.allowFromPlaceholder')}
-								addLabel={t('settings.channels.addAllowFrom')}
-								removeLabel={(item) => t('settings.channels.removeAllowFrom', { value: item })}
-								emptyLabel={t('settings.channels.noAllowFrom')}
-								onDraftChange={(value) =>
-									setListDrafts((current) => ({ ...current, allowFrom: value }))
+			{credential ? (
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<KeyRound className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+							<ItemTitle>{t('settings.channels.token')}</ItemTitle>
+							<p className="text-[11px] leading-4 text-muted-foreground">
+								{t('settings.channels.tokenDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto w-full flex-none justify-end sm:w-80">
+							<Input
+								id={`${providerId}-token`}
+								type="password"
+								autoComplete="off"
+								value={credential.apiKey}
+								onChange={(event) =>
+									setCredential({ ...credential, apiKey: event.target.value })
 								}
-								onAdd={() => addListValue('allowFrom')}
-								onRemove={(value) => removeListValue('allowFrom', value)}
+								onBlur={() => void save(credential)}
+								placeholder={t('settings.channels.tokenPlaceholder')}
+								className={SETTINGS_INPUT_CLASS}
+								aria-label={t('settings.channels.token')}
 							/>
-						</Item>
+						</ItemActions>
+					</Item>
 
-						<Item variant="outline" size="md" className="flex-col items-stretch gap-3">
-							<div className="flex w-full min-w-0 items-start gap-3">
-								<ItemMedia variant="icon">
-									<Hash className="size-3" strokeWidth={1.8} />
-								</ItemMedia>
-								<div className="min-w-0 flex-1">
-									<ItemTitle className="w-full">{t('settings.channels.groupAllowFrom')}</ItemTitle>
-									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-										{t('settings.channels.groupAllowFromDescription')}
-									</p>
-								</div>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<ShieldCheck className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+							<ItemTitle>{t('settings.channels.dmPolicy')}</ItemTitle>
+							<p className="text-[11px] leading-4 text-muted-foreground">
+								{t('settings.channels.dmPolicyDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto w-full flex-none justify-end sm:w-56">
+							<Select
+								value={credential.dmPolicy ?? 'allowlist'}
+								onValueChange={(value: string | null) => {
+									if (value !== null) void save({ ...credential, dmPolicy: value as ChannelDmPolicy });
+								}}
+							>
+								<SelectTrigger id={`${providerId}-dm-policy`} className="w-full text-xs">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{CHANNEL_DM_POLICIES.map((policy) => (
+										<SelectItem key={policy} value={policy}>
+											{t(`settings.channels.dmPolicies.${policy}`)}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</ItemActions>
+					</Item>
+
+					<Item
+						variant="outline"
+						size="md"
+						className="flex-col items-stretch gap-3 border-b border-border/60"
+					>
+						<div className="flex w-full min-w-0 items-start gap-3">
+							<ItemMedia variant="icon">
+								<UserRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<div className="min-w-0 flex-1">
+								<ItemTitle className="w-full">{t('settings.channels.allowFrom')}</ItemTitle>
+								<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+									{t('settings.channels.allowFromDescription')}
+								</p>
 							</div>
-							<ListEditor
-								id={`${selectedId}-group-allow-from`}
-								value={listDrafts.groupAllowFrom}
-								items={selectedAccount.groupAllowFrom ?? []}
-								placeholder={t('settings.channels.groupAllowFromPlaceholder')}
-								addLabel={t('settings.channels.addGroupAllowFrom')}
-								removeLabel={(item) => t('settings.channels.removeGroupAllowFrom', { value: item })}
-								emptyLabel={t('settings.channels.noGroupAllowFrom')}
-								onDraftChange={(value) =>
-									setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
-								}
-								onAdd={() => addListValue('groupAllowFrom')}
-								onRemove={(value) => removeListValue('groupAllowFrom', value)}
-							/>
-						</Item>
-					</Card>
+						</div>
+						<ListEditor
+							id={`${providerId}-allow-from`}
+							value={listDrafts.allowFrom}
+							items={credential.allowFrom ?? []}
+							placeholder={t('settings.channels.allowFromPlaceholder')}
+							addLabel={t('settings.channels.addAllowFrom')}
+							removeLabel={(item) => t('settings.channels.removeAllowFrom', { value: item })}
+							emptyLabel={t('settings.channels.noAllowFrom')}
+							onDraftChange={(value) =>
+								setListDrafts((current) => ({ ...current, allowFrom: value }))
+							}
+							onAdd={() => addListValue('allowFrom')}
+							onRemove={(value) => removeListValue('allowFrom', value)}
+						/>
+					</Item>
+
+					<Item variant="outline" size="md" className="flex-col items-stretch gap-3">
+						<div className="flex w-full min-w-0 items-start gap-3">
+							<ItemMedia variant="icon">
+								<Hash className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<div className="min-w-0 flex-1">
+								<ItemTitle className="w-full">{t('settings.channels.groupAllowFrom')}</ItemTitle>
+								<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+									{t('settings.channels.groupAllowFromDescription')}
+								</p>
+							</div>
+						</div>
+						<ListEditor
+							id={`${providerId}-group-allow-from`}
+							value={listDrafts.groupAllowFrom}
+							items={credential.groupAllowFrom ?? []}
+							placeholder={t('settings.channels.groupAllowFromPlaceholder')}
+							addLabel={t('settings.channels.addGroupAllowFrom')}
+							removeLabel={(item) => t('settings.channels.removeGroupAllowFrom', { value: item })}
+							emptyLabel={t('settings.channels.noGroupAllowFrom')}
+							onDraftChange={(value) =>
+								setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
+							}
+							onAdd={() => addListValue('groupAllowFrom')}
+							onRemove={(value) => removeListValue('groupAllowFrom', value)}
+						/>
+					</Item>
+				</Card>
 			) : (
 				<SettingsNotice variant="destructive">
 					{t('settings.channels.notConfigured')}
@@ -395,66 +312,19 @@ function ListEditor({
 	);
 }
 
-function getDefaultAccountConfig(config: EditableChannelConfig): ChannelAccountProperties {
-	const account = config.accounts?.[config.defaultAccountId ?? 'default'];
+function blankCredential(
+	providerId: string,
+	service: CatalogService | null
+): StoredBotProvider {
 	return {
-		...account,
-		enabled: config.enabled ?? account?.enabled ?? false,
-		token: account?.token ?? config.token,
-		allowFrom: account?.allowFrom ?? config.allowFrom,
-		groupAllowFrom: account?.groupAllowFrom ?? config.groupAllowFrom ?? [],
-		dmPolicy: account?.dmPolicy ?? config.dmPolicy ?? 'allowlist',
-	};
-}
-
-function updateDefaultAccountConfig(
-	config: EditableChannelConfig,
-	patch: Partial<ChannelAccountProperties>
-): EditableChannelConfig {
-	const nextAccount = { ...getDefaultAccountConfig(config), ...patch };
-	return {
-		...config,
-		token: nextAccount.token ?? '',
-		allowFrom: normalizeList(nextAccount.allowFrom ?? []),
-		groupAllowFrom: normalizeList(nextAccount.groupAllowFrom ?? []),
-		dmPolicy: nextAccount.dmPolicy,
-		accounts: {
-			...(config.accounts ?? {}),
-			default: nextAccount,
-		},
-	};
-}
-
-function updateChannelEnabled(
-	config: EditableChannelConfig,
-	enabled: boolean
-): EditableChannelConfig {
-	return updateDefaultAccountConfig({ ...config, enabled }, { enabled });
-}
-
-function isChannelEnabled(config: EditableChannelConfig | null | undefined): boolean {
-	if (!config) return false;
-	return Boolean(config.enabled ?? getDefaultAccountConfig(config).enabled);
-}
-
-function emptyAccountConfig(): ChannelAccountProperties {
-	return {
-		enabled: false,
-		token: '',
+		id: providerId,
+		name: service?.provider.name ?? providerId,
+		apiKey: '',
+		baseUrl: service?.url ?? '',
 		allowFrom: [],
 		groupAllowFrom: [],
 		dmPolicy: 'allowlist',
 	};
-}
-
-function normalizeList(values: readonly string[]): string[] {
-	return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
-}
-
-function getTokenPlaceholder(channelId: ChannelType, t: (key: string) => string): string {
-	return channelId === 'telegram'
-		? t('settings.channels.telegramTokenPlaceholder')
-		: t('settings.channels.discordTokenPlaceholder');
 }
 
 export default ChannelDetailPage;
