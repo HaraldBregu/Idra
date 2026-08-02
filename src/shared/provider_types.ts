@@ -50,7 +50,8 @@ export type ProviderServiceType =
 	| 'web-search'
 	| 'database'
 	| 'storage'
-	| 'mcp';
+	| 'mcp'
+	| 'bot';
 
 /** A service as represented in a provider manifest. */
 export interface ProviderManifestService extends Omit<CatalogEntryModel, 'type'> {
