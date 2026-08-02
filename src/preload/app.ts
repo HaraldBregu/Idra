@@ -107,4 +107,46 @@ export const app: AppApi = {
 	uploadProvider: (): Promise<string | null> => {
 		return typedInvokeUnwrap(AppChannels.uploadProvider);
 	},
+	getChannels: (): Promise<Channel> => {
+		return typedInvokeUnwrap(AppChannels.getChannels);
+	},
+	saveChannelConfig: <TKey extends ChannelType>(
+		type: TKey,
+		config: Channel[TKey]
+	): Promise<Channel[TKey]> => {
+		return typedInvokeUnwrap(AppChannels.saveChannelConfig, type, config) as Promise<
+			Channel[TKey]
+		>;
+	},
+	getChannelsProviderId: (): Promise<string> => {
+		return typedInvokeUnwrap(AppChannels.getChannelsProviderId);
+	},
+	setChannelsProviderId: (providerId: string): Promise<void> => {
+		const normalizedProviderId = optionalTrimmedString(providerId);
+		if (!normalizedProviderId) throw new Error('Invalid channels provider id.');
+		return typedInvokeUnwrap(AppChannels.setChannelsProviderId, normalizedProviderId);
+	},
+	getChannelsModelId: (): Promise<string> => {
+		return typedInvokeUnwrap(AppChannels.getChannelsModelId);
+	},
+	setChannelsModelId: (modelId: string): Promise<void> => {
+		const normalizedModelId = optionalTrimmedString(modelId);
+		if (!normalizedModelId) throw new Error('Invalid channels model id.');
+		return typedInvokeUnwrap(AppChannels.setChannelsModelId, normalizedModelId);
+	},
+	getChannelsStatus: (type?: ChannelType): Promise<ChannelStatusEvent | undefined> => {
+		return typedInvokeUnwrap(AppChannels.getChannelsStatus, type);
+	},
+	startTelegram: (): Promise<ChannelStatusEvent | undefined> => {
+		return typedInvokeUnwrap(AppChannels.startTelegram);
+	},
+	stopTelegram: (): Promise<void> => {
+		return typedInvokeUnwrap(AppChannels.stopTelegram);
+	},
+	restartTelegram: (): Promise<ChannelStatusEvent | undefined> => {
+		return typedInvokeUnwrap(AppChannels.restartTelegram);
+	},
+	onChannelsStatusChanged: (callback: (event: ChannelStatusEvent) => void): (() => void) => {
+		return typedOn(AppChannels.channelsStatusChanged, callback);
+	},
 };
