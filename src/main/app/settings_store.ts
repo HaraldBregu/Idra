@@ -162,7 +162,7 @@ export function setProvider(
 }
 
 export function deleteProvider(id: string): void {
-	for (const kind of ['models', 'databases'] as const) {
+	for (const kind of ['models', 'databases', 'bots'] as const) {
 		const providers = readProviders(kind);
 		const remaining = providers.filter((provider) => provider.id !== id);
 		if (remaining.length !== providers.length) store.set(kind, remaining);
