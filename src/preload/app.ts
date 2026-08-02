@@ -2,6 +2,7 @@ import { webUtils } from 'electron';
 import { typedInvokeUnwrap, typedOn } from '../shared/ipc_types';
 import { AppChannels } from '../shared/ipc_channels_definitions';
 import type { AppApi } from './index.d';
+import type { Channel, ChannelStatusEvent, ChannelType } from '../shared';
 import { optionalTrimmedString } from './normalize';
 
 export const app: AppApi = {
