@@ -3,7 +3,7 @@ import { AppChannels } from '../../../shared/ipc_channels_definitions';
 import type { EventBus } from '../event_bus';
 import type { LoggerService } from '../../shared';
 import type { Agent } from '../../agent/agent';
-import { getChannelConfig, getModelId, getProviderId } from './channels_store';
+import { getChannelConfig } from './channels_store';
 import { canReceive } from './channels_security';
 import type {
 	ChannelAdapter,
