@@ -89,6 +89,8 @@ export interface ProviderManifest {
 	readonly providerName: string;
 	/** Provider dashboard page where API keys are created. */
 	readonly apiKeyUrl?: string;
+	/** Human-readable steps for obtaining credentials. */
+	readonly instructions?: string;
 	readonly images_url?: string;
 	readonly icon_dark_url?: string;
 	readonly icon_light_url?: string;
