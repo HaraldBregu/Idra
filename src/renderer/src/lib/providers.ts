@@ -86,6 +86,15 @@ export function mcpProviders(): readonly PublicProvider[] {
 	return uniqueProviders(mcpCatalog);
 }
 
+export function bots(): readonly CatalogService[] {
+	return botCatalog;
+}
+
+/** One record per provider, derived from the bots they serve. */
+export function botProviders(): readonly PublicProvider[] {
+	return uniqueProviders(botCatalog);
+}
+
 export function providerIdsFor(type: ModelCapability): string[] {
 	return [...new Set(modelsFor(type).map((model) => model.provider.id))];
 }
