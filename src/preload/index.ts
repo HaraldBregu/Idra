@@ -2,7 +2,6 @@ import { contextBridge } from 'electron';
 import { agent } from './agent';
 import { app } from './app';
 import { recorder } from './recorder';
-import { channels } from './channels';
 import { cron } from './cron';
 import { mcp } from './mcp';
 import { models } from './models';
@@ -18,7 +17,6 @@ import { win } from './win';
 export { agent } from './agent';
 export { app } from './app';
 export { recorder } from './recorder';
-export { channels } from './channels';
 export { cron } from './cron';
 export { mcp } from './mcp';
 export { models } from './models';
@@ -39,7 +37,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('mcp', mcp);
-		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('models', models);
 		contextBridge.exposeInMainWorld('storage', storage);
 		contextBridge.exposeInMainWorld('database', database);
@@ -65,8 +62,6 @@ if (process.contextIsolated) {
 	globalThis.skills = skills;
 	// @ts-ignore (define in dts)
 	globalThis.mcp = mcp;
-	// @ts-ignore (define in dts)
-	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
 	globalThis.models = models;
 	// @ts-ignore (define in dts)

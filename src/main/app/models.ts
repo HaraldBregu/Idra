@@ -26,6 +26,7 @@ interface Catalog {
 	readonly storages: readonly CatalogService[];
 	readonly webSearches: readonly CatalogWebSearch[];
 	readonly mcps: readonly CatalogService[];
+	readonly bots: readonly CatalogService[];
 }
 
 let cache: Catalog | undefined;

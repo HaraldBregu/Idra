@@ -4,7 +4,6 @@ import type {
 	AgentApi,
 	AppApi,
 	RecorderApi,
-	ChannelsApi,
 	CronApi,
 	McpApi,
 	ModelsApi,
