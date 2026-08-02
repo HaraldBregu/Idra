@@ -41,7 +41,7 @@ function defaultChannelConfig(): Channel[ChannelType] {
 
 const DEFAULT_CHANNELS_STORE: ChannelsStoreState = {
 	providerId: '',
-	modelId: '',
+	channelId: '',
 	telegram: defaultChannelConfig(),
 	discord: defaultChannelConfig(),
 };
