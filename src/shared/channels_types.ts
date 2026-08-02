@@ -72,10 +72,10 @@ export interface ChannelDefaultsProperties {
 
 export interface Channel {
 	defaults?: ChannelDefaultsProperties;
-	/** Channel used when no channel is named explicitly. */
-	defaultChannel?: ChannelType;
+	/** Provider serving the default channel. */
 	providerId?: string;
-	modelId?: string;
+	/** Bot service id of the default channel, as declared in the provider manifest. */
+	channelId?: string;
 	telegram: TelegramChannelProperties;
 	discord: DiscordChannelProperties;
 }
