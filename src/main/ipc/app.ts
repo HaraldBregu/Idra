@@ -42,6 +42,7 @@ import {
 } from '../app/settings_store';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
 import {
+	loadBots,
 	loadDatabases,
 	loadMcps,
 	loadModels,
