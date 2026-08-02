@@ -68,6 +68,18 @@ export function getChannels(): Channel {
 	};
 }
 
+export function getDefaultChannel(): ChannelType | undefined {
+	const channel = store.get('defaultChannel');
+	return typeof channel === 'string' ? (normalizeChannelId(channel) ?? undefined) : undefined;
+}
+
+export function setDefaultChannel(channel: ChannelType): ChannelType {
+	const normalized = normalizeChannelId(channel);
+	if (!normalized) throw new Error(`unknown channel: ${channel}`);
+	store.set('defaultChannel', normalized);
+	return normalized;
+}
+
 export function getProviderId(): string {
 	const providerId = store.get('providerId');
 	return typeof providerId === 'string' ? providerId.trim() : '';
