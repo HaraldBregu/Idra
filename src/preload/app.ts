@@ -121,24 +121,16 @@ export const app: AppApi = {
 			Channel[TKey]
 		>;
 	},
-	setDefaultChannel: (channel: ChannelType): Promise<ChannelType> => {
-		return typedInvokeUnwrap(AppChannels.setDefaultChannel, channel);
-	},
-	getChannelsProviderId: (): Promise<string> => {
-		return typedInvokeUnwrap(AppChannels.getChannelsProviderId);
-	},
-	setChannelsProviderId: (providerId: string): Promise<void> => {
+	setDefaultChannel: (providerId: string, channelId: string): Promise<void> => {
 		const normalizedProviderId = optionalTrimmedString(providerId);
+		const normalizedChannelId = optionalTrimmedString(channelId);
 		if (!normalizedProviderId) throw new Error('Invalid channels provider id.');
-		return typedInvokeUnwrap(AppChannels.setChannelsProviderId, normalizedProviderId);
-	},
-	getChannelsModelId: (): Promise<string> => {
-		return typedInvokeUnwrap(AppChannels.getChannelsModelId);
-	},
-	setChannelsModelId: (modelId: string): Promise<void> => {
-		const normalizedModelId = optionalTrimmedString(modelId);
-		if (!normalizedModelId) throw new Error('Invalid channels model id.');
-		return typedInvokeUnwrap(AppChannels.setChannelsModelId, normalizedModelId);
+		if (!normalizedChannelId) throw new Error('Invalid channel id.');
+		return typedInvokeUnwrap(
+			AppChannels.setDefaultChannel,
+			normalizedProviderId,
+			normalizedChannelId
+		);
 	},
 	getChannelsStatus: (type?: ChannelType): Promise<ChannelStatusEvent | undefined> => {
 		return typedInvokeUnwrap(AppChannels.getChannelsStatus, type);
