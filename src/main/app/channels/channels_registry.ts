@@ -1,9 +1,9 @@
-import type { ChannelStatusEvent, ChannelType } from '../../../shared';
+import type { ChannelStatusEvent, ChannelType, StoredBotProvider } from '../../../shared';
 import { AppChannels } from '../../../shared/ipc_channels_definitions';
 import type { EventBus } from '../event_bus';
 import type { LoggerService } from '../../shared';
 import type { Agent } from '../../agent/agent';
-import { getChannelConfig } from './channels_store';
+import { listProviders } from '../settings_store';
 import { canReceive } from './channels_security';
 import type {
 	ChannelAdapter,
