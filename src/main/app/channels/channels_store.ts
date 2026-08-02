@@ -76,13 +76,13 @@ export function setProviderId(providerId: string): void {
 	store.set('providerId', providerId.trim());
 }
 
-export function getModelId(): string {
-	const modelId = store.get('modelId');
-	return typeof modelId === 'string' ? modelId.trim() : '';
+export function getChannelId(): string {
+	const channelId = store.get('channelId');
+	return typeof channelId === 'string' ? channelId.trim() : '';
 }
 
-export function setModelId(modelId: string): void {
-	store.set('modelId', modelId.trim());
+export function setChannelId(channelId: string): void {
+	store.set('channelId', channelId.trim());
 }
 
 export function getChannelConfig<TKey extends ChannelType>(channel: TKey): Channel[TKey] {
