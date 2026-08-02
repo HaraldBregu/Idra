@@ -312,6 +312,10 @@ export interface AppInvokeChannelMap {
 		];
 		result: import('./channels_types').Channel[import('./channels_types').ChannelType];
 	};
+	[AppChannels.setDefaultChannel]: {
+		args: [channel: import('./channels_types').ChannelType];
+		result: import('./channels_types').ChannelType;
+	};
 	[AppChannels.getChannelsProviderId]: {
 		args: [];
 		result: string;
