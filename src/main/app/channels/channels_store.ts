@@ -60,6 +60,7 @@ export function getChannelsStore(): ChannelsStoreState {
 export function getChannels(): Channel {
 	return {
 		defaults: readDefaults(),
+		defaultChannel: getDefaultChannel(),
 		providerId: getProviderId(),
 		modelId: getModelId(),
 		telegram: getChannelConfig('telegram'),
