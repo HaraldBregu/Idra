@@ -61,9 +61,9 @@ const ChannelsPage: React.FC = () => {
 		let mounted = true;
 
 		Promise.all([
-			window.channels.getStatus(),
-			window.channels.getProviderId(),
-			window.channels.getModelId(),
+			window.app.getChannelsStatus(),
+			window.app.getChannelsProviderId(),
+			window.app.getChannelsModelId(),
 		])
 			.then(([telegramStatus, storedProviderId, storedModelId]) => {
 				if (!mounted) return;
@@ -86,7 +86,7 @@ const ChannelsPage: React.FC = () => {
 				if (mounted) setLoadingRuntime(false);
 			});
 
-		const unsubscribe = window.channels.onStatusChanged((event) => {
+		const unsubscribe = window.app.onChannelsStatusChanged((event) => {
 			setStatusByChannel((current) => ({ ...current, [event.type]: event.status }));
 			if (event.error) setLoadError(event.error);
 		});
@@ -104,8 +104,8 @@ const ChannelsPage: React.FC = () => {
 		setSaved(false);
 		setRuntimeError(null);
 		try {
-			await window.channels.setProviderId(nextProviderId);
-			await window.channels.setModelId(nextModelId);
+			await window.app.setChannelsProviderId(nextProviderId);
+			await window.app.setChannelsModelId(nextModelId);
 			setSaved(true);
 		} catch (error) {
 			setRuntimeError(error instanceof Error ? error.message : String(error));

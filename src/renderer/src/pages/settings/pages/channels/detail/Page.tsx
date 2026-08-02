@@ -57,8 +57,8 @@ const ChannelDetailPage: React.FC = () => {
 	useEffect(() => {
 		let mounted = true;
 
-		window.channels
-			.getConfig()
+		window.app
+			.getChannels()
 			.then((nextConfig) => {
 				if (!mounted) return;
 				setConfigs(nextConfig);
@@ -98,7 +98,7 @@ const ChannelDetailPage: React.FC = () => {
 	): Promise<void> => {
 		setLoadError(null);
 		try {
-			const saved = await window.channels.saveChannelConfig(channelId, config);
+			const saved = await window.app.saveChannelConfig(channelId, config);
 			setConfigs((current) => {
 				if (!current) return current;
 				return { ...current, [channelId]: saved };
