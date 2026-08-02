@@ -56,6 +56,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	models: [],
 	databases: [],
 	search: [],
+	email: [],
 	storages: [],
 };
 
