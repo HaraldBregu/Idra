@@ -26,7 +26,6 @@ declare global {
 		cron: CronApi;
 		skills: SkillsApi;
 		mcp: McpApi;
-		channels: ChannelsApi;
 		models: ModelsApi;
 		storage: StorageApi;
 		database: DatabaseApi;
