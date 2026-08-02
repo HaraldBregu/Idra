@@ -510,37 +510,10 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			AppChannels.setDefaultChannel,
-			wrapSimpleHandler((channel: ChannelType): ChannelType => {
-				return setDefaultChannel(channel);
-			}, AppChannels.setDefaultChannel)
-		);
-
-		ipcMain.handle(
-			AppChannels.getChannelsProviderId,
-			wrapSimpleHandler((): string => {
-				return getProviderId();
-			}, AppChannels.getChannelsProviderId)
-		);
-
-		ipcMain.handle(
-			AppChannels.setChannelsProviderId,
-			wrapSimpleHandler((providerId: string): void => {
+			wrapSimpleHandler((providerId: string, channelId: string): void => {
 				setProviderId(providerId);
-			}, AppChannels.setChannelsProviderId)
-		);
-
-		ipcMain.handle(
-			AppChannels.getChannelsModelId,
-			wrapSimpleHandler((): string => {
-				return getModelId();
-			}, AppChannels.getChannelsModelId)
-		);
-
-		ipcMain.handle(
-			AppChannels.setChannelsModelId,
-			wrapSimpleHandler((modelId: string): void => {
-				setModelId(modelId);
-			}, AppChannels.setChannelsModelId)
+				setChannelId(channelId);
+			}, AppChannels.setDefaultChannel)
 		);
 
 		ipcMain.handle(
