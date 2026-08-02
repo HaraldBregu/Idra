@@ -116,6 +116,7 @@ export const AppChannels = {
 	uploadProvider: 'app:upload-provider',
 	getChannels: 'app:channels:get-config',
 	saveChannelConfig: 'app:channels:save-channel-config',
+	setDefaultChannel: 'app:channels:set-default-channel',
 	getChannelsProviderId: 'app:channels:get-provider-id',
 	setChannelsProviderId: 'app:channels:set-provider-id',
 	getChannelsModelId: 'app:channels:get-model-id',
