@@ -65,6 +65,11 @@ export function loadMcps(): readonly CatalogService[] {
 	return loadCatalog().mcps;
 }
 
+/** Every bot service across bundled and local provider manifests. */
+export function loadBots(): readonly CatalogService[] {
+	return loadCatalog().bots;
+}
+
 export function refreshProviderCatalog(): void {
 	cache = undefined;
 }
