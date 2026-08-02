@@ -140,23 +140,6 @@ export interface McpApi {
 	oauthFinish: (id: string, code: string) => Promise<void>;
 }
 
-export interface ChannelsApi {
-	getConfig: () => Promise<Channel>;
-	saveChannelConfig: <TKey extends ChannelType>(
-		type: TKey,
-		config: Channel[TKey]
-	) => Promise<Channel[TKey]>;
-	getProviderId: () => Promise<string>;
-	setProviderId: (providerId: string) => Promise<void>;
-	getModelId: () => Promise<string>;
-	setModelId: (modelId: string) => Promise<void>;
-	getStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
-	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
-	stopTelegram: () => Promise<void>;
-	restartTelegram: () => Promise<ChannelStatusEvent | undefined>;
-	onStatusChanged: (callback: (event: ChannelStatusEvent) => void) => () => void;
-}
-
 export interface ProviderApi {
 	get: (id: string) => Promise<Provider | undefined>;
 	set: (provider: Provider, kind?: StoredProviderKind) => Promise<Provider>;
@@ -312,6 +295,7 @@ export interface AppApi {
 	storages: () => Promise<CatalogService[]>;
 	webSearches: () => Promise<CatalogWebSearch[]>;
 	mcps: () => Promise<CatalogService[]>;
+	bots: () => Promise<CatalogService[]>;
 	/** Fires when resources/providers changes on disk; returns an unsubscribe function. */
 	onModelsChanged: (callback: () => void) => () => void;
 	getPathForFile: (file: File) => string;
