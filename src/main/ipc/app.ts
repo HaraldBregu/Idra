@@ -486,6 +486,78 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.getChannels,
+			wrapSimpleHandler((): Channel => {
+				return getChannels();
+			}, AppChannels.getChannels)
+		);
+
+		ipcMain.handle(
+			AppChannels.saveChannelConfig,
+			wrapSimpleHandler(<TKey extends ChannelType>(type: TKey, config: Channel[TKey]) => {
+				return setChannelConfig(type, config);
+			}, AppChannels.saveChannelConfig)
+		);
+
+		ipcMain.handle(
+			AppChannels.getChannelsProviderId,
+			wrapSimpleHandler((): string => {
+				return getProviderId();
+			}, AppChannels.getChannelsProviderId)
+		);
+
+		ipcMain.handle(
+			AppChannels.setChannelsProviderId,
+			wrapSimpleHandler((providerId: string): void => {
+				setProviderId(providerId);
+			}, AppChannels.setChannelsProviderId)
+		);
+
+		ipcMain.handle(
+			AppChannels.getChannelsModelId,
+			wrapSimpleHandler((): string => {
+				return getModelId();
+			}, AppChannels.getChannelsModelId)
+		);
+
+		ipcMain.handle(
+			AppChannels.setChannelsModelId,
+			wrapSimpleHandler((modelId: string): void => {
+				setModelId(modelId);
+			}, AppChannels.setChannelsModelId)
+		);
+
+		ipcMain.handle(
+			AppChannels.getChannelsStatus,
+			wrapSimpleHandler((type?: ChannelType): ChannelStatusEvent | undefined => {
+				return channelRegistry.getStatus(type);
+			}, AppChannels.getChannelsStatus)
+		);
+
+		ipcMain.handle(
+			AppChannels.startTelegram,
+			wrapSimpleHandler(async (): Promise<ChannelStatusEvent | undefined> => {
+				await channelRegistry.start('telegram');
+				return channelRegistry.getStatus('telegram');
+			}, AppChannels.startTelegram)
+		);
+
+		ipcMain.handle(
+			AppChannels.stopTelegram,
+			wrapSimpleHandler(async (): Promise<void> => {
+				await channelRegistry.stop('telegram');
+			}, AppChannels.stopTelegram)
+		);
+
+		ipcMain.handle(
+			AppChannels.restartTelegram,
+			wrapSimpleHandler(async (): Promise<ChannelStatusEvent | undefined> => {
+				await channelRegistry.restart('telegram');
+				return channelRegistry.getStatus('telegram');
+			}, AppChannels.restartTelegram)
+		);
+
+		ipcMain.handle(
 			AppChannels.requestCameraPermission,
 			wrapSimpleHandler(async () => {
 				if (process.platform === 'darwin') {
