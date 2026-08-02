@@ -172,6 +172,7 @@ export function deleteProvider(id: string): void {
 export function clearProviders(): void {
 	store.set('models', []);
 	store.set('databases', []);
+	store.set('bots', []);
 }
 
 export function getSearchProviders(): StoredProvider[] {
