@@ -28,6 +28,7 @@ export type AppSettingsState = {
 	theme: AppTheme;
 	models: StoredProvider[];
 	databases: StoredProvider[];
+	bots: StoredProvider[];
 	search: StoredProvider[];
 	email: StoredProvider[];
 	storages: StoredStorage[];
