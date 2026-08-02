@@ -1,3 +1,5 @@
+import type { StoredProvider } from './provider_types';
+
 export const CHANNEL_PROVIDER_IDS = ['discord', 'telegram'] as const;
 
 export type ChannelType = (typeof CHANNEL_PROVIDER_IDS)[number];
@@ -18,66 +20,19 @@ export const CHANNEL_CONNECTION_STATUSES = [
 
 export type ChannelConnectionStatus = (typeof CHANNEL_CONNECTION_STATUSES)[number];
 
-export interface ChannelHeartbeatVisibilityConfig {
-	showOk?: boolean;
-	showAlerts?: boolean;
-	useIndicator?: boolean;
-}
-
-export interface ChannelAccountProperties {
-	label?: string;
-	enabled?: boolean;
-	token?: string;
-	secret?: string;
-	appId?: string;
-	clientId?: string;
-	clientSecret?: string;
-	botUserId?: string;
+/** A bot provider credential: the bot token plus who may reach the agent through it. */
+export interface StoredBotProvider extends StoredProvider {
 	allowFrom?: string[];
 	groupAllowFrom?: string[];
-	defaultTarget?: string;
 	dmPolicy?: ChannelDmPolicy;
-	heartbeat?: ChannelHeartbeatVisibilityConfig;
 }
 
-export interface TelegramChannelProperties {
-	token: string;
-	allowFrom: string[];
-	enabled?: boolean;
-	isolatedSession?: boolean;
-	defaultAccountId?: string;
-	defaultTarget?: string;
-	dmPolicy?: ChannelDmPolicy;
-	groupAllowFrom?: string[];
-	accounts?: Record<string, ChannelAccountProperties>;
-	heartbeat?: ChannelHeartbeatVisibilityConfig;
-}
-
-export interface DiscordChannelProperties {
-	token: string;
-	allowFrom: string[];
-	enabled?: boolean;
-	isolatedSession?: boolean;
-	defaultAccountId?: string;
-	defaultTarget?: string;
-	dmPolicy?: ChannelDmPolicy;
-	groupAllowFrom?: string[];
-	accounts?: Record<string, ChannelAccountProperties>;
-	heartbeat?: ChannelHeartbeatVisibilityConfig;
-}
-
-export interface ChannelDefaultsProperties {
-	heartbeat?: ChannelHeartbeatVisibilityConfig;
-}
-
+/** The default channel, stored in app/settings.channels.json. */
 export interface Channel {
-	defaults?: ChannelDefaultsProperties;
 	/** Provider serving the default channel. */
-	providerId?: string;
+	providerId: string;
 	/** Bot service id of the default channel, as declared in the provider manifest. */
-	channelId?: string;
-	telegram: TelegramChannelProperties;
-	discord: DiscordChannelProperties;
+	channelId: string;
 }
 
 export interface ChannelStatusEvent {
