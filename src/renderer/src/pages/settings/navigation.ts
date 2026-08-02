@@ -367,6 +367,12 @@ export const SETTINGS_NAVIGATION = [
 		icon: PlugZap,
 	},
 	{
+		path: '/settings/providers/bots',
+		labelKey: 'settings.tabs.bots',
+		descriptionKey: 'settings.overview.descriptions.bots',
+		icon: Bot,
+	},
+	{
 		path: '/settings/database',
 		labelKey: 'settings.tabs.database',
 		descriptionKey: 'settings.overview.descriptions.database',
