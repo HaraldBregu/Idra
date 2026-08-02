@@ -179,6 +179,15 @@ export function setSearchProviders(providers: StoredProvider[]): void {
 	store.set('search', providers.filter(isStoredProvider));
 }
 
+export function getEmailProviders(): StoredProvider[] {
+	const raw = store.get('email');
+	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
+}
+
+export function setEmailProviders(providers: StoredProvider[]): void {
+	store.set('email', providers.filter(isStoredProvider));
+}
+
 /** The selected provider resolved to the shape model adapters consume. */
 export function getResolvedProvider(
 	providerId: string | undefined
