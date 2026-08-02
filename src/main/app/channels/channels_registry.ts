@@ -1,5 +1,5 @@
 import type { ChannelStatusEvent, ChannelType } from '../../../shared';
-import { ChannelsChannels } from '../../../shared/ipc_channels_definitions';
+import { AppChannels } from '../../../shared/ipc_channels_definitions';
 import type { EventBus } from '../event_bus';
 import type { LoggerService } from '../../shared';
 import type { Agent } from '../../agent/agent';
@@ -56,7 +56,7 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 		};
 		statusCache.set(channel, event);
 		eventBus.emit('channel:status', event);
-		eventBus.broadcast(ChannelsChannels.statusChanged, event);
+		eventBus.broadcast(AppChannels.channelsStatusChanged, event);
 	}
 
 	async function handleMessage(message: ChannelInboundMessage): Promise<void> {

@@ -53,9 +53,20 @@ import {
 } from '../app/models';
 import type { LoggerService } from '../shared';
 import { validateProviderManifest } from '../../shared/providers/validation';
+import type { Channel, ChannelStatusEvent, ChannelType } from '../../shared';
+import {
+	getChannels,
+	getModelId,
+	getProviderId,
+	setChannelConfig,
+	setModelId,
+	setProviderId,
+	type ChannelRegistry,
+} from '../app/channels';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
+	channelRegistry: ChannelRegistry;
 }
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
