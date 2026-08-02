@@ -10,25 +10,24 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import type { ChannelType } from '../../../../../../../shared';
+import type { CatalogService } from '@shared/provider_types';
 import { getErrorMessage } from '../../../../start/constants';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../../components';
-import { channelList, type ChannelListEntry } from '../list';
 
 const DefaultChannelPage: React.FC = () => {
 	const { t } = useTranslation();
-	const [channels, setChannels] = useState<ChannelListEntry[] | null>(null);
-	const [defaultChannel, setDefaultChannel] = useState<ChannelType | null>(null);
+	const [bots, setBots] = useState<CatalogService[] | null>(null);
+	const [channelId, setChannelId] = useState('');
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let cancelled = false;
-		void window.app.getChannels().then(
-			(config) => {
+		void Promise.all([window.app.bots(), window.app.getChannels()]).then(
+			([services, config]) => {
 				if (cancelled) return;
-				setChannels(channelList(config));
-				setDefaultChannel(config.defaultChannel ?? null);
+				setBots(services);
+				setChannelId(config.channelId ?? '');
 			},
 			(err) => {
 				if (!cancelled) setError(getErrorMessage(err, t('settings.channels.errors.load')));
@@ -39,11 +38,12 @@ const DefaultChannelPage: React.FC = () => {
 		};
 	}, [t]);
 
-	const selectChannel = async (channel: ChannelType): Promise<void> => {
+	const selectChannel = async (service: CatalogService): Promise<void> => {
 		setSaving(true);
 		setError(null);
 		try {
-			setDefaultChannel(await window.app.setDefaultChannel(channel));
+			await window.app.setDefaultChannel(service.provider.id, service.id);
+			setChannelId(service.id);
 		} catch (err) {
 			setError(getErrorMessage(err, t('settings.channels.errors.saveDefault')));
 		} finally {
@@ -51,7 +51,7 @@ const DefaultChannelPage: React.FC = () => {
 		}
 	};
 
-	const selected = channels?.find((channel) => channel.id === defaultChannel);
+	const selected = bots?.find((service) => service.id === channelId);
 
 	return (
 		<SettingsPageShell>
@@ -66,26 +66,27 @@ const DefaultChannelPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			{channels && (
+			{bots && (
 				<Card size="sm" className="gap-0! py-0!">
 					<Collapsible>
 						<CollapsibleTrigger className="group w-full text-left">
 							<CardHeader className="py-3">
 								<CardTitle className="flex items-center justify-between">
-									{selected?.label ?? t('settings.channels.defaultPlaceholder')}
+									{selected?.provider.name ?? t('settings.channels.defaultPlaceholder')}
 									<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
 								</CardTitle>
 								<CardDescription className="text-xs">
-									{t('settings.channels.defaultDescription')}
+									{selected?.name ?? t('settings.channels.defaultDescription')}
 								</CardDescription>
 							</CardHeader>
 						</CollapsibleTrigger>
 						<CollapsibleContent className="border-t border-border/60">
 							<div className="grid gap-3 px-3 py-3">
 								<Select
-									value={defaultChannel}
+									value={channelId || null}
 									onValueChange={(value: string | null) => {
-										if (value !== null) void selectChannel(value as ChannelType);
+										const service = bots.find((entry) => entry.id === value);
+										if (service) void selectChannel(service);
 									}}
 									disabled={saving}
 								>
@@ -95,13 +96,13 @@ const DefaultChannelPage: React.FC = () => {
 										aria-label={t('settings.channels.defaultTitle')}
 									>
 										<SelectValue>
-											{selected?.label ?? t('settings.channels.defaultPlaceholder')}
+											{selected?.name ?? t('settings.channels.defaultPlaceholder')}
 										</SelectValue>
 									</SelectTrigger>
 									<SelectContent>
-										{channels.map((channel) => (
-											<SelectItem key={channel.id} value={channel.id}>
-												{channel.label}
+										{bots.map((service) => (
+											<SelectItem key={service.id} value={service.id}>
+												{service.name}
 											</SelectItem>
 										))}
 									</SelectContent>
