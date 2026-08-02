@@ -309,5 +309,6 @@ function readCatalog(): Catalog {
 		storages: storages.sort(compareByName),
 		webSearches: webSearches.sort(compareByName),
 		mcps: mcps.sort(compareByName),
+		bots: bots.sort(compareByName),
 	};
 }
