@@ -328,6 +328,13 @@ export class AppIpc implements IpcModule {
 			}, AppChannels.mcps)
 		);
 
+		ipcMain.handle(
+			AppChannels.bots,
+			wrapSimpleHandler(() => {
+				return [...loadBots()];
+			}, AppChannels.bots)
+		);
+
 		// Re-read the catalog and tell renderers when resources/providers changes on disk
 		watchModels(() => eventBus.broadcast(AppChannels.modelsChanged));
 
