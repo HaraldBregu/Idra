@@ -499,13 +499,6 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			AppChannels.saveChannelConfig,
-			wrapSimpleHandler(<TKey extends ChannelType>(type: TKey, config: Channel[TKey]) => {
-				return setChannelConfig(type, config);
-			}, AppChannels.saveChannelConfig)
-		);
-
-		ipcMain.handle(
 			AppChannels.setDefaultChannel,
 			wrapSimpleHandler((providerId: string, channelId: string): void => {
 				setProviderId(providerId);
