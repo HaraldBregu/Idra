@@ -101,7 +101,7 @@ export interface ModelSelection {
 }
 
 /** Which settings-store collection a provider credential belongs to. */
-export type StoredProviderKind = 'models' | 'databases';
+export type StoredProviderKind = 'models' | 'databases' | 'bots';
 
 /** A provider's credentials as saved by the user. */
 export interface StoredProvider {
