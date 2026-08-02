@@ -48,7 +48,7 @@ const DEFAULT_CHANNELS_STORE: ChannelsStoreState = {
 
 const store = new Store<ChannelsStoreState>({
 	name: CHANNELS_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'channels'),
+	cwd: path.resolve(userDataLocation(), 'app'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_CHANNELS_STORE,
 });
