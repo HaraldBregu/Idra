@@ -249,6 +249,7 @@ function readCatalog(): Catalog {
 	const storages: CatalogService[] = [];
 	const webSearches: CatalogWebSearch[] = [];
 	const mcps: CatalogService[] = [];
+	const bots: CatalogService[] = [];
 	const manifests = new Map<string, { entry: ProviderManifest; providerDir: string }>();
 
 	for (const directory of [bundledProvidersDir(), providersDir()]) {
