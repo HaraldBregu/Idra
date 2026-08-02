@@ -37,6 +37,10 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 	const adapters = new Map<ChannelType, ChannelAdapter>();
 	const statusCache = new Map<ChannelType, ChannelStatusEvent>();
 
+	function botCredential(channel: ChannelType): StoredBotProvider | undefined {
+		return listProviders('bots').find((entry) => entry.id === channel);
+	}
+
 	async function createAdapter(channel: ChannelType, token: string): Promise<ChannelAdapter> {
 		if (channel === 'telegram') {
 			const { createTelegramAdapter } = await import('./channels_telegram');
