@@ -88,6 +88,7 @@ function allCatalogItems(): ProviderCatalogItem[] {
 		...actionableProviderCatalog(),
 		...actionableDatabaseCatalog(),
 		...actionableSearchCatalog(),
+		...actionableBotCatalog(),
 	];
 }
 
