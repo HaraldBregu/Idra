@@ -101,6 +101,7 @@ async function* loop(
 				execTool,
 				processTool,
 				...getWebSearchTools(),
+					...getEmailTools(),
 				webFetchTool,
 				webBrowserTool,
 				createImageTool(),
