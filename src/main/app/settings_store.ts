@@ -136,7 +136,9 @@ function readProviders(kind: StoredProviderKind): StoredProvider[] {
 }
 
 export function listProviders(kind?: StoredProviderKind): StoredProvider[] {
-	return kind ? readProviders(kind) : [...readProviders('models'), ...readProviders('databases')];
+	return kind
+		? readProviders(kind)
+		: [...readProviders('models'), ...readProviders('databases'), ...readProviders('bots')];
 }
 
 export function getProvider(id: string): StoredProvider | undefined {
