@@ -57,11 +57,8 @@ import { validateProviderManifest } from '../../shared/providers/validation';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../../shared';
 import {
 	getChannels,
-	getModelId,
-	getProviderId,
 	setChannelConfig,
-	setDefaultChannel,
-	setModelId,
+	setChannelId,
 	setProviderId,
 	type ChannelRegistry,
 } from '../app/channels';
