@@ -111,6 +111,7 @@ export const AppChannels = {
 	storages: 'app:storages',
 	webSearches: 'app:web-searches',
 	mcps: 'app:mcps',
+	bots: 'app:bots',
 	modelsChanged: 'app:models-changed',
 	uploadProvider: 'app:upload-provider',
 	getChannels: 'app:channels:get-config',
