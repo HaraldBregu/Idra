@@ -503,6 +503,14 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 					</SettingsSection>
 				)}
 
+			{(section === undefined || section === 'bots') && (!embedded || botCatalog.length > 0) && (
+				<SettingsSection title={t('settings.tabs.bots')}>
+					<div className="space-y-3 pb-4">
+						{botCatalog.map((provider) => renderProviderCard(provider, 'bots'))}
+					</div>
+				</SettingsSection>
+			)}
+
 			{(section === undefined || section === 'mcp') && (!embedded || mcpCatalog.length > 0) && (
 				<SettingsSection title={t('settings.tabs.mcp')}>
 					<div className="space-y-3 pb-4">
