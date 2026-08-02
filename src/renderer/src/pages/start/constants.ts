@@ -276,6 +276,23 @@ export function actionableSearchCatalog(): readonly ProviderCatalogItem[] {
 	}));
 }
 
+/** Providers with at least one bot service, shaped like the models catalog cards. */
+export function actionableBotCatalog(): readonly ProviderCatalogItem[] {
+	return botProviders().map((provider) => ({
+		id: provider.id,
+		name: provider.name,
+		capabilities:
+			bots()
+				.filter((entry) => entry.provider.id === provider.id)
+				.map((entry) => entry.name)
+				.join(' - ') || 'Bot',
+		supported: true,
+		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
+		iconDarkUrl: provider.iconDarkUrl,
+		iconLightUrl: provider.iconLightUrl,
+	}));
+}
+
 export function getErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim().length > 0) {
 		return error.message;
