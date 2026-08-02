@@ -296,6 +296,11 @@ function readCatalog(): Catalog {
 				.filter((service) => service.type === 'mcp')
 				.map((service) => ({ ...service, provider }))
 		);
+		bots.push(
+			...entry.services
+				.filter((service) => service.type === 'bot')
+				.map((service) => ({ ...service, provider }))
+		);
 	}
 
 	return {
