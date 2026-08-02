@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createImage } from '../../../models/image';
+import { createImage } from '../../../app/models/image';
 import type { Tool } from '../../types';
 import { saveMedia } from './save';
 import { tool } from '../tool';

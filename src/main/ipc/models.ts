@@ -10,8 +10,8 @@ import {
 	TextChannels,
 	VideoChannels,
 } from '../../shared/ipc_channels_definitions';
-import { embedding, image, sound, text, video, voice } from '../models';
-import { getModelId, getProviderId, setModelId, setProviderId } from '../models/models_store';
+import { embedding, image, sound, text, video, voice } from '../app/models/index';
+import { getModelId, getProviderId, setModelId, setProviderId } from '../app/models/models_store';
 import {
 	appendRealtimeAudio,
 	cancelRealtime,
@@ -22,7 +22,7 @@ import {
 	saveSelection,
 	startRealtime,
 	transcribe as sttTranscribe,
-} from '../app/models_adapters/stt';
+} from '../app/models/adapters/stt';
 
 export class ModelsIpc implements IpcModule {
 	readonly name = 'models';

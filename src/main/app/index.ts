@@ -8,9 +8,9 @@ export {
 	type WindowScopedServiceDefinition,
 } from './window_scoped_service_factory';
 export * from './cron';
-export * from './models_adapters/llm';
-export * from './models_adapters/stt';
-export * from './models_adapters/tta';
-export * from './models_adapters/tti';
-export * from './models_adapters/tts';
-export * from './models_adapters/ttv';
+export * from './models/adapters/llm';
+export * from './models/adapters/stt';
+export * from './models/adapters/tta';
+export * from './models/adapters/tti';
+export * from './models/adapters/tts';
+export * from './models/adapters/ttv';
