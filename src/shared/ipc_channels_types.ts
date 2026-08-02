@@ -305,13 +305,6 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: import('./channels_types').Channel;
 	};
-	[AppChannels.saveChannelConfig]: {
-		args: [
-			type: import('./channels_types').ChannelType,
-			config: import('./channels_types').Channel[import('./channels_types').ChannelType],
-		];
-		result: import('./channels_types').Channel[import('./channels_types').ChannelType];
-	};
 	[AppChannels.setDefaultChannel]: {
 		args: [providerId: string, channelId: string];
 		result: void;
