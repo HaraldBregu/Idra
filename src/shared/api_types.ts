@@ -329,6 +329,7 @@ export interface AppApi {
 		type: TKey,
 		config: Channel[TKey]
 	) => Promise<Channel[TKey]>;
+	setDefaultChannel: (channel: ChannelType) => Promise<ChannelType>;
 	getChannelsProviderId: () => Promise<string>;
 	setChannelsProviderId: (providerId: string) => Promise<void>;
 	getChannelsModelId: () => Promise<string>;
