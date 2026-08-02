@@ -1,7 +1,6 @@
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { RecorderIpc } from '../recorder';
-import { ChannelsIpc } from '../channels';
 import { CronIpc } from '../cron';
 import { McpIpc } from '../mcp';
 import { ModelsIpc } from '../models';
