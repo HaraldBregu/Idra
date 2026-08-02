@@ -39,11 +39,12 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/providers/databases',
 			'/settings/providers/storage',
 			'/settings/providers/mcp',
+			'/settings/channels',
 		],
 	},
 	{
 		id: 'integrations',
-		paths: ['/settings/extensions', '/settings/channels'],
+		paths: ['/settings/extensions'],
 	},
 ] as const;
 

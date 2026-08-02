@@ -189,9 +189,7 @@ export function setEmailProviders(providers: StoredProvider[]): void {
 }
 
 /** The selected provider resolved to the shape model adapters consume. */
-export function getResolvedProvider(
-	providerId: string | undefined
-): ResolvedProvider | undefined {
+export function getResolvedProvider(providerId: string | undefined): ResolvedProvider | undefined {
 	if (!providerId) return undefined;
 	const provider = getProvider(providerId);
 	if (!provider) return undefined;
@@ -289,7 +287,9 @@ export function getStorageConfiguration(): StorageConfiguration {
 	return configuration;
 }
 
-export function saveStorageConfiguration(configuration: StorageConfiguration): StorageConfiguration {
+export function saveStorageConfiguration(
+	configuration: StorageConfiguration
+): StorageConfiguration {
 	if (configuration.syncEnabled && !cron.validate(configuration.syncCronExpression)) {
 		throw new Error('Storage sync schedule must be a valid cron expression.');
 	}
@@ -340,7 +340,8 @@ export function saveDatabaseConfiguration(
 
 function findDatabase(configuration: DatabaseConfiguration): CatalogService | undefined {
 	return loadDatabases().find(
-		(entry) => entry.id === configuration.databaseId && entry.provider.id === configuration.providerId
+		(entry) =>
+			entry.id === configuration.databaseId && entry.provider.id === configuration.providerId
 	);
 }
 

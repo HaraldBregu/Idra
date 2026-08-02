@@ -101,7 +101,7 @@ async function* loop(
 				execTool,
 				processTool,
 				...getWebSearchTools(),
-					...getEmailTools(),
+				...getEmailTools(),
 				webFetchTool,
 				webBrowserTool,
 				createImageTool(),
@@ -170,9 +170,7 @@ async function* loop(
 				provider,
 				modelId,
 				session.context.systemPrompt,
-				runtimeContext
-					? [{ role: 'user', content: runtimeContext }, ...messages]
-					: messages,
+				runtimeContext ? [{ role: 'user', content: runtimeContext }, ...messages] : messages,
 				tools,
 				signal
 			);
