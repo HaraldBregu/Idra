@@ -72,6 +72,8 @@ export interface ChannelDefaultsProperties {
 
 export interface Channel {
 	defaults?: ChannelDefaultsProperties;
+	/** Channel used when no channel is named explicitly. */
+	defaultChannel?: ChannelType;
 	providerId?: string;
 	modelId?: string;
 	telegram: TelegramChannelProperties;
