@@ -741,5 +741,4 @@ export interface EventChannelMap
 		AgentEventChannelMap,
 		RecorderEventChannelMap,
 		WindowEventChannelMap,
-		ChannelsEventChannelMap,
 		SttEventChannelMap {}
