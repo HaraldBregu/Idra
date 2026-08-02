@@ -84,9 +84,9 @@ const DefaultChannelPage: React.FC = () => {
 							<div className="grid gap-3 px-3 py-3">
 								<Select
 									value={defaultChannel}
-									onValueChange={(value: string | null) =>
-										value === null ? undefined : void selectChannel(value as ChannelType)
-									}
+									onValueChange={(value: string | null) => {
+										if (value !== null) void selectChannel(value as ChannelType);
+									}}
 									disabled={saving}
 								>
 									<SelectTrigger
