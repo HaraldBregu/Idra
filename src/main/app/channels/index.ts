@@ -5,6 +5,7 @@ export {
 	getChannelConfig,
 	getChannels,
 	getChannelsStore,
+	getDefaultChannel,
 	getModelId,
 	getProviderId,
 	setChannelConfig,
