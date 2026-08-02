@@ -60,6 +60,7 @@ import {
 	getModelId,
 	getProviderId,
 	setChannelConfig,
+	setDefaultChannel,
 	setModelId,
 	setProviderId,
 	type ChannelRegistry,
