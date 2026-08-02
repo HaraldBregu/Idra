@@ -19,6 +19,7 @@ const SERVICE_TYPES = [
 	'storage',
 	'mcp',
 	'bot',
+	'transactional-email',
 ] as const;
 
 function isNonEmptyString(value: unknown): value is string {
