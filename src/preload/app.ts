@@ -121,6 +121,9 @@ export const app: AppApi = {
 			Channel[TKey]
 		>;
 	},
+	setDefaultChannel: (channel: ChannelType): Promise<ChannelType> => {
+		return typedInvokeUnwrap(AppChannels.setDefaultChannel, channel);
+	},
 	getChannelsProviderId: (): Promise<string> => {
 		return typedInvokeUnwrap(AppChannels.getChannelsProviderId);
 	},
