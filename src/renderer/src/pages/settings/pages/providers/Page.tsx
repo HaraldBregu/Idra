@@ -50,7 +50,7 @@ interface StorageEntry {
 }
 
 type ProviderKind = StoredProviderKind | 'search';
-export type ProviderSetupSection = 'models' | 'search' | 'storage' | 'databases' | 'mcp';
+export type ProviderSetupSection = 'models' | 'search' | 'storage' | 'databases' | 'mcp' | 'bots';
 
 const SECTION_HEADERS: Record<ProviderSetupSection, { titleKey: string; descriptionKey: string }> =
 	{
