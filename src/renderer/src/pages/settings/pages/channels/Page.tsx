@@ -5,29 +5,33 @@ import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
+import { ProviderAvatar } from '@/components/provider-avatar';
 import { cn } from '@/lib/utils';
+import type { CatalogService } from '@shared/provider_types';
 import {
 	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 } from '../../components';
-import { ChannelIcon } from './ChannelIcon';
-import { channelList, type ChannelListEntry } from './list';
 
 const ChannelsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const [channels, setChannels] = useState<ChannelListEntry[] | null>(null);
+	const [channels, setChannels] = useState<CatalogService[] | null>(null);
+	const [configured, setConfigured] = useState<ReadonlySet<string>>(new Set());
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
 
-		window.app
-			.getChannels()
-			.then((config) => {
-				if (mounted) setChannels(channelList(config));
+		void Promise.all([window.app.bots(), window.provider.list()])
+			.then(([services, stored]) => {
+				if (!mounted) return;
+				setChannels(services);
+				setConfigured(
+					new Set(stored.filter((entry) => entry.apiKey.trim()).map((entry) => entry.id))
+				);
 			})
 			.catch((error) => {
 				console.error('[ChannelsPage] Failed to load channels:', error);
@@ -52,13 +56,15 @@ const ChannelsPage: React.FC = () => {
 				<SettingsLoadingRows rows={2} />
 			) : (
 				<Card size="sm" className="gap-0! p-0!">
-					{channels.map((channel, index) => (
+					{channels.map((service, index) => (
 						<Item
-							key={channel.id}
+							key={service.id}
 							as="button"
 							type="button"
 							onClick={() =>
-								navigate(`/settings/channels/channelDetail/${encodeURIComponent(channel.id)}`)
+								navigate(
+									`/settings/channels/channelDetail/${encodeURIComponent(service.provider.id)}`
+								)
 							}
 							variant="outline"
 							size="md"
@@ -67,22 +73,28 @@ const ChannelsPage: React.FC = () => {
 								index === channels.length - 1 && 'border-b-0'
 							)}
 						>
-							<ChannelIcon
-								channelId={channel.id}
-								name={channel.label}
-								brandIconId={channel.brandIconId}
+							<ProviderAvatar
+								providerId={service.provider.id}
+								name={service.provider.name}
+								iconDarkUrl={service.provider.iconDarkUrl}
+								iconLightUrl={service.provider.iconLightUrl}
 							/>
 							<ItemContent className="min-w-0">
-								<ItemTitle className="w-full max-w-full truncate">{channel.label}</ItemTitle>
+								<ItemTitle className="w-full max-w-full truncate">
+									{service.provider.name}
+								</ItemTitle>
+								<p className="w-full truncate text-[11px] leading-4 text-muted-foreground">
+									{service.name}
+								</p>
 							</ItemContent>
 							<ItemActions className="ml-0 flex-none justify-end gap-1.5">
 								<Badge
-									variant={channel.enabled ? 'secondary' : 'outline'}
+									variant={configured.has(service.provider.id) ? 'secondary' : 'outline'}
 									className="h-5 px-2 text-[10px]"
 								>
-									{channel.enabled
-										? t('settings.channels.enabled')
-										: t('settings.channels.disabled')}
+									{configured.has(service.provider.id)
+										? t('settings.channels.configured')
+										: t('settings.channels.notConfigured')}
 								</Badge>
 								<ChevronRight className="size-3.5 text-muted-foreground" strokeWidth={1.8} />
 							</ItemActions>
