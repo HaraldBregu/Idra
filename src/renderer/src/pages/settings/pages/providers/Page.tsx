@@ -434,6 +434,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 	const otherProviders = modelCatalog.filter((provider) => !featuredIds.has(provider.id));
 	const databaseCatalog = actionableDatabaseCatalog();
 	const searchCatalog = actionableSearchCatalog();
+	const botCatalog = actionableBotCatalog();
 	const mcpCatalog = mcps();
 	const storageCatalog = mergedStorageEntries(storageEntries ?? []);
 
