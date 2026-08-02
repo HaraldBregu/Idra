@@ -231,14 +231,17 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 		apiKey: string,
 		kind: StoredProviderKind
 	): StoredProvider | undefined => {
-		const catalog = kind === 'databases' ? databaseProviders() : providers();
+		const catalog =
+			kind === 'databases' ? databaseProviders() : kind === 'bots' ? botProviders() : providers();
 		const provider = catalog.find((item) => item.id === providerId);
 		if (!provider) return undefined;
 
 		const baseUrl =
 			kind === 'databases'
 				? (databases().find((entry) => entry.provider.id === providerId)?.url ?? '')
-				: provider.baseUrl;
+				: kind === 'bots'
+					? (bots().find((entry) => entry.provider.id === providerId)?.url ?? '')
+					: provider.baseUrl;
 
 		return {
 			id: provider.id,
