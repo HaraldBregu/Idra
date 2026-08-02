@@ -118,17 +118,13 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 	async function start(channel: ChannelType): Promise<void> {
 		if (adapters.has(channel)) return;
 
-		const config = getChannelConfig(channel);
-		if (config.enabled === false) {
-			logger.warn('ChannelRegistry', `${channel} channel is disabled`);
-			return;
-		}
-		if (!config.token.trim()) {
+		const token = botCredential(channel)?.apiKey.trim() ?? '';
+		if (!token) {
 			logger.warn('ChannelRegistry', `${channel} channel is not configured`);
 			return;
 		}
 
-		const adapter = await createAdapter(channel, config.token.trim());
+		const adapter = await createAdapter(channel, token);
 		adapter.onStatus((update) => handleStatus(channel, update));
 		adapter.onMessage((message) => {
 			void handleMessage(message);
