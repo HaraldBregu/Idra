@@ -25,7 +25,6 @@ import {
 	AgentChannels,
 	AppChannels,
 	RecorderChannels,
-	ChannelsChannels,
 	CronChannels,
 	McpChannels,
 	SkillsChannels,
