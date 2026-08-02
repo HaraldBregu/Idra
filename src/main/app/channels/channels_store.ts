@@ -60,24 +60,11 @@ export function getChannelsStore(): ChannelsStoreState {
 export function getChannels(): Channel {
 	return {
 		defaults: readDefaults(),
-		defaultChannel: getDefaultChannel(),
 		providerId: getProviderId(),
-		modelId: getModelId(),
+		channelId: getChannelId(),
 		telegram: getChannelConfig('telegram'),
 		discord: getChannelConfig('discord'),
 	};
-}
-
-export function getDefaultChannel(): ChannelType | undefined {
-	const channel = store.get('defaultChannel');
-	return typeof channel === 'string' ? (normalizeChannelId(channel) ?? undefined) : undefined;
-}
-
-export function setDefaultChannel(channel: ChannelType): ChannelType {
-	const normalized = normalizeChannelId(channel);
-	if (!normalized) throw new Error(`unknown channel: ${channel}`);
-	store.set('defaultChannel', normalized);
-	return normalized;
 }
 
 export function getProviderId(): string {
