@@ -508,6 +508,13 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.setDefaultChannel,
+			wrapSimpleHandler((channel: ChannelType): ChannelType => {
+				return setDefaultChannel(channel);
+			}, AppChannels.setDefaultChannel)
+		);
+
+		ipcMain.handle(
 			AppChannels.getChannelsProviderId,
 			wrapSimpleHandler((): string => {
 				return getProviderId();
