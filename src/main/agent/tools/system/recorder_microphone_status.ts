@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { microphone } from '../../../recorder';
+import { microphone } from '../../../app/recorder';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 

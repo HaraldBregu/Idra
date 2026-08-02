@@ -2,7 +2,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { RecorderChannels } from '../../shared/ipc_channels_definitions';
-import { camera, microphone, screen } from '../recorder';
+import { camera, microphone, screen } from '../app/recorder';
 
 export class RecorderIpc implements IpcModule {
 	readonly name = 'recorder';

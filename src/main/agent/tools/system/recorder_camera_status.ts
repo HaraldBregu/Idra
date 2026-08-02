@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { camera } from '../../../recorder';
+import { camera } from '../../../app/recorder';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
