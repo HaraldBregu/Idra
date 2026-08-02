@@ -4,6 +4,7 @@ import { userDataLocation } from '../../shared/user_data_location';
 import {
 	CHANNEL_DEFAULT_DM_POLICY,
 	CHANNEL_DM_POLICIES,
+	normalizeChannelId,
 	type Channel,
 	type ChannelAccountProperties,
 	type ChannelDmPolicy,
