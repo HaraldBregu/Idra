@@ -1233,6 +1233,13 @@
 		},
 		"channels": {
 			"description": "Scegli quali canali di messaggistica Friday puo collegare.",
+			"defaultTitle": "Canale predefinito",
+			"defaultDescription": "Canale usato da Friday quando non ne viene indicato uno.",
+			"defaultPlaceholder": "Nessun canale predefinito",
+			"errors": {
+				"load": "Impossibile caricare i canali.",
+				"saveDefault": "Impossibile salvare il canale predefinito."
+			},
 			"available": "Disponibile ora",
 			"next": "Prossimo",
 			"catalog": "Catalogo",
