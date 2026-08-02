@@ -29,6 +29,7 @@ export type AppSettingsState = {
 	models: StoredProvider[];
 	databases: StoredProvider[];
 	search: StoredProvider[];
+	email: StoredProvider[];
 	storages: StoredStorage[];
 };
 
