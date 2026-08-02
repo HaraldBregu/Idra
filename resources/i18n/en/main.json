@@ -1234,6 +1234,13 @@
 		},
 		"channels": {
 			"description": "Choose which messaging channels Friday can connect to.",
+			"defaultTitle": "Default channel",
+			"defaultDescription": "Channel Friday uses when no channel is named.",
+			"defaultPlaceholder": "No default channel",
+			"errors": {
+				"load": "Could not load channels.",
+				"saveDefault": "Could not save the default channel."
+			},
 			"available": "Available now",
 			"next": "Next up",
 			"catalog": "Catalog",
