@@ -113,24 +113,17 @@ export const AppChannels = {
 	mcps: 'app:mcps',
 	modelsChanged: 'app:models-changed',
 	uploadProvider: 'app:upload-provider',
-} as const;
-
-export const ChannelsChannels = {
-	getConfig: 'channels:get-config',
-	getChannelConfig: 'channels:get-channel-config',
-	saveChannelConfig: 'channels:save-channel-config',
-	getProviderId: 'channels:get-provider-id',
-	setProviderId: 'channels:set-provider-id',
-	getModelId: 'channels:get-model-id',
-	setModelId: 'channels:set-model-id',
-	getStatus: 'channels:get-status',
-	getTelegramConfig: 'channels:telegram:get-config',
-	saveTelegramConfig: 'channels:telegram:save-config',
-	getTelegramStatus: 'channels:telegram:get-status',
-	startTelegram: 'channels:telegram:start',
-	stopTelegram: 'channels:telegram:stop',
-	restartTelegram: 'channels:telegram:restart',
-	statusChanged: 'channels:status-changed',
+	getChannels: 'app:channels:get-config',
+	saveChannelConfig: 'app:channels:save-channel-config',
+	getChannelsProviderId: 'app:channels:get-provider-id',
+	setChannelsProviderId: 'app:channels:set-provider-id',
+	getChannelsModelId: 'app:channels:get-model-id',
+	setChannelsModelId: 'app:channels:set-model-id',
+	getChannelsStatus: 'app:channels:get-status',
+	startTelegram: 'app:channels:telegram:start',
+	stopTelegram: 'app:channels:telegram:stop',
+	restartTelegram: 'app:channels:telegram:restart',
+	channelsStatusChanged: 'app:channels:status-changed',
 } as const;
 
 export const EmbeddingChannels = {
