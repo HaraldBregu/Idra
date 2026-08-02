@@ -329,11 +329,7 @@ export interface AppApi {
 		type: TKey,
 		config: Channel[TKey]
 	) => Promise<Channel[TKey]>;
-	setDefaultChannel: (channel: ChannelType) => Promise<ChannelType>;
-	getChannelsProviderId: () => Promise<string>;
-	setChannelsProviderId: (providerId: string) => Promise<void>;
-	getChannelsModelId: () => Promise<string>;
-	setChannelsModelId: (modelId: string) => Promise<void>;
+	setDefaultChannel: (providerId: string, channelId: string) => Promise<void>;
 	getChannelsStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
 	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
 	stopTelegram: () => Promise<void>;
