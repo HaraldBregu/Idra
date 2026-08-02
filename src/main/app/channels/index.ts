@@ -10,6 +10,7 @@ export {
 	getProviderId,
 	setChannelConfig,
 	setChannelProperties,
+	setDefaultChannel,
 	setModelId,
 	setProviderId,
 } from './channels_store';
