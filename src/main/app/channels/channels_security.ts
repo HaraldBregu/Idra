@@ -1,4 +1,4 @@
-import type { Channel, ChannelType } from '../../../shared';
+import { CHANNEL_DEFAULT_DM_POLICY, type StoredBotProvider } from '../../../shared';
 import type { ChannelInboundMessage } from './channels_types';
 
 export interface ChannelSecurityDecision {
@@ -6,34 +6,29 @@ export interface ChannelSecurityDecision {
 	reason?: string;
 }
 
+/** Whether an inbound message may reach the agent, per the bot credential's rules. */
 export function canReceive(
 	message: ChannelInboundMessage,
-	config: Channel[ChannelType]
+	credential: StoredBotProvider | undefined
 ): ChannelSecurityDecision {
-	if (config.enabled === false) {
-		return { allowed: false, reason: 'channel_disabled' };
-	}
-	if (!config.token.trim()) {
+	if (!credential?.apiKey.trim()) {
 		return { allowed: false, reason: 'channel_not_configured' };
 	}
 	if (!message.text.trim()) {
 		return { allowed: false, reason: 'empty_text' };
 	}
 	if (message.chatType === 'dm') {
-		const dmPolicy = config.dmPolicy ?? 'allowlist';
+		const dmPolicy = credential.dmPolicy ?? CHANNEL_DEFAULT_DM_POLICY;
 		if (dmPolicy === 'open') return { allowed: true };
 		if (dmPolicy === 'pairing') return { allowed: false, reason: 'pairing_required' };
 		if (dmPolicy === 'deny') return { allowed: false, reason: 'dm_denied' };
-		if (!config.allowFrom.includes(message.senderId)) {
+		if (!(credential.allowFrom ?? []).includes(message.senderId)) {
 			return { allowed: false, reason: 'sender_not_allowed' };
 		}
 		return { allowed: true };
 	}
-	if (
-		config.groupAllowFrom &&
-		config.groupAllowFrom.length > 0 &&
-		!config.groupAllowFrom.includes(message.chatId)
-	) {
+	const groupAllowFrom = credential.groupAllowFrom ?? [];
+	if (groupAllowFrom.length > 0 && !groupAllowFrom.includes(message.chatId)) {
 		return { allowed: false, reason: 'route_not_allowed' };
 	}
 	return { allowed: true };
