@@ -129,6 +129,7 @@ const OverviewPage: React.FC = () => {
 			type="button"
 			variant="outline"
 			size="icon-xs"
+			className="ml-auto"
 			aria-label="Upload provider"
 			title="Upload provider"
 			disabled={uploadingProvider}
@@ -165,6 +166,11 @@ const OverviewPage: React.FC = () => {
 					<SettingsSection
 						key={group.id}
 						title={t(group.titleKey)}
+						description={
+							group.id === 'providers'
+								? t('settings.overview.descriptions.providers')
+								: undefined
+						}
 						action={group.id === 'providers' ? providersAction : undefined}
 					>
 						{group.id === 'providers' && providerError && (
