@@ -56,6 +56,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	theme: 'system',
 	models: [],
 	databases: [],
+	bots: [],
 	search: [],
 	email: [],
 	storages: [],
