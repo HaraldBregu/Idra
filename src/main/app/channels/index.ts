@@ -5,13 +5,9 @@ export {
 	getChannelConfig,
 	getChannels,
 	getChannelsStore,
-	getDefaultChannel,
-	getModelId,
-	getProviderId,
 	setChannelConfig,
+	setChannelId,
 	setChannelProperties,
-	setDefaultChannel,
-	setModelId,
 	setProviderId,
 } from './channels_store';
 export type { ChannelsStoreState } from './channels_store';
