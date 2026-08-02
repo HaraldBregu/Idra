@@ -16,15 +16,18 @@ let databaseCatalog: readonly CatalogService[] = [];
 let storageCatalog: readonly CatalogService[] = [];
 let webSearchCatalog: readonly CatalogWebSearch[] = [];
 let mcpCatalog: readonly CatalogService[] = [];
+let botCatalog: readonly CatalogService[] = [];
 
 export async function loadModels(): Promise<void> {
-	[catalog, databaseCatalog, storageCatalog, webSearchCatalog, mcpCatalog] = await Promise.all([
-		window.app.models(),
-		window.app.databases(),
-		window.app.storages(),
-		window.app.webSearches(),
-		window.app.mcps(),
-	]);
+	[catalog, databaseCatalog, storageCatalog, webSearchCatalog, mcpCatalog, botCatalog] =
+		await Promise.all([
+			window.app.models(),
+			window.app.databases(),
+			window.app.storages(),
+			window.app.webSearches(),
+			window.app.mcps(),
+			window.app.bots(),
+		]);
 }
 
 export function models(): readonly CatalogModel[] {
