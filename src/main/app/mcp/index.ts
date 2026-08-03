@@ -15,4 +15,6 @@ export {
 	type McpOAuthProviderParams,
 	type McpOAuthState,
 	type McpOAuthStorage,
+	type McpRecord,
+	type McpStoreSchema,
 } from './mcp_types';
