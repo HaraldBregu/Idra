@@ -30,7 +30,7 @@ export type AppSettingsState = {
 	models: StoredProvider[];
 };
 
-const APP_SETTINGS_STORE_NAME = 'app';
+const APP_SETTINGS_STORE_NAME = 'application';
 
 const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
 	providerId: undefined,
@@ -66,9 +66,13 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 };
 
 const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
-const appSettingsPath = path.join(appSettingsDirectory, 'app.json');
-const hasAppSettings = existsSync(appSettingsPath);
-const legacyAppSettings = readLegacyAppSettings();
+const applicationSettingsPath = path.join(appSettingsDirectory, 'application.json');
+const hasApplicationSettings = existsSync(applicationSettingsPath);
+const legacyAppSettings = readSettingsFile('settings.json');
+const legacyApplicationSettings = {
+	...legacyAppSettings,
+	...readSettingsFile('app.json'),
+};
 const storageConfigurationPath = path.join(appSettingsDirectory, 'storages.json');
 const hasStorageConfiguration = existsSync(storageConfigurationPath);
 const databaseConfigurationPath = path.join(appSettingsDirectory, 'database.json');
@@ -83,7 +87,7 @@ const store = new Store<AppSettingsState>({
 	defaults: DEFAULT_APP_SETTINGS,
 });
 
-if (!hasAppSettings) {
+if (!hasApplicationSettings) {
 	store.store = {
 		...DEFAULT_APP_SETTINGS,
 		...readLegacyAppConfiguration(),
@@ -273,8 +277,8 @@ function isStoredProvider(value: unknown): value is StoredProvider {
 	);
 }
 
-function readLegacyAppSettings(): Record<string, unknown> {
-	const legacyPath = path.join(appSettingsDirectory, 'settings.json');
+function readSettingsFile(filename: string): Record<string, unknown> {
+	const legacyPath = path.join(appSettingsDirectory, filename);
 	if (!existsSync(legacyPath)) return {};
 	try {
 		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
@@ -287,23 +291,23 @@ function readLegacyAppSettings(): Record<string, unknown> {
 function readLegacyAppConfiguration(): Partial<AppSettingsState> {
 	return {
 		trayEnabled:
-			typeof legacyAppSettings.trayEnabled === 'boolean'
-				? legacyAppSettings.trayEnabled
+			typeof legacyApplicationSettings.trayEnabled === 'boolean'
+				? legacyApplicationSettings.trayEnabled
 				: DEFAULT_APP_SETTINGS.trayEnabled,
 		keepAwake:
-			typeof legacyAppSettings.keepAwake === 'boolean'
-				? legacyAppSettings.keepAwake
+			typeof legacyApplicationSettings.keepAwake === 'boolean'
+				? legacyApplicationSettings.keepAwake
 				: DEFAULT_APP_SETTINGS.keepAwake,
 		language:
-			typeof legacyAppSettings.language === 'string'
-				? (legacyAppSettings.language as AppLanguage)
+			typeof legacyApplicationSettings.language === 'string'
+				? (legacyApplicationSettings.language as AppLanguage)
 				: DEFAULT_APP_SETTINGS.language,
 		theme:
-			typeof legacyAppSettings.theme === 'string'
-				? (legacyAppSettings.theme as AppTheme)
+			typeof legacyApplicationSettings.theme === 'string'
+				? (legacyApplicationSettings.theme as AppTheme)
 				: DEFAULT_APP_SETTINGS.theme,
-		models: Array.isArray(legacyAppSettings.models)
-			? legacyAppSettings.models.filter(isStoredProvider)
+		models: Array.isArray(legacyApplicationSettings.models)
+			? legacyApplicationSettings.models.filter(isStoredProvider)
 			: [],
 	};
 }
