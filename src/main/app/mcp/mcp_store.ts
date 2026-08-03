@@ -9,7 +9,8 @@ import type { McpOAuthState, McpRecord, McpStoreSchema } from './mcp_types';
 const MCP_STORE_NAME = 'mcp';
 const PREVIOUS_MCP_STORE_NAME = 'providers.mcp';
 const LEGACY_MCP_STORE_NAME = 'settings.mcp';
-const settingsDirectory = path.resolve(userDataLocation(), 'app');
+const settingsDirectory = path.resolve(userDataLocation(), 'settings');
+const legacyAppSettingsDirectory = path.resolve(userDataLocation(), 'app');
 
 const store = new Store<McpStoreSchema>({
 	name: MCP_STORE_NAME,
@@ -18,19 +19,19 @@ const store = new Store<McpStoreSchema>({
 	defaults: { servers: [] },
 });
 
-const previousStore = existsSync(path.join(settingsDirectory, `${PREVIOUS_MCP_STORE_NAME}.json`))
+const previousStore = existsSync(path.join(legacyAppSettingsDirectory, `${PREVIOUS_MCP_STORE_NAME}.json`))
 	? new Store<McpStoreSchema>({
 			name: PREVIOUS_MCP_STORE_NAME,
-			cwd: settingsDirectory,
+			cwd: legacyAppSettingsDirectory,
 			accessPropertiesByDotNotation: false,
 			defaults: { servers: [] },
 		})
 	: undefined;
 
-const legacyStore = existsSync(path.join(settingsDirectory, `${LEGACY_MCP_STORE_NAME}.json`))
+const legacyStore = existsSync(path.join(legacyAppSettingsDirectory, `${LEGACY_MCP_STORE_NAME}.json`))
 	? new Store<Record<string, LegacyEntry>>({
 			name: LEGACY_MCP_STORE_NAME,
-			cwd: settingsDirectory,
+			cwd: legacyAppSettingsDirectory,
 			accessPropertiesByDotNotation: false,
 			defaults: {},
 		})

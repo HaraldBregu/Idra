@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { existsSync } from 'node:fs';
 import Store from 'electron-store';
 import { userDataLocation } from '../../shared/user_data_location';
 
@@ -19,8 +20,9 @@ export type ModelSelection = {
 
 export type ModelsStoreState = Record<ModelKind, ModelSelection>;
 
-const MODELS_STORE_NAME = 'settings';
 const MODELS_SETTINGS_DIRECTORY = path.resolve(userDataLocation(), 'settings');
+const LEGACY_MODELS_DIRECTORY = path.resolve(userDataLocation(), 'models');
+const hasModelsStore = existsSync(path.join(MODELS_SETTINGS_DIRECTORY, 'model-settings.json'));
 
 const EMPTY_SELECTION: ModelSelection = {
 	providerId: '',
@@ -44,6 +46,16 @@ const store = new Store<ModelsStoreState>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_MODELS_STORE,
 });
+
+if (!hasModelsStore && existsSync(path.join(LEGACY_MODELS_DIRECTORY, 'settings.json'))) {
+	const legacyStore = new Store<ModelsStoreState>({
+		name: 'settings',
+		cwd: LEGACY_MODELS_DIRECTORY,
+		accessPropertiesByDotNotation: false,
+		defaults: DEFAULT_MODELS_STORE,
+	});
+	store.store = legacyStore.store;
+}
 
 export function getModelsStore(): ModelsStoreState {
 	return store.store;
