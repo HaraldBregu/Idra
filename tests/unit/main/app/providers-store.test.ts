@@ -19,6 +19,7 @@ jest.mock('electron-store', () =>
 );
 
 jest.mock('../../../../src/main/app/models', () => ({
+	loadDatabases: () => [],
 	loadStorages: () => [],
 }));
 
