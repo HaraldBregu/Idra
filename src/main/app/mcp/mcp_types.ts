@@ -22,10 +22,9 @@ export type McpOAuthState = {
 	codeVerifier?: string;
 };
 
-export type ConnectorStoreSchema = {
-	servers: McpSettings;
-	oauth: Record<string, McpOAuthState>;
-};
+export type McpRecord = McpData & { oauth?: McpOAuthState };
+
+export type McpStoreSchema = Record<string, McpRecord>;
 
 export type McpOAuthStorage = {
 	load: () => McpOAuthState;
