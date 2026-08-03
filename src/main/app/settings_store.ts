@@ -69,8 +69,9 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	theme: 'system',
 };
 
-const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
-const applicationSettingsPath = path.join(appSettingsDirectory, 'application.json');
+const settingsDirectory = path.resolve(userDataLocation(), 'settings');
+const legacyAppSettingsDirectory = path.resolve(userDataLocation(), 'app');
+const applicationSettingsPath = path.join(settingsDirectory, 'application.json');
 const hasApplicationSettings = existsSync(applicationSettingsPath);
 const legacyAppSettings = readSettingsFile('settings.json');
 const legacyApplicationSettings = {
@@ -78,18 +79,18 @@ const legacyApplicationSettings = {
 	...readSettingsFile('app.json'),
 	...readSettingsFile('application.json'),
 };
-const modelsSettingsPath = path.join(appSettingsDirectory, 'models.json');
+const modelsSettingsPath = path.join(settingsDirectory, 'models.json');
 const hasModelsSettings = existsSync(modelsSettingsPath);
-const storageConfigurationPath = path.join(appSettingsDirectory, 'storages.json');
+const storageConfigurationPath = path.join(settingsDirectory, 'storages.json');
 const hasStorageConfiguration = existsSync(storageConfigurationPath);
-const databaseConfigurationPath = path.join(appSettingsDirectory, 'database.json');
+const databaseConfigurationPath = path.join(settingsDirectory, 'database.json');
 const hasDatabaseConfiguration = existsSync(databaseConfigurationPath);
-const cronConfigurationPath = path.join(appSettingsDirectory, 'cron.json');
+const cronConfigurationPath = path.join(settingsDirectory, 'cron.json');
 const hasCronConfiguration = existsSync(cronConfigurationPath);
 
 const store = new Store<AppSettingsState>({
 	name: APP_SETTINGS_STORE_NAME,
-	cwd: appSettingsDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_APP_SETTINGS,
 });
@@ -105,7 +106,7 @@ export const appSettingsStorePath = store.path;
 
 const modelsConfigurationStore = new Store<ModelsSettingsState>({
 	name: 'models',
-	cwd: appSettingsDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_MODELS_SETTINGS,
 });
@@ -117,7 +118,7 @@ removeLegacyModelProviders();
 
 const storageConfigurationStore = new Store<StorageSettingsState>({
 	name: 'storages',
-	cwd: appSettingsDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_STORAGE_SETTINGS,
 });
@@ -133,7 +134,7 @@ removeLegacyStorageProviders();
 
 const databaseConfigurationStore = new Store<DatabaseConfiguration>({
 	name: 'database',
-	cwd: appSettingsDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_DATABASE_CONFIGURATION,
 });
@@ -148,7 +149,7 @@ if (!hasDatabaseConfiguration) {
 
 const cronConfigurationStore = new Store<PersistedCronState>({
 	name: 'cron',
-	cwd: appSettingsDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_CRON_CONFIGURATION,
 });
@@ -298,7 +299,7 @@ function isStoredProvider(value: unknown): value is StoredProvider {
 }
 
 function readSettingsFile(filename: string): Record<string, unknown> {
-	const legacyPath = path.join(appSettingsDirectory, filename);
+	const legacyPath = path.join(legacyAppSettingsDirectory, filename);
 	if (!existsSync(legacyPath)) return {};
 	try {
 		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
@@ -453,7 +454,7 @@ function getStoredStorages(): StoredStorage[] {
 }
 
 function readLegacyStorageConfiguration(): Partial<StorageConfiguration> {
-	const legacyPath = path.join(appSettingsDirectory, 'settings.storage.json');
+	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.storage.json');
 	if (!existsSync(legacyPath)) return {};
 	try {
 		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
@@ -516,7 +517,7 @@ export function saveDatabaseConfiguration(
 }
 
 function readLegacyDatabaseConfiguration(): Partial<DatabaseConfiguration> {
-	const legacyPath = path.join(appSettingsDirectory, 'settings.database.json');
+	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.database.json');
 	if (!existsSync(legacyPath)) return {};
 	try {
 		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
@@ -554,7 +555,7 @@ export function setCronConfiguration(configuration: PersistedCronState): void {
 }
 
 function readLegacyCronConfiguration(): PersistedCronState {
-	const legacyPath = path.join(appSettingsDirectory, 'settings.cron.json');
+	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.cron.json');
 	if (!existsSync(legacyPath)) return DEFAULT_CRON_CONFIGURATION;
 	try {
 		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));

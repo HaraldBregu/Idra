@@ -14,14 +14,15 @@ interface SearchSettingsState extends SearchConfiguration {
 	providers: StoredProvider[];
 }
 
-const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
-const searchStorePathname = path.join(appSettingsDirectory, 'search.json');
+const settingsDirectory = path.resolve(userDataLocation(), 'settings');
+const legacyAppSettingsDirectory = path.resolve(userDataLocation(), 'app');
+const searchStorePathname = path.join(settingsDirectory, 'search.json');
 const hasSearchStore = existsSync(searchStorePathname);
 const DEFAULT_SEARCH_SETTINGS: SearchSettingsState = { providers: [] };
 
 const store = new Store<SearchSettingsState>({
 	name: 'search',
-	cwd: appSettingsDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_SEARCH_SETTINGS,
 });
@@ -55,7 +56,7 @@ export function setSearchProviders(providers: StoredProvider[]): void {
 }
 
 function readLegacySearchConfiguration(): SearchConfiguration {
-	const legacyPath = path.join(appSettingsDirectory, 'settings.search.json');
+	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.search.json');
 	if (!existsSync(legacyPath)) return {};
 	try {
 		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));

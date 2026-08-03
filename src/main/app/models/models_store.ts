@@ -20,6 +20,7 @@ export type ModelSelection = {
 export type ModelsStoreState = Record<ModelKind, ModelSelection>;
 
 const MODELS_STORE_NAME = 'settings';
+const MODELS_SETTINGS_DIRECTORY = path.resolve(userDataLocation(), 'settings');
 
 const EMPTY_SELECTION: ModelSelection = {
 	providerId: '',
@@ -38,8 +39,8 @@ const DEFAULT_MODELS_STORE: ModelsStoreState = {
 };
 
 const store = new Store<ModelsStoreState>({
-	name: MODELS_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'models'),
+	name: 'model-settings',
+	cwd: MODELS_SETTINGS_DIRECTORY,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_MODELS_STORE,
 });

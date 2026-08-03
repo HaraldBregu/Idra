@@ -14,14 +14,15 @@ interface EmailSettingsState extends EmailConfiguration {
 	providers: StoredProvider[];
 }
 
-const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
-const emailStorePathname = path.join(appSettingsDirectory, 'email.json');
+const settingsDirectory = path.resolve(userDataLocation(), 'settings');
+const legacyAppSettingsDirectory = path.resolve(userDataLocation(), 'app');
+const emailStorePathname = path.join(settingsDirectory, 'email.json');
 const hasEmailStore = existsSync(emailStorePathname);
 const DEFAULT_EMAIL_SETTINGS: EmailSettingsState = { providers: [] };
 
 const store = new Store<EmailSettingsState>({
 	name: 'email',
-	cwd: appSettingsDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_EMAIL_SETTINGS,
 });
@@ -55,7 +56,7 @@ export function setEmailProviders(providers: StoredProvider[]): void {
 }
 
 function readLegacyEmailConfiguration(): EmailConfiguration {
-	const legacyPath = path.join(appSettingsDirectory, 'settings.email.json');
+	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.email.json');
 	if (!existsSync(legacyPath)) return {};
 	try {
 		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
