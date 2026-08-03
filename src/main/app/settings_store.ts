@@ -29,7 +29,6 @@ export type AppSettingsState = {
 	theme: AppTheme;
 	models: StoredProvider[];
 	email: StoredProvider[];
-	storages: StoredStorage[];
 };
 
 const APP_SETTINGS_STORE_NAME = 'settings';
@@ -40,6 +39,15 @@ const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
 	paths: [],
 	syncEnabled: false,
 	syncCronExpression: DEFAULT_SYNC_CRON_EXPRESSION,
+};
+
+type StorageSettingsState = StorageConfiguration & {
+	providers: StoredStorage[];
+};
+
+const DEFAULT_STORAGE_SETTINGS: StorageSettingsState = {
+	...DEFAULT_STORAGE_CONFIGURATION,
+	providers: [],
 };
 
 const DEFAULT_DATABASE_CONFIGURATION: DatabaseConfiguration = {
@@ -55,10 +63,11 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	theme: 'system',
 	models: [],
 	email: [],
-	storages: [],
 };
 
 const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
+const storageConfigurationPath = path.join(appSettingsDirectory, 'storages.json');
+const hasStorageConfiguration = existsSync(storageConfigurationPath);
 const databaseConfigurationPath = path.join(appSettingsDirectory, 'database.json');
 const hasDatabaseConfiguration = existsSync(databaseConfigurationPath);
 
@@ -71,12 +80,21 @@ const store = new Store<AppSettingsState>({
 
 export const appSettingsStorePath = store.path;
 
-const storageConfigurationStore = new Store<StorageConfiguration>({
-	name: 'settings.storage',
+const storageConfigurationStore = new Store<StorageSettingsState>({
+	name: 'storages',
 	cwd: appSettingsDirectory,
 	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_STORAGE_CONFIGURATION,
+	defaults: DEFAULT_STORAGE_SETTINGS,
 });
+
+if (!hasStorageConfiguration) {
+	storageConfigurationStore.store = {
+		...DEFAULT_STORAGE_SETTINGS,
+		...readLegacyStorageConfiguration(),
+		providers: readLegacyStorageProviders(),
+	};
+}
+removeLegacyStorageProviders();
 
 const databaseConfigurationStore = new Store<DatabaseConfiguration>({
 	name: 'database',
@@ -275,20 +293,20 @@ function toStoredStorage(config: StorageConfig): StoredStorage {
 }
 
 export function getStorages(): StorageConfig[] {
-	return store.get('storages').map(toStorageConfig);
+	return getStoredStorages().map(toStorageConfig);
 }
 
 export function getStorage(id: string): StorageConfig | undefined {
-	const storage = store.get('storages').find((storage) => storage.id === id);
+	const storage = getStoredStorages().find((storage) => storage.id === id);
 	return storage ? toStorageConfig(storage) : undefined;
 }
 
 export function saveStorageConfig(config: StorageConfig): StorageConfig {
 	const saved = toStoredStorage({ ...config, id: config.id || crypto.randomUUID() });
-	const storages = store.get('storages');
+	const storages = getStoredStorages();
 	const index = storages.findIndex((storage) => storage.id === saved.id);
-	store.set(
-		'storages',
+	storageConfigurationStore.set(
+		'providers',
 		index >= 0
 			? storages.map((storage, i) => (i === index ? saved : storage))
 			: [...storages, saved]
@@ -300,8 +318,8 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 }
 
 export function deleteStorageConfig(id: string): void {
-	const storages = store.get('storages').filter((storage) => storage.id !== id);
-	store.set('storages', storages);
+	const storages = getStoredStorages().filter((storage) => storage.id !== id);
+	storageConfigurationStore.set('providers', storages);
 	const configuration = getStorageConfiguration();
 	if (configuration.providerId === id) {
 		saveStorageConfiguration({ ...configuration, providerId: storages[0]?.id });
@@ -315,7 +333,7 @@ export function getStorageConfiguration(): StorageConfiguration {
 	};
 	if (
 		configuration.providerId &&
-		!store.get('storages').some((storage) => storage.id === configuration.providerId)
+		!getStoredStorages().some((storage) => storage.id === configuration.providerId)
 	) {
 		configuration.providerId = undefined;
 		configuration.storageId = undefined;
@@ -331,7 +349,7 @@ export function saveStorageConfiguration(
 	}
 	if (
 		configuration.providerId &&
-		!store.get('storages').some((storage) => storage.id === configuration.providerId)
+		!getStoredStorages().some((storage) => storage.id === configuration.providerId)
 	) {
 		throw new Error(`Storage not found: ${configuration.providerId}`);
 	}
@@ -344,8 +362,52 @@ export function saveStorageConfiguration(
 		syncEnabled: configuration.syncEnabled,
 		syncCronExpression: configuration.syncCronExpression.trim().replace(/\s+/g, ' '),
 	};
-	storageConfigurationStore.store = saved;
+	storageConfigurationStore.store = {
+		...storageConfigurationStore.store,
+		...saved,
+	};
 	return saved;
+}
+
+function getStoredStorages(): StoredStorage[] {
+	const providers = storageConfigurationStore.get('providers');
+	return Array.isArray(providers) ? providers : [];
+}
+
+function readLegacyStorageConfiguration(): Partial<StorageConfiguration> {
+	const legacyPath = path.join(appSettingsDirectory, 'settings.storage.json');
+	if (!existsSync(legacyPath)) return {};
+	try {
+		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
+		if (typeof value !== 'object' || value === null) return {};
+		const configuration = value as Partial<StorageConfiguration>;
+		return {
+			providerId: typeof configuration.providerId === 'string' ? configuration.providerId : undefined,
+			storageId: typeof configuration.storageId === 'string' ? configuration.storageId : undefined,
+			paths: Array.isArray(configuration.paths)
+				? configuration.paths.filter((entry): entry is string => typeof entry === 'string')
+				: [],
+			syncEnabled: configuration.syncEnabled === true,
+			syncCronExpression:
+				typeof configuration.syncCronExpression === 'string'
+					? configuration.syncCronExpression
+					: DEFAULT_SYNC_CRON_EXPRESSION,
+		};
+	} catch {
+		return {};
+	}
+}
+
+function readLegacyStorageProviders(): StoredStorage[] {
+	const storages = (store.store as { storages?: unknown }).storages;
+	return Array.isArray(storages) ? (storages as StoredStorage[]) : [];
+}
+
+function removeLegacyStorageProviders(): void {
+	const { storages: _storages, ...settings } = store.store as AppSettingsState & {
+		storages?: unknown;
+	};
+	store.store = settings;
 }
 
 export function getDatabaseConfiguration(): DatabaseConfiguration {
