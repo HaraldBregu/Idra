@@ -16,13 +16,12 @@ export type McpListToolsResult = ReturnType<Client['listTools']>;
 
 export type McpCallToolResult = ReturnType<Client['callTool']>;
 
-export type McpOAuthState = {
-	clientInformation?: OAuthClientInformationMixed;
+export type McpOAuthState = Partial<OAuthClientInformationFull> & {
 	tokens?: OAuthTokens;
 	codeVerifier?: string;
 };
 
-export type McpRecord = McpData & { oauth?: McpOAuthState };
+export type McpRecord = McpData & McpOAuthState;
 
 export type McpStoreSchema = Record<string, McpRecord>;
 
