@@ -13,6 +13,7 @@ import type { DatabaseConfiguration } from '../../shared/database_types';
 import { userDataLocation } from '../shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
 import { loadDatabases, loadStorages } from './models';
+import { getModelProviders, setModelProviders } from './models/models_store';
 import type { PersistedCronState } from './cron/cron_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
@@ -56,12 +57,6 @@ const DEFAULT_DATABASE_CONFIGURATION: DatabaseConfiguration = {
 
 const DEFAULT_CRON_CONFIGURATION: PersistedCronState = { schedules: [] };
 
-type ModelsSettingsState = {
-	providers: StoredProvider[];
-};
-
-const DEFAULT_MODELS_SETTINGS: ModelsSettingsState = { providers: [] };
-
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	trayEnabled: true,
 	keepAwake: false,
@@ -79,8 +74,6 @@ const legacyApplicationSettings = {
 	...readSettingsFile('app.json'),
 	...readSettingsFile('application.json'),
 };
-const modelsSettingsPath = path.join(settingsDirectory, 'models.json');
-const hasModelsSettings = existsSync(modelsSettingsPath);
 const storageConfigurationPath = path.join(settingsDirectory, 'storages.json');
 const hasStorageConfiguration = existsSync(storageConfigurationPath);
 const databaseConfigurationPath = path.join(settingsDirectory, 'database.json');
@@ -103,18 +96,6 @@ if (!hasApplicationSettings) {
 }
 
 export const appSettingsStorePath = store.path;
-
-const modelsConfigurationStore = new Store<ModelsSettingsState>({
-	name: 'models',
-	cwd: settingsDirectory,
-	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_MODELS_SETTINGS,
-});
-
-if (!hasModelsSettings) {
-	modelsConfigurationStore.store = { providers: readLegacyModelProviders() };
-}
-removeLegacyModelProviders();
 
 const storageConfigurationStore = new Store<StorageSettingsState>({
 	name: 'storages',
@@ -159,7 +140,6 @@ if (!hasCronConfiguration) {
 }
 
 export const storageConfigurationStorePath = storageConfigurationStore.path;
-export const modelsConfigurationStorePath = modelsConfigurationStore.path;
 export const databaseConfigurationStorePath = databaseConfigurationStore.path;
 export const cronConfigurationStorePath = cronConfigurationStore.path;
 
@@ -230,7 +210,7 @@ export function setProvider(
 	if (kind === 'databases') {
 		saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers });
 	} else {
-		modelsConfigurationStore.set('providers', providers);
+		setModelProviders(providers);
 	}
 	return provider;
 }
@@ -243,14 +223,14 @@ export function deleteProvider(id: string): void {
 			if (kind === 'databases') {
 				saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: remaining });
 			} else {
-				modelsConfigurationStore.set('providers', remaining);
+				setModelProviders(remaining);
 			}
 		}
 	}
 }
 
 export function clearProviders(): void {
-	modelsConfigurationStore.set('providers', []);
+	setModelProviders([]);
 	saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: [] });
 }
 
@@ -328,20 +308,6 @@ function readLegacyAppConfiguration(): Partial<AppSettingsState> {
 				? (legacyApplicationSettings.theme as AppTheme)
 				: DEFAULT_APP_SETTINGS.theme,
 	};
-}
-
-function getModelProviders(): StoredProvider[] {
-	return modelsConfigurationStore.get('providers').filter(isStoredProvider);
-}
-
-function readLegacyModelProviders(): StoredProvider[] {
-	const models = legacyApplicationSettings.models;
-	return Array.isArray(models) ? models.filter(isStoredProvider) : [];
-}
-
-function removeLegacyModelProviders(): void {
-	const { models: _models, ...settings } = store.store as AppSettingsState & { models?: unknown };
-	store.store = settings;
 }
 
 function toStorageConfig(stored: StoredStorage): StorageConfig {
