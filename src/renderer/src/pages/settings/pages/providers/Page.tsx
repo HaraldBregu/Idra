@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
+import { AlertTriangle, ExternalLink, LoaderCircle, Pencil, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import {
 } from '@shared/provider_types';
 import type { StorageConfig } from '@shared/storage_types';
 import type { SearchEngineId, SearchSettings } from '@shared/search_types';
+import type { McpData } from '@shared/mcp_types';
 import {
 	botProviders,
 	bots,
@@ -43,6 +44,9 @@ import {
 } from '../../components';
 import { ProviderCard } from '../storage/ProviderCard';
 import { McpCard } from './McpCard';
+import { McpServerCard } from '../mcp/components/McpServerCard';
+import { McpServerDialog } from '../mcp/components/McpServerDialog';
+import { useMcpServers } from '../mcp/hooks/useMcpServers';
 
 interface StorageEntry {
 	key: string;
@@ -139,6 +143,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 	const [storageEntries, setStorageEntries] = useState<StorageEntry[] | null>(null);
 	const [storageError, setStorageError] = useState<string | null>(null);
 	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
+	const { servers: mcpServers, load: loadMcpServers } = useMcpServers();
 
 	useEffect(() => {
 		let cancelled = false;
@@ -436,7 +441,16 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 	const searchCatalog = actionableSearchCatalog();
 	const botCatalog = actionableBotCatalog();
 	const mcpCatalog = mcps();
+	const catalogMcpIds = new Set(mcpCatalog.map((service) => service.id));
+	const customMcpServers = Object.entries(mcpServers).filter(([id]) => !catalogMcpIds.has(id)) as [
+		string,
+		McpData,
+	][];
 	const storageCatalog = mergedStorageEntries(storageEntries ?? []);
+	const saveCustomMcpServer = async (id: string, entry: McpData): Promise<void> => {
+		await window.mcp.save({ ...mcpServers, [id]: entry });
+		await loadMcpServers();
+	};
 
 	return (
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
@@ -448,6 +462,19 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 							? SECTION_HEADERS[section].descriptionKey
 							: 'settings.overview.descriptions.providers'
 					)}
+					action={
+						section === 'mcp' ? (
+							<McpServerDialog
+								trigger={
+									<Button variant="outline" size="sm">
+										<Plus className="size-3.5" />
+										Add custom server
+									</Button>
+								}
+								onSubmit={saveCustomMcpServer}
+							/>
+						) : undefined
+					}
 				/>
 			)}
 			{error && (
@@ -516,6 +543,33 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 					<div className="space-y-3 pb-4">
 						{mcpCatalog.map((service) => (
 							<McpCard key={`${service.provider.id}-${service.id}`} service={service} />
+						))}
+					</div>
+				</SettingsSection>
+			)}
+
+			{section === 'mcp' && customMcpServers.length > 0 && (
+				<SettingsSection title="Custom MCP servers">
+					<div className="space-y-3 pb-4">
+						{customMcpServers.map(([id, entry]) => (
+							<McpServerCard
+								key={id}
+								catalogEntry={{
+									id,
+									name: entry.name ?? id,
+									description: entry.type === 'http' ? entry.url : entry.command,
+								}}
+								server={{ id, entry }}
+								onConnect={() => undefined}
+								onToggle={(enabled) =>
+									void saveCustomMcpServer(id, {
+										...entry,
+										enabled,
+										updated_at: new Date().toISOString(),
+									})
+								}
+								onViewDetails={() => undefined}
+							/>
 						))}
 					</div>
 				</SettingsSection>
