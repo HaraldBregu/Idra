@@ -25,6 +25,7 @@ jest.mock('../../../../src/main/app/models', () => ({
 
 import {
 	getDatabaseConfiguration,
+	getCronConfiguration,
 	listProviders,
 	getProvider,
 	hasProvider,
@@ -37,6 +38,7 @@ import {
 	getStorages,
 	saveStorageConfig,
 	setSelectedStorageId,
+	setCronConfiguration,
 } from '../../../../src/main/app/settings_store';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';
@@ -159,5 +161,19 @@ describe('storages in app settings', () => {
 		expect(() =>
 			saveStorageConfig({ ...storage('backup'), syncCronExpression: 'not cron' })
 		).toThrow('valid cron expression');
+	});
+});
+
+describe('cron settings', () => {
+	it('preserves the persisted cron structure', () => {
+		const state = {
+			enabled: true,
+			providerId: 'openai',
+			modelId: 'gpt-5',
+			schedules: [],
+		};
+
+		setCronConfiguration(state);
+		expect(getCronConfiguration()).toEqual(state);
 	});
 });
