@@ -12,17 +12,20 @@ export function CustomMcpCard({
 	entry,
 	onSave,
 	onRemove,
+	icon,
 }: {
 	readonly id: string;
 	readonly entry: McpData;
 	readonly onSave: (id: string, entry: McpData) => Promise<void>;
-	readonly onRemove: (id: string) => Promise<void>;
+	readonly onRemove?: (id: string) => Promise<void>;
+	readonly icon?: React.ReactNode;
 }): React.JSX.Element {
 	const [expanded, setExpanded] = useState(false);
 	const [editing, setEditing] = useState(false);
 	const description = entry.type === 'http' ? entry.url : entry.command;
 
 	const remove = async (): Promise<void> => {
+		if (!onRemove) return;
 		if (!window.confirm(`Remove ${entry.name ?? id}? This cannot be undone.`)) return;
 		await onRemove(id);
 	};
@@ -33,7 +36,7 @@ export function CustomMcpCard({
 				<CardHeader className={cn('items-center', expanded && 'border-b')}>
 					<div className="flex min-w-0 flex-1 items-center gap-2.5">
 						<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
-							<PlugZap className="size-4 text-muted-foreground" />
+							{icon ?? <PlugZap className="size-4 text-muted-foreground" />}
 						</div>
 						<div className="min-w-0">
 							<CardTitle className="truncate">{entry.name ?? id}</CardTitle>
@@ -68,7 +71,7 @@ export function CustomMcpCard({
 									setEditing(false);
 									setExpanded(false);
 								}}
-								onRemove={remove}
+								onRemove={onRemove ? remove : undefined}
 							/>
 						) : (
 							<p className="text-sm text-muted-foreground">
