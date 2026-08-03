@@ -32,6 +32,7 @@ import {
 	deleteProvider,
 	clearProviders,
 	deleteStorageConfig,
+	getStorageConfiguration,
 	getSelectedStorageId,
 	getStorages,
 	saveStorageConfig,
@@ -126,6 +127,12 @@ describe('storages in app settings', () => {
 
 		expect(getStorages()).toEqual([storage('backup')]);
 		expect(getSelectedStorageId()).toBe('backup');
+	});
+
+	it('stores storage providers in the storage configuration', () => {
+		saveStorageConfig(storage('backup'));
+
+		expect(getStorageConfiguration().providerId).toBe('backup');
 	});
 
 	it('persists the selected storage and falls back after deletion', () => {
