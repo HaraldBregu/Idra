@@ -20,17 +20,11 @@ export function CustomMcpCard({
 }): React.JSX.Element {
 	const [expanded, setExpanded] = useState(false);
 	const [editing, setEditing] = useState(false);
-	const [removing, setRemoving] = useState(false);
 	const description = entry.type === 'http' ? entry.url : entry.command;
 
 	const remove = async (): Promise<void> => {
 		if (!window.confirm(`Remove ${entry.name ?? id}? This cannot be undone.`)) return;
-		setRemoving(true);
-		try {
-			await onRemove(id);
-		} finally {
-			setRemoving(false);
-		}
+		await onRemove(id);
 	};
 
 	return (
