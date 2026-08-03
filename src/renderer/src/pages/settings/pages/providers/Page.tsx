@@ -45,7 +45,7 @@ import {
 import { ProviderCard } from '../storage/ProviderCard';
 import { McpCard } from './McpCard';
 import { McpServerCard } from '../mcp/components/McpServerCard';
-import { McpServerDialog } from '../mcp/components/McpServerDialog';
+import { McpServerForm } from '../mcp/components/McpServerForm';
 import { useMcpServers } from '../mcp/hooks/useMcpServers';
 
 interface StorageEntry {
@@ -143,6 +143,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 	const [storageEntries, setStorageEntries] = useState<StorageEntry[] | null>(null);
 	const [storageError, setStorageError] = useState<string | null>(null);
 	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
+	const [addingCustomMcp, setAddingCustomMcp] = useState(false);
 	const { servers: mcpServers, load: loadMcpServers } = useMcpServers();
 
 	useEffect(() => {
@@ -450,6 +451,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 	const saveCustomMcpServer = async (id: string, entry: McpData): Promise<void> => {
 		await window.mcp.save({ ...mcpServers, [id]: entry });
 		await loadMcpServers();
+		setAddingCustomMcp(false);
 	};
 
 	return (
@@ -464,15 +466,15 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 					)}
 					action={
 						section === 'mcp' ? (
-							<McpServerDialog
-								trigger={
-									<Button variant="outline" size="sm">
-										<Plus className="size-3.5" />
-										Add custom server
-									</Button>
-								}
-								onSubmit={saveCustomMcpServer}
-							/>
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={addingCustomMcp}
+								onClick={() => setAddingCustomMcp(true)}
+							>
+								<Plus className="size-3.5" />
+								Add custom server
+							</Button>
 						) : undefined
 					}
 				/>
@@ -486,6 +488,19 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{storageError}
 				</SettingsNotice>
+			)}
+			{section === 'mcp' && addingCustomMcp && (
+				<SettingsSection
+					title="New custom MCP server"
+					description="Remote MCP server over HTTP or local MCP server started as a command."
+				>
+					<Card size="sm" className="p-3!">
+						<McpServerForm
+							onSubmit={saveCustomMcpServer}
+							onCancel={() => setAddingCustomMcp(false)}
+						/>
+					</Card>
+				</SettingsSection>
 			)}
 
 			{(section === undefined || section === 'models') &&
