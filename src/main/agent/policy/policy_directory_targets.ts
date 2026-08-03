@@ -2,6 +2,7 @@ import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
 import { cronStorePath } from '../../app/cron/cron_store';
+import { healthStorePath } from '../health/health_store';
 import { skillsRoot } from '../skills/skills_root';
 import { registry } from '../tools/run_process';
 import { toolPermissionTargets } from './policy_targets';
@@ -10,7 +11,6 @@ const AGENT_FILES: Record<string, string> = {
 	memory_save: 'MEMORY.md',
 	memory_forget: 'MEMORY.md',
 	health_update: 'HEALTH.md',
-	health_settings_update: 'health.json',
 	complete_bootstrap: 'BOOTSTRAP.md',
 };
 const MEDIA_TOOLS = new Set(['create_image', 'create_video', 'create_sound']);
@@ -46,6 +46,7 @@ export function directoryPermissionTargets(
 	}
 	const fileName = AGENT_FILES[toolName];
 	if (fileName) return [realPath(path.join(baseDir, fileName))];
+	if (toolName === 'health_settings_update') return [realPath(healthStorePath)];
 	if (MEDIA_TOOLS.has(toolName)) {
 		const directory = typeof args.directory === 'string' && args.directory ? args.directory : '.';
 		return [realPath(resolveUserPath(directory, baseDir))];

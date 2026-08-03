@@ -9,21 +9,22 @@ type AgentStoreSchema = {
 };
 
 const AGENT_STORE_NAME = 'agent';
-const agentDirectory = path.resolve(userDataLocation(), 'agent');
-const hasAgentStore = existsSync(path.join(agentDirectory, 'agent.json'));
+const settingsDirectory = path.resolve(userDataLocation(), 'settings');
+const legacyAgentDirectory = path.resolve(userDataLocation(), 'agent');
+const hasAgentStore = existsSync(path.join(settingsDirectory, 'agent.json'));
 const DEFAULT_AGENT_STORE: AgentStoreSchema = { providerId: undefined, modelId: undefined };
 
 const store = new Store<AgentStoreSchema>({
 	name: AGENT_STORE_NAME,
-	cwd: agentDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_AGENT_STORE,
 });
 
-if (!hasAgentStore && existsSync(path.join(agentDirectory, 'settings.json'))) {
+if (!hasAgentStore && existsSync(path.join(legacyAgentDirectory, 'settings.json'))) {
 	const legacyStore = new Store<AgentStoreSchema>({
 		name: 'settings',
-		cwd: agentDirectory,
+		cwd: legacyAgentDirectory,
 		accessPropertiesByDotNotation: false,
 		defaults: DEFAULT_AGENT_STORE,
 	});

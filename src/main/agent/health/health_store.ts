@@ -5,20 +5,21 @@ import { userDataLocation } from '../../shared/user_data_location';
 import { DEFAULT_HEALTH_SETTINGS, type HealthSettings } from './health_types';
 
 const HEALTH_STORE_NAME = 'health';
-const agentDirectory = path.resolve(userDataLocation(), 'agent');
-const hasHealthStore = existsSync(path.join(agentDirectory, 'health.json'));
+const settingsDirectory = path.resolve(userDataLocation(), 'settings');
+const legacyAgentDirectory = path.resolve(userDataLocation(), 'agent');
+const hasHealthStore = existsSync(path.join(settingsDirectory, 'health.json'));
 
 const store = new Store<HealthSettings>({
 	name: HEALTH_STORE_NAME,
-	cwd: agentDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_HEALTH_SETTINGS,
 });
 
-if (!hasHealthStore && existsSync(path.join(agentDirectory, 'settings.health.json'))) {
+if (!hasHealthStore && existsSync(path.join(legacyAgentDirectory, 'settings.health.json'))) {
 	const legacyStore = new Store<HealthSettings>({
 		name: 'settings.health',
-		cwd: agentDirectory,
+		cwd: legacyAgentDirectory,
 		accessPropertiesByDotNotation: false,
 		defaults: DEFAULT_HEALTH_SETTINGS,
 	});

@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { directoryPermissionTargets } from '../../../../../src/main/agent/policy/policy_directory_targets';
 import { cronStorePath } from '../../../../../src/main/app/cron/cron_store';
+import { healthStorePath } from '../../../../../src/main/agent/health/health_store';
 import { registry, type ProcessSession } from '../../../../../src/main/agent/tools/run_process';
 
 const agentDir = path.resolve('/appdata/agent');
@@ -41,7 +42,6 @@ describe('directoryPermissionTargets', () => {
 	it.each([
 		['memory_save', 'MEMORY.md'],
 		['health_update', 'HEALTH.md'],
-		['health_settings_update', 'health.json'],
 		['complete_bootstrap', 'BOOTSTRAP.md'],
 	] as const)('maps %s to its agent-owned resource', (toolName, fileName) => {
 		expect(directoryPermissionTargets(toolName, {}, agentDir)).toEqual([
@@ -51,6 +51,12 @@ describe('directoryPermissionTargets', () => {
 
 	it('maps schedule changes to the shared cron store', () => {
 		expect(directoryPermissionTargets('create_schedule', {}, agentDir)).toEqual([cronStorePath]);
+	});
+
+	it('maps health settings changes to the shared health store', () => {
+		expect(directoryPermissionTargets('health_settings_update', {}, agentDir)).toEqual([
+			healthStorePath,
+		]);
 	});
 
 	it('maps generated media and loaded skills inside the agent directory', () => {

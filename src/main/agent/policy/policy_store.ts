@@ -17,8 +17,9 @@ import {
 import type { AgentPermissionMode } from '../../../shared/agent_types';
 
 const POLICY_STORE_NAME = 'policy';
-const agentSettingsDirectory = path.resolve(userDataLocation(), 'agent');
-const hasPolicyStore = existsSync(path.join(agentSettingsDirectory, 'policy.json'));
+const settingsDirectory = path.resolve(userDataLocation(), 'settings');
+const legacyAgentSettingsDirectory = path.resolve(userDataLocation(), 'agent');
+const hasPolicyStore = existsSync(path.join(settingsDirectory, 'policy.json'));
 const UNKNOWN_TOOL_PERMISSION: ToolPermission = {
 	default: 'ask',
 	allow: [],
@@ -30,15 +31,15 @@ export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 const store = new Store<PermissionsSchema>({
 	name: POLICY_STORE_NAME,
-	cwd: agentSettingsDirectory,
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_PERMISSIONS,
 });
 
-if (!hasPolicyStore && existsSync(path.join(agentSettingsDirectory, 'settings.policy.json'))) {
+if (!hasPolicyStore && existsSync(path.join(legacyAgentSettingsDirectory, 'settings.policy.json'))) {
 	const legacyStore = new Store<PermissionsSchema>({
 		name: 'settings.policy',
-		cwd: agentSettingsDirectory,
+		cwd: legacyAgentSettingsDirectory,
 		accessPropertiesByDotNotation: false,
 		defaults: DEFAULT_PERMISSIONS,
 	});
