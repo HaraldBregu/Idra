@@ -6,22 +6,6 @@ import type { McpOAuthState, McpRecord, McpStoreSchema } from './mcp_types';
 
 const MCP_STORE_NAME = 'settings.mcp';
 
-// ponytail: keys the OAuth flow owns; anything a server echoes back beyond these just lingers
-const OAUTH_KEYS = [
-	'redirect_uris',
-	'grant_types',
-	'response_types',
-	'token_endpoint_auth_method',
-	'client_name',
-	'client_id',
-	'client_secret',
-	'client_id_issued_at',
-	'client_secret_expires_at',
-	'scope',
-	'tokens',
-	'codeVerifier',
-] as const satisfies readonly (keyof McpOAuthState)[];
-
 const store = new Store<McpStoreSchema>({
 	name: MCP_STORE_NAME,
 	cwd: path.resolve(userDataLocation(), 'app'),
