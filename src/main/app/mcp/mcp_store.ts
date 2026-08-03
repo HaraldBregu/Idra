@@ -14,15 +14,20 @@ const store = new Store<McpStoreSchema>({
 	defaults: {},
 });
 
-// ponytail: one-shot flatten of the old { servers, oauth: { clientInformation } } shape
-const legacy = store.store as {
-	servers?: McpSettings;
-	oauth?: Record<string, { clientInformation?: object; tokens?: object; codeVerifier?: string }>;
+type LegacyOAuth = { clientInformation?: object; tokens?: object; codeVerifier?: string };
+type LegacyEntry = McpData & { oauth?: LegacyOAuth };
+
+// ponytail: one-shot flatten of the earlier { servers, oauth } and { id: { oauth } } shapes
+const legacy = store.store as Record<string, LegacyEntry> & {
+	servers?: Record<string, LegacyEntry>;
+	oauth?: Record<string, LegacyOAuth>;
 };
-if (legacy.servers) {
+const legacyServers = legacy.servers;
+const entries = legacyServers ?? legacy;
+if (legacyServers || Object.values(legacy).some((entry) => entry.oauth)) {
 	const flattened: McpStoreSchema = {};
-	for (const [id, data] of Object.entries(legacy.servers)) {
-		const { clientInformation, ...auth } = legacy.oauth?.[id] ?? {};
+	for (const [id, { oauth, ...data }] of Object.entries(entries)) {
+		const { clientInformation, ...auth } = oauth ?? legacy.oauth?.[id] ?? {};
 		flattened[id] = { ...data, ...clientInformation, ...auth } as McpRecord;
 	}
 	store.store = flattened;
