@@ -144,8 +144,9 @@ export function McpServerForm({
 						<Input id="mcp-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/mcp" />
 					</Field>
 					{isValid && <McpOAuthButton id={serverId} beforeStart={persist} />}
-					<details className="grid gap-4">
+					<details>
 						<summary className="cursor-pointer text-[13px] text-muted-foreground">Advanced</summary>
+						<div className="grid gap-4 pt-4">
 						<Field>
 							<Label htmlFor="mcp-token">Access token (optional)</Label>
 							<Input id="mcp-token" type="password" value={token} onChange={(e) => setToken(e.target.value)} autoComplete="off" />
