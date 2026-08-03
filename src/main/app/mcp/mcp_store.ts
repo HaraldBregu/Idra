@@ -10,7 +10,7 @@ const MCP_STORE_NAME = 'settings.mcp';
 
 const store = new Store<ConnectorStoreSchema>({
 	name: MCP_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'agent'),
+	cwd: path.resolve(userDataLocation(), 'app'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_MCP_SETTINGS,
 });
