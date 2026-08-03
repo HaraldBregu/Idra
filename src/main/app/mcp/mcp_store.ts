@@ -53,12 +53,12 @@ function splitRecord(record: McpRecord): { data: McpData; auth: McpOAuthState } 
 	return { data: data as unknown as McpData, auth: auth as McpOAuthState };
 }
 
+// tokens and the code verifier never leave the main process; the rest round-trips through the UI
 export function getMcpServers(): McpSettings {
 	const servers: McpSettings = {};
 	for (const [id, record] of Object.entries(store.store)) {
-		const { data, auth } = splitRecord(record);
-		// client credentials stay editable in the UI; tokens never leave the main process
-		servers[id] = { ...data, client_id: auth.client_id, client_secret: auth.client_secret };
+		const { tokens: _tokens, codeVerifier: _verifier, ...data } = record;
+		servers[id] = data as McpData;
 	}
 	return servers;
 }
