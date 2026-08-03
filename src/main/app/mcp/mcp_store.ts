@@ -40,7 +40,10 @@ if (store.store.length === 0) {
 		const { clientInformation, ...auth } = oauth ?? legacy.oauth?.[id] ?? {};
 		migrated.push({ id, ...data, ...clientInformation, ...auth } as McpRecord);
 	}
-	if (migrated.length > 0) store.store = migrated;
+	if (migrated.length > 0) {
+		store.store = migrated;
+		legacyStore.clear();
+	}
 }
 
 // tokens and the code verifier never leave the main process; the rest round-trips through the UI
