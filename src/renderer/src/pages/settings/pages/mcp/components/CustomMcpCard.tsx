@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ChevronDown, Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import type { McpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import { McpServerForm } from './McpServerForm';
 
@@ -35,23 +35,23 @@ export function CustomMcpCard({
 	return (
 		<Card size="sm">
 			<Collapsible open={expanded} onOpenChange={setExpanded}>
-				<CardHeader className={cn('items-center', expanded && 'border-b')}>
+				<CardHeader
+					className={cn('cursor-pointer items-center', expanded && 'border-b')}
+					role="button"
+					tabIndex={0}
+					aria-expanded={expanded}
+					onClick={() => setExpanded((value) => !value)}
+					onKeyDown={(event) => {
+						if (event.key !== 'Enter' && event.key !== ' ') return;
+						event.preventDefault();
+						setExpanded((value) => !value);
+					}}
+				>
 					<div className="min-w-0 flex-1">
 						<CardTitle className="truncate">{entry.name ?? id}</CardTitle>
 						<p className="truncate font-mono text-xs text-muted-foreground">{description}</p>
 					</div>
 					<CardAction className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
-						<CollapsibleTrigger
-							render={
-								<Button
-									variant="ghost"
-									size="icon-sm"
-									aria-label={expanded ? `Collapse ${entry.name ?? id}` : `Expand ${entry.name ?? id}`}
-								>
-									<ChevronDown className={cn('size-3 transition-transform', expanded && 'rotate-180')} />
-								</Button>
-							}
-						/>
 						<Button
 							variant="ghost"
 							size="icon-sm"
