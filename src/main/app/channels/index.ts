@@ -2,11 +2,8 @@ export { createChannelRegistry } from './channels_registry';
 export type { ChannelRegistry, ChannelRegistryDependencies } from './channels_registry';
 export {
 	getChannelProvider,
-	getChannels,
 	listChannelProviders,
-	setChannelId,
 	setChannelProvider,
-	setProviderId,
 } from './channels_store';
 export type { ChannelsStoreState } from './channels_store';
 export { canReceive } from './channels_security';

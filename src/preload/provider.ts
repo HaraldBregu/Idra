@@ -3,7 +3,6 @@ import { ProviderStoreChannels } from '../shared/ipc_channels_definitions';
 import type { ProviderApi } from './index.d';
 import type { StoredProvider as Provider, StoredProviderKind } from '../shared/provider_types';
 import type { PublicProvider } from '../shared/provider_types';
-import type { Channel } from '../shared/channels_types';
 
 /** Unique providers from catalog entries, overlaid with stored settings data. */
 async function uniqueProvidersWithStored(
@@ -40,8 +39,5 @@ export const provider: ProviderApi = {
 	},
 	getDatabaseProviders: async (): Promise<PublicProvider[]> => {
 		return uniqueProvidersWithStored(await window.app.databases());
-	},
-	getChannels: async (): Promise<Channel> => {
-		return window.app.getChannels();
 	},
 };

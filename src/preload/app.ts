@@ -2,7 +2,7 @@ import { webUtils } from 'electron';
 import { typedInvokeUnwrap, typedOn } from '../shared/ipc_types';
 import { AppChannels } from '../shared/ipc_channels_definitions';
 import type { AppApi } from './index.d';
-import type { Channel, ChannelStatusEvent, ChannelType } from '../shared';
+import type { ChannelStatusEvent, ChannelType } from '../shared';
 import { optionalTrimmedString } from './normalize';
 
 export const app: AppApi = {
@@ -109,20 +109,6 @@ export const app: AppApi = {
 	},
 	uploadProvider: (): Promise<string | null> => {
 		return typedInvokeUnwrap(AppChannels.uploadProvider);
-	},
-	getChannels: (): Promise<Channel> => {
-		return typedInvokeUnwrap(AppChannels.getChannels);
-	},
-	setDefaultChannel: (providerId: string, channelId: string): Promise<void> => {
-		const normalizedProviderId = optionalTrimmedString(providerId);
-		const normalizedChannelId = optionalTrimmedString(channelId);
-		if (!normalizedProviderId) throw new Error('Invalid channels provider id.');
-		if (!normalizedChannelId) throw new Error('Invalid channel id.');
-		return typedInvokeUnwrap(
-			AppChannels.setDefaultChannel,
-			normalizedProviderId,
-			normalizedChannelId
-		);
 	},
 	getChannelsStatus: (type?: ChannelType): Promise<ChannelStatusEvent | undefined> => {
 		return typedInvokeUnwrap(AppChannels.getChannelsStatus, type);

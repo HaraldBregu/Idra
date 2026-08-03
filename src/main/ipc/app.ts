@@ -54,8 +54,8 @@ import {
 } from '../app/models';
 import type { LoggerService } from '../shared';
 import { validateProviderManifest } from '../../shared/providers/validation';
-import type { Channel, ChannelStatusEvent, ChannelType } from '../../shared';
-import { getChannels, setChannelId, setProviderId, type ChannelRegistry } from '../app/channels';
+import type { ChannelStatusEvent, ChannelType } from '../../shared';
+import { type ChannelRegistry } from '../app/channels';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
@@ -483,21 +483,6 @@ export class AppIpc implements IpcModule {
 					eventBus.broadcast(AppChannels.modelsChanged);
 				});
 			}, AppChannels.uploadProvider)
-		);
-
-		ipcMain.handle(
-			AppChannels.getChannels,
-			wrapSimpleHandler((): Channel => {
-				return getChannels();
-			}, AppChannels.getChannels)
-		);
-
-		ipcMain.handle(
-			AppChannels.setDefaultChannel,
-			wrapSimpleHandler((providerId: string, channelId: string): void => {
-				setProviderId(providerId);
-				setChannelId(channelId);
-			}, AppChannels.setDefaultChannel)
 		);
 
 		ipcMain.handle(
