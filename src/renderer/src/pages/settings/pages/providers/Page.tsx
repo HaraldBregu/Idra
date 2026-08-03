@@ -531,7 +531,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 			)}
 
 			{(section === undefined || section === 'mcp') && (!embedded || mcpCatalog.length > 0) && (
-				<SettingsSection title={t('settings.tabs.mcp')}>
+				<SettingsSection title="Default MCP">
 					<div className="space-y-3 pb-4">
 						{mcpCatalog.map((service) => (
 							<McpCard key={`${service.provider.id}-${service.id}`} service={service} />
@@ -542,7 +542,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 
 			{section === 'mcp' && (
 				<SettingsSection
-					title="Custom MCP servers"
+					title="Custom MCP"
 					action={
 						<Button
 							variant="outline"
