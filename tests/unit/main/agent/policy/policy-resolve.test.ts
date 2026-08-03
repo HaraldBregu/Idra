@@ -28,6 +28,7 @@ const entry = (
 
 const defaults = (): PermissionsSchema => ({
 	dir: {},
+	mode: 'ask',
 	read: entry('allow'),
 	write: entry('allow'),
 	edit: entry('ask'),
