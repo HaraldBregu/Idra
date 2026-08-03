@@ -12,6 +12,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { McpOAuthButton } from './McpOAuthButton';
 
 function parseEnv(text: string): Record<string, string> | undefined {
 	const env: Record<string, string> = {};
