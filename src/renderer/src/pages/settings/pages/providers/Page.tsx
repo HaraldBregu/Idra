@@ -568,7 +568,6 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 										updated_at: new Date().toISOString(),
 									})
 								}
-								onViewDetails={() => undefined}
 							/>
 						))}
 					</div>
