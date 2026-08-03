@@ -11,6 +11,7 @@ const PREVIOUS_MCP_STORE_NAME = 'providers.mcp';
 const LEGACY_MCP_STORE_NAME = 'settings.mcp';
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
 const legacyAppSettingsDirectory = path.resolve(userDataLocation(), 'app');
+const hasMcpStore = existsSync(path.join(settingsDirectory, `${MCP_STORE_NAME}.json`));
 
 const store = new Store<McpStoreSchema>({
 	name: MCP_STORE_NAME,
@@ -18,6 +19,16 @@ const store = new Store<McpStoreSchema>({
 	accessPropertiesByDotNotation: false,
 	defaults: { servers: [] },
 });
+
+const legacyCurrentStore =
+	!hasMcpStore && existsSync(path.join(legacyAppSettingsDirectory, `${MCP_STORE_NAME}.json`))
+		? new Store<McpStoreSchema>({
+				name: MCP_STORE_NAME,
+				cwd: legacyAppSettingsDirectory,
+				accessPropertiesByDotNotation: false,
+				defaults: { servers: [] },
+			})
+		: undefined;
 
 const previousStore = existsSync(path.join(legacyAppSettingsDirectory, `${PREVIOUS_MCP_STORE_NAME}.json`))
 	? new Store<McpStoreSchema>({
@@ -48,7 +59,9 @@ const legacy = (legacyStore?.store ?? {}) as Record<string, LegacyEntry> & {
 const legacyServers = legacy.servers;
 const entries = legacyServers ?? legacy;
 if (store.store.servers.length === 0) {
-	if (previousStore && previousStore.store.servers.length > 0) {
+	if (legacyCurrentStore && legacyCurrentStore.store.servers.length > 0) {
+		store.store = { servers: legacyCurrentStore.store.servers };
+	} else if (previousStore && previousStore.store.servers.length > 0) {
 		store.store = { servers: previousStore.store.servers };
 		previousStore.clear();
 	} else {
