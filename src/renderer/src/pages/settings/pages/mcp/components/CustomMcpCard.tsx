@@ -35,18 +35,7 @@ export function CustomMcpCard({
 	return (
 		<Card size="sm">
 			<Collapsible open={expanded} onOpenChange={setExpanded}>
-				<CardHeader
-					className={cn('cursor-pointer items-center', expanded && 'border-b')}
-					role="button"
-					tabIndex={0}
-					aria-expanded={expanded}
-					onClick={() => setExpanded((value) => !value)}
-					onKeyDown={(event) => {
-						if (event.key !== 'Enter' && event.key !== ' ') return;
-						event.preventDefault();
-						setExpanded((value) => !value);
-					}}
-				>
+				<CardHeader className={cn('items-center', expanded && 'border-b')}>
 					<div className="flex min-w-0 flex-1 items-center gap-2.5">
 						<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
 							<PlugZap className="size-4 text-muted-foreground" />
@@ -56,7 +45,7 @@ export function CustomMcpCard({
 							<p className="truncate font-mono text-xs text-muted-foreground">{description}</p>
 						</div>
 					</div>
-					<CardAction className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
+					<CardAction className="flex items-center gap-1">
 						<Button
 							variant="ghost"
 							size="icon-sm"
@@ -88,8 +77,12 @@ export function CustomMcpCard({
 								onSubmit={async (nextId, nextEntry) => {
 									await onSave(nextId, nextEntry);
 									setEditing(false);
+									setExpanded(false);
 								}}
-								onCancel={() => setEditing(false)}
+								onCancel={() => {
+									setEditing(false);
+									setExpanded(false);
+								}}
 							/>
 						) : (
 							<p className="text-sm text-muted-foreground">
