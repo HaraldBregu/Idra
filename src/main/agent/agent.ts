@@ -33,6 +33,7 @@ import type {
 	AgentInputFile,
 	AgentResponseEvent,
 	AgentRunStopReason,
+	AgentPermissionMode,
 	AgentSessionSummary,
 } from '../../shared/agent_types';
 import { toError } from '../ipc/core/error';
@@ -40,6 +41,7 @@ import { toError } from '../ipc/core/error';
 export interface AgentSendOptions {
 	runId?: string;
 	interactive?: boolean;
+	permissionMode?: AgentPermissionMode;
 	sessionId?: string;
 	category?: SessionCategory;
 	providerId?: string;
@@ -76,6 +78,7 @@ export class Agent {
 			return this.send(schedule.action.prompt, 'cron', {
 				category: 'task',
 				interactive: false,
+				permissionMode: schedule.action.permissionMode ?? 'ask',
 				...(runtime ? { providerId: runtime.providerId, modelId: runtime.modelId } : {}),
 			});
 		});
@@ -129,6 +132,7 @@ export class Agent {
 
 			const events = stream(this.config, this.session, input, controller.signal, {
 				interactive: options.interactive ?? true,
+				permissionMode: options.permissionMode ?? 'ask',
 			});
 
 			this.activeRuns.set(view.agentId, controller);

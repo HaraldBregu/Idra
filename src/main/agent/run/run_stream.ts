@@ -48,6 +48,7 @@ import { getScheduleTool } from '../tools/cron/get_schedule';
 import { listSchedulesTool } from '../tools/cron/list_schedules';
 import { runScheduleNowTool } from '../tools/cron/run_schedule_now';
 import { subagentTool } from '../tools/subagent';
+import type { AgentPermissionMode } from '../../../shared/agent_types';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
@@ -55,6 +56,7 @@ import { runToolCalls } from './run_tool_calls';
 export interface StreamOptions {
 	tools?: Tool[];
 	interactive?: boolean;
+	permissionMode?: AgentPermissionMode;
 }
 
 export async function* stream(
@@ -91,6 +93,7 @@ async function* loop(
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
+	const permissionMode = options.permissionMode ?? 'ask';
 	const tools: Tool[] = options.tools
 		? [...options.tools]
 		: [
@@ -205,7 +208,8 @@ async function* loop(
 				turn.toolCalls,
 				interactive,
 				signal,
-				session.context.toolsContext
+				session.context.toolsContext,
+				permissionMode
 			)) {
 				yield event;
 				if (event.type !== 'tool_call_end') continue;

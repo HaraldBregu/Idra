@@ -153,7 +153,7 @@ The Home prompt classifier computes `none`, `medium`, or `high` reasoning effort
 | Bootstrap  | Complete the one-time conversational bootstrap after profile files have been written.                                                                                                                               |
 | Subagents  | Run one independent subagent with a fresh conversation and the same tool set except further subagent spawning.                                                                                                      |
 
-Subagents are non-interactive. Any tool that resolves to `ask` is denied because a subagent cannot present a permission card to the user.
+Subagents and scheduled agent tasks are non-interactive. Their default `permissionMode: "ask"` denies any tool that resolves to `ask`, because they cannot present a permission card. A caller may explicitly set `permissionMode: "bypass"` to run that background agent without policy checks.
 
 ### Permissions and execution control
 

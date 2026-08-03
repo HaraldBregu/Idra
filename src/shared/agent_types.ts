@@ -25,6 +25,8 @@ export type AgentToolResultStatus = 'ok' | 'error' | 'blocked' | 'rejected';
 
 export type AgentToolPermissionDecision = 'approve' | 'reject' | 'approve_always';
 
+export type AgentPermissionMode = 'ask' | 'bypass';
+
 export interface AgentInputFile {
 	name: string;
 	mimeType: string;

@@ -3,6 +3,7 @@ import { tool } from './tool';
 import { createSessionState } from '../session';
 import { adoptSubagent, type AgentContext } from '../context';
 import { stream } from '../run/run_stream';
+import type { AgentPermissionMode } from '../../../shared/agent_types';
 import type { Config, RuntimeInput, Tool } from '../types';
 
 const instructions = `You are a subagent spawned by the main agent to complete one specific task.
@@ -21,6 +22,10 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 			'Spawn a subagent to complete a task in its own isolated context and return a summary. It has the same tools as you, except spawning subagents. Use it for work that takes many steps, produces large intermediate output, or is independent of the conversation. Give it a clear objective and the expected output.',
 		inputSchema: z.object({
 			task: z.string().describe('The task for the subagent to complete'),
+			permissionMode: z
+				.enum(['ask', 'bypass'])
+				.default('ask')
+				.describe('ask enforces the policy; bypass lets this background subagent run tools without it.'),
 			systemPrompt: z
 				.string()
 				.optional()
@@ -28,7 +33,7 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 					'Additional system instructions for the subagent. Mandatory subagent rules are always retained.'
 				),
 		}),
-		execute: async ({ task, systemPrompt }) => {
+		execute: async ({ task, permissionMode, systemPrompt }) => {
 			const input: RuntimeInput = { task: 'subagent', message: task };
 			// Fresh context: the subagent never sees the main agent's conversation.
 			const session = createSessionState();
@@ -42,6 +47,7 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 			const events = stream(config, session, input, new AbortController().signal, {
 				tools,
 				interactive: false,
+				permissionMode: permissionMode as AgentPermissionMode,
 			});
 			for await (const event of events) {
 				if (event.type === 'assistant_message') text = event.content;

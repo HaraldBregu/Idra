@@ -7,7 +7,11 @@ import type { Agent, AgentSendOptions } from '../agent/agent';
 import type { LoggerService } from '../shared';
 import type { PublicProvider } from '../../shared/provider_types';
 import { loadProviders } from '../app/models';
-import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../shared/agent_types';
+import type {
+	AgentPermissionMode,
+	AgentToolPermissionDecision,
+	ModelReasoningEffort,
+} from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
 import { workspacePath } from '../agent/system';
 import {
@@ -53,6 +57,12 @@ const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'high',
 	'xhigh',
 ];
+
+const AGENT_PERMISSION_MODES: readonly AgentPermissionMode[] = ['ask', 'bypass'];
+
+function isAgentPermissionMode(value: unknown): value is AgentPermissionMode {
+	return AGENT_PERMISSION_MODES.includes(value as AgentPermissionMode);
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -148,6 +158,9 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 			? { modelId: optionalTrimmedString(options.model) }
 			: {}),
 		...(isModelReasoningEffort(options.effort) ? { effort: options.effort } : {}),
+		...(isAgentPermissionMode(options.permissionMode)
+			? { permissionMode: options.permissionMode }
+			: {}),
 		...(files ? { files } : {}),
 	};
 }

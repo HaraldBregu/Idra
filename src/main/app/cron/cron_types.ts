@@ -1,4 +1,4 @@
-import type { ModelReasoningEffort } from '../../../shared/agent_types';
+import type { AgentPermissionMode, ModelReasoningEffort } from '../../../shared/agent_types';
 
 export interface CronJobInfo {
 	readonly id: string;
@@ -20,7 +20,12 @@ export interface CronScheduledTask {
 
 export type CronAction =
 	| { type: 'debug'; message: string }
-	| { type: 'agent'; prompt: string; effort: ModelReasoningEffort };
+	| {
+			type: 'agent';
+			prompt: string;
+			effort: ModelReasoningEffort;
+			permissionMode?: AgentPermissionMode;
+	  };
 
 export interface CronSchedule {
 	id: string;

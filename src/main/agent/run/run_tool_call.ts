@@ -1,5 +1,6 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import { fileToolState, isFileCreation, rememberTool, type ToolsContext } from '../context';
+import type { AgentPermissionMode } from '../../../shared/agent_types';
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
@@ -16,7 +17,8 @@ export async function* runToolCall(
 	toolCall: ToolCall,
 	interactive = true,
 	signal?: AbortSignal,
-	context?: ToolsContext
+	context?: ToolsContext,
+	permissionMode: AgentPermissionMode = 'ask'
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 	const state = fileToolState(toolCall.name, toolCall.args, agentLocation());
@@ -42,15 +44,18 @@ export async function* runToolCall(
 		output = `Error: cancelled by user`;
 		isError = true;
 	} else {
-		let permission = resolveToolPermission(
-			toolCall.name,
-			toolCall.args,
-			context,
-			interactive,
-			tool.defaultPermission
-		);
+		let permission =
+			permissionMode === 'bypass'
+				? 'allow'
+				: resolveToolPermission(
+						toolCall.name,
+						toolCall.args,
+						context,
+						interactive,
+						tool.defaultPermission
+					);
 
-		if (tool.alwaysAsk) permission = 'ask';
+		if (tool.alwaysAsk && permissionMode !== 'bypass') permission = 'ask';
 		if (permission === 'ask' && !interactive) permission = 'deny';
 
 		if (permission === 'ask') {
