@@ -23,7 +23,7 @@ export type McpOAuthState = Partial<OAuthClientInformationFull> & {
 
 export type McpRecord = McpData & McpOAuthState & { readonly id: string };
 
-export type McpStoreSchema = McpRecord[];
+export type McpStoreSchema = { readonly servers: McpRecord[] };
 
 export type McpOAuthStorage = {
 	load: () => McpOAuthState;
