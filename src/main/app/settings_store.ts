@@ -28,7 +28,6 @@ export type AppSettingsState = {
 	language: AppLanguage;
 	theme: AppTheme;
 	models: StoredProvider[];
-	search: StoredProvider[];
 	email: StoredProvider[];
 	storages: StoredStorage[];
 };
@@ -55,7 +54,6 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	language: 'en',
 	theme: 'system',
 	models: [],
-	search: [],
 	email: [],
 	storages: [],
 };
@@ -207,13 +205,14 @@ export function removeLegacyBotProviders(): void {
 	store.store = settings;
 }
 
-export function getSearchProviders(): StoredProvider[] {
-	const raw = store.get('search');
-	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
+export function getLegacySearchProviders(): StoredProvider[] {
+	const search = (store.store as { search?: unknown }).search;
+	return Array.isArray(search) ? search.filter(isStoredProvider) : [];
 }
 
-export function setSearchProviders(providers: StoredProvider[]): void {
-	store.set('search', providers.filter(isStoredProvider));
+export function removeLegacySearchProviders(): void {
+	const { search: _search, ...settings } = store.store as AppSettingsState & { search?: unknown };
+	store.store = settings;
 }
 
 export function getEmailProviders(): StoredProvider[] {
