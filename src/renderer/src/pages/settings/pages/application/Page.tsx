@@ -3,7 +3,6 @@ import StoragePage from '../storage/Page';
 import VectorDbPage from '../vectordb/Page';
 import SearchPage from '../search/Page';
 import TasksPage from '../tasks/Page';
-import DefaultChannelPage from '../channels/default/Page';
 
 const ApplicationPage: React.FC = () => (
 	<>
@@ -11,7 +10,6 @@ const ApplicationPage: React.FC = () => (
 		<VectorDbPage />
 		<SearchPage />
 		<TasksPage />
-		<DefaultChannelPage />
 	</>
 );
 

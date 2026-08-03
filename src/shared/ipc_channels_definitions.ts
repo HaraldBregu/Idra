@@ -115,8 +115,6 @@ export const AppChannels = {
 	bots: 'app:bots',
 	modelsChanged: 'app:models-changed',
 	uploadProvider: 'app:upload-provider',
-	getChannels: 'app:channels:get-config',
-	setDefaultChannel: 'app:channels:set-default-channel',
 	getChannelsStatus: 'app:channels:get-status',
 	startTelegram: 'app:channels:telegram:start',
 	stopTelegram: 'app:channels:telegram:stop',

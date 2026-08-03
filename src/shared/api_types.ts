@@ -35,7 +35,7 @@ import type {
 	AgentToolPermissionDecision,
 } from './agent_types';
 import type { CatalogModel, ProviderModel } from './model_types';
-import type { Channel, ChannelStatusEvent, ChannelType } from './channels_types';
+import type { ChannelStatusEvent, ChannelType } from './channels_types';
 import type { EmbeddingRequest, EmbeddingResult } from './embedding_types';
 import type { ImageRequest, ImageResult } from './image_types';
 import type { SoundFile, SoundRequest, SoundResult } from './sound_types';
@@ -149,7 +149,6 @@ export interface ProviderApi {
 	getModelProviders: () => Promise<PublicProvider[]>;
 	getStorageProviders: () => Promise<PublicProvider[]>;
 	getDatabaseProviders: () => Promise<PublicProvider[]>;
-	getChannels: () => Promise<Channel>;
 }
 
 export interface StorageApi {
@@ -326,8 +325,6 @@ export interface AppApi {
 	showAudioContextMenu: (path: string) => Promise<void>;
 	/** Pick a provider folder and copy it into the providers catalog; null when canceled. */
 	uploadProvider: () => Promise<string | null>;
-	getChannels: () => Promise<Channel>;
-	setDefaultChannel: (providerId: string, channelId: string) => Promise<void>;
 	getChannelsStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
 	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
 	stopTelegram: () => Promise<void>;
