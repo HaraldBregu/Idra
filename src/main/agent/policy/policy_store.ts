@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { existsSync } from 'node:fs';
 import Store from 'electron-store';
 import { agentLocation } from '../../shared/agent_location';
 import { userDataLocation } from '../../shared/user_data_location';
@@ -15,7 +16,9 @@ import {
 } from './policy_types';
 import type { AgentPermissionMode } from '../../../shared/agent_types';
 
-const POLICY_STORE_NAME = 'settings.policy';
+const POLICY_STORE_NAME = 'policy';
+const agentSettingsDirectory = path.resolve(userDataLocation(), 'agent');
+const hasPolicyStore = existsSync(path.join(agentSettingsDirectory, 'policy.json'));
 const UNKNOWN_TOOL_PERMISSION: ToolPermission = {
 	default: 'ask',
 	allow: [],
@@ -27,10 +30,20 @@ export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 const store = new Store<PermissionsSchema>({
 	name: POLICY_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'agent'),
+	cwd: agentSettingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_PERMISSIONS,
 });
+
+if (!hasPolicyStore && existsSync(path.join(agentSettingsDirectory, 'settings.policy.json'))) {
+	const legacyStore = new Store<PermissionsSchema>({
+		name: 'settings.policy',
+		cwd: agentSettingsDirectory,
+		accessPropertiesByDotNotation: false,
+		defaults: DEFAULT_PERMISSIONS,
+	});
+	store.store = legacyStore.store;
+}
 
 export function getPermissions(): PermissionsSchema {
 	const stored = store.store as Record<string, unknown>;
