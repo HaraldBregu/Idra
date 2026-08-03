@@ -40,10 +40,10 @@ export function createOAuthProvider(params: McpOAuthProviderParams): OAuthClient
 			return verifier;
 		},
 		invalidateCredentials(scope) {
-			const next: McpOAuthState = { ...storage.load() };
-			if (scope === 'all' || scope === 'client') delete next.clientInformation;
-			if (scope === 'all' || scope === 'tokens') delete next.tokens;
-			if (scope === 'all' || scope === 'verifier') delete next.codeVerifier;
+			const { tokens, codeVerifier, ...client } = storage.load();
+			const next: McpOAuthState = scope === 'all' || scope === 'client' ? {} : client;
+			if (scope !== 'all' && scope !== 'tokens') next.tokens = tokens;
+			if (scope !== 'all' && scope !== 'verifier') next.codeVerifier = codeVerifier;
 			storage.save(next);
 		},
 	};
