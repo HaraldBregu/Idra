@@ -15,10 +15,12 @@ export function createOAuthProvider(params: McpOAuthProviderParams): OAuthClient
 			return clientMetadata(Boolean(params.clientSecret));
 		},
 		clientInformation() {
-			return staticClient ?? storage.load().clientInformation;
+			if (staticClient) return staticClient;
+			const { tokens: _tokens, codeVerifier: _verifier, ...client } = storage.load();
+			return client.client_id ? (client as OAuthClientInformationMixed) : undefined;
 		},
 		saveClientInformation(clientInformation) {
-			storage.save({ ...storage.load(), clientInformation });
+			storage.save({ ...storage.load(), ...clientInformation });
 		},
 		tokens() {
 			return storage.load().tokens;
