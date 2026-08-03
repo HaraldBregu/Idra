@@ -28,7 +28,6 @@ export type AppSettingsState = {
 	language: AppLanguage;
 	theme: AppTheme;
 	models: StoredProvider[];
-	email: StoredProvider[];
 };
 
 const APP_SETTINGS_STORE_NAME = 'settings';
@@ -62,7 +61,6 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	language: 'en',
 	theme: 'system',
 	models: [],
-	email: [],
 };
 
 const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
@@ -233,13 +231,14 @@ export function removeLegacySearchProviders(): void {
 	store.store = settings;
 }
 
-export function getEmailProviders(): StoredProvider[] {
-	const raw = store.get('email');
-	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
+export function getLegacyEmailProviders(): StoredProvider[] {
+	const email = (store.store as { email?: unknown }).email;
+	return Array.isArray(email) ? email.filter(isStoredProvider) : [];
 }
 
-export function setEmailProviders(providers: StoredProvider[]): void {
-	store.set('email', providers.filter(isStoredProvider));
+export function removeLegacyEmailProviders(): void {
+	const { email: _email, ...settings } = store.store as AppSettingsState & { email?: unknown };
+	store.store = settings;
 }
 
 /** The selected provider resolved to the shape model adapters consume. */
