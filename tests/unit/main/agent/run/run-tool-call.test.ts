@@ -29,20 +29,33 @@ describe('runToolCall', () => {
 	it('bypasses policy checks only when explicitly requested', async () => {
 		const run = jest.fn().mockResolvedValue('done');
 		const tool: Tool = {
-			name: 'exec',
+			name: 'restricted_tool',
 			description: 'run',
 			schema: { type: 'object' },
 			defaultPermission: 'ask',
 			run,
 		};
-		const call: ToolCall = { id: 'tool-1', name: 'exec', args: { command: 'echo done' } };
+		const call: ToolCall = {
+			id: 'tool-1',
+			name: 'restricted_tool',
+			args: { command: 'echo done' },
+		};
 		const events = [];
 
 		for await (const event of runToolCall(tool, call, false, undefined, undefined, 'bypass')) {
 			events.push(event);
 		}
 
-		expect(run).toHaveBeenCalledWith({ command: 'echo done' }, undefined);
+		expect(run).toHaveBeenCalledWith({ command: 'echo done' });
 		expect(events).not.toContainEqual(expect.objectContaining({ type: 'tool_permission_request' }));
+
+		const restrictedCall: ToolCall = {
+			id: 'tool-2',
+			name: 'restricted_tool',
+			args: { command: 'echo blocked' },
+		};
+		for await (const event of runToolCall(tool, restrictedCall, false)) events.push(event);
+		expect(run).toHaveBeenCalledTimes(1);
+		expect(restrictedCall.result).toMatchObject({ isError: true });
 	});
 });

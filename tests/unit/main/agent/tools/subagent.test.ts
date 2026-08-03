@@ -9,6 +9,10 @@ import type { SessionState } from '../../../../../src/main/agent/session';
 import { subagentTool } from '../../../../../src/main/agent/tools/subagent';
 
 describe('subagentTool', () => {
+	beforeEach(() => {
+		mockStream.mockReset();
+	});
+
 	it('keeps mandatory rules when additional system instructions are supplied', async () => {
 		mockStream.mockReturnValue(
 			(async function* () {
