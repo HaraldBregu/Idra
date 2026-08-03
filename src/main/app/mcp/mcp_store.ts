@@ -1,32 +1,54 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { McpSettings } from '../../../shared/mcp_types';
+import type { McpData, McpSettings } from '../../../shared/mcp_types';
 import { userDataLocation } from '../../shared/user_data_location';
-import type { ConnectorStoreSchema, McpOAuthState } from './mcp_types';
-
-export const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { servers: {}, oauth: {} };
+import type { McpOAuthState, McpStoreSchema } from './mcp_types';
 
 const MCP_STORE_NAME = 'settings.mcp';
 
-const store = new Store<ConnectorStoreSchema>({
+const store = new Store<McpStoreSchema>({
 	name: MCP_STORE_NAME,
 	cwd: path.resolve(userDataLocation(), 'app'),
 	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_MCP_SETTINGS,
+	defaults: {},
 });
 
+// ponytail: one-shot flatten of the old { servers, oauth } shape into id -> data + oauth
+const legacy = store.store as {
+	servers?: McpSettings;
+	oauth?: Record<string, McpOAuthState>;
+};
+if (legacy.servers) {
+	const flattened: McpStoreSchema = {};
+	for (const [id, data] of Object.entries(legacy.servers)) {
+		flattened[id] = { ...data, oauth: legacy.oauth?.[id] };
+	}
+	store.store = flattened;
+}
+
 export function getMcpServers(): McpSettings {
-	return store.store.servers ?? {};
+	const servers: McpSettings = {};
+	for (const [id, { oauth: _oauth, ...data }] of Object.entries(store.store)) {
+		servers[id] = data as McpData;
+	}
+	return servers;
 }
 
 export function setMcpServers(servers: McpSettings): void {
-	store.set('servers', servers);
+	const current = store.store;
+	const next: McpStoreSchema = {};
+	for (const [id, data] of Object.entries(servers)) {
+		next[id] = { ...data, oauth: current[id]?.oauth };
+	}
+	store.store = next;
 }
 
 export function getMcpOauth(id: string): McpOAuthState {
-	return store.store.oauth?.[id] ?? {};
+	return store.store[id]?.oauth ?? {};
 }
 
 export function saveMcpOauth(id: string, state: McpOAuthState): void {
-	store.set('oauth', { ...(store.store.oauth ?? {}), [id]: state });
+	const entry = store.store[id];
+	if (!entry) throw new Error(`No MCP server "${id}".`);
+	store.set(id, { ...entry, oauth: state });
 }

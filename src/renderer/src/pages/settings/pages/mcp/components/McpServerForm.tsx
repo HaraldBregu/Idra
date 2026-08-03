@@ -51,7 +51,7 @@ export function McpServerForm({
 	const [token, setToken] = useState(entry?.type === 'http' ? (entry.token ?? '') : '');
 	const [clientId, setClientId] = useState(entry?.type === 'http' ? (entry.client_id ?? '') : '');
 	const [clientSecret, setClientSecret] = useState(
-		entry?.type === 'http' ? (entry.client_secret ?? '') : '',
+		entry?.type === 'http' ? (entry.client_secret ?? '') : ''
 	);
 	const [command, setCommand] = useState(entry?.type === 'stdio' ? entry.command : '');
 	const [args, setArgs] = useState(entry?.type === 'stdio' ? (entry.args?.join(' ') ?? '') : '');
@@ -70,24 +70,24 @@ export function McpServerForm({
 			updated_at: now,
 		};
 		return type === 'http'
-				? {
-						...(initial?.entry.type === 'http' ? initial.entry : {}),
-						...base,
-						type: 'http',
-						url: url.trim(),
-						token: token.trim() || undefined,
-						client_id: clientId.trim() || undefined,
-						client_secret: clientSecret.trim() || undefined,
-					}
-				: {
-						...(initial?.entry.type === 'stdio' ? initial.entry : {}),
-						...base,
-						type: 'stdio',
-						command: command.trim(),
-						// ponytail: args split on whitespace; quoted arguments not supported
-						args: args.trim() ? args.trim().split(/\s+/) : undefined,
-						env: parseEnv(env),
-					};
+			? {
+					...(initial?.entry.type === 'http' ? initial.entry : {}),
+					...base,
+					type: 'http',
+					url: url.trim(),
+					token: token.trim() || undefined,
+					client_id: clientId.trim() || undefined,
+					client_secret: clientSecret.trim() || undefined,
+				}
+			: {
+					...(initial?.entry.type === 'stdio' ? initial.entry : {}),
+					...base,
+					type: 'stdio',
+					command: command.trim(),
+					// ponytail: args split on whitespace; quoted arguments not supported
+					args: args.trim() ? args.trim().split(/\s+/) : undefined,
+					env: parseEnv(env),
+				};
 	};
 
 	const isValid = Boolean(serverId && (type === 'http' ? url.trim() : command.trim()));
@@ -95,7 +95,9 @@ export function McpServerForm({
 	const submit = async (event: React.FormEvent): Promise<void> => {
 		event.preventDefault();
 		if (!isValid) {
-			setError(type === 'http' ? 'ID and server URL are required.' : 'ID and command are required.');
+			setError(
+				type === 'http' ? 'ID and server URL are required.' : 'ID and command are required.'
+			);
 			return;
 		}
 		setSaving(true);
@@ -118,7 +120,11 @@ export function McpServerForm({
 		<form onSubmit={submit} className="grid gap-4">
 			<Field>
 				<Label htmlFor="mcp-type">Type</Label>
-				<Select value={type} onValueChange={(value) => setType(value as McpData['type'])} disabled={isEdit}>
+				<Select
+					value={type}
+					onValueChange={(value) => setType(value as McpData['type'])}
+					disabled={isEdit}
+				>
 					<SelectTrigger id="mcp-type" className="w-full">
 						<SelectValue>{TYPE_LABELS[type]}</SelectValue>
 					</SelectTrigger>
@@ -130,35 +136,68 @@ export function McpServerForm({
 			</Field>
 			<Field>
 				<Label htmlFor="mcp-id">ID</Label>
-				<Input id="mcp-id" value={id} disabled={isEdit} onChange={(e) => setId(e.target.value)} placeholder="my-server" />
+				<Input
+					id="mcp-id"
+					value={id}
+					disabled={isEdit}
+					onChange={(e) => setId(e.target.value)}
+					placeholder="my-server"
+				/>
 			</Field>
 			<Field>
 				<Label htmlFor="mcp-name">Name</Label>
-				<Input id="mcp-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="My Server" />
+				<Input
+					id="mcp-name"
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					placeholder="My Server"
+				/>
 			</Field>
 
 			{type === 'http' ? (
 				<>
 					<Field>
 						<Label htmlFor="mcp-url">Server URL</Label>
-						<Input id="mcp-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/mcp" />
+						<Input
+							id="mcp-url"
+							value={url}
+							onChange={(e) => setUrl(e.target.value)}
+							placeholder="https://example.com/mcp"
+						/>
 					</Field>
 					{isValid && <McpOAuthButton id={serverId} beforeStart={persist} />}
 					<details>
 						<summary className="cursor-pointer text-[13px] text-muted-foreground">Advanced</summary>
 						<div className="grid gap-4 pt-4">
-						<Field>
-							<Label htmlFor="mcp-token">Access token (optional)</Label>
-							<Input id="mcp-token" type="password" value={token} onChange={(e) => setToken(e.target.value)} autoComplete="off" />
-						</Field>
-						<Field>
-							<Label htmlFor="mcp-client-id">Client ID (optional)</Label>
-							<Input id="mcp-client-id" value={clientId} onChange={(e) => setClientId(e.target.value)} autoComplete="off" />
-						</Field>
-						<Field>
-							<Label htmlFor="mcp-client-secret">Client secret (optional)</Label>
-							<Input id="mcp-client-secret" type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} autoComplete="off" />
-						</Field>
+							<Field>
+								<Label htmlFor="mcp-token">Access token (optional)</Label>
+								<Input
+									id="mcp-token"
+									type="password"
+									value={token}
+									onChange={(e) => setToken(e.target.value)}
+									autoComplete="off"
+								/>
+							</Field>
+							<Field>
+								<Label htmlFor="mcp-client-id">Client ID (optional)</Label>
+								<Input
+									id="mcp-client-id"
+									value={clientId}
+									onChange={(e) => setClientId(e.target.value)}
+									autoComplete="off"
+								/>
+							</Field>
+							<Field>
+								<Label htmlFor="mcp-client-secret">Client secret (optional)</Label>
+								<Input
+									id="mcp-client-secret"
+									type="password"
+									value={clientSecret}
+									onChange={(e) => setClientSecret(e.target.value)}
+									autoComplete="off"
+								/>
+							</Field>
 						</div>
 					</details>
 				</>
@@ -166,15 +205,34 @@ export function McpServerForm({
 				<>
 					<Field>
 						<Label htmlFor="mcp-command">Command</Label>
-						<Input id="mcp-command" value={command} onChange={(e) => setCommand(e.target.value)} placeholder="npx" autoComplete="off" />
+						<Input
+							id="mcp-command"
+							value={command}
+							onChange={(e) => setCommand(e.target.value)}
+							placeholder="npx"
+							autoComplete="off"
+						/>
 					</Field>
 					<Field>
 						<Label htmlFor="mcp-args">Arguments (optional)</Label>
-						<Input id="mcp-args" value={args} onChange={(e) => setArgs(e.target.value)} placeholder="-y @modelcontextprotocol/server-filesystem /tmp" autoComplete="off" />
+						<Input
+							id="mcp-args"
+							value={args}
+							onChange={(e) => setArgs(e.target.value)}
+							placeholder="-y @modelcontextprotocol/server-filesystem /tmp"
+							autoComplete="off"
+						/>
 					</Field>
 					<Field>
 						<Label htmlFor="mcp-env">Environment variables (optional)</Label>
-						<Textarea id="mcp-env" value={env} onChange={(e) => setEnv(e.target.value)} placeholder={'API_KEY=value\nOTHER=value'} rows={3} autoComplete="off" />
+						<Textarea
+							id="mcp-env"
+							value={env}
+							onChange={(e) => setEnv(e.target.value)}
+							placeholder={'API_KEY=value\nOTHER=value'}
+							rows={3}
+							autoComplete="off"
+						/>
 					</Field>
 				</>
 			)}
