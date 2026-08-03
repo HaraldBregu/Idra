@@ -1,4 +1,5 @@
 import type { OAuthClientProvider } from '@modelcontextprotocol/sdk/client/auth.js';
+import type { OAuthClientInformationMixed } from '@modelcontextprotocol/sdk/shared/auth.js';
 import type { McpOAuthProviderParams, McpOAuthState } from './mcp_types';
 import { clientMetadata, MCP_OAUTH_REDIRECT_URL } from './mcp_oauth_client_metadata';
 
