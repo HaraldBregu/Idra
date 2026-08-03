@@ -3,7 +3,7 @@ import { AppChannels } from '../../../shared/ipc_channels_definitions';
 import type { EventBus } from '../event_bus';
 import type { LoggerService } from '../../shared';
 import type { Agent } from '../../agent/agent';
-import { listProviders } from '../settings_store';
+import { getChannelProvider } from './channels_store';
 import { canReceive } from './channels_security';
 import type {
 	ChannelAdapter,
@@ -38,7 +38,7 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 	const statusCache = new Map<ChannelType, ChannelStatusEvent>();
 
 	function botCredential(channel: ChannelType): StoredBotProvider | undefined {
-		return listProviders('bots').find((entry) => entry.id === channel);
+		return getChannelProvider(channel);
 	}
 
 	async function createAdapter(channel: ChannelType, token: string): Promise<ChannelAdapter> {

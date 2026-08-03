@@ -4,15 +4,20 @@ import { registerCommand, registerQuery } from './core/gateway';
 import { ProviderStoreChannels } from '../../shared/ipc_channels_definitions';
 import type { StoredProvider as Provider, StoredProviderKind } from '../../shared/provider_types';
 import { getProvider, listProviders, setProvider } from '../app/settings_store';
+import { getChannelProvider, listChannelProviders, setChannelProvider } from '../app/channels';
 
 export class ProviderStoreIpc implements IpcModule {
 	readonly name = 'provider-store';
 
 	register(_deps: undefined, _eventBus: EventBus): void {
-		registerQuery(ProviderStoreChannels.get, getProvider);
-		registerQuery(ProviderStoreChannels.list, () => listProviders());
+		registerQuery(ProviderStoreChannels.get, (id: string) => getProvider(id) ?? getChannelProvider(id));
+		registerQuery(ProviderStoreChannels.list, () => [
+			...listProviders('models'),
+			...listProviders('databases'),
+			...listChannelProviders(),
+		]);
 		registerCommand(ProviderStoreChannels.set, (provider: Provider, kind?: StoredProviderKind) =>
-			setProvider(provider, kind)
+			kind === 'bots' ? setChannelProvider(provider) : setProvider(provider, kind)
 		);
 	}
 }

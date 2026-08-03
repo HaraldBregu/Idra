@@ -27,7 +27,7 @@ export interface StoredBotProvider extends StoredProvider {
 	dmPolicy?: ChannelDmPolicy;
 }
 
-/** The default channel, stored under `providers` in app/channels.json. */
+/** The selected default channel, stored beside the `providers` array in app/channels.json. */
 export interface Channel {
 	/** Provider serving the default channel. */
 	providerId: string;
