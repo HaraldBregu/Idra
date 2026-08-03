@@ -40,6 +40,10 @@ import {
 } from '../../../../src/main/app/settings_store';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';
+import {
+	getEmailProviders,
+	setEmailProviders,
+} from '../../../../src/main/app/email/email_store';
 
 function provider(id: string, name: string): StoredProvider {
 	return { id, name, apiKey: 'k', baseUrl: 'https://api' };
@@ -71,6 +75,12 @@ describe('providers in app settings', () => {
 		setProvider(provider('pinecone', 'Pinecone'), 'databases');
 
 		expect(getDatabaseConfiguration().providers).toEqual([provider('pinecone', 'Pinecone')]);
+	});
+
+	it('stores email providers in the email configuration', () => {
+		setEmailProviders([provider('resend', 'Resend')]);
+
+		expect(getEmailProviders()).toEqual([provider('resend', 'Resend')]);
 	});
 
 	it('updates in place instead of appending a duplicate', () => {
