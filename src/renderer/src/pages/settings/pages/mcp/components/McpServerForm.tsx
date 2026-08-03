@@ -87,15 +87,30 @@ export function McpServerForm({
 						args: args.trim() ? args.trim().split(/\s+/) : undefined,
 						env: parseEnv(env),
 					};
+	};
+
+	const isValid = Boolean(serverId && (type === 'http' ? url.trim() : command.trim()));
+
+	const submit = async (event: React.FormEvent): Promise<void> => {
+		event.preventDefault();
+		if (!isValid) {
+			setError(type === 'http' ? 'ID and server URL are required.' : 'ID and command are required.');
+			return;
+		}
 		setSaving(true);
 		setError(null);
 		try {
-			await onSubmit(serverId, next);
+			await onSubmit(serverId, buildEntry());
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		} finally {
 			setSaving(false);
 		}
+	};
+
+	// ponytail: OAuth needs the server in the store first, so persist before starting
+	const persist = async (): Promise<void> => {
+		await window.mcp.save({ ...(await window.mcp.list()), [serverId]: buildEntry() });
 	};
 
 	return (
