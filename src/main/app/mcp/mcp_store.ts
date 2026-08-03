@@ -5,11 +5,19 @@ import { userDataLocation } from '../../shared/user_data_location';
 import { splitRecord } from './mcp_split_record';
 import type { McpOAuthState, McpRecord, McpStoreSchema } from './mcp_types';
 
-const MCP_STORE_NAME = 'providers.mcp';
+const MCP_STORE_NAME = 'mcp';
+const PREVIOUS_MCP_STORE_NAME = 'providers.mcp';
 const LEGACY_MCP_STORE_NAME = 'settings.mcp';
 
 const store = new Store<McpStoreSchema>({
 	name: MCP_STORE_NAME,
+	cwd: path.resolve(userDataLocation(), 'app'),
+	accessPropertiesByDotNotation: false,
+	defaults: { servers: [] },
+});
+
+const previousStore = new Store<McpStoreSchema>({
+	name: PREVIOUS_MCP_STORE_NAME,
 	cwd: path.resolve(userDataLocation(), 'app'),
 	accessPropertiesByDotNotation: false,
 	defaults: { servers: [] },
@@ -33,16 +41,21 @@ const legacy = legacyStore.store as Record<string, LegacyEntry> & {
 const legacyServers = legacy.servers;
 const entries = legacyServers ?? legacy;
 if (store.store.servers.length === 0) {
-	const migrated: McpRecord[] = [];
-	for (const [id, rawEntry] of Object.entries(entries)) {
-		if (id === 'oauth' || id === 'servers') continue;
-		const { oauth, ...data } = rawEntry;
-		const { clientInformation, ...auth } = oauth ?? legacy.oauth?.[id] ?? {};
-		migrated.push({ id, ...data, ...clientInformation, ...auth } as McpRecord);
-	}
-	if (migrated.length > 0) {
-		store.store = { servers: migrated };
-		legacyStore.clear();
+	if (previousStore.store.servers.length > 0) {
+		store.store = { servers: previousStore.store.servers };
+		previousStore.clear();
+	} else {
+		const migrated: McpRecord[] = [];
+		for (const [id, rawEntry] of Object.entries(entries)) {
+			if (id === 'oauth' || id === 'servers') continue;
+			const { oauth, ...data } = rawEntry;
+			const { clientInformation, ...auth } = oauth ?? legacy.oauth?.[id] ?? {};
+			migrated.push({ id, ...data, ...clientInformation, ...auth } as McpRecord);
+		}
+		if (migrated.length > 0) {
+			store.store = { servers: migrated };
+			legacyStore.clear();
+		}
 	}
 }
 
