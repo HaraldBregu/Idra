@@ -142,18 +142,22 @@ export function McpServerForm({
 						<Label htmlFor="mcp-url">Server URL</Label>
 						<Input id="mcp-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/mcp" />
 					</Field>
-					<Field>
-						<Label htmlFor="mcp-token">Access token (optional)</Label>
-						<Input id="mcp-token" type="password" value={token} onChange={(e) => setToken(e.target.value)} autoComplete="off" />
-					</Field>
-					<Field>
-						<Label htmlFor="mcp-client-id">Client ID (optional)</Label>
-						<Input id="mcp-client-id" value={clientId} onChange={(e) => setClientId(e.target.value)} autoComplete="off" />
-					</Field>
-					<Field>
-						<Label htmlFor="mcp-client-secret">Client secret (optional)</Label>
-						<Input id="mcp-client-secret" type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} autoComplete="off" />
-					</Field>
+					{isValid && <McpOAuthButton id={serverId} beforeStart={persist} />}
+					<details className="grid gap-4">
+						<summary className="cursor-pointer text-[13px] text-muted-foreground">Advanced</summary>
+						<Field>
+							<Label htmlFor="mcp-token">Access token (optional)</Label>
+							<Input id="mcp-token" type="password" value={token} onChange={(e) => setToken(e.target.value)} autoComplete="off" />
+						</Field>
+						<Field>
+							<Label htmlFor="mcp-client-id">Client ID (optional)</Label>
+							<Input id="mcp-client-id" value={clientId} onChange={(e) => setClientId(e.target.value)} autoComplete="off" />
+						</Field>
+						<Field>
+							<Label htmlFor="mcp-client-secret">Client secret (optional)</Label>
+							<Input id="mcp-client-secret" type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} autoComplete="off" />
+						</Field>
+					</details>
 				</>
 			) : (
 				<>
