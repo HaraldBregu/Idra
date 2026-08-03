@@ -40,7 +40,11 @@ describe('subagentTool', () => {
 	});
 
 	it('forwards an explicit permission bypass to the background run', async () => {
-		mockStream.mockReturnValue((async function* () {})());
+		mockStream.mockReturnValue(
+			(async function* () {
+				yield { type: 'assistant_message', content: 'done', toolCalls: [] };
+			})()
+		);
 		const tool = subagentTool({ location: '/agent' }, [], createContext());
 
 		await tool.run({ task: 'apply the change', permissionMode: 'bypass' });
