@@ -1,4 +1,4 @@
-import { callTool, type McpCallResult, type McpClient } from '../../mcp';
+import { callTool, type McpCallResult, type McpClient } from '../../../app/mcp';
 import { jsonTool } from '../tool';
 import type { JSONSchema } from '../../types';
 import type { McpApprovalPolicy } from '../../../../shared/mcp_types';
