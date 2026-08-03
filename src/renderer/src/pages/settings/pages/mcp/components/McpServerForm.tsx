@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import type { McpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
@@ -37,10 +38,12 @@ export function McpServerForm({
 	initial,
 	onSubmit,
 	onCancel,
+	onRemove,
 }: {
 	readonly initial?: { readonly id: string; readonly entry: McpData };
 	readonly onSubmit: (id: string, entry: McpData) => Promise<void>;
 	readonly onCancel: () => void;
+	readonly onRemove?: () => Promise<void>;
 }): React.JSX.Element {
 	const isEdit = Boolean(initial);
 	const entry = initial?.entry;
@@ -198,6 +201,14 @@ export function McpServerForm({
 									autoComplete="off"
 								/>
 							</Field>
+							{onRemove && (
+								<div className="border-t border-border pt-4">
+									<Button type="button" variant="destructive" size="sm" onClick={() => void onRemove()}>
+										<Trash2 className="size-3.5" />
+										Remove MCP server
+									</Button>
+								</div>
+							)}
 						</div>
 					</details>
 				</>
@@ -234,6 +245,17 @@ export function McpServerForm({
 							autoComplete="off"
 						/>
 					</Field>
+					{onRemove && (
+						<details>
+							<summary className="cursor-pointer text-[13px] text-muted-foreground">Advanced</summary>
+							<div className="border-t border-border pt-4">
+								<Button type="button" variant="destructive" size="sm" onClick={() => void onRemove()}>
+									<Trash2 className="size-3.5" />
+									Remove MCP server
+								</Button>
+							</div>
+						</details>
+					)}
 				</>
 			)}
 

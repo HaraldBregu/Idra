@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pencil, PlugZap, Trash2 } from 'lucide-react';
+import { Pencil, PlugZap } from 'lucide-react';
 import type { McpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +24,7 @@ export function CustomMcpCard({
 	const description = entry.type === 'http' ? entry.url : entry.command;
 
 	const remove = async (): Promise<void> => {
+		if (!window.confirm(`Remove ${entry.name ?? id}? This cannot be undone.`)) return;
 		setRemoving(true);
 		try {
 			await onRemove(id);
@@ -57,16 +58,6 @@ export function CustomMcpCard({
 						>
 							<Pencil className="size-3" />
 						</Button>
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							className="text-destructive hover:text-destructive"
-							aria-label={`Remove ${entry.name ?? id}`}
-							disabled={removing}
-							onClick={() => void remove()}
-						>
-							<Trash2 className="size-3" />
-						</Button>
 					</CardAction>
 				</CardHeader>
 				<CollapsibleContent>
@@ -83,6 +74,7 @@ export function CustomMcpCard({
 									setEditing(false);
 									setExpanded(false);
 								}}
+								onRemove={remove}
 							/>
 						) : (
 							<p className="text-sm text-muted-foreground">
