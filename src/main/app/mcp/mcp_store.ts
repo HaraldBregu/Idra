@@ -27,16 +27,6 @@ if (legacy.servers) {
 	store.store = flattened;
 }
 
-function splitRecord(record: McpRecord): { data: McpData; auth: McpOAuthState } {
-	const data = { ...record } as Record<string, unknown>;
-	const auth: Record<string, unknown> = {};
-	for (const key of OAUTH_KEYS) {
-		if (key in data) auth[key] = data[key];
-		delete data[key];
-	}
-	return { data: data as unknown as McpData, auth: auth as McpOAuthState };
-}
-
 // tokens and the code verifier never leave the main process; the rest round-trips through the UI
 export function getMcpServers(): McpSettings {
 	const servers: McpSettings = {};
