@@ -459,24 +459,11 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 			{!embedded && (
 				<SettingsPageHeader
 					title={t(section ? SECTION_HEADERS[section].titleKey : 'settings.tabs.providers')}
-					description={t(
+						description={t(
 						section
 							? SECTION_HEADERS[section].descriptionKey
 							: 'settings.overview.descriptions.providers'
 					)}
-					action={
-						section === 'mcp' ? (
-							<Button
-								variant="outline"
-								size="sm"
-								disabled={addingCustomMcp}
-								onClick={() => setAddingCustomMcp(true)}
-							>
-								<Plus className="size-3.5" />
-								Add custom server
-							</Button>
-						) : undefined
-					}
 				/>
 			)}
 			{error && (
@@ -489,20 +476,6 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 					{storageError}
 				</SettingsNotice>
 			)}
-			{section === 'mcp' && addingCustomMcp && (
-				<SettingsSection
-					title="New custom MCP server"
-					description="Remote MCP server over HTTP or local MCP server started as a command."
-				>
-					<Card size="sm" className="p-3!">
-						<McpServerForm
-							onSubmit={saveCustomMcpServer}
-							onCancel={() => setAddingCustomMcp(false)}
-						/>
-					</Card>
-				</SettingsSection>
-			)}
-
 			{(section === undefined || section === 'models') &&
 				(!embedded || modelCatalog.length > 0) && (
 					<SettingsSection title={t('settings.overview.groups.mlModels')}>
@@ -563,9 +536,35 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 				</SettingsSection>
 			)}
 
-			{section === 'mcp' && customMcpServers.length > 0 && (
-				<SettingsSection title="Custom MCP servers">
+			{section === 'mcp' && (
+				<SettingsSection
+					title="Custom MCP servers"
+					action={
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={addingCustomMcp}
+							onClick={() => setAddingCustomMcp(true)}
+						>
+							<Plus className="size-3.5" />
+							Add custom server
+						</Button>
+					}
+				>
 					<div className="space-y-3 pb-4">
+						{addingCustomMcp && (
+							<Card size="sm" className="p-3!">
+								<McpServerForm
+									onSubmit={saveCustomMcpServer}
+									onCancel={() => setAddingCustomMcp(false)}
+								/>
+							</Card>
+						)}
+						{!addingCustomMcp && customMcpServers.length === 0 && (
+							<div className="px-0.5 text-[13px] text-muted-foreground">
+								No custom MCP servers configured.
+							</div>
+						)}
 						{customMcpServers.map(([id, entry]) => (
 							<McpServerCard
 								key={id}
