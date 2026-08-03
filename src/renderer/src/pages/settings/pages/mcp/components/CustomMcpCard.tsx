@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, PlugZap, Trash2 } from 'lucide-react';
 import type { McpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,9 +47,14 @@ export function CustomMcpCard({
 						setExpanded((value) => !value);
 					}}
 				>
-					<div className="min-w-0 flex-1">
-						<CardTitle className="truncate">{entry.name ?? id}</CardTitle>
-						<p className="truncate font-mono text-xs text-muted-foreground">{description}</p>
+					<div className="flex min-w-0 flex-1 items-center gap-2.5">
+						<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
+							<PlugZap className="size-4 text-muted-foreground" />
+						</div>
+						<div className="min-w-0">
+							<CardTitle className="truncate">{entry.name ?? id}</CardTitle>
+							<p className="truncate font-mono text-xs text-muted-foreground">{description}</p>
+						</div>
 					</div>
 					<CardAction className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
 						<Button
