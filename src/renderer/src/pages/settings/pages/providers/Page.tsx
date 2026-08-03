@@ -530,7 +530,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 				</SettingsSection>
 			)}
 
-			{(section === undefined || section === 'mcp') && (!embedded || mcpCatalog.length > 0) && (
+			{(section === undefined || section === 'mcp') && mcpCatalog.length > 0 && (
 				<SettingsSection title="Default MCP">
 					<div className="space-y-3 pb-4">
 						{mcpCatalog.map((service) => (
