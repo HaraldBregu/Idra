@@ -94,6 +94,7 @@ if (!hasApplicationSettings) {
 		...readLegacyAppConfiguration(),
 	};
 }
+removeModelProvidersFromApplication();
 
 export const appSettingsStorePath = store.path;
 
@@ -308,6 +309,11 @@ function readLegacyAppConfiguration(): Partial<AppSettingsState> {
 				? (legacyApplicationSettings.theme as AppTheme)
 				: DEFAULT_APP_SETTINGS.theme,
 	};
+}
+
+function removeModelProvidersFromApplication(): void {
+	const { models: _models, ...settings } = store.store as AppSettingsState & { models?: unknown };
+	store.store = settings;
 }
 
 function toStorageConfig(stored: StoredStorage): StorageConfig {
