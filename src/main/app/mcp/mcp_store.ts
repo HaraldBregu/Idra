@@ -2,9 +2,25 @@ import path from 'node:path';
 import Store from 'electron-store';
 import type { McpData, McpSettings } from '../../../shared/mcp_types';
 import { userDataLocation } from '../../shared/user_data_location';
-import type { McpOAuthState, McpStoreSchema } from './mcp_types';
+import type { McpOAuthState, McpRecord, McpStoreSchema } from './mcp_types';
 
 const MCP_STORE_NAME = 'settings.mcp';
+
+// ponytail: keys the OAuth flow owns; anything a server echoes back beyond these just lingers
+const OAUTH_KEYS = [
+	'redirect_uris',
+	'grant_types',
+	'response_types',
+	'token_endpoint_auth_method',
+	'client_name',
+	'client_id',
+	'client_secret',
+	'client_id_issued_at',
+	'client_secret_expires_at',
+	'scope',
+	'tokens',
+	'codeVerifier',
+] as const satisfies readonly (keyof McpOAuthState)[];
 
 const store = new Store<McpStoreSchema>({
 	name: MCP_STORE_NAME,
@@ -13,23 +29,36 @@ const store = new Store<McpStoreSchema>({
 	defaults: {},
 });
 
-// ponytail: one-shot flatten of the old { servers, oauth } shape into id -> data + oauth
+// ponytail: one-shot flatten of the old { servers, oauth: { clientInformation } } shape
 const legacy = store.store as {
 	servers?: McpSettings;
-	oauth?: Record<string, McpOAuthState>;
+	oauth?: Record<string, { clientInformation?: object; tokens?: object; codeVerifier?: string }>;
 };
 if (legacy.servers) {
 	const flattened: McpStoreSchema = {};
 	for (const [id, data] of Object.entries(legacy.servers)) {
-		flattened[id] = { ...data, oauth: legacy.oauth?.[id] };
+		const { clientInformation, ...auth } = legacy.oauth?.[id] ?? {};
+		flattened[id] = { ...data, ...clientInformation, ...auth } as McpRecord;
 	}
 	store.store = flattened;
 }
 
+function splitRecord(record: McpRecord): { data: McpData; auth: McpOAuthState } {
+	const data = { ...record } as Record<string, unknown>;
+	const auth: Record<string, unknown> = {};
+	for (const key of OAUTH_KEYS) {
+		if (key in data) auth[key] = data[key];
+		delete data[key];
+	}
+	return { data: data as unknown as McpData, auth: auth as McpOAuthState };
+}
+
 export function getMcpServers(): McpSettings {
 	const servers: McpSettings = {};
-	for (const [id, { oauth: _oauth, ...data }] of Object.entries(store.store)) {
-		servers[id] = data as McpData;
+	for (const [id, record] of Object.entries(store.store)) {
+		const { data, auth } = splitRecord(record);
+		// client credentials stay editable in the UI; tokens never leave the main process
+		servers[id] = { ...data, client_id: auth.client_id, client_secret: auth.client_secret };
 	}
 	return servers;
 }
@@ -38,17 +67,18 @@ export function setMcpServers(servers: McpSettings): void {
 	const current = store.store;
 	const next: McpStoreSchema = {};
 	for (const [id, data] of Object.entries(servers)) {
-		next[id] = { ...data, oauth: current[id]?.oauth };
+		next[id] = { ...current[id], ...data };
 	}
 	store.store = next;
 }
 
 export function getMcpOauth(id: string): McpOAuthState {
-	return store.store[id]?.oauth ?? {};
+	const record = store.store[id];
+	return record ? splitRecord(record).auth : {};
 }
 
 export function saveMcpOauth(id: string, state: McpOAuthState): void {
-	const entry = store.store[id];
-	if (!entry) throw new Error(`No MCP server "${id}".`);
-	store.set(id, { ...entry, oauth: state });
+	const record = store.store[id];
+	if (!record) throw new Error(`No MCP server "${id}".`);
+	store.set(id, { ...splitRecord(record).data, ...state });
 }
