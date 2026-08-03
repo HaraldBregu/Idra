@@ -68,8 +68,7 @@ export function McpServerForm({
 			created_at: initial?.entry.created_at ?? now,
 			updated_at: now,
 		};
-		const next: McpData =
-			type === 'http'
+		return type === 'http'
 				? {
 						...(initial?.entry.type === 'http' ? initial.entry : {}),
 						...base,
