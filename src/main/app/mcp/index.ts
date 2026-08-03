@@ -6,15 +6,8 @@ export { listTools } from './mcp_client_list_tools';
 export { clientMetadata, MCP_OAUTH_REDIRECT_URL } from './mcp_oauth_client_metadata';
 export { startOauthCallbackServer } from './mcp_oauth_callback';
 export { createOAuthProvider } from './mcp_oauth_create_provider';
+export { getMcpOauth, getMcpServers, saveMcpOauth, setMcpServers } from './mcp_store';
 export {
-	DEFAULT_MCP_SETTINGS,
-	getMcpOauth,
-	getMcpServers,
-	saveMcpOauth,
-	setMcpServers,
-} from './mcp_store';
-export {
-	type ConnectorStoreSchema,
 	type McpCallResult,
 	type McpCallToolResult,
 	type McpClient,
