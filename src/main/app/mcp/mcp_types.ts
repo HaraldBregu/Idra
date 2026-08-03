@@ -1,6 +1,6 @@
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type {
-	OAuthClientInformationMixed,
+	OAuthClientInformationFull,
 	OAuthTokens,
 } from '@modelcontextprotocol/sdk/shared/auth.js';
 import type { McpData } from '../../../shared/mcp_types';
