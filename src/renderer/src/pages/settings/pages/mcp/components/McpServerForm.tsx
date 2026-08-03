@@ -159,6 +159,7 @@ export function McpServerForm({
 							<Label htmlFor="mcp-client-secret">Client secret (optional)</Label>
 							<Input id="mcp-client-secret" type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} autoComplete="off" />
 						</Field>
+						</div>
 					</details>
 				</>
 			) : (
