@@ -18,7 +18,8 @@ const OAUTH_KEYS = [
 ] as const satisfies readonly (keyof McpOAuthState)[];
 
 export function splitRecord(record: McpRecord): { data: McpData; auth: McpOAuthState } {
-	const data = { ...record } as Record<string, unknown>;
+	const { id: _id, ...recordData } = record;
+	const data = { ...recordData } as Record<string, unknown>;
 	const auth: Record<string, unknown> = {};
 	for (const key of OAUTH_KEYS) {
 		if (key in data) auth[key] = data[key];

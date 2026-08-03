@@ -21,9 +21,9 @@ export type McpOAuthState = Partial<OAuthClientInformationFull> & {
 	codeVerifier?: string;
 };
 
-export type McpRecord = McpData & McpOAuthState;
+export type McpRecord = McpData & McpOAuthState & { readonly id: string };
 
-export type McpStoreSchema = Record<string, McpRecord>;
+export type McpStoreSchema = McpRecord[];
 
 export type McpOAuthStorage = {
 	load: () => McpOAuthState;
