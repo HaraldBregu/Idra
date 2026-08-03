@@ -44,7 +44,7 @@ import {
 } from '../../components';
 import { ProviderCard } from '../storage/ProviderCard';
 import { McpCard } from './McpCard';
-import { McpServerCard } from '../mcp/components/McpServerCard';
+import { CustomMcpCard } from '../mcp/components/CustomMcpCard';
 import { McpServerForm } from '../mcp/components/McpServerForm';
 import { useMcpServers } from '../mcp/hooks/useMcpServers';
 
@@ -453,6 +453,10 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 		await loadMcpServers();
 		setAddingCustomMcp(false);
 	};
+	const removeCustomMcpServer = async (id: string): Promise<void> => {
+		await window.mcp.delete(id);
+		await loadMcpServers();
+	};
 
 	return (
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
@@ -566,22 +570,12 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 							</div>
 						)}
 						{customMcpServers.map(([id, entry]) => (
-							<McpServerCard
+							<CustomMcpCard
 								key={id}
-								catalogEntry={{
-									id,
-									name: entry.name ?? id,
-									description: entry.type === 'http' ? entry.url : entry.command,
-								}}
-								server={{ id, entry }}
-								onConnect={() => undefined}
-								onToggle={(enabled) =>
-									void saveCustomMcpServer(id, {
-										...entry,
-										enabled,
-										updated_at: new Date().toISOString(),
-									})
-								}
+								id={id}
+								entry={entry}
+								onSave={saveCustomMcpServer}
+								onRemove={removeCustomMcpServer}
 							/>
 						))}
 					</div>
