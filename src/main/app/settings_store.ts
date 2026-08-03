@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 import Store from 'electron-store';
 import cron from 'node-cron';
 import type {
@@ -27,7 +28,6 @@ export type AppSettingsState = {
 	language: AppLanguage;
 	theme: AppTheme;
 	models: StoredProvider[];
-	databases: StoredProvider[];
 	bots: StoredProvider[];
 	search: StoredProvider[];
 	email: StoredProvider[];
@@ -47,6 +47,7 @@ const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
 const DEFAULT_DATABASE_CONFIGURATION: DatabaseConfiguration = {
 	providerId: undefined,
 	databaseId: undefined,
+	providers: [],
 };
 
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
@@ -55,7 +56,6 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	language: 'en',
 	theme: 'system',
 	models: [],
-	databases: [],
 	bots: [],
 	search: [],
 	email: [],
@@ -63,6 +63,8 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 };
 
 const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
+const databaseConfigurationPath = path.join(appSettingsDirectory, 'database.json');
+const hasDatabaseConfiguration = existsSync(databaseConfigurationPath);
 
 const store = new Store<AppSettingsState>({
 	name: APP_SETTINGS_STORE_NAME,
@@ -81,11 +83,19 @@ const storageConfigurationStore = new Store<StorageConfiguration>({
 });
 
 const databaseConfigurationStore = new Store<DatabaseConfiguration>({
-	name: 'settings.database',
+	name: 'database',
 	cwd: appSettingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_DATABASE_CONFIGURATION,
 });
+
+if (!hasDatabaseConfiguration) {
+	databaseConfigurationStore.store = {
+		...DEFAULT_DATABASE_CONFIGURATION,
+		...readLegacyDatabaseConfiguration(),
+		providers: readLegacyDatabaseProviders(),
+	};
+}
 
 const cronConfigurationStore = new Store<PersistedCronState>({
 	name: 'settings.cron',
@@ -131,6 +141,7 @@ export function setTheme(theme: AppTheme): void {
 }
 
 function readProviders(kind: StoredProviderKind): StoredProvider[] {
+	if (kind === 'databases') return getDatabaseConfiguration().providers;
 	const raw = store.get(kind);
 	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
 }
@@ -157,7 +168,11 @@ export function setProvider(
 	const index = providers.findIndex((entry) => entry.id === provider.id);
 	if (index === -1) providers.push(provider);
 	else providers[index] = provider;
-	store.set(kind, providers);
+	if (kind === 'databases') {
+		saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers });
+	} else {
+		store.set(kind, providers);
+	}
 	return provider;
 }
 
@@ -165,14 +180,20 @@ export function deleteProvider(id: string): void {
 	for (const kind of ['models', 'databases', 'bots'] as const) {
 		const providers = readProviders(kind);
 		const remaining = providers.filter((provider) => provider.id !== id);
-		if (remaining.length !== providers.length) store.set(kind, remaining);
+		if (remaining.length !== providers.length) {
+			if (kind === 'databases') {
+				saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: remaining });
+			} else {
+				store.set(kind, remaining);
+			}
+		}
 	}
 }
 
 export function clearProviders(): void {
 	store.set('models', []);
-	store.set('databases', []);
 	store.set('bots', []);
+	saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: [] });
 }
 
 export function clearBotProviders(): void {
@@ -325,6 +346,9 @@ export function getDatabaseConfiguration(): DatabaseConfiguration {
 	const configuration = {
 		...DEFAULT_DATABASE_CONFIGURATION,
 		...databaseConfigurationStore.store,
+		providers: Array.isArray(databaseConfigurationStore.store.providers)
+			? databaseConfigurationStore.store.providers.filter(isStoredProvider)
+			: [],
 	};
 	if (configuration.databaseId && !findDatabase(configuration)) {
 		configuration.providerId = undefined;
@@ -342,9 +366,33 @@ export function saveDatabaseConfiguration(
 	const saved: DatabaseConfiguration = {
 		providerId: configuration.providerId,
 		databaseId: configuration.databaseId,
+		providers: Array.isArray(configuration.providers)
+			? configuration.providers.filter(isStoredProvider)
+			: [],
 	};
 	databaseConfigurationStore.store = saved;
 	return saved;
+}
+
+function readLegacyDatabaseConfiguration(): Partial<DatabaseConfiguration> {
+	const legacyPath = path.join(appSettingsDirectory, 'settings.database.json');
+	if (!existsSync(legacyPath)) return {};
+	try {
+		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
+		if (typeof value !== 'object' || value === null) return {};
+		const configuration = value as Partial<DatabaseConfiguration>;
+		return {
+			providerId: typeof configuration.providerId === 'string' ? configuration.providerId : undefined,
+			databaseId: typeof configuration.databaseId === 'string' ? configuration.databaseId : undefined,
+		};
+	} catch {
+		return {};
+	}
+}
+
+function readLegacyDatabaseProviders(): StoredProvider[] {
+	const value = (store.store as { databases?: unknown }).databases;
+	return Array.isArray(value) ? value.filter(isStoredProvider) : [];
 }
 
 function findDatabase(configuration: DatabaseConfiguration): CatalogService | undefined {

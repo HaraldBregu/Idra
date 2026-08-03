@@ -23,6 +23,7 @@ jest.mock('../../../../src/main/app/models', () => ({
 }));
 
 import {
+	getDatabaseConfiguration,
 	listProviders,
 	getProvider,
 	hasProvider,
@@ -62,6 +63,12 @@ describe('providers in app settings', () => {
 		const list = listProviders();
 		expect(Array.isArray(list)).toBe(true);
 		expect(list.map((entry) => entry.id)).toEqual(['a', 'b']);
+	});
+
+	it('stores database providers in the database configuration', () => {
+		setProvider(provider('pinecone', 'Pinecone'), 'databases');
+
+		expect(getDatabaseConfiguration().providers).toEqual([provider('pinecone', 'Pinecone')]);
 	});
 
 	it('updates in place instead of appending a duplicate', () => {
