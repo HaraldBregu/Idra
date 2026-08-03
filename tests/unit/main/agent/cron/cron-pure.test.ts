@@ -2,6 +2,7 @@ import { clone } from '../../../../../src/main/app/cron/cron_clone';
 import { isActiveSchedule } from '../../../../../src/main/app/cron/cron_is_active_schedule';
 import { buildTask } from '../../../../../src/main/app/cron/cron_build_task';
 import type { CronSchedule } from '../../../../../src/main/app/cron/cron_types';
+import { cronActionSchema } from '../../../../../src/main/agent/tools/cron/schema';
 
 function schedule(overrides: Partial<CronSchedule> = {}): CronSchedule {
 	return {
@@ -41,5 +42,21 @@ describe('buildTask', () => {
 		expect(task.description).toBe('runs nightly');
 		expect(task.id).toMatch(/[0-9a-f-]{36}/);
 		expect(task.createdAt).toBe(task.updatedAt);
+	});
+});
+
+describe('cronActionSchema', () => {
+	it('defaults scheduled agent tasks to policy enforcement and accepts bypass', () => {
+		expect(cronActionSchema.parse({ type: 'agent', prompt: 'do it', effort: 'low' })).toMatchObject({
+			permissionMode: 'ask',
+		});
+		expect(
+			cronActionSchema.parse({
+				type: 'agent',
+				prompt: 'do it',
+				effort: 'low',
+				permissionMode: 'bypass',
+			})
+		).toMatchObject({ permissionMode: 'bypass' });
 	});
 });
