@@ -327,7 +327,7 @@ export function deleteStorageConfig(id: string): void {
 }
 
 export function getStorageConfiguration(): StorageConfiguration {
-	const configuration = {
+	const { providers: _providers, ...configuration } = {
 		...DEFAULT_STORAGE_CONFIGURATION,
 		...storageConfigurationStore.store,
 	};
