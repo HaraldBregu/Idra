@@ -2,6 +2,7 @@ import path from 'node:path';
 import Store from 'electron-store';
 import type { McpData, McpSettings } from '../../../shared/mcp_types';
 import { userDataLocation } from '../../shared/user_data_location';
+import { splitRecord } from './mcp_split_record';
 import type { McpOAuthState, McpRecord, McpStoreSchema } from './mcp_types';
 
 const MCP_STORE_NAME = 'settings.mcp';
