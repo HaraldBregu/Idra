@@ -30,7 +30,7 @@ export type AppSettingsState = {
 	models: StoredProvider[];
 };
 
-const APP_SETTINGS_STORE_NAME = 'settings';
+const APP_SETTINGS_STORE_NAME = 'app';
 
 const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
 	providerId: undefined,
@@ -66,6 +66,9 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 };
 
 const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
+const appSettingsPath = path.join(appSettingsDirectory, 'app.json');
+const hasAppSettings = existsSync(appSettingsPath);
+const legacyAppSettings = readLegacyAppSettings();
 const storageConfigurationPath = path.join(appSettingsDirectory, 'storages.json');
 const hasStorageConfiguration = existsSync(storageConfigurationPath);
 const databaseConfigurationPath = path.join(appSettingsDirectory, 'database.json');
@@ -79,6 +82,13 @@ const store = new Store<AppSettingsState>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_APP_SETTINGS,
 });
+
+if (!hasAppSettings) {
+	store.store = {
+		...DEFAULT_APP_SETTINGS,
+		...readLegacyAppConfiguration(),
+	};
+}
 
 export const appSettingsStorePath = store.path;
 
@@ -220,34 +230,25 @@ export function clearProviders(): void {
 }
 
 export function getLegacyBotProviders(): StoredProvider[] {
-	const bots = (store.store as { bots?: unknown }).bots;
+	const bots = legacyAppSettings.bots;
 	return Array.isArray(bots) ? bots.filter(isStoredProvider) : [];
 }
 
-export function removeLegacyBotProviders(): void {
-	const { bots: _bots, ...settings } = store.store as AppSettingsState & { bots?: unknown };
-	store.store = settings;
-}
+export function removeLegacyBotProviders(): void {}
 
 export function getLegacySearchProviders(): StoredProvider[] {
-	const search = (store.store as { search?: unknown }).search;
+	const search = legacyAppSettings.search;
 	return Array.isArray(search) ? search.filter(isStoredProvider) : [];
 }
 
-export function removeLegacySearchProviders(): void {
-	const { search: _search, ...settings } = store.store as AppSettingsState & { search?: unknown };
-	store.store = settings;
-}
+export function removeLegacySearchProviders(): void {}
 
 export function getLegacyEmailProviders(): StoredProvider[] {
-	const email = (store.store as { email?: unknown }).email;
+	const email = legacyAppSettings.email;
 	return Array.isArray(email) ? email.filter(isStoredProvider) : [];
 }
 
-export function removeLegacyEmailProviders(): void {
-	const { email: _email, ...settings } = store.store as AppSettingsState & { email?: unknown };
-	store.store = settings;
-}
+export function removeLegacyEmailProviders(): void {}
 
 /** The selected provider resolved to the shape model adapters consume. */
 export function getResolvedProvider(providerId: string | undefined): ResolvedProvider | undefined {
@@ -270,6 +271,41 @@ function isStoredProvider(value: unknown): value is StoredProvider {
 		typeof provider.apiKey === 'string' &&
 		typeof provider.baseUrl === 'string'
 	);
+}
+
+function readLegacyAppSettings(): Record<string, unknown> {
+	const legacyPath = path.join(appSettingsDirectory, 'settings.json');
+	if (!existsSync(legacyPath)) return {};
+	try {
+		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
+		return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
+	} catch {
+		return {};
+	}
+}
+
+function readLegacyAppConfiguration(): Partial<AppSettingsState> {
+	return {
+		trayEnabled:
+			typeof legacyAppSettings.trayEnabled === 'boolean'
+				? legacyAppSettings.trayEnabled
+				: DEFAULT_APP_SETTINGS.trayEnabled,
+		keepAwake:
+			typeof legacyAppSettings.keepAwake === 'boolean'
+				? legacyAppSettings.keepAwake
+				: DEFAULT_APP_SETTINGS.keepAwake,
+		language:
+			typeof legacyAppSettings.language === 'string'
+				? (legacyAppSettings.language as AppLanguage)
+				: DEFAULT_APP_SETTINGS.language,
+		theme:
+			typeof legacyAppSettings.theme === 'string'
+				? (legacyAppSettings.theme as AppTheme)
+				: DEFAULT_APP_SETTINGS.theme,
+		models: Array.isArray(legacyAppSettings.models)
+			? legacyAppSettings.models.filter(isStoredProvider)
+			: [],
+	};
 }
 
 function toStorageConfig(stored: StoredStorage): StorageConfig {
@@ -406,16 +442,11 @@ function readLegacyStorageConfiguration(): Partial<StorageConfiguration> {
 }
 
 function readLegacyStorageProviders(): StoredStorage[] {
-	const storages = (store.store as { storages?: unknown }).storages;
+	const storages = legacyAppSettings.storages;
 	return Array.isArray(storages) ? (storages as StoredStorage[]) : [];
 }
 
-function removeLegacyStorageProviders(): void {
-	const { storages: _storages, ...settings } = store.store as AppSettingsState & {
-		storages?: unknown;
-	};
-	store.store = settings;
-}
+function removeLegacyStorageProviders(): void {}
 
 export function getDatabaseConfiguration(): DatabaseConfiguration {
 	const configuration = {
@@ -466,7 +497,7 @@ function readLegacyDatabaseConfiguration(): Partial<DatabaseConfiguration> {
 }
 
 function readLegacyDatabaseProviders(): StoredProvider[] {
-	const value = (store.store as { databases?: unknown }).databases;
+	const value = legacyAppSettings.databases;
 	return Array.isArray(value) ? value.filter(isStoredProvider) : [];
 }
 
