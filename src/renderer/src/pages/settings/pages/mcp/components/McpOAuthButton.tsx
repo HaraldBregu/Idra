@@ -14,7 +14,13 @@ function extractCode(input: string): string {
 	}
 }
 
-export function McpOAuthButton({ id }: { readonly id: string }): React.JSX.Element {
+export function McpOAuthButton({
+	id,
+	beforeStart,
+}: {
+	readonly id: string;
+	readonly beforeStart?: () => Promise<void>;
+}): React.JSX.Element {
 	const [phase, setPhase] = useState<Phase>('idle');
 	const [callback, setCallback] = useState('');
 	const [error, setError] = useState<string | null>(null);
@@ -23,6 +29,7 @@ export function McpOAuthButton({ id }: { readonly id: string }): React.JSX.Eleme
 		setError(null);
 		setPhase('busy');
 		try {
+			await beforeStart?.();
 			const result = await window.mcp.oauthStart(id);
 			if (result.status === 'authorized') {
 				setPhase('done');
