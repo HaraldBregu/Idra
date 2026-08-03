@@ -58,13 +58,9 @@ export function McpServerForm({
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
 
-	const submit = async (event: React.FormEvent): Promise<void> => {
-		event.preventDefault();
-		const serverId = id.trim().toLowerCase();
-		if (!serverId || (type === 'http' ? !url.trim() : !command.trim())) {
-			setError(type === 'http' ? 'ID and server URL are required.' : 'ID and command are required.');
-			return;
-		}
+	const serverId = id.trim().toLowerCase();
+
+	const buildEntry = (): McpData => {
 		const now = new Date().toISOString();
 		const base = {
 			name: name.trim() || undefined,
