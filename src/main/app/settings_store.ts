@@ -28,7 +28,6 @@ export type AppSettingsState = {
 	language: AppLanguage;
 	theme: AppTheme;
 	models: StoredProvider[];
-	bots: StoredProvider[];
 	search: StoredProvider[];
 	email: StoredProvider[];
 	storages: StoredStorage[];
@@ -56,7 +55,6 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	language: 'en',
 	theme: 'system',
 	models: [],
-	bots: [],
 	search: [],
 	email: [],
 	storages: [],
@@ -142,6 +140,7 @@ export function setTheme(theme: AppTheme): void {
 
 function readProviders(kind: StoredProviderKind): StoredProvider[] {
 	if (kind === 'databases') return getDatabaseConfiguration().providers;
+	if (kind === 'bots') return [];
 	const raw = store.get(kind);
 	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
 }
@@ -149,7 +148,7 @@ function readProviders(kind: StoredProviderKind): StoredProvider[] {
 export function listProviders(kind?: StoredProviderKind): StoredProvider[] {
 	return kind
 		? readProviders(kind)
-		: [...readProviders('models'), ...readProviders('databases'), ...readProviders('bots')];
+		: [...readProviders('models'), ...readProviders('databases')];
 }
 
 export function getProvider(id: string): StoredProvider | undefined {
@@ -164,6 +163,9 @@ export function setProvider(
 	provider: StoredProvider,
 	kind: StoredProviderKind = 'models'
 ): StoredProvider {
+	if (kind === 'bots') {
+		throw new Error('Bot providers are stored in channels settings.');
+	}
 	const providers = readProviders(kind);
 	const index = providers.findIndex((entry) => entry.id === provider.id);
 	if (index === -1) providers.push(provider);
@@ -177,7 +179,7 @@ export function setProvider(
 }
 
 export function deleteProvider(id: string): void {
-	for (const kind of ['models', 'databases', 'bots'] as const) {
+	for (const kind of ['models', 'databases'] as const) {
 		const providers = readProviders(kind);
 		const remaining = providers.filter((provider) => provider.id !== id);
 		if (remaining.length !== providers.length) {
@@ -192,12 +194,17 @@ export function deleteProvider(id: string): void {
 
 export function clearProviders(): void {
 	store.set('models', []);
-	store.set('bots', []);
 	saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: [] });
 }
 
-export function clearBotProviders(): void {
-	store.set('bots', []);
+export function getLegacyBotProviders(): StoredProvider[] {
+	const bots = (store.store as { bots?: unknown }).bots;
+	return Array.isArray(bots) ? bots.filter(isStoredProvider) : [];
+}
+
+export function removeLegacyBotProviders(): void {
+	const { bots: _bots, ...settings } = store.store as AppSettingsState & { bots?: unknown };
+	store.store = settings;
 }
 
 export function getSearchProviders(): StoredProvider[] {

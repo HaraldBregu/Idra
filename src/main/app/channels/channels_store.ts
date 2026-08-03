@@ -2,7 +2,7 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../../shared/user_data_location';
 import type { StoredBotProvider } from '../../../shared';
-import { clearBotProviders, listProviders } from '../settings_store';
+import { getLegacyBotProviders, removeLegacyBotProviders } from '../settings_store';
 
 export type ChannelsStoreState = { readonly providers: StoredBotProvider[] };
 
@@ -21,7 +21,7 @@ const store = new Store<ChannelsStoreState>({
 const current = store.store as unknown as {
 	providers?: StoredBotProvider[];
 };
-const legacyProviders = listProviders('bots') as StoredBotProvider[];
+const legacyProviders = getLegacyBotProviders() as StoredBotProvider[];
 const providers =
 	Array.isArray(current.providers) && current.providers.length > 0 ? current.providers : legacyProviders;
 if (
@@ -32,7 +32,7 @@ if (
 	store.store = {
 		providers,
 	};
-	clearBotProviders();
+	removeLegacyBotProviders();
 }
 
 export function listChannelProviders(): StoredBotProvider[] {
