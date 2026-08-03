@@ -10,7 +10,7 @@ import {
 	setMcpServers,
 	startOauthCallbackServer,
 	type McpOAuthStorage,
-} from '../agent/mcp';
+} from '../app/mcp';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
 import { registerCommand, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
