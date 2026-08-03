@@ -1,18 +1,14 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../../shared/user_data_location';
-import type { Channel, StoredBotProvider } from '../../../shared';
+import type { StoredBotProvider } from '../../../shared';
 import { clearBotProviders, listProviders } from '../settings_store';
 
-export type ChannelsStoreState = Channel & { readonly providers: StoredBotProvider[] };
+export type ChannelsStoreState = { readonly providers: StoredBotProvider[] };
 
 const CHANNELS_STORE_NAME = 'channels';
-const LEGACY_CHANNELS_STORE_NAME = 'settings.channels';
-
 const DEFAULT_CHANNELS_STORE: ChannelsStoreState = {
 	providers: [],
-	providerId: '',
-	channelId: '',
 };
 
 const store = new Store<ChannelsStoreState>({
@@ -22,63 +18,21 @@ const store = new Store<ChannelsStoreState>({
 	defaults: DEFAULT_CHANNELS_STORE,
 });
 
-const legacyStore = new Store<Channel>({
-	name: LEGACY_CHANNELS_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'app'),
-	accessPropertiesByDotNotation: false,
-	defaults: { providerId: '', channelId: '' },
-});
-
 const current = store.store as unknown as {
-	providers?: Channel | StoredBotProvider[];
-	providerId?: string;
-	channelId?: string;
+	providers?: StoredBotProvider[];
 };
-const previousSelection = Array.isArray(current.providers) ? undefined : current.providers;
 const legacyProviders = listProviders('bots') as StoredBotProvider[];
 const providers =
 	Array.isArray(current.providers) && current.providers.length > 0 ? current.providers : legacyProviders;
-const providerId = current.providerId ?? previousSelection?.providerId ?? legacyStore.store.providerId;
-const channelId = current.channelId ?? previousSelection?.channelId ?? legacyStore.store.channelId;
 if (
-	previousSelection ||
-	legacyStore.store.providerId ||
-	legacyStore.store.channelId ||
-	legacyProviders.length > 0
+	!Array.isArray(current.providers) ||
+	legacyProviders.length > 0 ||
+	Object.keys(store.store).some((key) => key !== 'providers')
 ) {
 	store.store = {
 		providers,
-		providerId: providerId.trim(),
-		channelId: channelId.trim(),
 	};
-	legacyStore.clear();
 	clearBotProviders();
-}
-
-/** The default channel: which provider serves it and which of its bot services it is. */
-export function getChannels(): Channel {
-	return {
-		providerId: getProviderId(),
-		channelId: getChannelId(),
-	};
-}
-
-export function getProviderId(): string {
-	const providerId = store.get('providerId');
-	return typeof providerId === 'string' ? providerId.trim() : '';
-}
-
-export function setProviderId(providerId: string): void {
-	store.set('providerId', providerId.trim());
-}
-
-export function getChannelId(): string {
-	const channelId = store.get('channelId');
-	return typeof channelId === 'string' ? channelId.trim() : '';
-}
-
-export function setChannelId(channelId: string): void {
-	store.set('channelId', channelId.trim());
 }
 
 export function listChannelProviders(): StoredBotProvider[] {
