@@ -6,11 +6,11 @@ import type { ConnectorStoreSchema, McpOAuthState } from './mcp_types';
 
 export const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { servers: {}, oauth: {} };
 
-const MCP_STORE_NAME = 'settings';
+const MCP_STORE_NAME = 'settings.mcp';
 
 const store = new Store<ConnectorStoreSchema>({
 	name: MCP_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'mcp'),
+	cwd: path.resolve(userDataLocation(), 'agent'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_MCP_SETTINGS,
 });
