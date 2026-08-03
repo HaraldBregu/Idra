@@ -27,7 +27,6 @@ export type AppSettingsState = {
 	keepAwake: boolean;
 	language: AppLanguage;
 	theme: AppTheme;
-	models: StoredProvider[];
 };
 
 const APP_SETTINGS_STORE_NAME = 'application';
@@ -57,12 +56,17 @@ const DEFAULT_DATABASE_CONFIGURATION: DatabaseConfiguration = {
 
 const DEFAULT_CRON_CONFIGURATION: PersistedCronState = { schedules: [] };
 
+type ModelsSettingsState = {
+	providers: StoredProvider[];
+};
+
+const DEFAULT_MODELS_SETTINGS: ModelsSettingsState = { providers: [] };
+
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	trayEnabled: true,
 	keepAwake: false,
 	language: 'en',
 	theme: 'system',
-	models: [],
 };
 
 const appSettingsDirectory = path.resolve(userDataLocation(), 'app');
@@ -72,7 +76,10 @@ const legacyAppSettings = readSettingsFile('settings.json');
 const legacyApplicationSettings = {
 	...legacyAppSettings,
 	...readSettingsFile('app.json'),
+	...readSettingsFile('application.json'),
 };
+const modelsSettingsPath = path.join(appSettingsDirectory, 'models.json');
+const hasModelsSettings = existsSync(modelsSettingsPath);
 const storageConfigurationPath = path.join(appSettingsDirectory, 'storages.json');
 const hasStorageConfiguration = existsSync(storageConfigurationPath);
 const databaseConfigurationPath = path.join(appSettingsDirectory, 'database.json');
@@ -95,6 +102,18 @@ if (!hasApplicationSettings) {
 }
 
 export const appSettingsStorePath = store.path;
+
+const modelsConfigurationStore = new Store<ModelsSettingsState>({
+	name: 'models',
+	cwd: appSettingsDirectory,
+	accessPropertiesByDotNotation: false,
+	defaults: DEFAULT_MODELS_SETTINGS,
+});
+
+if (!hasModelsSettings) {
+	modelsConfigurationStore.store = { providers: readLegacyModelProviders() };
+}
+removeLegacyModelProviders();
 
 const storageConfigurationStore = new Store<StorageSettingsState>({
 	name: 'storages',
@@ -139,6 +158,7 @@ if (!hasCronConfiguration) {
 }
 
 export const storageConfigurationStorePath = storageConfigurationStore.path;
+export const modelsConfigurationStorePath = modelsConfigurationStore.path;
 export const databaseConfigurationStorePath = databaseConfigurationStore.path;
 export const cronConfigurationStorePath = cronConfigurationStore.path;
 
@@ -175,10 +195,10 @@ export function setTheme(theme: AppTheme): void {
 }
 
 function readProviders(kind: StoredProviderKind): StoredProvider[] {
+	if (kind === 'models') return getModelProviders();
 	if (kind === 'databases') return getDatabaseConfiguration().providers;
 	if (kind === 'bots') return [];
-	const raw = store.get(kind);
-	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
+	return [];
 }
 
 export function listProviders(kind?: StoredProviderKind): StoredProvider[] {
@@ -209,7 +229,7 @@ export function setProvider(
 	if (kind === 'databases') {
 		saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers });
 	} else {
-		store.set(kind, providers);
+		modelsConfigurationStore.set('providers', providers);
 	}
 	return provider;
 }
@@ -222,14 +242,14 @@ export function deleteProvider(id: string): void {
 			if (kind === 'databases') {
 				saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: remaining });
 			} else {
-				store.set(kind, remaining);
+				modelsConfigurationStore.set('providers', remaining);
 			}
 		}
 	}
 }
 
 export function clearProviders(): void {
-	store.set('models', []);
+	modelsConfigurationStore.set('providers', []);
 	saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: [] });
 }
 
@@ -306,10 +326,21 @@ function readLegacyAppConfiguration(): Partial<AppSettingsState> {
 			typeof legacyApplicationSettings.theme === 'string'
 				? (legacyApplicationSettings.theme as AppTheme)
 				: DEFAULT_APP_SETTINGS.theme,
-		models: Array.isArray(legacyApplicationSettings.models)
-			? legacyApplicationSettings.models.filter(isStoredProvider)
-			: [],
 	};
+}
+
+function getModelProviders(): StoredProvider[] {
+	return modelsConfigurationStore.get('providers').filter(isStoredProvider);
+}
+
+function readLegacyModelProviders(): StoredProvider[] {
+	const models = legacyApplicationSettings.models;
+	return Array.isArray(models) ? models.filter(isStoredProvider) : [];
+}
+
+function removeLegacyModelProviders(): void {
+	const { models: _models, ...settings } = store.store as AppSettingsState & { models?: unknown };
+	store.store = settings;
 }
 
 function toStorageConfig(stored: StoredStorage): StorageConfig {
