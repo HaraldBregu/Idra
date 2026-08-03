@@ -19,6 +19,7 @@ import {
 	resetPermissions,
 	respondToolPermission,
 	setDirectoryPermissions,
+	setPermissionMode,
 	setToolPermission,
 	type DirectoryPermissions,
 	type PermissionsSchema,
@@ -290,6 +291,14 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler((value: unknown): PermissionsSchema => {
 				return setDirectoryPermissions(toDirectoryPermissions(value));
 			}, AgentChannels.policySetDirectories)
+		);
+
+		ipcMain.handle(
+			AgentChannels.policySetMode,
+			wrapSimpleHandler((mode: unknown): PermissionsSchema => {
+				if (!isAgentPermissionMode(mode)) throw new Error('Invalid agent permission mode.');
+				return setPermissionMode(mode);
+			}, AgentChannels.policySetMode)
 		);
 
 		ipcMain.handle(

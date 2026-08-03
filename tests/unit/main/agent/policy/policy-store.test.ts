@@ -14,14 +14,23 @@ jest.mock('electron-store', () =>
 
 import {
 	getPermissions,
+	getPermissionMode,
 	resetPermissions,
 	setDirectoryPermissions,
+	setPermissionMode,
 	setToolPermission,
 } from '../../../../../src/main/agent/policy/policy_store';
 
 beforeEach(() => resetPermissions());
 
 describe('policy store directories', () => {
+	it('persists the agent permission mode', () => {
+		expect(getPermissionMode()).toBe('ask');
+		setPermissionMode('bypass');
+		expect(getPermissions().mode).toBe('bypass');
+		expect(resetPermissions().mode).toBe('ask');
+	});
+
 	it('preserves normalized directory entries when a tool changes', () => {
 		setDirectoryPermissions({
 			' /shared ': { recoursive: true, tools: [' read ', 'read'] },

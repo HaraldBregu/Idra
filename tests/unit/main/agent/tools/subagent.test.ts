@@ -32,11 +32,7 @@ describe('subagentTool', () => {
 			session.context.basePrompt?.indexOf('- Stay focused:') ?? -1
 		);
 		expect(parent.subagents).toEqual([session.context]);
-		expect(mockStream.mock.calls[0][4]).toEqual({
-			tools: [],
-			interactive: false,
-			permissionMode: 'ask',
-		});
+		expect(mockStream.mock.calls[0][4]).toEqual({ tools: [], interactive: false });
 	});
 
 	it('forwards an explicit permission bypass to the background run', async () => {

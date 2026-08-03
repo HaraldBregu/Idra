@@ -1,10 +1,12 @@
 export {
 	addPermissionRule,
 	getDirectoryPermissions,
+	getPermissionMode,
 	getPermissions,
 	getToolPermission,
 	resetPermissions,
 	setDirectoryPermissions,
+	setPermissionMode,
 	setToolPermission,
 } from './policy_store';
 export { isPathWithin, toolPathDir } from './policy_path';

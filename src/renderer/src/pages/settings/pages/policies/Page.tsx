@@ -31,6 +31,9 @@ const PERMISSION_MODES: PermissionMode[] = ['allow', 'ask', 'deny'];
 const ROW_CLASS = 'border-b border-border/60 last:border-b-0';
 
 const isPermission = (entry: Permissions[string]): entry is Permission =>
+	typeof entry === 'object' &&
+	entry !== null &&
+	!Array.isArray(entry) &&
 	'default' in entry &&
 	(entry.default === 'allow' || entry.default === 'ask' || entry.default === 'deny');
 

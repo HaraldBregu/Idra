@@ -52,6 +52,7 @@ import type { AgentPermissionMode } from '../../../shared/agent_types';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
+import { getPermissionMode } from '../policy';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -93,7 +94,7 @@ async function* loop(
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
-	const permissionMode = options.permissionMode ?? 'ask';
+	const permissionMode = options.permissionMode ?? getPermissionMode();
 	const tools: Tool[] = options.tools
 		? [...options.tools]
 		: [

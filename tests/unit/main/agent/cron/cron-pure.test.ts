@@ -46,10 +46,10 @@ describe('buildTask', () => {
 });
 
 describe('cronActionSchema', () => {
-	it('defaults scheduled agent tasks to policy enforcement and accepts bypass', () => {
-		expect(cronActionSchema.parse({ type: 'agent', prompt: 'do it', effort: 'low' })).toMatchObject({
-			permissionMode: 'ask',
-		});
+	it('allows scheduled tasks to override the stored permission mode', () => {
+		expect(cronActionSchema.parse({ type: 'agent', prompt: 'do it', effort: 'low' })).not.toHaveProperty(
+			'permissionMode'
+		);
 		expect(
 			cronActionSchema.parse({
 				type: 'agent',

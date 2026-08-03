@@ -24,8 +24,8 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 			task: z.string().describe('The task for the subagent to complete'),
 			permissionMode: z
 				.enum(['ask', 'bypass'])
-				.default('ask')
-				.describe('ask enforces the policy; bypass lets this background subagent run tools without it.'),
+				.optional()
+				.describe('Overrides the stored policy mode for this background subagent.'),
 			systemPrompt: z
 				.string()
 				.optional()
@@ -47,7 +47,7 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 			const events = stream(config, session, input, new AbortController().signal, {
 				tools,
 				interactive: false,
-				permissionMode: permissionMode as AgentPermissionMode,
+				...(permissionMode ? { permissionMode: permissionMode as AgentPermissionMode } : {}),
 			});
 			for await (const event of events) {
 				if (event.type === 'assistant_message') text = event.content;

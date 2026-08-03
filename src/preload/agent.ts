@@ -159,6 +159,9 @@ export const agent: AgentApi = {
 	policySetDirectories: (directories: DirectoryPermissions): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policySetDirectories, directories);
 	},
+	policySetMode: (mode: AgentPermissionMode): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.policySetMode, mode);
+	},
 	policyReset: (): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyReset);
 	},

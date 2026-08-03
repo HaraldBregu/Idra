@@ -78,7 +78,9 @@ export class Agent {
 			return this.send(schedule.action.prompt, 'cron', {
 				category: 'task',
 				interactive: false,
-				permissionMode: schedule.action.permissionMode ?? 'ask',
+				...(schedule.action.permissionMode
+					? { permissionMode: schedule.action.permissionMode }
+					: {}),
 				...(runtime ? { providerId: runtime.providerId, modelId: runtime.modelId } : {}),
 			});
 		});
@@ -132,7 +134,7 @@ export class Agent {
 
 			const events = stream(this.config, this.session, input, controller.signal, {
 				interactive: options.interactive ?? true,
-				permissionMode: options.permissionMode ?? 'ask',
+				permissionMode: options.permissionMode,
 			});
 
 			this.activeRuns.set(view.agentId, controller);

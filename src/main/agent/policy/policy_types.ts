@@ -16,8 +16,12 @@ export interface DirectoryPermission {
 
 export type DirectoryPermissions = Record<string, DirectoryPermission>;
 
-export type PermissionsSchema = Record<string, ToolPermission | DirectoryPermissions> & {
+export type PermissionsSchema = Record<
+	string,
+	ToolPermission | DirectoryPermissions | AgentPermissionMode
+> & {
 	dir: DirectoryPermissions;
+	mode: AgentPermissionMode;
 };
 
 export const POLICY_TOOLS = [
@@ -85,5 +89,7 @@ export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	dir: {},
+	mode: 'ask',
 	...DEFAULT_TOOL_PERMISSIONS,
 };
+import type { AgentPermissionMode } from '../../../shared/agent_types';
