@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { existsSync } from 'node:fs';
 import Store from 'electron-store';
 import type { McpData, McpSettings } from '../../../shared/mcp_types';
 import { userDataLocation } from '../../shared/user_data_location';
@@ -8,40 +9,45 @@ import type { McpOAuthState, McpRecord, McpStoreSchema } from './mcp_types';
 const MCP_STORE_NAME = 'mcp';
 const PREVIOUS_MCP_STORE_NAME = 'providers.mcp';
 const LEGACY_MCP_STORE_NAME = 'settings.mcp';
+const settingsDirectory = path.resolve(userDataLocation(), 'app');
 
 const store = new Store<McpStoreSchema>({
 	name: MCP_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'app'),
+	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
 	defaults: { servers: [] },
 });
 
-const previousStore = new Store<McpStoreSchema>({
-	name: PREVIOUS_MCP_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'app'),
-	accessPropertiesByDotNotation: false,
-	defaults: { servers: [] },
-});
+const previousStore = existsSync(path.join(settingsDirectory, `${PREVIOUS_MCP_STORE_NAME}.json`))
+	? new Store<McpStoreSchema>({
+			name: PREVIOUS_MCP_STORE_NAME,
+			cwd: settingsDirectory,
+			accessPropertiesByDotNotation: false,
+			defaults: { servers: [] },
+		})
+	: undefined;
 
-const legacyStore = new Store<Record<string, LegacyEntry>>({
-	name: LEGACY_MCP_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'app'),
-	accessPropertiesByDotNotation: false,
-	defaults: {},
-});
+const legacyStore = existsSync(path.join(settingsDirectory, `${LEGACY_MCP_STORE_NAME}.json`))
+	? new Store<Record<string, LegacyEntry>>({
+			name: LEGACY_MCP_STORE_NAME,
+			cwd: settingsDirectory,
+			accessPropertiesByDotNotation: false,
+			defaults: {},
+		})
+	: undefined;
 
 type LegacyOAuth = { clientInformation?: object; tokens?: object; codeVerifier?: string };
 type LegacyEntry = McpData & { oauth?: LegacyOAuth };
 
 // ponytail: one-shot flatten of the earlier { servers, oauth } and { id: { oauth } } shapes
-const legacy = legacyStore.store as Record<string, LegacyEntry> & {
+const legacy = (legacyStore?.store ?? {}) as Record<string, LegacyEntry> & {
 	servers?: Record<string, LegacyEntry>;
 	oauth?: Record<string, LegacyOAuth>;
 };
 const legacyServers = legacy.servers;
 const entries = legacyServers ?? legacy;
 if (store.store.servers.length === 0) {
-	if (previousStore.store.servers.length > 0) {
+	if (previousStore && previousStore.store.servers.length > 0) {
 		store.store = { servers: previousStore.store.servers };
 		previousStore.clear();
 	} else {
@@ -54,7 +60,7 @@ if (store.store.servers.length === 0) {
 		}
 		if (migrated.length > 0) {
 			store.store = { servers: migrated };
-			legacyStore.clear();
+		legacyStore?.clear();
 		}
 	}
 }
