@@ -175,6 +175,10 @@ export function clearProviders(): void {
 	store.set('bots', []);
 }
 
+export function clearBotProviders(): void {
+	store.set('bots', []);
+}
+
 export function getSearchProviders(): StoredProvider[] {
 	const raw = store.get('search');
 	return Array.isArray(raw) ? raw.filter(isStoredProvider) : [];
