@@ -55,6 +55,8 @@ const DEFAULT_DATABASE_CONFIGURATION: DatabaseConfiguration = {
 	providers: [],
 };
 
+const DEFAULT_CRON_CONFIGURATION: PersistedCronState = { schedules: [] };
+
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	trayEnabled: true,
 	keepAwake: false,
@@ -68,6 +70,8 @@ const storageConfigurationPath = path.join(appSettingsDirectory, 'storages.json'
 const hasStorageConfiguration = existsSync(storageConfigurationPath);
 const databaseConfigurationPath = path.join(appSettingsDirectory, 'database.json');
 const hasDatabaseConfiguration = existsSync(databaseConfigurationPath);
+const cronConfigurationPath = path.join(appSettingsDirectory, 'cron.json');
+const hasCronConfiguration = existsSync(cronConfigurationPath);
 
 const store = new Store<AppSettingsState>({
 	name: APP_SETTINGS_STORE_NAME,
@@ -110,11 +114,15 @@ if (!hasDatabaseConfiguration) {
 }
 
 const cronConfigurationStore = new Store<PersistedCronState>({
-	name: 'settings.cron',
+	name: 'cron',
 	cwd: appSettingsDirectory,
 	accessPropertiesByDotNotation: false,
-	defaults: { schedules: [] },
+	defaults: DEFAULT_CRON_CONFIGURATION,
 });
+
+if (!hasCronConfiguration) {
+	cronConfigurationStore.store = readLegacyCronConfiguration();
+}
 
 export const storageConfigurationStorePath = storageConfigurationStore.path;
 export const databaseConfigurationStorePath = databaseConfigurationStore.path;
@@ -477,4 +485,17 @@ export function getCronConfiguration(): PersistedCronState {
 
 export function setCronConfiguration(configuration: PersistedCronState): void {
 	cronConfigurationStore.store = configuration;
+}
+
+function readLegacyCronConfiguration(): PersistedCronState {
+	const legacyPath = path.join(appSettingsDirectory, 'settings.cron.json');
+	if (!existsSync(legacyPath)) return DEFAULT_CRON_CONFIGURATION;
+	try {
+		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
+		return typeof value === 'object' && value !== null && Array.isArray((value as PersistedCronState).schedules)
+			? (value as PersistedCronState)
+			: DEFAULT_CRON_CONFIGURATION;
+	} catch {
+		return DEFAULT_CRON_CONFIGURATION;
+	}
 }
