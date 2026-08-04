@@ -5,8 +5,8 @@ import type { EmailSettings, SmtpProviderInput } from '../shared/email_types';
 
 export const email: EmailApi = {
 	getSettings: (): Promise<EmailSettings> => typedInvokeUnwrap(EmailChannels.getSettings),
-	saveProvider: (input: SmtpProviderInput): Promise<EmailSettings> =>
-		typedInvokeUnwrap(EmailChannels.saveProvider, input),
+	saveProvider: (input: SmtpProviderInput, providerId?: string): Promise<EmailSettings> =>
+		typedInvokeUnwrap(EmailChannels.saveProvider, input, providerId),
 	selectProvider: (providerId: string): Promise<EmailSettings> =>
 		typedInvokeUnwrap(EmailChannels.selectProvider, providerId),
 };

@@ -7,6 +7,11 @@ export interface EmailSettings {
 export interface SmtpProviderSummary {
 	id: string;
 	name: string;
+	host: string;
+	port: number;
+	secure: boolean;
+	username: string;
+	from: string;
 }
 
 export interface SmtpProviderInput {

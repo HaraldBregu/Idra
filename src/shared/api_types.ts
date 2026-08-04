@@ -188,7 +188,7 @@ export interface SearchApi {
 
 export interface EmailApi {
 	getSettings: () => Promise<EmailSettings>;
-	saveProvider: (input: SmtpProviderInput) => Promise<EmailSettings>;
+	saveProvider: (input: SmtpProviderInput, providerId?: string) => Promise<EmailSettings>;
 	selectProvider: (providerId: string) => Promise<EmailSettings>;
 }
 

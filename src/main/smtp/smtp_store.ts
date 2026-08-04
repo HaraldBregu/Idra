@@ -35,6 +35,12 @@ export function saveSmtpProvider(provider: SmtpProvider): void {
 	store.set('selectedProviderId', provider.id);
 }
 
+export function updateSmtpProvider(provider: SmtpProvider): void {
+	const providers = getSmtpProviders();
+	if (!providers.some((entry) => entry.id === provider.id)) throw new Error('Unknown SMTP provider.');
+	store.set('providers', providers.map((entry) => (entry.id === provider.id ? provider : entry)));
+}
+
 export function selectSmtpProvider(providerId: string): void {
 	if (!getSmtpProviders().some((provider) => provider.id === providerId)) {
 		throw new Error('Unknown SMTP provider.');
