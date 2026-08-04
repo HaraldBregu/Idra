@@ -1,16 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronDown, ListChecks } from 'lucide-react';
+import { AlertTriangle, ListChecks } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import {
-	llmProviderGroups,
-	ModelProviderSelect,
-	resolveStoredModelProvider,
-} from '@/components/model-provider-select';
+import { providerIdsFor, providerModels, providers } from '@/lib/providers';
+import type { ProviderModelGroup } from '../../../start/types';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -20,12 +15,20 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../components';
-import { getProviderCatalogItem } from '../../../start/constants';
+import { ModelProviderConfiguration } from '../../components/model-configuration';
 
 type Task = Awaited<ReturnType<typeof window.tasks.list>>[number];
 
 function describeAction(task: Task): string {
 	return task.action.type === 'agent' ? task.action.prompt : task.action.message;
+}
+
+function taskModelGroups(): ProviderModelGroup[] {
+	return providerIdsFor('llm').flatMap((providerId) => {
+		const provider = providers().find((item) => item.id === providerId);
+		const models = providerModels(providerId, 'llm');
+		return provider && models.length > 0 ? [{ provider, models }] : [];
+	});
 }
 
 const TasksPage: React.FC = () => {
@@ -41,11 +44,7 @@ const TasksPage: React.FC = () => {
 	const [saved, setSaved] = useState(false);
 	const [runtimeError, setRuntimeError] = useState<string | null>(null);
 
-	const selectedGroup = useMemo(
-		() => llmProviderGroups().find((group) => group.id === providerId),
-		[providerId]
-	);
-	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
+	const modelGroups = taskModelGroups();
 
 	useEffect(() => {
 		let mounted = true;
@@ -53,13 +52,11 @@ const TasksPage: React.FC = () => {
 			.then(([list, runtime]) => {
 				if (!mounted) return;
 				setTasks(list);
-				const resolved = resolveStoredModelProvider(
-					llmProviderGroups(),
-					runtime?.providerId,
-					runtime?.modelId
-				);
-				setProviderId(resolved.providerId);
-				setModelId(resolved.modelId);
+				const groups = taskModelGroups();
+				const group = groups.find((item) => item.provider.id === runtime?.providerId) ?? groups[0];
+				const model = group?.models.find((item) => item.id === runtime?.modelId) ?? group?.models[0];
+				setProviderId(group?.provider.id ?? '');
+				setModelId(model?.id ?? '');
 			})
 			.catch((err: unknown) => {
 				if (mounted) setError(err instanceof Error ? err.message : String(err));
@@ -97,61 +94,30 @@ const TasksPage: React.FC = () => {
 				description={t('settings.cron.description')}
 			/>
 
-			<Card size="sm" className="gap-0! py-0!">
-				<Collapsible>
-					<CollapsibleTrigger className="group w-full text-left">
-						<CardHeader className="py-3">
-							<CardTitle className="flex items-center justify-between">
-								{selectedGroup
-									? getProviderCatalogItem(selectedGroup.id).name
-									: t('settings.cron.runtime.providerPlaceholder')}
-								<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-							</CardTitle>
-							<CardDescription className="text-xs">
-								{selectedModel?.name ??
-									selectedModel?.id ??
-									t('settings.cron.runtime.modelPlaceholder')}
-							</CardDescription>
-						</CardHeader>
-					</CollapsibleTrigger>
-					<CollapsibleContent className="border-t border-border/60">
-						{loading ? (
-							<SettingsLoadingRows rows={1} />
-						) : llmProviderGroups().length === 0 ? (
-							<SettingsEmptyState
-								icon={AlertTriangle}
-								title={t('settings.cron.runtime.noProviders')}
-							/>
-						) : (
-							<div className="grid gap-3 px-3 py-3">
-								<ModelProviderSelect
-									idPrefix="task-runtime"
-									providerGroups={llmProviderGroups()}
-									providerId={providerId}
-									modelId={modelId}
-									onChange={(nextProviderId, nextModelId) =>
-										void handleChange(nextProviderId, nextModelId)
-									}
-									disabled={saving}
-									labels={{
-										label: t('settings.cron.runtime.model'),
-										placeholder: t('settings.cron.runtime.modelPlaceholder'),
-									}}
-								/>
-
-								{runtimeError && (
-									<p className="text-[11px] leading-4 text-destructive">{runtimeError}</p>
-								)}
-								{saved && (
-									<p className="text-[11px] leading-4 text-muted-foreground">
-										{t('settings.cron.runtime.saved')}
-									</p>
-								)}
-							</div>
-						)}
-					</CollapsibleContent>
-				</Collapsible>
-			</Card>
+			<SettingsSection
+				title={t('settings.cron.runtime.title')}
+				description={t('settings.cron.runtime.description')}
+			>
+				<ModelProviderConfiguration
+					configState={{
+						providers: modelGroups.map((group) => group.provider),
+						modelGroups,
+						providerId,
+						modelId,
+						loading,
+						loadingModels: false,
+						saving,
+						saved,
+						error: runtimeError,
+					}}
+					idPrefix="task-runtime"
+					description={t('settings.modelServices.modelDescription')}
+					showInlineError
+					onChange={(nextProviderId, nextModelId) =>
+						void handleChange(nextProviderId, nextModelId)
+					}
+				/>
+			</SettingsSection>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
