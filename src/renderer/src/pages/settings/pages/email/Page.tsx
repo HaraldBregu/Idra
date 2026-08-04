@@ -16,6 +16,9 @@ import {
 const EmailPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [configured, setConfigured] = useState(false);
+	const [providers, setProviders] = useState<{ id: string; name: string }[]>([]);
+	const [selectedProviderId, setSelectedProviderId] = useState<string>();
+	const [name, setName] = useState('');
 	const [host, setHost] = useState('');
 	const [port, setPort] = useState('587');
 	const [secure, setSecure] = useState(false);
@@ -32,7 +35,8 @@ const EmailPage: React.FC = () => {
 			.getSettings()
 			.then((settings) => {
 				setConfigured(settings.configured);
-				setEditing(!settings.configured);
+				setProviders(settings.providers);
+				setSelectedProviderId(settings.selectedProviderId);
 			})
 			.catch((cause: unknown) => setError(cause instanceof Error ? cause.message : String(cause)))
 			.finally(() => setLoading(false));
@@ -42,7 +46,8 @@ const EmailPage: React.FC = () => {
 		setSaving(true);
 		setError(null);
 		try {
-			const settings = await window.email.saveSettings({
+			const settings = await window.email.saveProvider({
+				name,
 				host,
 				port: Number(port),
 				secure,
@@ -51,8 +56,28 @@ const EmailPage: React.FC = () => {
 				from,
 			});
 			setConfigured(settings.configured);
+			setProviders(settings.providers);
+			setSelectedProviderId(settings.selectedProviderId);
+			setName('');
+			setHost('');
+			setPort('587');
+			setSecure(false);
+			setUsername('');
 			setPassword('');
 			setEditing(false);
+		} catch (cause) {
+			setError(cause instanceof Error ? cause.message : String(cause));
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const selectProvider = async (providerId: string): Promise<void> => {
+		setSaving(true);
+		setError(null);
+		try {
+			const settings = await window.email.selectProvider(providerId);
+			setSelectedProviderId(settings.selectedProviderId);
 		} catch (cause) {
 			setError(cause instanceof Error ? cause.message : String(cause));
 		} finally {
@@ -92,16 +117,31 @@ const EmailPage: React.FC = () => {
 											: t('settings.email.notConfigured')}
 								</p>
 							</div>
-							{configured && !editing && (
-								<Button type="button" variant="ghost" size="icon-xs" onClick={() => setEditing(true)}>
-									<Pencil className="size-3.5" />
-									<span className="sr-only">Edit SMTP settings</span>
-								</Button>
-							)}
+							<Button type="button" variant="ghost" size="sm" onClick={() => setEditing(true)} disabled={saving}>
+								<Pencil className="size-3.5" />
+								Add provider
+							</Button>
 						</div>
+						{providers.length > 0 && (
+							<div className="mt-3 grid gap-2">
+								{providers.map((provider) => (
+									<Button
+										key={provider.id}
+										type="button"
+										variant={provider.id === selectedProviderId ? 'secondary' : 'outline'}
+										className="justify-start"
+										disabled={saving}
+										onClick={() => void selectProvider(provider.id)}
+									>
+										{provider.name}
+									</Button>
+								))}
+							</div>
+						)}
 
 						{editing && (
 							<div className="mt-3 grid gap-2 sm:grid-cols-2">
+								<Input className="sm:col-span-2" value={name} onChange={(event) => setName(event.target.value)} placeholder="Provider name" aria-label="SMTP provider name" disabled={saving} />
 								<Input value={host} onChange={(event) => setHost(event.target.value)} placeholder="SMTP host" aria-label="SMTP host" disabled={saving} />
 								<Input type="number" min="1" max="65535" value={port} onChange={(event) => setPort(event.target.value)} placeholder="Port" aria-label="SMTP port" disabled={saving} />
 								<Input value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Username (optional)" aria-label="SMTP username" disabled={saving} />
@@ -113,7 +153,7 @@ const EmailPage: React.FC = () => {
 								</label>
 								<div className="flex justify-end gap-2">
 									<Button type="button" variant="outline" size="sm" disabled={saving} onClick={() => setEditing(false)}>{t('common.cancel')}</Button>
-									<Button type="button" size="sm" disabled={saving || !host.trim() || !from.trim()} onClick={() => void handleSave()}>
+									<Button type="button" size="sm" disabled={saving || !name.trim() || !host.trim() || !from.trim()} onClick={() => void handleSave()}>
 										{saving && <LoaderCircle className="size-3.5 animate-spin" />}
 										{t('common.save')}
 									</Button>
