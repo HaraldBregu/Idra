@@ -57,7 +57,7 @@ export function SessionsButton(): ReactElement {
 			>
 				<History className="size-4" strokeWidth={1.8} />
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-64">
+			<DropdownMenuContent align="start" className="w-64">
 				<DropdownMenuItem onClick={newSession}>
 					<Plus className="size-4" />
 					{newChatLabel}
