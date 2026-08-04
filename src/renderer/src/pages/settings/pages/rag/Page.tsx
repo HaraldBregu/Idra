@@ -27,6 +27,7 @@ import { defaultProviderId, providerIdsFor, providerModels, providers } from '@/
 import { getErrorMessage } from '../../../start/constants';
 import {
 	SettingsLoadingRows,
+	SettingsField,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -252,34 +253,40 @@ const RagPage: React.FC = () => {
 							<div className="min-w-0 flex-1">
 								<div className="truncate text-[13px] font-medium leading-4 text-foreground">
 									{selectedDatabase
-										? databaseLabel(selectedDatabase)
+										? selectedDatabase.provider.name
 										: t('settings.vectorDb.databasePlaceholder')}
 								</div>
 								<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-									{t('settings.vectorDb.databaseDescription')}
+									{selectedDatabase?.name || selectedDatabase?.id || t('settings.vectorDb.databaseDescription')}
 								</p>
 							</div>
 							<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
 						</CollapsibleTrigger>
 						<CollapsibleContent className="border-t border-border/60">
 							<div className="grid gap-3 px-3 py-3">
-								<Select
-									value={selectedDatabase ? databaseKey(selectedDatabase) : null}
-									onValueChange={(value) => void selectDatabase(value)}
+								<SettingsField
+									id="rag-database"
+									label={t('settings.vectorDb.database')}
+									description={t('settings.vectorDb.databaseDescription')}
 								>
-									<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-										<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
-											{selectedDatabase && databaseLabel(selectedDatabase)}
-										</SelectValue>
-									</SelectTrigger>
-									<SelectContent>
-										{databases.map((entry) => (
-											<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
-												{databaseLabel(entry)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+									<Select
+										value={selectedDatabase ? databaseKey(selectedDatabase) : null}
+										onValueChange={(value) => void selectDatabase(value)}
+									>
+										<SelectTrigger id="rag-database" className="w-full text-xs">
+											<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
+												{selectedDatabase && databaseLabel(selectedDatabase)}
+											</SelectValue>
+										</SelectTrigger>
+										<SelectContent>
+											{databases.map((entry) => (
+												<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
+													{databaseLabel(entry)}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</SettingsField>
 							</div>
 						</CollapsibleContent>
 					</Collapsible>
