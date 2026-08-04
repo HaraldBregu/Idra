@@ -9,6 +9,15 @@
 			"name": "Resend Email API",
 			"type": "transactional-email",
 			"url": "https://api.resend.com"
+		},
+		{
+			"id": "resend-smtp",
+			"name": "Resend SMTP",
+			"type": "smtp",
+			"properties": {
+				"host": "smtp.resend.com",
+				"port": "465"
+			}
 		}
 	]
 }
