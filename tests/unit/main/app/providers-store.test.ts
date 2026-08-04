@@ -25,7 +25,7 @@ jest.mock('../../../../src/main/app/models', () => ({
 
 import {
 	getDatabaseConfiguration,
-	getCronConfiguration,
+	getTaskConfiguration,
 	listProviders,
 	getProvider,
 	hasProvider,
@@ -38,7 +38,7 @@ import {
 	getStorages,
 	saveStorageConfig,
 	setSelectedStorageId,
-	setCronConfiguration,
+	setTaskConfiguration,
 } from '../../../../src/main/app/settings_store';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';
@@ -173,7 +173,7 @@ describe('cron settings', () => {
 			schedules: [],
 		};
 
-		setCronConfiguration(state);
-		expect(getCronConfiguration()).toEqual(state);
+		setTaskConfiguration(state);
+		expect(getTaskConfiguration()).toEqual(state);
 	});
 });
