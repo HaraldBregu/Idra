@@ -1,9 +1,11 @@
 const saveSmtpProvider = jest.fn();
+const updateSmtpProvider = jest.fn();
 const getSmtpSettings = jest.fn();
 const getSmtpProviders = jest.fn(() => []);
 
 jest.mock('../../../../src/main/smtp/smtp_store', () => ({
 	saveSmtpProvider,
+	updateSmtpProvider,
 	getSmtpSettings,
 	getSmtpProviders,
 }));
@@ -40,5 +42,18 @@ describe('SMTP settings', () => {
 		[{ ...smtp, username: 'friday', password: '' }, 'SMTP username and password must be provided together.'],
 	])('rejects invalid configuration', (input, message) => {
 		expect(() => saveEmailProvider(input)).toThrow(message);
+	});
+
+	it('updates a provider without replacing its password when left blank', () => {
+		getSmtpProviders.mockReturnValue([{ id: 'smtp-1', ...smtp }]);
+		getSmtpSettings.mockReturnValue({ id: 'smtp-1', ...smtp });
+
+		saveEmailProvider({ ...smtp, host: 'smtp.updated.example.com', password: '' }, 'smtp-1');
+
+		expect(updateSmtpProvider).toHaveBeenCalledWith({
+			id: 'smtp-1',
+			...smtp,
+			host: 'smtp.updated.example.com',
+		});
 	});
 });
