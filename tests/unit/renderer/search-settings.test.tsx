@@ -6,6 +6,8 @@ import OverviewPage from '../../../src/renderer/src/pages/settings/pages/overvie
 
 jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
+		'settings.tabs.taskScheduler': 'Tasks',
+		'settings.overview.descriptions.cron': 'Scheduled agent tasks',
 		'settings.tabs.searchEngine': 'Search engine',
 		'settings.searchEngine.description': 'Choose the web search provider.',
 		'settings.searchEngine.defaultTitle': 'Default search engine',
@@ -72,6 +74,7 @@ describe('Settings overview', () => {
 		).not.toBeInTheDocument();
 		expect(screen.queryByText('settings.tabs.database')).not.toBeInTheDocument();
 		expect(screen.getByText('Search engine')).toBeInTheDocument();
+		expect(screen.getByText('Tasks')).toBeInTheDocument();
 		const assistantGroup = screen
 			.getByText('settings.overview.groups.assistant')
 			.closest('section');

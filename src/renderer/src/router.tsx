@@ -30,6 +30,7 @@ import HomePage from './pages/home/Page';
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
 const ApplicationPage = lazy(() => import('./pages/settings/pages/application/Page'));
+const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const SystemMediaDetailPage = lazy(() => import('./pages/settings/pages/system/detail/Page'));
@@ -179,6 +180,14 @@ const routes: RouteObject[] = [
 						element: (
 							<SettingsRouteWrapper>
 								<ApplicationPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
+						path: 'tasks',
+						element: (
+							<SettingsRouteWrapper>
+								<TasksPage />
 							</SettingsRouteWrapper>
 						),
 					},

@@ -10,6 +10,7 @@ import {
 	ImageIcon,
 	Info,
 	Library,
+	ListChecks,
 	Mic,
 	MonitorCog,
 	Music,
@@ -335,6 +336,12 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.application',
 		descriptionKey: 'settings.overview.descriptions.application',
 		icon: AppWindow,
+	},
+	{
+		path: '/settings/tasks',
+		labelKey: 'settings.tabs.taskScheduler',
+		descriptionKey: 'settings.overview.descriptions.cron',
+		icon: ListChecks,
 	},
 	{
 		path: '/settings/providers/models',
