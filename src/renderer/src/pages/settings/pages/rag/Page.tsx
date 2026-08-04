@@ -8,10 +8,12 @@ import {
 	LoaderCircle,
 	Search,
 	Sparkles,
+	Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import {
 	Select,
 	SelectContent,
@@ -20,6 +22,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import type { RagMatch } from '../../../../../../main/rag';
+import type { RagConfiguration } from '../../../../../../shared/rag_types';
 import type { DatabaseConfiguration } from '../../../../../../shared/database_types';
 import type { CatalogService } from '../../../../../../shared/provider_types';
 import { ProviderAvatar } from '@/components/provider-avatar';
@@ -32,6 +35,7 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
+	SettingsRow,
 	SettingsSection,
 } from '../../components';
 import { ModelProviderConfiguration } from '../../components/model-configuration';
@@ -60,7 +64,8 @@ const RagPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [indexing, setIndexing] = useState(false);
 	const [indexed, setIndexed] = useState<{ files: number; vectors: number } | null>(null);
-	const [sourceFolder, setSourceFolder] = useState<string | null>(null);
+	const [ragConfiguration, setRagConfiguration] = useState<RagConfiguration | null>(null);
+	const [savingRagConfiguration, setSavingRagConfiguration] = useState(false);
 	const [query, setQuery] = useState('');
 	const [searching, setSearching] = useState(false);
 	const [matches, setMatches] = useState<RagMatch[] | null>(null);
@@ -86,6 +91,21 @@ const RagPage: React.FC = () => {
 			},
 			(err) => {
 				if (!cancelled) setError(getErrorMessage(err, t('settings.vectorDb.errors.load')));
+			}
+		);
+		return () => {
+			cancelled = true;
+		};
+	}, [t]);
+
+	useEffect(() => {
+		let cancelled = false;
+		void window.agent.ragGetConfiguration().then(
+			(configuration) => {
+				if (!cancelled) setRagConfiguration(configuration);
+			},
+			(err) => {
+				if (!cancelled) setError(getErrorMessage(err, t('settings.rag.loadError')));
 			}
 		);
 		return () => {
@@ -126,12 +146,12 @@ const RagPage: React.FC = () => {
 	}, [t]);
 
 	const handleIndex = async (): Promise<void> => {
-		if (!sourceFolder) return;
+		if (!ragConfiguration?.folders.length) return;
 		setIndexing(true);
 		setError(null);
 		setIndexed(null);
 		try {
-			setIndexed(await window.agent.ragIndex(sourceFolder));
+			setIndexed(await window.agent.ragIndex());
 		} catch (err) {
 			setError(
 				err instanceof Error && err.message.trim() ? err.message : t('settings.rag.indexError')
@@ -141,12 +161,27 @@ const RagPage: React.FC = () => {
 		}
 	};
 
+	const saveRagConfiguration = async (next: RagConfiguration): Promise<void> => {
+		setSavingRagConfiguration(true);
+		setError(null);
+		try {
+			setRagConfiguration(await window.agent.ragSaveConfiguration(next));
+		} catch (err) {
+			setError(getErrorMessage(err, t('settings.rag.saveError')));
+		} finally {
+			setSavingRagConfiguration(false);
+		}
+	};
+
 	const pickSourceFolder = async (): Promise<void> => {
 		setError(null);
 		try {
 			const selected = await window.agent.ragPickFolder();
-			if (selected) {
-				setSourceFolder(selected);
+			if (selected && ragConfiguration) {
+				await saveRagConfiguration({
+					...ragConfiguration,
+					folders: [...new Set([...ragConfiguration.folders, selected])],
+				});
 				setIndexed(null);
 			}
 		} catch (err) {
@@ -318,19 +353,35 @@ const RagPage: React.FC = () => {
 						<p className="text-[11px] leading-4 text-muted-foreground">
 							{t('settings.rag.documentsDescription')}
 						</p>
-						<Input
-							value={sourceFolder ?? ''}
-							readOnly
-							placeholder={t('settings.rag.sourcePlaceholder')}
-							aria-label={t('settings.rag.sourceFolder')}
-						/>
+						{ragConfiguration?.folders.length ? (
+							ragConfiguration.folders.map((folder) => (
+								<div key={folder} className="flex min-w-0 items-center gap-2 rounded-md border border-border px-2 py-1.5">
+									<p className="min-w-0 flex-1 truncate text-xs" title={folder}>{folder}</p>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-sm"
+										disabled={indexing || savingRagConfiguration}
+										aria-label={t('settings.rag.removeFolder')}
+										onClick={() => void saveRagConfiguration({
+											...ragConfiguration,
+											folders: ragConfiguration.folders.filter((entry) => entry !== folder),
+										})}
+									>
+										<Trash2 className="size-3" />
+									</Button>
+								</div>
+							))
+						) : (
+							<p className="text-[11px] leading-4 text-muted-foreground">{t('settings.rag.sourcePlaceholder')}</p>
+						)}
 
 						<div className="flex justify-end gap-2">
 							<Button
 								type="button"
 								size="sm"
 								variant="outline"
-								disabled={indexing}
+								disabled={indexing || savingRagConfiguration || !ragConfiguration}
 								onClick={() => void pickSourceFolder()}
 							>
 								<FolderOpen className="size-3" />
@@ -339,7 +390,7 @@ const RagPage: React.FC = () => {
 							<Button
 								type="button"
 								size="sm"
-								disabled={indexing || !sourceFolder}
+								disabled={indexing || savingRagConfiguration || !ragConfiguration?.folders.length}
 								onClick={() => void handleIndex()}
 							>
 								{indexing ? (
@@ -356,6 +407,36 @@ const RagPage: React.FC = () => {
 								{t('settings.rag.indexResult', indexed)}
 							</p>
 						)}
+					</div>
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.rag.scheduleTitle')}>
+				<SettingsPanel>
+					<div className="grid gap-3 px-3 py-3">
+						<SettingsRow
+							title={t('settings.rag.scheduleEnabled')}
+							description={t('settings.rag.scheduleDescription')}
+							actions={
+								<Switch
+									checked={ragConfiguration?.scheduleEnabled ?? false}
+									disabled={!ragConfiguration || savingRagConfiguration}
+									onCheckedChange={(scheduleEnabled) =>
+										ragConfiguration && void saveRagConfiguration({ ...ragConfiguration, scheduleEnabled })
+									}
+								/>
+							}
+						/>
+						<Input
+							value={ragConfiguration?.cronExpression ?? ''}
+							disabled={!ragConfiguration || savingRagConfiguration}
+							placeholder={t('settings.rag.cronPlaceholder')}
+							aria-label={t('settings.rag.cronExpression')}
+							onChange={(event) =>
+								ragConfiguration && setRagConfiguration({ ...ragConfiguration, cronExpression: event.target.value })
+							}
+							onBlur={() => ragConfiguration && void saveRagConfiguration(ragConfiguration)}
+						/>
 					</div>
 				</SettingsPanel>
 			</SettingsSection>
