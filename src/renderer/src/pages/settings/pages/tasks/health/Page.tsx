@@ -24,6 +24,7 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../../components';
+import { ModelProviderConfiguration } from '../../../components/model-configuration';
 
 function llmModelGroups(): ProviderModelGroup[] {
 	return providerIdsFor('llm').flatMap((providerId) => {
@@ -102,10 +103,7 @@ const HealthPage: React.FC = () => {
 		}
 	};
 
-	const selectedGroup = llmModelGroups().find(
-		(group) => group.provider.id === settings?.providerId
-	);
-	const selectedModel = selectedGroup?.models.find((model) => model.id === settings?.modelId);
+	const modelGroups = llmModelGroups();
 
 	const targetOptions =
 		settings && settings.target !== 'none' && settings.target !== 'last'
@@ -134,84 +132,23 @@ const HealthPage: React.FC = () => {
 						description={t('settings.health.settingsDescription')}
 					>
 						<div className="grid gap-3">
+							<ModelProviderConfiguration
+								configState={{
+									providers: modelGroups.map((group) => group.provider),
+									modelGroups,
+									providerId: settings.providerId,
+									modelId: settings.modelId,
+									loading: false,
+									loadingModels: false,
+									saving,
+									saved,
+									error: null,
+								}}
+								idPrefix="health"
+								description={t('settings.modelServices.modelDescription')}
+								onChange={(providerId, modelId) => updateAndSave({ providerId, modelId })}
+							/>
 							<SettingsPanel>
-								<Item
-									variant="outline"
-									size="md"
-									className="border-b border-border/60 last:border-b-0"
-								>
-									<ItemContent className="min-w-0 flex-1">
-										<ItemTitle className="max-w-full truncate">
-											{t('settings.modelServices.provider')}
-										</ItemTitle>
-									</ItemContent>
-									<ItemActions className="ml-auto flex-none justify-end">
-										<Select
-											value={settings.providerId || null}
-											onValueChange={(value) =>
-												updateAndSave({
-													providerId: value ?? '',
-													modelId:
-														llmModelGroups().find((group) => group.provider.id === value)
-															?.models[0]?.id ?? '',
-												})
-											}
-											disabled={saving}
-										>
-											<SelectTrigger id="health-provider" className="h-7 w-44 text-xs">
-												<SelectValue
-													placeholder={t('settings.modelServices.providerPlaceholder')}
-												>
-													{selectedGroup?.provider.name ?? settings.providerId}
-												</SelectValue>
-											</SelectTrigger>
-											<SelectContent>
-												{llmModelGroups().map((group) => (
-													<SelectItem key={group.provider.id} value={group.provider.id}>
-														{group.provider.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</ItemActions>
-								</Item>
-
-								<Item
-									variant="outline"
-									size="md"
-									className="border-b border-border/60 last:border-b-0"
-								>
-									<ItemContent className="min-w-0 flex-1">
-										<ItemTitle className="max-w-full truncate">
-											{t('settings.modelServices.model')}
-										</ItemTitle>
-									</ItemContent>
-									<ItemActions className="ml-auto flex-none justify-end">
-										<Select
-											value={settings.modelId || null}
-											onValueChange={(value) => updateAndSave({ modelId: value ?? '' })}
-											disabled={saving || !settings.providerId}
-										>
-											<SelectTrigger id="health-model" className="h-7 w-44 text-xs">
-												<SelectValue
-													placeholder={t('settings.modelServices.modelPlaceholder')}
-												>
-													{selectedModel
-														? selectedModel.name || selectedModel.id
-														: settings.modelId}
-												</SelectValue>
-											</SelectTrigger>
-											<SelectContent>
-												{(selectedGroup?.models ?? []).map((model) => (
-													<SelectItem key={model.id} value={model.id}>
-														{model.name ?? model.id}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</ItemActions>
-								</Item>
-
 								<Item
 									variant="outline"
 									size="md"
