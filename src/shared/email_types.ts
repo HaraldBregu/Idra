@@ -1,8 +1,16 @@
 export interface EmailSettings {
 	configured: boolean;
+	providers: SmtpProviderSummary[];
+	selectedProviderId?: string;
 }
 
-export interface SmtpSettingsInput {
+export interface SmtpProviderSummary {
+	id: string;
+	name: string;
+}
+
+export interface SmtpProviderInput {
+	name: string;
 	host: string;
 	port: number;
 	secure: boolean;
@@ -11,7 +19,8 @@ export interface SmtpSettingsInput {
 	from: string;
 }
 
-export interface SmtpSettings extends SmtpSettingsInput {
+export interface SmtpProvider extends SmtpProviderInput {
+	id: string;
 }
 
 export interface EmailRequest {

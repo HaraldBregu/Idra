@@ -1,10 +1,11 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
-import type { SmtpSettings } from '../../shared/email_types';
+import type { SmtpProvider } from '../../shared/email_types';
 
 interface SmtpStoreState {
-	providers: SmtpSettings[];
+	providers: SmtpProvider[];
+	selectedProviderId?: string;
 }
 
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
@@ -19,10 +20,24 @@ const store = new Store<SmtpStoreState>({
 
 export const smtpStorePath = store.path;
 
-export function getSmtpSettings(): SmtpSettings | undefined {
-	return store.get('providers')[0];
+export function getSmtpSettings(): SmtpProvider | undefined {
+	const providers = store.get('providers');
+	const selectedProviderId = store.get('selectedProviderId');
+	return providers.find((provider) => provider.id === selectedProviderId) ?? providers[0];
 }
 
-export function saveSmtpSettings(settings: SmtpSettings): void {
-	store.set('providers', [settings]);
+export function getSmtpProviders(): SmtpProvider[] {
+	return store.get('providers');
+}
+
+export function saveSmtpProvider(provider: SmtpProvider): void {
+	store.set('providers', [...getSmtpProviders(), provider]);
+	store.set('selectedProviderId', provider.id);
+}
+
+export function selectSmtpProvider(providerId: string): void {
+	if (!getSmtpProviders().some((provider) => provider.id === providerId)) {
+		throw new Error('Unknown SMTP provider.');
+	}
+	store.set('selectedProviderId', providerId);
 }
