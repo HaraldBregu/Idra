@@ -10,6 +10,7 @@ import { sendEmail } from '../../../../src/main/smtp/email_send';
 const smtp = {
 	id: 'smtp-1',
 	name: 'Primary SMTP',
+	default: true,
 	host: 'smtp.example.com',
 	port: 587,
 	secure: false,

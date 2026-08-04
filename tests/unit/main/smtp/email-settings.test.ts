@@ -14,6 +14,7 @@ import { saveEmailProvider } from '../../../../src/main/smtp/email_save_provider
 
 const smtp = {
 	name: 'Primary SMTP',
+	default: true,
 	host: 'smtp.example.com',
 	port: 465,
 	secure: true,
@@ -31,7 +32,6 @@ describe('SMTP settings', () => {
 		expect(saveEmailProvider(smtp)).toEqual({
 			configured: true,
 			providers: [],
-			selectedProviderId: undefined,
 		});
 		expect(saveSmtpProvider).toHaveBeenCalledWith(expect.objectContaining(smtp));
 	});

@@ -81,6 +81,7 @@ describe('providers in app settings', () => {
 		const smtp: SmtpProvider = {
 			id: 'smtp-1',
 			name: 'Primary SMTP',
+			default: true,
 			host: 'smtp.example.com',
 			port: 587,
 			secure: false,
@@ -93,18 +94,18 @@ describe('providers in app settings', () => {
 		expect(getSmtpSettings()).toEqual(smtp);
 	});
 
-	it('stores multiple SMTP providers and selects the most recently added one', () => {
+	it('stores multiple SMTP providers and marks the most recently added one as default', () => {
 		const first: SmtpProvider = {
-			id: 'smtp-1', name: 'Primary SMTP', host: 'smtp.one.example.com', port: 587, secure: false,
+			id: 'smtp-1', name: 'Primary SMTP', default: true, host: 'smtp.one.example.com', port: 587, secure: false,
 			username: 'friday', password: 'secret', from: 'Friday <friday@example.com>',
 		};
 		const second: SmtpProvider = {
-			...first, id: 'smtp-2', name: 'Backup SMTP', host: 'smtp.two.example.com',
+			...first, id: 'smtp-2', name: 'Backup SMTP', default: true, host: 'smtp.two.example.com',
 		};
 		saveSmtpProvider(first);
 		saveSmtpProvider(second);
 
-		expect(getSmtpProviders().slice(-2)).toEqual([first, second]);
+		expect(getSmtpProviders().slice(-2)).toEqual([{ ...first, default: false }, second]);
 		expect(getSmtpSettings()).toEqual(second);
 	});
 

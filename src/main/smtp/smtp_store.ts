@@ -29,7 +29,10 @@ export function getSmtpProviders(): SmtpProvider[] {
 }
 
 export function saveSmtpProvider(provider: SmtpProvider): void {
-	store.set('providers', [...getSmtpProviders().map((entry) => ({ ...entry, default: false })), provider]);
+	store.set('providers', [
+		...getSmtpProviders().map((entry) => ({ ...entry, default: false })),
+		{ ...provider, default: true },
+	]);
 }
 
 export function updateSmtpProvider(provider: SmtpProvider): void {
