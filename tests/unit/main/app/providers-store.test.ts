@@ -40,12 +40,10 @@ import {
 	setSelectedStorageId,
 	setTaskConfiguration,
 } from '../../../../src/main/app/settings_store';
+import type { SmtpSettings } from '../../../../src/shared/email_types';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';
-import {
-	getEmailProviders,
-	setEmailProviders,
-} from '../../../../src/main/smtp/email_store';
+import { getSmtpSettings, saveSmtpSettings } from '../../../../src/main/smtp/email_store';
 
 function provider(id: string, name: string): StoredProvider {
 	return { id, name, apiKey: 'k', baseUrl: 'https://api' };
@@ -79,10 +77,18 @@ describe('providers in app settings', () => {
 		expect(getDatabaseConfiguration().providers).toEqual([provider('pinecone', 'Pinecone')]);
 	});
 
-	it('stores email providers in the email configuration', () => {
-		setEmailProviders([provider('resend', 'Resend')]);
+	it('stores SMTP settings in the email configuration', () => {
+		const smtp: SmtpSettings = {
+			host: 'smtp.example.com',
+			port: 587,
+			secure: false,
+			username: 'friday',
+			password: 'secret',
+			from: 'Friday <friday@example.com>',
+		};
+		saveSmtpSettings(smtp);
 
-		expect(getEmailProviders()).toEqual([provider('resend', 'Resend')]);
+		expect(getSmtpSettings()).toEqual(smtp);
 	});
 
 	it('updates in place instead of appending a duplicate', () => {
