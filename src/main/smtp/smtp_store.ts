@@ -5,7 +5,6 @@ import type { SmtpProvider } from '../../shared/email_types';
 
 interface SmtpStoreState {
 	providers: SmtpProvider[];
-	selectedProviderId?: string;
 }
 
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
@@ -22,8 +21,7 @@ export const smtpStorePath = store.path;
 
 export function getSmtpSettings(): SmtpProvider | undefined {
 	const providers = store.get('providers');
-	const selectedProviderId = store.get('selectedProviderId');
-	return providers.find((provider) => provider.id === selectedProviderId) ?? providers[0];
+	return providers.find((provider) => provider.default) ?? providers[0];
 }
 
 export function getSmtpProviders(): SmtpProvider[] {
@@ -31,8 +29,7 @@ export function getSmtpProviders(): SmtpProvider[] {
 }
 
 export function saveSmtpProvider(provider: SmtpProvider): void {
-	store.set('providers', [...getSmtpProviders(), provider]);
-	store.set('selectedProviderId', provider.id);
+	store.set('providers', [...getSmtpProviders().map((entry) => ({ ...entry, default: false })), provider]);
 }
 
 export function updateSmtpProvider(provider: SmtpProvider): void {
@@ -45,5 +42,8 @@ export function selectSmtpProvider(providerId: string): void {
 	if (!getSmtpProviders().some((provider) => provider.id === providerId)) {
 		throw new Error('Unknown SMTP provider.');
 	}
-	store.set('selectedProviderId', providerId);
+	store.set('providers', getSmtpProviders().map((provider) => ({
+		...provider,
+		default: provider.id === providerId,
+	})));
 }

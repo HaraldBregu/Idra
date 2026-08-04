@@ -5,7 +5,7 @@ export function getEmailSettings(): EmailSettings {
 	const selected = getSmtpSettings();
 	return {
 		configured: Boolean(selected),
-		providers: getSmtpProviders().map(({ id, name, host, port, secure, username, from }) => ({
+		providers: getSmtpProviders().map(({ id, name, host, port, secure, username, from, default: isDefault }) => ({
 			id,
 			name,
 			host,
@@ -13,7 +13,7 @@ export function getEmailSettings(): EmailSettings {
 			secure,
 			username,
 			from,
+			default: isDefault,
 		})),
-		selectedProviderId: selected?.id,
 	};
 }

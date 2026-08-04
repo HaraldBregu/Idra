@@ -16,14 +16,12 @@ import { SmtpServerForm } from './components/SmtpServerForm';
 const EmailPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [providers, setProviders] = useState<SmtpProviderSummary[]>([]);
-	const [selectedProviderId, setSelectedProviderId] = useState<string>();
 	const [loading, setLoading] = useState(true);
 	const [adding, setAdding] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	const applySettings = (settings: Awaited<ReturnType<typeof window.email.getSettings>>): void => {
 		setProviders(settings.providers);
-		setSelectedProviderId(settings.selectedProviderId);
 	};
 
 	useEffect(() => {
@@ -71,7 +69,7 @@ const EmailPage: React.FC = () => {
 					<div className="px-0.5 text-[13px] text-muted-foreground">No SMTP servers configured.</div>
 				) : (
 					<div className="grid gap-2">
-						{providers.map((provider) => <SmtpServerCard key={provider.id} provider={provider} active={provider.id === selectedProviderId} onActivate={() => selectProvider(provider.id)} onSave={(input) => saveProvider(input, provider.id)} />)}
+						{providers.map((provider) => <SmtpServerCard key={provider.id} provider={provider} active={provider.default} onActivate={() => selectProvider(provider.id)} onSave={(input) => saveProvider(input, provider.id)} />)}
 					</div>
 				)}
 			</SettingsSection>

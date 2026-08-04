@@ -35,6 +35,7 @@ export function saveEmailProvider(input: SmtpProviderInput, providerId?: string)
 		username,
 		password,
 		from,
+		default: existing?.default ?? true,
 	};
 	if (existing) updateSmtpProvider(provider);
 	else saveSmtpProvider(provider);
