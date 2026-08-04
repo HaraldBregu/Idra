@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ApplicationPage from '../../../src/renderer/src/pages/settings/pages/application/Page';
+import SearchPage from '../../../src/renderer/src/pages/settings/pages/search/Page';
 
 jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
@@ -63,10 +63,11 @@ beforeEach(() => {
 	});
 });
 
-it('selects the default search provider from Application settings', async () => {
+it('selects the default search provider from search settings', async () => {
 	const user = userEvent.setup();
-	render(<ApplicationPage />);
+	render(<SearchPage />);
 
+	await user.click(await screen.findByRole('button', { name: /Brave/ }));
 	const selector = await screen.findByRole('combobox', { name: 'Default search engine' });
 	await user.click(selector);
 	await user.click(await screen.findByRole('option', { name: 'Tavily' }));
