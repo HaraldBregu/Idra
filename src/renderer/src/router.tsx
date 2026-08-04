@@ -31,6 +31,7 @@ const StartPage = lazy(() => import('./pages/start/StartPage'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
 const ApplicationPage = lazy(() => import('./pages/settings/pages/application/Page'));
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
+const SearchPage = lazy(() => import('./pages/settings/pages/search/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const SystemMediaDetailPage = lazy(() => import('./pages/settings/pages/system/detail/Page'));
@@ -188,6 +189,14 @@ const routes: RouteObject[] = [
 						element: (
 							<SettingsRouteWrapper>
 								<TasksPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
+						path: 'search',
+						element: (
+							<SettingsRouteWrapper>
+								<SearchPage />
 							</SettingsRouteWrapper>
 						),
 					},

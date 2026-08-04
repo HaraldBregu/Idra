@@ -190,11 +190,11 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/providers/search')}
+					onClick={() => navigate('/settings/search')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
 							event.preventDefault();
-							navigate('/settings/providers/search');
+							navigate('/settings/search');
 						}
 					}}
 				>
