@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, LoaderCircle, Plus } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { loadModels } from '@/lib/providers';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import {
-	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
@@ -110,39 +107,6 @@ function SettingsOverviewCard({
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
 	const disabledOverviewPaths = new Set<string>([]);
-	const [uploadingProvider, setUploadingProvider] = useState(false);
-	const [providerError, setProviderError] = useState<string | null>(null);
-
-	const handleUploadProvider = async (): Promise<void> => {
-		setUploadingProvider(true);
-		setProviderError(null);
-		try {
-			const uploaded = await window.app.uploadProvider();
-			if (uploaded) await loadModels();
-		} catch {
-			setProviderError('Could not upload provider.');
-		} finally {
-			setUploadingProvider(false);
-		}
-	};
-
-	const providersAction = (
-		<Button
-			type="button"
-			variant="outline"
-			size="icon-xs"
-			aria-label="Upload provider"
-			title="Upload provider"
-			disabled={uploadingProvider}
-			onClick={() => void handleUploadProvider()}
-		>
-			{uploadingProvider ? (
-				<LoaderCircle className="size-3.5 animate-spin" />
-			) : (
-				<Plus className="size-3.5" />
-			)}
-		</Button>
-	);
 
 	return (
 		<SettingsPageShell>
@@ -173,13 +137,7 @@ const OverviewPage: React.FC = () => {
 										{t('settings.overview.descriptions.providers')}
 									</p>
 								</ItemContent>
-								<ItemActions className="justify-end">{providersAction}</ItemActions>
 							</Item>
-							{providerError && (
-								<SettingsNotice variant="destructive" icon={AlertTriangle}>
-									{providerError}
-								</SettingsNotice>
-							)}
 							{panel}
 						</section>
 					);
