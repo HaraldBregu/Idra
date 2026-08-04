@@ -1,20 +1,15 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import cron from 'node-cron';
-import type {
-	CatalogService,
-	ResolvedProvider,
-	StoredProvider,
-	StoredProviderKind,
-} from '../../shared/provider_types';
+import type { ResolvedProvider, StoredProvider, StoredProviderKind } from '../../shared/provider_types';
 import type { StorageConfig, StorageConfiguration } from '../../shared/storage_types';
-import type { DatabaseConfiguration } from '../../shared/database_types';
 import { userDataLocation } from '../shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
-import { loadDatabases, loadStorages } from './models';
+import { loadStorages } from './models';
 import { getModelProviders, setModelProviders } from './models/models_store';
 import type { PersistedTaskState } from './tasks/tasks_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
+import { getDatabaseConfiguration, saveDatabaseConfiguration } from '../database/store';
 
 type StoredStorage = Omit<StorageConfig, 'forcePathStyle'> & {
 	/** API base of the catalog storage entry this config belongs to. */
@@ -48,12 +43,6 @@ const DEFAULT_STORAGE_SETTINGS: StorageSettingsState = {
 	providers: [],
 };
 
-const DEFAULT_DATABASE_CONFIGURATION: DatabaseConfiguration = {
-	providerId: undefined,
-	databaseId: undefined,
-	providers: [],
-};
-
 const DEFAULT_TASK_CONFIGURATION: PersistedTaskState = { schedules: [] };
 
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
@@ -84,14 +73,6 @@ const storageConfigurationStore = new Store<StorageSettingsState>({
 });
 
 
-const databaseConfigurationStore = new Store<DatabaseConfiguration>({
-	name: 'database',
-	cwd: settingsDirectory,
-	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_DATABASE_CONFIGURATION,
-});
-
-
 const taskConfigurationStore = new Store<PersistedTaskState>({
 	name: 'tasks',
 	cwd: settingsDirectory,
@@ -101,7 +82,6 @@ const taskConfigurationStore = new Store<PersistedTaskState>({
 
 
 export const storageConfigurationStorePath = storageConfigurationStore.path;
-export const databaseConfigurationStorePath = databaseConfigurationStore.path;
 export const taskConfigurationStorePath = taskConfigurationStore.path;
 
 export function getTrayEnabled(): boolean {
@@ -205,17 +185,6 @@ export function getResolvedProvider(providerId: string | undefined): ResolvedPro
 		apiKey: provider.apiKey,
 		baseURL: provider.baseUrl,
 	};
-}
-
-function isStoredProvider(value: unknown): value is StoredProvider {
-	if (typeof value !== 'object' || value === null) return false;
-	const provider = value as Partial<StoredProvider>;
-	return (
-		typeof provider.id === 'string' &&
-		typeof provider.name === 'string' &&
-		typeof provider.apiKey === 'string' &&
-		typeof provider.baseUrl === 'string'
-	);
 }
 
 function removeModelProvidersFromApplication(): void {
@@ -330,45 +299,6 @@ export function saveStorageConfiguration(
 function getStoredStorages(): StoredStorage[] {
 	const providers = storageConfigurationStore.get('providers');
 	return Array.isArray(providers) ? providers : [];
-}
-
-export function getDatabaseConfiguration(): DatabaseConfiguration {
-	const configuration = {
-		...DEFAULT_DATABASE_CONFIGURATION,
-		...databaseConfigurationStore.store,
-		providers: Array.isArray(databaseConfigurationStore.store.providers)
-			? databaseConfigurationStore.store.providers.filter(isStoredProvider)
-			: [],
-	};
-	if (configuration.databaseId && !findDatabase(configuration)) {
-		configuration.providerId = undefined;
-		configuration.databaseId = undefined;
-	}
-	return configuration;
-}
-
-export function saveDatabaseConfiguration(
-	configuration: DatabaseConfiguration
-): DatabaseConfiguration {
-	if (configuration.databaseId && !findDatabase(configuration)) {
-		throw new Error(`Database not found: ${configuration.databaseId}`);
-	}
-	const saved: DatabaseConfiguration = {
-		providerId: configuration.providerId,
-		databaseId: configuration.databaseId,
-		providers: Array.isArray(configuration.providers)
-			? configuration.providers.filter(isStoredProvider)
-			: [],
-	};
-	databaseConfigurationStore.store = saved;
-	return saved;
-}
-
-function findDatabase(configuration: DatabaseConfiguration): CatalogService | undefined {
-	return loadDatabases().find(
-		(entry) =>
-			entry.id === configuration.databaseId && entry.provider.id === configuration.providerId
-	);
 }
 
 export function getTaskConfiguration(): PersistedTaskState {

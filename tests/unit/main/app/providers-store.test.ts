@@ -24,7 +24,6 @@ jest.mock('../../../../src/main/app/models', () => ({
 }));
 
 import {
-	getDatabaseConfiguration,
 	getTaskConfiguration,
 	listProviders,
 	getProvider,
@@ -40,6 +39,7 @@ import {
 	setSelectedStorageId,
 	setTaskConfiguration,
 } from '../../../../src/main/app/settings_store';
+import { getDatabaseConfiguration } from '../../../../src/main/database/store';
 import type { SmtpProvider } from '../../../../src/shared/email_types';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';
