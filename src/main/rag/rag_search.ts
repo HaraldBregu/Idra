@@ -18,6 +18,7 @@ export async function searchRag(query: string, topK = 5): Promise<RagMatch[]> {
 		inputType: 'query',
 		providerId: manifest.providerId,
 		modelId: manifest.modelId,
+		requireRemote: true,
 	});
 	const result = await ragClient()
 		.index(RAG_INDEX_NAME)

@@ -44,7 +44,11 @@ export async function indexRag(folders: readonly string[]): Promise<RagIndexResu
 		if (chunks.length > 0) indexedFiles += 1;
 		for (let start = 0; start < chunks.length; start += BATCH_SIZE) {
 			const batch = chunks.slice(start, start + BATCH_SIZE);
-			const embedded = await createEmbedding({ texts: batch, inputType: 'document' });
+			const embedded = await createEmbedding({
+				texts: batch,
+				inputType: 'document',
+				requireRemote: true,
+			});
 			if (!index) {
 				index = await ensureIndex(pinecone, embedded.dimensions);
 				writeRagManifest({

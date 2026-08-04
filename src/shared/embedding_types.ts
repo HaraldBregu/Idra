@@ -3,6 +3,7 @@ export interface EmbeddingRequest {
 	inputType?: 'document' | 'query';
 	providerId?: string;
 	modelId?: string;
+	requireRemote?: boolean;
 }
 
 export interface EmbeddingResult {

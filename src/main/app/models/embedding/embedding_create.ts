@@ -13,6 +13,9 @@ export async function createEmbedding(request: EmbeddingRequest): Promise<Embedd
 		request.providerId ?? getProviderId('embedding') ?? defaultProviderId('embedding') ?? ''
 	);
 	const provider = EMBEDDING_PROVIDERS[providerId];
+	if (request.requireRemote && provider.local) {
+		throw new Error('A remote embedding provider is required.');
+	}
 	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('embedding'));
 	const apiKey = getProvider(providerId)?.apiKey.trim() ?? '';
 	if (!apiKey && !provider.local) {

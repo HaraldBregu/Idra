@@ -26,7 +26,6 @@ import type { RagConfiguration } from '../../../../../../shared/rag_types';
 import type { DatabaseConfiguration } from '../../../../../../shared/database_types';
 import type { CatalogService } from '../../../../../../shared/provider_types';
 import { ProviderAvatar } from '@/components/provider-avatar';
-import { defaultProviderId, providerIdsFor, providerModels, providers } from '@/lib/providers';
 import { getErrorMessage } from '../../../start/constants';
 import {
 	SettingsLoadingRows,
@@ -38,8 +37,6 @@ import {
 	SettingsRow,
 	SettingsSection,
 } from '../../components';
-import { ModelProviderConfiguration } from '../../components/model-configuration';
-import type { ProviderModelGroup } from '../../../start/types';
 
 const VALUE_SEPARATOR = '\u001F';
 
@@ -49,14 +46,6 @@ function databaseKey(entry: CatalogService): string {
 
 function databaseLabel(entry: CatalogService): string {
 	return `${entry.provider.name} / ${entry.name || entry.id}`;
-}
-
-function embeddingModelGroups(): ProviderModelGroup[] {
-	return providerIdsFor('embedding').flatMap((providerId) => {
-		const provider = providers().find((item) => item.id === providerId);
-		const models = providerModels(providerId, 'embedding');
-		return provider && models.length > 0 ? [{ provider, models }] : [];
-	});
 }
 
 const RagPage: React.FC = () => {
@@ -75,11 +64,6 @@ const RagPage: React.FC = () => {
 		databaseId: undefined,
 		providers: [],
 	});
-	const [embeddingProviderId, setEmbeddingProviderId] = useState('');
-	const [embeddingModelId, setEmbeddingModelId] = useState('');
-	const [embeddingLoading, setEmbeddingLoading] = useState(true);
-	const [embeddingSaving, setEmbeddingSaving] = useState(false);
-	const [embeddingSaved, setEmbeddingSaved] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -108,40 +92,6 @@ const RagPage: React.FC = () => {
 				if (!cancelled) setError(getErrorMessage(err, t('settings.rag.loadError')));
 			}
 		);
-		return () => {
-			cancelled = true;
-		};
-	}, [t]);
-
-	useEffect(() => {
-		let cancelled = false;
-		void Promise.all([
-			window.models.embedding.getProviderId(),
-			window.models.embedding.getModelId(),
-		])
-			.then(
-				([storedProviderId, storedModelId]) => {
-					if (cancelled) return;
-					const groups = embeddingModelGroups();
-					const providerId =
-						storedProviderId && groups.some((group) => group.provider.id === storedProviderId)
-							? storedProviderId
-							: (defaultProviderId('embedding') ?? '');
-					const models = groups.find((group) => group.provider.id === providerId)?.models ?? [];
-					setEmbeddingProviderId(providerId);
-					setEmbeddingModelId(
-						storedModelId && models.some((model) => model.id === storedModelId)
-							? storedModelId
-							: (models[0]?.id ?? '')
-					);
-				},
-				(err) => {
-					if (!cancelled) setError(getErrorMessage(err, t('settings.modelServices.loadError')));
-				}
-			)
-			.finally(() => {
-				if (!cancelled) setEmbeddingLoading(false);
-			});
 		return () => {
 			cancelled = true;
 		};
@@ -226,28 +176,6 @@ const RagPage: React.FC = () => {
 		}
 	};
 
-	const selectEmbeddingModel = async (
-		nextProviderId: string,
-		nextModelId: string
-	): Promise<void> => {
-		setEmbeddingProviderId(nextProviderId);
-		setEmbeddingModelId(nextModelId);
-		setEmbeddingSaving(true);
-		setEmbeddingSaved(false);
-		setError(null);
-		try {
-			await window.models.embedding.setProviderId(nextProviderId);
-			await window.models.embedding.setModelId(nextModelId);
-			setEmbeddingSaved(true);
-		} catch (err) {
-			setError(getErrorMessage(err, t('settings.modelServices.saveError')));
-		} finally {
-			setEmbeddingSaving(false);
-		}
-	};
-
-	const embeddingGroups = embeddingModelGroups();
-
 	const selectedDatabase = databases?.find(
 		(entry) =>
 			entry.id === databaseConfiguration.databaseId &&
@@ -266,25 +194,6 @@ const RagPage: React.FC = () => {
 					{error}
 				</SettingsNotice>
 			)}
-
-			<SettingsSection title={t('settings.modelServices.embeddingName')}>
-				<ModelProviderConfiguration
-					configState={{
-						providers: embeddingGroups.map((group) => group.provider),
-						modelGroups: embeddingGroups,
-						providerId: embeddingProviderId,
-						modelId: embeddingModelId,
-						loading: embeddingLoading,
-						loadingModels: false,
-						saving: embeddingSaving,
-						saved: embeddingSaved,
-						error: null,
-					}}
-					idPrefix="rag-embedding"
-					description={t('settings.modelServices.modelDescription')}
-					onChange={(providerId, modelId) => void selectEmbeddingModel(providerId, modelId)}
-				/>
-			</SettingsSection>
 
 			<SettingsSection title={t('settings.vectorDb.defaultTitle')}>
 				{!databases ? (
