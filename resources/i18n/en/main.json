@@ -608,6 +608,18 @@
 				"saveFailed": "Failed to save health settings."
 			}
 		},
+		"email": {
+			"title": "Email",
+			"description": "Configure transactional email delivery for the assistant.",
+			"providers": "Providers",
+			"configuration": "Configuration",
+			"apiKey": "Resend API key",
+			"apiKeyPlaceholder": "re_...",
+			"save": "Save",
+			"loading": "Checking configuration…",
+			"configured": "Configured",
+			"notConfigured": "Not configured"
+		},
 		"cron": {
 			"description": "View, run, pause, and delete scheduled agent tasks.",
 			"columns": {

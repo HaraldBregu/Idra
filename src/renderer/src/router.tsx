@@ -202,14 +202,6 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'providers/email',
-						element: (
-							<SettingsRouteWrapper>
-								<EmailPage />
-							</SettingsRouteWrapper>
-						),
-					},
-					{
 						path: 'general',
 						element: (
 							<SettingsRouteWrapper>
@@ -300,6 +292,14 @@ const routes: RouteObject[] = [
 								element: (
 									<SettingsRouteWrapper>
 										<ProvidersPage section="search" />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'email',
+								element: (
+									<SettingsRouteWrapper>
+										<EmailPage />
 									</SettingsRouteWrapper>
 								),
 							},
