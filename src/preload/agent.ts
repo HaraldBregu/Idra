@@ -13,6 +13,7 @@ import type {
 import { normalizeAgentInputFiles } from '../shared/agent_files';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { RagIndexResult, RagMatch } from '../main/rag';
+import type { RagConfiguration } from '../shared/rag_types';
 import type {
 	DirectoryPermissions,
 	PermissionsSchema,
@@ -180,10 +181,14 @@ export const agent: AgentApi = {
 	healthSaveData: (content: string): Promise<string> => {
 		return typedInvokeUnwrap(AgentChannels.healthSaveData, content);
 	},
-	ragIndex: (sourceFolder: string): Promise<RagIndexResult> => {
-		const source = optionalTrimmedString(sourceFolder);
-		if (!source) throw new Error('Choose a source folder before indexing.');
-		return typedInvokeUnwrap(AgentChannels.ragIndex, source);
+	ragIndex: (): Promise<RagIndexResult> => {
+		return typedInvokeUnwrap(AgentChannels.ragIndex);
+	},
+	ragGetConfiguration: (): Promise<RagConfiguration> => {
+		return typedInvokeUnwrap(AgentChannels.ragGetConfiguration);
+	},
+	ragSaveConfiguration: (configuration: RagConfiguration): Promise<RagConfiguration> => {
+		return typedInvokeUnwrap(AgentChannels.ragSaveConfiguration, configuration);
 	},
 	ragSearch: (query: string, topK?: number): Promise<RagMatch[]> => {
 		const normalizedQuery = optionalTrimmedString(query);

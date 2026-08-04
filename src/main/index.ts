@@ -29,6 +29,7 @@ import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 import { sync as syncSkills } from './agent/skills';
 import { startStorageSync, stopStorageSync } from './app/storage';
+import { startRagSchedule, stopRagSchedule } from './rag';
 import { CHANNEL_PROVIDER_IDS } from '../shared';
 import { startWiki, stopWiki } from './wiki';
 
@@ -95,6 +96,7 @@ const {
 } = services;
 agentService.start(logger);
 startStorageSync(logger);
+startRagSchedule(logger);
 // Re-bind safety net with the real logger now that it exists.
 setupProcessSafetyNet(logger);
 setupMemoryMonitor(logger);
@@ -197,6 +199,7 @@ app.whenReady().then(async () => {
 
 app.on('quit', () => {
 	stopStorageSync();
+	stopRagSchedule();
 	stopWiki();
 	agentService.destroy();
 	cleanup(services);

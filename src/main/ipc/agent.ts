@@ -33,7 +33,16 @@ import {
 import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
 import type { HealthSettings } from '../agent/health/health_types';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/agent_store';
-import { indexRag, searchRag, type RagIndexResult, type RagMatch } from '../rag';
+import {
+	getRagConfiguration,
+	indexRag,
+	rescheduleRagIndexing,
+	saveRagConfiguration,
+	searchRag,
+	type RagIndexResult,
+	type RagMatch,
+} from '../rag';
+import type { RagConfiguration } from '../../shared/rag_types';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;
@@ -344,11 +353,21 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.ragIndex,
-			wrapSimpleHandler((sourceFolder: unknown): Promise<RagIndexResult> => {
-				const source = optionalTrimmedString(sourceFolder);
-				if (!source) throw new Error('Choose a source folder before indexing.');
-				return indexRag(source);
-			}, AgentChannels.ragIndex)
+			wrapSimpleHandler((): Promise<RagIndexResult> => indexRag(getRagConfiguration().folders), AgentChannels.ragIndex)
+		);
+
+		ipcMain.handle(
+			AgentChannels.ragGetConfiguration,
+			wrapSimpleHandler((): RagConfiguration => getRagConfiguration(), AgentChannels.ragGetConfiguration)
+		);
+
+		ipcMain.handle(
+			AgentChannels.ragSaveConfiguration,
+			wrapSimpleHandler((configuration: RagConfiguration): RagConfiguration => {
+				const saved = saveRagConfiguration(configuration);
+				rescheduleRagIndexing();
+				return saved;
+			}, AgentChannels.ragSaveConfiguration)
 		);
 
 		ipcMain.handle(

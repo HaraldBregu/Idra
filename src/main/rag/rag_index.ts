@@ -14,22 +14,30 @@ export interface RagIndexResult {
 	vectors: number;
 }
 
-export async function indexRag(root: string): Promise<RagIndexResult> {
-	const source = root.trim();
-	if (!source) throw new Error('Choose a source folder before indexing.');
-	if (!(await stat(source)).isDirectory()) throw new Error('The selected source is not a folder.');
+export async function indexRag(folders: readonly string[]): Promise<RagIndexResult> {
+	const sources = [...new Set(folders.map((folder) => folder.trim()).filter(Boolean))];
+	if (sources.length === 0) throw new Error('Choose at least one source folder before indexing.');
+	for (const source of sources) {
+		if (!(await stat(source)).isDirectory()) throw new Error(`The selected source is not a folder: ${source}`);
+	}
 
-	const files = (await readdir(source, { recursive: true })).filter((file) =>
-		MARKDOWN_EXTENSIONS.has(path.extname(file).toLowerCase())
-	);
-	if (files.length === 0) throw new Error(`No Markdown documents to index in ${source}.`);
+	const documents = (
+		await Promise.all(
+			sources.map(async (source, sourceIndex) =>
+				(await readdir(source, { recursive: true }))
+					.filter((file) => MARKDOWN_EXTENSIONS.has(path.extname(file).toLowerCase()))
+					.map((file) => ({ source, sourceIndex, file }))
+			)
+		)
+	).flat();
+	if (documents.length === 0) throw new Error('No Markdown documents found in the selected source folders.');
 
 	const pinecone = ragClient();
 	let index: ReturnType<Pinecone['index']> | undefined;
 	let vectors = 0;
 	let indexedFiles = 0;
 
-	for (const file of files) {
+	for (const { source, sourceIndex, file } of documents) {
 		const chunks = chunkText(await readFile(path.join(source, file), 'utf8'));
 		if (chunks.length > 0) indexedFiles += 1;
 		for (let start = 0; start < chunks.length; start += BATCH_SIZE) {
@@ -45,15 +53,15 @@ export async function indexRag(root: string): Promise<RagIndexResult> {
 			}
 			await index.upsert({
 				records: batch.map((text, offset) => ({
-					id: `${file}#${start + offset}`,
+					id: `${sourceIndex}:${file}#${start + offset}`,
 					values: embedded.embeddings[offset],
-					metadata: { path: file, text },
+					metadata: { path: path.join(path.basename(source), file), text },
 				})),
 			});
 			vectors += batch.length;
 		}
 	}
-	if (!index) throw new Error(`No indexable Markdown content found in ${source}.`);
+	if (!index) throw new Error('No indexable Markdown content found in the selected source folders.');
 	return { files: indexedFiles, vectors };
 }
 

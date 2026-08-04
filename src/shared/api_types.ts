@@ -23,6 +23,7 @@ import type { Extension } from './extension_types';
 import type { TaskRuntime, TaskSchedule } from '../main/app/tasks/tasks_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { RagIndexResult, RagMatch } from '../main/rag';
+import type { RagConfiguration } from './rag_types';
 import type {
 	DirectoryPermissions,
 	PermissionsSchema,
@@ -112,7 +113,9 @@ export interface AgentApi {
 	healthResetSettings: () => Promise<HealthSettings>;
 	healthGetData: () => Promise<string>;
 	healthSaveData: (content: string) => Promise<string>;
-	ragIndex: (sourceFolder: string) => Promise<RagIndexResult>;
+	ragIndex: () => Promise<RagIndexResult>;
+	ragGetConfiguration: () => Promise<RagConfiguration>;
+	ragSaveConfiguration: (configuration: RagConfiguration) => Promise<RagConfiguration>;
 	ragSearch: (query: string, topK?: number) => Promise<RagMatch[]>;
 	ragPickFolder: () => Promise<string | undefined>;
 }

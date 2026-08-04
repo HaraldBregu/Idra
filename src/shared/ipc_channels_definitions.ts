@@ -23,6 +23,8 @@ export const AgentChannels = {
 	healthData: 'agent:health:data',
 	healthSaveData: 'agent:health:data:save',
 	ragIndex: 'agent:rag:index',
+	ragGetConfiguration: 'agent:rag:configuration:get',
+	ragSaveConfiguration: 'agent:rag:configuration:save',
 	ragSearch: 'agent:rag:search',
 	ragPickFolder: 'agent:rag:folder:pick',
 } as const;
