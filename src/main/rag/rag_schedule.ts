@@ -35,7 +35,10 @@ function schedule(): void {
 		logger.error('RAG', `Invalid indexing schedule: ${configuration.cronExpression}`);
 		return;
 	}
-	logger.info('RAG', `Indexing ${configuration.folders.length} folder(s) on ${configuration.cronExpression}`);
+	logger.info(
+		'RAG',
+		`Indexing ${configuration.folders.length} folder(s) on ${configuration.cronExpression}`
+	);
 	task = cron.schedule(
 		configuration.cronExpression,
 		async () => {

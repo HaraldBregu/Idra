@@ -118,28 +118,30 @@ const RagPage: React.FC = () => {
 		void Promise.all([
 			window.models.embedding.getProviderId(),
 			window.models.embedding.getModelId(),
-		]).then(
-			([storedProviderId, storedModelId]) => {
-				if (cancelled) return;
-				const groups = embeddingModelGroups();
-				const providerId =
-					storedProviderId && groups.some((group) => group.provider.id === storedProviderId)
-						? storedProviderId
-						: (defaultProviderId('embedding') ?? '');
-				const models = groups.find((group) => group.provider.id === providerId)?.models ?? [];
-				setEmbeddingProviderId(providerId);
-				setEmbeddingModelId(
-					storedModelId && models.some((model) => model.id === storedModelId)
-						? storedModelId
-						: (models[0]?.id ?? '')
-				);
-			},
-			(err) => {
-				if (!cancelled) setError(getErrorMessage(err, t('settings.modelServices.loadError')));
-			}
-		).finally(() => {
-			if (!cancelled) setEmbeddingLoading(false);
-		});
+		])
+			.then(
+				([storedProviderId, storedModelId]) => {
+					if (cancelled) return;
+					const groups = embeddingModelGroups();
+					const providerId =
+						storedProviderId && groups.some((group) => group.provider.id === storedProviderId)
+							? storedProviderId
+							: (defaultProviderId('embedding') ?? '');
+					const models = groups.find((group) => group.provider.id === providerId)?.models ?? [];
+					setEmbeddingProviderId(providerId);
+					setEmbeddingModelId(
+						storedModelId && models.some((model) => model.id === storedModelId)
+							? storedModelId
+							: (models[0]?.id ?? '')
+					);
+				},
+				(err) => {
+					if (!cancelled) setError(getErrorMessage(err, t('settings.modelServices.loadError')));
+				}
+			)
+			.finally(() => {
+				if (!cancelled) setEmbeddingLoading(false);
+			});
 		return () => {
 			cancelled = true;
 		};
@@ -186,9 +188,7 @@ const RagPage: React.FC = () => {
 			}
 		} catch (err) {
 			setError(
-				err instanceof Error && err.message.trim()
-					? err.message
-					: t('settings.rag.pickFolderError')
+				err instanceof Error && err.message.trim() ? err.message : t('settings.rag.pickFolderError')
 			);
 		}
 	};
@@ -256,7 +256,10 @@ const RagPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={t('settings.tabs.rag')} description={t('settings.rag.description')} />
+			<SettingsPageHeader
+				title={t('settings.tabs.rag')}
+				description={t('settings.rag.description')}
+			/>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
@@ -311,7 +314,9 @@ const RagPage: React.FC = () => {
 										: t('settings.vectorDb.databasePlaceholder')}
 								</div>
 								<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-									{selectedDatabase?.name || selectedDatabase?.id || t('settings.vectorDb.databaseDescription')}
+									{selectedDatabase?.name ||
+										selectedDatabase?.id ||
+										t('settings.vectorDb.databaseDescription')}
 								</p>
 							</div>
 							<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
@@ -355,25 +360,34 @@ const RagPage: React.FC = () => {
 						</p>
 						{ragConfiguration?.folders.length ? (
 							ragConfiguration.folders.map((folder) => (
-								<div key={folder} className="flex min-w-0 items-center gap-2 rounded-md border border-border px-2 py-1.5">
-									<p className="min-w-0 flex-1 truncate text-xs" title={folder}>{folder}</p>
+								<div
+									key={folder}
+									className="flex min-w-0 items-center gap-2 rounded-md border border-border px-2 py-1.5"
+								>
+									<p className="min-w-0 flex-1 truncate text-xs" title={folder}>
+										{folder}
+									</p>
 									<Button
 										type="button"
 										variant="ghost"
 										size="icon-sm"
 										disabled={indexing || savingRagConfiguration}
 										aria-label={t('settings.rag.removeFolder')}
-										onClick={() => void saveRagConfiguration({
-											...ragConfiguration,
-											folders: ragConfiguration.folders.filter((entry) => entry !== folder),
-										})}
+										onClick={() =>
+											void saveRagConfiguration({
+												...ragConfiguration,
+												folders: ragConfiguration.folders.filter((entry) => entry !== folder),
+											})
+										}
 									>
 										<Trash2 className="size-3" />
 									</Button>
 								</div>
 							))
 						) : (
-							<p className="text-[11px] leading-4 text-muted-foreground">{t('settings.rag.sourcePlaceholder')}</p>
+							<p className="text-[11px] leading-4 text-muted-foreground">
+								{t('settings.rag.sourcePlaceholder')}
+							</p>
 						)}
 
 						<div className="flex justify-end gap-2">
@@ -422,7 +436,8 @@ const RagPage: React.FC = () => {
 									checked={ragConfiguration?.scheduleEnabled ?? false}
 									disabled={!ragConfiguration || savingRagConfiguration}
 									onCheckedChange={(scheduleEnabled) =>
-										ragConfiguration && void saveRagConfiguration({ ...ragConfiguration, scheduleEnabled })
+										ragConfiguration &&
+										void saveRagConfiguration({ ...ragConfiguration, scheduleEnabled })
 									}
 								/>
 							}
@@ -433,7 +448,8 @@ const RagPage: React.FC = () => {
 							placeholder={t('settings.rag.cronPlaceholder')}
 							aria-label={t('settings.rag.cronExpression')}
 							onChange={(event) =>
-								ragConfiguration && setRagConfiguration({ ...ragConfiguration, cronExpression: event.target.value })
+								ragConfiguration &&
+								setRagConfiguration({ ...ragConfiguration, cronExpression: event.target.value })
 							}
 							onBlur={() => ragConfiguration && void saveRagConfiguration(ragConfiguration)}
 						/>

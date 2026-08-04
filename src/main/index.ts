@@ -12,7 +12,12 @@ import {
 } from './app/settings_store';
 import type { AppLanguage } from '../shared/app_types';
 import { Menu } from './app/menu';
-import { ensureExtensions, listExtensions, loadExtension, watchExtensions } from './extensions/extension_index';
+import {
+	ensureExtensions,
+	listExtensions,
+	loadExtension,
+	watchExtensions,
+} from './extensions/extension_index';
 import { ShortcutManager } from './app/shortcuts';
 import { setupAppLifecycle } from './app/lifecycle';
 import {
@@ -21,10 +26,7 @@ import {
 	setupMediaPermissionHandlers,
 } from './app/protocol';
 import { registerIpcHandlers } from './ipc/core/register_ipc_handlers';
-import {
-	setupEventLogging,
-	setupProcessSafetyNet,
-} from './shared/error_reporter';
+import { setupEventLogging, setupProcessSafetyNet } from './shared/error_reporter';
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 import { sync as syncSkills } from './agent/skills';
@@ -86,14 +88,7 @@ try {
 
 // Bootstrap new architecture - FULL INTEGRATION ENABLED
 const services = bootstrapServices();
-const {
-	eventBus,
-	appState,
-	windowFactory,
-	logger,
-	windowContextManager,
-	agentService,
-} = services;
+const { eventBus, appState, windowFactory, logger, windowContextManager, agentService } = services;
 agentService.start(logger);
 startStorageSync(logger);
 startRagSchedule(logger);

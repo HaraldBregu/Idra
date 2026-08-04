@@ -18,7 +18,8 @@ export async function indexRag(folders: readonly string[]): Promise<RagIndexResu
 	const sources = [...new Set(folders.map((folder) => folder.trim()).filter(Boolean))];
 	if (sources.length === 0) throw new Error('Choose at least one source folder before indexing.');
 	for (const source of sources) {
-		if (!(await stat(source)).isDirectory()) throw new Error(`The selected source is not a folder: ${source}`);
+		if (!(await stat(source)).isDirectory())
+			throw new Error(`The selected source is not a folder: ${source}`);
 	}
 
 	const documents = (
@@ -30,7 +31,8 @@ export async function indexRag(folders: readonly string[]): Promise<RagIndexResu
 			)
 		)
 	).flat();
-	if (documents.length === 0) throw new Error('No Markdown documents found in the selected source folders.');
+	if (documents.length === 0)
+		throw new Error('No Markdown documents found in the selected source folders.');
 
 	const pinecone = ragClient();
 	let index: ReturnType<Pinecone['index']> | undefined;
@@ -61,7 +63,8 @@ export async function indexRag(folders: readonly string[]): Promise<RagIndexResu
 			vectors += batch.length;
 		}
 	}
-	if (!index) throw new Error('No indexable Markdown content found in the selected source folders.');
+	if (!index)
+		throw new Error('No indexable Markdown content found in the selected source folders.');
 	return { files: indexedFiles, vectors };
 }
 

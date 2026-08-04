@@ -353,12 +353,18 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.ragIndex,
-			wrapSimpleHandler((): Promise<RagIndexResult> => indexRag(getRagConfiguration().folders), AgentChannels.ragIndex)
+			wrapSimpleHandler(
+				(): Promise<RagIndexResult> => indexRag(getRagConfiguration().folders),
+				AgentChannels.ragIndex
+			)
 		);
 
 		ipcMain.handle(
 			AgentChannels.ragGetConfiguration,
-			wrapSimpleHandler((): RagConfiguration => getRagConfiguration(), AgentChannels.ragGetConfiguration)
+			wrapSimpleHandler(
+				(): RagConfiguration => getRagConfiguration(),
+				AgentChannels.ragGetConfiguration
+			)
 		);
 
 		ipcMain.handle(
