@@ -43,7 +43,7 @@ import {
 import type { SmtpProvider } from '../../../../src/shared/email_types';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';
-import { getSmtpSettings, saveSmtpProvider } from '../../../../src/main/smtp/smtp_store';
+import { getSmtpProviders, getSmtpSettings, saveSmtpProvider } from '../../../../src/main/smtp/smtp_store';
 
 function provider(id: string, name: string): StoredProvider {
 	return { id, name, apiKey: 'k', baseUrl: 'https://api' };
@@ -91,6 +91,21 @@ describe('providers in app settings', () => {
 		saveSmtpProvider(smtp);
 
 		expect(getSmtpSettings()).toEqual(smtp);
+	});
+
+	it('stores multiple SMTP providers and selects the most recently added one', () => {
+		const first: SmtpProvider = {
+			id: 'smtp-1', name: 'Primary SMTP', host: 'smtp.one.example.com', port: 587, secure: false,
+			username: 'friday', password: 'secret', from: 'Friday <friday@example.com>',
+		};
+		const second: SmtpProvider = {
+			...first, id: 'smtp-2', name: 'Backup SMTP', host: 'smtp.two.example.com',
+		};
+		saveSmtpProvider(first);
+		saveSmtpProvider(second);
+
+		expect(getSmtpProviders()).toEqual([first, second]);
+		expect(getSmtpSettings()).toEqual(second);
 	});
 
 	it('updates in place instead of appending a duplicate', () => {

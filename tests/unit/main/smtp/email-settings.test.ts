@@ -1,7 +1,12 @@
 const saveSmtpProvider = jest.fn();
 const getSmtpSettings = jest.fn();
+const getSmtpProviders = jest.fn(() => []);
 
-jest.mock('../../../../src/main/smtp/smtp_store', () => ({ saveSmtpProvider, getSmtpSettings }));
+jest.mock('../../../../src/main/smtp/smtp_store', () => ({
+	saveSmtpProvider,
+	getSmtpSettings,
+	getSmtpProviders,
+}));
 
 import { saveEmailProvider } from '../../../../src/main/smtp/email_save_provider';
 
