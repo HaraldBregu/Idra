@@ -45,7 +45,7 @@ import type { StorageConfig } from '../../../../src/shared/storage_types';
 import {
 	getEmailProviders,
 	setEmailProviders,
-} from '../../../../src/main/app/email/email_store';
+} from '../../../../src/main/smtp/email_store';
 
 function provider(id: string, name: string): StoredProvider {
 	return { id, name, apiKey: 'k', baseUrl: 'https://api' };

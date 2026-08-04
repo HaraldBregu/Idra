@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getEmailSettings, sendEmail } from '../../../app/email';
+import { getEmailSettings, sendEmail } from '../../../smtp';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
