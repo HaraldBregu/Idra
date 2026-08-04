@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
 import Store from 'electron-store';
 import cron from 'node-cron';
 import type {
@@ -65,21 +64,6 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 };
 
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
-const legacyAppSettingsDirectory = path.resolve(userDataLocation(), 'app');
-const applicationSettingsPath = path.join(settingsDirectory, 'application.json');
-const hasApplicationSettings = existsSync(applicationSettingsPath);
-const legacyAppSettings = readSettingsFile('settings.json');
-const legacyApplicationSettings = {
-	...legacyAppSettings,
-	...readSettingsFile('app.json'),
-	...readSettingsFile('application.json'),
-};
-const storageConfigurationPath = path.join(settingsDirectory, 'storages.json');
-const hasStorageConfiguration = existsSync(storageConfigurationPath);
-const databaseConfigurationPath = path.join(settingsDirectory, 'database.json');
-const hasDatabaseConfiguration = existsSync(databaseConfigurationPath);
-const taskConfigurationPath = path.join(settingsDirectory, 'tasks.json');
-const hasTaskConfiguration = existsSync(taskConfigurationPath);
 
 const store = new Store<AppSettingsState>({
 	name: APP_SETTINGS_STORE_NAME,
@@ -88,12 +72,6 @@ const store = new Store<AppSettingsState>({
 	defaults: DEFAULT_APP_SETTINGS,
 });
 
-if (!hasApplicationSettings) {
-	store.store = {
-		...DEFAULT_APP_SETTINGS,
-		...readLegacyAppConfiguration(),
-	};
-}
 removeModelProvidersFromApplication();
 
 export const appSettingsStorePath = store.path;
@@ -105,14 +83,6 @@ const storageConfigurationStore = new Store<StorageSettingsState>({
 	defaults: DEFAULT_STORAGE_SETTINGS,
 });
 
-if (!hasStorageConfiguration) {
-	storageConfigurationStore.store = {
-		...DEFAULT_STORAGE_SETTINGS,
-		...readLegacyStorageConfiguration(),
-		providers: readLegacyStorageProviders(),
-	};
-}
-removeLegacyStorageProviders();
 
 const databaseConfigurationStore = new Store<DatabaseConfiguration>({
 	name: 'database',
@@ -121,13 +91,6 @@ const databaseConfigurationStore = new Store<DatabaseConfiguration>({
 	defaults: DEFAULT_DATABASE_CONFIGURATION,
 });
 
-if (!hasDatabaseConfiguration) {
-	databaseConfigurationStore.store = {
-		...DEFAULT_DATABASE_CONFIGURATION,
-		...readLegacyDatabaseConfiguration(),
-		providers: readLegacyDatabaseProviders(),
-	};
-}
 
 const taskConfigurationStore = new Store<PersistedTaskState>({
 	name: 'tasks',
@@ -136,9 +99,6 @@ const taskConfigurationStore = new Store<PersistedTaskState>({
 	defaults: DEFAULT_TASK_CONFIGURATION,
 });
 
-if (!hasTaskConfiguration) {
-	taskConfigurationStore.store = readLegacyTaskConfiguration();
-}
 
 export const storageConfigurationStorePath = storageConfigurationStore.path;
 export const databaseConfigurationStorePath = databaseConfigurationStore.path;
@@ -235,27 +195,6 @@ export function clearProviders(): void {
 	saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: [] });
 }
 
-export function getLegacyBotProviders(): StoredProvider[] {
-	const bots = legacyAppSettings.bots;
-	return Array.isArray(bots) ? bots.filter(isStoredProvider) : [];
-}
-
-export function removeLegacyBotProviders(): void {}
-
-export function getLegacySearchProviders(): StoredProvider[] {
-	const search = legacyAppSettings.search;
-	return Array.isArray(search) ? search.filter(isStoredProvider) : [];
-}
-
-export function removeLegacySearchProviders(): void {}
-
-export function getLegacyEmailProviders(): StoredProvider[] {
-	const email = legacyAppSettings.email;
-	return Array.isArray(email) ? email.filter(isStoredProvider) : [];
-}
-
-export function removeLegacyEmailProviders(): void {}
-
 /** The selected provider resolved to the shape model adapters consume. */
 export function getResolvedProvider(providerId: string | undefined): ResolvedProvider | undefined {
 	if (!providerId) return undefined;
@@ -277,38 +216,6 @@ function isStoredProvider(value: unknown): value is StoredProvider {
 		typeof provider.apiKey === 'string' &&
 		typeof provider.baseUrl === 'string'
 	);
-}
-
-function readSettingsFile(filename: string): Record<string, unknown> {
-	const legacyPath = path.join(legacyAppSettingsDirectory, filename);
-	if (!existsSync(legacyPath)) return {};
-	try {
-		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
-		return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
-	} catch {
-		return {};
-	}
-}
-
-function readLegacyAppConfiguration(): Partial<AppSettingsState> {
-	return {
-		trayEnabled:
-			typeof legacyApplicationSettings.trayEnabled === 'boolean'
-				? legacyApplicationSettings.trayEnabled
-				: DEFAULT_APP_SETTINGS.trayEnabled,
-		keepAwake:
-			typeof legacyApplicationSettings.keepAwake === 'boolean'
-				? legacyApplicationSettings.keepAwake
-				: DEFAULT_APP_SETTINGS.keepAwake,
-		language:
-			typeof legacyApplicationSettings.language === 'string'
-				? (legacyApplicationSettings.language as AppLanguage)
-				: DEFAULT_APP_SETTINGS.language,
-		theme:
-			typeof legacyApplicationSettings.theme === 'string'
-				? (legacyApplicationSettings.theme as AppTheme)
-				: DEFAULT_APP_SETTINGS.theme,
-	};
 }
 
 function removeModelProvidersFromApplication(): void {
@@ -425,37 +332,6 @@ function getStoredStorages(): StoredStorage[] {
 	return Array.isArray(providers) ? providers : [];
 }
 
-function readLegacyStorageConfiguration(): Partial<StorageConfiguration> {
-	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.storage.json');
-	if (!existsSync(legacyPath)) return {};
-	try {
-		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
-		if (typeof value !== 'object' || value === null) return {};
-		const configuration = value as Partial<StorageConfiguration>;
-		return {
-			providerId: typeof configuration.providerId === 'string' ? configuration.providerId : undefined,
-			storageId: typeof configuration.storageId === 'string' ? configuration.storageId : undefined,
-			paths: Array.isArray(configuration.paths)
-				? configuration.paths.filter((entry): entry is string => typeof entry === 'string')
-				: [],
-			syncEnabled: configuration.syncEnabled === true,
-			syncCronExpression:
-				typeof configuration.syncCronExpression === 'string'
-					? configuration.syncCronExpression
-					: DEFAULT_SYNC_CRON_EXPRESSION,
-		};
-	} catch {
-		return {};
-	}
-}
-
-function readLegacyStorageProviders(): StoredStorage[] {
-	const storages = legacyAppSettings.storages;
-	return Array.isArray(storages) ? (storages as StoredStorage[]) : [];
-}
-
-function removeLegacyStorageProviders(): void {}
-
 export function getDatabaseConfiguration(): DatabaseConfiguration {
 	const configuration = {
 		...DEFAULT_DATABASE_CONFIGURATION,
@@ -488,27 +364,6 @@ export function saveDatabaseConfiguration(
 	return saved;
 }
 
-function readLegacyDatabaseConfiguration(): Partial<DatabaseConfiguration> {
-	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.database.json');
-	if (!existsSync(legacyPath)) return {};
-	try {
-		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
-		if (typeof value !== 'object' || value === null) return {};
-		const configuration = value as Partial<DatabaseConfiguration>;
-		return {
-			providerId: typeof configuration.providerId === 'string' ? configuration.providerId : undefined,
-			databaseId: typeof configuration.databaseId === 'string' ? configuration.databaseId : undefined,
-		};
-	} catch {
-		return {};
-	}
-}
-
-function readLegacyDatabaseProviders(): StoredProvider[] {
-	const value = legacyAppSettings.databases;
-	return Array.isArray(value) ? value.filter(isStoredProvider) : [];
-}
-
 function findDatabase(configuration: DatabaseConfiguration): CatalogService | undefined {
 	return loadDatabases().find(
 		(entry) =>
@@ -524,17 +379,4 @@ export function getTaskConfiguration(): PersistedTaskState {
 
 export function setTaskConfiguration(configuration: PersistedTaskState): void {
 	taskConfigurationStore.store = configuration;
-}
-
-function readLegacyTaskConfiguration(): PersistedTaskState {
-	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.cron.json');
-	if (!existsSync(legacyPath)) return DEFAULT_TASK_CONFIGURATION;
-	try {
-		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
-		return typeof value === 'object' && value !== null && Array.isArray((value as PersistedTaskState).schedules)
-			? (value as PersistedTaskState)
-			: DEFAULT_TASK_CONFIGURATION;
-	} catch {
-		return DEFAULT_TASK_CONFIGURATION;
-	}
 }
