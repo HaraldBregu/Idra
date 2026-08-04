@@ -60,4 +60,18 @@ describe('sendEmail', () => {
 			'Configure an SMTP server'
 		);
 	});
+
+	it('rejects attachments that are not files', async () => {
+		jest.mocked(getSmtpSettings).mockReturnValue(smtp);
+		statSync.mockReturnValueOnce({ isFile: () => false });
+
+		await expect(
+			sendEmail({
+				to: 'to@example.com',
+				subject: 'Subject',
+				text: 'Body',
+				attachments: [{ path: '/files/folder' }],
+			})
+		).rejects.toThrow('Email attachment is not a file: /files/folder');
+	});
 });

@@ -69,6 +69,16 @@ describe('directoryPermissionTargets', () => {
 		]);
 	});
 
+	it('maps email attachments to their containing directories', () => {
+		expect(
+			directoryPermissionTargets(
+				'send_email',
+				{ attachments: ['/workspace/invoice.pdf', 'documents/receipt.pdf'] },
+				agentDir
+			)
+		).toEqual([path.resolve('/workspace'), path.join(agentDir, 'documents')]);
+	});
+
 	it.each(['create_note', 'read_note', 'update_note', 'delete_note', 'search_notes'])(
 		'maps %s to the agent notes directory',
 		(toolName) => {
