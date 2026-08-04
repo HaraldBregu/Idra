@@ -1,15 +1,15 @@
-import type { CronEventListener, CronJobHandle } from './cron_internal_types';
-import type { CronRunner } from './cron_types';
+import type { TaskEventListener, TaskJobHandle } from './tasks_internal_types';
+import type { TaskRunner } from './tasks_types';
 
-export const tasks = new Map<string, CronJobHandle>();
-export const listeners = new Set<CronEventListener>();
+export const tasks = new Map<string, TaskJobHandle>();
+export const listeners = new Set<TaskEventListener>();
 export let enabled = true;
-export let runner: CronRunner | undefined;
+export let runner: TaskRunner | undefined;
 
 export function setCronEnabled(value: boolean): void {
 	enabled = value;
 }
 
-export function setCronRunner(value: CronRunner | undefined): void {
+export function setCronRunner(value: TaskRunner | undefined): void {
 	runner = value;
 }

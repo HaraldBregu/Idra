@@ -1,8 +1,8 @@
-import type { CronScheduleEvent } from './cron_types';
+import type { TaskScheduleEvent } from './tasks_types';
 
-export type CronEventListener = (event: CronScheduleEvent) => void;
+export type TaskEventListener = (event: TaskScheduleEvent) => void;
 
-export interface CronJobHandle {
+export interface TaskJobHandle {
 	stop(): void;
 	getNextRun(): Date | null;
 }

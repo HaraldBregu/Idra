@@ -1,8 +1,8 @@
-import { clone } from './cron_clone';
-import { readState } from './cron_read_state';
-import type { CronRuntime } from './cron_types';
+import { clone } from './tasks_clone';
+import { readState } from './tasks_read_state';
+import type { TaskRuntime } from './tasks_types';
 
-export function getRuntime(): CronRuntime | undefined {
+export function getRuntime(): TaskRuntime | undefined {
 	const { providerId, modelId } = readState();
 	return providerId && modelId ? clone({ providerId, modelId }) : undefined;
 }

@@ -1,11 +1,11 @@
-import { createSchedule } from '../../../app/cron';
+import { createSchedule } from '../../../app/tasks';
 import { tool } from '../tool';
 import { z } from 'zod';
 import { createScheduleRequestSchema } from './schema';
 
 export const createScheduleTool = tool({
 	name: 'create_schedule',
-	description: 'Create a new cron schedule from a schedule definition request.',
+	description: 'Create a new tasks schedule from a schedule definition request.',
 	inputSchema: z.object({
 		request: createScheduleRequestSchema.describe('Schedule definition to create.'),
 	}),

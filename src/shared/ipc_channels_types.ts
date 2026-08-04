@@ -25,7 +25,7 @@ import {
 	AgentChannels,
 	AppChannels,
 	RecorderChannels,
-	CronChannels,
+	TaskChannels,
 	McpChannels,
 	SkillsChannels,
 	StorageChannels,
@@ -151,15 +151,15 @@ export interface RecorderEventChannelMap {
 	[RecorderChannels.screen.event]: { data: Recording };
 }
 
-export interface CronInvokeChannelMap {
-	[CronChannels.list]: { args: []; result: import('../main/app/cron').CronSchedule[] };
-	[CronChannels.getRuntime]: {
+export interface TaskInvokeChannelMap {
+	[TaskChannels.list]: { args: []; result: import('../main/app/tasks').TaskSchedule[] };
+	[TaskChannels.getRuntime]: {
 		args: [];
-		result: import('../main/app/cron').CronRuntime | undefined;
+		result: import('../main/app/tasks').TaskRuntime | undefined;
 	};
-	[CronChannels.setRuntime]: {
+	[TaskChannels.setRuntime]: {
 		args: [providerId: string, modelId: string];
-		result: import('../main/app/cron').CronRuntime;
+		result: import('../main/app/tasks').TaskRuntime;
 	};
 }
 
@@ -690,7 +690,7 @@ export interface InvokeChannelMap
 		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
 		RecorderInvokeChannelMap,
-		CronInvokeChannelMap,
+		TaskInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		McpInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,

@@ -1,10 +1,10 @@
-import { clone } from '../../../../../src/main/app/cron/cron_clone';
-import { isActiveSchedule } from '../../../../../src/main/app/cron/cron_is_active_schedule';
-import { buildTask } from '../../../../../src/main/app/cron/cron_build_task';
-import type { CronSchedule } from '../../../../../src/main/app/cron/cron_types';
-import { cronActionSchema } from '../../../../../src/main/agent/tools/cron/schema';
+import { clone } from '../../../../../src/main/app/tasks/tasks_clone';
+import { isActiveSchedule } from '../../../../../src/main/app/tasks/tasks_is_active_schedule';
+import { buildTask } from '../../../../../src/main/app/tasks/tasks_build_task';
+import type { TaskSchedule } from '../../../../../src/main/app/tasks/tasks_types';
+import { cronActionSchema } from '../../../../../src/main/agent/tools/tasks/schema';
 
-function schedule(overrides: Partial<CronSchedule> = {}): CronSchedule {
+function schedule(overrides: Partial<TaskSchedule> = {}): TaskSchedule {
 	return {
 		id: 's1',
 		name: 'Nightly',
@@ -15,7 +15,7 @@ function schedule(overrides: Partial<CronSchedule> = {}): CronSchedule {
 		createdAt: 'now',
 		updatedAt: 'now',
 		...overrides,
-	} as CronSchedule;
+	} as TaskSchedule;
 }
 
 describe('clone', () => {

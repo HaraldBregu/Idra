@@ -12,7 +12,7 @@ import {
 } from './session';
 import { stream } from './run/run_stream';
 import { agentLocation } from '../shared/agent_location';
-import { destroyCron, getRuntime, initCron, setCronRunner, startCron } from '../app/cron';
+import { destroyCron, getRuntime, initCron, setCronRunner, startCron } from '../app/tasks';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './policy';
 import { resolveSkillCommand } from './skills';
@@ -75,7 +75,7 @@ export class Agent {
 		setCronRunner((schedule) => {
 			if (schedule.action.type !== 'agent') return Promise.resolve('');
 			const runtime = getRuntime();
-			return this.send(schedule.action.prompt, 'cron', {
+			return this.send(schedule.action.prompt, 'tasks', {
 				category: 'task',
 				interactive: false,
 				...(schedule.action.permissionMode
@@ -85,7 +85,7 @@ export class Agent {
 			});
 		});
 		void startCron().catch((error) => {
-			logger.error('Cron', 'Failed to start persistent cron scheduler', error);
+			logger.error('Task', 'Failed to start persistent tasks scheduler', error);
 		});
 		startHealth(this, logger);
 	}

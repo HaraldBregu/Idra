@@ -3,7 +3,7 @@ import {
 	AgentChannels,
 	AppChannels,
 	ChannelsChannels,
-	CronChannels,
+	TaskChannels,
 	EmbeddingChannels,
 	ImageChannels,
 	McpChannels,
@@ -24,7 +24,7 @@ import type {
 	AgentApi,
 	AppApi,
 	ChannelsApi,
-	CronApi,
+	TaskApi,
 	McpApi,
 	ModelsApi,
 	ProviderApi,
@@ -51,7 +51,7 @@ export interface FridayClient {
 	agent: AgentApi;
 	app: AppApi;
 	channels: ChannelsApi;
-	cron: CronApi;
+	tasks: TaskApi;
 	mcp: McpApi;
 	models: ModelsApi;
 	provider: ProviderApi;
@@ -202,7 +202,7 @@ export function connect(options: ConnectOptions): FridayClient {
 				};
 			},
 		}),
-		cron: namespace<CronApi>(CronChannels),
+		tasks: namespace<TaskApi>(TaskChannels),
 		mcp: namespace<McpApi>(McpChannels),
 		models: {
 			embedding: namespace<ModelsApi['embedding']>(EmbeddingChannels),

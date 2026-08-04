@@ -1,5 +1,5 @@
-import type { CronSchedule } from './cron_types';
+import type { TaskSchedule } from './tasks_types';
 
-export function isActiveSchedule(schedule: CronSchedule): boolean {
+export function isActiveSchedule(schedule: TaskSchedule): boolean {
 	return schedule.enabled;
 }

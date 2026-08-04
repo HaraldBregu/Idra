@@ -57,10 +57,10 @@ export const RecorderChannels = {
 	},
 } as const;
 
-export const CronChannels = {
-	list: 'cron:list',
-	getRuntime: 'cron:runtime:get',
-	setRuntime: 'cron:runtime:set',
+export const TaskChannels = {
+	list: 'tasks:list',
+	getRuntime: 'tasks:runtime:get',
+	setRuntime: 'tasks:runtime:set',
 } as const;
 
 export const SkillsChannels = {

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
-import { cronStorePath } from '../../app/cron/cron_store';
+import { cronStorePath } from '../../app/tasks/tasks_store';
 import { healthStorePath } from '../health/health_store';
 import { skillsRoot } from '../skills/skills_root';
 import { registry } from '../tools/run_process';

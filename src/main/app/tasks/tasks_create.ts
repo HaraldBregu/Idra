@@ -1,8 +1,8 @@
-import { clone } from './cron_clone';
-import { writeState } from './cron_write_state';
-import type { CronSchedule } from './cron_types';
+import { clone } from './tasks_clone';
+import { writeState } from './tasks_write_state';
+import type { TaskSchedule } from './tasks_types';
 
-export function create(schedule: CronSchedule): CronSchedule {
+export function create(schedule: TaskSchedule): TaskSchedule {
 	return writeState((state) => {
 		state.schedules.push(clone(schedule));
 		return clone(schedule);

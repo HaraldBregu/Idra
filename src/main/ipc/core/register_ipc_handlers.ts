@@ -1,7 +1,7 @@
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { RecorderIpc } from '../recorder';
-import { CronIpc } from '../cron';
+import { TaskIpc } from '../tasks';
 import { McpIpc } from '../mcp';
 import { ModelsIpc } from '../models';
 import { SkillsIpc } from '../skills';
@@ -30,7 +30,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('app', () => new AppIpc().register({ logger, channelRegistry }, eventBus));
 	safeRegister('agent', () => new AgentIpc().register({ logger, agent: agentService }, eventBus));
 	safeRegister('recorder', () => new RecorderIpc().register(undefined, eventBus));
-	safeRegister('cron', () => new CronIpc().register(undefined, eventBus));
+	safeRegister('tasks', () => new TaskIpc().register(undefined, eventBus));
 	safeRegister('mcp', () => new McpIpc().register(undefined, eventBus));
 	safeRegister('models', () => new ModelsIpc().register(undefined, eventBus));
 	safeRegister('skills', () => new SkillsIpc().register(undefined, eventBus));

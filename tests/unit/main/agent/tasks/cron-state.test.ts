@@ -1,12 +1,12 @@
 const readState = jest.fn();
 
-jest.mock('../../../../../src/main/app/cron/cron_read_state', () => ({
+jest.mock('../../../../../src/main/app/tasks/tasks_read_state', () => ({
 	readState,
 }));
 
-import { exists } from '../../../../../src/main/app/cron/cron_exists';
-import { requireSchedule } from '../../../../../src/main/app/cron/cron_require_schedule';
-import { getSchedule } from '../../../../../src/main/app/cron/cron_get_schedule';
+import { exists } from '../../../../../src/main/app/tasks/tasks_exists';
+import { requireSchedule } from '../../../../../src/main/app/tasks/tasks_require_schedule';
+import { getSchedule } from '../../../../../src/main/app/tasks/tasks_get_schedule';
 
 const scheduleFixture = {
 	id: 's1',
@@ -37,7 +37,7 @@ describe('requireSchedule', () => {
 		expect(result).not.toBe(scheduleFixture);
 	});
 	it('throws when the schedule is missing', () => {
-		expect(() => requireSchedule('nope')).toThrow(/Cron schedule not found: nope/);
+		expect(() => requireSchedule('nope')).toThrow(/Task schedule not found: nope/);
 	});
 });
 

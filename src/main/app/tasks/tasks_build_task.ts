@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import type { CronSchedule, CronScheduledTask } from './cron_types';
+import type { TaskSchedule, TaskScheduledTask } from './tasks_types';
 
-export function buildTask(schedule: CronSchedule): CronScheduledTask {
+export function buildTask(schedule: TaskSchedule): TaskScheduledTask {
 	const now = new Date().toISOString();
 	return {
 		id: randomUUID(),

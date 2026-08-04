@@ -111,14 +111,14 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		title: 'Tasks',
 		description: 'Scheduled tasks and automations.',
 		getSelection: async () => {
-			const runtime = await window.cron.getRuntime();
+			const runtime = await window.tasks.getRuntime();
 			return runtime?.providerId && runtime.modelId
 				? { providerId: runtime.providerId, modelId: runtime.modelId }
 				: undefined;
 		},
 		loadModelGroups: () => Promise.resolve(getLlmModelGroups()),
 		saveSelection: async (provider, model) => {
-			await window.cron.setRuntime(provider.id, model.id);
+			await window.tasks.setRuntime(provider.id, model.id);
 			return true;
 		},
 	},

@@ -1,6 +1,6 @@
-import { setCronState } from './cron_store';
-import { readState } from './cron_read_state';
-import type { PersistedCronState } from './cron_types';
+import { setCronState } from './tasks_store';
+import { readState } from './tasks_read_state';
+import type { PersistedCronState } from './tasks_types';
 
 export function writeState<T>(mutate: (state: PersistedCronState) => T): T {
 	const state = readState();

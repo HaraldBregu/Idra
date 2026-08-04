@@ -67,7 +67,7 @@ own preload API (`win` is embedded-only — it drives the window hosting your co
 | `agent`    | Chat turns, sessions, provider/model, tool policy, health                         |
 | `app`      | App data folder, external URLs, tray, theme, language, permissions, context menus |
 | `channels` | Channel config, provider/model, Telegram lifecycle, status                        |
-| `cron`     | Scheduled jobs and their runtime                                                  |
+| `tasks`     | Scheduled jobs and their runtime                                                  |
 | `mcp`      | MCP server config and OAuth                                                       |
 | `models`   | Embedding, image, sound, text, transcription, video, and voice models             |
 | `provider` | Provider credentials store                                                        |
@@ -80,7 +80,7 @@ own preload API (`win` is embedded-only — it drives the window hosting your co
 | `win`      | Window controls for the hosting window                                            |
 
 All request/result types are re-exported (`ImageRequest`, `AgentResponseEvent`,
-`CronSchedule`, `SkillInfo`, `StorageConfig`, `PermissionsSchema`, …), and `Uint8Array`
+`TaskSchedule`, `SkillInfo`, `StorageConfig`, `PermissionsSchema`, …), and `Uint8Array`
 payloads (`storage.putObject`, `storage.getObject`) survive the remote hop intact.
 
 A handful of members only make sense inside a window and are refused by `connect()` with

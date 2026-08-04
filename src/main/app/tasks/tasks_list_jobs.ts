@@ -1,5 +1,5 @@
-import type { CronJobInfo } from './cron_types';
+import type { TaskJobInfo } from './tasks_types';
 
-export function listJobs(): CronJobInfo[] {
+export function listJobs(): TaskJobInfo[] {
 	return [];
 }

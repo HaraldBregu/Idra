@@ -1,12 +1,12 @@
 const readState = jest.fn();
 const writeState = jest.fn();
 
-jest.mock('../../../../../src/main/app/cron/cron_read_state', () => ({ readState }));
-jest.mock('../../../../../src/main/app/cron/cron_write_state', () => ({ writeState }));
+jest.mock('../../../../../src/main/app/tasks/tasks_read_state', () => ({ readState }));
+jest.mock('../../../../../src/main/app/tasks/tasks_write_state', () => ({ writeState }));
 
-import { getRuntime } from '../../../../../src/main/app/cron/cron_get_runtime';
-import { setRuntime } from '../../../../../src/main/app/cron/cron_set_runtime';
-import type { PersistedCronState } from '../../../../../src/main/app/cron/cron_types';
+import { getRuntime } from '../../../../../src/main/app/tasks/tasks_get_runtime';
+import { setRuntime } from '../../../../../src/main/app/tasks/tasks_set_runtime';
+import type { PersistedCronState } from '../../../../../src/main/app/tasks/tasks_types';
 
 beforeEach(() => {
 	readState.mockReset();

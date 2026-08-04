@@ -1,6 +1,6 @@
-import { trigger } from './cron_trigger';
-import type { CronScheduledTask } from './cron_types';
+import { trigger } from './tasks_trigger';
+import type { TaskScheduledTask } from './tasks_types';
 
-export function runScheduleNow(scheduleId: string): CronScheduledTask {
+export function runScheduleNow(scheduleId: string): TaskScheduledTask {
 	return trigger(scheduleId);
 }

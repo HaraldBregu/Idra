@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { listeners } from './cron_module_state';
-import type { CronSchedule, CronScheduleEvent } from './cron_types';
+import { listeners } from './tasks_module_state';
+import type { TaskSchedule, TaskScheduleEvent } from './tasks_types';
 
-export function emit(schedule: CronSchedule, type: CronScheduleEvent['type'], message: string): void {
+export function emit(schedule: TaskSchedule, type: TaskScheduleEvent['type'], message: string): void {
 	const event = {
 		eventId: randomUUID(),
 		scheduleId: schedule.id,
@@ -14,7 +14,7 @@ export function emit(schedule: CronSchedule, type: CronScheduleEvent['type'], me
 		try {
 			listener(event);
 		} catch (error) {
-			console.error('[Cron]', 'Cron event listener failed.', error);
+			console.error('[Task]', 'Task event listener failed.', error);
 		}
 	}
 }

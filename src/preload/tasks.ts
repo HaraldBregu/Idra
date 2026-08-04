@@ -1,15 +1,15 @@
 import { typedInvokeUnwrap } from '../shared/ipc_types';
-import { CronChannels } from '../shared/ipc_channels_definitions';
-import type { CronApi } from './index.d';
+import { TaskChannels } from '../shared/ipc_channels_definitions';
+import type { TaskApi } from './index.d';
 
-export const cron: CronApi = {
+export const tasks: TaskApi = {
 	list: () => {
-		return typedInvokeUnwrap(CronChannels.list);
+		return typedInvokeUnwrap(TaskChannels.list);
 	},
 	getRuntime: () => {
-		return typedInvokeUnwrap(CronChannels.getRuntime);
+		return typedInvokeUnwrap(TaskChannels.getRuntime);
 	},
 	setRuntime: (providerId: string, modelId: string) => {
-		return typedInvokeUnwrap(CronChannels.setRuntime, providerId, modelId);
+		return typedInvokeUnwrap(TaskChannels.setRuntime, providerId, modelId);
 	},
 };

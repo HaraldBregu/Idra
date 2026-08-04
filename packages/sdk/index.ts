@@ -2,7 +2,7 @@ import type {
 	AgentApi,
 	AppApi,
 	ChannelsApi,
-	CronApi,
+	TaskApi,
 	McpApi,
 	ModelsApi,
 	ProviderApi,
@@ -30,7 +30,7 @@ export type * from '../../src/shared/text_types';
 export type * from '../../src/shared/video_types';
 export type * from '../../src/shared/extension_types';
 export type * from '../../src/shared/wiki_types';
-export type * from '../../src/main/app/cron/cron_types';
+export type * from '../../src/main/app/tasks/tasks_types';
 export type * from '../../src/main/agent/health/health_types';
 export type * from '../../src/main/agent/policy/policy_types';
 
@@ -59,7 +59,7 @@ export function isFriday(): boolean {
 export const agent = bridge<AgentApi>('agent');
 export const app = bridge<AppApi>('app');
 export const channels = bridge<ChannelsApi>('channels');
-export const cron = bridge<CronApi>('cron');
+export const tasks = bridge<TaskApi>('tasks');
 export const mcp = bridge<McpApi>('mcp');
 export const models = bridge<ModelsApi>('models');
 export const provider = bridge<ProviderApi>('provider');

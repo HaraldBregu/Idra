@@ -4,7 +4,7 @@ import type {
 	AgentApi,
 	AppApi,
 	RecorderApi,
-	CronApi,
+	TaskApi,
 	McpApi,
 	ModelsApi,
 	ProviderApi,
@@ -24,7 +24,7 @@ declare global {
 		app: AppApi;
 		agent: AgentApi;
 		recorder: RecorderApi;
-		cron: CronApi;
+		tasks: TaskApi;
 		skills: SkillsApi;
 		mcp: McpApi;
 		models: ModelsApi;

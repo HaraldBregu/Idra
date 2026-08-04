@@ -1,18 +1,18 @@
-import cron from 'node-cron';
-import { fire } from './cron_fire';
-import type { CronJobHandle } from './cron_internal_types';
-import type { CronSchedule } from './cron_types';
+import tasks from 'node-cron';
+import { fire } from './tasks_fire';
+import type { TaskJobHandle } from './tasks_internal_types';
+import type { TaskSchedule } from './tasks_types';
 
-export function createCronJob(schedule: CronSchedule): CronJobHandle | undefined {
-	if (!schedule.cronExpression || !cron.validate(schedule.cronExpression)) {
+export function createCronJob(schedule: TaskSchedule): TaskJobHandle | undefined {
+	if (!schedule.cronExpression || !tasks.validate(schedule.cronExpression)) {
 		console.warn(
-			'[Cron]',
-			`Schedule ${schedule.id} has an invalid cron expression: ${schedule.cronExpression}`
+			'[Task]',
+			`Schedule ${schedule.id} has an invalid tasks expression: ${schedule.cronExpression}`
 		);
 		return undefined;
 	}
-	const task = cron.schedule(schedule.cronExpression, () => fire(schedule.id), {
-		name: `cron:${schedule.id}`,
+	const task = tasks.schedule(schedule.cronExpression, () => fire(schedule.id), {
+		name: `tasks:${schedule.id}`,
 	});
 	return { stop: () => task.destroy(), getNextRun: () => task.getNextRun() };
 }

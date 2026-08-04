@@ -1,10 +1,10 @@
-import { updateSchedule } from '../../../app/cron';
+import { updateSchedule } from '../../../app/tasks';
 import { tool } from '../tool';
 import { scheduleIdSchema, updateScheduleRequestSchema } from './schema';
 
 export const updateScheduleTool = tool({
 	name: 'update_schedule',
-	description: 'Update an existing cron schedule by id.',
+	description: 'Update an existing tasks schedule by id.',
 	inputSchema: scheduleIdSchema.extend({
 		request: updateScheduleRequestSchema.describe('Fields to update on the schedule.'),
 	}),

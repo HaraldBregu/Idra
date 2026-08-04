@@ -3,7 +3,7 @@ import {
 	getCronConfiguration,
 	setCronConfiguration,
 } from '../settings_store';
-import type { PersistedCronState } from './cron_types';
+import type { PersistedCronState } from './tasks_types';
 
 export const cronStorePath = cronConfigurationStorePath;
 

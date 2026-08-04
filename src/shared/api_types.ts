@@ -20,7 +20,7 @@ import type {
 import type { DatabaseConfiguration } from './database_types';
 import type { McpOAuthStart, McpSettings } from './mcp_types';
 import type { Extension } from './extension_types';
-import type { CronRuntime, CronSchedule } from '../main/app/cron/cron_types';
+import type { TaskRuntime, TaskSchedule } from '../main/app/tasks/tasks_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { RagIndexResult, RagMatch } from '../main/rag';
 import type {
@@ -117,10 +117,10 @@ export interface AgentApi {
 	ragOpenFolder: () => Promise<void>;
 }
 
-export interface CronApi {
-	list: () => Promise<CronSchedule[]>;
-	getRuntime: () => Promise<CronRuntime | undefined>;
-	setRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
+export interface TaskApi {
+	list: () => Promise<TaskSchedule[]>;
+	getRuntime: () => Promise<TaskRuntime | undefined>;
+	setRuntime: (providerId: string, modelId: string) => Promise<TaskRuntime>;
 }
 
 export interface SkillsApi {

@@ -1,15 +1,15 @@
-import { activate } from './cron_activate';
-import { emit } from './cron_emit';
-import { unscheduleJob } from './cron_unschedule_job';
-import { update } from './cron_update';
-import type { CronSchedule, CronScheduleUpdateRequest } from './cron_types';
+import { activate } from './tasks_activate';
+import { emit } from './tasks_emit';
+import { unscheduleJob } from './tasks_unschedule_job';
+import { update } from './tasks_update';
+import type { TaskSchedule, TaskScheduleUpdateRequest } from './tasks_types';
 
 export function updateSchedule(
 	scheduleId: string,
-	request: CronScheduleUpdateRequest
-): CronSchedule {
+	request: TaskScheduleUpdateRequest
+): TaskSchedule {
 	const now = new Date().toISOString();
-	const patch: Partial<CronSchedule> = { updatedAt: now };
+	const patch: Partial<TaskSchedule> = { updatedAt: now };
 	if (typeof request.name === 'string') patch.name = request.name.trim();
 	if (typeof request.description === 'string') patch.description = request.description.trim();
 	if (typeof request.cronExpression === 'string') {

@@ -1,6 +1,6 @@
-import { activate } from './cron_activate';
-import { emit } from './cron_emit';
-import { update } from './cron_update';
+import { activate } from './tasks_activate';
+import { emit } from './tasks_emit';
+import { update } from './tasks_update';
 
 export function resumeSchedule(scheduleId: string): void {
 	const now = new Date().toISOString();

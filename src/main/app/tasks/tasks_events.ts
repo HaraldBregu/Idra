@@ -1,7 +1,7 @@
-import { listeners } from './cron_module_state';
-import type { CronEvents } from './cron_types';
+import { listeners } from './tasks_module_state';
+import type { TaskEvents } from './tasks_types';
 
-export const cronEvents: CronEvents = {
+export const cronEvents: TaskEvents = {
 	subscribe(listener) {
 		listeners.add(listener);
 		return () => listeners.delete(listener);

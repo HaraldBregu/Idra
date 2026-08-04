@@ -1,6 +1,6 @@
 import type { AgentPermissionMode, ModelReasoningEffort } from '../../../shared/agent_types';
 
-export interface CronJobInfo {
+export interface TaskJobInfo {
 	readonly id: string;
 	readonly name: string;
 	readonly description?: string;
@@ -10,7 +10,7 @@ export interface CronJobInfo {
 	readonly updatedAt: string;
 }
 
-export interface CronScheduledTask {
+export interface TaskScheduledTask {
 	id: string;
 	title: string;
 	description?: string;
@@ -18,7 +18,7 @@ export interface CronScheduledTask {
 	updatedAt: string;
 }
 
-export type CronAction =
+export type TaskAction =
 	| { type: 'debug'; message: string }
 	| {
 			type: 'agent';
@@ -27,29 +27,29 @@ export type CronAction =
 			permissionMode?: AgentPermissionMode;
 	  };
 
-export interface CronSchedule {
+export interface TaskSchedule {
 	id: string;
 	name: string;
 	description?: string;
 	cronExpression?: string;
 	enabled: boolean;
-	action: CronAction;
+	action: TaskAction;
 	createdAt: string;
 	updatedAt: string;
 }
 
-export type CronScheduleCreateRequest = Omit<
-	CronSchedule,
+export type TaskScheduleCreateRequest = Omit<
+	TaskSchedule,
 	'id' | 'createdAt' | 'updatedAt' | 'enabled'
 > & {
 	enabled?: boolean;
 };
 
-export type CronScheduleUpdateRequest = Partial<
-	Omit<CronSchedule, 'id' | 'createdAt' | 'updatedAt'>
+export type TaskScheduleUpdateRequest = Partial<
+	Omit<TaskSchedule, 'id' | 'createdAt' | 'updatedAt'>
 >;
 
-export interface CronScheduleEvent {
+export interface TaskScheduleEvent {
 	eventId: string;
 	scheduleId: string;
 	type:
@@ -72,22 +72,22 @@ export interface CronScheduleEvent {
 	message: string;
 }
 
-export interface CronRuntime {
+export interface TaskRuntime {
 	providerId: string;
 	modelId: string;
 }
 
-/** Shape persisted to the cron electron-store file. */
+/** Shape persisted to the tasks electron-store file. */
 export interface PersistedCronState {
 	enabled?: boolean;
 	providerId?: string;
 	modelId?: string;
-	schedules: CronSchedule[];
+	schedules: TaskSchedule[];
 }
 
-export const DEFAULT_CRON_STATE: PersistedCronState = { schedules: [] };
+export const DEFAULT_TASK_STATE: PersistedCronState = { schedules: [] };
 
-export type CronFunctionId =
+export type TaskFunctionId =
 	| 'create_schedule'
 	| 'update_schedule'
 	| 'pause_schedule'
@@ -97,9 +97,9 @@ export type CronFunctionId =
 	| 'list_schedules'
 	| 'run_schedule_now';
 
-export interface CronFunctionInput {
-	create_schedule: { request: CronScheduleCreateRequest };
-	update_schedule: { scheduleId: string; request: CronScheduleUpdateRequest };
+export interface TaskFunctionInput {
+	create_schedule: { request: TaskScheduleCreateRequest };
+	update_schedule: { scheduleId: string; request: TaskScheduleUpdateRequest };
 	pause_schedule: { scheduleId: string };
 	resume_schedule: { scheduleId: string };
 	delete_schedule: { scheduleId: string };
@@ -108,19 +108,19 @@ export interface CronFunctionInput {
 	run_schedule_now: { scheduleId: string };
 }
 
-export interface CronFunctionResult {
-	create_schedule: CronSchedule;
-	update_schedule: CronSchedule;
+export interface TaskFunctionResult {
+	create_schedule: TaskSchedule;
+	update_schedule: TaskSchedule;
 	pause_schedule: void;
 	resume_schedule: void;
 	delete_schedule: void;
-	get_schedule: CronSchedule;
-	list_schedules: CronSchedule[];
-	run_schedule_now: CronScheduledTask;
+	get_schedule: TaskSchedule;
+	list_schedules: TaskSchedule[];
+	run_schedule_now: TaskScheduledTask;
 }
 
-export interface CronEvents {
-	subscribe(listener: (event: CronScheduleEvent) => void): () => void;
+export interface TaskEvents {
+	subscribe(listener: (event: TaskScheduleEvent) => void): () => void;
 }
 
-export type CronRunner = (schedule: CronSchedule) => Promise<unknown>;
+export type TaskRunner = (schedule: TaskSchedule) => Promise<unknown>;

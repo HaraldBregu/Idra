@@ -1,6 +1,6 @@
-import { list } from './cron_list';
-import type { CronSchedule } from './cron_types';
+import { list } from './tasks_list';
+import type { TaskSchedule } from './tasks_types';
 
-export function listSchedules(): CronSchedule[] {
+export function listSchedules(): TaskSchedule[] {
 	return list();
 }
