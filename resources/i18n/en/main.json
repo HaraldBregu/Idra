@@ -1363,10 +1363,13 @@
 			"dismissSuccess": "Dismiss"
 		},
 		"rag": {
-			"description": "Index the documents in the rag folder and search them as vectors.",
+			"description": "Select a Markdown source folder, index it, and search it as vectors.",
 			"documentsTitle": "Documents",
-			"documentsDescription": "Text files in the rag application folder are chunked, embedded with the selected embedding model and stored in Pinecone.",
-			"openFolder": "Open folder",
+			"documentsDescription": "Markdown files in the selected folder are chunked, embedded with the selected embedding model and stored in Pinecone.",
+			"sourceFolder": "Markdown source folder",
+			"sourcePlaceholder": "Choose a folder containing Markdown files",
+			"pickFolder": "Choose folder",
+			"pickFolderError": "Unable to choose a source folder.",
 			"index": "Generate index",
 			"indexing": "Indexing...",
 			"indexError": "Unable to generate the index.",

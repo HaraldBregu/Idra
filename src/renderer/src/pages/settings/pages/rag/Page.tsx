@@ -60,6 +60,7 @@ const RagPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [indexing, setIndexing] = useState(false);
 	const [indexed, setIndexed] = useState<{ files: number; vectors: number } | null>(null);
+	const [sourceFolder, setSourceFolder] = useState<string | null>(null);
 	const [query, setQuery] = useState('');
 	const [searching, setSearching] = useState(false);
 	const [matches, setMatches] = useState<RagMatch[] | null>(null);
@@ -125,17 +126,35 @@ const RagPage: React.FC = () => {
 	}, [t]);
 
 	const handleIndex = async (): Promise<void> => {
+		if (!sourceFolder) return;
 		setIndexing(true);
 		setError(null);
 		setIndexed(null);
 		try {
-			setIndexed(await window.agent.ragIndex());
+			setIndexed(await window.agent.ragIndex(sourceFolder));
 		} catch (err) {
 			setError(
 				err instanceof Error && err.message.trim() ? err.message : t('settings.rag.indexError')
 			);
 		} finally {
 			setIndexing(false);
+		}
+	};
+
+	const pickSourceFolder = async (): Promise<void> => {
+		setError(null);
+		try {
+			const selected = await window.agent.ragPickFolder();
+			if (selected) {
+				setSourceFolder(selected);
+				setIndexed(null);
+			}
+		} catch (err) {
+			setError(
+				err instanceof Error && err.message.trim()
+					? err.message
+					: t('settings.rag.pickFolderError')
+			);
 		}
 	};
 
@@ -299,18 +318,30 @@ const RagPage: React.FC = () => {
 						<p className="text-[11px] leading-4 text-muted-foreground">
 							{t('settings.rag.documentsDescription')}
 						</p>
+						<Input
+							value={sourceFolder ?? ''}
+							readOnly
+							placeholder={t('settings.rag.sourcePlaceholder')}
+							aria-label={t('settings.rag.sourceFolder')}
+						/>
 
 						<div className="flex justify-end gap-2">
 							<Button
 								type="button"
 								size="sm"
 								variant="outline"
-								onClick={() => void window.agent.ragOpenFolder()}
+								disabled={indexing}
+								onClick={() => void pickSourceFolder()}
 							>
 								<FolderOpen className="size-3" />
-								{t('settings.rag.openFolder')}
+								{t('settings.rag.pickFolder')}
 							</Button>
-							<Button type="button" size="sm" disabled={indexing} onClick={() => void handleIndex()}>
+							<Button
+								type="button"
+								size="sm"
+								disabled={indexing || !sourceFolder}
+								onClick={() => void handleIndex()}
+							>
 								{indexing ? (
 									<LoaderCircle className="size-3 animate-spin" />
 								) : (

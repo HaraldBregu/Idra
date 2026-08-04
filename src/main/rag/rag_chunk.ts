@@ -9,7 +9,7 @@ export function chunkText(text: string): string[] {
 	let current = '';
 
 	for (const paragraph of normalized.split(/\n{2,}/)) {
-		const section = paragraph.trim();
+		let section = paragraph.trim();
 		if (!section) continue;
 		if (current && current.length + section.length + 2 > CHUNK_SIZE) {
 			chunks.push(current);
@@ -23,7 +23,7 @@ export function chunkText(text: string): string[] {
 			const prefix = section.slice(0, end).trim();
 			if (prefix) chunks.push([current, prefix].filter(Boolean).join('\n\n'));
 			current = prefix.slice(-CHUNK_OVERLAP).trim();
-			paragraph = section.slice(end).trim();
+			section = section.slice(end).trim();
 		}
 
 		current = [current, section].filter(Boolean).join('\n\n');

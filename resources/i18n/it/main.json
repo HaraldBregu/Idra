@@ -1362,10 +1362,13 @@
 			"dismissSuccess": "Chiudi"
 		},
 		"rag": {
-			"description": "Indicizza i documenti nella cartella rag e cercali come vettori.",
+			"description": "Seleziona una cartella sorgente Markdown, indicizzala e cercala come vettori.",
 			"documentsTitle": "Documenti",
-			"documentsDescription": "I file di testo nella cartella rag dell'applicazione vengono suddivisi, incorporati con il modello di embedding selezionato e salvati su Pinecone.",
-			"openFolder": "Apri cartella",
+			"documentsDescription": "I file Markdown nella cartella selezionata vengono suddivisi, incorporati con il modello di embedding selezionato e salvati su Pinecone.",
+			"sourceFolder": "Cartella sorgente Markdown",
+			"sourcePlaceholder": "Scegli una cartella contenente file Markdown",
+			"pickFolder": "Scegli cartella",
+			"pickFolderError": "Impossibile scegliere una cartella sorgente.",
 			"index": "Genera indice",
 			"indexing": "Indicizzazione...",
 			"indexError": "Impossibile generare l'indice.",
