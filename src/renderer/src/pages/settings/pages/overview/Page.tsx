@@ -28,20 +28,14 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'primary',
 		titleKey: 'settings.overview.groups.assistant',
-		paths: [
-			'/settings/assistant',
-			'/settings/skills',
-			'/settings/rag',
-			'/settings/wiki',
-			'/settings/assistant/health',
-			'/settings/providers/search',
-		],
+		paths: ['/settings/assistant', '/settings/skills', '/settings/rag', '/settings/wiki'],
 	},
 	{
 		id: 'providers',
 		titleKey: 'settings.tabs.providers',
 		paths: [
 			'/settings/providers/models',
+			'/settings/providers/search',
 			'/settings/providers/databases',
 			'/settings/providers/storage',
 			'/settings/providers/mcp',
