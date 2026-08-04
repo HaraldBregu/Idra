@@ -2,7 +2,7 @@ import {
 	EMAIL_PROVIDER_IDS,
 	type EmailProviderId,
 	type EmailSettings,
-} from '../../../shared/email_types';
+} from '../../shared/email_types';
 import { getEmailKey } from './email_get_key';
 import { getEmailConfiguration } from './email_store';
 

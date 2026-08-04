@@ -1,4 +1,4 @@
-import type { EmailRequest, EmailResponse } from '../../../../shared/email_types';
+import type { EmailRequest, EmailResponse } from '../../../shared/email_types';
 
 export async function sendResend(
 	request: EmailRequest,

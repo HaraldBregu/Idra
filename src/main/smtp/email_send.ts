@@ -1,4 +1,4 @@
-import type { EmailProviderId, EmailRequest, EmailResponse } from '../../../shared/email_types';
+import type { EmailProviderId, EmailRequest, EmailResponse } from '../../shared/email_types';
 import type { EmailAdapter } from './adapters/adapter';
 import { sendResend } from './adapters/resend';
 import { getEmailKey } from './email_get_key';

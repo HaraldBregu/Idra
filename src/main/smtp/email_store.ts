@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import Store from 'electron-store';
-import { userDataLocation } from '../../shared/user_data_location';
-import type { StoredProvider } from '../../../shared/provider_types';
-import { getLegacyEmailProviders, removeLegacyEmailProviders } from '../settings_store';
+import { userDataLocation } from '../shared/user_data_location';
+import type { StoredProvider } from '../../shared/provider_types';
+import { getLegacyEmailProviders, removeLegacyEmailProviders } from '../app/settings_store';
 
 export interface EmailConfiguration {
 	providerId?: string;
