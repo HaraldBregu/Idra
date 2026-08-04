@@ -18,6 +18,5 @@ const sendEmailTool = tool({
 });
 
 export function getEmailTools(): Tool[] {
-	const { providerId, configured } = getEmailSettings();
-	return configured[providerId] ? [sendEmailTool] : [];
+	return getEmailSettings().configured ? [sendEmailTool] : [];
 }

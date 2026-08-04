@@ -1,28 +1,20 @@
-import {
-	EMAIL_PROVIDER_IDS,
-	type EmailProviderId,
-	type EmailProviderInput,
-	type EmailSettings,
-} from '../../shared/email_types';
+import type { EmailSettings, SmtpSettingsInput } from '../../shared/email_types';
 import { getEmailSettings } from './email_get_settings';
-import { saveEmailConfiguration, setEmailProviders } from './email_store';
+import { saveSmtpSettings } from './email_store';
 
-export function saveEmailProvider(
-	providerId: EmailProviderId,
-	input: EmailProviderInput
-): EmailSettings {
-	if (!EMAIL_PROVIDER_IDS.includes(providerId)) throw new Error('Unknown email provider.');
-	const apiKey = input.apiKey.trim();
-	if (!apiKey) throw new Error('An email provider API key is required.');
+export function saveEmailSettings(input: SmtpSettingsInput): EmailSettings {
+	const host = input.host.trim();
+	const username = input.username.trim();
+	const password = input.password.trim();
+	const from = input.from.trim();
+	if (!host || !from) throw new Error('SMTP host and sender address are required.');
+	if (!Number.isInteger(input.port) || input.port < 1 || input.port > 65535) {
+		throw new Error('SMTP port must be between 1 and 65535.');
+	}
+	if ((username && !password) || (!username && password)) {
+		throw new Error('SMTP username and password must be provided together.');
+	}
 
-	setEmailProviders([
-		{
-			id: providerId,
-			name: 'Resend',
-			apiKey,
-			baseUrl: 'https://api.resend.com',
-		},
-	]);
-	saveEmailConfiguration({ providerId });
+	saveSmtpSettings({ host, port: input.port, secure: input.secure, username, password, from });
 	return getEmailSettings();
 }

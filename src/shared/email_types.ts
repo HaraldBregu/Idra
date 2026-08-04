@@ -1,14 +1,17 @@
-export const EMAIL_PROVIDER_IDS = ['resend'] as const;
-
-export type EmailProviderId = (typeof EMAIL_PROVIDER_IDS)[number];
-
 export interface EmailSettings {
-	providerId: EmailProviderId;
-	configured: Record<EmailProviderId, boolean>;
+	configured: boolean;
 }
 
-export interface EmailProviderInput {
-	apiKey: string;
+export interface SmtpSettingsInput {
+	host: string;
+	port: number;
+	secure: boolean;
+	username: string;
+	password: string;
+	from: string;
+}
+
+export interface SmtpSettings extends SmtpSettingsInput {
 }
 
 export interface EmailRequest {

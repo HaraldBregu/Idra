@@ -1,25 +1,21 @@
-import type { EmailProviderId, EmailRequest, EmailResponse } from '../../shared/email_types';
-import type { EmailAdapter } from './adapters/adapter';
-import { sendResend } from './adapters/resend';
-import { getEmailKey } from './email_get_key';
-import { getEmailSettings } from './email_get_settings';
-
-const senders: Record<EmailProviderId, EmailAdapter> = {
-	resend: sendResend,
-};
-
-// ponytail: sender is env-controlled; move into email settings when a settings UI exists
-const DEFAULT_FROM = 'Friday <onboarding@resend.dev>';
+import nodemailer from 'nodemailer';
+import type { EmailRequest, EmailResponse } from '../../shared/email_types';
+import { getSmtpSettings } from './email_store';
 
 export async function sendEmail(request: EmailRequest): Promise<EmailResponse> {
-	const { providerId } = getEmailSettings();
-	const apiKey = getEmailKey(providerId);
-	if (!apiKey) {
-		throw new Error(
-			'Configure Resend (RESEND_API_KEY or an email provider in settings) before using send_email.'
-		);
-	}
-	const from = process.env.EMAIL_FROM?.trim() || DEFAULT_FROM;
-
-	return senders[providerId](request, from, apiKey);
+	const settings = getSmtpSettings();
+	if (!settings) throw new Error('Configure an SMTP server before using send_email.');
+	const transport = nodemailer.createTransport({
+		host: settings.host,
+		port: settings.port,
+		secure: settings.secure,
+		auth: settings.username ? { user: settings.username, pass: settings.password } : undefined,
+	});
+	const response = await transport.sendMail({
+		from: settings.from,
+		to: request.to,
+		subject: request.subject,
+		text: request.text,
+	});
+	return { id: response.messageId };
 }

@@ -186,7 +186,7 @@ export const SearchChannels = {
 
 export const EmailChannels = {
 	getSettings: 'email:settings:get',
-	saveProvider: 'email:provider:save',
+	saveSettings: 'email:settings:save',
 } as const;
 
 export const WikiChannels = {
