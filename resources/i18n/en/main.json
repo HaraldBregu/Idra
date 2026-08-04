@@ -609,7 +609,7 @@
 			}
 		},
 		"email": {
-			"title": "Email",
+			"title": "SMTP",
 			"description": "Configure SMTP email delivery for the assistant.",
 			"providers": "Providers",
 			"configuration": "Configuration",

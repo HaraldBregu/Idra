@@ -608,7 +608,7 @@
 			}
 		},
 		"email": {
-			"title": "Email",
+			"title": "SMTP",
 			"description": "Configura l'invio di email SMTP per l'assistente.",
 			"providers": "Provider",
 			"configuration": "Configurazione",
