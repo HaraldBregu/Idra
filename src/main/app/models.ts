@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { existsSync, mkdirSync, readdirSync, readFileSync, watch } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, watch } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { is } from '@electron-toolkit/utils';
 import {
@@ -33,7 +33,6 @@ let cache: Catalog | undefined;
 let watching = false;
 
 function loadCatalog(): Catalog {
-	ensureProvidersDir();
 	// ponytail: without a watcher there is no safe cache — read fresh every call
 	if (!watching) return readCatalog();
 	if (!cache) cache = readCatalog();
@@ -78,7 +77,6 @@ export function refreshProviderCatalog(): void {
 export function watchModels(onChange: () => void): void {
 	if (watching) return;
 	try {
-		ensureProvidersDir();
 		let timer: NodeJS.Timeout | undefined;
 		watch(providersDir(), { recursive: true }, () => {
 			refreshProviderCatalog();
@@ -231,10 +229,6 @@ function toPublicProvider(entry: ProviderManifest, providerDir: string): PublicP
 
 export function providersDir(): string {
 	return path.join(userDataLocation(), 'providers');
-}
-
-export function ensureProvidersDir(directory = providersDir()): void {
-	mkdirSync(directory, { recursive: true });
 }
 
 function bundledProvidersDir(): string {
