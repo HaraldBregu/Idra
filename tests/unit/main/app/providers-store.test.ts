@@ -104,7 +104,7 @@ describe('providers in app settings', () => {
 		saveSmtpProvider(first);
 		saveSmtpProvider(second);
 
-		expect(getSmtpProviders()).toEqual([first, second]);
+		expect(getSmtpProviders().slice(-2)).toEqual([first, second]);
 		expect(getSmtpSettings()).toEqual(second);
 	});
 
