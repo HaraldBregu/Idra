@@ -1,9 +1,7 @@
 import path from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
 import Store from 'electron-store';
 import { userDataLocation } from '../../shared/user_data_location';
 import type { StoredProvider } from '../../../shared/provider_types';
-import { getLegacySearchProviders, removeLegacySearchProviders } from '../settings_store';
 
 interface SearchConfiguration {
 	providerId?: string;
@@ -15,9 +13,6 @@ interface SearchSettingsState extends SearchConfiguration {
 }
 
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
-const legacyAppSettingsDirectory = path.resolve(userDataLocation(), 'app');
-const searchStorePathname = path.join(settingsDirectory, 'search.json');
-const hasSearchStore = existsSync(searchStorePathname);
 const DEFAULT_SEARCH_SETTINGS: SearchSettingsState = { providers: [] };
 
 const store = new Store<SearchSettingsState>({
@@ -26,15 +21,6 @@ const store = new Store<SearchSettingsState>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_SEARCH_SETTINGS,
 });
-
-if (!hasSearchStore) {
-	store.store = {
-		...DEFAULT_SEARCH_SETTINGS,
-		...readLegacySearchConfiguration(),
-		providers: getLegacySearchProviders(),
-	};
-}
-removeLegacySearchProviders();
 
 export const searchStorePath = store.path;
 
@@ -53,22 +39,6 @@ export function getSearchProviders(): StoredProvider[] {
 
 export function setSearchProviders(providers: StoredProvider[]): void {
 	store.set('providers', providers.filter(isStoredProvider));
-}
-
-function readLegacySearchConfiguration(): SearchConfiguration {
-	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.search.json');
-	if (!existsSync(legacyPath)) return {};
-	try {
-		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
-		if (typeof value !== 'object' || value === null) return {};
-		const configuration = value as SearchConfiguration;
-		return {
-			providerId: typeof configuration.providerId === 'string' ? configuration.providerId : undefined,
-			searchId: typeof configuration.searchId === 'string' ? configuration.searchId : undefined,
-		};
-	} catch {
-		return {};
-	}
 }
 
 function isStoredProvider(value: unknown): value is StoredProvider {

@@ -1,9 +1,7 @@
 import path from 'node:path';
-import { existsSync } from 'node:fs';
 import Store from 'electron-store';
 import { userDataLocation } from '../../shared/user_data_location';
 import type { StoredBotProvider } from '../../../shared';
-import { getLegacyBotProviders, removeLegacyBotProviders } from '../settings_store';
 
 export type ChannelsStoreState = { readonly providers: StoredBotProvider[] };
 
@@ -13,8 +11,6 @@ const DEFAULT_CHANNELS_STORE: ChannelsStoreState = {
 };
 
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
-const legacyAppSettingsDirectory = path.resolve(userDataLocation(), 'app');
-const hasChannelsStore = existsSync(path.join(settingsDirectory, 'channels.json'));
 
 const store = new Store<ChannelsStoreState>({
 	name: CHANNELS_STORE_NAME,
@@ -22,39 +18,6 @@ const store = new Store<ChannelsStoreState>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_CHANNELS_STORE,
 });
-
-const legacyStore = !hasChannelsStore && existsSync(path.join(legacyAppSettingsDirectory, 'channels.json'))
-	? new Store<ChannelsStoreState>({
-			name: CHANNELS_STORE_NAME,
-			cwd: legacyAppSettingsDirectory,
-			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_CHANNELS_STORE,
-		})
-	: undefined;
-
-const current = store.store as unknown as {
-	providers?: StoredBotProvider[];
-};
-const legacyProviders = getLegacyBotProviders() as StoredBotProvider[];
-const previousProviders = legacyStore?.store.providers ?? [];
-const providers =
-	Array.isArray(current.providers) && current.providers.length > 0
-		? current.providers
-		: previousProviders.length > 0
-			? previousProviders
-			: legacyProviders;
-if (
-	!hasChannelsStore ||
-	!Array.isArray(current.providers) ||
-	previousProviders.length > 0 ||
-	legacyProviders.length > 0 ||
-	Object.keys(store.store).some((key) => key !== 'providers')
-) {
-	store.store = {
-		providers,
-	};
-	removeLegacyBotProviders();
-}
 
 export function listChannelProviders(): StoredBotProvider[] {
 	return store.get('providers');

@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { existsSync } from 'node:fs';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
 
@@ -10,8 +9,6 @@ type AgentStoreSchema = {
 
 const AGENT_STORE_NAME = 'agent';
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
-const legacyAgentDirectory = path.resolve(userDataLocation(), 'agent');
-const hasAgentStore = existsSync(path.join(settingsDirectory, 'agent.json'));
 const DEFAULT_AGENT_STORE: AgentStoreSchema = { providerId: undefined, modelId: undefined };
 
 const store = new Store<AgentStoreSchema>({
@@ -20,16 +17,6 @@ const store = new Store<AgentStoreSchema>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_AGENT_STORE,
 });
-
-if (!hasAgentStore && existsSync(path.join(legacyAgentDirectory, 'settings.json'))) {
-	const legacyStore = new Store<AgentStoreSchema>({
-		name: 'settings',
-		cwd: legacyAgentDirectory,
-		accessPropertiesByDotNotation: false,
-		defaults: DEFAULT_AGENT_STORE,
-	});
-	store.store = legacyStore.store;
-}
 
 export function getProviderId(): string | undefined {
 	return store.get('providerId');

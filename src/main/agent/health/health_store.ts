@@ -1,13 +1,10 @@
 import path from 'node:path';
-import { existsSync } from 'node:fs';
 import Store from 'electron-store';
 import { userDataLocation } from '../../shared/user_data_location';
 import { DEFAULT_HEALTH_SETTINGS, type HealthSettings } from './health_types';
 
 const HEALTH_STORE_NAME = 'health';
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
-const legacyAgentDirectory = path.resolve(userDataLocation(), 'agent');
-const hasHealthStore = existsSync(path.join(settingsDirectory, 'health.json'));
 
 const store = new Store<HealthSettings>({
 	name: HEALTH_STORE_NAME,
@@ -15,16 +12,6 @@ const store = new Store<HealthSettings>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_HEALTH_SETTINGS,
 });
-
-if (!hasHealthStore && existsSync(path.join(legacyAgentDirectory, 'settings.health.json'))) {
-	const legacyStore = new Store<HealthSettings>({
-		name: 'settings.health',
-		cwd: legacyAgentDirectory,
-		accessPropertiesByDotNotation: false,
-		defaults: DEFAULT_HEALTH_SETTINGS,
-	});
-	store.store = legacyStore.store;
-}
 
 export const healthStorePath = store.path;
 
