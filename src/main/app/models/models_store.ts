@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
 import Store from 'electron-store';
 import { userDataLocation } from '../../shared/user_data_location';
 import type { StoredProvider } from '../../../shared/provider_types';
@@ -26,7 +25,6 @@ type PersistedModelsStoreState = ModelsStoreState & {
 };
 
 const MODELS_SETTINGS_DIRECTORY = path.resolve(userDataLocation(), 'settings');
-const LEGACY_MODELS_DIRECTORY = path.resolve(userDataLocation(), 'models');
 
 const EMPTY_SELECTION: ModelSelection = {
 	providerId: '',
@@ -55,28 +53,6 @@ const store = new Store<PersistedModelsStoreState>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_PERSISTED_MODELS_STORE,
 });
-
-const current = store.store as Partial<PersistedModelsStoreState>;
-const legacySelections = {
-	...readStore(LEGACY_MODELS_DIRECTORY, 'settings.json'),
-	...readStore(MODELS_SETTINGS_DIRECTORY, 'model-settings.json'),
-};
-const legacyApplication = {
-	...readStore(path.resolve(userDataLocation(), 'app'), 'settings.json'),
-	...readStore(path.resolve(userDataLocation(), 'app'), 'app.json'),
-	...readStore(path.resolve(userDataLocation(), 'app'), 'application.json'),
-};
-
-store.store = {
-	...DEFAULT_PERSISTED_MODELS_STORE,
-	...legacySelections,
-	...current,
-	providers: Array.isArray(current.providers)
-		? current.providers.filter(isStoredProvider)
-		: Array.isArray(legacyApplication.models)
-			? legacyApplication.models.filter(isStoredProvider)
-			: [],
-};
 
 export function getModelsStore(): ModelsStoreState {
 	const { providers: _providers, ...selections } = store.store;
@@ -123,17 +99,6 @@ function optionalTrimmedString(value: unknown): string | undefined {
 	if (typeof value !== 'string') return undefined;
 	const trimmed = value.trim();
 	return trimmed || undefined;
-}
-
-function readStore(directory: string, filename: string): Record<string, unknown> {
-	const storePath = path.join(directory, filename);
-	if (!existsSync(storePath)) return {};
-	try {
-		const value: unknown = JSON.parse(readFileSync(storePath, 'utf8'));
-		return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
-	} catch {
-		return {};
-	}
 }
 
 function isStoredProvider(value: unknown): value is StoredProvider {
