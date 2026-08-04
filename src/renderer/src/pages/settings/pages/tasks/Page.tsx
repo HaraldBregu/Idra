@@ -144,7 +144,7 @@ const TasksPage: React.FC = () => {
 								key={task.id}
 								as="button"
 								type="button"
-								onClick={() => navigate(`/settings/tasks/detail/${encodeURIComponent(task.id)}`)}
+								onClick={() => navigate(`/settings/tasks/${encodeURIComponent(task.id)}/detail`)}
 								variant="outline"
 								size="md"
 								className="cursor-pointer border-b border-border/60 text-left hover:bg-muted/50 last:border-b-0"

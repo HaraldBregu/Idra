@@ -198,7 +198,7 @@ const routes: RouteObject[] = [
 								),
 							},
 							{
-								path: 'detail/:taskId',
+								path: ':taskId/detail',
 								element: (
 									<SettingsRouteWrapper>
 										<TaskDetailsPage />
