@@ -1,4 +1,4 @@
-import tasks from 'node-cron';
+import cron from 'node-cron';
 import { isActiveSchedule } from './tasks_is_active_schedule';
 import { list } from './tasks_list';
 

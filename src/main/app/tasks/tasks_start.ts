@@ -4,7 +4,7 @@ import { isActiveSchedule } from './tasks_is_active_schedule';
 import { list } from './tasks_list';
 import { reconcile } from './tasks_reconcile';
 
-export async function startCron(): Promise<void> {
+export async function startTask(): Promise<void> {
 	if (!enabled) {
 		console.warn('[Task]', 'Task automatic execution is globally disabled.');
 		return;

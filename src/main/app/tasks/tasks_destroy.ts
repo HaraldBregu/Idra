@@ -1,6 +1,6 @@
-import { stopCron } from './tasks_stop';
+import { stopTask } from './tasks_stop';
 
-export function destroyCron(): void {
-	void stopCron();
+export function destroyTask(): void {
+	void stopTask();
 	console.info('[Task]', 'Disposed');
 }

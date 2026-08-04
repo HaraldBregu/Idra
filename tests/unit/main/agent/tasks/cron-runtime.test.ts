@@ -6,7 +6,7 @@ jest.mock('../../../../../src/main/app/tasks/tasks_write_state', () => ({ writeS
 
 import { getRuntime } from '../../../../../src/main/app/tasks/tasks_get_runtime';
 import { setRuntime } from '../../../../../src/main/app/tasks/tasks_set_runtime';
-import type { PersistedCronState } from '../../../../../src/main/app/tasks/tasks_types';
+import type { PersistedTaskState } from '../../../../../src/main/app/tasks/tasks_types';
 
 beforeEach(() => {
 	readState.mockReset();
@@ -20,8 +20,8 @@ it('reads the runtime from top-level provider and model fields', () => {
 });
 
 it('stores the runtime as top-level provider and model fields', () => {
-	const state: PersistedCronState = { schedules: [] };
-	writeState.mockImplementation((mutate: (value: PersistedCronState) => unknown) => mutate(state));
+	const state: PersistedTaskState = { schedules: [] };
+	writeState.mockImplementation((mutate: (value: PersistedTaskState) => unknown) => mutate(state));
 
 	expect(setRuntime(' openai ', ' gpt-5 ')).toEqual({ providerId: 'openai', modelId: 'gpt-5' });
 	expect(state).toEqual({ providerId: 'openai', modelId: 'gpt-5', schedules: [] });

@@ -1,4 +1,4 @@
-import tasks from 'node-cron';
+import cron from 'node-cron';
 import { tasks } from './tasks_module_state';
 
 export function unscheduleJob(scheduleId: string): void {

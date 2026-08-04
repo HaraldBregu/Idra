@@ -78,14 +78,14 @@ export interface TaskRuntime {
 }
 
 /** Shape persisted to the tasks electron-store file. */
-export interface PersistedCronState {
+export interface PersistedTaskState {
 	enabled?: boolean;
 	providerId?: string;
 	modelId?: string;
 	schedules: TaskSchedule[];
 }
 
-export const DEFAULT_TASK_STATE: PersistedCronState = { schedules: [] };
+export const DEFAULT_TASK_STATE: PersistedTaskState = { schedules: [] };
 
 export type TaskFunctionId =
 	| 'create_schedule'

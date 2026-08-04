@@ -1,16 +1,16 @@
 import {
 	cronConfigurationStorePath,
-	getCronConfiguration,
-	setCronConfiguration,
+	getTaskConfiguration,
+	setTaskConfiguration,
 } from '../settings_store';
-import type { PersistedCronState } from './tasks_types';
+import type { PersistedTaskState } from './tasks_types';
 
 export const cronStorePath = cronConfigurationStorePath;
 
-export function getCronState(): PersistedCronState {
-	return getCronConfiguration();
+export function getTaskState(): PersistedTaskState {
+	return getTaskConfiguration();
 }
 
-export function setCronState(value: PersistedCronState): void {
-	setCronConfiguration(value);
+export function setTaskState(value: PersistedTaskState): void {
+	setTaskConfiguration(value);
 }

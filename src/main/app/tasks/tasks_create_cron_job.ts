@@ -1,9 +1,9 @@
-import tasks from 'node-cron';
+import cron from 'node-cron';
 import { fire } from './tasks_fire';
 import type { TaskJobHandle } from './tasks_internal_types';
 import type { TaskSchedule } from './tasks_types';
 
-export function createCronJob(schedule: TaskSchedule): TaskJobHandle | undefined {
+export function createTaskJob(schedule: TaskSchedule): TaskJobHandle | undefined {
 	if (!schedule.cronExpression || !tasks.validate(schedule.cronExpression)) {
 		console.warn(
 			'[Task]',

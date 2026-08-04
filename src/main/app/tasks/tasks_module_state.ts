@@ -6,10 +6,10 @@ export const listeners = new Set<TaskEventListener>();
 export let enabled = true;
 export let runner: TaskRunner | undefined;
 
-export function setCronEnabled(value: boolean): void {
+export function setTaskEnabled(value: boolean): void {
 	enabled = value;
 }
 
-export function setCronRunner(value: TaskRunner | undefined): void {
+export function setTaskRunner(value: TaskRunner | undefined): void {
 	runner = value;
 }

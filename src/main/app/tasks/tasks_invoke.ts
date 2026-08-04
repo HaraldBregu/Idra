@@ -21,7 +21,7 @@ const handlers: {
 	run_schedule_now: (input) => runScheduleNow(input.scheduleId),
 };
 
-export function invokeCron<K extends TaskFunctionId>(
+export function invokeTask<K extends TaskFunctionId>(
 	id: K,
 	input: TaskFunctionInput[K]
 ): TaskFunctionResult[K] {

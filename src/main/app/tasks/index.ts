@@ -1,11 +1,11 @@
 export { clone } from './tasks_clone';
 export { cronEvents } from './tasks_events';
-export { destroyCron } from './tasks_destroy';
-export { initCron } from './tasks_init';
-export { invokeCron } from './tasks_invoke';
+export { destroyTask } from './tasks_destroy';
+export { initTask } from './tasks_init';
+export { invokeTask } from './tasks_invoke';
 export { isActiveSchedule } from './tasks_is_active_schedule';
-export { startCron } from './tasks_start';
-export { stopCron } from './tasks_stop';
+export { startTask } from './tasks_start';
+export { stopTask } from './tasks_stop';
 export { createSchedule } from './tasks_create_schedule';
 export { updateSchedule } from './tasks_update_schedule';
 export { pauseSchedule } from './tasks_pause_schedule';
@@ -18,8 +18,8 @@ export { setRuntime } from './tasks_set_runtime';
 export { runScheduleNow } from './tasks_run_schedule_now';
 export { listJobs } from './tasks_list_jobs';
 export { deleteJob } from './tasks_delete_job';
-export { getCronState, setCronState } from './tasks_store';
-export { setCronRunner } from './tasks_module_state';
+export { getTaskState, setTaskState } from './tasks_store';
+export { setTaskRunner } from './tasks_module_state';
 export {
 	DEFAULT_TASK_STATE,
 	type TaskAction,
@@ -35,5 +35,5 @@ export {
 	type TaskScheduleEvent,
 	type TaskScheduledTask,
 	type TaskScheduleUpdateRequest,
-	type PersistedCronState,
+	type PersistedTaskState,
 } from './tasks_types';

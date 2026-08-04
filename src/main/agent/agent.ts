@@ -12,7 +12,7 @@ import {
 } from './session';
 import { stream } from './run/run_stream';
 import { agentLocation } from '../shared/agent_location';
-import { destroyCron, getRuntime, initCron, setCronRunner, startCron } from '../app/tasks';
+import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../app/tasks';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './policy';
 import { resolveSkillCommand } from './skills';
@@ -61,7 +61,7 @@ export class Agent {
 
 	constructor() {
 		this.config = { location: path.resolve(agentLocation()) };
-		initCron();
+		initTask();
 		this.session = createSessionState();
 		this.state = createContextState(this.session.context);
 	}
@@ -72,7 +72,7 @@ export class Agent {
 	}): void {
 		if (this.isStarted) return;
 		this.isStarted = true;
-		setCronRunner((schedule) => {
+		setTaskRunner((schedule) => {
 			if (schedule.action.type !== 'agent') return Promise.resolve('');
 			const runtime = getRuntime();
 			return this.send(schedule.action.prompt, 'tasks', {
@@ -84,7 +84,7 @@ export class Agent {
 				...(runtime ? { providerId: runtime.providerId, modelId: runtime.modelId } : {}),
 			});
 		});
-		void startCron().catch((error) => {
+		void startTask().catch((error) => {
 			logger.error('Task', 'Failed to start persistent tasks scheduler', error);
 		});
 		startHealth(this, logger);
@@ -92,8 +92,8 @@ export class Agent {
 
 	destroy(): void {
 		stopHealth();
-		setCronRunner(undefined);
-		destroyCron();
+		setTaskRunner(undefined);
+		destroyTask();
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {

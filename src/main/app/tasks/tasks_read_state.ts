@@ -1,6 +1,6 @@
-import { getCronState } from './tasks_store';
-import type { PersistedCronState } from './tasks_types';
+import { getTaskState } from './tasks_store';
+import type { PersistedTaskState } from './tasks_types';
 
-export function readState(): PersistedCronState {
-	return getCronState();
+export function readState(): PersistedTaskState {
+	return getTaskState();
 }
