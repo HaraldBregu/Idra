@@ -63,7 +63,8 @@ function readLegacyEmailConfiguration(): EmailConfiguration {
 		if (typeof value !== 'object' || value === null) return {};
 		const configuration = value as EmailConfiguration;
 		return {
-			providerId: typeof configuration.providerId === 'string' ? configuration.providerId : undefined,
+			providerId:
+				typeof configuration.providerId === 'string' ? configuration.providerId : undefined,
 			emailId: typeof configuration.emailId === 'string' ? configuration.emailId : undefined,
 		};
 	} catch {

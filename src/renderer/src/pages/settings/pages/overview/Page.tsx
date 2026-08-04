@@ -144,10 +144,7 @@ const OverviewPage: React.FC = () => {
 				}
 
 				return 'titleKey' in group ? (
-					<SettingsSection
-						key={group.id}
-						title={t(group.titleKey)}
-					>
+					<SettingsSection key={group.id} title={t(group.titleKey)}>
 						{panel}
 					</SettingsSection>
 				) : (

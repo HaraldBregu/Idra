@@ -1,4 +1,9 @@
-import { EMAIL_PROVIDER_IDS, type EmailProviderId, type EmailProviderInput, type EmailSettings } from '../../../shared/email_types';
+import {
+	EMAIL_PROVIDER_IDS,
+	type EmailProviderId,
+	type EmailProviderInput,
+	type EmailSettings,
+} from '../../../shared/email_types';
 import { getEmailSettings } from './email_get_settings';
 import { saveEmailConfiguration, setEmailProviders } from './email_store';
 
