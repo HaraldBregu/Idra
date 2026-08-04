@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
 import type { SmtpSettings } from '../../shared/email_types';
