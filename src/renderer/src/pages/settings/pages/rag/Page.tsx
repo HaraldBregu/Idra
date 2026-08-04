@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	AlertTriangle,
@@ -9,14 +9,36 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import type { RagMatch } from '../../../../../../main/rag';
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import type { RagMatch } from '../../../../../../main/rag';
+import type { DatabaseConfiguration } from '../../../../../../shared/database_types';
+import type { CatalogService } from '../../../../../../shared/provider_types';
+import { getErrorMessage } from '../../../start/constants';
+import {
+	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
+	SettingsRow,
 	SettingsSection,
 } from '../../components';
+
+const VALUE_SEPARATOR = '\u001F';
+
+function databaseKey(entry: CatalogService): string {
+	return `${entry.provider.id}${VALUE_SEPARATOR}${entry.id}`;
+}
+
+function databaseLabel(entry: CatalogService): string {
+	return `${entry.provider.name} / ${entry.name || entry.id}`;
+}
 
 const RagPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -26,6 +48,28 @@ const RagPage: React.FC = () => {
 	const [query, setQuery] = useState('');
 	const [searching, setSearching] = useState(false);
 	const [matches, setMatches] = useState<RagMatch[] | null>(null);
+	const [databases, setDatabases] = useState<CatalogService[] | null>(null);
+	const [databaseConfiguration, setDatabaseConfiguration] = useState<DatabaseConfiguration>({
+		providerId: undefined,
+		databaseId: undefined,
+	});
+
+	useEffect(() => {
+		let cancelled = false;
+		void Promise.all([window.app.databases(), window.database.getConfiguration()]).then(
+			([entries, configuration]) => {
+				if (cancelled) return;
+				setDatabases([...entries]);
+				setDatabaseConfiguration(configuration);
+			},
+			(err) => {
+				if (!cancelled) setError(getErrorMessage(err, t('settings.vectorDb.errors.load')));
+			}
+		);
+		return () => {
+			cancelled = true;
+		};
+	}, [t]);
 
 	const handleIndex = async (): Promise<void> => {
 		setIndexing(true);
@@ -58,6 +102,25 @@ const RagPage: React.FC = () => {
 		}
 	};
 
+	const selectDatabase = async (value: string | null): Promise<void> => {
+		const entry = databases?.find((item) => databaseKey(item) === value);
+		if (!entry) return;
+		const next = { providerId: entry.provider.id, databaseId: entry.id };
+		setDatabaseConfiguration(next);
+		setError(null);
+		try {
+			setDatabaseConfiguration(await window.database.saveConfiguration(next));
+		} catch (err) {
+			setError(getErrorMessage(err, t('settings.vectorDb.errors.save')));
+		}
+	};
+
+	const selectedDatabase = databases?.find(
+		(entry) =>
+			entry.id === databaseConfiguration.databaseId &&
+			entry.provider.id === databaseConfiguration.providerId
+	);
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader title={t('settings.tabs.rag')} description={t('settings.rag.description')} />
@@ -67,6 +130,40 @@ const RagPage: React.FC = () => {
 					{error}
 				</SettingsNotice>
 			)}
+
+			<SettingsSection title={t('settings.vectorDb.defaultTitle')}>
+				{!databases ? (
+					<SettingsLoadingRows rows={1} />
+				) : databases.length === 0 ? (
+					<SettingsNotice>{t('settings.vectorDb.empty')}</SettingsNotice>
+				) : (
+					<SettingsPanel>
+						<SettingsRow
+							title={t('settings.vectorDb.database')}
+							description={t('settings.vectorDb.databaseDescription')}
+							actions={
+								<Select
+									value={selectedDatabase ? databaseKey(selectedDatabase) : null}
+									onValueChange={(value) => void selectDatabase(value)}
+								>
+									<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+										<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
+											{selectedDatabase && databaseLabel(selectedDatabase)}
+										</SelectValue>
+									</SelectTrigger>
+									<SelectContent>
+										{databases.map((entry) => (
+											<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
+												{databaseLabel(entry)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							}
+						/>
+					</SettingsPanel>
+				)}
+			</SettingsSection>
 
 			<SettingsSection title={t('settings.rag.documentsTitle')}>
 				<SettingsPanel>

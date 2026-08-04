@@ -387,13 +387,6 @@ export const SETTINGS_NAVIGATION = [
 		icon: Bot,
 	},
 	{
-		path: '/settings/database',
-		labelKey: 'settings.tabs.database',
-		descriptionKey: 'settings.overview.descriptions.database',
-		icon: Database,
-		comingSoon: true,
-	},
-	{
 		path: '/settings/rag',
 		labelKey: 'settings.tabs.rag',
 		descriptionKey: 'settings.overview.descriptions.rag',
