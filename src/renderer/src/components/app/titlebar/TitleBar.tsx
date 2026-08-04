@@ -94,8 +94,8 @@ export const TitleBar = React.memo(function TitleBar({
 						</button>
 					)}
 
-					{!isMac && routeButton}
 					{!isMac && sessionsButton}
+					{!isMac && routeButton}
 
 					{!isHome && !isStart && !isSettings && (
 						<Button
@@ -148,8 +148,8 @@ export const TitleBar = React.memo(function TitleBar({
 						className="z-10 mr-3 flex h-full items-center gap-1"
 						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
-						{routeButton}
 						{sessionsButton}
+						{routeButton}
 					</div>
 				)}
 
