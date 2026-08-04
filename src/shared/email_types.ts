@@ -33,6 +33,11 @@ export interface EmailRequest {
 	to: string;
 	subject: string;
 	text: string;
+	attachments?: EmailAttachment[];
+}
+
+export interface EmailAttachment {
+	path: string;
 }
 
 export interface EmailResponse {

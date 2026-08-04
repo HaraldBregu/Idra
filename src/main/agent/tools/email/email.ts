@@ -11,9 +11,22 @@ const sendEmailTool = tool({
 		to: z.string().min(1).describe('Recipient email address.'),
 		subject: z.string().min(1).describe('Email subject.'),
 		text: z.string().min(1).describe('Plain-text email body.'),
+		attachments: z
+			.array(z.string().min(1))
+			.optional()
+			.describe('Local file paths to attach to the email.'),
 	}),
-	execute: async ({ to, subject, text }) => {
-		return JSON.stringify(await sendEmail({ to, subject, text }), null, 2);
+	execute: async ({ to, subject, text, attachments }) => {
+		return JSON.stringify(
+			await sendEmail({
+				to,
+				subject,
+				text,
+				attachments: attachments?.map((path) => ({ path })),
+			}),
+			null,
+			2
+		);
 	},
 });
 

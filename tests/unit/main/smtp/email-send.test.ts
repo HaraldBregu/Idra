@@ -1,7 +1,9 @@
 const sendMail = jest.fn();
 const createTransport = jest.fn(() => ({ sendMail }));
+const statSync = jest.fn(() => ({ isFile: () => true }));
 
 jest.mock('nodemailer', () => ({ __esModule: true, default: { createTransport } }));
+jest.mock('node:fs', () => ({ statSync }));
 jest.mock('../../../../src/main/smtp/smtp_store', () => ({ getSmtpSettings: jest.fn() }));
 
 import { getSmtpSettings } from '../../../../src/main/smtp/smtp_store';
@@ -28,16 +30,27 @@ describe('sendEmail', () => {
 		jest.mocked(getSmtpSettings).mockReturnValue(smtp);
 		sendMail.mockResolvedValue({ messageId: 'message-id' });
 
-		await expect(sendEmail({ to: 'to@example.com', subject: 'Subject', text: 'Body' })).resolves.toEqual({
-			id: 'message-id',
-		});
+		await expect(
+			sendEmail({
+				to: 'to@example.com',
+				subject: 'Subject',
+				text: 'Body',
+				attachments: [{ path: '/files/invoice.pdf' }],
+			})
+		).resolves.toEqual({ id: 'message-id' });
 		expect(createTransport).toHaveBeenCalledWith({
 			host: smtp.host,
 			port: smtp.port,
 			secure: smtp.secure,
 			auth: { user: smtp.username, pass: smtp.password },
 		});
-		expect(sendMail).toHaveBeenCalledWith({ from: smtp.from, to: 'to@example.com', subject: 'Subject', text: 'Body' });
+		expect(sendMail).toHaveBeenCalledWith({
+			from: smtp.from,
+			to: 'to@example.com',
+			subject: 'Subject',
+			text: 'Body',
+			attachments: [{ path: '/files/invoice.pdf' }],
+		});
 	});
 
 	it('requires SMTP settings', async () => {
