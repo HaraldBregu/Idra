@@ -19,7 +19,7 @@ export async function indexRag(root: string): Promise<RagIndexResult> {
 	if (!source) throw new Error('Choose a source folder before indexing.');
 	if (!(await stat(source)).isDirectory()) throw new Error('The selected source is not a folder.');
 
-	const files = (await readdir(root, { recursive: true })).filter((file) =>
+	const files = (await readdir(source, { recursive: true })).filter((file) =>
 		MARKDOWN_EXTENSIONS.has(path.extname(file).toLowerCase())
 	);
 	if (files.length === 0) throw new Error(`No Markdown documents to index in ${source}.`);
@@ -27,9 +27,11 @@ export async function indexRag(root: string): Promise<RagIndexResult> {
 	const pinecone = ragClient();
 	let index: ReturnType<Pinecone['index']> | undefined;
 	let vectors = 0;
+	let indexedFiles = 0;
 
 	for (const file of files) {
 		const chunks = chunkText(await readFile(path.join(source, file), 'utf8'));
+		if (chunks.length > 0) indexedFiles += 1;
 		for (let start = 0; start < chunks.length; start += BATCH_SIZE) {
 			const batch = chunks.slice(start, start + BATCH_SIZE);
 			const embedded = await createEmbedding({ texts: batch, inputType: 'document' });
@@ -52,7 +54,7 @@ export async function indexRag(root: string): Promise<RagIndexResult> {
 		}
 	}
 	if (!index) throw new Error(`No indexable Markdown content found in ${source}.`);
-	return { files: files.length, vectors };
+	return { files: indexedFiles, vectors };
 }
 
 async function ensureIndex(pinecone: Pinecone, dimension: number) {
