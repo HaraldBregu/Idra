@@ -43,7 +43,7 @@ import {
 import type { SmtpSettings } from '../../../../src/shared/email_types';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';
-import { getSmtpSettings, saveSmtpSettings } from '../../../../src/main/smtp/email_store';
+import { getSmtpSettings, saveSmtpSettings } from '../../../../src/main/smtp/smtp_store';
 
 function provider(id: string, name: string): StoredProvider {
 	return { id, name, apiKey: 'k', baseUrl: 'https://api' };

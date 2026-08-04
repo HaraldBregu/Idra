@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import type { EmailRequest, EmailResponse } from '../../shared/email_types';
-import { getSmtpSettings } from './email_store';
+import { getSmtpSettings } from './smtp_store';
 
 export async function sendEmail(request: EmailRequest): Promise<EmailResponse> {
 	const settings = getSmtpSettings();

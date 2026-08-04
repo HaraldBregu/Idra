@@ -1,6 +1,6 @@
 import type { EmailSettings, SmtpSettingsInput } from '../../shared/email_types';
 import { getEmailSettings } from './email_get_settings';
-import { saveSmtpSettings } from './email_store';
+import { saveSmtpSettings } from './smtp_store';
 
 export function saveEmailSettings(input: SmtpSettingsInput): EmailSettings {
 	const host = input.host.trim();

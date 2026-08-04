@@ -1,33 +1,28 @@
 import path from 'node:path';
-import { existsSync } from 'node:fs';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
 import type { SmtpSettings } from '../../shared/email_types';
 
-interface EmailSettingsState {
-	smtp?: SmtpSettings;
+interface SmtpStoreState {
+	providers: SmtpSettings[];
 }
 
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
-const emailStorePathname = path.join(settingsDirectory, 'email.json');
-const hasEmailStore = existsSync(emailStorePathname);
-const DEFAULT_EMAIL_SETTINGS: EmailSettingsState = {};
+const DEFAULT_SMTP_SETTINGS: SmtpStoreState = { providers: [] };
 
-const store = new Store<EmailSettingsState>({
-	name: 'email',
+const store = new Store<SmtpStoreState>({
+	name: 'smtp',
 	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_EMAIL_SETTINGS,
+	defaults: DEFAULT_SMTP_SETTINGS,
 });
 
-if (!hasEmailStore) store.store = DEFAULT_EMAIL_SETTINGS;
-
-export const emailStorePath = store.path;
+export const smtpStorePath = store.path;
 
 export function getSmtpSettings(): SmtpSettings | undefined {
-	return store.store.smtp;
+	return store.get('providers')[0];
 }
 
 export function saveSmtpSettings(settings: SmtpSettings): void {
-	store.set('smtp', settings);
+	store.set('providers', [settings]);
 }

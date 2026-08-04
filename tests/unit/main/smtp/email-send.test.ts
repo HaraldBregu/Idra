@@ -2,9 +2,9 @@ const sendMail = jest.fn();
 const createTransport = jest.fn(() => ({ sendMail }));
 
 jest.mock('nodemailer', () => ({ __esModule: true, default: { createTransport } }));
-jest.mock('../../../../src/main/smtp/email_store', () => ({ getSmtpSettings: jest.fn() }));
+jest.mock('../../../../src/main/smtp/smtp_store', () => ({ getSmtpSettings: jest.fn() }));
 
-import { getSmtpSettings } from '../../../../src/main/smtp/email_store';
+import { getSmtpSettings } from '../../../../src/main/smtp/smtp_store';
 import { sendEmail } from '../../../../src/main/smtp/email_send';
 
 const smtp = {
