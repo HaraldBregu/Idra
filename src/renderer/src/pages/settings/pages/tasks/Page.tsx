@@ -22,7 +22,7 @@ import {
 } from '../../components';
 import { getProviderCatalogItem } from '../../../start/constants';
 
-type Task = Awaited<ReturnType<typeof window.cron.list>>[number];
+type Task = Awaited<ReturnType<typeof window.tasks.list>>[number];
 
 function describeAction(task: Task): string {
 	return task.action.type === 'agent' ? task.action.prompt : task.action.message;
@@ -49,7 +49,7 @@ const TasksPage: React.FC = () => {
 
 	useEffect(() => {
 		let mounted = true;
-		void Promise.all([window.cron.list(), window.cron.getRuntime()])
+		void Promise.all([window.tasks.list(), window.tasks.getRuntime()])
 			.then(([list, runtime]) => {
 				if (!mounted) return;
 				setTasks(list);
@@ -79,7 +79,7 @@ const TasksPage: React.FC = () => {
 		setSaved(false);
 		setRuntimeError(null);
 		try {
-			await window.cron.setRuntime(nextProviderId, nextModelId);
+			await window.tasks.setRuntime(nextProviderId, nextModelId);
 			setSaved(true);
 		} catch (err) {
 			setRuntimeError(

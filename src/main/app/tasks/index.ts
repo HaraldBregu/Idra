@@ -1,5 +1,5 @@
 export { clone } from './tasks_clone';
-export { cronEvents } from './tasks_events';
+export { taskEvents } from './tasks_events';
 export { destroyTask } from './tasks_destroy';
 export { initTask } from './tasks_init';
 export { invokeTask } from './tasks_invoke';

@@ -7,7 +7,7 @@ export function unscheduleJob(scheduleId: string): void {
 		task.stop();
 		tasks.delete(scheduleId);
 	}
-	for (const cronTask of tasks.getTasks().values()) {
+	for (const cronTask of cron.getTasks().values()) {
 		if (cronTask.name === `tasks:${scheduleId}`) void cronTask.destroy();
 	}
 }

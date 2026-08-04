@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
-import { cronStorePath } from '../../app/tasks/tasks_store';
+import { taskStorePath } from '../../app/tasks/tasks_store';
 import { healthStorePath } from '../health/health_store';
 import { skillsRoot } from '../skills/skills_root';
 import { registry } from '../tools/run_process';
@@ -51,7 +51,7 @@ export function directoryPermissionTargets(
 		const directory = typeof args.directory === 'string' && args.directory ? args.directory : '.';
 		return [realPath(resolveUserPath(directory, baseDir))];
 	}
-	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(cronStorePath)];
+	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(taskStorePath)];
 	if (toolName === 'load_skill')
 		return [realPath(path.join(skillsRoot, String(args.name ?? '')))];
 	return [];

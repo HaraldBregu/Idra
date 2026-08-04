@@ -14,7 +14,7 @@ import {
 	SettingsSection,
 } from '../../../components';
 
-type Task = Awaited<ReturnType<typeof window.cron.list>>[number];
+type Task = Awaited<ReturnType<typeof window.tasks.list>>[number];
 
 const TaskDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -27,7 +27,7 @@ const TaskDetailsPage: React.FC = () => {
 	useEffect(() => {
 		let mounted = true;
 
-		void window.cron
+		void window.tasks
 			.list()
 			.then((tasks) => {
 				if (mounted) setTask(tasks.find((item) => item.id === decodedTaskId) ?? null);

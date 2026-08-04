@@ -1,11 +1,11 @@
 import path from 'node:path';
 import { realPath } from '../../shared/real_path';
-import { cronStorePath } from '../../app/tasks/tasks_store';
+import { taskStorePath } from '../../app/tasks/tasks_store';
 import { healthStorePath } from '../health/health_store';
 import { skillsRoot } from '../skills/skills_root';
 import { isPathWithin } from './policy_path';
 
-const SYSTEM_STORE_ROOTS = [path.dirname(cronStorePath), path.dirname(healthStorePath), skillsRoot];
+const SYSTEM_STORE_ROOTS = [path.dirname(taskStorePath), path.dirname(healthStorePath), skillsRoot];
 
 export function systemPolicyAllows(targets: string[], agentDirectory: string): boolean {
 	const roots = [agentDirectory, ...SYSTEM_STORE_ROOTS].map(realPath);
