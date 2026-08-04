@@ -26,8 +26,6 @@ const TaskDetailsPage: React.FC = () => {
 
 	useEffect(() => {
 		let mounted = true;
-		setLoading(true);
-		setError(null);
 
 		void window.cron
 			.list()
