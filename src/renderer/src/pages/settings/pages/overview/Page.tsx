@@ -20,12 +20,12 @@ import {
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
-		paths: ['/settings/general', '/settings/system', '/settings/application', '/settings/tasks'],
+		paths: ['/settings/general', '/settings/system', '/settings/application'],
 	},
 	{
 		id: 'primary',
 		titleKey: 'settings.overview.groups.assistant',
-		paths: ['/settings/assistant', '/settings/skills', '/settings/rag', '/settings/wiki'],
+		paths: ['/settings/assistant', '/settings/skills', '/settings/rag', '/settings/wiki', '/settings/tasks'],
 	},
 	{
 		id: 'providers',
