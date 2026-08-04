@@ -8,6 +8,8 @@ import { getSmtpSettings } from '../../../../src/main/smtp/smtp_store';
 import { sendEmail } from '../../../../src/main/smtp/email_send';
 
 const smtp = {
+	id: 'smtp-1',
+	name: 'Primary SMTP',
 	host: 'smtp.example.com',
 	port: 587,
 	secure: false,

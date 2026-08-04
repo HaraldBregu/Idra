@@ -1,11 +1,12 @@
-const saveSmtpSettings = jest.fn();
+const saveSmtpProvider = jest.fn();
 const getSmtpSettings = jest.fn();
 
-jest.mock('../../../../src/main/smtp/smtp_store', () => ({ saveSmtpSettings, getSmtpSettings }));
+jest.mock('../../../../src/main/smtp/smtp_store', () => ({ saveSmtpProvider, getSmtpSettings }));
 
-import { saveEmailSettings } from '../../../../src/main/smtp/email_save_provider';
+import { saveEmailProvider } from '../../../../src/main/smtp/email_save_provider';
 
 const smtp = {
+	name: 'Primary SMTP',
 	host: 'smtp.example.com',
 	port: 465,
 	secure: true,
@@ -17,18 +18,22 @@ const smtp = {
 describe('SMTP settings', () => {
 	beforeEach(() => jest.clearAllMocks());
 
-	it('saves a valid SMTP configuration', () => {
+	it('saves a valid SMTP provider', () => {
 		getSmtpSettings.mockReturnValue(smtp);
 
-		expect(saveEmailSettings(smtp)).toEqual({ configured: true });
-		expect(saveSmtpSettings).toHaveBeenCalledWith(smtp);
+		expect(saveEmailProvider(smtp)).toEqual({
+			configured: true,
+			providers: [],
+			selectedProviderId: undefined,
+		});
+		expect(saveSmtpProvider).toHaveBeenCalledWith(expect.objectContaining(smtp));
 	});
 
 	it.each([
-		[{ ...smtp, host: '' }, 'SMTP host and sender address are required.'],
+		[{ ...smtp, name: '' }, 'SMTP name, host, and sender address are required.'],
 		[{ ...smtp, port: 0 }, 'SMTP port must be between 1 and 65535.'],
 		[{ ...smtp, username: 'friday', password: '' }, 'SMTP username and password must be provided together.'],
 	])('rejects invalid configuration', (input, message) => {
-		expect(() => saveEmailSettings(input)).toThrow(message);
+		expect(() => saveEmailProvider(input)).toThrow(message);
 	});
 });

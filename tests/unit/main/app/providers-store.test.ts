@@ -40,10 +40,10 @@ import {
 	setSelectedStorageId,
 	setTaskConfiguration,
 } from '../../../../src/main/app/settings_store';
-import type { SmtpSettings } from '../../../../src/shared/email_types';
+import type { SmtpProvider } from '../../../../src/shared/email_types';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';
-import { getSmtpSettings, saveSmtpSettings } from '../../../../src/main/smtp/smtp_store';
+import { getSmtpSettings, saveSmtpProvider } from '../../../../src/main/smtp/smtp_store';
 
 function provider(id: string, name: string): StoredProvider {
 	return { id, name, apiKey: 'k', baseUrl: 'https://api' };
@@ -78,7 +78,9 @@ describe('providers in app settings', () => {
 	});
 
 	it('stores SMTP settings in the email configuration', () => {
-		const smtp: SmtpSettings = {
+		const smtp: SmtpProvider = {
+			id: 'smtp-1',
+			name: 'Primary SMTP',
 			host: 'smtp.example.com',
 			port: 587,
 			secure: false,
@@ -86,7 +88,7 @@ describe('providers in app settings', () => {
 			password: 'secret',
 			from: 'Friday <friday@example.com>',
 		};
-		saveSmtpSettings(smtp);
+		saveSmtpProvider(smtp);
 
 		expect(getSmtpSettings()).toEqual(smtp);
 	});
