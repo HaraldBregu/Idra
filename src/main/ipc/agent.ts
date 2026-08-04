@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import { BrowserWindow, dialog, ipcMain } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { wrapSimpleHandler } from './core/error_handler';
@@ -33,7 +33,7 @@ import {
 import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
 import type { HealthSettings } from '../agent/health/health_types';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/agent_store';
-import { indexRag, ragLocation, searchRag, type RagIndexResult, type RagMatch } from '../rag';
+import { indexRag, searchRag, type RagIndexResult, type RagMatch } from '../rag';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;
@@ -344,7 +344,11 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.ragIndex,
-			wrapSimpleHandler((): Promise<RagIndexResult> => indexRag(), AgentChannels.ragIndex)
+			wrapSimpleHandler((sourceFolder: unknown): Promise<RagIndexResult> => {
+				const source = optionalTrimmedString(sourceFolder);
+				if (!source) throw new Error('Choose a source folder before indexing.');
+				return indexRag(source);
+			}, AgentChannels.ragIndex)
 		);
 
 		ipcMain.handle(
@@ -357,11 +361,14 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
-			AgentChannels.ragOpenFolder,
-			wrapSimpleHandler(async (): Promise<void> => {
-				const error = await shell.openPath(ragLocation());
-				if (error) throw new Error(error);
-			}, AgentChannels.ragOpenFolder)
+			AgentChannels.ragPickFolder,
+			wrapSimpleHandler(async (): Promise<string | undefined> => {
+				const window = BrowserWindow.getFocusedWindow();
+				const result = await (window
+					? dialog.showOpenDialog(window, { properties: ['openDirectory'] })
+					: dialog.showOpenDialog({ properties: ['openDirectory'] }));
+				return result.canceled ? undefined : result.filePaths[0];
+			}, AgentChannels.ragPickFolder)
 		);
 
 		logger.info('AgentIpc', `Registered ${this.name} module`);

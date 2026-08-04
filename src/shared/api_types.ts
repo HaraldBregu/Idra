@@ -112,9 +112,9 @@ export interface AgentApi {
 	healthResetSettings: () => Promise<HealthSettings>;
 	healthGetData: () => Promise<string>;
 	healthSaveData: (content: string) => Promise<string>;
-	ragIndex: () => Promise<RagIndexResult>;
+	ragIndex: (sourceFolder: string) => Promise<RagIndexResult>;
 	ragSearch: (query: string, topK?: number) => Promise<RagMatch[]>;
-	ragOpenFolder: () => Promise<void>;
+	ragPickFolder: () => Promise<string | undefined>;
 }
 
 export interface TaskApi {

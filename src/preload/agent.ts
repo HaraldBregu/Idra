@@ -180,15 +180,17 @@ export const agent: AgentApi = {
 	healthSaveData: (content: string): Promise<string> => {
 		return typedInvokeUnwrap(AgentChannels.healthSaveData, content);
 	},
-	ragIndex: (): Promise<RagIndexResult> => {
-		return typedInvokeUnwrap(AgentChannels.ragIndex);
+	ragIndex: (sourceFolder: string): Promise<RagIndexResult> => {
+		const source = optionalTrimmedString(sourceFolder);
+		if (!source) throw new Error('Choose a source folder before indexing.');
+		return typedInvokeUnwrap(AgentChannels.ragIndex, source);
 	},
 	ragSearch: (query: string, topK?: number): Promise<RagMatch[]> => {
 		const normalizedQuery = optionalTrimmedString(query);
 		if (!normalizedQuery) throw new Error('Invalid search query.');
 		return typedInvokeUnwrap(AgentChannels.ragSearch, normalizedQuery, topK);
 	},
-	ragOpenFolder: (): Promise<void> => {
-		return typedInvokeUnwrap(AgentChannels.ragOpenFolder);
+	ragPickFolder: (): Promise<string | undefined> => {
+		return typedInvokeUnwrap(AgentChannels.ragPickFolder);
 	},
 } satisfies AgentApi;

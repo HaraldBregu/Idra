@@ -1,13 +1,12 @@
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import type { Pinecone } from '@pinecone-database/pinecone';
 import { createEmbedding } from '../app/models/embedding';
 import { chunkText } from './rag_chunk';
 import { RAG_INDEX_NAME, ragClient } from './rag_client';
-import { ragLocation } from './rag_location';
 import { writeRagManifest } from './rag_manifest';
 
-const TEXT_EXTENSIONS = new Set(['.txt', '.md', '.markdown', '.json', '.csv', '.log']);
+const MARKDOWN_EXTENSIONS = new Set(['.md', '.markdown']);
 const BATCH_SIZE = 64;
 
 export interface RagIndexResult {
@@ -15,19 +14,22 @@ export interface RagIndexResult {
 	vectors: number;
 }
 
-export async function indexRag(): Promise<RagIndexResult> {
-	const root = ragLocation();
+export async function indexRag(root: string): Promise<RagIndexResult> {
+	const source = root.trim();
+	if (!source) throw new Error('Choose a source folder before indexing.');
+	if (!(await stat(source)).isDirectory()) throw new Error('The selected source is not a folder.');
+
 	const files = (await readdir(root, { recursive: true })).filter((file) =>
-		TEXT_EXTENSIONS.has(path.extname(file).toLowerCase())
+		MARKDOWN_EXTENSIONS.has(path.extname(file).toLowerCase())
 	);
-	if (files.length === 0) throw new Error(`No documents to index in ${root}.`);
+	if (files.length === 0) throw new Error(`No Markdown documents to index in ${source}.`);
 
 	const pinecone = ragClient();
 	let index: ReturnType<Pinecone['index']> | undefined;
 	let vectors = 0;
 
 	for (const file of files) {
-		const chunks = chunkText(await readFile(path.join(root, file), 'utf8'));
+		const chunks = chunkText(await readFile(path.join(source, file), 'utf8'));
 		for (let start = 0; start < chunks.length; start += BATCH_SIZE) {
 			const batch = chunks.slice(start, start + BATCH_SIZE);
 			const embedded = await createEmbedding({ texts: batch, inputType: 'document' });
@@ -49,6 +51,7 @@ export async function indexRag(): Promise<RagIndexResult> {
 			vectors += batch.length;
 		}
 	}
+	if (!index) throw new Error(`No indexable Markdown content found in ${source}.`);
 	return { files: files.length, vectors };
 }
 

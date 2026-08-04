@@ -2,10 +2,32 @@ const CHUNK_SIZE = 2000;
 const CHUNK_OVERLAP = 200;
 
 export function chunkText(text: string): string[] {
+	const normalized = text.replace(/\r\n?/g, '\n').trim();
+	if (!normalized) return [];
+
 	const chunks: string[] = [];
-	for (let start = 0; start < text.length; start += CHUNK_SIZE - CHUNK_OVERLAP) {
-		const chunk = text.slice(start, start + CHUNK_SIZE).trim();
-		if (chunk) chunks.push(chunk);
+	let current = '';
+
+	for (const paragraph of normalized.split(/\n{2,}/)) {
+		const section = paragraph.trim();
+		if (!section) continue;
+		if (current && current.length + section.length + 2 > CHUNK_SIZE) {
+			chunks.push(current);
+			current = current.slice(-CHUNK_OVERLAP).trim();
+		}
+
+		while (section.length > CHUNK_SIZE - current.length - (current ? 2 : 0)) {
+			const available = CHUNK_SIZE - current.length - (current ? 2 : 0);
+			const splitAt = Math.max(section.lastIndexOf('\n', available), section.lastIndexOf(' ', available));
+			const end = splitAt > 0 ? splitAt : available;
+			const prefix = section.slice(0, end).trim();
+			if (prefix) chunks.push([current, prefix].filter(Boolean).join('\n\n'));
+			current = prefix.slice(-CHUNK_OVERLAP).trim();
+			paragraph = section.slice(end).trim();
+		}
+
+		current = [current, section].filter(Boolean).join('\n\n');
 	}
+	if (current) chunks.push(current);
 	return chunks;
 }
