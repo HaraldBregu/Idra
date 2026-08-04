@@ -696,6 +696,23 @@
 				"deleted": "Eliminata"
 			},
 			"detailsTitle": "Dettagli attivita",
+			"detail": {
+				"id": "ID",
+				"status": "Stato",
+				"schedule": "Pianificazione cron",
+				"description": "Descrizione",
+				"actionType": "Tipo di azione",
+				"action": "Azione",
+				"effort": "Impegno di ragionamento",
+				"permissionMode": "Modalita di autorizzazione",
+				"createdAt": "Creata",
+				"updatedAt": "Aggiornata",
+				"notScheduled": "Non pianificata",
+				"noDescription": "Nessuna descrizione",
+				"debug": "Messaggio di debug",
+				"agent": "Prompt agente",
+				"notSet": "Non impostata"
+			},
 			"notFoundTitle": "Attivita programmata non trovata",
 			"notFoundDescription": "L'attivita programmata potrebbe essere stata rimossa.",
 			"emptyTitle": "Nessuna attivita",

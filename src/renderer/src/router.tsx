@@ -31,6 +31,7 @@ const StartPage = lazy(() => import('./pages/start/StartPage'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
 const ApplicationPage = lazy(() => import('./pages/settings/pages/application/Page'));
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
+const TaskDetailsPage = lazy(() => import('./pages/settings/pages/tasks/detail/Page'));
 const SearchPage = lazy(() => import('./pages/settings/pages/search/Page'));
 const EmailPage = lazy(() => import('./pages/settings/pages/email/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
@@ -187,11 +188,24 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'tasks',
-						element: (
-							<SettingsRouteWrapper>
-								<TasksPage />
-							</SettingsRouteWrapper>
-						),
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<TasksPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'detail/:taskId',
+								element: (
+									<SettingsRouteWrapper>
+										<TaskDetailsPage />
+									</SettingsRouteWrapper>
+									),
+							},
+						],
 					},
 					{
 						path: 'search',

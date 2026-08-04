@@ -697,6 +697,23 @@
 				"deleted": "Deleted"
 			},
 			"detailsTitle": "Task details",
+			"detail": {
+				"id": "ID",
+				"status": "Status",
+				"schedule": "Cron schedule",
+				"description": "Description",
+				"actionType": "Action type",
+				"action": "Action",
+				"effort": "Reasoning effort",
+				"permissionMode": "Permission mode",
+				"createdAt": "Created",
+				"updatedAt": "Updated",
+				"notScheduled": "Not scheduled",
+				"noDescription": "No description",
+				"debug": "Debug message",
+				"agent": "Agent prompt",
+				"notSet": "Not set"
+			},
 			"notFoundTitle": "Scheduled task not found",
 			"notFoundDescription": "The scheduled task may have been removed.",
 			"emptyTitle": "No tasks",

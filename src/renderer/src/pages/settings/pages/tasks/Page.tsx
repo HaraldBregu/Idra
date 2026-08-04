@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronDown, ListChecks } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,6 +30,7 @@ function describeAction(task: Task): string {
 
 const TasksPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -174,9 +176,12 @@ const TasksPage: React.FC = () => {
 						tasks.map((task) => (
 							<Item
 								key={task.id}
+								as="button"
+								type="button"
+								onClick={() => navigate(`/settings/tasks/detail/${encodeURIComponent(task.id)}`)}
 								variant="outline"
 								size="md"
-								className="border-b border-border/60 last:border-b-0"
+								className="cursor-pointer border-b border-border/60 text-left hover:bg-muted/50 last:border-b-0"
 							>
 								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
 									<ItemTitle className="max-w-full truncate">{task.name}</ItemTitle>
