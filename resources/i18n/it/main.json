@@ -697,6 +697,7 @@
 			},
 			"detailsTitle": "Dettagli attivita",
 			"detail": {
+				"title": "Dettaglio",
 				"id": "ID",
 				"status": "Stato",
 				"schedule": "Pianificazione cron",

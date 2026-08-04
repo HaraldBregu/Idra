@@ -698,6 +698,7 @@
 			},
 			"detailsTitle": "Task details",
 			"detail": {
+				"title": "Detail",
 				"id": "ID",
 				"status": "Status",
 				"schedule": "Cron schedule",
