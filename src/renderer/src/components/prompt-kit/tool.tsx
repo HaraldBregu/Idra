@@ -10,6 +10,7 @@ import {
 	CircleX,
 	Image,
 	LoaderCircle,
+	Mail,
 	Mic,
 	Monitor,
 	PenLine,
@@ -79,6 +80,7 @@ export function toolIcon(toolPart: ToolPart): typeof Wrench {
 	if (type === 'create_image') return Image;
 	if (type === 'create_video') return Video;
 	if (type === 'create_sound') return AudioLines;
+	if (type.includes('email')) return Mail;
 	if (type.startsWith('recorder_microphone')) return Mic;
 	if (type.startsWith('recorder_camera')) return Camera;
 	if (type.startsWith('recorder_screen')) return Monitor;
