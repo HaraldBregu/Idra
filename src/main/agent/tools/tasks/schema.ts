@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const cronActionSchema = z.discriminatedUnion('type', [
+export const taskActionSchema = z.discriminatedUnion('type', [
 	z.object({
 		type: z.literal('debug'),
 		message: z.string(),
@@ -22,7 +22,7 @@ export const createScheduleRequestSchema = z.object({
 	description: z.string().optional(),
 	cronExpression: z.string().optional(),
 	enabled: z.boolean().optional(),
-	action: cronActionSchema,
+	action: taskActionSchema,
 });
 
 export const updateScheduleRequestSchema = z
@@ -31,7 +31,7 @@ export const updateScheduleRequestSchema = z
 		description: z.string().optional(),
 		cronExpression: z.string().optional(),
 		enabled: z.boolean().optional(),
-		action: cronActionSchema.optional(),
+	action: taskActionSchema.optional(),
 	})
 	.refine((value) => Object.keys(value).length > 0, {
 		message: 'update_schedule requires at least one field in request.',

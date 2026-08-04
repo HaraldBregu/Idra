@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { directoryPermissionTargets } from '../../../../../src/main/agent/policy/policy_directory_targets';
-import { cronStorePath } from '../../../../../src/main/app/cron/cron_store';
+import { taskStorePath } from '../../../../../src/main/app/tasks/tasks_store';
 import { healthStorePath } from '../../../../../src/main/agent/health/health_store';
 import { registry, type ProcessSession } from '../../../../../src/main/agent/tools/run_process';
 
@@ -50,7 +50,7 @@ describe('directoryPermissionTargets', () => {
 	});
 
 	it('maps schedule changes to the shared cron store', () => {
-		expect(directoryPermissionTargets('create_schedule', {}, agentDir)).toEqual([cronStorePath]);
+		expect(directoryPermissionTargets('create_schedule', {}, agentDir)).toEqual([taskStorePath]);
 	});
 
 	it('maps health settings changes to the shared health store', () => {

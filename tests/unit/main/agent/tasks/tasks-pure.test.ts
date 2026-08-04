@@ -2,7 +2,7 @@ import { clone } from '../../../../../src/main/app/tasks/tasks_clone';
 import { isActiveSchedule } from '../../../../../src/main/app/tasks/tasks_is_active_schedule';
 import { buildTask } from '../../../../../src/main/app/tasks/tasks_build_task';
 import type { TaskSchedule } from '../../../../../src/main/app/tasks/tasks_types';
-import { cronActionSchema } from '../../../../../src/main/agent/tools/tasks/schema';
+import { taskActionSchema } from '../../../../../src/main/agent/tools/tasks/schema';
 
 function schedule(overrides: Partial<TaskSchedule> = {}): TaskSchedule {
 	return {
@@ -45,13 +45,13 @@ describe('buildTask', () => {
 	});
 });
 
-describe('cronActionSchema', () => {
+describe('taskActionSchema', () => {
 	it('allows scheduled tasks to override the stored permission mode', () => {
-		expect(cronActionSchema.parse({ type: 'agent', prompt: 'do it', effort: 'low' })).not.toHaveProperty(
+		expect(taskActionSchema.parse({ type: 'agent', prompt: 'do it', effort: 'low' })).not.toHaveProperty(
 			'permissionMode'
 		);
 		expect(
-			cronActionSchema.parse({
+			taskActionSchema.parse({
 				type: 'agent',
 				prompt: 'do it',
 				effort: 'low',
