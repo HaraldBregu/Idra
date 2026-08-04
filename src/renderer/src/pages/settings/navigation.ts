@@ -319,7 +319,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 ] as const;
 
-export const SETTINGS_NAVIGATION = [
+export const SETTINGS_NAVIGATION: readonly SettingsNavigationItem[] = [
 	{
 		path: '/settings/general',
 		labelKey: 'settings.tabs.general',

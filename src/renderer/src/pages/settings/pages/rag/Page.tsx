@@ -52,6 +52,7 @@ const RagPage: React.FC = () => {
 	const [databaseConfiguration, setDatabaseConfiguration] = useState<DatabaseConfiguration>({
 		providerId: undefined,
 		databaseId: undefined,
+		providers: [],
 	});
 
 	useEffect(() => {
@@ -105,7 +106,11 @@ const RagPage: React.FC = () => {
 	const selectDatabase = async (value: string | null): Promise<void> => {
 		const entry = databases?.find((item) => databaseKey(item) === value);
 		if (!entry) return;
-		const next = { providerId: entry.provider.id, databaseId: entry.id };
+		const next = {
+			...databaseConfiguration,
+			providerId: entry.provider.id,
+			databaseId: entry.id,
+		};
 		setDatabaseConfiguration(next);
 		setError(null);
 		try {
