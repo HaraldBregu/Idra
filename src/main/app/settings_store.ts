@@ -14,7 +14,7 @@ import { userDataLocation } from '../shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
 import { loadDatabases, loadStorages } from './models';
 import { getModelProviders, setModelProviders } from './models/models_store';
-import type { PersistedCronState } from './cron/cron_types';
+import type { PersistedTaskState } from './tasks/tasks_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
 type StoredStorage = Omit<StorageConfig, 'forcePathStyle'> & {
@@ -55,7 +55,7 @@ const DEFAULT_DATABASE_CONFIGURATION: DatabaseConfiguration = {
 	providers: [],
 };
 
-const DEFAULT_CRON_CONFIGURATION: PersistedCronState = { schedules: [] };
+const DEFAULT_TASK_CONFIGURATION: PersistedTaskState = { schedules: [] };
 
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	trayEnabled: true,
@@ -78,8 +78,8 @@ const storageConfigurationPath = path.join(settingsDirectory, 'storages.json');
 const hasStorageConfiguration = existsSync(storageConfigurationPath);
 const databaseConfigurationPath = path.join(settingsDirectory, 'database.json');
 const hasDatabaseConfiguration = existsSync(databaseConfigurationPath);
-const cronConfigurationPath = path.join(settingsDirectory, 'cron.json');
-const hasCronConfiguration = existsSync(cronConfigurationPath);
+const taskConfigurationPath = path.join(settingsDirectory, 'tasks.json');
+const hasTaskConfiguration = existsSync(taskConfigurationPath);
 
 const store = new Store<AppSettingsState>({
 	name: APP_SETTINGS_STORE_NAME,
@@ -129,20 +129,20 @@ if (!hasDatabaseConfiguration) {
 	};
 }
 
-const cronConfigurationStore = new Store<PersistedCronState>({
-	name: 'cron',
+const taskConfigurationStore = new Store<PersistedTaskState>({
+	name: 'tasks',
 	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_CRON_CONFIGURATION,
+	defaults: DEFAULT_TASK_CONFIGURATION,
 });
 
-if (!hasCronConfiguration) {
-	cronConfigurationStore.store = readLegacyCronConfiguration();
+if (!hasTaskConfiguration) {
+	taskConfigurationStore.store = readLegacyTaskConfiguration();
 }
 
 export const storageConfigurationStorePath = storageConfigurationStore.path;
 export const databaseConfigurationStorePath = databaseConfigurationStore.path;
-export const cronConfigurationStorePath = cronConfigurationStore.path;
+export const taskConfigurationStorePath = taskConfigurationStore.path;
 
 export function getTrayEnabled(): boolean {
 	return store.get('trayEnabled');
@@ -516,25 +516,25 @@ function findDatabase(configuration: DatabaseConfiguration): CatalogService | un
 	);
 }
 
-export function getCronConfiguration(): PersistedCronState {
-	const configuration = cronConfigurationStore.store;
+export function getTaskConfiguration(): PersistedTaskState {
+	const configuration = taskConfigurationStore.store;
 	// Fresh array so in-place mutations never touch the shared defaults object
 	return { ...configuration, schedules: [...(configuration.schedules ?? [])] };
 }
 
-export function setCronConfiguration(configuration: PersistedCronState): void {
-	cronConfigurationStore.store = configuration;
+export function setTaskConfiguration(configuration: PersistedTaskState): void {
+	taskConfigurationStore.store = configuration;
 }
 
-function readLegacyCronConfiguration(): PersistedCronState {
+function readLegacyTaskConfiguration(): PersistedTaskState {
 	const legacyPath = path.join(legacyAppSettingsDirectory, 'settings.cron.json');
-	if (!existsSync(legacyPath)) return DEFAULT_CRON_CONFIGURATION;
+	if (!existsSync(legacyPath)) return DEFAULT_TASK_CONFIGURATION;
 	try {
 		const value: unknown = JSON.parse(readFileSync(legacyPath, 'utf8'));
-		return typeof value === 'object' && value !== null && Array.isArray((value as PersistedCronState).schedules)
-			? (value as PersistedCronState)
-			: DEFAULT_CRON_CONFIGURATION;
+		return typeof value === 'object' && value !== null && Array.isArray((value as PersistedTaskState).schedules)
+			? (value as PersistedTaskState)
+			: DEFAULT_TASK_CONFIGURATION;
 	} catch {
-		return DEFAULT_CRON_CONFIGURATION;
+		return DEFAULT_TASK_CONFIGURATION;
 	}
 }
