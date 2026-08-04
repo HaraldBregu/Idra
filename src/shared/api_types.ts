@@ -6,6 +6,7 @@ import type {
 } from './provider_types';
 import type { StoredProvider as Provider } from './provider_types';
 import type { SearchEngineId, SearchEngineInput, SearchSettings } from './search_types';
+import type { EmailProviderId, EmailProviderInput, EmailSettings } from './email_types';
 import type {
 	StorageConfig,
 	StorageConfiguration,
@@ -183,6 +184,11 @@ export interface SearchApi {
 	getSettings: () => Promise<SearchSettings>;
 	saveEngine: (engineId: SearchEngineId, input: SearchEngineInput) => Promise<SearchSettings>;
 	selectEngine: (engineId: SearchEngineId) => Promise<SearchSettings>;
+}
+
+export interface EmailApi {
+	getSettings: () => Promise<EmailSettings>;
+	saveProvider: (providerId: EmailProviderId, input: EmailProviderInput) => Promise<EmailSettings>;
 }
 
 export interface WikiApi {

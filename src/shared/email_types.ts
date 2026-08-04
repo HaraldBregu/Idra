@@ -7,6 +7,10 @@ export interface EmailSettings {
 	configured: Record<EmailProviderId, boolean>;
 }
 
+export interface EmailProviderInput {
+	apiKey: string;
+}
+
 export interface EmailRequest {
 	to: string;
 	subject: string;

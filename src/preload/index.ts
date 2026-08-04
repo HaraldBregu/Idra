@@ -7,6 +7,7 @@ import { mcp } from './mcp';
 import { models } from './models';
 import { provider } from './provider';
 import { search } from './search';
+import { email } from './email';
 import { skills } from './skills';
 import { storage } from './storage';
 import { database } from './database';
@@ -22,6 +23,7 @@ export { mcp } from './mcp';
 export { models } from './models';
 export { provider } from './provider';
 export { search } from './search';
+export { email } from './email';
 export { skills } from './skills';
 export { storage } from './storage';
 export { database } from './database';
@@ -42,6 +44,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('database', database);
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('search', search);
+		contextBridge.exposeInMainWorld('email', email);
 		contextBridge.exposeInMainWorld('extensions', extensions);
 		contextBridge.exposeInMainWorld('wiki', wiki);
 	} catch (error) {
@@ -72,6 +75,8 @@ if (process.contextIsolated) {
 	globalThis.provider = provider;
 	// @ts-ignore (define in dts)
 	globalThis.search = search;
+	// @ts-ignore (define in dts)
+	globalThis.email = email;
 	// @ts-ignore (define in dts)
 	globalThis.extensions = extensions;
 	// @ts-ignore (define in dts)

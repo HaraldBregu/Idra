@@ -5,7 +5,7 @@ import { userDataLocation } from '../../shared/user_data_location';
 import type { StoredProvider } from '../../../shared/provider_types';
 import { getLegacyEmailProviders, removeLegacyEmailProviders } from '../settings_store';
 
-interface EmailConfiguration {
+export interface EmailConfiguration {
 	providerId?: string;
 	emailId?: string;
 }

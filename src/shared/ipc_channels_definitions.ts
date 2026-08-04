@@ -184,6 +184,11 @@ export const SearchChannels = {
 	selectEngine: 'search:engine:select',
 } as const;
 
+export const EmailChannels = {
+	getSettings: 'email:settings:get',
+	saveProvider: 'email:provider:save',
+} as const;
+
 export const WikiChannels = {
 	getSettings: 'wiki:settings:get',
 	getStatus: 'wiki:status:get',
