@@ -21,7 +21,7 @@ export interface AppEvents {
 		to: string;
 		threadId?: string;
 		replyToMessageId?: string;
-		chatType?: import('./channels/channels_types').ChannelChatType;
+		chatType?: import('../channels/channels_types').ChannelChatType;
 		sessionKey?: string;
 	};
 }

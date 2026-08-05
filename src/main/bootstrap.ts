@@ -5,7 +5,7 @@ import {
 	WindowContextManager,
 } from './app';
 import { LoggerService } from './shared';
-import { createChannelRegistry, type ChannelRegistry } from './app/channels';
+import { createChannelRegistry, type ChannelRegistry } from './channels';
 
 import { Agent } from './agent/agent';
 

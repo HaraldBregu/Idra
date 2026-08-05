@@ -1,4 +1,4 @@
-import { CHANNEL_DEFAULT_DM_POLICY, type StoredBotProvider } from '../../../shared';
+import { CHANNEL_DEFAULT_DM_POLICY, type StoredBotProvider } from '../../shared';
 import type { ChannelInboundMessage } from './channels_types';
 
 export interface ChannelSecurityDecision {

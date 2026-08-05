@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { userDataLocation } from '../../shared/user_data_location';
-import type { StoredBotProvider } from '../../../shared';
+import { userDataLocation } from '../shared/user_data_location';
+import type { StoredBotProvider } from '../../shared';
 
 export type ChannelsStoreState = { readonly providers: StoredBotProvider[] };
 

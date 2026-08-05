@@ -4,7 +4,7 @@ import { registerCommand, registerQuery } from './core/gateway';
 import { ProviderStoreChannels } from '../../shared/ipc_channels_definitions';
 import type { StoredProvider as Provider, StoredProviderKind } from '../../shared/provider_types';
 import { getProvider, listProviders, setProvider } from '../app/settings_store';
-import { getChannelProvider, listChannelProviders, setChannelProvider } from '../app/channels';
+import { getChannelProvider, listChannelProviders, setChannelProvider } from '../channels';
 
 export class ProviderStoreIpc implements IpcModule {
 	readonly name = 'provider-store';

@@ -1,4 +1,4 @@
-import type { ChannelConnectionStatus, ChannelType } from '../../../shared';
+import type { ChannelConnectionStatus, ChannelType } from '../../shared';
 
 export type ChannelChatType = 'dm' | 'group' | 'channel' | 'thread';
 
