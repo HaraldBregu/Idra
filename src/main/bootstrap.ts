@@ -1,9 +1,7 @@
-import {
-	EventBus,
-	WindowFactory,
-	AppState,
-	WindowContextManager,
-} from './app';
+import { AppState } from './app_state';
+import { EventBus } from './event_bus';
+import { WindowContextManager } from './window_context';
+import { WindowFactory } from './window_factory';
 import { LoggerService } from './shared';
 import { createChannelRegistry, type ChannelRegistry } from './channels';
 

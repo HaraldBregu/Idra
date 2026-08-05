@@ -13,7 +13,7 @@ import { DatabaseIpc } from '../database';
 import { ExtensionsIpc } from '../extensions';
 import { WikiIpc } from '../wiki';
 import { WindowIpc } from '../window';
-import type { EventBus } from '../../app';
+import type { EventBus } from '../../event_bus';
 import type { MainServices } from '../../bootstrap';
 
 export function registerIpcHandlers(services: MainServices, eventBus: EventBus): void {

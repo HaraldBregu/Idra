@@ -1,5 +1,5 @@
 import type { EventBus } from '../event_bus';
-import type { WindowFactory } from '../app';
+import type { WindowFactory } from '../window_factory';
 import { listExtensions, loadExtension } from '../extensions/extension_index';
 import { ExtensionChannels } from '../../shared/ipc_channels_definitions';
 import { registerCommand, registerQuery } from './core/gateway';
