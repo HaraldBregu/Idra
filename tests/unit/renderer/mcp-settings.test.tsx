@@ -18,6 +18,7 @@ const mcpApi = {
 };
 
 beforeEach(() => {
+	jest.clearAllMocks();
 	Object.defineProperty(window, 'mcp', { configurable: true, value: mcpApi });
 	mcpApi.getRoot.mockResolvedValue('/home/user/.friday/mcp/servers');
 	mcpApi.registry.mockResolvedValue({
