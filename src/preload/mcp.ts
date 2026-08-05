@@ -16,6 +16,21 @@ export const mcp: McpApi = {
 	delete: (id: string) => {
 		return typedInvokeUnwrap(McpChannels.delete, id);
 	},
+	registry: () => {
+		return typedInvokeUnwrap(McpChannels.registry);
+	},
+	importLocal: () => {
+		return typedInvokeUnwrap(McpChannels.importLocal);
+	},
+	getRoot: () => {
+		return typedInvokeUnwrap(McpChannels.getRoot);
+	},
+	openRoot: () => {
+		return typedInvokeUnwrap(McpChannels.openRoot);
+	},
+	test: (id: string) => {
+		return typedInvokeUnwrap(McpChannels.test, id);
+	},
 	oauthStart: (id: string) => {
 		return typedInvokeUnwrap(McpChannels.oauthStart, id);
 	},

@@ -202,6 +202,17 @@ export interface McpInvokeChannelMap {
 		result: import('./mcp_types').McpSettings;
 	};
 	[McpChannels.delete]: { args: [id: string]; result: void };
+	[McpChannels.registry]: { args: []; result: import('./mcp_types').McpRegistry };
+	[McpChannels.importLocal]: {
+		args: [];
+		result: import('./mcp_types').McpLocalImportResult | undefined;
+	};
+	[McpChannels.getRoot]: { args: []; result: string };
+	[McpChannels.openRoot]: { args: []; result: void };
+	[McpChannels.test]: {
+		args: [id: string];
+		result: import('./mcp_types').McpTestResult;
+	};
 	[McpChannels.oauthStart]: {
 		args: [id: string];
 		result: import('./mcp_types').McpOAuthStart;

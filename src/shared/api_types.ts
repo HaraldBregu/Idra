@@ -17,7 +17,13 @@ import type {
 	StorageTestResult,
 } from './storage_types';
 import type { DatabaseConfiguration } from './database_types';
-import type { McpOAuthStart, McpSettings } from './mcp_types';
+import type {
+	McpLocalImportResult,
+	McpOAuthStart,
+	McpRegistry,
+	McpSettings,
+	McpTestResult,
+} from './mcp_types';
 import type { Extension } from './extension_types';
 import type { TaskRuntime, TaskSchedule } from '../main/tasks/tasks_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
@@ -141,6 +147,11 @@ export interface McpApi {
 	get: (id: string) => Promise<McpSettings>;
 	save: (input: McpSettings) => Promise<McpSettings>;
 	delete: (id: string) => Promise<void>;
+	registry: () => Promise<McpRegistry>;
+	importLocal: () => Promise<McpLocalImportResult | undefined>;
+	getRoot: () => Promise<string>;
+	openRoot: () => Promise<void>;
+	test: (id: string) => Promise<McpTestResult>;
 	oauthStart: (id: string) => Promise<McpOAuthStart>;
 	oauthFinish: (id: string, code: string) => Promise<void>;
 }

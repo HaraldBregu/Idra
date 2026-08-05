@@ -1,4 +1,5 @@
-import { shell } from 'electron';
+import { BrowserWindow, dialog, shell } from 'electron';
+import { mkdirSync } from 'node:fs';
 import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { EventBus } from '../event_bus';
 import { McpChannels } from '../../shared/ipc_channels_definitions';
@@ -6,13 +7,17 @@ import {
 	createOAuthProvider,
 	getMcpOauth,
 	getMcpServers,
+	importLocalMcpServers,
+	listMcpRegistry,
+	mcpLocalRoot,
 	saveMcpOauth,
 	setMcpServers,
 	startOauthCallbackServer,
+	testMcpServer,
 	type McpOAuthStorage,
 } from '../mcp';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
-import { registerCommand, registerQuery } from './core/gateway';
+import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -141,6 +146,32 @@ export class McpIpc implements IpcModule {
 			delete next[connectorId];
 			setMcpServers(next);
 		});
+
+		registerQuery(McpChannels.registry, () => listMcpRegistry());
+
+		registerCommandWithEvent(McpChannels.importLocal, async (event) => {
+			const window = BrowserWindow.fromWebContents(event.sender);
+			const options: Electron.OpenDialogOptions = {
+				title: 'Select local MCP server folder(s)',
+				properties: ['openDirectory', 'multiSelections'],
+			};
+			const result = window
+				? await dialog.showOpenDialog(window, options)
+				: await dialog.showOpenDialog(options);
+			if (result.canceled) return undefined;
+			return importLocalMcpServers(result.filePaths);
+		});
+
+		registerQuery(McpChannels.getRoot, () => mcpLocalRoot());
+
+		registerCommand(McpChannels.openRoot, async () => {
+			const root = mcpLocalRoot();
+			mkdirSync(root, { recursive: true });
+			const error = await shell.openPath(root);
+			if (error) throw new Error(error);
+		});
+
+		registerCommand(McpChannels.test, (id: string) => testMcpServer(resolveMcpId(id)));
 
 		registerCommand(McpChannels.oauthStart, async (id: string): Promise<McpOAuthStart> => {
 			const server = getHttpMcpServer(id);

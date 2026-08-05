@@ -36,3 +36,43 @@ export type McpData = McpHttpData | McpStdioData;
 export type McpSettings = Record<string, McpData>;
 
 export type McpOAuthStart = { status: 'authorized' } | { status: 'redirect'; url: string };
+
+export type McpServerSource = 'configured' | 'local';
+
+export type McpServerInfo = {
+	readonly id: string;
+	readonly source: McpServerSource;
+	readonly data: McpData;
+	readonly path?: string;
+	readonly diagnostic?: string;
+};
+
+export type McpLocalDiagnostic = {
+	readonly name: string;
+	readonly path: string;
+	readonly error: string;
+};
+
+export type McpRegistry = {
+	readonly servers: readonly McpServerInfo[];
+	readonly diagnostics: readonly McpLocalDiagnostic[];
+};
+
+export type McpLocalImportSkipped = {
+	readonly name: string;
+	readonly path: string;
+	readonly reason: string;
+};
+
+export type McpLocalImportResult = {
+	readonly imported: readonly McpServerInfo[];
+	readonly skipped: readonly McpLocalImportSkipped[];
+};
+
+export type McpTestResult = {
+	readonly ok: boolean;
+	readonly tools: readonly string[];
+	readonly toolCount: number;
+	readonly durationMs: number;
+	readonly error?: string;
+};

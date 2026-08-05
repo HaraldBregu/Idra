@@ -81,6 +81,11 @@ export const McpChannels = {
 	get: 'mcp:get',
 	save: 'mcp:save',
 	delete: 'mcp:delete',
+	registry: 'mcp:registry',
+	importLocal: 'mcp:local:import',
+	getRoot: 'mcp:local:root',
+	openRoot: 'mcp:local:open',
+	test: 'mcp:test',
 	oauthStart: 'mcp:oauth:start',
 	oauthFinish: 'mcp:oauth:finish',
 } as const;
