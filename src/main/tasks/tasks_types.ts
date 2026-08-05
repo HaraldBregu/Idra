@@ -1,4 +1,4 @@
-import type { AgentPermissionMode, ModelReasoningEffort } from '../../../shared/agent_types';
+import type { AgentPermissionMode, ModelReasoningEffort } from '../../shared/agent_types';
 
 export interface TaskJobInfo {
 	readonly id: string;

@@ -3,8 +3,8 @@ import {
 	type SearchEngineId,
 	type SearchEngineInput,
 	type SearchSettings,
-} from '../../../shared/search_types';
-import { setSearchEngine } from '../../agent/agent_store';
+} from '../../shared/search_types';
+import { setSearchEngine } from '../agent/agent_store';
 import { getSearchSettings } from './search_get_settings';
 import { getStoredSearchProviders } from './search_get_providers';
 import { SEARCH_PROVIDERS } from './catalog';

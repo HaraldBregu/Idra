@@ -1,4 +1,4 @@
-import { updateSchedule } from '../../../app/tasks';
+import { updateSchedule } from '../../../tasks';
 import { tool } from '../tool';
 import { scheduleIdSchema, updateScheduleRequestSchema } from './schema';
 

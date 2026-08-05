@@ -1,4 +1,4 @@
-import { deleteSchedule } from '../../../app/tasks';
+import { deleteSchedule } from '../../../tasks';
 import { tool } from '../tool';
 import { scheduleIdSchema } from './schema';
 

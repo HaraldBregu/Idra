@@ -1,4 +1,4 @@
-import type { SearchEngineId, SearchRequest, SearchResponse } from '../../../shared/search_types';
+import type { SearchEngineId, SearchRequest, SearchResponse } from '../../shared/search_types';
 import type { SearchAdapter } from './adapters/adapter';
 import { searchBrave } from './adapters/brave';
 import { searchTavily } from './adapters/tavily';

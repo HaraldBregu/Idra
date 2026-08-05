@@ -19,7 +19,7 @@ import {
 	syncDirectory,
 	syncFolders,
 	testConnection,
-} from '../app/storage';
+} from '../storage';
 
 export class StorageIpc implements IpcModule {
 	readonly name = 'storage';

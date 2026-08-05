@@ -10,11 +10,11 @@ jest.mock('node-cron', () => ({
 	default: { schedule, validate },
 }));
 
-jest.mock('../../../../src/main/app/storage/storage_store', () => ({
+jest.mock('../../../../src/main/storage/storage_store', () => ({
 	getStorages,
 }));
 
-jest.mock('../../../../src/main/app/storage/storage_auto_sync', () => ({
+jest.mock('../../../../src/main/storage/storage_auto_sync', () => ({
 	isAutoSyncable,
 	runProviderSync,
 }));
@@ -23,7 +23,7 @@ import {
 	rescheduleStorageSync,
 	startStorageSync,
 	stopStorageSync,
-} from '../../../../src/main/app/storage/storage_sync_schedule';
+} from '../../../../src/main/storage/storage_sync_schedule';
 
 describe('storage sync scheduling', () => {
 	const logger = { info: jest.fn(), error: jest.fn() };

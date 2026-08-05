@@ -1,4 +1,4 @@
-import { listSchedules } from '../../../app/tasks';
+import { listSchedules } from '../../../tasks';
 import { tool } from '../tool';
 import { z } from 'zod';
 

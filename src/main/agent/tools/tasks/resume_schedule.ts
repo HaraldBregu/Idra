@@ -1,4 +1,4 @@
-import { resumeSchedule } from '../../../app/tasks';
+import { resumeSchedule } from '../../../tasks';
 import { tool } from '../tool';
 import { scheduleIdSchema } from './schema';
 

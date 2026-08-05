@@ -7,7 +7,7 @@ export {
 	createDefaultWindowScopedServiceFactory,
 	type WindowScopedServiceDefinition,
 } from './window_scoped_service_factory';
-export * from './tasks';
+export * from '../tasks';
 export * from './models/adapters/llm';
 export * from './models/adapters/stt';
 export * from './models/adapters/tta';

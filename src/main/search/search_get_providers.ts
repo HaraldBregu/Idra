@@ -1,4 +1,4 @@
-import type { StoredProvider } from '../../../shared/provider_types';
+import type { StoredProvider } from '../../shared/provider_types';
 import { getSearchProviders } from './search_store';
 
 export function getStoredSearchProviders(): StoredProvider[] {

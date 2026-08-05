@@ -1,5 +1,5 @@
 import { ListObjectsV2Command } from '@aws-sdk/client-s3';
-import type { StorageObjectInfo } from '../../../shared/storage_types';
+import type { StorageObjectInfo } from '../../shared/storage_types';
 import { storageClient } from './storage_client';
 
 // ponytail: returns first page only (up to 1000 keys); add ContinuationToken paging if buckets grow larger

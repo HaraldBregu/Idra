@@ -20,7 +20,7 @@ import type {
 import type { DatabaseConfiguration } from './database_types';
 import type { McpOAuthStart, McpSettings } from './mcp_types';
 import type { Extension } from './extension_types';
-import type { TaskRuntime, TaskSchedule } from '../main/app/tasks/tasks_types';
+import type { TaskRuntime, TaskSchedule } from '../main/tasks/tasks_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { RagIndexResult, RagMatch } from '../main/rag';
 import type { RagConfiguration } from './rag_types';

@@ -30,7 +30,7 @@ import { setupEventLogging, setupProcessSafetyNet } from './shared/error_reporte
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 import { sync as syncSkills } from './agent/skills';
-import { startStorageSync, stopStorageSync } from './app/storage';
+import { startStorageSync, stopStorageSync } from './storage';
 import { startRagSchedule, stopRagSchedule } from './rag';
 import { CHANNEL_PROVIDER_IDS } from '../shared';
 import { startWiki, stopWiki } from './wiki';

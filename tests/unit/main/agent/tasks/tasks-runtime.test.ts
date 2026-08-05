@@ -1,12 +1,12 @@
 const readState = jest.fn();
 const writeState = jest.fn();
 
-jest.mock('../../../../../src/main/app/tasks/tasks_read_state', () => ({ readState }));
-jest.mock('../../../../../src/main/app/tasks/tasks_write_state', () => ({ writeState }));
+jest.mock('../../../../../src/main/tasks/tasks_read_state', () => ({ readState }));
+jest.mock('../../../../../src/main/tasks/tasks_write_state', () => ({ writeState }));
 
-import { getRuntime } from '../../../../../src/main/app/tasks/tasks_get_runtime';
-import { setRuntime } from '../../../../../src/main/app/tasks/tasks_set_runtime';
-import type { PersistedTaskState } from '../../../../../src/main/app/tasks/tasks_types';
+import { getRuntime } from '../../../../../src/main/tasks/tasks_get_runtime';
+import { setRuntime } from '../../../../../src/main/tasks/tasks_set_runtime';
+import type { PersistedTaskState } from '../../../../../src/main/tasks/tasks_types';
 
 beforeEach(() => {
 	readState.mockReset();

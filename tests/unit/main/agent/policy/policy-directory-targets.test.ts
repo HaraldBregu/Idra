@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { directoryPermissionTargets } from '../../../../../src/main/agent/policy/policy_directory_targets';
-import { taskStorePath } from '../../../../../src/main/app/tasks/tasks_store';
+import { taskStorePath } from '../../../../../src/main/tasks/tasks_store';
 import { healthStorePath } from '../../../../../src/main/agent/health/health_store';
 import { registry, type ProcessSession } from '../../../../../src/main/agent/tools/run_process';
 

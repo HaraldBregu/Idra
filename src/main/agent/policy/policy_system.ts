@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { realPath } from '../../shared/real_path';
-import { taskStorePath } from '../../app/tasks/tasks_store';
+import { taskStorePath } from '../../tasks/tasks_store';
 import { healthStorePath } from '../health/health_store';
 import { skillsRoot } from '../skills/skills_root';
 import { isPathWithin } from './policy_path';

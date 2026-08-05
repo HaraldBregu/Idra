@@ -6,4 +6,4 @@ export {
 	saveStorageConfig,
 	saveStorageConfiguration,
 	deleteStorageConfig,
-} from '../settings_store';
+} from '../app/settings_store';

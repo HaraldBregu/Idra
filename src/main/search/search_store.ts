@@ -1,8 +1,8 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { userDataLocation } from '../../shared/user_data_location';
-import type { StoredProvider } from '../../../shared/provider_types';
-import { setSearchEngine } from '../../agent/agent_store';
+import { userDataLocation } from '../shared/user_data_location';
+import type { StoredProvider } from '../../shared/provider_types';
+import { setSearchEngine } from '../agent/agent_store';
 
 interface SearchSettingsState {
 	providers: StoredProvider[];

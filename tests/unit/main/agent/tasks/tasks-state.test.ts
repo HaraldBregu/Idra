@@ -1,12 +1,12 @@
 const readState = jest.fn();
 
-jest.mock('../../../../../src/main/app/tasks/tasks_read_state', () => ({
+jest.mock('../../../../../src/main/tasks/tasks_read_state', () => ({
 	readState,
 }));
 
-import { exists } from '../../../../../src/main/app/tasks/tasks_exists';
-import { requireSchedule } from '../../../../../src/main/app/tasks/tasks_require_schedule';
-import { getSchedule } from '../../../../../src/main/app/tasks/tasks_get_schedule';
+import { exists } from '../../../../../src/main/tasks/tasks_exists';
+import { requireSchedule } from '../../../../../src/main/tasks/tasks_require_schedule';
+import { getSchedule } from '../../../../../src/main/tasks/tasks_get_schedule';
 
 const scheduleFixture = {
 	id: 's1',

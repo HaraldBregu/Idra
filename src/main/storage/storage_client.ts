@@ -1,5 +1,5 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import type { StorageConfig } from '../../../shared/storage_types';
+import type { StorageConfig } from '../../shared/storage_types';
 import { getStorage } from './storage_store';
 
 const isR2Endpoint = (endpoint: string): boolean => /\.r2\.cloudflarestorage\.com(\/|$)/i.test(endpoint);

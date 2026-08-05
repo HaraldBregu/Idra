@@ -1,4 +1,4 @@
-import { runScheduleNow } from '../../../app/tasks';
+import { runScheduleNow } from '../../../tasks';
 import { tool } from '../tool';
 import { scheduleIdSchema } from './schema';
 

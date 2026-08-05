@@ -1,4 +1,4 @@
-import { getSchedule } from '../../../app/tasks';
+import { getSchedule } from '../../../tasks';
 import { tool } from '../tool';
 import { scheduleIdSchema } from './schema';
 

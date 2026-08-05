@@ -12,7 +12,7 @@ import {
 } from './session';
 import { stream } from './run/run_stream';
 import { agentLocation } from '../shared/agent_location';
-import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../app/tasks';
+import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../tasks';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './policy';
 import { resolveSkillCommand } from './skills';

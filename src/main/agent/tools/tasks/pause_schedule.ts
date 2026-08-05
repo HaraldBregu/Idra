@@ -1,4 +1,4 @@
-import { pauseSchedule } from '../../../app/tasks';
+import { pauseSchedule } from '../../../tasks';
 import { tool } from '../tool';
 import { scheduleIdSchema } from './schema';
 

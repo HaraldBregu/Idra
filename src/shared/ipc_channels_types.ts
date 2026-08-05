@@ -157,14 +157,14 @@ export interface RecorderEventChannelMap {
 }
 
 export interface TaskInvokeChannelMap {
-	[TaskChannels.list]: { args: []; result: import('../main/app/tasks').TaskSchedule[] };
+	[TaskChannels.list]: { args: []; result: import('../main/tasks').TaskSchedule[] };
 	[TaskChannels.getRuntime]: {
 		args: [];
-		result: import('../main/app/tasks').TaskRuntime | undefined;
+		result: import('../main/tasks').TaskRuntime | undefined;
 	};
 	[TaskChannels.setRuntime]: {
 		args: [providerId: string, modelId: string];
-		result: import('../main/app/tasks').TaskRuntime;
+		result: import('../main/tasks').TaskRuntime;
 	};
 }
 

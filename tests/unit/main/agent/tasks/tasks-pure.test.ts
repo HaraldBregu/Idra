@@ -1,7 +1,7 @@
-import { clone } from '../../../../../src/main/app/tasks/tasks_clone';
-import { isActiveSchedule } from '../../../../../src/main/app/tasks/tasks_is_active_schedule';
-import { buildTask } from '../../../../../src/main/app/tasks/tasks_build_task';
-import type { TaskSchedule } from '../../../../../src/main/app/tasks/tasks_types';
+import { clone } from '../../../../../src/main/tasks/tasks_clone';
+import { isActiveSchedule } from '../../../../../src/main/tasks/tasks_is_active_schedule';
+import { buildTask } from '../../../../../src/main/tasks/tasks_build_task';
+import type { TaskSchedule } from '../../../../../src/main/tasks/tasks_types';
 import { taskActionSchema } from '../../../../../src/main/agent/tools/tasks/schema';
 
 function schedule(overrides: Partial<TaskSchedule> = {}): TaskSchedule {

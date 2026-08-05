@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { StoragePullResult } from '../../../shared/storage_types';
+import type { StoragePullResult } from '../../shared/storage_types';
 import { describeStorageError } from './storage_error';
 import { getObject } from './storage_get';
 import { listObjects } from './storage_list';

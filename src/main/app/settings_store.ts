@@ -4,10 +4,10 @@ import cron from 'node-cron';
 import type { ResolvedProvider, StoredProvider, StoredProviderKind } from '../../shared/provider_types';
 import type { StorageConfig, StorageConfiguration } from '../../shared/storage_types';
 import { userDataLocation } from '../shared/user_data_location';
-import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
+import { DEFAULT_SYNC_CRON_EXPRESSION } from '../storage/storage_sync_types';
 import { loadStorages } from './models';
 import { getModelProviders, setModelProviders } from './models/models_store';
-import type { PersistedTaskState } from './tasks/tasks_types';
+import type { PersistedTaskState } from '../tasks/tasks_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 import { getDatabaseConfiguration, saveDatabaseConfiguration } from '../database/store';
 
