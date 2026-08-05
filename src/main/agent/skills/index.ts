@@ -8,13 +8,4 @@ export { downloadSkill } from './skills_download';
 export { deleteSkill } from './skills_delete';
 export { openRoot } from './skills_open_root';
 export { setEnabled } from './skills_set_enabled';
-export { sync } from './skills_sync';
 export { validateSkill } from './skills_validate';
-export {
-	allSkills,
-	getSkill,
-	removeSkill,
-	setSkill,
-	type SkillSettings,
-	type SkillsSchema,
-} from './skills_store';

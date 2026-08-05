@@ -29,7 +29,6 @@ import { registerIpcHandlers } from './ipc/core/register_ipc_handlers';
 import { setupEventLogging, setupProcessSafetyNet } from './shared/error_reporter';
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
-import { sync as syncSkills } from './agent/skills';
 import { startStorageSync, stopStorageSync } from './storage';
 import { startRagSchedule, stopRagSchedule } from './rag';
 import { CHANNEL_PROVIDER_IDS } from '../shared';
@@ -146,7 +145,6 @@ app.whenReady().then(async () => {
 	app.once('before-quit', () => {
 		void stopWatchingExtensions();
 	});
-	syncSkills();
 	startWiki();
 	// Apply persisted settings on startup (updateLanguage builds the menu)
 	const storedLanguage = getLanguage();

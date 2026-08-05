@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { SkillImportResult, SkillImportSkipped, SkillInfo } from '../../../shared/skills_types';
-import { setSkill } from './skills_store';
 import { skillsRoot } from './skills_root';
 import { readSkill } from './skills_read';
 import { pickDirectories } from './skills_pick_directories';
@@ -32,7 +31,6 @@ export async function importSkills(): Promise<SkillImportResult | undefined> {
 		const destination = path.join(skillsRoot, id);
 		fs.rmSync(destination, { recursive: true, force: true });
 		fs.cpSync(source, destination, { recursive: true });
-		setSkill(id, { enabled: true });
 		const info = readSkill(destination, id);
 		if (info) imported.push(info);
 	}

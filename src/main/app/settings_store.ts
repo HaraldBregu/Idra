@@ -21,7 +21,7 @@ export type AppSettingsState = {
 	storageConfiguration: StorageConfiguration;
 };
 
-const APP_SETTINGS_STORE_NAME = 'application';
+const APP_SETTINGS_STORE_NAME = 'app';
 
 const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
 	providerId: undefined,

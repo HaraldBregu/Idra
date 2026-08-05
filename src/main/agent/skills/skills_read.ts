@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 import type { SkillInfo, SkillManifest } from '../../../shared/skills_types';
-import { getSkill } from './skills_store';
 
 export const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
@@ -18,7 +17,7 @@ export function readSkill(folder: string, id: string): SkillInfo | undefined {
 		name,
 		description,
 		id,
-		enabled: getSkill(id)?.enabled ?? true,
+		enabled: fm.enabled !== false,
 	};
 	return {
 		id,
