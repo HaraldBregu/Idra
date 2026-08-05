@@ -5,7 +5,6 @@ export * from './mcp_types';
 export * from './mcp_definitions';
 export * from './model_types';
 export * from './provider_types';
-export * from './email_types';
 export * from './search_types';
 export * from './skills_types';
 export * from './skills_definitions';
