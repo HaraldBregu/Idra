@@ -98,8 +98,9 @@ export function ModelProviderSelect({
 				}}
 				disabled={disabled || providerGroups.length === 0}
 			>
-				<SelectTrigger id={`${idPrefix}-model`} className="w-full text-xs">
+				<SelectTrigger id={`${idPrefix}-model`} className="w-full min-w-0 max-w-full text-xs">
 					<SelectValue
+						className="min-w-0 overflow-hidden"
 						placeholder={labels?.placeholder ?? t('settings.modelServices.modelPlaceholder')}
 					>
 						{selectedLabel}

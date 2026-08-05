@@ -49,13 +49,13 @@ export function ModelsStep({
 	onServiceChange,
 }: ModelsStepProps): React.JSX.Element {
 	return (
-		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
+		<div className="mx-auto flex min-h-full w-full min-w-0 max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
 			<LogoView className="mb-6 size-11 rounded-xl" />
 			<StepHeader title={STEP_COPY.models.title} description={STEP_COPY.models.description} />
 
-			<div className="mt-8 grid gap-6">
+			<div className="mt-8 grid min-w-0 gap-6">
 				{MODEL_SERVICE_DEFINITIONS.map((service, index) => (
-					<section key={service.id}>
+					<section key={service.id} className="min-w-0">
 						<div className="mb-2">
 							<h2 className="text-sm font-semibold text-foreground">{service.title}</h2>
 							<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
