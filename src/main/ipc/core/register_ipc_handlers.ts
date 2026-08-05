@@ -7,7 +7,6 @@ import { ModelsIpc } from '../models';
 import { SkillsIpc } from '../skills';
 import { ProviderStoreIpc } from '../provider';
 import { SearchIpc } from '../search';
-import { EmailIpc } from '../email';
 import { StorageIpc } from '../storage';
 import { DatabaseIpc } from '../database';
 import { ExtensionsIpc } from '../extensions';
@@ -36,7 +35,6 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('skills', () => new SkillsIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
-	safeRegister('email', () => new EmailIpc().register(undefined, eventBus));
 	safeRegister('storage', () => new StorageIpc().register(undefined, eventBus));
 	safeRegister('database', () => new DatabaseIpc().register(undefined, eventBus));
 	safeRegister('extensions', () => new ExtensionsIpc().register({ windowFactory }, eventBus));

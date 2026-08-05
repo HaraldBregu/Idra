@@ -33,7 +33,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: [
 			'/settings/providers/models',
 			'/settings/providers/search',
-			'/settings/providers/email',
 			'/settings/providers/databases',
 			'/settings/providers/storage',
 			'/settings/providers/mcp',

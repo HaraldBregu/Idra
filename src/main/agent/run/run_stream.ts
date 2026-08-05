@@ -21,7 +21,6 @@ import { editTool } from '../tools/file/edit';
 import { applyPatchTool } from '../tools/file/apply_patch';
 import { execTool } from '../tools/run_exec';
 import { processTool } from '../tools/run_process';
-import { getEmailTools } from '../tools/email/email';
 import { getWebSearchTools } from '../tools/web/search';
 import { webFetchTool } from '../tools/web/fetch';
 import { webBrowserTool } from '../tools/web/browser';
@@ -105,7 +104,6 @@ async function* loop(
 				execTool,
 				processTool,
 				...getWebSearchTools(),
-				...getEmailTools(),
 				webFetchTool,
 				webBrowserTool,
 				createImageTool(),

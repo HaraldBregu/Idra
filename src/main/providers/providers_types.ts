@@ -1,4 +1,3 @@
-import type { SmtpProvider } from '../../shared/email_types';
 import type { StoredBotProvider } from '../../shared/channels_types';
 import type { StoredProvider } from '../../shared/provider_types';
 import type { StorageConfig } from '../../shared/storage_types';
@@ -13,7 +12,6 @@ export type ProvidersStoreState = {
 	models: StoredProvider[];
 	databases: StoredProvider[];
 	search_engines: StoredProvider[];
-	smtp: SmtpProvider[];
 	storages: StoredStorage[];
 	channels: StoredBotProvider[];
 	mcp_servers: McpRecord[];

@@ -33,7 +33,6 @@ const ApplicationPage = lazy(() => import('./pages/settings/pages/application/Pa
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const TaskDetailsPage = lazy(() => import('./pages/settings/pages/tasks/detail/Page'));
 const SearchPage = lazy(() => import('./pages/settings/pages/search/Page'));
-const EmailPage = lazy(() => import('./pages/settings/pages/email/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const SystemMediaDetailPage = lazy(() => import('./pages/settings/pages/system/detail/Page'));
@@ -306,14 +305,6 @@ const routes: RouteObject[] = [
 								element: (
 									<SettingsRouteWrapper>
 										<ProvidersPage section="search" />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: 'email',
-								element: (
-									<SettingsRouteWrapper>
-										<EmailPage />
 									</SettingsRouteWrapper>
 								),
 							},

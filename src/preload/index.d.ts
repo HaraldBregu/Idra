@@ -9,7 +9,6 @@ import type {
 	ModelsApi,
 	ProviderApi,
 	SearchApi,
-	EmailApi,
 	SkillsApi,
 	StorageApi,
 	DatabaseApi,
@@ -32,7 +31,6 @@ declare global {
 		database: DatabaseApi;
 		provider: ProviderApi;
 		search: SearchApi;
-		email: EmailApi;
 		extensions: ExtensionsApi;
 		wiki: WikiApi;
 	}

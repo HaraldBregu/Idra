@@ -607,18 +607,6 @@
 				"saveFailed": "Impossibile salvare le impostazioni di salute."
 			}
 		},
-		"email": {
-			"title": "SMTP",
-			"description": "Configura l'invio di email SMTP per l'assistente.",
-			"providers": "Provider",
-			"configuration": "Configurazione",
-			"apiKey": "Password SMTP",
-			"apiKeyPlaceholder": "Password SMTP",
-			"save": "Salva",
-			"loading": "Verifica della configurazione…",
-			"configured": "Configurato",
-			"notConfigured": "Non configurato"
-		},
 		"cron": {
 			"description": "Visualizza, esegui, metti in pausa ed elimina le attivita agente pianificate.",
 			"columns": {

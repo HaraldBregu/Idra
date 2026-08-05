@@ -5,7 +5,6 @@ import {
 	Bot,
 	Blocks,
 	Database,
-	Mail,
 	Folder,
 	HeartPulse,
 	ImageIcon,
@@ -355,12 +354,6 @@ export const SETTINGS_NAVIGATION: readonly SettingsNavigationItem[] = [
 		labelKey: 'settings.tabs.searchEngines',
 		descriptionKey: 'settings.overview.descriptions.searchEngine',
 		icon: Search,
-	},
-	{
-		path: '/settings/providers/email',
-		labelKey: 'settings.email.title',
-		descriptionKey: 'settings.email.description',
-		icon: Mail,
 	},
 	{
 		path: '/settings/providers/databases',

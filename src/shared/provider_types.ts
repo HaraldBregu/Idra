@@ -51,8 +51,7 @@ export type ProviderServiceType =
 	| 'database'
 	| 'storage'
 	| 'mcp'
-	| 'bot'
-	| 'transactional-email';
+	| 'bot';
 
 /** A service as represented in a provider manifest. */
 export interface ProviderManifestService extends Omit<CatalogEntryModel, 'type'> {

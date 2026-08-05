@@ -52,11 +52,6 @@ export function directoryPermissionTargets(
 		return [realPath(resolveUserPath(directory, baseDir))];
 	}
 	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(taskStorePath)];
-	if (toolName === 'send_email' && Array.isArray(args.attachments)) {
-		return args.attachments
-			.filter((attachment): attachment is string => typeof attachment === 'string')
-			.map((attachment) => path.dirname(realPath(resolveUserPath(attachment, baseDir))));
-	}
 	if (toolName === 'load_skill')
 		return [realPath(path.join(skillsRoot, String(args.name ?? '')))];
 	return [];

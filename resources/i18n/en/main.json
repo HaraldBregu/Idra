@@ -608,18 +608,6 @@
 				"saveFailed": "Failed to save health settings."
 			}
 		},
-		"email": {
-			"title": "SMTP",
-			"description": "Configure SMTP email delivery for the assistant.",
-			"providers": "Providers",
-			"configuration": "Configuration",
-			"apiKey": "SMTP password",
-			"apiKeyPlaceholder": "SMTP password",
-			"save": "Save",
-			"loading": "Checking configuration…",
-			"configured": "Configured",
-			"notConfigured": "Not configured"
-		},
 		"cron": {
 			"description": "View, run, pause, and delete scheduled agent tasks.",
 			"columns": {

@@ -40,10 +40,8 @@ import {
 	setTaskConfiguration,
 } from '../../../../src/main/settings_store';
 import { getDatabaseConfiguration } from '../../../../src/main/database/database_store';
-import type { SmtpProvider } from '../../../../src/shared/email_types';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';
-import { getSmtpProviders, getSmtpSettings, saveSmtpProvider } from '../../../../src/main/smtp/smtp_store';
 
 function provider(id: string, name: string): StoredProvider {
 	return { id, name, apiKey: 'k', baseUrl: 'https://api' };
@@ -75,38 +73,6 @@ describe('providers in app settings', () => {
 		setProvider(provider('pinecone', 'Pinecone'), 'databases');
 
 		expect(getDatabaseConfiguration().providers).toEqual([provider('pinecone', 'Pinecone')]);
-	});
-
-	it('stores SMTP settings in the email configuration', () => {
-		const smtp: SmtpProvider = {
-			id: 'smtp-1',
-			name: 'Primary SMTP',
-			default: true,
-			host: 'smtp.example.com',
-			port: 587,
-			secure: false,
-			username: 'friday',
-			password: 'secret',
-			from: 'Friday <friday@example.com>',
-		};
-		saveSmtpProvider(smtp);
-
-		expect(getSmtpSettings()).toEqual(smtp);
-	});
-
-	it('stores multiple SMTP providers and marks the most recently added one as default', () => {
-		const first: SmtpProvider = {
-			id: 'smtp-1', name: 'Primary SMTP', default: true, host: 'smtp.one.example.com', port: 587, secure: false,
-			username: 'friday', password: 'secret', from: 'Friday <friday@example.com>',
-		};
-		const second: SmtpProvider = {
-			...first, id: 'smtp-2', name: 'Backup SMTP', default: true, host: 'smtp.two.example.com',
-		};
-		saveSmtpProvider(first);
-		saveSmtpProvider(second);
-
-		expect(getSmtpProviders().slice(-2)).toEqual([{ ...first, default: false }, second]);
-		expect(getSmtpSettings()).toEqual(second);
 	});
 
 	it('updates in place instead of appending a duplicate', () => {
