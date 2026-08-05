@@ -232,6 +232,26 @@ MCP settings provide:
 - Add and edit dialogs. Server ID and transport type are fixed after creation.
 - A detail page with ID, status, URL or command/arguments, authentication type, refresh/update timestamps, and the last error.
 - OAuth authorization for HTTP servers without a bearer token, including reauthorization.
+- Dynamic discovery of local server packages from `~/.friday/mcp/servers`.
+- Folder upload, local-folder access, manual refresh, and a live connection test that reports tool count and latency for every local or remote server.
+
+Each discovered local server lives in its own folder and contains an `mcp.json` manifest:
+
+```json
+{
+	"id": "filesystem",
+	"name": "Filesystem",
+	"type": "stdio",
+	"command": "node",
+	"args": ["dist/server.js"],
+	"env": { "MODE": "production" },
+	"cwd": ".",
+	"require_approval": "always",
+	"enabled": true
+}
+```
+
+The folder name is used as the ID when `id` is omitted. IDs use lowercase letters, numbers, and single hyphens. Relative `cwd` values are resolved from the package folder; omitting `cwd` also runs the command from that folder. Friday rescans the directory whenever settings or an agent run reads the MCP registry, so adding or removing a valid folder does not require an app restart. Explicitly configured servers take precedence over a discovered package with the same ID, and malformed or duplicate local packages are reported in Settings instead of preventing other servers from loading.
 
 At the start of each normal agent run, enabled servers connect in parallel, expose their tools to the model, and close when the run ends. Unreachable or unauthenticated servers are skipped for that run.
 

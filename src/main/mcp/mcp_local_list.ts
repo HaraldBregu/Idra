@@ -1,4 +1,5 @@
 import { existsSync, readdirSync } from 'node:fs';
+import path from 'node:path';
 import type { McpRegistry } from '../../shared/mcp_types';
 import { readLocalMcpServer } from './mcp_local_read';
 import { mcpLocalRoot } from './mcp_local_root';
@@ -12,9 +13,13 @@ export function listLocalMcpServers(root = mcpLocalRoot()): McpRegistry {
 		a.name.localeCompare(b.name)
 	)) {
 		if (!entry.isDirectory()) continue;
-		const directory = `${root}/${entry.name}`;
+		const directory = path.join(root, entry.name);
 		try {
-			servers.push(readLocalMcpServer(directory));
+			const server = readLocalMcpServer(directory);
+			if (servers.some((current) => current.id === server.id)) {
+				throw new Error(`Another local MCP server already uses ID "${server.id}".`);
+			}
+			servers.push(server);
 		} catch (error) {
 			diagnostics.push({
 				name: entry.name,
