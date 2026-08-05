@@ -8,7 +8,7 @@ export {
 	setDirectoryPermissions,
 	setPermissionMode,
 	setToolPermission,
-} from './policy_store';
+} from '../agent_store';
 export { isPathWithin, toolPathDir } from './policy_path';
 export { directoryPermissionFor } from './policy_directory';
 export { directoryPolicyAllows } from './policy_directories';

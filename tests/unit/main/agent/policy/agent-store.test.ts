@@ -2,6 +2,12 @@ jest.mock('electron-store', () =>
 	jest.fn().mockImplementation((options: { defaults?: unknown }) => {
 		let backing = structuredClone(options.defaults ?? {});
 		return {
+			get(key: string) {
+				return (backing as Record<string, unknown>)[key];
+			},
+			set(key: string, value: unknown) {
+				(backing as Record<string, unknown>)[key] = value;
+			},
 			get store() {
 				return backing;
 			},
@@ -13,17 +19,23 @@ jest.mock('electron-store', () =>
 );
 
 import {
+	getModelId,
 	getPermissions,
 	getPermissionMode,
+	getProviderId,
+	getSearchEngine,
 	resetPermissions,
 	setDirectoryPermissions,
+	setModelId,
 	setPermissionMode,
+	setProviderId,
+	setSearchEngine,
 	setToolPermission,
-} from '../../../../../src/main/agent/policy/policy_store';
+} from '../../../../../src/main/agent/agent_store';
 
 beforeEach(() => resetPermissions());
 
-describe('policy store directories', () => {
+describe('agent store permissions', () => {
 	it('persists the agent permission mode', () => {
 		expect(getPermissionMode()).toBe('ask');
 		setPermissionMode('bypass');
@@ -58,5 +70,21 @@ describe('policy store directories', () => {
 		setDirectoryPermissions({ '/shared': { recoursive: true, tools: '*' } });
 		expect(getPermissions().dir).not.toEqual({});
 		expect(resetPermissions().dir).toEqual({});
+	});
+
+	it('preserves the other agent settings when permissions change', () => {
+		setProviderId('provider');
+		setModelId('model');
+		setSearchEngine({ providerId: 'search', providerName: 'Search', enabled: true });
+
+		setPermissionMode('bypass');
+
+		expect(getProviderId()).toBe('provider');
+		expect(getModelId()).toBe('model');
+		expect(getSearchEngine()).toEqual({
+			providerId: 'search',
+			providerName: 'Search',
+			enabled: true,
+		});
 	});
 });

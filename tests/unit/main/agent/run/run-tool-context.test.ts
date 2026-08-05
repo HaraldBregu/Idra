@@ -8,7 +8,7 @@ const addPermissionRule = jest.fn();
 const getToolPermission = jest.fn();
 const setToolPermission = jest.fn();
 
-jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
+jest.mock('../../../../../src/main/agent/agent_store', () => ({
 	AGENT_DIRECTORY: '/appdata/agent',
 	addPermissionRule,
 	getPermissions,

@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const getPermissions = jest.fn();
 
-jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
+jest.mock('../../../../../src/main/agent/agent_store', () => ({
 	AGENT_DIRECTORY: '/appdata/agent',
 	getPermissions,
 }));

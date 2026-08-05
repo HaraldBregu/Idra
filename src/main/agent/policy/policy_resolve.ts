@@ -2,7 +2,7 @@ import { contextAllowsTool, type ToolsContext } from '../context';
 import { directoryPolicyAllows } from './policy_directories';
 import { directoryPermissionTargets } from './policy_directory_targets';
 import { isToolPermission } from './policy_is_tool_permission';
-import { AGENT_DIRECTORY, getPermissions } from './policy_store';
+import { AGENT_DIRECTORY, getPermissions } from '../agent_store';
 import { systemPolicyAllows } from './policy_system';
 import { toolPermissionTargets } from './policy_targets';
 import { resolveStoredToolPolicy } from './policy_tool';

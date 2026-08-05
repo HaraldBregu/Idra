@@ -3,7 +3,7 @@ import { resolveUserPath } from '../../shared/user_path';
 import { realPath } from '../../shared/real_path';
 import { isPathWithin } from './policy_path';
 import { isToolPermission } from './policy_is_tool_permission';
-import { getPermissions } from './policy_store';
+import { getPermissions } from '../agent_store';
 import type { PermissionMode, ToolPermission } from './policy_types';
 
 const PRIORITY: Record<PermissionMode, number> = { allow: 1, ask: 2, deny: 3 };
