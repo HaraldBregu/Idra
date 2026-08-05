@@ -1,4 +1,4 @@
-import type { EventBus } from '../app/event_bus';
+import type { EventBus } from '../event_bus';
 import { TaskChannels } from '../../shared/ipc_channels_definitions';
 import { getRuntime, listSchedules, setRuntime } from '../tasks';
 import { registerCommand, registerQuery } from './core/gateway';

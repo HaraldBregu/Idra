@@ -1,6 +1,6 @@
 import { BrowserWindow, dialog, shell } from 'electron';
 import { mkdir } from 'node:fs/promises';
-import type { EventBus } from '../app/event_bus';
+import type { EventBus } from '../event_bus';
 import { WikiChannels } from '../../shared/ipc_channels_definitions';
 import { getWikiSettings, getWikiStatus, runWiki, saveWikiSettings } from '../wiki';
 import { registerCommand, registerQuery } from './core/gateway';

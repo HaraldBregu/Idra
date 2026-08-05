@@ -5,7 +5,7 @@ jest.mock('../../../../src/main/channels/channels_store', () => ({
 }));
 
 import { createChannelRegistry } from '../../../../src/main/channels/channels_registry';
-import type { EventBus } from '../../../../src/main/app/event_bus';
+import type { EventBus } from '../../../../src/main/event_bus';
 import type { LoggerService } from '../../../../src/main/shared';
 
 function deps() {

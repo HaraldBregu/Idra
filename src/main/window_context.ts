@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron';
-import type { EventBus } from './index';
-import type { LoggerService } from '../shared';
+import type { EventBus } from './event_bus';
+import type { LoggerService } from './shared';
 import {
 	createDefaultWindowScopedServiceFactory,
 	type WindowScopedServiceFactory,

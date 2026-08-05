@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type { BrowserWindow } from 'electron';
-import type { WindowFactory } from '../../../../src/main/app/window_factory';
+import type { WindowFactory } from '../../../../src/main/window_factory';
 import {
 	ensureExtensions,
 	listExtensions,

@@ -19,8 +19,8 @@ import type { ProviderModel } from '../../../../shared/model_types';
 import { buildSttAdapter } from './stt_factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
-import { loadProviders, providerIdsFor, providerModels, speechToTextApiTypes, speechToTextBaseUrl, speechToTextSampleRate, supportsCapability, supportsSpeechToTextApiType } from '../../../app/models';
-import { getProvider } from '../../../app/settings_store';
+import { loadProviders, providerIdsFor, providerModels, speechToTextApiTypes, speechToTextBaseUrl, speechToTextSampleRate, supportsCapability, supportsSpeechToTextApiType } from '../../../models';
+import { getProvider } from '../../../settings_store';
 import type { PublicProvider as CatalogProvider } from '../../../../shared/provider_types';
 import {
 	getModelId as getTranscribeModelId,

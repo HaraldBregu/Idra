@@ -18,7 +18,7 @@ import { agentLocation } from '../shared/agent_location';
 import { libraryLocation } from '../shared/library_location';
 import { userDataLocation } from '../shared/user_data_location';
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../app/event_bus';
+import type { EventBus } from '../event_bus';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
@@ -29,7 +29,7 @@ import type {
 	AppTheme,
 } from '../../shared/app_types';
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
-import { setKeepAwake as applyKeepAwake } from '../app/keep_awake';
+import { setKeepAwake as applyKeepAwake } from '../keep_awake';
 import {
 	getTrayEnabled as getStoredTrayEnabled,
 	setTrayEnabled as setStoredTrayEnabled,
@@ -39,7 +39,7 @@ import {
 	setLanguage as setStoredLanguage,
 	getTheme as getStoredTheme,
 	setTheme as setStoredTheme,
-} from '../app/settings_store';
+} from '../settings_store';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
 import {
 	loadBots,
@@ -51,7 +51,7 @@ import {
 	providersDir,
 	refreshProviderCatalog,
 	watchModels,
-} from '../app/models';
+} from '../models';
 import type { LoggerService } from '../shared';
 import { validateProviderManifest } from '../../shared/providers/validation';
 import type { ChannelStatusEvent, ChannelType } from '../../shared';

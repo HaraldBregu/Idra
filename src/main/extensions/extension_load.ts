@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import type { BrowserWindow } from 'electron';
-import type { WindowFactory } from '../app/window_factory';
+import type { WindowFactory } from '../window_factory';
 import { extensionEntryPath } from './extension_entry';
 import { render } from './extension_render';
 import type { Extension } from './extension_types';

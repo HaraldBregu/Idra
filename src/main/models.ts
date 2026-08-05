@@ -17,8 +17,8 @@ import type {
 	ProviderModel,
 	SpeechToTextApiType,
 } from '../../shared/model_types';
-import { userDataLocation } from '../shared/user_data_location';
-import { parseProviderManifest } from '../../shared/providers/validation';
+import { userDataLocation } from './shared/user_data_location';
+import { parseProviderManifest } from '../shared/providers/validation';
 
 interface Catalog {
 	readonly models: readonly CatalogModel[];

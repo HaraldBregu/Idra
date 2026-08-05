@@ -1,6 +1,6 @@
 import { shell } from 'electron';
 import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
-import type { EventBus } from '../app/event_bus';
+import type { EventBus } from '../event_bus';
 import { McpChannels } from '../../shared/ipc_channels_definitions';
 import {
 	createOAuthProvider,

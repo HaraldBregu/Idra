@@ -1,12 +1,12 @@
 import { BrowserWindow, dialog, ipcMain } from 'electron';
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../app/event_bus';
+import type { EventBus } from '../event_bus';
 import { wrapSimpleHandler } from './core/error_handler';
 import { AgentChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import type { LoggerService } from '../shared';
 import type { PublicProvider } from '../../shared/provider_types';
-import { loadProviders } from '../app/models';
+import { loadProviders } from '../models';
 import type {
 	AgentPermissionMode,
 	AgentToolPermissionDecision,

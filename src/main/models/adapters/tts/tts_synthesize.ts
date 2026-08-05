@@ -4,8 +4,8 @@ import {
 	type SpeechSynthesisRequest,
 	type SpeechSynthesisResult,
 } from '../../../../shared/speech_types';
-import { defaultProviderId, loadProviders, providerModels, supportsCapability } from '../../../app/models';
-import { getProvider } from '../../../app/settings_store';
+import { defaultProviderId, loadProviders, providerModels, supportsCapability } from '../../../models';
+import { getProvider } from '../../../settings_store';
 import { buildSpeechAdapter } from './tts_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
 import { getModelId, getProviderId } from '../../models_store';

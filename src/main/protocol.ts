@@ -1,8 +1,8 @@
 import { BrowserWindow, desktopCapturer, net, protocol, session } from 'electron';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { agentLocation } from '../shared/agent_location';
-import type { LoggerService } from '../shared';
+import { agentLocation } from './shared/agent_location';
+import type { LoggerService } from './shared';
 
 const LOCAL_RESOURCE_SCHEME = 'local-resource';
 

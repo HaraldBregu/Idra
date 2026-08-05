@@ -1,5 +1,5 @@
 import { LlmModel } from '../models/adapters/llm';
-import { getProvider } from '../app/settings_store';
+import { getProvider } from '../settings_store';
 import type { WikiSettings } from '../../shared/wiki_types';
 import { parseWikiUpdate } from './wiki_parse_update';
 import { wikiSourcePage } from './wiki_source_page';

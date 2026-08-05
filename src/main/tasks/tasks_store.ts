@@ -2,7 +2,7 @@ import {
 	taskConfigurationStorePath,
 	getTaskConfiguration,
 	setTaskConfiguration,
-} from '../app/settings_store';
+} from '../settings_store';
 import type { PersistedTaskState } from './tasks_types';
 
 export const taskStorePath = taskConfigurationStorePath;

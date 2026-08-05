@@ -1,4 +1,4 @@
-import type { EventBus } from '../app/event_bus';
+import type { EventBus } from '../event_bus';
 import { getSearchSettings, saveSearchEngine, selectSearchEngine } from '../search';
 import { SearchChannels } from '../../shared/ipc_channels_definitions';
 import { registerCommand, registerQuery } from './core/gateway';

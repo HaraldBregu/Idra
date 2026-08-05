@@ -1,7 +1,7 @@
 import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
-import type { LoggerService } from '../shared';
+import type { LoggerService } from './shared';
 
 export interface WindowPreset {
 	name: string;

@@ -1,5 +1,5 @@
 import type { BrowserWindow } from 'electron';
-import type { WindowFactory } from '../app/window_factory';
+import type { WindowFactory } from '../window_factory';
 
 const windows = new Set<BrowserWindow>();
 

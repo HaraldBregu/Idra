@@ -1,15 +1,15 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import cron from 'node-cron';
-import type { ResolvedProvider, StoredProvider, StoredProviderKind } from '../../shared/provider_types';
-import type { StorageConfig, StorageConfiguration } from '../../shared/storage_types';
-import type { DatabaseConfiguration } from '../../shared/database_types';
-import { userDataLocation } from '../shared/user_data_location';
-import { DEFAULT_SYNC_CRON_EXPRESSION } from '../storage/storage_sync_types';
+import type { ResolvedProvider, StoredProvider, StoredProviderKind } from '../shared/provider_types';
+import type { StorageConfig, StorageConfiguration } from '../shared/storage_types';
+import type { DatabaseConfiguration } from '../shared/database_types';
+import { userDataLocation } from './shared/user_data_location';
+import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
 import { loadStorages } from './models';
-import type { PersistedTaskState } from '../tasks/tasks_types';
-import type { AppLanguage, AppTheme } from '../../shared/app_types';
-import { getModelProvidersState, setModelProvidersState, getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from '../providers/providers_index';
+import type { PersistedTaskState } from './tasks/tasks_types';
+import type { AppLanguage, AppTheme } from '../shared/app_types';
+import { getModelProvidersState, setModelProvidersState, getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from './providers/providers_index';
 
 export type ModelKind =
 	| 'text'

@@ -1,8 +1,8 @@
 import type { StoredProvider } from '../../shared/provider_types';
-import { getAppModelSelections, setAppModelSelections, type ModelKind, type ModelSelection, type ModelsStoreState } from '../app/settings_store';
+import { getAppModelSelections, setAppModelSelections, type ModelKind, type ModelSelection, type ModelsStoreState } from '../settings_store';
 import { getModelProvidersState, setModelProvidersState } from '../providers/providers_index';
 
-export type { ModelKind, ModelSelection, ModelsStoreState } from '../app/settings_store';
+export type { ModelKind, ModelSelection, ModelsStoreState } from '../settings_store';
 
 const EMPTY_SELECTION: ModelSelection = { providerId: '', modelId: '' };
 

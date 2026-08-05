@@ -15,7 +15,7 @@ jest.mock('../../../../src/main/ipc/core/gateway', () => ({
 	registerCommand: jest.fn(),
 }));
 
-import type { EventBus } from '../../../../src/main/app/event_bus';
+import type { EventBus } from '../../../../src/main/event_bus';
 import { registerCommand, registerQuery } from '../../../../src/main/ipc/core/gateway';
 import { WikiIpc } from '../../../../src/main/ipc/wiki';
 import { WikiChannels } from '../../../../src/shared/ipc_channels_definitions';

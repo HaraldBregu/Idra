@@ -1,5 +1,5 @@
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../app/event_bus';
+import type { EventBus } from '../event_bus';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import {
 	EmbeddingChannels,

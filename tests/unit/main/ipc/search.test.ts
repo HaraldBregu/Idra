@@ -13,7 +13,7 @@ jest.mock('../../../../src/main/ipc/core/gateway', () => ({
 	registerCommand: jest.fn(),
 }));
 
-import type { EventBus } from '../../../../src/main/app/event_bus';
+import type { EventBus } from '../../../../src/main/event_bus';
 import { registerCommand, registerQuery } from '../../../../src/main/ipc/core/gateway';
 import { SearchIpc } from '../../../../src/main/ipc/search';
 import { SearchChannels } from '../../../../src/shared/ipc_channels_definitions';

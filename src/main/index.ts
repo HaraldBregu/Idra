@@ -1,30 +1,30 @@
 import { app, BrowserWindow, crashReporter, nativeTheme } from 'electron';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Main } from './app/create_window';
-import { Tray } from './app/tray';
-import { setTrayEnabled } from './app/set_tray_enabled';
+import { Main } from './create_window';
+import { Tray } from './tray';
+import { setTrayEnabled } from './set_tray_enabled';
 import {
 	getTrayEnabled,
 	getLanguage,
 	setLanguage as setStoredLanguage,
 	getTheme,
-} from './app/settings_store';
+} from './settings_store';
 import type { AppLanguage } from '../shared/app_types';
-import { Menu } from './app/menu';
+import { Menu } from './menu';
 import {
 	ensureExtensions,
 	listExtensions,
 	loadExtension,
 	watchExtensions,
 } from './extensions/extension_index';
-import { ShortcutManager } from './app/shortcuts';
-import { setupAppLifecycle } from './app/lifecycle';
+import { ShortcutManager } from './shortcuts';
+import { setupAppLifecycle } from './lifecycle';
 import {
 	registerLocalResourceProtocolHandler,
 	registerLocalResourceProtocolScheme,
 	setupMediaPermissionHandlers,
-} from './app/protocol';
+} from './protocol';
 import { registerIpcHandlers } from './ipc/core/register_ipc_handlers';
 import { setupEventLogging, setupProcessSafetyNet } from './shared/error_reporter';
 import { setupMemoryMonitor } from './shared/metrics';

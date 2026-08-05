@@ -38,7 +38,7 @@ import {
 	saveStorageConfig,
 	setSelectedStorageId,
 	setTaskConfiguration,
-} from '../../../../src/main/app/settings_store';
+} from '../../../../src/main/settings_store';
 import { getDatabaseConfiguration } from '../../../../src/main/database/database_store';
 import type { SmtpProvider } from '../../../../src/shared/email_types';
 import type { StoredProvider } from '../../../../src/shared/provider_types';

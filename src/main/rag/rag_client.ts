@@ -1,5 +1,5 @@
 import { Pinecone } from '@pinecone-database/pinecone';
-import { getProvider } from '../app/settings_store';
+import { getProvider } from '../settings_store';
 
 // ponytail: one index for the whole rag folder; no per-collection naming until asked.
 export const RAG_INDEX_NAME = 'friday';

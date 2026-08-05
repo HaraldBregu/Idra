@@ -1,7 +1,7 @@
 import type { CatalogService, StoredProvider } from '../../shared/provider_types';
 import type { DatabaseConfiguration } from '../../shared/database_types';
-import { loadDatabases } from '../app/models';
-import { getAppDatabaseConfiguration, setAppDatabaseConfiguration } from '../app/settings_store';
+import { loadDatabases } from '../models';
+import { getAppDatabaseConfiguration, setAppDatabaseConfiguration } from '../settings_store';
 import { getDatabaseProvidersState, providersStorePath, setDatabaseProvidersState } from '../providers/providers_index';
 
 const DEFAULT_CONFIGURATION: DatabaseConfiguration = {

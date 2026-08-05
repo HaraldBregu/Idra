@@ -1,4 +1,4 @@
-import type { EventBus } from '../app/event_bus';
+import type { EventBus } from '../event_bus';
 import type { WindowFactory } from '../app';
 import { listExtensions, loadExtension } from '../extensions/extension_index';
 import { ExtensionChannels } from '../../shared/ipc_channels_definitions';

@@ -1,6 +1,6 @@
 import { LlmModel } from '../adapters/llm';
 import type { TextRequest } from '../../../shared/text_types';
-import { getProvider } from '../../app/settings_store';
+import { getProvider } from '../../settings_store';
 import { getModelId, getProviderId } from '../models_store';
 
 const llmModel = new LlmModel();
