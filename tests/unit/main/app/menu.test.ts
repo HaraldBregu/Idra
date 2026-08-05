@@ -1,5 +1,5 @@
 import { Menu as ElectronMenu } from 'electron';
-import { Menu } from '../../../../src/main/app/menu';
+import { Menu } from '../../../../src/main/menu';
 
 jest.mock('@electron-toolkit/utils', () => ({ is: { dev: true } }));
 jest.mock('../../../../src/main/i18n', () => ({
