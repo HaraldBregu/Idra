@@ -18,7 +18,7 @@ jest.mock('electron-store', () =>
 	})
 );
 
-jest.mock('../../../../src/main/app/models', () => ({
+jest.mock('../../../../src/main/models', () => ({
 	loadDatabases: () => [],
 	loadStorages: () => [],
 }));
@@ -39,7 +39,7 @@ import {
 	setSelectedStorageId,
 	setTaskConfiguration,
 } from '../../../../src/main/app/settings_store';
-import { getDatabaseConfiguration } from '../../../../src/main/database/store';
+import { getDatabaseConfiguration } from '../../../../src/main/database/database_store';
 import type { SmtpProvider } from '../../../../src/shared/email_types';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
 import type { StorageConfig } from '../../../../src/shared/storage_types';

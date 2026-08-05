@@ -4,7 +4,7 @@ import {
 	loadModels,
 	loadStorages,
 	loadWebSearches,
-} from '../../../../src/main/app/models';
+} from '../../../../src/main/models';
 
 function namesAreAlphabetical(entries: readonly { name: string }[]): boolean {
 	return entries.every(

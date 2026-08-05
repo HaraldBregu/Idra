@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createSound } from '../../../app/models/sound';
+import { createSound } from '../../../models/sound';
 import type { Tool } from '../../types';
 import { saveMedia } from './save';
 import { tool } from '../tool';

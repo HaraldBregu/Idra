@@ -1,7 +1,7 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import type { Pinecone } from '@pinecone-database/pinecone';
-import { createEmbedding } from '../app/models/embedding';
+import { createEmbedding } from '../models/embedding';
 import { chunkText } from './rag_chunk';
 import { RAG_INDEX_NAME, ragClient } from './rag_client';
 import { writeRagManifest } from './rag_manifest';

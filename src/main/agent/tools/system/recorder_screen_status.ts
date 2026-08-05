@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { screen } from '../../../app/recorder';
+import { screen } from '../../../recorder';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 

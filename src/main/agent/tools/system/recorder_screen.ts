@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { z } from 'zod';
-import { screen } from '../../../app/recorder';
+import { screen } from '../../../recorder';
 import { agentLocation } from '../../../shared/agent_location';
 import { resolveUserPath } from '../../../shared/user_path';
 import type { Tool } from '../../types';

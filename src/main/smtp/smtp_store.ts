@@ -1,35 +1,19 @@
-import path from 'node:path';
-import Store from 'electron-store';
-import { userDataLocation } from '../shared/user_data_location';
 import type { SmtpProvider } from '../../shared/email_types';
+import { getSmtpProvidersState, providersStorePath, setSmtpProvidersState } from '../providers/providers_index';
 
-interface SmtpStoreState {
-	providers: SmtpProvider[];
-}
-
-const settingsDirectory = path.resolve(userDataLocation(), 'settings');
-const DEFAULT_SMTP_SETTINGS: SmtpStoreState = { providers: [] };
-
-const store = new Store<SmtpStoreState>({
-	name: 'smtp',
-	cwd: settingsDirectory,
-	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_SMTP_SETTINGS,
-});
-
-export const smtpStorePath = store.path;
+export const smtpStorePath = providersStorePath;
 
 export function getSmtpSettings(): SmtpProvider | undefined {
-	const providers = store.get('providers');
+	const providers = getSmtpProvidersState();
 	return providers.find((provider) => provider.default) ?? providers[0];
 }
 
 export function getSmtpProviders(): SmtpProvider[] {
-	return store.get('providers');
+	return getSmtpProvidersState();
 }
 
 export function saveSmtpProvider(provider: SmtpProvider): void {
-	store.set('providers', [
+	setSmtpProvidersState( [
 		...getSmtpProviders().map((entry) => ({ ...entry, default: false })),
 		{ ...provider, default: true },
 	]);
@@ -38,14 +22,14 @@ export function saveSmtpProvider(provider: SmtpProvider): void {
 export function updateSmtpProvider(provider: SmtpProvider): void {
 	const providers = getSmtpProviders();
 	if (!providers.some((entry) => entry.id === provider.id)) throw new Error('Unknown SMTP provider.');
-	store.set('providers', providers.map((entry) => (entry.id === provider.id ? provider : entry)));
+	setSmtpProvidersState( providers.map((entry) => (entry.id === provider.id ? provider : entry)));
 }
 
 export function selectSmtpProvider(providerId: string): void {
 	if (!getSmtpProviders().some((provider) => provider.id === providerId)) {
 		throw new Error('Unknown SMTP provider.');
 	}
-	store.set('providers', getSmtpProviders().map((provider) => ({
+	setSmtpProvidersState( getSmtpProviders().map((provider) => ({
 		...provider,
 		default: provider.id === providerId,
 	})));

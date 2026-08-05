@@ -1,4 +1,4 @@
-import { close, connect, getMcpServers, listTools, type McpClient } from '../../../app/mcp';
+import { close, connect, getMcpServers, listTools, type McpClient } from '../../../mcp';
 import type { JSONSchema, Tool } from '../../types';
 import { mcpTool } from './tool';
 

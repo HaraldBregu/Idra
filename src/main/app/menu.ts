@@ -1,5 +1,5 @@
 import { app, BrowserWindow, Menu as ElectronMenu } from 'electron';
-import { loadTranslations } from './i18n';
+import { loadTranslations } from '../i18n';
 import type { Extension } from '../extensions/extension_index';
 
 interface MenuManagerCallbacks {

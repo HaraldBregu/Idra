@@ -2,7 +2,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { DatabaseChannels } from '../../shared/ipc_channels_definitions';
-import { getDatabaseConfiguration, saveDatabaseConfiguration } from '../database/store';
+import { getDatabaseConfiguration, saveDatabaseConfiguration } from '../database/database_store';
 
 export class DatabaseIpc implements IpcModule {
 	readonly name = 'database';

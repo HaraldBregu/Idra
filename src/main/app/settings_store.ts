@@ -3,25 +3,22 @@ import Store from 'electron-store';
 import cron from 'node-cron';
 import type { ResolvedProvider, StoredProvider, StoredProviderKind } from '../../shared/provider_types';
 import type { StorageConfig, StorageConfiguration } from '../../shared/storage_types';
+import type { DatabaseConfiguration } from '../../shared/database_types';
 import { userDataLocation } from '../shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from '../storage/storage_sync_types';
 import { loadStorages } from './models';
-import { getModelProviders, setModelProviders } from './models/models_store';
+import { getModelProviders, setModelProviders } from '../models/models_store';
 import type { PersistedTaskState } from '../tasks/tasks_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
-import { getDatabaseConfiguration, saveDatabaseConfiguration } from '../database/store';
-
-type StoredStorage = Omit<StorageConfig, 'forcePathStyle'> & {
-	/** API base of the catalog storage entry this config belongs to. */
-	baseUrl: string;
-	forcePathStyle?: boolean;
-};
+import { getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from '../providers/providers_index';
 
 export type AppSettingsState = {
 	trayEnabled: boolean;
 	keepAwake: boolean;
 	language: AppLanguage;
 	theme: AppTheme;
+	databaseConfiguration: Omit<DatabaseConfiguration, 'providers'>;
+	storageConfiguration: StorageConfiguration;
 };
 
 const APP_SETTINGS_STORE_NAME = 'application';
@@ -34,15 +31,6 @@ const DEFAULT_STORAGE_CONFIGURATION: StorageConfiguration = {
 	syncCronExpression: DEFAULT_SYNC_CRON_EXPRESSION,
 };
 
-type StorageSettingsState = StorageConfiguration & {
-	providers: StoredStorage[];
-};
-
-const DEFAULT_STORAGE_SETTINGS: StorageSettingsState = {
-	...DEFAULT_STORAGE_CONFIGURATION,
-	providers: [],
-};
-
 const DEFAULT_TASK_CONFIGURATION: PersistedTaskState = { schedules: [] };
 
 const DEFAULT_APP_SETTINGS: AppSettingsState = {
@@ -50,6 +38,8 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	keepAwake: false,
 	language: 'en',
 	theme: 'system',
+	databaseConfiguration: { providerId: undefined, databaseId: undefined },
+	storageConfiguration: DEFAULT_STORAGE_CONFIGURATION,
 };
 
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
@@ -65,14 +55,6 @@ removeModelProvidersFromApplication();
 
 export const appSettingsStorePath = store.path;
 
-const storageConfigurationStore = new Store<StorageSettingsState>({
-	name: 'storages',
-	cwd: settingsDirectory,
-	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_STORAGE_SETTINGS,
-});
-
-
 const taskConfigurationStore = new Store<PersistedTaskState>({
 	name: 'tasks',
 	cwd: settingsDirectory,
@@ -81,7 +63,6 @@ const taskConfigurationStore = new Store<PersistedTaskState>({
 });
 
 
-export const storageConfigurationStorePath = storageConfigurationStore.path;
 export const taskConfigurationStorePath = taskConfigurationStore.path;
 
 export function getTrayEnabled(): boolean {
@@ -116,9 +97,17 @@ export function setTheme(theme: AppTheme): void {
 	store.set('theme', theme);
 }
 
+export function getAppDatabaseConfiguration(): Omit<DatabaseConfiguration, 'providers'> {
+	return store.get('databaseConfiguration');
+}
+
+export function setAppDatabaseConfiguration(value: Omit<DatabaseConfiguration, 'providers'>): void {
+	store.set('databaseConfiguration', value);
+}
+
 function readProviders(kind: StoredProviderKind): StoredProvider[] {
 	if (kind === 'models') return getModelProviders();
-	if (kind === 'databases') return getDatabaseConfiguration().providers;
+	if (kind === 'databases') return getDatabaseProvidersState();
 	if (kind === 'bots') return [];
 	return [];
 }
@@ -149,7 +138,7 @@ export function setProvider(
 	if (index === -1) providers.push(provider);
 	else providers[index] = provider;
 	if (kind === 'databases') {
-		saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers });
+		setDatabaseProvidersState(providers);
 	} else {
 		setModelProviders(providers);
 	}
@@ -162,7 +151,7 @@ export function deleteProvider(id: string): void {
 		const remaining = providers.filter((provider) => provider.id !== id);
 		if (remaining.length !== providers.length) {
 			if (kind === 'databases') {
-				saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: remaining });
+				setDatabaseProvidersState(remaining);
 			} else {
 				setModelProviders(remaining);
 			}
@@ -172,7 +161,7 @@ export function deleteProvider(id: string): void {
 
 export function clearProviders(): void {
 	setModelProviders([]);
-	saveDatabaseConfiguration({ ...getDatabaseConfiguration(), providers: [] });
+	setDatabaseProvidersState([]);
 }
 
 /** The selected provider resolved to the shape model adapters consume. */
@@ -220,7 +209,13 @@ function toStoredStorage(config: StorageConfig): StoredStorage {
 }
 
 export function getStorages(): StorageConfig[] {
-	return getStoredStorages().map(toStorageConfig);
+	const configuration = getStorageConfiguration();
+	return getStoredStorages().map((storage) => ({
+		...toStorageConfig(storage),
+		paths: configuration.paths,
+		syncEnabled: configuration.syncEnabled,
+		syncCronExpression: configuration.syncCronExpression,
+	}));
 }
 
 export function getStorage(id: string): StorageConfig | undefined {
@@ -229,34 +224,52 @@ export function getStorage(id: string): StorageConfig | undefined {
 }
 
 export function saveStorageConfig(config: StorageConfig): StorageConfig {
+	const configuration = config as StorageConfig & Partial<StorageConfiguration>;
+	if (configuration.syncEnabled && !cron.validate(configuration.syncCronExpression ?? '')) {
+		throw new Error('Storage sync schedule must be a valid cron expression.');
+	}
 	const saved = toStoredStorage({ ...config, id: config.id || crypto.randomUUID() });
 	const storages = getStoredStorages();
 	const index = storages.findIndex((storage) => storage.id === saved.id);
-	storageConfigurationStore.set(
-		'providers',
-		index >= 0
-			? storages.map((storage, i) => (i === index ? saved : storage))
-			: [...storages, saved]
-	);
-	if (!getStorageConfiguration().providerId) {
-		saveStorageConfiguration({ ...getStorageConfiguration(), providerId: saved.id });
+	setStorageProvidersState(index >= 0
+		? storages.map((storage, i) => (i === index ? saved : storage))
+		: [...storages, saved]);
+	const current = getStorageConfiguration();
+	if (configuration.paths || configuration.syncEnabled !== undefined || configuration.syncCronExpression) {
+		saveStorageConfiguration({
+			...current,
+			providerId: current.providerId ?? saved.id,
+			paths: configuration.paths ?? current.paths,
+			syncEnabled: configuration.syncEnabled ?? current.syncEnabled,
+			syncCronExpression: configuration.syncCronExpression ?? current.syncCronExpression,
+		});
+	} else if (!current.providerId) {
+		saveStorageConfiguration({ ...current, providerId: saved.id });
 	}
 	return toStorageConfig(saved);
 }
 
 export function deleteStorageConfig(id: string): void {
-	const storages = getStoredStorages().filter((storage) => storage.id !== id);
-	storageConfigurationStore.set('providers', storages);
 	const configuration = getStorageConfiguration();
+	const storages = getStoredStorages().filter((storage) => storage.id !== id);
+	setStorageProvidersState(storages);
 	if (configuration.providerId === id) {
 		saveStorageConfiguration({ ...configuration, providerId: storages[0]?.id });
 	}
 }
 
+export function getSelectedStorageId(): string | undefined {
+	return getStorageConfiguration().providerId;
+}
+
+export function setSelectedStorageId(id: string): void {
+	saveStorageConfiguration({ ...getStorageConfiguration(), providerId: id });
+}
+
 export function getStorageConfiguration(): StorageConfiguration {
-	const { providers: _providers, ...configuration } = {
+	const configuration = {
 		...DEFAULT_STORAGE_CONFIGURATION,
-		...storageConfigurationStore.store,
+		...store.get('storageConfiguration'),
 	};
 	if (
 		configuration.providerId &&
@@ -289,15 +302,12 @@ export function saveStorageConfiguration(
 		syncEnabled: configuration.syncEnabled,
 		syncCronExpression: configuration.syncCronExpression.trim().replace(/\s+/g, ' '),
 	};
-	storageConfigurationStore.store = {
-		...storageConfigurationStore.store,
-		...saved,
-	};
+	store.set('storageConfiguration', saved);
 	return saved;
 }
 
 function getStoredStorages(): StoredStorage[] {
-	const providers = storageConfigurationStore.get('providers');
+	const providers = getStorageProvidersState();
 	return Array.isArray(providers) ? providers : [];
 }
 
