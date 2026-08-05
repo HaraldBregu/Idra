@@ -1,7 +1,6 @@
 import type {
 	AgentApi,
 	AppApi,
-	ChannelsApi,
 	TaskApi,
 	McpApi,
 	ModelsApi,
@@ -30,7 +29,7 @@ export type * from '../../src/shared/text_types';
 export type * from '../../src/shared/video_types';
 export type * from '../../src/shared/extension_types';
 export type * from '../../src/shared/wiki_types';
-export type * from '../../src/main/app/tasks/tasks_types';
+export type * from '../../src/main/tasks/tasks_types';
 export type * from '../../src/main/agent/health/health_types';
 export type * from '../../src/main/agent/policy/policy_types';
 
@@ -58,7 +57,6 @@ export function isFriday(): boolean {
 
 export const agent = bridge<AgentApi>('agent');
 export const app = bridge<AppApi>('app');
-export const channels = bridge<ChannelsApi>('channels');
 export const tasks = bridge<TaskApi>('tasks');
 export const mcp = bridge<McpApi>('mcp');
 export const models = bridge<ModelsApi>('models');

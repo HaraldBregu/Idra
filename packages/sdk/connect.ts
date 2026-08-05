@@ -2,7 +2,6 @@ import { decode, encode } from '../../src/shared/api_codec';
 import {
 	AgentChannels,
 	AppChannels,
-	ChannelsChannels,
 	TaskChannels,
 	EmbeddingChannels,
 	ImageChannels,
@@ -23,7 +22,6 @@ import {
 import type {
 	AgentApi,
 	AppApi,
-	ChannelsApi,
 	TaskApi,
 	McpApi,
 	ModelsApi,
@@ -36,7 +34,6 @@ import type {
 	WikiApi,
 } from '../../src/shared/api_types';
 import type { AgentResponseEvent } from '../../src/shared/agent_types';
-import type { ChannelStatusEvent } from '../../src/shared/channels_types';
 
 export interface ConnectOptions {
 	/** Base URL of the Friday API. Defaults to `http://127.0.0.1:8765`. */
@@ -50,7 +47,6 @@ export interface ConnectOptions {
 export interface FridayClient {
 	agent: AgentApi;
 	app: AppApi;
-	channels: ChannelsApi;
 	tasks: TaskApi;
 	mcp: McpApi;
 	models: ModelsApi;
@@ -192,16 +188,6 @@ export function connect(options: ConnectOptions): FridayClient {
 			},
 		}),
 		app: namespace<AppApi>(AppChannels),
-		channels: namespace<ChannelsApi>(ChannelsChannels, {
-			onStatusChanged: (callback: (event: ChannelStatusEvent) => void) => {
-				const pending = listen((channel, data) => {
-					if (channel === ChannelsChannels.statusChanged) callback(data as ChannelStatusEvent);
-				});
-				return (): void => {
-					void pending.then((off) => off());
-				};
-			},
-		}),
 		tasks: namespace<TaskApi>(TaskChannels),
 		mcp: namespace<McpApi>(McpChannels),
 		models: {
