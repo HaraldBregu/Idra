@@ -10,13 +10,13 @@ import {
 	type CatalogWebSearch,
 	type ProviderManifest,
 	type PublicProvider,
-} from '../../shared/provider_types';
+} from '../shared/provider_types';
 import type {
 	CatalogModel,
 	ModelCapability,
 	ProviderModel,
 	SpeechToTextApiType,
-} from '../../shared/model_types';
+} from '../shared/model_types';
 import { userDataLocation } from './shared/user_data_location';
 import { parseProviderManifest } from '../shared/providers/validation';
 
