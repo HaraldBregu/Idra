@@ -34,6 +34,7 @@ import type {
 	WikiApi,
 } from '../../src/shared/api_types';
 import type { AgentResponseEvent } from '../../src/shared/agent_types';
+import type { ChannelStatusEvent } from '../../src/shared/channels_types';
 
 export interface ConnectOptions {
 	/** Base URL of the Friday API. Defaults to `http://127.0.0.1:8765`. */
@@ -187,7 +188,25 @@ export function connect(options: ConnectOptions): FridayClient {
 				}
 			},
 		}),
-		app: namespace<AppApi>(AppChannels),
+		app: namespace<AppApi>(AppChannels, {
+			onModelsChanged: (callback: () => void) => {
+				const pending = listen((channel) => {
+					if (channel === AppChannels.modelsChanged) callback();
+				});
+				return (): void => {
+					void pending.then((off) => off());
+				};
+			},
+			onChannelsStatusChanged: (callback: (event: ChannelStatusEvent) => void) => {
+				const pending = listen((channel, data) => {
+					if (channel === AppChannels.channelsStatusChanged)
+						callback(data as ChannelStatusEvent);
+				});
+				return (): void => {
+					void pending.then((off) => off());
+				};
+			},
+		}),
 		tasks: namespace<TaskApi>(TaskChannels),
 		mcp: namespace<McpApi>(McpChannels),
 		models: {

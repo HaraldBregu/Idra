@@ -69,10 +69,10 @@ offRealtime();
 
 // events reach subscribers over the stream
 const seen = [];
-friday.channels.onStatusChanged((event) => seen.push(event));
+friday.app.onChannelsStatusChanged((event) => seen.push(event));
 await new Promise((resolve) => setTimeout(resolve, 100));
 stream.write(
-	`data: ${JSON.stringify({ channel: 'channels:status-changed', data: { ok: 1 } })}\n\n`
+	`data: ${JSON.stringify({ channel: 'app:channels:status-changed', data: { ok: 1 } })}\n\n`
 );
 await new Promise((resolve) => setTimeout(resolve, 100));
 assert.deepEqual(seen, [{ ok: 1 }]);
