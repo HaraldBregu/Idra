@@ -1,6 +1,6 @@
 import { normalizeProviderId } from '../../../../shared/provider_types';
 import type { ImageRequest, ImageResult } from '../../../../shared/image_types';
-import { loadProviders, providerModels, supportsCapability } from '..';
+import { loadProviders, providerModels, supportsCapability } from '../../models';
 import { getProvider } from '../../settings_store';
 import {
 	generateImage,

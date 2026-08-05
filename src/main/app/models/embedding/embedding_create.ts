@@ -1,6 +1,6 @@
 import type { EmbeddingRequest, EmbeddingResult } from '../../../../shared/embedding_types';
 import { generateEmbeddings } from '../adapters/embedding';
-import { defaultProviderId, providerModels } from '..';
+import { defaultProviderId, providerModels } from '../../models';
 import { getProvider } from '../../settings_store';
 import { getModelId, getProviderId } from '../models_store';
 import { EMBEDDING_PROVIDERS } from './embedding_providers';

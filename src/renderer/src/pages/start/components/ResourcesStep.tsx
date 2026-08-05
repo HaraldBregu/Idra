@@ -215,7 +215,7 @@ export function ResourcesStep(): React.JSX.Element {
 										(item) => `${item.provider.id}${VALUE_SEPARATOR}${item.id}` === value
 									);
 									if (!entry) return;
-									const next = { providerId: entry.provider.id, databaseId: entry.id };
+									const next = { providerId: entry.provider.id, databaseId: entry.id, providers: databaseConfiguration?.providers ?? [] };
 									void window.database
 										.saveConfiguration(next)
 										.then(setDatabaseConfiguration)

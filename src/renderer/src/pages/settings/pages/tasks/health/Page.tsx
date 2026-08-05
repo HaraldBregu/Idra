@@ -136,8 +136,8 @@ const HealthPage: React.FC = () => {
 								configState={{
 									providers: modelGroups.map((group) => group.provider),
 									modelGroups,
-									providerId: settings.providerId,
-									modelId: settings.modelId,
+									providerId: settings.providerId ?? '',
+									modelId: settings.modelId ?? '',
 									loading: false,
 									loadingModels: false,
 									saving,

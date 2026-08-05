@@ -1,4 +1,4 @@
-import { speechToTextBaseUrl } from '../..';
+import { speechToTextBaseUrl } from '../../../models';
 import { createAudioFile } from './stt_audio';
 import WebSocket from 'ws';
 import { SttProviderAuthError, SttProviderRequestError } from './stt_errors';
