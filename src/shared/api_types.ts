@@ -1,5 +1,4 @@
 import type {
-	McpData,
 	CatalogService,
 	CatalogWebSearch,
 	PublicProvider,
@@ -19,6 +18,7 @@ import type {
 } from './storage_types';
 import type { DatabaseConfiguration } from './database_types';
 import type {
+	McpData,
 	McpLocalImportResult,
 	McpOAuthStart,
 	McpRegistry,
