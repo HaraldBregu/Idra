@@ -10,6 +10,7 @@ export type StoredStorage = Omit<StorageConfig, 'forcePathStyle'> & {
 };
 
 export type ProvidersStoreState = {
+	models: StoredProvider[];
 	databases: StoredProvider[];
 	search_engines: StoredProvider[];
 	smtp: SmtpProvider[];

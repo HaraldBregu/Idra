@@ -7,10 +7,39 @@ import type { DatabaseConfiguration } from '../../shared/database_types';
 import { userDataLocation } from '../shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from '../storage/storage_sync_types';
 import { loadStorages } from './models';
-import { getModelProviders, setModelProviders } from '../models/models_store';
 import type { PersistedTaskState } from '../tasks/tasks_types';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
-import { getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from '../providers/providers_index';
+import { getModelProvidersState, setModelProvidersState, getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from '../providers/providers_index';
+
+export type ModelKind =
+	| 'text'
+	| 'sound'
+	| 'image'
+	| 'video'
+	| 'voice'
+	| 'transcribe'
+	| 'realtime'
+	| 'embedding';
+
+export type ModelSelection = {
+	providerId: string;
+	modelId: string;
+};
+
+export type ModelsStoreState = Record<ModelKind, ModelSelection>;
+
+const EMPTY_MODEL_SELECTION: ModelSelection = { providerId: '', modelId: '' };
+
+const DEFAULT_MODEL_SELECTIONS: ModelsStoreState = {
+	text: EMPTY_MODEL_SELECTION,
+	sound: EMPTY_MODEL_SELECTION,
+	image: EMPTY_MODEL_SELECTION,
+	video: EMPTY_MODEL_SELECTION,
+	voice: EMPTY_MODEL_SELECTION,
+	transcribe: EMPTY_MODEL_SELECTION,
+	realtime: EMPTY_MODEL_SELECTION,
+	embedding: EMPTY_MODEL_SELECTION,
+};
 
 export type AppSettingsState = {
 	trayEnabled: boolean;
@@ -19,6 +48,7 @@ export type AppSettingsState = {
 	theme: AppTheme;
 	databaseConfiguration: Omit<DatabaseConfiguration, 'providers'>;
 	storageConfiguration: StorageConfiguration;
+	modelSelections: ModelsStoreState;
 };
 
 const APP_SETTINGS_STORE_NAME = 'app';
@@ -40,6 +70,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	theme: 'system',
 	databaseConfiguration: { providerId: undefined, databaseId: undefined },
 	storageConfiguration: DEFAULT_STORAGE_CONFIGURATION,
+	modelSelections: DEFAULT_MODEL_SELECTIONS,
 };
 
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
@@ -51,7 +82,6 @@ const store = new Store<AppSettingsState>({
 	defaults: DEFAULT_APP_SETTINGS,
 });
 
-removeModelProvidersFromApplication();
 
 export const appSettingsStorePath = store.path;
 
@@ -97,6 +127,14 @@ export function setTheme(theme: AppTheme): void {
 	store.set('theme', theme);
 }
 
+export function getAppModelSelections(): ModelsStoreState {
+	return store.get('modelSelections');
+}
+
+export function setAppModelSelections(value: ModelsStoreState): void {
+	store.set('modelSelections', value);
+}
+
 export function getAppDatabaseConfiguration(): Omit<DatabaseConfiguration, 'providers'> {
 	return store.get('databaseConfiguration');
 }
@@ -106,7 +144,7 @@ export function setAppDatabaseConfiguration(value: Omit<DatabaseConfiguration, '
 }
 
 function readProviders(kind: StoredProviderKind): StoredProvider[] {
-	if (kind === 'models') return getModelProviders();
+	if (kind === 'models') return getModelProvidersState();
 	if (kind === 'databases') return getDatabaseProvidersState();
 	if (kind === 'bots') return [];
 	return [];
@@ -140,7 +178,7 @@ export function setProvider(
 	if (kind === 'databases') {
 		setDatabaseProvidersState(providers);
 	} else {
-		setModelProviders(providers);
+		setModelProvidersState(providers);
 	}
 	return provider;
 }
@@ -153,14 +191,14 @@ export function deleteProvider(id: string): void {
 			if (kind === 'databases') {
 				setDatabaseProvidersState(remaining);
 			} else {
-				setModelProviders(remaining);
+				setModelProvidersState(remaining);
 			}
 		}
 	}
 }
 
 export function clearProviders(): void {
-	setModelProviders([]);
+	setModelProvidersState([]);
 	setDatabaseProvidersState([]);
 }
 
@@ -174,11 +212,6 @@ export function getResolvedProvider(providerId: string | undefined): ResolvedPro
 		apiKey: provider.apiKey,
 		baseURL: provider.baseUrl,
 	};
-}
-
-function removeModelProvidersFromApplication(): void {
-	const { models: _models, ...settings } = store.store as AppSettingsState & { models?: unknown };
-	store.store = settings;
 }
 
 function toStorageConfig(stored: StoredStorage): StorageConfig {
