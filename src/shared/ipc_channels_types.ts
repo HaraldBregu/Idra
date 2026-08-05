@@ -201,6 +201,10 @@ export interface McpInvokeChannelMap {
 		args: [input: import('./mcp_types').McpSettings];
 		result: import('./mcp_types').McpSettings;
 	};
+	[McpChannels.upsert]: {
+		args: [id: string, input: import('./mcp_types').McpData];
+		result: import('./mcp_types').McpSettings;
+	};
 	[McpChannels.delete]: { args: [id: string]; result: void };
 	[McpChannels.registry]: { args: []; result: import('./mcp_types').McpRegistry };
 	[McpChannels.importLocal]: {

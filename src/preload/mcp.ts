@@ -13,6 +13,9 @@ export const mcp: McpApi = {
 	save: (input: McpSettings) => {
 		return typedInvokeUnwrap(McpChannels.save, input);
 	},
+	upsert: (id, input) => {
+		return typedInvokeUnwrap(McpChannels.upsert, id, input);
+	},
 	delete: (id: string) => {
 		return typedInvokeUnwrap(McpChannels.delete, id);
 	},

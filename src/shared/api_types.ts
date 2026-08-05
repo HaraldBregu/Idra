@@ -1,4 +1,5 @@
 import type {
+	McpData,
 	CatalogService,
 	CatalogWebSearch,
 	PublicProvider,
@@ -146,6 +147,7 @@ export interface McpApi {
 	list: () => Promise<McpSettings>;
 	get: (id: string) => Promise<McpSettings>;
 	save: (input: McpSettings) => Promise<McpSettings>;
+	upsert: (id: string, input: McpData) => Promise<McpSettings>;
 	delete: (id: string) => Promise<void>;
 	registry: () => Promise<McpRegistry>;
 	importLocal: () => Promise<McpLocalImportResult | undefined>;

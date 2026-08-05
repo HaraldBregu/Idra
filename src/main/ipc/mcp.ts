@@ -5,6 +5,7 @@ import type { EventBus } from '../event_bus';
 import { McpChannels } from '../../shared/ipc_channels_definitions';
 import {
 	createOAuthProvider,
+	deleteMcpServer,
 	getMcpOauth,
 	getMcpServers,
 	importLocalMcpServers,
@@ -14,6 +15,7 @@ import {
 	setMcpServers,
 	startOauthCallbackServer,
 	testMcpServer,
+	upsertMcpServer,
 	type McpOAuthStorage,
 } from '../mcp';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
@@ -140,11 +142,17 @@ export class McpIpc implements IpcModule {
 			return next;
 		});
 
+		registerCommand(McpChannels.upsert, (id: string, input: McpData) => {
+			const connectorId = resolveMcpId(id);
+			const entry = normalizeMcpSettings({ [connectorId]: input })[connectorId];
+			if (!entry) throw new Error('Invalid MCP server configuration.');
+			upsertMcpServer(connectorId, entry);
+			return listMcp();
+		});
+
 		registerCommand(McpChannels.delete, (id: string) => {
 			const connectorId = resolveMcpId(id);
-			const next = { ...listMcp() };
-			delete next[connectorId];
-			setMcpServers(next);
+			deleteMcpServer(connectorId);
 		});
 
 		registerQuery(McpChannels.registry, () => listMcpRegistry());

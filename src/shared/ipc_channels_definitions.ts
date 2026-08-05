@@ -80,6 +80,7 @@ export const McpChannels = {
 	list: 'mcp:list',
 	get: 'mcp:get',
 	save: 'mcp:save',
+	upsert: 'mcp:upsert',
 	delete: 'mcp:delete',
 	registry: 'mcp:registry',
 	importLocal: 'mcp:local:import',
