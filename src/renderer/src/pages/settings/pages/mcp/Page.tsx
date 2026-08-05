@@ -1,80 +1,142 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Plus } from 'lucide-react';
-import type { McpData } from '@shared/mcp_types';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AlertTriangle, FolderOpen, Plus, PlugZap, RefreshCw, Upload } from 'lucide-react';
+import type { McpData, McpRegistry, McpTestResult } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import {
+	SettingsEmptyState,
+	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
+	SettingsPanel,
 	SettingsSection,
 } from '../../components';
-import { McpServerCard } from './components/McpServerCard';
-import { McpServerForm } from './components/McpServerForm';
-import { useMcpServers } from './hooks/useMcpServers';
+import { McpServerDialog } from './components/McpServerDialog';
+import { McpServerRow } from './components/McpServerRow';
 
-type McpServerEntry = [id: string, entry: McpData];
+const McpPage = (): React.JSX.Element => {
+	const [registry, setRegistry] = useState<McpRegistry>({ servers: [], diagnostics: [] });
+	const [root, setRoot] = useState('');
+	const [loading, setLoading] = useState(true);
+	const [importing, setImporting] = useState(false);
+	const [testing, setTesting] = useState<ReadonlySet<string>>(new Set());
+	const [testResults, setTestResults] = useState<Record<string, McpTestResult>>({});
+	const [error, setError] = useState('');
+	const [success, setSuccess] = useState('');
 
-function describeMcpServer(entry: McpData): string {
-	return entry.type === 'stdio' ? entry.command : entry.url;
-}
+	const load = useCallback(async (): Promise<void> => {
+		setLoading(true);
+		setError('');
+		try {
+			const [nextRegistry, nextRoot] = await Promise.all([
+				window.mcp.registry(),
+				window.mcp.getRoot(),
+			]);
+			setRegistry(nextRegistry);
+			setRoot(nextRoot);
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setLoading(false);
+		}
+	}, []);
 
-const McpPage = () => {
-	const navigate = useNavigate();
-	const { servers, error, load } = useMcpServers();
-	const [adding, setAdding] = useState(false);
+	useEffect(() => {
+		void load();
+	}, [load]);
 
-	const openMcpServerDetails = (id: string): void => {
-		navigate(`/settings/mcp/details/${encodeURIComponent(id)}`);
-	};
-
-	const addMcpServer = async (id: string, entry: McpData): Promise<void> => {
-		await window.mcp.save({ ...servers, [id]: entry });
+	const save = async (id: string, data: McpData): Promise<void> => {
+		await window.mcp.upsert(id, data);
 		await load();
-		setAdding(false);
 	};
 
-	const toggleMcpServer = async (id: string, entry: McpData, enabled: boolean): Promise<void> => {
-		await window.mcp.save({
-			...servers,
-			[id]: { ...entry, enabled, updated_at: new Date().toISOString() },
+	const remove = async (id: string): Promise<void> => {
+		await window.mcp.delete(id);
+		await load();
+	};
+
+	const test = async (id: string): Promise<void> => {
+		setTesting((current) => new Set(current).add(id));
+		setTestResults((current) => {
+			const next = { ...current };
+			delete next[id];
+			return next;
 		});
-		await load();
+		try {
+			const result = await window.mcp.test(id);
+			setTestResults((current) => ({ ...current, [id]: result }));
+		} catch (caught) {
+			setTestResults((current) => ({
+				...current,
+				[id]: {
+					ok: false,
+					tools: [],
+					toolCount: 0,
+					durationMs: 0,
+					error: caught instanceof Error ? caught.message : String(caught),
+				},
+			}));
+		} finally {
+			setTesting((current) => {
+				const next = new Set(current);
+				next.delete(id);
+				return next;
+			});
+		}
 	};
 
-	const entries = Object.entries(servers) as McpServerEntry[];
-	const remoteEntries = entries.filter(([, entry]) => entry.type === 'http');
-	const localEntries = entries.filter(([, entry]) => entry.type === 'stdio');
+	const upload = async (): Promise<void> => {
+		setImporting(true);
+		setError('');
+		setSuccess('');
+		try {
+			const result = await window.mcp.importLocal();
+			if (result) {
+				setSuccess(
+					`Uploaded ${result.imported.length} local MCP server${result.imported.length === 1 ? '' : 's'}.` +
+						(result.skipped.length > 0 ? ` Skipped ${result.skipped.length}.` : '')
+				);
+				await load();
+			}
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setImporting(false);
+		}
+	};
 
-	const renderList = (list: McpServerEntry[], emptyLabel: string) =>
-		list.length === 0 ? (
-			<div className="px-0.5 text-[13px] text-muted-foreground">{emptyLabel}</div>
-		) : (
-			<div className="grid gap-2">
-				{list.map(([id, entry]) => (
-					<McpServerCard
-						key={id}
-						catalogEntry={{ id, name: entry.name ?? id, description: describeMcpServer(entry) }}
-						server={{ id, entry }}
-						onConnect={() => openMcpServerDetails(id)}
-						onToggle={(enabled) => void toggleMcpServer(id, entry, enabled)}
-						onViewDetails={() => openMcpServerDetails(id)}
-					/>
-				))}
-			</div>
-		);
+	const remote = registry.servers.filter((server) => server.data.type === 'http');
+	const local = registry.servers.filter((server) => server.data.type === 'stdio');
 
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title="MCP"
-				description="Connected MCP servers."
+				description="Manage remote services and local MCP server packages."
 				action={
-					<Button variant="outline" size="sm" disabled={adding} onClick={() => setAdding(true)}>
-						<Plus className="size-3.5" />
-						Add MCP server
-					</Button>
+					<div className="flex flex-wrap items-center gap-2">
+						<Button variant="outline" size="xs" onClick={() => void window.mcp.openRoot()}>
+							<FolderOpen className="size-3" />
+							Open folder
+						</Button>
+						<Button variant="outline" size="xs" onClick={() => void load()} disabled={loading}>
+							<RefreshCw className="size-3" />
+							Refresh
+						</Button>
+						<Button variant="outline" size="xs" onClick={() => void upload()} disabled={importing}>
+							<Upload className="size-3" />
+							{importing ? 'Uploading' : 'Upload local'}
+						</Button>
+						<McpServerDialog
+							trigger={
+								<Button size="xs">
+									<Plus className="size-3" />
+									Add server
+								</Button>
+							}
+							onSubmit={save}
+						/>
+					</div>
 				}
 			/>
 
@@ -83,24 +145,63 @@ const McpPage = () => {
 					{error}
 				</SettingsNotice>
 			)}
+			{success && <SettingsNotice>{success}</SettingsNotice>}
+			{registry.diagnostics.map((diagnostic) => (
+				<SettingsNotice key={diagnostic.path} variant="destructive" icon={AlertTriangle}>
+					{diagnostic.name}: {diagnostic.error}
+				</SettingsNotice>
+			))}
 
-			{adding && (
-				<SettingsSection
-					title="New MCP server"
-					description="Remote MCP server over HTTP or local MCP server started as a command."
-				>
-					<Card size="sm" className="p-3!">
-						<McpServerForm onSubmit={addMcpServer} onCancel={() => setAdding(false)} />
-					</Card>
-				</SettingsSection>
-			)}
-
-			<SettingsSection title="Remote MCP servers" description="MCP servers available over HTTP.">
-				{renderList(remoteEntries, 'No remote MCP servers configured.')}
+			<SettingsSection title="Remote servers" description="MCP services reached over HTTP.">
+				<SettingsPanel>
+					{loading ? (
+						<SettingsLoadingRows rows={2} />
+					) : remote.length === 0 ? (
+						<SettingsEmptyState
+							icon={PlugZap}
+							title="No remote MCP servers"
+							description="Add an HTTP server to make its tools available to Friday."
+						/>
+					) : (
+						remote.map((server) => (
+							<McpServerRow
+								key={server.id}
+								server={server}
+								testing={testing.has(server.id)}
+								testResult={testResults[server.id]}
+								onTest={() => test(server.id)}
+								onSave={save}
+								onRemove={() => remove(server.id)}
+							/>
+						))
+					)}
+				</SettingsPanel>
 			</SettingsSection>
 
-			<SettingsSection title="Local MCP servers" description="MCP servers running locally via a command.">
-				{renderList(localEntries, 'No local MCP servers configured.')}
+			<SettingsSection title="Local servers" description={root || '~/.friday/mcp/servers'}>
+				<SettingsPanel>
+					{loading ? (
+						<SettingsLoadingRows rows={2} />
+					) : local.length === 0 ? (
+						<SettingsEmptyState
+							icon={PlugZap}
+							title="No local MCP servers"
+							description="Upload a folder containing mcp.json or add a local command."
+						/>
+					) : (
+						local.map((server) => (
+							<McpServerRow
+								key={server.id}
+								server={server}
+								testing={testing.has(server.id)}
+								testResult={testResults[server.id]}
+								onTest={() => test(server.id)}
+								onSave={server.source === 'configured' ? save : undefined}
+								onRemove={server.source === 'configured' ? () => remove(server.id) : undefined}
+							/>
+						))
+					)}
+				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>
 	);

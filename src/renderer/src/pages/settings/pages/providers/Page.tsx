@@ -449,7 +449,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 	][];
 	const storageCatalog = mergedStorageEntries(storageEntries ?? []);
 	const saveCustomMcpServer = async (id: string, entry: McpData): Promise<void> => {
-		await window.mcp.save({ ...mcpServers, [id]: entry });
+		await window.mcp.upsert(id, entry);
 		await loadMcpServers();
 		setAddingCustomMcp(false);
 	};

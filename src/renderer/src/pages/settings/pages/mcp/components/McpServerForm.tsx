@@ -116,7 +116,7 @@ export function McpServerForm({
 
 	// ponytail: OAuth needs the server in the store first, so persist before starting
 	const persist = async (): Promise<void> => {
-		await window.mcp.save({ ...(await window.mcp.list()), [serverId]: buildEntry() });
+		await window.mcp.upsert(serverId, buildEntry());
 	};
 
 	return (

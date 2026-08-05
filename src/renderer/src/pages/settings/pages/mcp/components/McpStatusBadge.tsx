@@ -11,7 +11,7 @@ export function McpStatusBadge({
 	const variant = status === 'configured' ? 'default' : status === 'error' ? 'destructive' : 'outline';
 	const label =
 		status === 'configured'
-			? 'Connected'
+			? 'Configured'
 			: status === 'disabled'
 				? 'Disabled'
 				: 'Error';

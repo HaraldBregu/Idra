@@ -27,8 +27,7 @@ export function McpCard({ service }: { readonly service: CatalogService }): Reac
 	}, [service.id]);
 
 	const save = async (id: string, entry: McpData): Promise<void> => {
-		const servers = await window.mcp.list();
-		await window.mcp.save({ ...servers, [id]: entry });
+		await window.mcp.upsert(id, entry);
 		setServer(entry);
 	};
 

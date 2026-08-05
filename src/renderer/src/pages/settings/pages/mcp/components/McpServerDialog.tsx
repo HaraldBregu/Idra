@@ -14,10 +14,12 @@ export function McpServerDialog({
 	trigger,
 	initial,
 	onSubmit,
+	onRemove,
 }: {
 	readonly trigger: React.ReactElement;
 	readonly initial?: { readonly id: string; readonly entry: McpData };
 	readonly onSubmit: (id: string, entry: McpData) => Promise<void>;
+	readonly onRemove?: () => Promise<void>;
 }): React.JSX.Element {
 	const [open, setOpen] = useState(false);
 
@@ -39,6 +41,14 @@ export function McpServerDialog({
 							setOpen(false);
 						}}
 						onCancel={() => setOpen(false)}
+						onRemove={
+							onRemove
+								? async () => {
+									await onRemove();
+									setOpen(false);
+								}
+								: undefined
+						}
 					/>
 				)}
 			</DialogContent>
