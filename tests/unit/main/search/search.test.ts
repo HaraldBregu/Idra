@@ -25,12 +25,8 @@ import { getSearchKey } from '../../../../src/main/app/search/search_get_key';
 import { getSearchSettings } from '../../../../src/main/app/search/search_get_settings';
 import { saveSearchEngine } from '../../../../src/main/app/search/search_save_engine';
 import { selectSearchEngine } from '../../../../src/main/app/search/search_select_engine';
-import {
-	getSearchConfiguration,
-	getSearchProviders,
-	saveSearchConfiguration,
-	setSearchProviders,
-} from '../../../../src/main/app/search/search_store';
+import { getSearchProviders, setSearchProviders } from '../../../../src/main/app/search/search_store';
+import { getSearchEngine, setSearchEngine } from '../../../../src/main/agent/agent_store';
 import { searchWeb } from '../../../../src/main/app/search/search_web';
 
 const originalFetch = global.fetch;
@@ -46,7 +42,7 @@ function response(body: unknown, status = 200, statusText = 'OK'): Response {
 
 beforeEach(() => {
 	setSearchProviders([]);
-	saveSearchConfiguration({});
+	setSearchEngine({ providerId: '', providerName: '', enabled: false });
 	delete process.env.BRAVE_API_KEY;
 	delete process.env.TAVILY_API_KEY;
 	global.fetch = jest.fn();
@@ -85,10 +81,8 @@ describe('search settings', () => {
 		expect(getSearchSettings().engineId).toBe('tavily');
 		expect(getSearchKey('tavily')).toBe('tavily-key');
 		expect(selectSearchEngine('brave').engineId).toBe('brave');
-		expect(getSearchConfiguration()).toEqual({
-			providerId: 'brave',
-			searchId: 'brave-web-search',
-		});
+		expect(getSearchEngine()).toEqual({ providerId: 'brave', providerName: 'Brave', enabled: true });
+
 	});
 
 	it('rejects empty credentials and unconfigured selections', () => {
