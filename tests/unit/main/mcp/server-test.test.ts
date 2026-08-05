@@ -11,6 +11,7 @@ jest.mock('../../../../src/main/mcp/mcp_store', () => ({ getMcpServers }));
 import { testMcpServer } from '../../../../src/main/mcp/mcp_server_test';
 
 beforeEach(() => {
+	jest.clearAllMocks();
 	getMcpServers.mockReturnValue({ remote: { type: 'http', url: 'https://mcp.test' } });
 	connect.mockResolvedValue({});
 	close.mockResolvedValue(undefined);
