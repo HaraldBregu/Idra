@@ -54,6 +54,15 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		];
 	}
 
+	if (location.pathname.startsWith('/settings/providers/mcp/')) {
+		const id = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
+		return [
+			{ label: t('settings.tabs.providers'), path: '/settings/providers' },
+			{ label: t('settings.tabs.mcp'), path: '/settings/providers/mcp' },
+			{ label: id },
+		];
+	}
+
 	const current = SETTINGS_NAVIGATION.filter(
 		(item) => location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
 	).sort((a, b) => b.path.length - a.path.length)[0];

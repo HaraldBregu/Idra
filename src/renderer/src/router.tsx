@@ -42,6 +42,7 @@ const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 const McpPage = lazy(() => import('./pages/settings/pages/mcp/Page'));
+const McpDetailsPage = lazy(() => import('./pages/settings/pages/mcp/details/Page'));
 const ProviderKeysPage = lazy(() => import('./pages/settings/pages/providers/keys/Page'));
 const ProviderVectorDbPage = lazy(() => import('./pages/settings/pages/providers/vectordb/Page'));
 const RagPage = lazy(() => import('./pages/settings/pages/rag/Page'));
@@ -327,11 +328,24 @@ const routes: RouteObject[] = [
 							},
 							{
 								path: 'mcp',
-								element: (
-								<SettingsRouteWrapper>
-									<McpPage />
-									</SettingsRouteWrapper>
-								),
+								children: [
+									{
+										index: true,
+										element: (
+											<SettingsRouteWrapper>
+												<McpPage />
+											</SettingsRouteWrapper>
+										),
+									},
+									{
+										path: ':mcpServerId',
+										element: (
+											<SettingsRouteWrapper>
+												<McpDetailsPage />
+											</SettingsRouteWrapper>
+										),
+									},
+								],
 							},
 							{
 								path: 'bots',

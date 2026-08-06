@@ -95,7 +95,7 @@ describe('local MCP registry', () => {
 				env: { DEMO_COMPANY: 'Friday Studio', DEMO_TAX_RATE: '22' },
 				require_approval: 'always',
 				enabled: false,
-				cwd: '/ignored/resolved/path',
+				cwd: 'runtime',
 			},
 			root
 		);
@@ -107,12 +107,12 @@ describe('local MCP registry', () => {
 			env: { DEMO_COMPANY: 'Friday Studio', DEMO_TAX_RATE: '22' },
 			require_approval: 'always',
 			enabled: false,
-			cwd: directory,
+			cwd: path.join(directory, 'runtime'),
 		});
 		expect(JSON.parse(fs.readFileSync(path.join(directory, 'mcp.json'), 'utf8'))).toMatchObject({
 			id: 'configured-demo',
 			type: 'stdio',
-			cwd: '.',
+			cwd: 'runtime',
 			package_value: 'preserved',
 		});
 		expect(fs.readdirSync(directory).filter((entry) => entry.startsWith('.mcp-'))).toEqual([]);

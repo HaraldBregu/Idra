@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, FolderOpen, Plus, PlugZap, RefreshCw, Upload } from 'lucide-react';
-import type { McpData, McpRegistry, McpTestResult } from '@shared/mcp_types';
+import { useNavigate } from 'react-router-dom';
+import type { McpData, McpRegistry } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
 import { mcps } from '@/lib/providers';
 import {
@@ -13,24 +14,21 @@ import {
 	SettingsSection,
 } from '../../components';
 import { McpServerDialog } from './components/McpServerDialog';
-import { McpLocalServerCard } from './components/McpLocalServerCard';
 import { McpServerRow } from './components/McpServerRow';
 import { McpCard } from '../providers/McpCard';
 
 const McpPage = (): React.JSX.Element => {
+	const navigate = useNavigate();
 	const [registry, setRegistry] = useState<McpRegistry>({ servers: [], diagnostics: [] });
 	const [root, setRoot] = useState('');
 	const [loading, setLoading] = useState(true);
 	const [importing, setImporting] = useState(false);
-	const [testing, setTesting] = useState<ReadonlySet<string>>(new Set());
-	const [testResults, setTestResults] = useState<Record<string, McpTestResult>>({});
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
 
 	const load = useCallback(async (): Promise<void> => {
 		setLoading(true);
 		setError('');
-		setTestResults({});
 		try {
 			const [nextRegistry, nextRoot] = await Promise.all([
 				window.mcp.registry(),
@@ -57,59 +55,6 @@ const McpPage = (): React.JSX.Element => {
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
 			throw caught;
-		}
-	};
-
-	const saveLocal = async (id: string, data: McpData): Promise<void> => {
-		setError('');
-		try {
-			if (data.type !== 'stdio') throw new Error('Local MCP servers require stdio configuration.');
-			await window.mcp.configureLocal(id, data);
-			await load();
-		} catch (caught) {
-			setError(caught instanceof Error ? caught.message : String(caught));
-			throw caught;
-		}
-	};
-
-	const remove = async (id: string): Promise<void> => {
-		setError('');
-		try {
-			await window.mcp.delete(id);
-			await load();
-		} catch (caught) {
-			setError(caught instanceof Error ? caught.message : String(caught));
-			throw caught;
-		}
-	};
-
-	const test = async (id: string): Promise<void> => {
-		setTesting((current) => new Set(current).add(id));
-		setTestResults((current) => {
-			const next = { ...current };
-			delete next[id];
-			return next;
-		});
-		try {
-			const result = await window.mcp.test(id);
-			setTestResults((current) => ({ ...current, [id]: result }));
-		} catch (caught) {
-			setTestResults((current) => ({
-				...current,
-				[id]: {
-					ok: false,
-					tools: [],
-					toolCount: 0,
-					durationMs: 0,
-					error: caught instanceof Error ? caught.message : String(caught),
-				},
-			}));
-		} finally {
-			setTesting((current) => {
-				const next = new Set(current);
-				next.delete(id);
-				return next;
-			});
 		}
 	};
 
@@ -220,11 +165,9 @@ const McpPage = (): React.JSX.Element => {
 							<McpServerRow
 								key={server.id}
 								server={server}
-								testing={testing.has(server.id)}
-								testResult={testResults[server.id]}
-								onTest={() => test(server.id)}
-								onSave={save}
-								onRemove={() => remove(server.id)}
+								onOpen={() =>
+									navigate(`/settings/providers/mcp/${encodeURIComponent(server.id)}`)
+								}
 							/>
 						))
 					)}
@@ -248,19 +191,17 @@ const McpPage = (): React.JSX.Element => {
 						/>
 					</SettingsPanel>
 				) : (
-					<div className="grid gap-2">
+					<SettingsPanel>
 						{local.map((server) => (
-							<McpLocalServerCard
+							<McpServerRow
 								key={server.id}
 								server={server}
-								testing={testing.has(server.id)}
-								testResult={testResults[server.id]}
-								onTest={() => test(server.id)}
-								onSave={server.source === 'configured' ? save : saveLocal}
-								onRemove={server.source === 'configured' ? () => remove(server.id) : undefined}
+								onOpen={() =>
+									navigate(`/settings/providers/mcp/${encodeURIComponent(server.id)}`)
+								}
 							/>
 						))}
-					</div>
+					</SettingsPanel>
 				)}
 			</SettingsSection>
 		</SettingsPageShell>

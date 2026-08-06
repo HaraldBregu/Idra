@@ -13,6 +13,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { McpOAuthButton } from './McpOAuthButton';
 
 function parseEnv(text: string): Record<string, string> | undefined {
@@ -59,6 +60,11 @@ export function McpServerForm({
 	const [command, setCommand] = useState(entry?.type === 'stdio' ? entry.command : '');
 	const [args, setArgs] = useState(entry?.type === 'stdio' ? (entry.args?.join(' ') ?? '') : '');
 	const [env, setEnv] = useState(entry?.type === 'stdio' ? formatEnv(entry.env) : '');
+	const [cwd, setCwd] = useState(entry?.type === 'stdio' ? (entry.cwd ?? '') : '');
+	const [approval, setApproval] = useState<'default' | 'always' | 'never'>(
+		entry?.require_approval ?? 'default'
+	);
+	const [deferLoading, setDeferLoading] = useState(entry?.defer_loading ?? false);
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
 
@@ -68,6 +74,8 @@ export function McpServerForm({
 		const now = new Date().toISOString();
 		const base = {
 			name: name.trim() || undefined,
+			require_approval: approval === 'default' ? undefined : approval,
+			defer_loading: deferLoading || undefined,
 			enabled: initial?.entry.enabled ?? true,
 			created_at: initial?.entry.created_at ?? now,
 			updated_at: now,
@@ -90,6 +98,7 @@ export function McpServerForm({
 					// ponytail: args split on whitespace; quoted arguments not supported
 					args: args.trim() ? args.trim().split(/\s+/) : undefined,
 					env: parseEnv(env),
+					cwd: cwd.trim() || undefined,
 				};
 	};
 
@@ -156,6 +165,35 @@ export function McpServerForm({
 					placeholder="My Server"
 				/>
 			</Field>
+			<Field>
+				<Label htmlFor="mcp-approval">Tool approval</Label>
+				<Select
+					value={approval}
+					onValueChange={(value) => setApproval(value as 'default' | 'always' | 'never')}
+				>
+					<SelectTrigger id="mcp-approval" className="w-full">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="default">Default</SelectItem>
+						<SelectItem value="always">Always require approval</SelectItem>
+						<SelectItem value="never">Never require approval</SelectItem>
+					</SelectContent>
+				</Select>
+			</Field>
+			<label className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
+				<span>
+					<span className="block text-[13px] font-medium text-foreground">Defer tool loading</span>
+					<span className="block text-[11px] text-muted-foreground">
+						Load this server's tools only when needed.
+					</span>
+				</span>
+				<Switch
+					checked={deferLoading}
+					onCheckedChange={setDeferLoading}
+					aria-label="Defer tool loading"
+				/>
+			</label>
 
 			{type === 'http' ? (
 				<>
@@ -246,6 +284,16 @@ export function McpServerForm({
 							onChange={(e) => setEnv(e.target.value)}
 							placeholder={'API_KEY=value\nOTHER=value'}
 							rows={3}
+							autoComplete="off"
+						/>
+					</Field>
+					<Field>
+						<Label htmlFor="mcp-cwd">Working directory (optional)</Label>
+						<Input
+							id="mcp-cwd"
+							value={cwd}
+							onChange={(e) => setCwd(e.target.value)}
+							placeholder="/path/to/server"
 							autoComplete="off"
 						/>
 					</Field>

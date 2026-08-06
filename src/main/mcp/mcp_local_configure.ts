@@ -33,6 +33,22 @@ export function configureLocalMcpServer(
 	) {
 		throw new Error('Environment variables must be a string-to-string object.');
 	}
+	if (input.cwd !== undefined && typeof input.cwd !== 'string') {
+		throw new Error('cwd must be a string.');
+	}
+	if (
+		input.require_approval !== undefined &&
+		input.require_approval !== 'always' &&
+		input.require_approval !== 'never'
+	) {
+		throw new Error('require_approval must be "always" or "never".');
+	}
+	if (input.defer_loading !== undefined && typeof input.defer_loading !== 'boolean') {
+		throw new Error('defer_loading must be a boolean.');
+	}
+	if (input.enabled !== undefined && typeof input.enabled !== 'boolean') {
+		throw new Error('enabled must be a boolean.');
+	}
 
 	const server = listLocalMcpServers(root).servers.find((entry) => entry.id === serverId);
 	if (!server?.path) throw new Error(`No local MCP server "${id}".`);
@@ -46,6 +62,10 @@ export function configureLocalMcpServer(
 		command: input.command.trim(),
 		args: input.args ? [...input.args] : undefined,
 		env: input.env ? { ...input.env } : undefined,
+		cwd:
+			input.cwd === server.data.cwd
+				? manifest.cwd
+				: input.cwd?.trim() || undefined,
 		require_approval: input.require_approval,
 		defer_loading: input.defer_loading,
 		enabled: input.enabled,

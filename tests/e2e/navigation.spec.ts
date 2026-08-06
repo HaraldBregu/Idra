@@ -29,6 +29,7 @@ const routes = [
 	'/settings/providers',
 	'/settings/providers/keys',
 	'/settings/providers/mcp',
+	'/settings/providers/mcp/missing',
 	'/settings/providers/transcribe',
 	'/settings/providers/voice',
 	'/settings/providers/image',
