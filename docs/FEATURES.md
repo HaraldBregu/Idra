@@ -481,6 +481,7 @@ The Channels screen configures both adapters with enable state, token, DM policy
 ### Settings navigation
 
 - The Settings overview groups pages as: **General** (General, System, Cloud), **Primary** (Assistant, Skills, RAG, Wiki, Tasks, MCP), **Providers** (Models, Search, Databases, Storage, Channels), and **Integrations** (Extensions).
+- The **Cloud** page links to **Object Storage Configuration** for S3-compatible providers and scheduled folder sync.
 - Deep pages use breadcrumbs.
 - `Cmd/Ctrl+F` opens a route and setting search palette.
 - Unknown routes show a 404 recovery view; route failures show retry, restart, or Home actions.

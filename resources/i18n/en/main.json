@@ -945,6 +945,7 @@
 			}
 		},
 		"storage": {
+			"configurationTitle": "Object Storage Configuration",
 			"description": "Configure one or more S3-compatible storage providers for your files.",
 			"profile": {
 				"title": "Storage profile",

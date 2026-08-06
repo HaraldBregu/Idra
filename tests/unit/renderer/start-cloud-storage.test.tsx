@@ -5,7 +5,7 @@ import StoragePage from '../../../src/renderer/src/pages/settings/pages/storage/
 
 jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
-		'settings.tabs.cloud': 'Cloud',
+		'settings.storage.configurationTitle': 'Object Storage Configuration',
 		'settings.tabs.storage': 'Cloud storage settings',
 		'settings.storage.addProvider': 'Add provider',
 		'settings.storage.empty': 'No storage configured',

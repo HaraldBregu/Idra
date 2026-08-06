@@ -121,9 +121,9 @@ export interface SettingsProviderConfigItem {
 
 export const SETTINGS_PROVIDER_CONFIG_ITEMS: readonly SettingsProviderConfigItem[] = [
 	{
-		path: '/settings/cloud',
-		labelKey: 'settings.tabs.cloud',
-		descriptionKey: 'settings.overview.descriptions.cloud',
+		path: '/settings/cloud/storage',
+		labelKey: 'settings.storage.configurationTitle',
+		descriptionKey: 'settings.storage.description',
 		icon: Folder,
 	},
 	{
@@ -215,18 +215,18 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Storage
 	{
-		path: '/settings/cloud',
+		path: '/settings/cloud/storage',
 		labelKey: 'settings.storage.connectionTitle',
 		descriptionKey: 'settings.storage.connectionDescription',
 		keywords: 's3 object storage endpoint region bucket url minio aws provider',
 	},
 	{
-		path: '/settings/cloud',
+		path: '/settings/cloud/storage',
 		labelKey: 'settings.storage.credentialsTitle',
 		keywords: 'access key id secret access key api credentials token',
 	},
 	{
-		path: '/settings/cloud',
+		path: '/settings/cloud/storage',
 		labelKey: 'settings.storage.forcePathStyle',
 		descriptionKey: 'settings.storage.forcePathStyleDescription',
 		keywords: 'minio path style option compatible',
