@@ -84,8 +84,7 @@ const RagPage: React.FC = () => {
 			window.models.embedding.getProviderId(),
 			window.models.embedding.getModelId(),
 		])
-			.then(
-				async ([storedProviderId, storedModelId]) => {
+			.then(async ([storedProviderId, storedModelId]) => {
 					if (cancelled) return;
 					const stored = embeddingModels.find(
 						(entry) => entry.provider.id === storedProviderId && entry.id === storedModelId
@@ -101,11 +100,10 @@ const RagPage: React.FC = () => {
 						await window.models.embedding.setProviderId(selected.provider.id);
 						await window.models.embedding.setModelId(selected.id);
 					}
-				},
-				(err) => {
-					if (!cancelled) setError(getErrorMessage(err, t('settings.rag.loadError')));
-				}
-			)
+				})
+			.catch((err) => {
+				if (!cancelled) setError(getErrorMessage(err, t('settings.rag.loadError')));
+			})
 			.finally(() => {
 				if (!cancelled) setLoadingEmbeddingModel(false);
 			});
