@@ -459,9 +459,9 @@ const RagPage: React.FC = () => {
 					<SettingsRow
 						title={t('settings.rag.scheduleFrequency')}
 						description={t('settings.rag.scheduleDescription')}
-						actions={
+							actions={
 							<Select
-								value={scheduleValue}
+								value={ragConfiguration ? scheduleValue : null}
 								disabled={!ragConfiguration || savingRagConfiguration}
 								onValueChange={(value) => {
 									if (!ragConfiguration || !value) return;
