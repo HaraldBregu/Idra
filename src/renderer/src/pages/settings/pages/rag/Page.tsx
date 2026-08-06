@@ -243,11 +243,15 @@ const RagPage: React.FC = () => {
 	const selectedEmbeddingModel = embeddingModels.find(
 		(entry) => entry.provider.id === embeddingProviderId && entry.id === embeddingModelId
 	);
+	const selectedSchedule = RAG_SCHEDULES.find(
+		(schedule) => schedule.cron === ragConfiguration?.cronExpression
+	);
 	const scheduleValue = !ragConfiguration?.scheduleEnabled
 		? 'off'
-		: (RAG_SCHEDULES.find(
-				(schedule) => schedule.cron === ragConfiguration.cronExpression
-			)?.key ?? 'custom');
+		: (selectedSchedule?.key ?? 'custom');
+	const scheduleLabel = selectedSchedule
+		? t(selectedSchedule.labelKey)
+		: t(scheduleValue === 'off' ? 'settings.rag.scheduleOff' : 'settings.rag.scheduleCustom');
 
 	return (
 		<SettingsPageShell>
@@ -486,7 +490,7 @@ const RagPage: React.FC = () => {
 									className="w-44 max-w-full text-xs"
 									aria-label={t('settings.rag.scheduleFrequency')}
 								>
-									<SelectValue />
+									<SelectValue>{ragConfiguration && scheduleLabel}</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value="off">{t('settings.rag.scheduleOff')}</SelectItem>
