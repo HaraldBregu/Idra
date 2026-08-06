@@ -28,12 +28,11 @@ export type ModelSelection = {
 
 export type ModelsStoreState = Record<ModelKind, ModelSelection>;
 
-export type AppModelSelections = Omit<ModelsStoreState, 'embedding'>;
+export type AppModelSelections = Omit<ModelsStoreState, 'embedding' | 'text'>;
 
 const EMPTY_MODEL_SELECTION: ModelSelection = { providerId: '', modelId: '' };
 
 const DEFAULT_MODEL_SELECTIONS: AppModelSelections = {
-	text: EMPTY_MODEL_SELECTION,
 	sound: EMPTY_MODEL_SELECTION,
 	image: EMPTY_MODEL_SELECTION,
 	video: EMPTY_MODEL_SELECTION,
@@ -83,7 +82,10 @@ const store = new Store<AppSettingsState>({
 
 type LegacyAppSettingsState = AppSettingsState & {
 	databaseConfiguration?: { providerId?: string; databaseId?: string };
-	modelSelections: AppModelSelections & { embedding?: ModelSelection };
+	modelSelections: AppModelSelections & {
+		embedding?: ModelSelection;
+		text?: ModelSelection;
+	};
 	storageConfiguration?: StorageConfiguration;
 };
 
@@ -126,6 +128,7 @@ if (legacyDatabase || legacyEmbedding) {
 }
 delete persistedSettings.databaseConfiguration;
 delete persistedModelSelections.embedding;
+delete persistedModelSelections.text;
 if (legacyStorageConfiguration) persistedSettings.cloud = legacyStorageConfiguration;
 delete persistedSettings.storageConfiguration;
 store.store = {

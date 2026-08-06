@@ -14,6 +14,10 @@ jest.mock('electron-store', () =>
 						},
 						modelSelections: {
 							...(defaults.modelSelections as Record<string, unknown>),
+							text: {
+								providerId: 'openai',
+								modelId: 'gpt-5',
+							},
 							embedding: {
 								providerId: 'openai',
 								modelId: 'text-embedding-3-small',
@@ -76,4 +80,5 @@ it('moves legacy database and embedding selections before cleaning app settings'
 	expect(mockOperations).toEqual(['rag', 'app']);
 	expect(mockAppStore).not.toHaveProperty('databaseConfiguration');
 	expect(mockAppStore).not.toHaveProperty('modelSelections.embedding');
+	expect(mockAppStore).not.toHaveProperty('modelSelections.text');
 });

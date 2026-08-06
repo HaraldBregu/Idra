@@ -1,11 +1,21 @@
 const getAppModelSelections = jest.fn();
 const setAppModelSelections = jest.fn();
+const getAgentProviderId = jest.fn();
+const setAgentProviderId = jest.fn();
+const getAgentModelId = jest.fn();
+const setAgentModelId = jest.fn();
 const getRagConfiguration = jest.fn();
 const saveRagConfiguration = jest.fn();
 
 jest.mock('../../../../src/main/settings_store', () => ({
 	getAppModelSelections,
 	setAppModelSelections,
+}));
+jest.mock('../../../../src/main/agent/agent_store', () => ({
+	getProviderId: getAgentProviderId,
+	setProviderId: setAgentProviderId,
+	getModelId: getAgentModelId,
+	setModelId: setAgentModelId,
 }));
 jest.mock('../../../../src/main/providers/providers_index', () => ({
 	getModelProvidersState: () => [],
@@ -24,7 +34,6 @@ import {
 } from '../../../../src/main/models/models_store';
 
 const appSelections = {
-	text: { providerId: 'openai', modelId: 'gpt-5' },
 	sound: { providerId: '', modelId: '' },
 	image: { providerId: '', modelId: '' },
 	video: { providerId: '', modelId: '' },
@@ -48,6 +57,8 @@ beforeEach(() => {
 	jest.clearAllMocks();
 	let currentRagConfiguration = { ...ragConfiguration };
 	getAppModelSelections.mockReturnValue(appSelections);
+	getAgentProviderId.mockReturnValue('openai');
+	getAgentModelId.mockReturnValue('gpt-5');
 	getRagConfiguration.mockImplementation(() => currentRagConfiguration);
 	saveRagConfiguration.mockImplementation((configuration) => {
 		currentRagConfiguration = configuration;
@@ -74,12 +85,13 @@ it('reads and writes embedding selection through the RAG store', () => {
 	expect(setAppModelSelections).not.toHaveBeenCalled();
 });
 
-it('keeps non-embedding selections in app settings', () => {
+it('reads and writes text selection through the agent store', () => {
+	expect(getProviderId('text')).toBe('openai');
+	expect(getModelId('text')).toBe('gpt-5');
+
 	setModelId('text', 'gpt-5.1');
 
-	expect(setAppModelSelections).toHaveBeenCalledWith({
-		...appSelections,
-		text: { providerId: 'openai', modelId: 'gpt-5.1' },
-	});
+	expect(setAgentModelId).toHaveBeenCalledWith('gpt-5.1');
+	expect(setAppModelSelections).not.toHaveBeenCalled();
 	expect(saveRagConfiguration).not.toHaveBeenCalled();
 });

@@ -1,5 +1,11 @@
 import type { StoredProvider } from '../../shared/provider_types';
 import {
+	getModelId as getAgentModelId,
+	getProviderId as getAgentProviderId,
+	setModelId as setAgentModelId,
+	setProviderId as setAgentProviderId,
+} from '../agent/agent_store';
+import {
 	getAppModelSelections,
 	setAppModelSelections,
 	type AppModelSelections,
@@ -15,12 +21,17 @@ export type { ModelKind, ModelSelection, ModelsStoreState } from '../settings_st
 const EMPTY_SELECTION: ModelSelection = { providerId: '', modelId: '' };
 
 export function getModelsStore(): ModelsStoreState {
-	return { ...getAppModelSelections(), embedding: selection('embedding') };
+	return {
+		...getAppModelSelections(),
+		text: selection('text'),
+		embedding: selection('embedding'),
+	};
 }
 
 export function setModelsStore(value: ModelsStoreState): void {
-	const { embedding, ...appSelections } = value;
+	const { embedding, text, ...appSelections } = value;
 	setAppModelSelections(appSelections as AppModelSelections);
+	setSelection('text', text.providerId, text.modelId);
 	setSelection('embedding', embedding.providerId, embedding.modelId);
 }
 
@@ -37,6 +48,10 @@ export function getProviderId(kind: ModelKind): string | undefined {
 }
 
 export function setProviderId(kind: ModelKind, providerId: string): void {
+	if (kind === 'text') {
+		setAgentProviderId(providerId);
+		return;
+	}
 	setSelection(kind, providerId, selection(kind).modelId);
 }
 
@@ -45,10 +60,19 @@ export function getModelId(kind: ModelKind): string | undefined {
 }
 
 export function setModelId(kind: ModelKind, modelId: string): void {
+	if (kind === 'text') {
+		setAgentModelId(modelId);
+		return;
+	}
 	setSelection(kind, selection(kind).providerId, modelId);
 }
 
 export function setSelection(kind: ModelKind, providerId: string, modelId: string): void {
+	if (kind === 'text') {
+		setAgentProviderId(providerId);
+		setAgentModelId(modelId);
+		return;
+	}
 	if (kind === 'embedding') {
 		saveRagConfiguration({
 			...getRagConfiguration(),
@@ -61,6 +85,12 @@ export function setSelection(kind: ModelKind, providerId: string, modelId: strin
 }
 
 function selection(kind: ModelKind): ModelSelection {
+	if (kind === 'text') {
+		return {
+			providerId: getAgentProviderId() ?? '',
+			modelId: getAgentModelId() ?? '',
+		};
+	}
 	if (kind === 'embedding') {
 		const configuration = getRagConfiguration();
 		return {
