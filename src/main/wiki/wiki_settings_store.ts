@@ -34,7 +34,9 @@ export const wikiSettingsStore = new Store<WikiSettings>({
 });
 
 if (shouldMigrateLegacySettings) {
-	const legacySettings = JSON.parse(readFileSync(legacySettingsPath, 'utf8')) as Partial<WikiSettings>;
+	const legacySettings = JSON.parse(
+		readFileSync(legacySettingsPath, 'utf8')
+	) as Partial<WikiSettings>;
 	wikiSettingsStore.store = {
 		...DEFAULT_WIKI_SETTINGS,
 		...legacySettings,

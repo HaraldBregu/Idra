@@ -131,12 +131,12 @@ describe('wiki source ingestion', () => {
 		const sourceMarkdown = matter(await readFile(path.join(target, sourcePage), 'utf8'));
 		expect(sourceMarkdown.data.sources).toEqual(['notes.md']);
 		expect(sourceMarkdown.content).toContain('[[Desktop assistants]]');
-		expect(await readFile(path.join(target, 'AGENTS.md'), 'utf8')).toContain('Wiki maintainer schema');
+		expect(await readFile(path.join(target, 'AGENTS.md'), 'utf8')).toContain(
+			'Wiki maintainer schema'
+		);
 		expect(await readFile(path.join(target, 'index.md'), 'utf8')).toContain(
 			'[[concepts/desktop-assistants|Desktop assistants]]'
 		);
-		expect(await readFile(path.join(target, 'log.md'), 'utf8')).toContain(
-			'ingest | notes.md'
-		);
+		expect(await readFile(path.join(target, 'log.md'), 'utf8')).toContain('ingest | notes.md');
 	});
 });
