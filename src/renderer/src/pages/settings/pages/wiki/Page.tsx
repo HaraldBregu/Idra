@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FolderOpen, LoaderCircle, Play, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
 import {
 	llmProviderGroups,
@@ -17,10 +18,11 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsRow,
 	SettingsSection,
 	SettingsValue,
 } from '../../components';
+
+const WIKI_ITEM_CLASS = 'flex-nowrap border-b border-border/60 last:border-b-0';
 
 const WikiPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -174,12 +176,16 @@ const WikiPage: React.FC = () => {
 						description={t('settings.wiki.behaviorDescription')}
 					>
 						<SettingsPanel>
-							<SettingsRow
-								title={t('settings.wiki.enabled')}
-								description={t('settings.wiki.enabledDescription')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+									<ItemTitle className="max-w-full line-clamp-none">
+										{t('settings.wiki.enabled')}
+									</ItemTitle>
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.wiki.enabledDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<Switch
 										checked={settings.enabled !== false}
 										disabled={saving || running}
@@ -189,14 +195,18 @@ const WikiPage: React.FC = () => {
 											setSaved(false);
 										}}
 									/>
-								}
-							/>
-							<SettingsRow
-								title={t('settings.wiki.autoFileAnswers')}
-								description={t('settings.wiki.autoFileAnswersDescription')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={
+								</ItemActions>
+							</Item>
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+									<ItemTitle className="max-w-full line-clamp-none">
+										{t('settings.wiki.autoFileAnswers')}
+									</ItemTitle>
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.wiki.autoFileAnswersDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<Switch
 										checked={settings.autoFileAnswers === true}
 										disabled={saving || running}
@@ -206,14 +216,18 @@ const WikiPage: React.FC = () => {
 											setSaved(false);
 										}}
 									/>
-								}
-							/>
-							<SettingsRow
-								title={t('settings.wiki.requireReview')}
-								description={t('settings.wiki.requireReviewDescription')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={
+								</ItemActions>
+							</Item>
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+									<ItemTitle className="max-w-full line-clamp-none">
+										{t('settings.wiki.requireReview')}
+									</ItemTitle>
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.wiki.requireReviewDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<Switch
 										checked={settings.requireReviewForMajorChanges !== false}
 										disabled={saving || running}
@@ -223,14 +237,18 @@ const WikiPage: React.FC = () => {
 											setSaved(false);
 										}}
 									/>
-								}
-							/>
-							<SettingsRow
-								title={t('settings.wiki.lintOnStartup')}
-								description={t('settings.wiki.lintOnStartupDescription')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={
+								</ItemActions>
+							</Item>
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+									<ItemTitle className="max-w-full line-clamp-none">
+										{t('settings.wiki.lintOnStartup')}
+									</ItemTitle>
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.wiki.lintOnStartupDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<Switch
 										checked={settings.lintOnStartup === true}
 										disabled={saving || running}
@@ -240,8 +258,8 @@ const WikiPage: React.FC = () => {
 											setSaved(false);
 										}}
 									/>
-								}
-							/>
+								</ItemActions>
+							</Item>
 						</SettingsPanel>
 					</SettingsSection>
 
@@ -338,12 +356,16 @@ const WikiPage: React.FC = () => {
 						description={t('settings.wiki.scheduleDescription')}
 					>
 						<SettingsPanel>
-							<SettingsRow
-								title={t('settings.wiki.scheduleEnabled')}
-								description={t('settings.wiki.scheduleEnabledDescription')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+									<ItemTitle className="max-w-full line-clamp-none">
+										{t('settings.wiki.scheduleEnabled')}
+									</ItemTitle>
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.wiki.scheduleEnabledDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<Switch
 										checked={settings.schedule.enabled}
 										disabled={settings.enabled === false || saving || running}
@@ -356,8 +378,8 @@ const WikiPage: React.FC = () => {
 											setSaved(false);
 										}}
 									/>
-								}
-							/>
+								</ItemActions>
+							</Item>
 							<div className="p-3">
 								<SettingsField
 									id="wiki-cron"
@@ -386,47 +408,51 @@ const WikiPage: React.FC = () => {
 
 					<SettingsSection title={t('settings.wiki.statusTitle')}>
 						<SettingsPanel>
-							<SettingsRow
-								title={t('settings.wiki.settingsFile')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={<SettingsValue mono>{status?.settingsPath ?? '—'}</SettingsValue>}
-							/>
-							<SettingsRow
-								title={t('settings.wiki.pendingReviews')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={<SettingsValue>{status?.pendingReviews ?? 0}</SettingsValue>}
-							/>
-							<SettingsRow
-								title={t('settings.wiki.nextRun')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0">
+									<ItemTitle>{t('settings.wiki.settingsFile')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto min-w-0 max-w-[60%] flex-none justify-end">
+									<SettingsValue mono>{status?.settingsPath ?? '—'}</SettingsValue>
+								</ItemActions>
+							</Item>
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0">
+									<ItemTitle>{t('settings.wiki.pendingReviews')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<SettingsValue>{status?.pendingReviews ?? 0}</SettingsValue>
+								</ItemActions>
+							</Item>
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0">
+									<ItemTitle>{t('settings.wiki.nextRun')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<SettingsValue>
 										{status?.nextRunAt
 											? new Date(status.nextRunAt).toLocaleString()
-											: t('settings.wiki.notScheduled')}
+												: t('settings.wiki.notScheduled')}
 									</SettingsValue>
-								}
-							/>
-							<SettingsRow
-								title={t('settings.wiki.lastRun')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={
+								</ItemActions>
+							</Item>
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0">
+									<ItemTitle>{t('settings.wiki.lastRun')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<SettingsValue>
 										{status?.lastRun
 											? new Date(status.lastRun.completedAt).toLocaleString()
-											: t('settings.wiki.neverRun')}
+												: t('settings.wiki.neverRun')}
 									</SettingsValue>
-								}
-							/>
-							<SettingsRow
-								title={t('settings.wiki.outputFolder')}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={
+								</ItemActions>
+							</Item>
+							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
+								<ItemContent className="min-w-0">
+									<ItemTitle>{t('settings.wiki.outputFolder')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<Button
 										type="button"
 										size="sm"
@@ -436,8 +462,8 @@ const WikiPage: React.FC = () => {
 										<FolderOpen className="size-3" />
 										{t('settings.wiki.openOutput')}
 									</Button>
-								}
-							/>
+								</ItemActions>
+							</Item>
 						</SettingsPanel>
 					</SettingsSection>
 				</>
