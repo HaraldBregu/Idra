@@ -185,7 +185,7 @@ export function McpServerForm({
 				<span>
 					<span className="block text-[13px] font-medium text-foreground">Defer tool loading</span>
 					<span className="block text-[11px] text-muted-foreground">
-						Load this server's tools only when needed.
+						Load this server’s tools only when needed.
 					</span>
 				</span>
 				<Switch

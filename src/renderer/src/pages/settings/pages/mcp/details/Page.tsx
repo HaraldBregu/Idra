@@ -42,7 +42,7 @@ const McpDetailsPage: React.FC = () => {
 	}, [id]);
 
 	useEffect(() => {
-		void load();
+		void Promise.resolve().then(load);
 	}, [load]);
 
 	const save = async (serverId: string, data: McpData): Promise<void> => {
@@ -164,7 +164,9 @@ const McpDetailsPage: React.FC = () => {
 							<Switch
 								checked={server.data.enabled !== false}
 								disabled={saving || testing}
-								onCheckedChange={(enabled) => void save(server.id, { ...server.data, enabled })}
+								onCheckedChange={(enabled) =>
+									void save(server.id, { ...server.data, enabled }).catch(() => undefined)
+								}
 								aria-label={`${server.data.enabled === false ? 'Enable' : 'Disable'} ${title}`}
 							/>
 							{server.data.enabled === false ? 'Disabled' : 'Enabled'}

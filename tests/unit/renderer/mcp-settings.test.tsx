@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes, useParams } from 'react-router-dom';
 import McpPage from '../../../src/renderer/src/pages/settings/pages/mcp/Page';
 
 const mcpApi = {
@@ -18,130 +19,83 @@ const mcpApi = {
 	oauthFinish: jest.fn(),
 };
 
-let remoteEnabled = true;
+function DetailTarget(): React.JSX.Element {
+	const { mcpServerId } = useParams();
+	return <p>Detail: {mcpServerId}</p>;
+}
+
+function renderPage(): ReturnType<typeof render> {
+	return render(
+		<MemoryRouter initialEntries={['/settings/providers/mcp']}>
+			<Routes>
+				<Route path="/settings/providers/mcp" element={<McpPage />} />
+				<Route path="/settings/providers/mcp/:mcpServerId" element={<DetailTarget />} />
+			</Routes>
+		</MemoryRouter>
+	);
+}
 
 beforeEach(() => {
 	jest.clearAllMocks();
-	remoteEnabled = true;
 	Object.defineProperty(window, 'PointerEvent', { configurable: true, value: MouseEvent });
 	Object.defineProperty(window, 'mcp', { configurable: true, value: mcpApi });
 	mcpApi.getRoot.mockResolvedValue('/home/user/.friday/mcp/servers');
-	mcpApi.registry.mockImplementation(async () => ({
+	mcpApi.registry.mockResolvedValue({
 		servers: [
 			{
 				id: 'remote',
 				source: 'configured',
-				data: {
-					type: 'http',
-					name: 'Remote docs',
-					url: 'https://mcp.test',
-					enabled: remoteEnabled,
-				},
+				data: { type: 'http', name: 'Remote docs', url: 'https://mcp.test', enabled: true },
 			},
 			{
 				id: 'local',
 				source: 'local',
 				path: '/home/user/.friday/mcp/servers/local',
-				data: { type: 'stdio', name: 'Local files', command: 'node', cwd: '/local' },
+				data: {
+					type: 'stdio',
+					name: 'Local files',
+					command: 'node',
+					args: ['server.mjs'],
+					cwd: '/local',
+				},
 			},
 		],
 		diagnostics: [],
-	}));
-	mcpApi.test.mockImplementation(async (id: string) => ({
-		ok: true,
-		tools: id === 'remote' ? ['search', 'read'] : ['list'],
-		toolCount: id === 'remote' ? 2 : 1,
-		durationMs: 25,
-	}));
+	});
 	mcpApi.importLocal.mockResolvedValue({ imported: [], skipped: [] });
-	mcpApi.configureLocal.mockResolvedValue({
-		id: 'local',
-		source: 'local',
-		path: '/home/user/.friday/mcp/servers/local',
-		data: { type: 'stdio', name: 'Local files', command: 'node', cwd: '/local' },
-	});
-	mcpApi.upsert.mockImplementation(async (_id: string, data: { enabled?: boolean }) => {
-		remoteEnabled = data.enabled !== false;
-		return {};
-	});
+	mcpApi.upsert.mockResolvedValue({});
 });
 
 describe('MCP settings', () => {
-	it('reads remote and dynamically discovered local servers', async () => {
-		render(<McpPage />);
+	it('shows remote and local servers in one simple list', async () => {
+		renderPage();
 
 		expect(await screen.findByText('Remote docs')).toBeInTheDocument();
 		expect(screen.getByText('Local files')).toBeInTheDocument();
-		expect(screen.queryByText('Local package')).not.toBeInTheDocument();
+		expect(screen.getByText('https://mcp.test')).toBeInTheDocument();
+		expect(screen.getByText('node server.mjs')).toBeInTheDocument();
+		expect(screen.getByRole('heading', { name: 'MCP servers' })).toBeInTheDocument();
+		expect(screen.queryByRole('heading', { name: 'Remote servers' })).not.toBeInTheDocument();
+		expect(screen.queryByRole('heading', { name: 'Local servers' })).not.toBeInTheDocument();
 		expect(screen.queryByText('/home/user/.friday/mcp/servers/local')).not.toBeInTheDocument();
-
-		await userEvent.click(screen.getByRole('button', { name: 'Show Local files details' }));
-		expect(screen.getByText('Local package')).toBeInTheDocument();
-		expect(screen.getByText('/home/user/.friday/mcp/servers/local')).toBeInTheDocument();
 	});
 
-	it('tests each server independently and reports discovered tools', async () => {
+	it('opens a server detail route from the list Item', async () => {
 		const user = userEvent.setup();
-		render(<McpPage />);
-		const buttons = await screen.findAllByRole('button', { name: /^Test / });
+		renderPage();
 
-		await user.click(buttons[0]);
-		await waitFor(() => expect(mcpApi.test).toHaveBeenCalledWith('remote'));
-		expect(await screen.findByText('2 tools · 25 ms')).toBeInTheDocument();
+		await user.click(await screen.findByRole('button', { name: /Local files/ }));
+		expect(await screen.findByText('Detail: local')).toBeInTheDocument();
 	});
 
-	it('uploads local packages and refreshes the registry', async () => {
+	it('uploads local packages and refreshes the unified registry', async () => {
 		const user = userEvent.setup();
-		render(<McpPage />);
+		renderPage();
 		await screen.findByText('Local files');
 
 		await user.click(screen.getByRole('button', { name: 'Upload local' }));
 		await waitFor(() => expect(mcpApi.importLocal).toHaveBeenCalledTimes(1));
 		expect(mcpApi.registry).toHaveBeenCalledTimes(2);
 		expect(await screen.findByText('Uploaded 0 local MCP servers.')).toBeInTheDocument();
-	});
-
-	it('configures a discovered local server from its edit dialog', async () => {
-		const user = userEvent.setup();
-		render(<McpPage />);
-		await screen.findByText('Local files');
-
-		await user.click(screen.getByRole('button', { name: 'Show Local files details' }));
-		await user.click(screen.getByRole('button', { name: 'Edit Local files' }));
-		const environment = screen.getByLabelText('Environment variables (optional)');
-		await user.type(environment, 'DEMO_COMPANY=Friday Studio');
-		await user.click(screen.getByRole('button', { name: 'Save' }));
-
-		await waitFor(() =>
-			expect(mcpApi.configureLocal).toHaveBeenCalledWith(
-				'local',
-				expect.objectContaining({
-					type: 'stdio',
-					command: 'node',
-					env: { DEMO_COMPANY: 'Friday Studio' },
-				})
-			)
-		);
-	});
-
-	it('invalidates a successful test when the server is disabled', async () => {
-		const user = userEvent.setup();
-		render(<McpPage />);
-		await user.click(await screen.findByRole('button', { name: 'Test Remote docs' }));
-		expect(await screen.findByText('Connected')).toBeInTheDocument();
-
-		await user.click(screen.getByRole('switch', { name: 'Disable Remote docs' }));
-		expect(await screen.findByText('Disabled')).toBeInTheDocument();
-		expect(screen.queryByText('Connected')).not.toBeInTheDocument();
-	});
-
-	it('shows toggle failures without an unhandled rejection', async () => {
-		const user = userEvent.setup();
-		mcpApi.upsert.mockRejectedValueOnce(new Error('Unable to save server'));
-		render(<McpPage />);
-		await screen.findByText('Remote docs');
-
-		await user.click(screen.getByRole('switch', { name: 'Disable Remote docs' }));
-		expect(await screen.findAllByText('Unable to save server')).not.toHaveLength(0);
 	});
 });

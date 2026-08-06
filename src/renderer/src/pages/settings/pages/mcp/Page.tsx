@@ -44,7 +44,7 @@ const McpPage = (): React.JSX.Element => {
 	}, []);
 
 	useEffect(() => {
-		void load();
+		void Promise.resolve().then(load);
 	}, [load]);
 
 	const save = async (id: string, data: McpData): Promise<void> => {

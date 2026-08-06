@@ -227,10 +227,10 @@ Friday supports two MCP transport types:
 
 MCP settings provide:
 
-- Separate lists for remote and local servers.
+- One unified list for remote services, configured commands, and discovered local packages.
 - Configured, disabled, testing, connected, and error states, with an enable/disable toggle for configured servers.
 - Add and edit dialogs. Server ID and transport type are fixed after creation.
-- Inline configuration editing and removal for configured servers; filesystem packages remain file-authoritative.
+- Detail-page configuration, testing, and removal for configured servers; filesystem packages remain file-authoritative and are edited through the same detail workflow.
 - OAuth authorization for HTTP servers without a bearer token, including reauthorization.
 - Dynamic discovery of local server packages from `~/.friday/mcp/servers`.
 - Folder upload, local-folder access, manual refresh, and a live connection test that reports tool count and latency for every local or remote server.
