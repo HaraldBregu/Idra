@@ -124,6 +124,7 @@ it('saves the selected RAG index name from the configuration card', async () => 
 	expect(indexName).toHaveValue('friday');
 	await user.clear(indexName);
 	await user.type(indexName, 'knowledge-base');
+	expect(indexName).toHaveValue('knowledge-base');
 	await user.tab();
 
 	await waitFor(() =>
