@@ -11,6 +11,8 @@ jest.mock('../../../../src/main/rag/rag_manifest', () => ({ readRagManifest }));
 import { searchRag } from '../../../../src/main/rag/rag_search';
 
 beforeEach(() => {
+	index.mockReturnValue({ query });
+	ragClient.mockReturnValue({ index });
 	readRagManifest.mockReturnValue({
 		indexName: 'knowledge-base',
 		providerId: 'openai',
