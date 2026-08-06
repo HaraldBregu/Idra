@@ -76,6 +76,8 @@ describe('Settings overview', () => {
 			.getByText('settings.overview.groups.assistant')
 			.closest('section');
 		expect(assistantGroup).not.toBeNull();
-		expect(within(assistantGroup as HTMLElement).getByText('settings.wiki.title')).toBeInTheDocument();
+		expect(
+			within(assistantGroup as HTMLElement).getByText('settings.wiki.title')
+		).toBeInTheDocument();
 	});
 });
