@@ -22,7 +22,9 @@ import type {
 	McpLocalImportResult,
 	McpOAuthStart,
 	McpRegistry,
+	McpServerInfo,
 	McpSettings,
+	McpStdioData,
 	McpTestResult,
 } from './mcp_types';
 import type { Extension } from './extension_types';

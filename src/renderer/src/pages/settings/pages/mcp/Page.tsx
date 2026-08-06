@@ -246,7 +246,7 @@ const McpPage = (): React.JSX.Element => {
 					</SettingsPanel>
 					) : (
 					<div className="grid gap-2">
-						local.map((server) => (
+						{local.map((server) => (
 							<McpLocalServerCard
 								key={server.id}
 								server={server}
@@ -256,7 +256,7 @@ const McpPage = (): React.JSX.Element => {
 								onSave={server.source === 'configured' ? save : saveLocal}
 								onRemove={server.source === 'configured' ? () => remove(server.id) : undefined}
 							/>
-						))
+						))}
 					</div>
 					)}
 			</SettingsSection>
