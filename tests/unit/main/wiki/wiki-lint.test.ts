@@ -4,6 +4,7 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { lintWiki } from '../../../../src/main/wiki/wiki_lint';
 import { wikiSourceStore } from '../../../../src/main/wiki/wiki_source_store';
+import { wikiManifestStore } from '../../../../src/main/wiki/wiki_manifest_store';
 
 describe('wiki lint', () => {
 	it('reports structural and provenance findings and safely rebuilds a drifted index', async () => {
@@ -53,5 +54,9 @@ describe('wiki lint', () => {
 			'[[concepts/example|Example]]'
 		);
 		expect(await readFile(path.join(target, 'log.md'), 'utf8')).toContain('lint | Wiki integrity check');
+		expect(wikiManifestStore.store.pages['concept-example']).toMatchObject({
+			path: 'concepts/example.md',
+			pageType: 'concept',
+		});
 	});
 });

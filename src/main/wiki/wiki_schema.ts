@@ -88,15 +88,19 @@ requires_review:
 
 export async function ensureWikiSchema(
 	targetPath: string,
-	configPath = path.resolve(targetPath, 'config')
+	configPath = path.resolve(targetPath, 'config'),
+	includeTarget = true
 ): Promise<void> {
-	await Promise.all([mkdir(targetPath, { recursive: true }), mkdir(configPath, { recursive: true })]);
+	await Promise.all([
+		...(includeTarget ? [mkdir(targetPath, { recursive: true })] : []),
+		mkdir(configPath, { recursive: true }),
+	]);
 	const files = [
-		[path.resolve(targetPath, 'AGENTS.md'), WIKI_SCHEMA],
+		...(includeTarget ? ([[path.resolve(targetPath, 'AGENTS.md'), WIKI_SCHEMA]] as const) : []),
 		[path.resolve(configPath, 'schema.yaml'), SCHEMA_POLICY],
 		[path.resolve(configPath, 'page-types.yaml'), PAGE_TYPES],
 		[path.resolve(configPath, 'review-policy.yaml'), REVIEW_POLICY],
-	] as const;
+	] as ReadonlyArray<readonly [string, string]>;
 	await Promise.all(
 		files.map(([file, content]) =>
 			writeFile(file, content, { encoding: 'utf8', flag: 'wx' }).catch(

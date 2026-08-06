@@ -41,7 +41,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 		wikiRuntime.logger?.info('Wiki', 'Wiki ingest started');
 		await mkdir(settings.sourcePath, { recursive: true });
 		const paths = wikiPaths(settings.targetPath);
-		await ensureWikiSchema(settings.targetPath, paths.config);
+		await ensureWikiSchema(settings.targetPath, paths.config, false);
 		const discoveredSources = await collectWikiSources(settings.sourcePath);
 		const selectedPath = relativePath?.trim().replaceAll('\\', '/').replace(/^\.\//, '');
 		const sources = selectedPath
@@ -118,6 +118,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 					targetPath: settings.targetPath,
 					operationId,
 					apply: async (stagedPath) => {
+						await ensureWikiSchema(stagedPath, paths.config);
 						const result = await applyWikiUpdate(stagedPath, source, update, {
 							operationId,
 							requireReviewForMajorChanges: settings.requireReviewForMajorChanges,
