@@ -410,6 +410,7 @@ const RagPage: React.FC = () => {
 										type="button"
 										size="sm"
 										variant="outline"
+										aria-label={t('settings.rag.pickFolder')}
 										disabled={indexing || savingRagConfiguration || !ragConfiguration}
 										onClick={() => void pickSourceFolder()}
 									>
