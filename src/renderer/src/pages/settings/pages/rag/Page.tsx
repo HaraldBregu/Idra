@@ -492,7 +492,7 @@ const RagPage: React.FC = () => {
 									<SelectItem value="off">{t('settings.rag.scheduleOff')}</SelectItem>
 									{RAG_SCHEDULES.map((schedule) => (
 										<SelectItem key={schedule.key} value={schedule.key}>
-											{t(`settings.rag.schedule${schedule.key}`)}
+											{t(schedule.labelKey)}
 										</SelectItem>
 									))}
 									{scheduleValue === 'custom' && (
