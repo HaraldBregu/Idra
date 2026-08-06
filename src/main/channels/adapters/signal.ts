@@ -77,9 +77,16 @@ export function createSignalAdapter(options: SignalAdapterOptions): ChannelAdapt
 		return payload.result;
 	}
 
-	async function loadAttachment(attachment: SignalAttachment) {
+	async function loadAttachment(
+		attachment: SignalAttachment,
+		source: string,
+		groupId: string | undefined
+	) {
 		if (!attachment.id) throw new Error('Signal voice attachment has no id');
-		const result = await rpc('getAttachment', { id: attachment.id });
+		const result = await rpc('getAttachment', {
+			id: attachment.id,
+			...(groupId ? { groupId } : { recipient: source }),
+		});
 		const data =
 			typeof result === 'string'
 				? result
@@ -128,7 +135,7 @@ export function createSignalAdapter(options: SignalAdapterOptions): ChannelAdapt
 							mimeType: voice.contentType ?? 'audio/m4a',
 							fileName: voice.filename,
 							byteLength: voice.size,
-							load: () => loadAttachment(voice),
+							load: () => loadAttachment(voice, source, groupId),
 						},
 					}
 				: { type: 'text', text: data.message ?? '' },
@@ -153,6 +160,7 @@ export function createSignalAdapter(options: SignalAdapterOptions): ChannelAdapt
 			const chunk = await reader.read();
 			if (chunk.done) break;
 			buffer += decoder.decode(chunk.value, { stream: true });
+			buffer = buffer.replace(/\r\n/g, '\n');
 			let boundary = buffer.indexOf('\n\n');
 			while (boundary >= 0) {
 				const block = buffer.slice(0, boundary);
