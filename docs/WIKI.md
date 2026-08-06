@@ -115,7 +115,7 @@ source_ids:
 aliases:
   - Persistent memory
 related:
-  - "[[Knowledge retrieval]]"
+  - '[[Knowledge retrieval]]'
 confidence: medium
 review_status: auto_generated
 claims:
@@ -164,7 +164,7 @@ The model can select:
 
 ```json
 {
-  "relativePath": "memory-report.md"
+	"relativePath": "memory-report.md"
 }
 ```
 
@@ -195,8 +195,8 @@ Friday can first call:
 
 ```json
 {
-  "query": "compiled wiki memory versus raw source RAG",
-  "includeRaw": true
+	"query": "compiled wiki memory versus raw source RAG",
+	"includeRaw": true
 }
 ```
 

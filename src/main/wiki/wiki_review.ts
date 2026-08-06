@@ -18,7 +18,9 @@ export async function reviewWikiChange(
 	const item = wikiReviewStore.store.items.find((candidate) => candidate.id === reviewId);
 	if (!item) throw new Error(`Wiki review item not found: ${reviewId}`);
 	if (item.status !== 'pending') throw new Error(`Wiki review item is already ${item.status}.`);
-	const record = item.evidenceSourceIds.map((id) => wikiSourceStore.store.sources[id]).find(Boolean);
+	const record = item.evidenceSourceIds
+		.map((id) => wikiSourceStore.store.sources[id])
+		.find(Boolean);
 	const operationId = `operation-review-${reviewId.replace(/^review-/, '')}-${action}`;
 	const source: WikiSource = record
 		? {
@@ -28,7 +30,7 @@ export async function reviewWikiChange(
 				hash: record.checksum,
 				sourceId: record.sourceId,
 				archivePath: record.archivePath,
-			  }
+			}
 		: { absolutePath: '', relativePath: 'human review', content: '', hash: reviewId };
 	const applied = await transactWiki({
 		targetPath: settings.targetPath,
@@ -54,11 +56,21 @@ export async function reviewWikiChange(
 				}
 				await rebuildWikiIndex(stagedPath);
 			}
-			await appendWikiLog(stagedPath, source, result, operationId, 'review', `${action} ${reviewId}`);
+			await appendWikiLog(
+				stagedPath,
+				source,
+				result,
+				operationId,
+				'review',
+				`${action} ${reviewId}`
+			);
 			return result;
 		},
 	});
-	const reviewed = { ...item, status: action === 'approve' ? ('approved' as const) : ('rejected' as const) };
+	const reviewed = {
+		...item,
+		status: action === 'approve' ? ('approved' as const) : ('rejected' as const),
+	};
 	wikiReviewStore.store = {
 		version: 1,
 		items: wikiReviewStore.store.items.map((candidate) =>

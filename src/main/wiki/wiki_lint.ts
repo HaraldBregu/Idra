@@ -61,61 +61,123 @@ export async function lintWiki(
 		const title = String(parsed.data.title ?? '').trim();
 		const pageId = String(parsed.data.id ?? '').trim();
 		const pageType = String(parsed.data.page_type ?? '').trim();
-		if (!title) result.critical.push({ code: 'missing_metadata', message: 'Missing title.', path: relativePath });
-		for (const key of ['id', 'page_type', 'status', 'created_at', 'updated_at', 'source_ids', 'confidence', 'review_status']) {
+		if (!title)
+			result.critical.push({
+				code: 'missing_metadata',
+				message: 'Missing title.',
+				path: relativePath,
+			});
+		for (const key of [
+			'id',
+			'page_type',
+			'status',
+			'created_at',
+			'updated_at',
+			'source_ids',
+			'confidence',
+			'review_status',
+		]) {
 			if (parsed.data[key] === undefined) {
-				result.warnings.push({ code: 'missing_metadata', message: `Missing ${key}.`, path: relativePath });
+				result.warnings.push({
+					code: 'missing_metadata',
+					message: `Missing ${key}.`,
+					path: relativePath,
+				});
 			}
 		}
 		if (pageId) {
 			const duplicate = ids.get(pageId);
 			if (duplicate) {
-				result.critical.push({ code: 'duplicate_page_id', message: `Duplicate page ID '${pageId}' also used by ${duplicate}.`, path: relativePath });
+				result.critical.push({
+					code: 'duplicate_page_id',
+					message: `Duplicate page ID '${pageId}' also used by ${duplicate}.`,
+					path: relativePath,
+				});
 			} else ids.set(pageId, relativePath);
 		}
 		if (pageType && !PAGE_TYPES.has(pageType)) {
-			result.critical.push({ code: 'invalid_page_type', message: `Invalid page type '${pageType}'.`, path: relativePath });
+			result.critical.push({
+				code: 'invalid_page_type',
+				message: `Invalid page type '${pageType}'.`,
+				path: relativePath,
+			});
 		}
 		const pageAliases = Array.isArray(parsed.data.aliases) ? parsed.data.aliases.map(String) : [];
 		for (const alias of [title, ...pageAliases].filter(Boolean)) {
 			const key = alias.toLowerCase();
 			const collision = aliases.get(key);
 			if (collision && collision !== relativePath) {
-				result.requiresReview.push({ code: 'alias_collision', message: `Alias '${alias}' also belongs to ${collision}.`, path: relativePath });
+				result.requiresReview.push({
+					code: 'alias_collision',
+					message: `Alias '${alias}' also belongs to ${collision}.`,
+					path: relativePath,
+				});
 			} else aliases.set(key, relativePath);
 		}
-		for (const claim of (Array.isArray(parsed.data.claims) ? parsed.data.claims : []) as WikiClaim[]) {
-			if (!claim.id || !claim.statement || !Array.isArray(claim.evidence) || claim.evidence.length === 0) {
-				result.critical.push({ code: 'unsupported_claim', message: 'Claim has no traceable evidence.', path: relativePath, claimId: claim.id });
+		for (const claim of (Array.isArray(parsed.data.claims)
+			? parsed.data.claims
+			: []) as WikiClaim[]) {
+			if (
+				!claim.id ||
+				!claim.statement ||
+				!Array.isArray(claim.evidence) ||
+				claim.evidence.length === 0
+			) {
+				result.critical.push({
+					code: 'unsupported_claim',
+					message: 'Claim has no traceable evidence.',
+					path: relativePath,
+					claimId: claim.id,
+				});
 				continue;
 			}
 			for (const evidence of claim.evidence) {
 				if (!wikiSourceStore.store.sources[evidence.sourceId]) {
-					result.critical.push({ code: 'invalid_source_reference', message: `Unknown source '${evidence.sourceId}'.`, path: relativePath, claimId: claim.id });
+					result.critical.push({
+						code: 'invalid_source_reference',
+						message: `Unknown source '${evidence.sourceId}'.`,
+						path: relativePath,
+						claimId: claim.id,
+					});
 				}
 			}
 			const statement = claim.statement.trim().toLowerCase();
 			const duplicate = claims.get(statement);
 			if (duplicate && duplicate !== claim.id) {
-				result.suggestions.push({ code: 'duplicate_claim', message: `Claim duplicates '${duplicate}'.`, path: relativePath, claimId: claim.id });
+				result.suggestions.push({
+					code: 'duplicate_claim',
+					message: `Claim duplicates '${duplicate}'.`,
+					path: relativePath,
+					claimId: claim.id,
+				});
 			} else claims.set(statement, claim.id);
 		}
 		for (const contradiction of (Array.isArray(parsed.data.contradictions)
 			? parsed.data.contradictions
 			: []) as WikiContradiction[]) {
 			if (contradiction.status === 'unresolved') {
-				result.requiresReview.push({ code: 'unresolved_contradiction', message: contradiction.description, path: relativePath });
+				result.requiresReview.push({
+					code: 'unresolved_contradiction',
+					message: contradiction.description,
+					path: relativePath,
+				});
 			}
 		}
 		if (parsed.content.length > 50_000) {
-			result.suggestions.push({ code: 'oversized_page', message: 'Page may need to be split.', path: relativePath });
+			result.suggestions.push({
+				code: 'oversized_page',
+				message: 'Page may need to be split.',
+				path: relativePath,
+			});
 		}
 		pages.push({
 			path: relativePath,
 			title,
 			aliases: pageAliases,
 			related: Array.isArray(parsed.data.related) ? parsed.data.related.map(String) : [],
-			links: [...parsed.content.matchAll(/\[\[([^\]|#]+)(?:\|[^\]]+)?\]\]/g)].map((match) => match[1].trim()),
+			links: [...parsed.content.matchAll(/\[\[([^\]|#]+)(?:\|[^\]]+)?\]\]/g)].map((match) =>
+				match[1].trim()
+			),
 			data: parsed.data,
 			content: parsed.content,
 		});
@@ -132,34 +194,59 @@ export async function lintWiki(
 		for (const link of page.links) {
 			const linked = lookup.get(link.toLowerCase());
 			if (!linked) {
-				result.critical.push({ code: 'broken_link', message: `Broken link [[${link}]].`, path: page.path });
+				result.critical.push({
+					code: 'broken_link',
+					message: `Broken link [[${link}]].`,
+					path: page.path,
+				});
 				continue;
 			}
 			inbound.set(linked.path, (inbound.get(linked.path) ?? 0) + 1);
-			const reciprocal = linked.links.some((candidate) => candidate.toLowerCase() === page.title.toLowerCase()) ||
-				linked.related.some((candidate) => candidate.replace(/^\[\[|\]\]$/g, '').toLowerCase() === page.title.toLowerCase());
+			const reciprocal =
+				linked.links.some((candidate) => candidate.toLowerCase() === page.title.toLowerCase()) ||
+				linked.related.some(
+					(candidate) =>
+						candidate.replace(/^\[\[|\]\]$/g, '').toLowerCase() === page.title.toLowerCase()
+				);
 			if (!reciprocal) {
-				result.autoFixable.push({ code: 'missing_reciprocal_link', message: `${linked.title} does not link back to ${page.title}.`, path: linked.path });
+				result.autoFixable.push({
+					code: 'missing_reciprocal_link',
+					message: `${linked.title} does not link back to ${page.title}.`,
+					path: linked.path,
+				});
 			}
 		}
 	}
 	for (const page of pages) {
 		if ((inbound.get(page.path) ?? 0) === 0 && String(page.data.page_type) !== 'source') {
-			result.warnings.push({ code: 'orphan_page', message: 'Page has no inbound links.', path: page.path });
+			result.warnings.push({
+				code: 'orphan_page',
+				message: 'Page has no inbound links.',
+				path: page.path,
+			});
 		}
 	}
 	const index = await readFile(path.resolve(targetPath, 'index.md'), 'utf8').catch(() => '');
 	for (const page of pages) {
 		if (!index.includes(`[[${page.path.slice(0, -3)}|`)) {
-			result.autoFixable.push({ code: 'index_drift', message: 'Page is missing from index.md.', path: page.path });
+			result.autoFixable.push({
+				code: 'index_drift',
+				message: 'Page is missing from index.md.',
+				path: page.path,
+			});
 		}
 	}
 	const coveredSources = new Set(
-		pages.flatMap((page) => (Array.isArray(page.data.source_ids) ? page.data.source_ids.map(String) : []))
+		pages.flatMap((page) =>
+			Array.isArray(page.data.source_ids) ? page.data.source_ids.map(String) : []
+		)
 	);
 	for (const record of Object.values(wikiSourceStore.store.sources)) {
 		if (record.status === 'integrated' && !coveredSources.has(record.sourceId)) {
-			result.warnings.push({ code: 'source_not_integrated', message: `Integrated source '${record.sourceId}' has no wiki page.` });
+			result.warnings.push({
+				code: 'source_not_integrated',
+				message: `Integrated source '${record.sourceId}' has no wiki page.`,
+			});
 		}
 	}
 	wikiManifestStore.store = {
@@ -175,9 +262,7 @@ export async function lintWiki(
 						title: page.title,
 						pageType: String(page.data.page_type) as import('./wiki_types').WikiPageType,
 						updatedAt: String(page.data.updated_at ?? page.data.updated ?? ''),
-						sourceIds: Array.isArray(page.data.source_ids)
-							? page.data.source_ids.map(String)
-							: [],
+						sourceIds: Array.isArray(page.data.source_ids) ? page.data.source_ids.map(String) : [],
 					},
 				])
 		),
@@ -205,7 +290,8 @@ export async function lintWiki(
 		},
 		validate: async () => [],
 	});
-	if (autoFix && result.autoFixable.some((finding) => finding.code === 'index_drift')) result.fixed = 1;
+	if (autoFix && result.autoFixable.some((finding) => finding.code === 'index_drift'))
+		result.fixed = 1;
 	const now = new Date().toISOString();
 	const operation: WikiOperationRecord = {
 		id: operationId,
@@ -217,7 +303,9 @@ export async function lintWiki(
 		createdPages: 0,
 		updatedPages: result.fixed,
 		claimsAdded: 0,
-		contradictionsDetected: result.requiresReview.filter((finding) => finding.code === 'unresolved_contradiction').length,
+		contradictionsDetected: result.requiresReview.filter(
+			(finding) => finding.code === 'unresolved_contradiction'
+		).length,
 		validationErrors: result.critical.map((finding) => finding.message),
 		reviewStatus: result.requiresReview.length > 0 ? 'required' : 'not_required',
 	};

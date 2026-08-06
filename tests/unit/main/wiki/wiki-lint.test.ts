@@ -53,7 +53,9 @@ describe('wiki lint', () => {
 		expect(await readFile(path.join(target, 'index.md'), 'utf8')).toContain(
 			'[[concepts/example|Example]]'
 		);
-		expect(await readFile(path.join(target, 'log.md'), 'utf8')).toContain('lint | Wiki integrity check');
+		expect(await readFile(path.join(target, 'log.md'), 'utf8')).toContain(
+			'lint | Wiki integrity check'
+		);
 		expect(wikiManifestStore.store.pages['concept-example']).toMatchObject({
 			path: 'concepts/example.md',
 			pageType: 'concept',

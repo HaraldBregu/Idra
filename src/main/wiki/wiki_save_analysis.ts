@@ -24,8 +24,13 @@ export async function saveWikiAnalysis(
 	const title = input.title.trim();
 	const summary = input.summary.trim();
 	const content = input.content.trim();
-	if (!title || !summary || !content) throw new Error('Analysis title, summary, and content are required.');
-	if (/(?:api[_-]?key|access[_-]?token|client[_-]?secret|password)\s*[:=]\s*["']?[A-Za-z0-9_\-/.+=]{20,}/i.test(content)) {
+	if (!title || !summary || !content)
+		throw new Error('Analysis title, summary, and content are required.');
+	if (
+		/(?:api[_-]?key|access[_-]?token|client[_-]?secret|password)\s*[:=]\s*["']?[A-Za-z0-9_\-/.+=]{20,}/i.test(
+			content
+		)
+	) {
 		throw new Error('Refusing to save analysis containing credential-like content.');
 	}
 	const sourceIds = [...new Set(input.sourceIds)];
@@ -49,7 +54,9 @@ export async function saveWikiAnalysis(
 		.replace(/^-|-$/g, '')
 		.slice(0, 100);
 	const pagePath = existing?.path ?? `${directory}/${slug || 'analysis'}.md`;
-	const digest = createHash('sha256').update(`${pagePath}:${content}:${sourceIds.join(':')}`).digest('hex');
+	const digest = createHash('sha256')
+		.update(`${pagePath}:${content}:${sourceIds.join(':')}`)
+		.digest('hex');
 	const operationId = `operation-analysis-${digest.slice(0, 16)}`;
 	const firstRecord = records[0]!;
 	const source: WikiSource = {

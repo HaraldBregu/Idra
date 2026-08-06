@@ -23,7 +23,9 @@ describe('wiki transactions', () => {
 		).rejects.toThrow('forced validation failure');
 
 		expect(await readFile(path.join(target, 'index.md'), 'utf8')).toBe('# Original index\n');
-		await expect(readFile(path.join(target, 'partial.md'), 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+		await expect(readFile(path.join(target, 'partial.md'), 'utf8')).rejects.toMatchObject({
+			code: 'ENOENT',
+		});
 	});
 
 	it('replaces the complete wiki after successful validation', async () => {

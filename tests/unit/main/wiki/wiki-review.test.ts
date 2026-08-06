@@ -7,7 +7,10 @@ import { reviewWikiChange } from '../../../../src/main/wiki/wiki_review';
 import { saveWikiAnalysis } from '../../../../src/main/wiki/wiki_save_analysis';
 import { wikiReviewStore } from '../../../../src/main/wiki/wiki_review_store';
 import { wikiSourceStore } from '../../../../src/main/wiki/wiki_source_store';
-import { DEFAULT_WIKI_SETTINGS, wikiSettingsStore } from '../../../../src/main/wiki/wiki_settings_store';
+import {
+	DEFAULT_WIKI_SETTINGS,
+	wikiSettingsStore,
+} from '../../../../src/main/wiki/wiki_settings_store';
 import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
 
 const sourceA: WikiSource = {
@@ -89,14 +92,18 @@ describe('incremental wiki knowledge integration', () => {
 			{
 				id: 'claim-market-a',
 				statement: 'The market is 4.2 billion euros.',
-				evidence: [{ sourceId: sourceA.sourceId!, locator: 'Page 4', evidenceType: 'direct' as const }],
+				evidence: [
+					{ sourceId: sourceA.sourceId!, locator: 'Page 4', evidenceType: 'direct' as const },
+				],
 				confidence: 'medium' as const,
 				status: 'disputed' as const,
 			},
 			{
 				id: 'claim-market-b',
 				statement: 'The market is 6.1 billion euros.',
-				evidence: [{ sourceId: sourceB.sourceId!, locator: 'Page 8', evidenceType: 'direct' as const }],
+				evidence: [
+					{ sourceId: sourceB.sourceId!, locator: 'Page 8', evidenceType: 'direct' as const },
+				],
 				confidence: 'medium' as const,
 				status: 'disputed' as const,
 			},
@@ -209,14 +216,18 @@ describe('incremental wiki knowledge integration', () => {
 
 		expect(result).toMatchObject({ updatedPages: 0, pendingReviews: 1 });
 		expect(result.reviewItems?.[0]).toMatchObject({ risk: 'high', status: 'pending' });
-		expect(await readFile(path.join(target, 'syntheses/strategy.md'), 'utf8')).toContain(original.trim());
+		expect(await readFile(path.join(target, 'syntheses/strategy.md'), 'utf8')).toContain(
+			original.trim()
+		);
 	});
 
 	it('merges saved analyses into an existing page and keeps index and log synchronized', async () => {
 		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-save-'));
 		const target = path.join(root, 'data');
 		const archive = path.join(root, 'a.md');
-		await import('node:fs/promises').then(({ writeFile }) => writeFile(archive, 'Evidence A', 'utf8'));
+		await import('node:fs/promises').then(({ writeFile }) =>
+			writeFile(archive, 'Evidence A', 'utf8')
+		);
 		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, targetPath: target };
 		wikiSourceStore.store = {
 			version: 1,
@@ -252,16 +263,24 @@ describe('incremental wiki knowledge integration', () => {
 
 		expect(first).toMatchObject({ created: true, updated: false });
 		expect(second).toMatchObject({ created: false, updated: true, path: first.path });
-		expect(await readFile(path.join(target, first.path), 'utf8')).toContain('The second comparison');
+		expect(await readFile(path.join(target, first.path), 'utf8')).toContain(
+			'The second comparison'
+		);
 		expect(await readFile(path.join(target, 'index.md'), 'utf8')).toContain('Memory approaches');
-		expect((await readFile(path.join(target, 'log.md'), 'utf8')).match(/saved_query \| Memory approaches/g)).toHaveLength(2);
+		expect(
+			(await readFile(path.join(target, 'log.md'), 'utf8')).match(
+				/saved_query \| Memory approaches/g
+			)
+		).toHaveLength(2);
 	});
 
 	it('applies a queued major rewrite only after explicit review approval', async () => {
 		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-approve-'));
 		const target = path.join(root, 'data');
 		const archive = path.join(root, 'b.md');
-		await import('node:fs/promises').then(({ writeFile }) => writeFile(archive, 'Evidence B', 'utf8'));
+		await import('node:fs/promises').then(({ writeFile }) =>
+			writeFile(archive, 'Evidence B', 'utf8')
+		);
 		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, targetPath: target };
 		wikiSourceStore.store = {
 			version: 1,

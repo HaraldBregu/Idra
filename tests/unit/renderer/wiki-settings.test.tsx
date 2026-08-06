@@ -43,13 +43,8 @@ jest.mock('@/components/model-provider-select', () => {
 	return {
 		llmProviderGroups: () => [{ id: 'openai', models: [{ id: 'gpt-5', name: 'GPT-5' }] }],
 		resolveStoredModelProvider: () => ({ providerId: 'openai', modelId: 'gpt-5' }),
-		ModelProviderSelect: ({
-			providerId,
-			modelId,
-		}: {
-			providerId: string;
-			modelId: string;
-		}) => React.createElement('div', null, `${providerId}/${modelId}`),
+		ModelProviderSelect: ({ providerId, modelId }: { providerId: string; modelId: string }) =>
+			React.createElement('div', null, `${providerId}/${modelId}`),
 	};
 });
 

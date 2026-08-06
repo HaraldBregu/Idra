@@ -31,7 +31,10 @@ export async function collectWikiSources(root: string): Promise<WikiSource[]> {
 						: extension === '.csv'
 							? 'text/csv'
 							: 'text/plain',
-			createdAt: (sourceStat.birthtimeMs > 0 ? sourceStat.birthtime : sourceStat.mtime).toISOString(),
+			createdAt: (sourceStat.birthtimeMs > 0
+				? sourceStat.birthtime
+				: sourceStat.mtime
+			).toISOString(),
 		});
 	}
 

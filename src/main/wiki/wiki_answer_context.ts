@@ -4,11 +4,7 @@ import matter from 'gray-matter';
 import { getWikiSettings } from './wiki_get_settings';
 import { searchWiki } from './wiki_search';
 import { wikiSourceStore } from './wiki_source_store';
-import type {
-	WikiAnswerContext,
-	WikiContradiction,
-	WikiRawEvidenceResult,
-} from './wiki_types';
+import type { WikiAnswerContext, WikiContradiction, WikiRawEvidenceResult } from './wiki_types';
 import { incrementWikiMetric } from './wiki_metrics';
 
 export async function buildWikiAnswerContext(
@@ -23,11 +19,13 @@ export async function buildWikiAnswerContext(
 		const parsed = matter(await readFile(path.resolve(targetPath, page.path), 'utf8'));
 		if (Array.isArray(parsed.data.contradictions)) {
 			for (const contradiction of parsed.data.contradictions as WikiContradiction[]) {
-				if (!contradictions.some((item) => item.id === contradiction.id)) contradictions.push(contradiction);
+				if (!contradictions.some((item) => item.id === contradiction.id))
+					contradictions.push(contradiction);
 			}
 		}
 	}
-	const shouldReadRaw = includeRaw || compiledWiki.length === 0 || compiledWiki[0].confidence < 0.65;
+	const shouldReadRaw =
+		includeRaw || compiledWiki.length === 0 || compiledWiki[0].confidence < 0.65;
 	const primaryEvidence: WikiRawEvidenceResult[] = [];
 	if (shouldReadRaw) {
 		incrementWikiMetric('wiki_query_fallback_to_raw_total');

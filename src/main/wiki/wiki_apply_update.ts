@@ -31,7 +31,9 @@ export async function applyWikiUpdate(
 	for (const page of pages) {
 		const links = [
 			...page.content.matchAll(/\[\[([^\]|#]+)(?:\|[^\]]+)?\]\]/g),
-			...(page.related ?? []).map((link) => [link, link.replace(/^\[\[|\]\]$/g, '')] as RegExpMatchArray),
+			...(page.related ?? []).map(
+				(link) => [link, link.replace(/^\[\[|\]\]$/g, '')] as RegExpMatchArray
+			),
 		];
 		for (const link of links) {
 			const targetIndex = titleIndex.get(String(link[1]).trim().toLowerCase());
@@ -132,7 +134,8 @@ export async function applyWikiUpdate(
 				claimIds: [...new Set([...(stored?.claimIds ?? []), ...contradiction.claimIds])],
 				status:
 					options.allowContradictionResolution !== true &&
-					stored?.status === 'unresolved' && contradiction.status !== 'unresolved'
+					stored?.status === 'unresolved' &&
+					contradiction.status !== 'unresolved'
 						? 'unresolved'
 						: contradiction.status,
 			});
@@ -173,9 +176,10 @@ export async function applyWikiUpdate(
 			structured.push(
 				`## Key claims\n\n${[...claims.values()]
 					.map(
-						(claim) => `### ${claim.statement}\n\n**Evidence**\n${claim.evidence
-							.map((item) => `- \`${item.sourceId}\` — ${item.locator} (${item.evidenceType})`)
-							.join('\n')}\n\n**Confidence:** ${claim.confidence}\n\n**Status:** ${claim.status}`
+						(claim) =>
+							`### ${claim.statement}\n\n**Evidence**\n${claim.evidence
+								.map((item) => `- \`${item.sourceId}\` — ${item.locator} (${item.evidenceType})`)
+								.join('\n')}\n\n**Confidence:** ${claim.confidence}\n\n**Status:** ${claim.status}`
 					)
 					.join('\n\n')}`
 			);
@@ -187,13 +191,16 @@ export async function applyWikiUpdate(
 			structured.push(
 				`## Contradictions and uncertainty\n\n${[...contradictions.values()]
 					.map(
-						(item) => `### ${item.description}\n\n- Claims: ${item.claimIds.map((id) => `\`${id}\``).join(', ')}\n- Status: ${item.status}${item.requiredFollowUp ? `\n- Required follow-up: ${item.requiredFollowUp}` : ''}`
+						(item) =>
+							`### ${item.description}\n\n- Claims: ${item.claimIds.map((id) => `\`${id}\``).join(', ')}\n- Status: ${item.status}${item.requiredFollowUp ? `\n- Required follow-up: ${item.requiredFollowUp}` : ''}`
 					)
 					.join('\n\n')}`
 			);
 		}
 		if (openQuestions.length > 0) {
-			structured.push(`## Open questions\n\n${openQuestions.map((item) => `- ${item}`).join('\n')}`);
+			structured.push(
+				`## Open questions\n\n${openQuestions.map((item) => `- ${item}`).join('\n')}`
+			);
 		}
 		const previousHistory = Array.isArray(previous?.data.change_history)
 			? previous.data.change_history.map(String)
@@ -245,8 +252,6 @@ export async function applyWikiUpdate(
 		updatedPages,
 		...(claimsAdded > 0 ? { claimsAdded } : {}),
 		...(contradictionsDetected > 0 ? { contradictionsDetected } : {}),
-		...(reviewItems.length > 0
-			? { pendingReviews: reviewItems.length, reviewItems }
-			: {}),
+		...(reviewItems.length > 0 ? { pendingReviews: reviewItems.length, reviewItems } : {}),
 	};
 }

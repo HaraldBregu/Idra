@@ -27,11 +27,9 @@ export function normalizeWikiSettings(input: WikiSettingsInput): WikiSettings {
 	const targetFromSource = path.relative(sourcePath, targetPath);
 	const sourceFromTarget = path.relative(targetPath, sourcePath);
 	const targetNested =
-		!targetFromSource ||
-		(!targetFromSource.startsWith('..') && !path.isAbsolute(targetFromSource));
+		!targetFromSource || (!targetFromSource.startsWith('..') && !path.isAbsolute(targetFromSource));
 	const sourceNested =
-		!sourceFromTarget ||
-		(!sourceFromTarget.startsWith('..') && !path.isAbsolute(sourceFromTarget));
+		!sourceFromTarget || (!sourceFromTarget.startsWith('..') && !path.isAbsolute(sourceFromTarget));
 	if (targetNested || sourceNested) {
 		throw new Error('Wiki source and target folders must be separate, non-nested folders.');
 	}

@@ -1,6 +1,9 @@
 import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/policy/policy_types';
 import { getWikiTools } from '../../../../../src/main/wiki/tools';
-import { DEFAULT_WIKI_SETTINGS, wikiSettingsStore } from '../../../../../src/main/wiki/wiki_settings_store';
+import {
+	DEFAULT_WIKI_SETTINGS,
+	wikiSettingsStore,
+} from '../../../../../src/main/wiki/wiki_settings_store';
 
 describe('wiki tools', () => {
 	beforeEach(() => {

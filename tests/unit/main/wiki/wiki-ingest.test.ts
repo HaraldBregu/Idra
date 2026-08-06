@@ -34,7 +34,11 @@ describe('immutable wiki source registration', () => {
 
 	it('rejects credential-like sources before creating a registry record', async () => {
 		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-secret-'));
-		await writeFile(path.join(root, '.env'), 'API_KEY=secret-value-that-must-not-be-stored', 'utf8');
+		await writeFile(
+			path.join(root, '.env'),
+			'API_KEY=secret-value-that-must-not-be-stored',
+			'utf8'
+		);
 		const source = {
 			absolutePath: path.join(root, '.env'),
 			relativePath: '.env',
@@ -42,9 +46,9 @@ describe('immutable wiki source registration', () => {
 			hash: 'a'.repeat(64),
 		};
 
-		await expect(registerWikiSource(source, 'operation-secret', path.join(root, 'evidence'))).rejects.toThrow(
-			'credential-like file'
-		);
+		await expect(
+			registerWikiSource(source, 'operation-secret', path.join(root, 'evidence'))
+		).rejects.toThrow('credential-like file');
 		expect(wikiSourceStore.store.sources).toEqual({});
 	});
 });

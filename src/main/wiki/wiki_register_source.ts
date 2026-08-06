@@ -38,18 +38,21 @@ export async function registerWikiSource(
 
 	const bytes = await readFile(source.absolutePath);
 	const checksum = createHash('sha256').update(bytes).digest('hex');
-	if (checksum !== source.hash) throw new Error(`Source changed while it was being registered: ${source.relativePath}`);
+	if (checksum !== source.hash)
+		throw new Error(`Source changed while it was being registered: ${source.relativePath}`);
 	const originalName = path.basename(source.relativePath).replace(/[^a-zA-Z0-9._-]+/g, '-');
 	const archiveDirectory = path.resolve(evidenceRoot, sourceId);
 	const archivePath = path.resolve(archiveDirectory, originalName || 'source.txt');
 	await mkdir(archiveDirectory, { recursive: true });
-	await writeFile(archivePath, bytes, { flag: 'wx' }).catch(async (error: NodeJS.ErrnoException) => {
-		if (error.code !== 'EEXIST') throw error;
-		const archived = await readFile(archivePath);
-		if (createHash('sha256').update(archived).digest('hex') !== checksum) {
-			throw new Error(`Immutable source archive checksum mismatch: ${sourceId}`);
+	await writeFile(archivePath, bytes, { flag: 'wx' }).catch(
+		async (error: NodeJS.ErrnoException) => {
+			if (error.code !== 'EEXIST') throw error;
+			const archived = await readFile(archivePath);
+			if (createHash('sha256').update(archived).digest('hex') !== checksum) {
+				throw new Error(`Immutable source archive checksum mismatch: ${sourceId}`);
+			}
 		}
-	});
+	);
 	const now = new Date().toISOString();
 	const record = {
 		sourceId,

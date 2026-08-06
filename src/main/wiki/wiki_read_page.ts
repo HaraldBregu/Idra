@@ -11,7 +11,11 @@ export async function readWikiPage(
 	const requested = page.trim();
 	if (!requested) throw new Error('Wiki page identifier is required.');
 	const normalizedPath = path.posix.normalize(requested.replaceAll('\\', '/').replace(/^\.\//, ''));
-	if (path.posix.isAbsolute(normalizedPath) || normalizedPath === '..' || normalizedPath.startsWith('../')) {
+	if (
+		path.posix.isAbsolute(normalizedPath) ||
+		normalizedPath === '..' ||
+		normalizedPath.startsWith('../')
+	) {
 		throw new Error(`Unsafe wiki page identifier: ${page}`);
 	}
 	const entries = await readdir(targetPath, { recursive: true }).catch(() => []);
@@ -38,9 +42,7 @@ export async function readWikiPage(
 			title,
 			summary: String(parsed.data.summary ?? '').trim(),
 			confidence: 1,
-			sourceIds: Array.isArray(parsed.data.source_ids)
-				? parsed.data.source_ids.map(String)
-				: [],
+			sourceIds: Array.isArray(parsed.data.source_ids) ? parsed.data.source_ids.map(String) : [],
 			content: parsed.content,
 		};
 	}

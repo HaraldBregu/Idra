@@ -188,7 +188,9 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 					...wikiOperationStore.store,
 					operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
 				};
-				const failures = wikiFailureStore.store.operations.filter((item) => item.id !== operationId);
+				const failures = wikiFailureStore.store.operations.filter(
+					(item) => item.id !== operationId
+				);
 				wikiFailureStore.store = { version: 1, operations: [...failures, operation] };
 				const registry = wikiSourceStore.store;
 				registry.sources[registered.record.sourceId] = {

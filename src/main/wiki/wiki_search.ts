@@ -48,7 +48,9 @@ export async function searchWiki(
 		const link = relativePath.slice(0, -3).toLowerCase();
 		if (
 			indexLines.some(
-				(line) => line.includes(normalizedQuery) && (line.includes(`[[${link}|`) || line.includes(`[[${link}]]`))
+				(line) =>
+					line.includes(normalizedQuery) &&
+					(line.includes(`[[${link}|`) || line.includes(`[[${link}]]`))
 			)
 		) {
 			score = Math.max(score, 0.86);
@@ -63,8 +65,8 @@ export async function searchWiki(
 			sourceIds,
 			content: parsed.content.slice(0, 16_000),
 			aliases,
-			links: [...parsed.content.matchAll(/\[\[([^\]|#]+)(?:\|[^\]]+)?\]\]/g)].map(
-				(match) => match[1].trim().toLowerCase()
+			links: [...parsed.content.matchAll(/\[\[([^\]|#]+)(?:\|[^\]]+)?\]\]/g)].map((match) =>
+				match[1].trim().toLowerCase()
 			),
 			score,
 		});

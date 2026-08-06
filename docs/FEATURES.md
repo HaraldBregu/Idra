@@ -560,7 +560,7 @@ Friday stores configuration and working data below Electron's application-data d
 | Browser     | Persistent agent-browser profile.                                                                                                           |
 | Storage     | S3-compatible remote-storage credentials and sync configuration.                                                                            |
 | Diagnostics | Local rotating logs and crash dumps. Crash dumps are not uploaded by the current configuration.                                             |
-| Wiki        | Source inbox, immutable evidence snapshots, generated Markdown, source/page/operation registries, review queue, failures, and audit log.      |
+| Wiki        | Source inbox, immutable evidence snapshots, generated Markdown, source/page/operation registries, review queue, failures, and audit log.    |
 
 Secrets are masked in the renderer after saving, but provider keys, bot tokens, and MCP secrets are stored in ordinary local electron-store files rather than an encrypted credential vault. Anyone with access to the user's application-data files may be able to read them.
 

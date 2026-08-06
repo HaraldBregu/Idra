@@ -34,10 +34,20 @@ export async function validateWiki(targetPath: string): Promise<string[]> {
 			const parsed = matter(await readFile(path.resolve(targetPath, entry), 'utf8'));
 			const title = String(parsed.data.title ?? '').trim();
 			if (!title) errors.push(`Missing title: ${relativePath}`);
-			if (!String(parsed.data.summary ?? '').trim()) errors.push(`Missing summary: ${relativePath}`);
+			if (!String(parsed.data.summary ?? '').trim())
+				errors.push(`Missing summary: ${relativePath}`);
 			const generated = parsed.content.includes('<!-- wiki:structured -->');
 			if (generated) {
-				for (const key of ['id', 'page_type', 'status', 'created_at', 'updated_at', 'source_ids', 'confidence', 'review_status']) {
+				for (const key of [
+					'id',
+					'page_type',
+					'status',
+					'created_at',
+					'updated_at',
+					'source_ids',
+					'confidence',
+					'review_status',
+				]) {
 					if (parsed.data[key] === undefined) errors.push(`Missing ${key}: ${relativePath}`);
 				}
 			}
@@ -48,15 +58,19 @@ export async function validateWiki(targetPath: string): Promise<string[]> {
 				else ids.set(id, relativePath);
 			}
 			const pageType = String(parsed.data.page_type ?? '');
-			if (pageType && !PAGE_TYPES.has(pageType)) errors.push(`Invalid page type '${pageType}': ${relativePath}`);
+			if (pageType && !PAGE_TYPES.has(pageType))
+				errors.push(`Invalid page type '${pageType}': ${relativePath}`);
 			const sourceIds = parsed.data.source_ids;
 			if (sourceIds !== undefined && !Array.isArray(sourceIds)) {
 				errors.push(`Invalid source_ids metadata: ${relativePath}`);
 			}
-			const pageClaims = (Array.isArray(parsed.data.claims) ? parsed.data.claims : []) as WikiClaim[];
+			const pageClaims = (
+				Array.isArray(parsed.data.claims) ? parsed.data.claims : []
+			) as WikiClaim[];
 			const claimIds = new Set<string>();
 			for (const claim of pageClaims) {
-				if (!claim.id || claimIds.has(claim.id)) errors.push(`Duplicate or missing claim ID in ${relativePath}`);
+				if (!claim.id || claimIds.has(claim.id))
+					errors.push(`Duplicate or missing claim ID in ${relativePath}`);
 				claimIds.add(claim.id);
 				if (!claim.statement || !Array.isArray(claim.evidence) || claim.evidence.length === 0) {
 					errors.push(`Unsupported claim '${claim.id}' in ${relativePath}`);
@@ -72,7 +86,9 @@ export async function validateWiki(targetPath: string): Promise<string[]> {
 				? parsed.data.contradictions
 				: []) as WikiContradiction[]) {
 				if (contradiction.claimIds.some((claimId) => !claimIds.has(claimId))) {
-					errors.push(`Contradiction '${contradiction.id}' references a missing claim in ${relativePath}`);
+					errors.push(
+						`Contradiction '${contradiction.id}' references a missing claim in ${relativePath}`
+					);
 				}
 			}
 			pages.push({
@@ -83,7 +99,9 @@ export async function validateWiki(targetPath: string): Promise<string[]> {
 				data: parsed.data,
 			});
 		} catch (error) {
-			errors.push(`Invalid Markdown frontmatter in ${relativePath}: ${error instanceof Error ? error.message : String(error)}`);
+			errors.push(
+				`Invalid Markdown frontmatter in ${relativePath}: ${error instanceof Error ? error.message : String(error)}`
+			);
 		}
 	}
 	const lookup = new Set<string>();
@@ -103,7 +121,8 @@ export async function validateWiki(targetPath: string): Promise<string[]> {
 	}
 	const index = await readFile(path.resolve(targetPath, 'index.md'), 'utf8').catch(() => '');
 	for (const page of pages) {
-		if (!index.includes(`[[${page.path.slice(0, -3)}|`)) errors.push(`Index missing page: ${page.path}`);
+		if (!index.includes(`[[${page.path.slice(0, -3)}|`))
+			errors.push(`Index missing page: ${page.path}`);
 	}
 	return errors;
 }

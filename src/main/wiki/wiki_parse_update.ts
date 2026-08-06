@@ -47,7 +47,16 @@ const wikiUpdateSchema = z.object({
 				sourceIds: z.array(z.string().trim().min(1)).optional(),
 				id: z.string().trim().optional(),
 				pageType: z
-					.enum(['source', 'entity', 'concept', 'topic', 'project', 'comparison', 'synthesis', 'question'])
+					.enum([
+						'source',
+						'entity',
+						'concept',
+						'topic',
+						'project',
+						'comparison',
+						'synthesis',
+						'question',
+					])
 					.optional(),
 				status: z.enum(['active', 'draft', 'superseded']).optional(),
 				tags: z.array(z.string().trim().min(1)).optional(),
@@ -89,18 +98,16 @@ export function parseWikiUpdate(value: unknown, sourcePage: string): WikiUpdate 
 			related: [...new Set(page.related ?? [])],
 			claims: (page.claims ?? []).map((claim) => ({
 				...claim,
-				id:
-					/^claim-[a-z0-9-]+$/i.test(claim.id)
-						? claim.id.toLowerCase()
-						: `claim-${createHash('sha256').update(claim.statement.toLowerCase()).digest('hex').slice(0, 12)}`,
+				id: /^claim-[a-z0-9-]+$/i.test(claim.id)
+					? claim.id.toLowerCase()
+					: `claim-${createHash('sha256').update(claim.statement.toLowerCase()).digest('hex').slice(0, 12)}`,
 				contradicts: [...new Set(claim.contradicts ?? [])],
 			})),
 			contradictions: (page.contradictions ?? []).map((contradiction) => ({
 				...contradiction,
-				id:
-					/^contradiction-[a-z0-9-]+$/i.test(contradiction.id)
-						? contradiction.id.toLowerCase()
-						: `contradiction-${createHash('sha256').update(contradiction.claimIds.sort().join(':')).digest('hex').slice(0, 12)}`,
+				id: /^contradiction-[a-z0-9-]+$/i.test(contradiction.id)
+					? contradiction.id.toLowerCase()
+					: `contradiction-${createHash('sha256').update(contradiction.claimIds.sort().join(':')).digest('hex').slice(0, 12)}`,
 			})),
 			openQuestions: [...new Set(page.openQuestions ?? [])],
 		};

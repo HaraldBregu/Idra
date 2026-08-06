@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	AlertTriangle,
-	FolderOpen,
-	LoaderCircle,
-	Play,
-	Save,
-} from 'lucide-react';
+import { AlertTriangle, FolderOpen, LoaderCircle, Play, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -128,7 +122,11 @@ const WikiPage: React.FC = () => {
 							disabled={!settings || saving || running}
 							onClick={() => void handleSave()}
 						>
-							{saving ? <LoaderCircle className="size-3 animate-spin" /> : <Save className="size-3" />}
+							{saving ? (
+								<LoaderCircle className="size-3 animate-spin" />
+							) : (
+								<Save className="size-3" />
+							)}
 							{t('common.save')}
 						</Button>
 						<Button
@@ -137,7 +135,11 @@ const WikiPage: React.FC = () => {
 							disabled={!settings || settings.enabled === false || saving || running}
 							onClick={() => void handleRun()}
 						>
-							{running ? <LoaderCircle className="size-3 animate-spin" /> : <Play className="size-3" />}
+							{running ? (
+								<LoaderCircle className="size-3 animate-spin" />
+							) : (
+								<Play className="size-3" />
+							)}
 							{running ? t('settings.wiki.running') : t('settings.wiki.runNow')}
 						</Button>
 					</>
