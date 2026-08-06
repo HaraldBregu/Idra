@@ -212,7 +212,7 @@ it('saves a friendly automation schedule preset', async () => {
 
 	expect(await screen.findByRole('heading', { name: 'Automation' })).toBeInTheDocument();
 	const frequency = screen.getByRole('combobox', { name: 'Indexing frequency' });
-	expect(frequency).toHaveTextContent('Every 12 hours');
+	await waitFor(() => expect(frequency).toHaveTextContent('Every 12 hours'));
 
 	await user.click(frequency);
 	await user.click(await screen.findByRole('option', { name: 'Every 4 hours' }));
