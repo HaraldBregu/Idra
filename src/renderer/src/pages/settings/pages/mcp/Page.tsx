@@ -20,7 +20,6 @@ import { McpCard } from '../providers/McpCard';
 const McpPage = (): React.JSX.Element => {
 	const navigate = useNavigate();
 	const [registry, setRegistry] = useState<McpRegistry>({ servers: [], diagnostics: [] });
-	const [root, setRoot] = useState('');
 	const [loading, setLoading] = useState(true);
 	const [importing, setImporting] = useState(false);
 	const [error, setError] = useState('');
@@ -30,12 +29,7 @@ const McpPage = (): React.JSX.Element => {
 		setLoading(true);
 		setError('');
 		try {
-			const [nextRegistry, nextRoot] = await Promise.all([
-				window.mcp.registry(),
-				window.mcp.getRoot(),
-			]);
-			setRegistry(nextRegistry);
-			setRoot(nextRoot);
+			setRegistry(await window.mcp.registry());
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
 		} finally {
@@ -94,7 +88,7 @@ const McpPage = (): React.JSX.Element => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title="MCP"
+				title="MCP servers"
 				description="Manage remote services and local MCP server packages."
 				action={
 					<div className="flex flex-wrap items-center gap-2">
@@ -148,30 +142,25 @@ const McpPage = (): React.JSX.Element => {
 				</SettingsSection>
 			)}
 
-			<SettingsSection
-				title="MCP servers"
-				description={`Remote services, configured commands, and discovered packages in one list · ${root || '~/.friday/mcp/servers'}`}
-			>
-				<SettingsPanel>
-					{loading ? (
-						<SettingsLoadingRows rows={2} />
-					) : registry.servers.length === 0 ? (
-						<SettingsEmptyState
-							icon={PlugZap}
-							title="No MCP servers"
-							description="Add a server or upload a local package to make its tools available to Friday."
+			<SettingsPanel>
+				{loading ? (
+					<SettingsLoadingRows rows={2} />
+				) : registry.servers.length === 0 ? (
+					<SettingsEmptyState
+						icon={PlugZap}
+						title="No MCP servers"
+						description="Add a server or upload a local package to make its tools available to Friday."
+					/>
+				) : (
+					registry.servers.map((server) => (
+						<McpServerRow
+							key={server.id}
+							server={server}
+							onOpen={() => navigate(`/settings/providers/mcp/${encodeURIComponent(server.id)}`)}
 						/>
-					) : (
-						registry.servers.map((server) => (
-							<McpServerRow
-								key={server.id}
-								server={server}
-								onOpen={() => navigate(`/settings/providers/mcp/${encodeURIComponent(server.id)}`)}
-							/>
-						))
-					)}
-				</SettingsPanel>
-			</SettingsSection>
+					))
+				)}
+			</SettingsPanel>
 		</SettingsPageShell>
 	);
 };

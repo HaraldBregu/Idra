@@ -74,7 +74,9 @@ describe('MCP settings', () => {
 		expect(screen.getByText('Local files')).toBeInTheDocument();
 		expect(screen.getByText('https://mcp.test')).toBeInTheDocument();
 		expect(screen.getByText('node server.mjs')).toBeInTheDocument();
-		expect(screen.getByRole('heading', { name: 'MCP servers' })).toBeInTheDocument();
+		expect(screen.getAllByRole('heading', { name: 'MCP servers' })).toHaveLength(1);
+		expect(screen.queryByText(/Remote services, configured commands/)).not.toBeInTheDocument();
+		expect(mcpApi.getRoot).not.toHaveBeenCalled();
 		expect(screen.queryByRole('heading', { name: 'Remote servers' })).not.toBeInTheDocument();
 		expect(screen.queryByRole('heading', { name: 'Local servers' })).not.toBeInTheDocument();
 		expect(screen.queryByText('/home/user/.friday/mcp/servers/local')).not.toBeInTheDocument();
