@@ -3,7 +3,6 @@ import Store from 'electron-store';
 import cron from 'node-cron';
 import type { ResolvedProvider, StoredProvider, StoredProviderKind } from '../shared/provider_types';
 import type { StorageConfig, StorageConfiguration } from '../shared/storage_types';
-import type { DatabaseConfiguration } from '../shared/database_types';
 import { userDataLocation } from './shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
 import { loadStorages } from './models';
@@ -26,7 +25,9 @@ export type ModelSelection = {
 	modelId: string;
 };
 
-export type ModelsStoreState = Record<ModelKind, ModelSelection>;
+export type AppModelKind = Exclude<ModelKind, 'embedding'>;
+
+export type ModelsStoreState = Record<AppModelKind, ModelSelection>;
 
 const EMPTY_MODEL_SELECTION: ModelSelection = { providerId: '', modelId: '' };
 
@@ -38,7 +39,6 @@ const DEFAULT_MODEL_SELECTIONS: ModelsStoreState = {
 	voice: EMPTY_MODEL_SELECTION,
 	transcribe: EMPTY_MODEL_SELECTION,
 	realtime: EMPTY_MODEL_SELECTION,
-	embedding: EMPTY_MODEL_SELECTION,
 };
 
 export type AppSettingsState = {
@@ -46,7 +46,6 @@ export type AppSettingsState = {
 	keepAwake: boolean;
 	language: AppLanguage;
 	theme: AppTheme;
-	databaseConfiguration: Omit<DatabaseConfiguration, 'providers'>;
 	storageConfiguration: StorageConfiguration;
 	modelSelections: ModelsStoreState;
 };
@@ -68,7 +67,6 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	keepAwake: false,
 	language: 'en',
 	theme: 'system',
-	databaseConfiguration: { providerId: undefined, databaseId: undefined },
 	storageConfiguration: DEFAULT_STORAGE_CONFIGURATION,
 	modelSelections: DEFAULT_MODEL_SELECTIONS,
 };
@@ -81,6 +79,21 @@ const store = new Store<AppSettingsState>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_APP_SETTINGS,
 });
+
+type LegacyAppSettingsState = AppSettingsState & {
+	databaseConfiguration?: unknown;
+	modelSelections: ModelsStoreState & { embedding?: ModelSelection };
+};
+
+const persistedSettings = { ...store.store } as LegacyAppSettingsState;
+const persistedModelSelections = { ...persistedSettings.modelSelections };
+delete persistedSettings.databaseConfiguration;
+delete persistedModelSelections.embedding;
+store.store = {
+	...DEFAULT_APP_SETTINGS,
+	...persistedSettings,
+	modelSelections: { ...DEFAULT_MODEL_SELECTIONS, ...persistedModelSelections },
+};
 
 
 export const appSettingsStorePath = store.path;
@@ -133,14 +146,6 @@ export function getAppModelSelections(): ModelsStoreState {
 
 export function setAppModelSelections(value: ModelsStoreState): void {
 	store.set('modelSelections', value);
-}
-
-export function getAppDatabaseConfiguration(): Omit<DatabaseConfiguration, 'providers'> {
-	return store.get('databaseConfiguration');
-}
-
-export function setAppDatabaseConfiguration(value: Omit<DatabaseConfiguration, 'providers'>): void {
-	store.set('databaseConfiguration', value);
 }
 
 function readProviders(kind: StoredProviderKind): StoredProvider[] {
