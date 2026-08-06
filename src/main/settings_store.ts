@@ -104,9 +104,7 @@ const legacyDatabase = persistedSettings.databaseConfiguration;
 const legacyEmbedding = persistedModelSelections.embedding;
 if (legacyDatabase || legacyEmbedding) {
 	const configuration = getRagConfiguration();
-	const hasRagDatabase = Boolean(
-		configuration.databaseProviderId && configuration.databaseId
-	);
+	const hasRagDatabase = Boolean(configuration.databaseProviderId && configuration.databaseId);
 	const hasLegacyDatabase = Boolean(legacyDatabase?.providerId && legacyDatabase.databaseId);
 	const hasRagEmbedding = Boolean(
 		configuration.embeddingProviderId && configuration.embeddingModelId
