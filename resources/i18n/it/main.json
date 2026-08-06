@@ -197,7 +197,7 @@
 			"modelServices": "Servizi modello",
 			"channels": "Canali",
 			"connectors": "Connettori",
-			"mcp": "MCP",
+			"mcp": "Server MCP",
 			"bots": "Bot",
 			"workspace": "Area di Lavoro",
 			"providers": "Provider",
