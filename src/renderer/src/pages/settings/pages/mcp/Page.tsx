@@ -13,7 +13,7 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../components';
-import { McpServerDialog } from './components/McpServerDialog';
+import { McpServerForm } from './components/McpServerForm';
 import { McpServerRow } from './components/McpServerRow';
 import { McpCard } from '../providers/McpCard';
 
@@ -22,6 +22,7 @@ const McpPage = (): React.JSX.Element => {
 	const [registry, setRegistry] = useState<McpRegistry>({ servers: [], diagnostics: [] });
 	const [loading, setLoading] = useState(true);
 	const [importing, setImporting] = useState(false);
+	const [addingServer, setAddingServer] = useState(false);
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
 
@@ -109,15 +110,14 @@ const McpPage = (): React.JSX.Element => {
 							<Upload className="size-3" />
 							{importing ? 'Uploading' : 'Upload'}
 						</Button>
-						<McpServerDialog
-							trigger={
-								<Button size="xs">
-									<Plus className="size-3" />
-									Add server
-								</Button>
-							}
-							onSubmit={save}
-						/>
+						<Button
+							size="xs"
+							disabled={addingServer}
+							onClick={() => setAddingServer(true)}
+						>
+							<Plus className="size-3" />
+							Add server
+						</Button>
 					</div>
 				}
 			/>
@@ -133,6 +133,22 @@ const McpPage = (): React.JSX.Element => {
 					{diagnostic.name}: {diagnostic.error}
 				</SettingsNotice>
 			))}
+
+			{addingServer && (
+				<SettingsSection title="Add MCP server">
+					<SettingsPanel>
+						<div className="p-3">
+							<McpServerForm
+								onSubmit={async (id, entry) => {
+									await save(id, entry);
+									setAddingServer(false);
+								}}
+								onCancel={() => setAddingServer(false)}
+							/>
+						</div>
+					</SettingsPanel>
+				</SettingsSection>
+			)}
 
 			{catalog.length > 0 && (
 				<SettingsSection

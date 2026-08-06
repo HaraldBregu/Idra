@@ -92,6 +92,27 @@ describe('MCP settings', () => {
 		expect(await screen.findByText('Detail: local')).toBeInTheDocument();
 	});
 
+	it('adds a server from an inline form', async () => {
+		const user = userEvent.setup();
+		renderPage();
+		await screen.findByText('Local files');
+
+		await user.click(screen.getByRole('button', { name: 'Add server' }));
+		expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+		expect(screen.getByRole('heading', { name: 'Add MCP server' })).toBeInTheDocument();
+		await user.type(screen.getByLabelText('ID'), 'docs');
+		await user.type(screen.getByLabelText('Server URL'), 'https://docs.test/mcp');
+		await user.click(screen.getByRole('button', { name: 'Add MCP server' }));
+
+		await waitFor(() =>
+			expect(mcpApi.upsert).toHaveBeenCalledWith(
+				'docs',
+				expect.objectContaining({ type: 'http', url: 'https://docs.test/mcp' })
+			)
+		);
+		expect(screen.queryByRole('heading', { name: 'Add MCP server' })).not.toBeInTheDocument();
+	});
+
 	it('uploads local packages and refreshes the unified registry', async () => {
 		const user = userEvent.setup();
 		renderPage();
