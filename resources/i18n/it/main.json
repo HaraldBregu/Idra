@@ -147,9 +147,6 @@
 			"searchCardLabel": "Apri il menu comandi con {{shortcut}}",
 			"searchTitle": "Usa la ricerca come livello rapido",
 			"searchDescription": "Mantieni le sezioni semplici. Metti le pagine meno comuni nella palette comandi.",
-			"labels": {
-				"backgroundTasks": "Attività in background"
-			},
 			"groups": {
 				"app": "App",
 				"agent": "Agente",
@@ -215,7 +212,7 @@
 			"system": "Sistema",
 			"themes": "Temi",
 			"editor": "Editor",
-			"taskScheduler": "Attivita",
+			"taskScheduler": "Attività in background",
 			"heartbeat": "Heartbeat",
 			"health": "Health",
 			"policies": "Politiche",

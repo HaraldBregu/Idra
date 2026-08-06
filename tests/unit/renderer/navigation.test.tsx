@@ -26,6 +26,7 @@ beforeEach(() => {
 it.each([
 	['/settings/knowledge-base', 'settings.rag.title'],
 	['/settings/llm-wiki', 'settings.wiki.title'],
+	['/settings/tasks', 'settings.tabs.taskScheduler'],
 ])('uses the canonical %s route and breadcrumb', (path, labelKey) => {
 	expect(SETTINGS_NAVIGATION).toContainEqual(expect.objectContaining({ path, labelKey }));
 

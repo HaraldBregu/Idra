@@ -74,8 +74,7 @@ function SettingsOverviewCard({
 	const navigate = useNavigate();
 	const unavailable = disabled || ('comingSoon' in item && item.comingSoon === true);
 	const isWiki = item.path === '/settings/llm-wiki';
-	const labelKey =
-		item.path === '/settings/tasks' ? 'settings.overview.labels.backgroundTasks' : item.labelKey;
+	const labelKey = item.labelKey;
 	const handleActivate = (): void => {
 		if (unavailable) return;
 		navigate(item.path);

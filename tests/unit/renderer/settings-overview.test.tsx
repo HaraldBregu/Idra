@@ -74,14 +74,14 @@ it('uses the Knowledge Base title on the overview', () => {
 	);
 });
 
-it('uses the Background tasks title on the overview', () => {
+it('uses the Background tasks label on the overview', () => {
 	render(
 		<MemoryRouter initialEntries={['/settings']}>
 			<OverviewPage />
 		</MemoryRouter>
 	);
 
-	expect(
-		screen.getByRole('button', { name: /settings\.overview\.labels\.backgroundTasks/ })
-	).toHaveTextContent('settings.overview.labels.backgroundTasks');
+	expect(screen.getByRole('button', { name: /settings\.tabs\.taskScheduler/ })).toHaveTextContent(
+		'settings.tabs.taskScheduler'
+	);
 });
