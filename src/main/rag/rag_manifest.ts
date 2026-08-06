@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { userDataLocation } from '../shared/user_data_location';
+import { ragLocation } from './rag_location';
 
 export interface RagManifest {
 	indexName?: string;
@@ -9,9 +9,8 @@ export interface RagManifest {
 	dimensions: number;
 }
 
-// ponytail: sibling of the rag folder, not inside it, so indexing never reads it back as a document.
 function manifestPath(): string {
-	return path.join(userDataLocation(), 'rag.json');
+	return path.join(ragLocation(), 'index.json');
 }
 
 export function readRagManifest(): RagManifest | undefined {
