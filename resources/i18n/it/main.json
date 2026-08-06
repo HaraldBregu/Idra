@@ -147,6 +147,9 @@
 			"searchCardLabel": "Apri il menu comandi con {{shortcut}}",
 			"searchTitle": "Usa la ricerca come livello rapido",
 			"searchDescription": "Mantieni le sezioni semplici. Metti le pagine meno comuni nella palette comandi.",
+			"labels": {
+				"backgroundTasks": "Attività in background"
+			},
 			"groups": {
 				"app": "App",
 				"agent": "Agente",

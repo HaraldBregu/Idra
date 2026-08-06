@@ -79,7 +79,9 @@ function SettingsOverviewCard({
 			? 'settings.rag.title'
 			: isWiki
 				? 'settings.wiki.title'
-				: item.labelKey;
+				: item.path === '/settings/tasks'
+					? 'settings.overview.labels.backgroundTasks'
+					: item.labelKey;
 	const handleActivate = (): void => {
 		if (unavailable) return;
 		navigate(item.path);

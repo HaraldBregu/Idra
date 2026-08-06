@@ -73,3 +73,15 @@ it('uses the Knowledge Base title on the overview', () => {
 		'settings.rag.title'
 	);
 });
+
+it('uses the Background tasks title on the overview', () => {
+	render(
+		<MemoryRouter initialEntries={['/settings']}>
+			<OverviewPage />
+		</MemoryRouter>
+	);
+
+	expect(
+		screen.getByRole('button', { name: /settings\.overview\.labels\.backgroundTasks/ })
+	).toHaveTextContent('settings.overview.labels.backgroundTasks');
+});

@@ -147,6 +147,9 @@
 			"searchCardLabel": "Open command menu with {{shortcut}}",
 			"searchTitle": "Use search as a power layer",
 			"searchDescription": "Keep sections simple. Put obscure pages in the command palette.",
+			"labels": {
+				"backgroundTasks": "Background tasks"
+			},
 			"groups": {
 				"app": "App",
 				"agent": "Agent",
