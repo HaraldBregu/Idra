@@ -1,5 +1,5 @@
 import { Bot, GrammyError, HttpError } from 'grammy';
-import { sendDurableMessageBatch } from './channels_batch';
+import { sendDurableMessageBatch } from '../channels_batch';
 import type {
 	ChannelAdapter,
 	ChannelChatType,
@@ -9,7 +9,8 @@ import type {
 	ChannelOutboundMessage,
 	ChannelStatusHandler,
 	ChannelStatusUpdate,
-} from './channels_types';
+} from '../channels_types';
+import { registerVoiceHandler } from './voice';
 
 export interface TelegramAdapterOptions {
 	token: string;
@@ -37,6 +38,7 @@ export function createTelegramAdapter(options: TelegramAdapterOptions): ChannelA
 
 	function createBot(): Bot {
 		const next = new Bot(token);
+		registerVoiceHandler(next);
 		registerTextHandler(next, accountId, (message) => {
 			if (seenMessages.has(message.idempotencyKey)) return;
 			seenMessages.add(message.idempotencyKey);

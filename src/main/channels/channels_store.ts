@@ -1,10 +1,21 @@
+import path from 'node:path';
+import Store from 'electron-store';
 import type { StoredBotProvider } from '../../shared';
-import { getChannelProvidersState, setChannelProvidersState } from '../providers/providers_index';
+import { userDataLocation } from '../shared/user_data_location';
 
 export type ChannelsStoreState = { readonly providers: StoredBotProvider[] };
 
+const store = new Store<ChannelsStoreState>({
+	name: 'channels',
+	cwd: path.resolve(userDataLocation(), 'settings'),
+	accessPropertiesByDotNotation: false,
+	defaults: { providers: [] },
+});
+
+export const channelsStorePath = store.path;
+
 export function listChannelProviders(): StoredBotProvider[] {
-	return getChannelProvidersState();
+	return store.get('providers');
 }
 
 export function getChannelProvider(id: string): StoredBotProvider | undefined {
@@ -16,6 +27,6 @@ export function setChannelProvider(provider: StoredBotProvider): StoredBotProvid
 	const index = providers.findIndex((entry) => entry.id === provider.id);
 	if (index === -1) providers.push(provider);
 	else providers[index] = provider;
-	setChannelProvidersState(providers);
+	store.set('providers', providers);
 	return provider;
 }

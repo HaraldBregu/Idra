@@ -1,7 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
-import type { StoredBotProvider } from '../../shared/channels_types';
 import type { StoredProvider } from '../../shared/provider_types';
 import type { McpRecord } from '../mcp/mcp_types';
 import type { ProvidersStoreState } from './providers_types';
@@ -11,7 +10,6 @@ const defaults: ProvidersStoreState = {
 	databases: [],
 	search_engines: [],
 	storages: [],
-	channels: [],
 	mcp_servers: [],
 };
 
@@ -54,14 +52,6 @@ export function getStorageProvidersState(): ProvidersStoreState['storages'] {
 
 export function setStorageProvidersState(value: ProvidersStoreState['storages']): void {
 	store.set('storages', value);
-}
-
-export function getChannelProvidersState(): StoredBotProvider[] {
-	return store.get('channels');
-}
-
-export function setChannelProvidersState(value: StoredBotProvider[]): void {
-	store.set('channels', value);
 }
 
 export function getMcpServersState(): McpRecord[] {

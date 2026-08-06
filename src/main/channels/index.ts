@@ -20,5 +20,5 @@ export type {
 	ChannelStatusHandler,
 	ChannelStatusUpdate,
 } from './channels_types';
-export type { TelegramAdapterOptions } from './channels_telegram';
-export type { DiscordAdapterOptions } from './channels_discord';
+export type { TelegramAdapterOptions } from './adapters/telegram';
+export type { DiscordAdapterOptions } from './adapters/discord';

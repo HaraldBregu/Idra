@@ -43,10 +43,10 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 
 	async function createAdapter(channel: ChannelType, token: string): Promise<ChannelAdapter> {
 		if (channel === 'telegram') {
-			const { createTelegramAdapter } = await import('./channels_telegram');
+			const { createTelegramAdapter } = await import('./adapters/telegram');
 			return createTelegramAdapter({ token });
 		}
-		const { createDiscordAdapter } = await import('./channels_discord');
+		const { createDiscordAdapter } = await import('./adapters/discord');
 		return createDiscordAdapter({ token });
 	}
 

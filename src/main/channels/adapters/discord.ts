@@ -1,5 +1,5 @@
 import { Client, Events, GatewayIntentBits, Partials, type Message } from 'discord.js';
-import { sendDurableMessageBatch } from './channels_batch';
+import { sendDurableMessageBatch } from '../channels_batch';
 import type {
 	ChannelAdapter,
 	ChannelChatType,
@@ -9,7 +9,7 @@ import type {
 	ChannelOutboundMessage,
 	ChannelStatusHandler,
 	ChannelStatusUpdate,
-} from './channels_types';
+} from '../channels_types';
 
 export interface DiscordAdapterOptions {
 	token: string;

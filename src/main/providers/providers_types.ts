@@ -1,4 +1,3 @@
-import type { StoredBotProvider } from '../../shared/channels_types';
 import type { StoredProvider } from '../../shared/provider_types';
 import type { StorageConfig } from '../../shared/storage_types';
 import type { McpRecord } from '../mcp/mcp_types';
@@ -13,6 +12,5 @@ export type ProvidersStoreState = {
 	databases: StoredProvider[];
 	search_engines: StoredProvider[];
 	storages: StoredStorage[];
-	channels: StoredBotProvider[];
 	mcp_servers: McpRecord[];
 };
