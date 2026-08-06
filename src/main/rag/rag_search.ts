@@ -9,11 +9,7 @@ export interface RagMatch {
 	score: number;
 }
 
-export async function searchRag(
-	query: string,
-	indexName: string,
-	topK = 5
-): Promise<RagMatch[]> {
+export async function searchRag(query: string, indexName: string, topK = 5): Promise<RagMatch[]> {
 	const manifest = readRagManifest();
 	if (!manifest) throw new Error('Index the rag folder before searching.');
 	if ((manifest.indexName ?? DEFAULT_RAG_INDEX_NAME) !== indexName) {

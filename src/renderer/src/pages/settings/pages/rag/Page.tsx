@@ -362,9 +362,7 @@ const RagPage: React.FC = () => {
 										indexName: event.target.value,
 									})
 								}
-								onBlur={() =>
-									ragConfiguration && void saveRagConfiguration(ragConfiguration)
-								}
+								onBlur={() => ragConfiguration && void saveRagConfiguration(ragConfiguration)}
 							/>
 						</SettingsField>
 						<p className="text-[11px] leading-4 text-muted-foreground">
