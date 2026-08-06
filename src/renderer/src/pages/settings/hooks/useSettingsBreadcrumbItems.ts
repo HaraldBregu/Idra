@@ -21,6 +21,12 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	const location = useLocation();
 
 	if (location.pathname === '/settings') return [];
+	if (location.pathname === '/settings/cloud/object-storage') {
+		return [
+			{ label: t('settings.tabs.cloud'), path: '/settings/cloud' },
+			{ label: t('settings.storage.configurationTitle') },
+		];
+	}
 
 	const assistantSubpageLabelKey = ASSISTANT_SUBPAGE_LABEL_KEYS[location.pathname];
 	if (assistantSubpageLabelKey) {

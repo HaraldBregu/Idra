@@ -944,7 +944,7 @@
 			}
 		},
 		"storage": {
-			"configurationTitle": "Configurazione Object Storage",
+			"configurationTitle": "Configurazione archiviazione oggetti",
 			"description": "Configura uno o più provider di archiviazione compatibili con S3 per i tuoi file.",
 			"profile": {
 				"title": "Profilo di archiviazione",

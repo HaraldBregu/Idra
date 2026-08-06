@@ -21,7 +21,7 @@ it('opens object storage configuration from the Cloud page', async () => {
 		<MemoryRouter initialEntries={['/settings/cloud']}>
 			<Routes>
 				<Route path="/settings/cloud" element={<CloudPage />} />
-				<Route path="/settings/cloud/storage" element={<p>Storage route</p>} />
+				<Route path="/settings/cloud/object-storage" element={<p>Storage route</p>} />
 			</Routes>
 		</MemoryRouter>
 	);

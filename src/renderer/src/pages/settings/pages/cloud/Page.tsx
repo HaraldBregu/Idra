@@ -19,7 +19,7 @@ const CloudPage: React.FC = () => {
 				<Item
 					as="button"
 					type="button"
-					onClick={() => navigate('/settings/cloud/storage')}
+					onClick={() => navigate('/settings/cloud/object-storage')}
 					variant="outline"
 					size="md"
 					className="grid cursor-pointer grid-cols-[2rem_minmax(0,1fr)_auto] items-center text-left hover:bg-muted/50"

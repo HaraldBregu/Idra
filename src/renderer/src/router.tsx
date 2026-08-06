@@ -192,7 +192,7 @@ const routes: RouteObject[] = [
 								),
 							},
 							{
-								path: 'storage',
+								path: 'object-storage',
 								element: (
 									<SettingsRouteWrapper>
 										<StoragePage />
