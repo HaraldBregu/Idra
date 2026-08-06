@@ -1425,11 +1425,19 @@
 			"openOutput": "Open folder",
 			"runNow": "Run now",
 			"running": "Generating...",
+			"cancelling": "Cancelling...",
+			"progress": {
+				"preparing": "Preparing {{current}} of {{total}} · {{source}}",
+				"generating": "Generating {{current}} of {{total}} · {{source}}",
+				"writing": "Saving {{current}} of {{total}} · {{source}}",
+				"cancelling": "Cancelling {{current}} of {{total}} · {{source}}"
+			},
 			"saved": "Wiki settings saved.",
 			"runResult": "Processed {{processed}} sources, skipped {{skipped}}, created {{created}} pages and updated {{updated}}.",
 			"loadError": "Unable to load wiki settings.",
 			"saveError": "Unable to save wiki settings.",
-			"runError": "Unable to generate the wiki."
+			"runError": "Unable to generate the wiki.",
+			"cancelError": "Unable to cancel wiki generation."
 		},
 		"vectorDb": {
 			"description": "Vector database used by RAG to store and search embeddings.",

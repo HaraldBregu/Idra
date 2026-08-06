@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, FolderOpen, LoaderCircle, Play, Save } from 'lucide-react';
+import { AlertTriangle, FolderOpen, LoaderCircle, Play, Save, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
@@ -31,9 +31,11 @@ const WikiPage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [running, setRunning] = useState(false);
+	const [cancelling, setCancelling] = useState(false);
 	const [saved, setSaved] = useState(false);
 	const [result, setResult] = useState<WikiRunResult | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const cancelRequested = useRef(false);
 
 	useEffect(() => {
 		let mounted = true;
@@ -47,6 +49,7 @@ const WikiPage: React.FC = () => {
 				);
 				setSettings({ ...stored, ...selection });
 				setStatus(currentStatus);
+				setRunning(currentStatus.running);
 			})
 			.catch((loadError: unknown) => {
 				if (mounted) {
@@ -60,6 +63,28 @@ const WikiPage: React.FC = () => {
 			mounted = false;
 		};
 	}, [t]);
+
+	useEffect(() => {
+		if (!running) return;
+		let mounted = true;
+		const refreshStatus = async (): Promise<void> => {
+			const next = await window.wiki.getStatus();
+			if (!mounted) return;
+			setStatus(next);
+			if (!next.running) {
+				setRunning(false);
+				setCancelling(false);
+			}
+		};
+		void refreshStatus().catch(() => undefined);
+		const interval = window.setInterval(() => {
+			void refreshStatus().catch(() => undefined);
+		}, 750);
+		return () => {
+			mounted = false;
+			window.clearInterval(interval);
+		};
+	}, [running]);
 
 	const handleSave = async (): Promise<WikiSettings | undefined> => {
 		if (!settings) return undefined;
@@ -81,6 +106,8 @@ const WikiPage: React.FC = () => {
 	};
 
 	const handleRun = async (): Promise<void> => {
+		cancelRequested.current = false;
+		setCancelling(false);
 		setRunning(true);
 		setResult(null);
 		setError(null);
@@ -90,9 +117,31 @@ const WikiPage: React.FC = () => {
 			setResult(next);
 			setStatus(await window.wiki.getStatus());
 		} catch (runError) {
-			setError(runError instanceof Error ? runError.message : t('settings.wiki.runError'));
+			if (!cancelRequested.current) {
+				setError(runError instanceof Error ? runError.message : t('settings.wiki.runError'));
+			}
 		} finally {
 			setRunning(false);
+			setCancelling(false);
+		}
+	};
+
+	const handleCancel = async (): Promise<void> => {
+		cancelRequested.current = true;
+		setCancelling(true);
+		try {
+			const accepted = await window.wiki.cancel();
+			if (!accepted) {
+				setRunning(false);
+				setCancelling(false);
+				setStatus(await window.wiki.getStatus());
+			}
+		} catch (cancelError) {
+			cancelRequested.current = false;
+			setCancelling(false);
+			setError(
+				cancelError instanceof Error ? cancelError.message : t('settings.wiki.cancelError')
+			);
 		}
 	};
 
@@ -131,19 +180,32 @@ const WikiPage: React.FC = () => {
 							)}
 							{t('common.save')}
 						</Button>
-						<Button
-							type="button"
-							size="sm"
-							disabled={!settings || settings.enabled === false || saving || running}
-							onClick={() => void handleRun()}
-						>
-							{running ? (
-								<LoaderCircle className="size-3 animate-spin" />
-							) : (
+						{running ? (
+							<Button
+								type="button"
+								size="sm"
+								variant="destructive"
+								disabled={cancelling}
+								onClick={() => void handleCancel()}
+							>
+								{cancelling ? (
+									<LoaderCircle className="size-3 animate-spin" />
+								) : (
+									<Square className="size-3" />
+								)}
+								{cancelling ? t('settings.wiki.cancelling') : t('common.cancel')}
+							</Button>
+						) : (
+							<Button
+								type="button"
+								size="sm"
+								disabled={!settings || settings.enabled === false || saving}
+								onClick={() => void handleRun()}
+							>
 								<Play className="size-3" />
-							)}
-							{running ? t('settings.wiki.running') : t('settings.wiki.runNow')}
-						</Button>
+								{t('settings.wiki.runNow')}
+							</Button>
+						)}
 					</>
 				}
 			/>
@@ -151,6 +213,15 @@ const WikiPage: React.FC = () => {
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
+				</SettingsNotice>
+			)}
+			{running && status?.progress && (
+				<SettingsNotice>
+					{t(`settings.wiki.progress.${status.progress.phase}`, {
+						current: status.progress.currentSource,
+						total: status.progress.totalSources,
+						source: status.progress.source,
+					})}
 				</SettingsNotice>
 			)}
 			{saved && <SettingsNotice>{t('settings.wiki.saved')}</SettingsNotice>}

@@ -5,6 +5,7 @@ import WikiPage from '../../../src/renderer/src/pages/settings/pages/wiki/Page';
 jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
 		'common.save': 'Save',
+		'common.cancel': 'Cancel',
 		'settings.tabs.wiki': 'Wiki',
 		'settings.wiki.description': 'Persistent Markdown wiki',
 		'settings.wiki.behaviorTitle': 'Wiki behavior',
@@ -26,6 +27,8 @@ jest.mock('react-i18next', () => {
 		'settings.wiki.scheduleEnabled': 'Scheduled generation',
 		'settings.wiki.cronExpression': 'Cron expression',
 		'settings.wiki.runNow': 'Run now',
+		'settings.wiki.cancelling': 'Cancelling...',
+		'settings.wiki.progress.generating': 'Generating {{current}} of {{total}} · {{source}}',
 		'settings.wiki.saved': 'Wiki settings saved.',
 		'settings.wiki.runResult':
 			'Processed {{processed}}, skipped {{skipped}}, created {{created}}, updated {{updated}}.',
@@ -66,6 +69,7 @@ const wikiApi = {
 	getStatus: jest.fn(),
 	saveSettings: jest.fn(),
 	run: jest.fn(),
+	cancel: jest.fn(),
 	pickDirectory: jest.fn(),
 	openDirectory: jest.fn(),
 };
@@ -88,6 +92,7 @@ beforeEach(() => {
 		updatedPages: 4,
 		completedAt: '2026-07-28T12:00:00.000Z',
 	});
+	wikiApi.cancel.mockResolvedValue(true);
 	wikiApi.pickDirectory.mockResolvedValue('/chosen/raw');
 	wikiApi.openDirectory.mockResolvedValue(undefined);
 });
@@ -126,5 +131,26 @@ describe('Wiki settings', () => {
 		expect(
 			await screen.findByText('Processed 1, skipped 2, created 3, updated 4.')
 		).toBeInTheDocument();
+	});
+
+	it('shows live source progress and cancels an active run', async () => {
+		const user = userEvent.setup();
+		wikiApi.getStatus.mockResolvedValue({
+			running: true,
+			settingsPath: '/settings/wiki.json',
+			progress: {
+				phase: 'generating',
+				currentSource: 2,
+				totalSources: 10,
+				source: 'luna.md',
+				startedAt: '2026-08-06T12:00:00.000Z',
+			},
+		});
+
+		render(<WikiPage />);
+
+		expect(await screen.findByText('Generating 2 of 10 · luna.md')).toBeInTheDocument();
+		await user.click(screen.getByRole('button', { name: 'Cancel' }));
+		await waitFor(() => expect(wikiApi.cancel).toHaveBeenCalled());
 	});
 });

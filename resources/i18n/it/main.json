@@ -1424,11 +1424,19 @@
 			"openOutput": "Apri cartella",
 			"runNow": "Esegui ora",
 			"running": "Generazione...",
+			"cancelling": "Annullamento...",
+			"progress": {
+				"preparing": "Preparazione {{current}} di {{total}} · {{source}}",
+				"generating": "Generazione {{current}} di {{total}} · {{source}}",
+				"writing": "Salvataggio {{current}} di {{total}} · {{source}}",
+				"cancelling": "Annullamento {{current}} di {{total}} · {{source}}"
+			},
 			"saved": "Impostazioni Wiki salvate.",
 			"runResult": "Elaborate {{processed}} fonti, saltate {{skipped}}, create {{created}} pagine e aggiornate {{updated}}.",
 			"loadError": "Impossibile caricare le impostazioni Wiki.",
 			"saveError": "Impossibile salvare le impostazioni Wiki.",
-			"runError": "Impossibile generare la Wiki."
+			"runError": "Impossibile generare la Wiki.",
+			"cancelError": "Impossibile annullare la generazione della Wiki."
 		},
 		"vectorDb": {
 			"description": "Database vettoriale usato dal RAG per salvare e cercare gli embedding.",
