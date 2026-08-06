@@ -10,13 +10,7 @@ import {
 	Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -224,23 +218,23 @@ const RagPage: React.FC = () => {
 										title={t('settings.vectorDb.database')}
 										description={t('settings.vectorDb.databaseDescription')}
 										actions={
-									<Select
-										value={selectedDatabase ? databaseKey(selectedDatabase) : null}
-										onValueChange={(value) => void selectDatabase(value)}
-									>
-										<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-											<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
-												{selectedDatabase && databaseLabel(selectedDatabase)}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											{databases.map((entry) => (
-												<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
-													{databaseLabel(entry)}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
+											<Select
+												value={selectedDatabase ? databaseKey(selectedDatabase) : null}
+												onValueChange={(value) => void selectDatabase(value)}
+											>
+												<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+													<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
+														{selectedDatabase && databaseLabel(selectedDatabase)}
+													</SelectValue>
+												</SelectTrigger>
+												<SelectContent>
+													{databases.map((entry) => (
+														<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
+															{databaseLabel(entry)}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
 										}
 									/>
 								</CardContent>
