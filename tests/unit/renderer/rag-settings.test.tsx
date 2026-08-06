@@ -9,7 +9,10 @@ jest.mock('react-i18next', () => {
 		'settings.rag.embeddingModelTitle': 'Embedding model',
 		'settings.rag.embeddingModelDescription':
 			'Model used to embed RAG documents for vector search.',
-		'settings.rag.documentsTitle': 'Documents',
+		'settings.rag.configurationTitle': 'Configuration',
+		'settings.rag.indexName': 'Index name',
+		'settings.rag.indexNameDescription': 'Pinecone index.',
+		'settings.rag.indexNamePlaceholder': 'friday',
 		'settings.rag.documentsDescription': 'Documents to index.',
 		'settings.rag.sourcePlaceholder': 'Choose source folders',
 		'settings.rag.pickFolder': 'Choose folder',
@@ -55,6 +58,7 @@ const databaseApi = {
 
 const agentApi = {
 	ragGetConfiguration: jest.fn(),
+	ragSaveConfiguration: jest.fn(),
 };
 
 const embeddingApi = {
@@ -81,10 +85,12 @@ beforeEach(() => {
 		providers: [],
 	});
 	agentApi.ragGetConfiguration.mockResolvedValue({
+		indexName: 'friday',
 		folders: [],
 		scheduleEnabled: false,
 		cronExpression: '0 3 * * *',
 	});
+	agentApi.ragSaveConfiguration.mockImplementation(async (configuration) => configuration);
 	embeddingApi.getProviderId.mockResolvedValue('openai');
 	embeddingApi.getModelId.mockResolvedValue('text-embedding-3-small');
 	embeddingApi.setProviderId.mockResolvedValue(undefined);
@@ -106,4 +112,22 @@ it('loads and saves the embedding model used by RAG', async () => {
 		expect(embeddingApi.setProviderId).toHaveBeenCalledWith('voyage');
 		expect(embeddingApi.setModelId).toHaveBeenCalledWith('voyage-3');
 	});
+});
+
+it('saves the selected RAG index name from the configuration card', async () => {
+	const user = userEvent.setup();
+	render(<RagPage />);
+
+	expect(await screen.findByText('Configuration')).toBeInTheDocument();
+	const indexName = screen.getByLabelText('Index name');
+	expect(indexName).toHaveValue('friday');
+	await user.clear(indexName);
+	await user.type(indexName, 'knowledge-base');
+	await user.tab();
+
+	await waitFor(() =>
+		expect(agentApi.ragSaveConfiguration).toHaveBeenCalledWith(
+			expect.objectContaining({ indexName: 'knowledge-base' })
+		)
+	);
 });

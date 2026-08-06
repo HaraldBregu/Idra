@@ -21,6 +21,7 @@ import {
 describe('RAG indexing schedule', () => {
 	const logger = { info: jest.fn(), error: jest.fn() };
 	const configuration = {
+		indexName: 'knowledge-base',
 		folders: ['/documents'],
 		scheduleEnabled: true,
 		cronExpression: '0 3 * * *',
@@ -42,7 +43,7 @@ describe('RAG indexing schedule', () => {
 
 		expect(schedule).toHaveBeenCalledWith('0 3 * * *', expect.any(Function), { noOverlap: true });
 		await schedule.mock.calls[0][1]();
-		expect(indexRag).toHaveBeenCalledWith(['/documents']);
+		expect(indexRag).toHaveBeenCalledWith(['/documents'], 'knowledge-base');
 		expect(logger.info).toHaveBeenCalledWith('RAG', 'Scheduled indexing completed.');
 	});
 
