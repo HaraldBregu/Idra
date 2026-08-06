@@ -204,7 +204,7 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
 			{!embedded && (
 				<SettingsPageHeader
-					title={t('settings.tabs.storage')}
+					title={t('settings.tabs.cloud')}
 					description={t('settings.storage.description')}
 				/>
 			)}

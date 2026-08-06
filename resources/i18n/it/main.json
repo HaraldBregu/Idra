@@ -166,7 +166,7 @@
 				"configuration": "Configurazione"
 			},
 			"descriptions": {
-				"application": "Setup e permessi dell'app",
+				"cloud": "Archiviazione e sincronizzazione cloud",
 				"general": "Info e aspetto dell'app",
 				"modelServices": "Setup servizi modello",
 				"system": "Permessi e funzioni desktop",
@@ -192,7 +192,7 @@
 			}
 		},
 		"tabs": {
-			"application": "Applicazione",
+			"cloud": "Cloud",
 			"general": "Generale",
 			"modelServices": "Servizi modello",
 			"channels": "Canali",

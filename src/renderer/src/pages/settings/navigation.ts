@@ -1,9 +1,9 @@
 import {
-	AppWindow,
 	Binary,
 	BookOpenText,
 	Bot,
 	Blocks,
+	Cloud,
 	Database,
 	Folder,
 	HeartPulse,
@@ -121,9 +121,9 @@ export interface SettingsProviderConfigItem {
 
 export const SETTINGS_PROVIDER_CONFIG_ITEMS: readonly SettingsProviderConfigItem[] = [
 	{
-		path: '/settings/application',
-		labelKey: 'settings.tabs.storage',
-		descriptionKey: 'settings.overview.descriptions.storage',
+		path: '/settings/cloud',
+		labelKey: 'settings.tabs.cloud',
+		descriptionKey: 'settings.overview.descriptions.cloud',
 		icon: Folder,
 	},
 	{
@@ -202,31 +202,31 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Search engines
 	{
-		path: '/settings/application',
+		path: '/settings/cloud',
 		labelKey: 'settings.searchEngine.braveName',
 		descriptionKey: 'settings.searchEngine.braveDescription',
 		keywords: 'brave web search api key',
 	},
 	{
-		path: '/settings/application',
+		path: '/settings/cloud',
 		labelKey: 'settings.searchEngine.tavilyName',
 		descriptionKey: 'settings.searchEngine.tavilyDescription',
 		keywords: 'tavily web search api key',
 	},
 	// Storage
 	{
-		path: '/settings/application',
+		path: '/settings/cloud',
 		labelKey: 'settings.storage.connectionTitle',
 		descriptionKey: 'settings.storage.connectionDescription',
 		keywords: 's3 object storage endpoint region bucket url minio aws provider',
 	},
 	{
-		path: '/settings/application',
+		path: '/settings/cloud',
 		labelKey: 'settings.storage.credentialsTitle',
 		keywords: 'access key id secret access key api credentials token',
 	},
 	{
-		path: '/settings/application',
+		path: '/settings/cloud',
 		labelKey: 'settings.storage.forcePathStyle',
 		descriptionKey: 'settings.storage.forcePathStyleDescription',
 		keywords: 'minio path style option compatible',
@@ -276,13 +276,13 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Tasks
 	{
-		path: '/settings/application',
+		path: '/settings/cloud',
 		labelKey: 'settings.cron.runtime.title',
 		descriptionKey: 'settings.cron.runtime.description',
 		keywords: 'scheduled agent provider model runtime',
 	},
 	{
-		path: '/settings/application',
+		path: '/settings/cloud',
 		labelKey: 'settings.cron.schedulesTitle',
 		descriptionKey: 'settings.cron.schedulesDescription',
 		keywords: 'cron schedule recurring task',
@@ -332,10 +332,10 @@ export const SETTINGS_NAVIGATION: readonly SettingsNavigationItem[] = [
 		icon: MonitorCog,
 	},
 	{
-		path: '/settings/application',
-		labelKey: 'settings.tabs.application',
-		descriptionKey: 'settings.overview.descriptions.application',
-		icon: AppWindow,
+		path: '/settings/cloud',
+		labelKey: 'settings.tabs.cloud',
+		descriptionKey: 'settings.overview.descriptions.cloud',
+		icon: Cloud,
 	},
 	{
 		path: '/settings/tasks',

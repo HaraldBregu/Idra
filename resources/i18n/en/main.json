@@ -166,7 +166,7 @@
 				"configuration": "Configuration"
 			},
 			"descriptions": {
-				"application": "App setup and permissions",
+				"cloud": "Cloud storage and sync",
 				"general": "App info and appearance",
 				"modelServices": "Model service setup",
 				"system": "System access and permissions",
@@ -192,7 +192,7 @@
 			}
 		},
 		"tabs": {
-			"application": "Application",
+			"cloud": "Cloud",
 			"general": "General",
 			"modelServices": "Model services",
 			"channels": "Channels",
