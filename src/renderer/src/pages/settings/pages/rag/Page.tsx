@@ -197,30 +197,24 @@ const RagPage: React.FC = () => {
 								{t('settings.vectorDb.databaseDescription')}
 							</CardDescription>
 						</CardHeader>
-						<CardContent className="border-t border-border/60 p-0!">
-							<SettingsRow
-								title={null}
-								description={t('settings.vectorDb.databaseDescription')}
-								actions={
-									<Select
-										value={selectedDatabase ? databaseKey(selectedDatabase) : null}
-										onValueChange={(value) => void selectDatabase(value)}
-									>
-										<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-											<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
-												{selectedDatabase && databaseLabel(selectedDatabase)}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											{databases.map((entry) => (
-												<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
-													{databaseLabel(entry)}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								}
-							/>
+						<CardContent className="flex min-h-11 items-center justify-end border-t border-border/60 px-3! py-2!">
+							<Select
+								value={selectedDatabase ? databaseKey(selectedDatabase) : null}
+								onValueChange={(value) => void selectDatabase(value)}
+							>
+								<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+									<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
+										{selectedDatabase && databaseLabel(selectedDatabase)}
+									</SelectValue>
+								</SelectTrigger>
+								<SelectContent>
+									{databases.map((entry) => (
+										<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
+											{databaseLabel(entry)}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</CardContent>
 					</Card>
 				)}
