@@ -5,6 +5,7 @@ import type { EventBus } from '../event_bus';
 import { McpChannels } from '../../shared/ipc_channels_definitions';
 import {
 	createOAuthProvider,
+	configureLocalMcpServer,
 	deleteMcpServer,
 	getMcpOauth,
 	importLocalMcpServers,
@@ -170,6 +171,10 @@ export class McpIpc implements IpcModule {
 			if (result.canceled) return undefined;
 			return importLocalMcpServers(result.filePaths);
 		});
+
+		registerCommand(McpChannels.configureLocal, (id, input) =>
+			configureLocalMcpServer(resolveMcpId(id), input)
+		);
 
 		registerQuery(McpChannels.getRoot, () => mcpLocalRoot());
 

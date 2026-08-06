@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { configureLocalMcpServer } from '../../../../src/main/mcp/mcp_local_configure';
 import { importLocalMcpServers } from '../../../../src/main/mcp/mcp_local_import';
 import { listLocalMcpServers } from '../../../../src/main/mcp/mcp_local_list';
 import { readLocalMcpServer } from '../../../../src/main/mcp/mcp_local_read';
@@ -65,6 +66,56 @@ describe('local MCP registry', () => {
 		fs.writeFileSync(path.join(second, 'mcp.json'), JSON.stringify({ command: 'second' }));
 		fs.rmSync(first, { recursive: true });
 		expect(listLocalMcpServers(root).servers.map((server) => server.id)).toEqual(['second']);
+	});
+
+	it('updates local configuration while preserving package-owned manifest values', () => {
+		const root = path.join(temp, 'servers');
+		const directory = path.join(root, 'configured-demo');
+		fs.mkdirSync(directory, { recursive: true });
+		fs.writeFileSync(
+			path.join(directory, 'mcp.json'),
+			JSON.stringify({
+				id: 'configured-demo',
+				type: 'stdio',
+				name: 'Before',
+				command: 'node',
+				args: ['server.mjs'],
+				cwd: '.',
+				package_value: 'preserved',
+			})
+		);
+
+		const result = configureLocalMcpServer(
+			'configured-demo',
+			{
+				type: 'stdio',
+				name: 'Configured demo',
+				command: 'bun',
+				args: ['run', 'server.mjs'],
+				env: { DEMO_COMPANY: 'Friday Studio', DEMO_TAX_RATE: '22' },
+				require_approval: 'always',
+				enabled: false,
+				cwd: '/ignored/resolved/path',
+			},
+			root
+		);
+
+		expect(result.data).toMatchObject({
+			name: 'Configured demo',
+			command: 'bun',
+			args: ['run', 'server.mjs'],
+			env: { DEMO_COMPANY: 'Friday Studio', DEMO_TAX_RATE: '22' },
+			require_approval: 'always',
+			enabled: false,
+			cwd: directory,
+		});
+		expect(JSON.parse(fs.readFileSync(path.join(directory, 'mcp.json'), 'utf8'))).toMatchObject({
+			id: 'configured-demo',
+			type: 'stdio',
+			cwd: '.',
+			package_value: 'preserved',
+		});
+		expect(fs.readdirSync(directory).filter((entry) => entry.startsWith('.mcp-'))).toEqual([]);
 	});
 
 	it('returns diagnostics for malformed and duplicate manifests', () => {

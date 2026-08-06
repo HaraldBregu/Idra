@@ -10,6 +10,7 @@ const mcpApi = {
 	delete: jest.fn(),
 	registry: jest.fn(),
 	importLocal: jest.fn(),
+	configureLocal: jest.fn(),
 	getRoot: jest.fn(),
 	openRoot: jest.fn(),
 	test: jest.fn(),
@@ -48,6 +49,12 @@ beforeEach(() => {
 		durationMs: 25,
 	}));
 	mcpApi.importLocal.mockResolvedValue({ imported: [], skipped: [] });
+	mcpApi.configureLocal.mockResolvedValue({
+		id: 'local',
+		source: 'local',
+		path: '/home/user/.friday/mcp/servers/local',
+		data: { type: 'stdio', name: 'Local files', command: 'node', cwd: '/local' },
+	});
 	mcpApi.upsert.mockImplementation(async (_id: string, data: { enabled?: boolean }) => {
 		remoteEnabled = data.enabled !== false;
 		return {};
@@ -83,6 +90,28 @@ describe('MCP settings', () => {
 		await waitFor(() => expect(mcpApi.importLocal).toHaveBeenCalledTimes(1));
 		expect(mcpApi.registry).toHaveBeenCalledTimes(2);
 		expect(await screen.findByText('Uploaded 0 local MCP servers.')).toBeInTheDocument();
+	});
+
+	it('configures a discovered local server from its edit dialog', async () => {
+		const user = userEvent.setup();
+		render(<McpPage />);
+		await screen.findByText('Local files');
+
+		await user.click(screen.getByRole('button', { name: 'Edit Local files' }));
+		const environment = screen.getByLabelText('Environment variables (optional)');
+		await user.type(environment, 'DEMO_COMPANY=Friday Studio');
+		await user.click(screen.getByRole('button', { name: 'Save' }));
+
+		await waitFor(() =>
+			expect(mcpApi.configureLocal).toHaveBeenCalledWith(
+				'local',
+				expect.objectContaining({
+					type: 'stdio',
+					command: 'node',
+					env: { DEMO_COMPANY: 'Friday Studio' },
+				})
+			)
+		);
 	});
 
 	it('invalidates a successful test when the server is disabled', async () => {

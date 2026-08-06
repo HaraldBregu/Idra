@@ -59,6 +59,18 @@ const McpPage = (): React.JSX.Element => {
 		}
 	};
 
+	const saveLocal = async (id: string, data: McpData): Promise<void> => {
+		setError('');
+		try {
+			if (data.type !== 'stdio') throw new Error('Local MCP servers require stdio configuration.');
+			await window.mcp.configureLocal(id, data);
+			await load();
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+			throw caught;
+		}
+	};
+
 	const remove = async (id: string): Promise<void> => {
 		setError('');
 		try {
@@ -217,7 +229,7 @@ const McpPage = (): React.JSX.Element => {
 
 			<SettingsSection
 				title="Local servers"
-				description={`${root || '~/.friday/mcp/servers'} · Edit a package's mcp.json to configure or disable it.`}
+				description={`${root || '~/.friday/mcp/servers'} · Configure package commands and environment values here.`}
 			>
 				<SettingsPanel>
 					{loading ? (
@@ -236,7 +248,7 @@ const McpPage = (): React.JSX.Element => {
 								testing={testing.has(server.id)}
 								testResult={testResults[server.id]}
 								onTest={() => test(server.id)}
-								onSave={server.source === 'configured' ? save : undefined}
+								onSave={server.source === 'configured' ? save : saveLocal}
 								onRemove={server.source === 'configured' ? () => remove(server.id) : undefined}
 							/>
 						))

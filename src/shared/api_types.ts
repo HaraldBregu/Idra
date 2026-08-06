@@ -151,6 +151,7 @@ export interface McpApi {
 	delete: (id: string) => Promise<void>;
 	registry: () => Promise<McpRegistry>;
 	importLocal: () => Promise<McpLocalImportResult | undefined>;
+	configureLocal: (id: string, input: McpStdioData) => Promise<McpServerInfo>;
 	getRoot: () => Promise<string>;
 	openRoot: () => Promise<void>;
 	test: (id: string) => Promise<McpTestResult>;

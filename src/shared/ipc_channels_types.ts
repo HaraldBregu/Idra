@@ -211,6 +211,10 @@ export interface McpInvokeChannelMap {
 		args: [];
 		result: import('./mcp_types').McpLocalImportResult | undefined;
 	};
+	[McpChannels.configureLocal]: {
+		args: [id: string, input: import('./mcp_types').McpStdioData];
+		result: import('./mcp_types').McpServerInfo;
+	};
 	[McpChannels.getRoot]: { args: []; result: string };
 	[McpChannels.openRoot]: { args: []; result: void };
 	[McpChannels.test]: {

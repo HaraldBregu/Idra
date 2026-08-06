@@ -25,6 +25,9 @@ export const mcp: McpApi = {
 	importLocal: () => {
 		return typedInvokeUnwrap(McpChannels.importLocal);
 	},
+	configureLocal: (id, input) => {
+		return typedInvokeUnwrap(McpChannels.configureLocal, id, input);
+	},
 	getRoot: () => {
 		return typedInvokeUnwrap(McpChannels.getRoot);
 	},

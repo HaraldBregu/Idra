@@ -84,6 +84,7 @@ export const McpChannels = {
 	delete: 'mcp:delete',
 	registry: 'mcp:registry',
 	importLocal: 'mcp:local:import',
+	configureLocal: 'mcp:local:configure',
 	getRoot: 'mcp:local:root',
 	openRoot: 'mcp:local:open',
 	test: 'mcp:test',

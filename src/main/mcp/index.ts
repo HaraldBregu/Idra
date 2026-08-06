@@ -8,6 +8,7 @@ export { startOauthCallbackServer } from './mcp_oauth_callback';
 export { createOAuthProvider } from './mcp_oauth_create_provider';
 export { getMcpOauth, getMcpServers, saveMcpOauth, setMcpServers } from './mcp_store';
 export { importLocalMcpServers } from './mcp_local_import';
+export { configureLocalMcpServer } from './mcp_local_configure';
 export { listMcpRegistry } from './mcp_registry_list';
 export { mcpLocalRoot } from './mcp_local_root';
 export { testMcpServer } from './mcp_server_test';
