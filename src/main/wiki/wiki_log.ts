@@ -21,6 +21,9 @@ export async function appendWikiLog(
 - Source ID: ${source.sourceId ?? 'legacy'}
 - Pages created: ${result.createdPages}
 - Pages updated: ${result.updatedPages}
+- Claims added: ${result.claimsAdded ?? 0}
+- Contradictions: ${result.contradictionsDetected ?? 0}
+- Review: ${result.pendingReviews ? 'required' : 'not required'}
 - Operation ID: ${operationId ?? 'legacy'}
 - Completed: ${now.toISOString()}
 

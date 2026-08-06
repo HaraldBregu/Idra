@@ -17,6 +17,7 @@ import { transactWiki } from './wiki_transaction';
 import { wikiSourceStore } from './wiki_source_store';
 import { wikiOperationStore } from './wiki_operation_store';
 import { wikiFailureStore } from './wiki_failure_store';
+import { wikiReviewStore } from './wiki_review_store';
 import type { WikiOperationRecord } from './wiki_types';
 
 export async function runWiki(): Promise<WikiRunResult> {
@@ -50,6 +51,9 @@ export async function runWiki(): Promise<WikiRunResult> {
 		const operationIds: string[] = [];
 		let processedSources = 0;
 		let skippedSources = 0;
+		let claimsAdded = 0;
+		let contradictionsDetected = 0;
+		let pendingReviews = 0;
 
 		for (const discovered of sources) {
 			const operationId = `operation-ingest-${discovered.hash.slice(0, 16)}`;
@@ -104,7 +108,10 @@ export async function runWiki(): Promise<WikiRunResult> {
 					targetPath: settings.targetPath,
 					operationId,
 					apply: async (stagedPath) => {
-						const result = await applyWikiUpdate(stagedPath, source, update);
+						const result = await applyWikiUpdate(stagedPath, source, update, {
+							operationId,
+							requireReviewForMajorChanges: settings.requireReviewForMajorChanges,
+						});
 						await rebuildWikiIndex(stagedPath);
 						await appendWikiLog(stagedPath, source, result, operationId);
 						return result;
@@ -120,14 +127,28 @@ export async function runWiki(): Promise<WikiRunResult> {
 				state.sources[source.relativePath] = source.hash;
 				createdPages += applied.createdPages;
 				updatedPages += applied.updatedPages;
+				claimsAdded += applied.claimsAdded ?? 0;
+				contradictionsDetected += applied.contradictionsDetected ?? 0;
+				pendingReviews += applied.pendingReviews ?? 0;
+				if (applied.reviewItems?.length) {
+					const current = wikiReviewStore.store.items;
+					const ids = new Set(applied.reviewItems.map((item) => item.id));
+					wikiReviewStore.store = {
+						version: 1,
+						items: [...current.filter((item) => !ids.has(item.id)), ...applied.reviewItems],
+					};
+				}
 				processedSources += 1;
 				operationIds.push(operationId);
 				operation = {
 					...operation,
-					status: 'completed',
+					status: applied.pendingReviews ? 'awaiting_review' : 'completed',
 					updatedAt: new Date().toISOString(),
 					createdPages: applied.createdPages,
 					updatedPages: applied.updatedPages,
+					claimsAdded: applied.claimsAdded ?? 0,
+					contradictionsDetected: applied.contradictionsDetected ?? 0,
+					reviewStatus: applied.pendingReviews ? 'required' : 'not_required',
 				};
 				wikiOperationStore.store = {
 					...wikiOperationStore.store,
@@ -167,6 +188,9 @@ export async function runWiki(): Promise<WikiRunResult> {
 			updatedPages,
 			completedAt: new Date().toISOString(),
 			operationIds,
+			claimsAdded,
+			contradictionsDetected,
+			pendingReviews,
 		};
 		state.lastRun = result;
 		saveWikiState(state);
