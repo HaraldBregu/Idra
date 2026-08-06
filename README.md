@@ -22,6 +22,7 @@ You choose the providers and models behind each AI capability. Friday keeps its 
 - **Extend the agent** — import reusable skills, connect remote HTTP or local stdio MCP servers, and delegate independent work to subagents.
 - **Automate routines** — create recurring schedules and periodic checklist-based health runs.
 - **Remember useful context** — maintain durable memory, personalization files, conversation history, and a local working directory.
+- **Compile persistent knowledge** — archive immutable evidence, incrementally maintain a cited Markdown wiki, query it before raw sources, and review risky changes.
 - **Chat from other apps** — connect Telegram or Discord channels to reach Friday away from the desktop app.
 
 Friday runs on Windows, macOS, and Linux, with English and Italian interfaces and light, dark, and system themes.
@@ -112,6 +113,7 @@ npm run dist:linux:appimage  # Linux AppImage
 - `packages/sdk` contains the publishable typed client for Friday's local API.
 - `src/main/agent` contains sessions, tools, skills, memory, schedules, health runs, sandboxing, and permission policy.
 - `src/main/models` contains provider-specific model integrations.
+- `src/main/wiki` contains immutable-source registration, transactional wiki compilation, retrieval, lint, review, and agent tools. See [LLM Wiki](docs/WIKI.md).
 
 ## Security
 

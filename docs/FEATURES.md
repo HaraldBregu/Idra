@@ -315,6 +315,18 @@ While `BOOTSTRAP.md` exists, it is included in the user-controlled workspace con
 
 `memory_save` adds one bullet fact without duplicating an identical line. `memory_forget` removes every bullet containing the requested text, case-insensitively. Workspace profile and memory content are rebuilt as transient user-level context before each model turn rather than persisted in the system-prompt snapshot.
 
+### Persistent LLM Wiki
+
+Friday's optional LLM Wiki is an additive knowledge-compilation layer. It snapshots supported source files into checksum-addressed immutable evidence, uses the configured text model to create or incrementally enrich Markdown pages, and stores claim-level source IDs and locators. Page changes, `index.md`, and `log.md` are staged and validated before the generated wiki directory is replaced.
+
+The normal main assistant receives wiki tools only while the wiki is enabled. Query tools search exact titles and aliases before metadata, full text, and linked pages. Raw evidence is returned separately for quotations, exact facts, low-confidence matches, or contradictions. Existing Pinecone RAG remains unchanged and independent.
+
+Available tools are `wiki_ingest_source`, `wiki_search`, `wiki_read_page`, `wiki_query`, `wiki_save_analysis`, `wiki_lint`, `wiki_review_changes`, `wiki_rebuild_index`, and `wiki_get_recent_activity`. Wiki tools are not exposed to task, health, or messaging-channel sessions because the current application has one local-user wiki and no per-sender tenancy boundary.
+
+Major synthesis rewrites and contradiction resolutions enter a persistent review queue. Approval or rejection uses the existing interactive tool-permission flow. Scheduled generation also runs a lint inspection; optional startup lint is configurable.
+
+See [LLM Wiki](WIKI.md) for storage, configuration, schemas, workflows, examples, migration, and rollback.
+
 ## 3. Providers and model catalogs
 
 ### Chat and research providers
@@ -548,6 +560,7 @@ Friday stores configuration and working data below Electron's application-data d
 | Browser     | Persistent agent-browser profile.                                                                                                           |
 | Storage     | S3-compatible remote-storage credentials and sync configuration.                                                                            |
 | Diagnostics | Local rotating logs and crash dumps. Crash dumps are not uploaded by the current configuration.                                             |
+| Wiki        | Source inbox, immutable evidence snapshots, generated Markdown, source/page/operation registries, review queue, failures, and audit log.      |
 
 Secrets are masked in the renderer after saving, but provider keys, bot tokens, and MCP secrets are stored in ordinary local electron-store files rather than an encrypted credential vault. Anyone with access to the user's application-data files may be able to read them.
 
@@ -584,6 +597,7 @@ The main implementation areas behind this reference are:
 - [Chat and renderer UI](../src/renderer/src/pages/home/)
 - [Settings pages](../src/renderer/src/pages/settings/)
 - [Agent runtime and tools](../src/main/agent/)
+- [LLM Wiki](../src/main/wiki/)
 - [Extensions](../src/main/extensions/)
 - [Cloud storage sync](../src/renderer/src/pages/settings/pages/storage/)
 - [Provider catalog and models](../src/shared/provider_models_definitions.ts)
