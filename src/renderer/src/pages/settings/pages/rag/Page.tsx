@@ -210,11 +210,11 @@ const RagPage: React.FC = () => {
 							<CollapsibleTrigger className="group w-full text-left">
 								<CardHeader className="py-3">
 									<CardTitle className="flex items-center justify-between">
-										{t('settings.vectorDb.defaultTitle')}
+										{t('settings.vectorDb.database')}
 										<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
 									</CardTitle>
 									<CardDescription className="text-xs">
-										{t('settings.vectorDb.description')}
+										{t('settings.vectorDb.databaseDescription')}
 									</CardDescription>
 								</CardHeader>
 							</CollapsibleTrigger>
