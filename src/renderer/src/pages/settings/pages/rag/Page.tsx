@@ -199,7 +199,7 @@ const RagPage: React.FC = () => {
 						</CardHeader>
 						<CardContent className="border-t border-border/60 p-0!">
 							<SettingsRow
-								title={t('settings.vectorDb.database')}
+								title={null}
 								description={t('settings.vectorDb.databaseDescription')}
 								actions={
 									<Select
