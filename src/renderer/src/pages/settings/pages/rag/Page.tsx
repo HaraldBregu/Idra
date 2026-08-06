@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FolderOpen, LoaderCircle, Search, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -258,94 +257,86 @@ const RagPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.vectorDb.defaultTitle')}>
-				{!databases ? (
-					<SettingsLoadingRows rows={1} />
-				) : databases.length === 0 ? (
-					<SettingsNotice>{t('settings.vectorDb.empty')}</SettingsNotice>
-				) : (
-					<Card size="sm" className="gap-0! py-0!">
-						<CardHeader className="py-3">
-							<CardTitle>{t('settings.vectorDb.defaultTitle')}</CardTitle>
-							<CardDescription className="text-xs">
-								{t('settings.vectorDb.databaseDescription')}
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="flex min-h-11 items-center justify-start border-t border-border/60 px-3! py-2!">
-							<Select
-								value={selectedDatabase ? databaseKey(selectedDatabase) : null}
-								onValueChange={(value) => void selectDatabase(value)}
-							>
-								<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-									<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
-										{selectedDatabase && databaseLabel(selectedDatabase)}
-									</SelectValue>
-								</SelectTrigger>
-								<SelectContent>
-									{databases.map((entry) => (
-										<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
-											{databaseLabel(entry)}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</CardContent>
-					</Card>
-				)}
-			</SettingsSection>
-
-			<SettingsSection title={t('settings.rag.embeddingModelTitle')}>
-				{loadingEmbeddingModel ? (
-					<SettingsLoadingRows rows={1} />
-				) : embeddingModels.length === 0 ? (
-					<SettingsNotice>{t('settings.modelServices.noModels')}</SettingsNotice>
-				) : (
-					<Card size="sm" className="gap-0! py-0!">
-						<CardHeader className="py-3">
-							<CardTitle>{t('settings.rag.embeddingModelTitle')}</CardTitle>
-							<CardDescription className="text-xs">
-								{t('settings.rag.embeddingModelDescription')}
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="flex min-h-11 items-center justify-start border-t border-border/60 px-3! py-2!">
-							<Select
-								value={
-									selectedEmbeddingModel
-										? `${selectedEmbeddingModel.provider.id}${VALUE_SEPARATOR}${selectedEmbeddingModel.id}`
-										: null
-								}
-								onValueChange={(value) => void selectEmbeddingModel(value)}
-								disabled={savingEmbeddingModel}
-							>
-								<SelectTrigger
-									size="sm"
-									className="w-56 max-w-full text-xs"
-									aria-label={t('settings.rag.embeddingModelTitle')}
-								>
-									<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')}>
-										{selectedEmbeddingModel &&
-											`${selectedEmbeddingModel.provider.name} / ${selectedEmbeddingModel.name || selectedEmbeddingModel.id}`}
-									</SelectValue>
-								</SelectTrigger>
-								<SelectContent>
-									{embeddingModels.map((entry) => (
-										<SelectItem
-											key={`${entry.provider.id}${VALUE_SEPARATOR}${entry.id}`}
-											value={`${entry.provider.id}${VALUE_SEPARATOR}${entry.id}`}
-										>
-											{`${entry.provider.name} / ${entry.name || entry.id}`}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</CardContent>
-					</Card>
-				)}
-			</SettingsSection>
-
 			<SettingsSection title={t('settings.rag.configurationTitle')}>
 				<SettingsPanel>
-					<div className="grid gap-3 px-3 py-3">
+					<div className="grid gap-4 px-3 py-3">
+						<SettingsField
+							id="rag-vector-database"
+							label={t('settings.vectorDb.defaultTitle')}
+							description={t('settings.vectorDb.databaseDescription')}
+						>
+							{!databases ? (
+								<SettingsLoadingRows rows={1} className="p-0" />
+							) : databases.length === 0 ? (
+								<SettingsNotice>{t('settings.vectorDb.empty')}</SettingsNotice>
+							) : (
+								<Select
+									value={selectedDatabase ? databaseKey(selectedDatabase) : null}
+									onValueChange={(value) => void selectDatabase(value)}
+								>
+									<SelectTrigger
+										id="rag-vector-database"
+										size="sm"
+										className="w-56 max-w-full text-xs"
+									>
+										<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
+											{selectedDatabase && databaseLabel(selectedDatabase)}
+										</SelectValue>
+									</SelectTrigger>
+									<SelectContent>
+										{databases.map((entry) => (
+											<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
+												{databaseLabel(entry)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							)}
+						</SettingsField>
+
+						<SettingsField
+							id="rag-embedding-model"
+							label={t('settings.rag.embeddingModelTitle')}
+							description={t('settings.rag.embeddingModelDescription')}
+						>
+							{loadingEmbeddingModel ? (
+								<SettingsLoadingRows rows={1} className="p-0" />
+							) : embeddingModels.length === 0 ? (
+								<SettingsNotice>{t('settings.modelServices.noModels')}</SettingsNotice>
+							) : (
+								<Select
+									value={
+										selectedEmbeddingModel
+											? `${selectedEmbeddingModel.provider.id}${VALUE_SEPARATOR}${selectedEmbeddingModel.id}`
+											: null
+									}
+									onValueChange={(value) => void selectEmbeddingModel(value)}
+									disabled={savingEmbeddingModel}
+								>
+									<SelectTrigger
+										id="rag-embedding-model"
+										size="sm"
+										className="w-56 max-w-full text-xs"
+									>
+										<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')}>
+											{selectedEmbeddingModel &&
+												`${selectedEmbeddingModel.provider.name} / ${selectedEmbeddingModel.name || selectedEmbeddingModel.id}`}
+										</SelectValue>
+									</SelectTrigger>
+									<SelectContent>
+										{embeddingModels.map((entry) => (
+											<SelectItem
+												key={`${entry.provider.id}${VALUE_SEPARATOR}${entry.id}`}
+												value={`${entry.provider.id}${VALUE_SEPARATOR}${entry.id}`}
+											>
+												{`${entry.provider.name} / ${entry.name || entry.id}`}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							)}
+						</SettingsField>
+
 						<SettingsField
 							id="rag-index-name"
 							label={t('settings.rag.indexName')}
@@ -373,52 +364,63 @@ const RagPage: React.FC = () => {
 								}
 							/>
 						</SettingsField>
-						<p className="text-[11px] leading-4 text-muted-foreground">
-							{t('settings.rag.documentsDescription')}
-						</p>
-						{ragConfiguration?.folders.length ? (
-							ragConfiguration.folders.map((folder) => (
-								<div
-									key={folder}
-									className="flex min-w-0 items-center gap-2 rounded-md border border-border px-2 py-1.5"
-								>
-									<p className="min-w-0 flex-1 truncate text-xs" title={folder}>
-										{folder}
+						<SettingsField
+							id="rag-source-folders"
+							label={t('settings.rag.sourceFolder')}
+							description={t('settings.rag.documentsDescription')}
+						>
+							<div className="grid gap-2">
+								{ragConfiguration?.folders.length ? (
+									ragConfiguration.folders.map((folder) => (
+										<div
+											key={folder}
+											className="flex min-w-0 items-center gap-2 rounded-md border border-border px-2 py-1.5"
+										>
+											<p className="min-w-0 flex-1 truncate text-xs" title={folder}>
+												{folder}
+											</p>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon-sm"
+												disabled={indexing || savingRagConfiguration}
+												aria-label={t('settings.rag.removeFolder')}
+												onClick={() =>
+													void saveRagConfiguration({
+														...ragConfiguration,
+														folders: ragConfiguration.folders.filter(
+															(entry) => entry !== folder
+														),
+													})
+												}
+											>
+												<Trash2 className="size-3" />
+											</Button>
+										</div>
+									))
+								) : (
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.rag.sourcePlaceholder')}
 									</p>
+								)}
+
+								<div className="flex justify-end gap-2">
 									<Button
+										id="rag-source-folders"
 										type="button"
-										variant="ghost"
-										size="icon-sm"
-										disabled={indexing || savingRagConfiguration}
-										aria-label={t('settings.rag.removeFolder')}
-										onClick={() =>
-											void saveRagConfiguration({
-												...ragConfiguration,
-												folders: ragConfiguration.folders.filter((entry) => entry !== folder),
-											})
-										}
+										size="sm"
+										variant="outline"
+										disabled={indexing || savingRagConfiguration || !ragConfiguration}
+										onClick={() => void pickSourceFolder()}
 									>
-										<Trash2 className="size-3" />
+										<FolderOpen className="size-3" />
+										{t('settings.rag.pickFolder')}
 									</Button>
 								</div>
-							))
-						) : (
-							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.rag.sourcePlaceholder')}
-							</p>
-						)}
+							</div>
+						</SettingsField>
 
-						<div className="flex justify-end gap-2">
-							<Button
-								type="button"
-								size="sm"
-								variant="outline"
-								disabled={indexing || savingRagConfiguration || !ragConfiguration}
-								onClick={() => void pickSourceFolder()}
-							>
-								<FolderOpen className="size-3" />
-								{t('settings.rag.pickFolder')}
-							</Button>
+						<div className="flex justify-end">
 							<Button
 								type="button"
 								size="sm"
