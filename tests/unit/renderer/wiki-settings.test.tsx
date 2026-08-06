@@ -7,6 +7,16 @@ jest.mock('react-i18next', () => {
 		'common.save': 'Save',
 		'settings.tabs.wiki': 'Wiki',
 		'settings.wiki.description': 'Persistent Markdown wiki',
+		'settings.wiki.behaviorTitle': 'Wiki behavior',
+		'settings.wiki.behaviorDescription': 'Behavior settings',
+		'settings.wiki.enabled': 'Enable wiki knowledge',
+		'settings.wiki.enabledDescription': 'Expose wiki tools',
+		'settings.wiki.autoFileAnswers': 'Automatic filing',
+		'settings.wiki.autoFileAnswersDescription': 'Save durable answers',
+		'settings.wiki.requireReview': 'Review major changes',
+		'settings.wiki.requireReviewDescription': 'Queue risky changes',
+		'settings.wiki.lintOnStartup': 'Lint on startup',
+		'settings.wiki.lintOnStartupDescription': 'Inspect integrity',
 		'settings.wiki.sourcePath': 'Raw source folder',
 		'settings.wiki.sourceDescription': 'Source files',
 		'settings.wiki.targetPath': 'Generated wiki folder',
@@ -44,10 +54,15 @@ jest.mock('@/components/model-provider-select', () => {
 });
 
 const settings = {
+	enabled: true,
 	providerId: '',
 	modelId: '',
 	sourcePath: '/wiki/raw',
 	targetPath: '/wiki/data',
+	autoFileAnswers: false,
+	requireReviewForMajorChanges: true,
+	retrievalPriority: 'wiki_first' as const,
+	lintOnStartup: false,
 	schedule: { enabled: false, cronExpression: '0 3 * * *' },
 };
 

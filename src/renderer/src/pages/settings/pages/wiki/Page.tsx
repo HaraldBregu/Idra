@@ -125,7 +125,7 @@ const WikiPage: React.FC = () => {
 							type="button"
 							size="sm"
 							variant="outline"
-							disabled={!settings || saving || running}
+							disabled={!settings || settings.enabled === false || saving || running}
 							onClick={() => void handleSave()}
 						>
 							{saving ? <LoaderCircle className="size-3 animate-spin" /> : <Save className="size-3" />}
@@ -167,6 +167,74 @@ const WikiPage: React.FC = () => {
 				</SettingsPanel>
 			) : (
 				<>
+					<SettingsSection
+						title={t('settings.wiki.behaviorTitle')}
+						description={t('settings.wiki.behaviorDescription')}
+					>
+						<SettingsPanel>
+							<SettingsRow
+								title={t('settings.wiki.enabled')}
+								description={t('settings.wiki.enabledDescription')}
+								actions={
+									<Switch
+										checked={settings.enabled !== false}
+										disabled={saving || running}
+										aria-label={t('settings.wiki.enabled')}
+										onCheckedChange={(enabled) => {
+											setSettings({ ...settings, enabled });
+											setSaved(false);
+										}}
+									/>
+								}
+							/>
+							<SettingsRow
+								title={t('settings.wiki.autoFileAnswers')}
+								description={t('settings.wiki.autoFileAnswersDescription')}
+								actions={
+									<Switch
+										checked={settings.autoFileAnswers === true}
+										disabled={saving || running}
+										aria-label={t('settings.wiki.autoFileAnswers')}
+										onCheckedChange={(autoFileAnswers) => {
+											setSettings({ ...settings, autoFileAnswers });
+											setSaved(false);
+										}}
+									/>
+								}
+							/>
+							<SettingsRow
+								title={t('settings.wiki.requireReview')}
+								description={t('settings.wiki.requireReviewDescription')}
+								actions={
+									<Switch
+										checked={settings.requireReviewForMajorChanges !== false}
+										disabled={saving || running}
+										aria-label={t('settings.wiki.requireReview')}
+										onCheckedChange={(requireReviewForMajorChanges) => {
+											setSettings({ ...settings, requireReviewForMajorChanges });
+											setSaved(false);
+										}}
+									/>
+								}
+							/>
+							<SettingsRow
+								title={t('settings.wiki.lintOnStartup')}
+								description={t('settings.wiki.lintOnStartupDescription')}
+								actions={
+									<Switch
+										checked={settings.lintOnStartup === true}
+										disabled={saving || running}
+										aria-label={t('settings.wiki.lintOnStartup')}
+										onCheckedChange={(lintOnStartup) => {
+											setSettings({ ...settings, lintOnStartup });
+											setSaved(false);
+										}}
+									/>
+								}
+							/>
+						</SettingsPanel>
+					</SettingsSection>
+
 					<SettingsSection
 						title={t('settings.wiki.modelTitle')}
 						description={t('settings.wiki.modelDescription')}
@@ -266,7 +334,7 @@ const WikiPage: React.FC = () => {
 								actions={
 									<Switch
 										checked={settings.schedule.enabled}
-										disabled={saving || running}
+										disabled={settings.enabled === false || saving || running}
 										aria-label={t('settings.wiki.scheduleEnabled')}
 										onCheckedChange={(enabled) => {
 											setSettings({
@@ -309,6 +377,10 @@ const WikiPage: React.FC = () => {
 							<SettingsRow
 								title={t('settings.wiki.settingsFile')}
 								actions={<SettingsValue mono>{status?.settingsPath ?? '—'}</SettingsValue>}
+							/>
+							<SettingsRow
+								title={t('settings.wiki.pendingReviews')}
+								actions={<SettingsValue>{status?.pendingReviews ?? 0}</SettingsValue>}
 							/>
 							<SettingsRow
 								title={t('settings.wiki.nextRun')}
