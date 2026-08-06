@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import path from 'node:path';
 import { applyWikiUpdate } from './wiki_apply_update';
 import { getWikiSettings } from './wiki_get_settings';
 import { rebuildWikiIndex } from './wiki_index';
@@ -14,6 +13,7 @@ import type {
 	WikiSaveAnalysisInput,
 	WikiSaveAnalysisResult,
 	WikiSource,
+	WikiUpdate,
 } from './wiki_types';
 
 export async function saveWikiAnalysis(
@@ -81,7 +81,7 @@ export async function saveWikiAnalysis(
 		...wikiOperationStore.store,
 		operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
 	};
-	const update = {
+	const update: WikiUpdate = {
 		pages: [
 			{
 				path: pagePath,
@@ -98,7 +98,7 @@ export async function saveWikiAnalysis(
 				openQuestions: input.openQuestions ?? [],
 			},
 		],
-	} as const;
+	};
 	const applied = await transactWiki({
 		targetPath: settings.targetPath,
 		operationId,
