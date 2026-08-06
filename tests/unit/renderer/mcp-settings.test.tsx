@@ -17,16 +17,20 @@ const mcpApi = {
 	oauthFinish: jest.fn(),
 };
 
+let remoteEnabled = true;
+
 beforeEach(() => {
 	jest.clearAllMocks();
+	remoteEnabled = true;
+	Object.defineProperty(window, 'PointerEvent', { configurable: true, value: MouseEvent });
 	Object.defineProperty(window, 'mcp', { configurable: true, value: mcpApi });
 	mcpApi.getRoot.mockResolvedValue('/home/user/.friday/mcp/servers');
-	mcpApi.registry.mockResolvedValue({
+	mcpApi.registry.mockImplementation(async () => ({
 		servers: [
 			{
 				id: 'remote',
 				source: 'configured',
-				data: { type: 'http', name: 'Remote docs', url: 'https://mcp.test' },
+				data: { type: 'http', name: 'Remote docs', url: 'https://mcp.test', enabled: remoteEnabled },
 			},
 			{
 				id: 'local',
@@ -36,7 +40,7 @@ beforeEach(() => {
 			},
 		],
 		diagnostics: [],
-	});
+	}));
 	mcpApi.test.mockImplementation(async (id: string) => ({
 		ok: true,
 		tools: id === 'remote' ? ['search', 'read'] : ['list'],
@@ -44,7 +48,10 @@ beforeEach(() => {
 		durationMs: 25,
 	}));
 	mcpApi.importLocal.mockResolvedValue({ imported: [], skipped: [] });
-	mcpApi.upsert.mockResolvedValue({});
+	mcpApi.upsert.mockImplementation(async (_id: string, data: { enabled?: boolean }) => {
+		remoteEnabled = data.enabled !== false;
+		return {};
+	});
 });
 
 describe('MCP settings', () => {
@@ -80,15 +87,6 @@ describe('MCP settings', () => {
 
 	it('invalidates a successful test when the server is disabled', async () => {
 		const user = userEvent.setup();
-		mcpApi.registry
-			.mockResolvedValueOnce({
-				servers: [{ id: 'remote', source: 'configured', data: { type: 'http', name: 'Remote docs', url: 'https://mcp.test' } }],
-				diagnostics: [],
-			})
-			.mockResolvedValueOnce({
-				servers: [{ id: 'remote', source: 'configured', data: { type: 'http', name: 'Remote docs', url: 'https://mcp.test', enabled: false } }],
-				diagnostics: [],
-			});
 		render(<McpPage />);
 		await user.click(await screen.findByRole('button', { name: 'Test Remote docs' }));
 		expect(await screen.findByText('Connected')).toBeInTheDocument();
