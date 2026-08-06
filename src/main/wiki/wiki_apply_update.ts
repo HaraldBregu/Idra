@@ -131,6 +131,7 @@ export async function applyWikiUpdate(
 				...contradiction,
 				claimIds: [...new Set([...(stored?.claimIds ?? []), ...contradiction.claimIds])],
 				status:
+					options.allowContradictionResolution !== true &&
 					stored?.status === 'unresolved' && contradiction.status !== 'unresolved'
 						? 'unresolved'
 						: contradiction.status,

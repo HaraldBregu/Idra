@@ -101,6 +101,7 @@ export interface WikiApplyResult {
 export interface WikiApplyOptions {
 	operationId?: string;
 	requireReviewForMajorChanges?: boolean;
+	allowContradictionResolution?: boolean;
 }
 
 export interface WikiState {
