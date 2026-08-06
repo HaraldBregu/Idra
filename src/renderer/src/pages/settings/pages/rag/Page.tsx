@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FolderOpen, LoaderCircle, Search, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -193,9 +193,6 @@ const RagPage: React.FC = () => {
 					<Card size="sm" className="gap-0! py-0!">
 						<CardHeader className="py-3">
 							<CardTitle>{t('settings.vectorDb.defaultTitle')}</CardTitle>
-							<CardDescription className="text-xs">
-								{t('settings.vectorDb.databaseDescription')}
-							</CardDescription>
 						</CardHeader>
 						<CardContent className="flex min-h-11 items-center justify-end border-t border-border/60 px-3! py-2!">
 							<Select
