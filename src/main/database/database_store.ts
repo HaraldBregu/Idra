@@ -1,8 +1,12 @@
 import type { CatalogService, StoredProvider } from '../../shared/provider_types';
 import type { DatabaseConfiguration } from '../../shared/database_types';
 import { loadDatabases } from '../models';
-import { getAppDatabaseConfiguration, setAppDatabaseConfiguration } from '../settings_store';
-import { getDatabaseProvidersState, providersStorePath, setDatabaseProvidersState } from '../providers/providers_index';
+import { getDatabaseProvidersState, setDatabaseProvidersState } from '../providers/providers_index';
+import {
+	getRagConfiguration,
+	ragConfigurationStorePath,
+	saveRagConfiguration,
+} from '../rag/rag_store';
 
 const DEFAULT_CONFIGURATION: DatabaseConfiguration = {
 	providerId: undefined,
@@ -10,12 +14,14 @@ const DEFAULT_CONFIGURATION: DatabaseConfiguration = {
 	providers: [],
 };
 
-export const databaseConfigurationStorePath = providersStorePath;
+export const databaseConfigurationStorePath = ragConfigurationStorePath;
 
 export function getDatabaseConfiguration(): DatabaseConfiguration {
+	const ragConfiguration = getRagConfiguration();
 	const configuration = {
 		...DEFAULT_CONFIGURATION,
-		...getAppDatabaseConfiguration(),
+		providerId: ragConfiguration.databaseProviderId || undefined,
+		databaseId: ragConfiguration.databaseId || undefined,
 		providers: Array.isArray(getDatabaseProvidersState())
 			? getDatabaseProvidersState().filter(isStoredProvider)
 			: [],
@@ -41,7 +47,11 @@ export function saveDatabaseConfiguration(
 			: [],
 	};
 	setDatabaseProvidersState(saved.providers);
-	setAppDatabaseConfiguration({ providerId: saved.providerId, databaseId: saved.databaseId });
+	saveRagConfiguration({
+		...getRagConfiguration(),
+		databaseProviderId: saved.providerId ?? '',
+		databaseId: saved.databaseId ?? '',
+	});
 	return saved;
 }
 

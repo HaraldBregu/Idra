@@ -23,6 +23,8 @@ const store = new Store<RagConfiguration>({
 	defaults: DEFAULT_RAG_CONFIGURATION,
 });
 
+export const ragConfigurationStorePath = store.path;
+
 export function getRagConfiguration(): RagConfiguration {
 	return { ...DEFAULT_RAG_CONFIGURATION, ...store.store, folders: [...store.get('folders')] };
 }
