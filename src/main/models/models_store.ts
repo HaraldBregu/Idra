@@ -1,6 +1,7 @@
 import type { StoredProvider } from '../../shared/provider_types';
 import { getAppModelSelections, setAppModelSelections, type ModelKind, type ModelSelection, type ModelsStoreState } from '../settings_store';
 import { getModelProvidersState, setModelProvidersState } from '../providers/providers_index';
+import { getRagConfiguration, saveRagConfiguration } from '../rag/rag_store';
 
 export type { ModelKind, ModelSelection, ModelsStoreState } from '../settings_store';
 
@@ -39,10 +40,25 @@ export function setModelId(kind: ModelKind, modelId: string): void {
 }
 
 export function setSelection(kind: ModelKind, providerId: string, modelId: string): void {
+	if (kind === 'embedding') {
+		saveRagConfiguration({
+			...getRagConfiguration(),
+			embeddingProviderId: providerId,
+			embeddingModelId: modelId,
+		});
+		return;
+	}
 	setAppModelSelections({ ...getAppModelSelections(), [kind]: { providerId, modelId } });
 }
 
 function selection(kind: ModelKind): ModelSelection {
+	if (kind === 'embedding') {
+		const configuration = getRagConfiguration();
+		return {
+			providerId: configuration.embeddingProviderId,
+			modelId: configuration.embeddingModelId,
+		};
+	}
 	return getAppModelSelections()[kind] ?? EMPTY_SELECTION;
 }
 
