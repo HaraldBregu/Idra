@@ -84,22 +84,22 @@ const RagPage: React.FC = () => {
 			window.models.embedding.getModelId(),
 		])
 			.then(async ([storedProviderId, storedModelId]) => {
-					if (cancelled) return;
-					const stored = embeddingModels.find(
-						(entry) => entry.provider.id === storedProviderId && entry.id === storedModelId
-					);
-					const fallbackProviderId = defaultProviderId('embedding');
-					const fallback =
-						embeddingModels.find((entry) => entry.provider.id === fallbackProviderId) ??
-						embeddingModels[0];
-					const selected = stored ?? fallback;
-					setEmbeddingProviderId(selected?.provider.id ?? '');
-					setEmbeddingModelId(selected?.id ?? '');
-					if (selected && !stored) {
-						await window.models.embedding.setProviderId(selected.provider.id);
-						await window.models.embedding.setModelId(selected.id);
-					}
-				})
+				if (cancelled) return;
+				const stored = embeddingModels.find(
+					(entry) => entry.provider.id === storedProviderId && entry.id === storedModelId
+				);
+				const fallbackProviderId = defaultProviderId('embedding');
+				const fallback =
+					embeddingModels.find((entry) => entry.provider.id === fallbackProviderId) ??
+					embeddingModels[0];
+				const selected = stored ?? fallback;
+				setEmbeddingProviderId(selected?.provider.id ?? '');
+				setEmbeddingModelId(selected?.id ?? '');
+				if (selected && !stored) {
+					await window.models.embedding.setProviderId(selected.provider.id);
+					await window.models.embedding.setModelId(selected.id);
+				}
+			})
 			.catch((err) => {
 				if (!cancelled) setError(getErrorMessage(err, t('settings.rag.loadError')));
 			})
@@ -388,9 +388,7 @@ const RagPage: React.FC = () => {
 												onClick={() =>
 													void saveRagConfiguration({
 														...ragConfiguration,
-														folders: ragConfiguration.folders.filter(
-															(entry) => entry !== folder
-														),
+														folders: ragConfiguration.folders.filter((entry) => entry !== folder),
 													})
 												}
 											>
