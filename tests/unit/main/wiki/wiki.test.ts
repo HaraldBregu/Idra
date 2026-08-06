@@ -14,8 +14,8 @@ import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
 import { wikiSettingsStore } from '../../../../src/main/wiki/wiki_settings_store';
 
 describe('wiki settings', () => {
-	it('stores settings at wiki/settings.json with a wiki/data default target', () => {
-		expect(wikiSettingsStore.path).toMatch(/[\\/]wiki[\\/]settings\.json$/);
+	it('stores settings at settings/wiki.json with a wiki/data default target', () => {
+		expect(wikiSettingsStore.path).toMatch(/[\\/]settings[\\/]wiki\.json$/);
 		expect(wikiSettingsStore.store.targetPath).toMatch(/[\\/]wiki[\\/]data$/);
 	});
 

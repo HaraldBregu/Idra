@@ -52,34 +52,35 @@ Ingest uses Friday's existing `LlmModel`. The source and relevant current pages 
 The default layout below the Friday application-data directory is:
 
 ```text
-wiki/
-├── raw/                         # configured ingest inbox
-├── evidence/documents/          # checksum-addressed immutable snapshots
-│   └── source-<checksum>/
-├── data/                        # generated Markdown wiki
-│   ├── AGENTS.md
-│   ├── index.md
-│   ├── log.md
-│   ├── sources/
-│   ├── entities/
-│   ├── concepts/
-│   ├── topics/
-│   ├── projects/
-│   ├── comparisons/
-│   ├── syntheses/
-│   └── questions/
-├── state/
-│   ├── source-registry.json
-│   ├── page-manifest.json
-│   ├── pending-review.json
-│   ├── failed-operations.json
-│   └── operations.json
-├── config/
-│   ├── schema.yaml
-│   ├── page-types.yaml
-│   └── review-policy.yaml
-├── settings.json
-└── state.json                  # backward-compatible processed-path state
+├── settings/
+│   └── wiki.json                    # wiki configuration
+└── wiki/
+    ├── raw/                         # configured ingest inbox
+    ├── evidence/documents/          # checksum-addressed immutable snapshots
+    │   └── source-<checksum>/
+    ├── data/                        # generated Markdown wiki
+    │   ├── AGENTS.md
+    │   ├── index.md
+    │   ├── log.md
+    │   ├── sources/
+    │   ├── entities/
+    │   ├── concepts/
+    │   ├── topics/
+    │   ├── projects/
+    │   ├── comparisons/
+    │   ├── syntheses/
+    │   └── questions/
+    ├── state/
+    │   ├── source-registry.json
+    │   ├── page-manifest.json
+    │   ├── pending-review.json
+    │   ├── failed-operations.json
+    │   └── operations.json
+    ├── config/
+    │   ├── schema.yaml
+    │   ├── page-types.yaml
+    │   └── review-policy.yaml
+    └── state.json                  # backward-compatible processed-path state
 ```
 
 Custom generated wiki folders keep their managed evidence and policy directories beside that target. Source and target folders must be separate and non-nested.
@@ -262,7 +263,8 @@ No destructive migration is required from the earlier scheduled wiki compiler:
 2. missing settings receive compatibility defaults;
 3. an already-processed source is archived and registered without forcing a model recompile;
 4. legacy pages remain readable and gain the expanded metadata when next updated;
-5. new registry and policy files are created alongside existing data.
+5. legacy `wiki/settings.json` values are copied once to `settings/wiki.json` without deleting the legacy file;
+6. new registry and policy files are created alongside existing data.
 
 Back up the application-data `wiki/` directory before changing paths or review policy in a production profile.
 

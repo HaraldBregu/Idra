@@ -78,7 +78,7 @@ beforeEach(() => {
 	wikiApi.getSettings.mockResolvedValue(settings);
 	wikiApi.getStatus.mockResolvedValue({
 		running: false,
-		settingsPath: '/wiki/settings.json',
+		settingsPath: '/settings/wiki.json',
 	});
 	wikiApi.saveSettings.mockImplementation(async (value) => value);
 	wikiApi.run.mockResolvedValue({
