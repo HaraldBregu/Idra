@@ -49,7 +49,7 @@ jest.mock('discord.js', () => ({
 	Partials: { Channel: 1 },
 }));
 
-jest.mock('music-metadata', () => ({ parseBuffer: mockParseBuffer }));
+jest.mock('music-metadata', () => ({ parseBuffer: mockParseBuffer }), { virtual: true });
 
 import { createDiscordAdapter } from '../../../../src/main/channels/adapters/discord';
 
