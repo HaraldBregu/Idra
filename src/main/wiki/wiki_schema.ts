@@ -1,6 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { wikiPaths } from './wiki_paths';
 
 const WIKI_SCHEMA = `# Wiki maintainer schema
 
@@ -87,19 +86,16 @@ requires_review:
   - settle_disputed_claim
 `;
 
-export async function ensureWikiSchema(targetPath: string): Promise<void> {
-	const paths = wikiPaths();
-	await Promise.all([
-		mkdir(targetPath, { recursive: true }),
-		mkdir(paths.evidence, { recursive: true }),
-		mkdir(paths.state, { recursive: true }),
-		mkdir(paths.config, { recursive: true }),
-	]);
+export async function ensureWikiSchema(
+	targetPath: string,
+	configPath = path.resolve(targetPath, 'config')
+): Promise<void> {
+	await Promise.all([mkdir(targetPath, { recursive: true }), mkdir(configPath, { recursive: true })]);
 	const files = [
 		[path.resolve(targetPath, 'AGENTS.md'), WIKI_SCHEMA],
-		[path.resolve(paths.config, 'schema.yaml'), SCHEMA_POLICY],
-		[path.resolve(paths.config, 'page-types.yaml'), PAGE_TYPES],
-		[path.resolve(paths.config, 'review-policy.yaml'), REVIEW_POLICY],
+		[path.resolve(configPath, 'schema.yaml'), SCHEMA_POLICY],
+		[path.resolve(configPath, 'page-types.yaml'), PAGE_TYPES],
+		[path.resolve(configPath, 'review-policy.yaml'), REVIEW_POLICY],
 	] as const;
 	await Promise.all(
 		files.map(([file, content]) =>
