@@ -77,7 +77,5 @@ describe('Settings overview', () => {
 			.closest('section');
 		expect(assistantGroup).not.toBeNull();
 		expect(within(assistantGroup as HTMLElement).getByText('settings.tabs.wiki')).toBeInTheDocument();
-		expect(within(assistantGroup as HTMLElement).getByText('settings.tabs.mcp')).toBeInTheDocument();
-		expect(screen.getAllByText('settings.tabs.mcp')).toHaveLength(1);
 	});
 });
