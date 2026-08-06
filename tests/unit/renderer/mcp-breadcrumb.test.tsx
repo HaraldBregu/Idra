@@ -1,0 +1,33 @@
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Layout } from '../../../src/renderer/src/pages/settings/Layout';
+
+jest.mock('react-i18next', () => ({
+	useTranslation: () => ({ t: (key: string): string => key }),
+}));
+
+it('treats an MCP detail route as a child of the MCP list breadcrumb', async () => {
+	const user = userEvent.setup();
+	render(
+		<MemoryRouter initialEntries={['/settings/providers/mcp/demo-server']}>
+			<Routes>
+				<Route path="/settings" element={<Layout />}>
+					<Route path="providers">
+						<Route path="mcp">
+							<Route index element={<p>MCP list</p>} />
+							<Route path=":mcpServerId" element={<p>MCP detail</p>} />
+						</Route>
+					</Route>
+				</Route>
+			</Routes>
+		</MemoryRouter>
+	);
+
+	const breadcrumb = screen.getByRole('navigation', { name: 'settings.breadcrumb.label' });
+	expect(within(breadcrumb).queryByText('settings.tabs.providers')).not.toBeInTheDocument();
+	expect(within(breadcrumb).getByText('demo-server')).toBeInTheDocument();
+
+	await user.click(within(breadcrumb).getByRole('link', { name: 'settings.tabs.mcp' }));
+	expect(await screen.findByText('MCP list')).toBeInTheDocument();
+});

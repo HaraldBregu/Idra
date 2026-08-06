@@ -57,7 +57,6 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	if (location.pathname.startsWith('/settings/providers/mcp/')) {
 		const id = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
 		return [
-			{ label: t('settings.tabs.providers'), path: '/settings/providers' },
 			{ label: t('settings.tabs.mcp'), path: '/settings/providers/mcp' },
 			{ label: id },
 		];
