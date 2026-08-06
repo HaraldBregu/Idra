@@ -351,12 +351,9 @@ const WikiPage: React.FC = () => {
 						</SettingsPanel>
 					</SettingsSection>
 
-					<SettingsSection
-						title={t('settings.wiki.modelTitle')}
-						description={t('settings.wiki.modelDescription')}
-					>
+					<SettingsSection title={t('settings.wiki.configurationTitle')}>
 						<SettingsPanel>
-							<div className="p-3">
+							<div className="grid gap-4 p-3">
 								<ModelProviderSelect
 									idPrefix="wiki"
 									providerGroups={llmProviderGroups()}
@@ -369,17 +366,12 @@ const WikiPage: React.FC = () => {
 										setSaved(false);
 									}}
 									disabled={saving || running}
+									labels={{
+										label: t('settings.wiki.modelTitle'),
+										description: t('settings.wiki.modelDescription'),
+									}}
 								/>
-							</div>
-						</SettingsPanel>
-					</SettingsSection>
 
-					<SettingsSection
-						title={t('settings.wiki.locationsTitle')}
-						description={t('settings.wiki.locationsDescription')}
-					>
-						<SettingsPanel>
-							<div className="grid gap-3 p-3">
 								<SettingsField
 									id="wiki-source"
 									label={t('settings.wiki.sourcePath')}
@@ -439,9 +431,7 @@ const WikiPage: React.FC = () => {
 						</SettingsPanel>
 					</SettingsSection>
 
-					<SettingsSection
-						title={t('settings.wiki.scheduleTitle')}
-					>
+					<SettingsSection title={t('settings.wiki.scheduleTitle')}>
 						<SettingsPanel>
 							<SettingsRow
 								title={t('settings.wiki.scheduleFrequency')}

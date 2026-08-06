@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import WikiPage from '../../../src/renderer/src/pages/settings/pages/wiki/Page';
 
@@ -18,6 +18,9 @@ jest.mock('react-i18next', () => {
 		'settings.wiki.requireReviewDescription': 'Queue risky changes',
 		'settings.wiki.lintOnStartup': 'Lint on startup',
 		'settings.wiki.lintOnStartupDescription': 'Inspect integrity',
+		'settings.wiki.configurationTitle': 'Configuration',
+		'settings.wiki.modelTitle': 'Wiki model',
+		'settings.wiki.modelDescription': 'Choose a model',
 		'settings.wiki.sourcePath': 'Raw source folder',
 		'settings.wiki.sourceDescription': 'Source files',
 		'settings.wiki.targetPath': 'Generated wiki folder',
@@ -139,6 +142,21 @@ describe('Wiki settings', () => {
 		expect(
 			await screen.findByText('Processed 1, skipped 2, created 3, updated 4.')
 		).toBeInTheDocument();
+	});
+
+	it('groups the model and folders in one configuration card', async () => {
+		render(<WikiPage />);
+
+		const configurationTitle = await screen.findByText('Configuration');
+		const configurationCard = configurationTitle
+			.closest('section')
+			?.querySelector<HTMLElement>('[data-slot="card"]');
+		expect(configurationCard).toBeInTheDocument();
+
+		const configuration = within(configurationCard as HTMLElement);
+		expect(configuration.getByText('openai/gpt-5')).toBeInTheDocument();
+		expect(configuration.getByLabelText('Raw source folder')).toHaveValue('/wiki/raw');
+		expect(configuration.getByLabelText('Generated wiki folder')).toHaveValue('/wiki/data');
 	});
 
 	it('shows live source progress and cancels an active run', async () => {
