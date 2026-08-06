@@ -9,6 +9,7 @@ import { loadStorages } from './models';
 import type { PersistedTaskState } from './tasks/tasks_types';
 import type { AppLanguage, AppTheme } from '../shared/app_types';
 import { getModelProvidersState, setModelProvidersState, getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from './providers/providers_index';
+import { getRagConfiguration, saveRagConfiguration } from './rag/rag_store';
 
 export type ModelKind =
 	| 'text'
@@ -25,13 +26,13 @@ export type ModelSelection = {
 	modelId: string;
 };
 
-export type AppModelKind = Exclude<ModelKind, 'embedding'>;
+export type ModelsStoreState = Record<ModelKind, ModelSelection>;
 
-export type ModelsStoreState = Record<AppModelKind, ModelSelection>;
+export type AppModelSelections = Omit<ModelsStoreState, 'embedding'>;
 
 const EMPTY_MODEL_SELECTION: ModelSelection = { providerId: '', modelId: '' };
 
-const DEFAULT_MODEL_SELECTIONS: ModelsStoreState = {
+const DEFAULT_MODEL_SELECTIONS: AppModelSelections = {
 	text: EMPTY_MODEL_SELECTION,
 	sound: EMPTY_MODEL_SELECTION,
 	image: EMPTY_MODEL_SELECTION,
@@ -47,7 +48,7 @@ export type AppSettingsState = {
 	language: AppLanguage;
 	theme: AppTheme;
 	storageConfiguration: StorageConfiguration;
-	modelSelections: ModelsStoreState;
+	modelSelections: AppModelSelections;
 };
 
 const APP_SETTINGS_STORE_NAME = 'app';
@@ -81,12 +82,27 @@ const store = new Store<AppSettingsState>({
 });
 
 type LegacyAppSettingsState = AppSettingsState & {
-	databaseConfiguration?: unknown;
-	modelSelections: ModelsStoreState & { embedding?: ModelSelection };
+	databaseConfiguration?: { providerId?: string; databaseId?: string };
+	modelSelections: AppModelSelections & { embedding?: ModelSelection };
 };
 
 const persistedSettings = { ...store.store } as LegacyAppSettingsState;
 const persistedModelSelections = { ...persistedSettings.modelSelections };
+const legacyDatabase = persistedSettings.databaseConfiguration;
+const legacyEmbedding = persistedModelSelections.embedding;
+if (legacyDatabase || legacyEmbedding) {
+	const configuration = getRagConfiguration();
+	saveRagConfiguration({
+		...configuration,
+		databaseProviderId:
+			configuration.databaseProviderId || legacyDatabase?.providerId?.trim() || '',
+		databaseId: configuration.databaseId || legacyDatabase?.databaseId?.trim() || '',
+		embeddingProviderId:
+			configuration.embeddingProviderId || legacyEmbedding?.providerId?.trim() || '',
+		embeddingModelId:
+			configuration.embeddingModelId || legacyEmbedding?.modelId?.trim() || '',
+	});
+}
 delete persistedSettings.databaseConfiguration;
 delete persistedModelSelections.embedding;
 store.store = {
@@ -140,11 +156,11 @@ export function setTheme(theme: AppTheme): void {
 	store.set('theme', theme);
 }
 
-export function getAppModelSelections(): ModelsStoreState {
+export function getAppModelSelections(): AppModelSelections {
 	return store.get('modelSelections');
 }
 
-export function setAppModelSelections(value: ModelsStoreState): void {
+export function setAppModelSelections(value: AppModelSelections): void {
 	store.set('modelSelections', value);
 }
 
