@@ -3,13 +3,15 @@ import { callTool } from '../../../../src/main/mcp/mcp_client_call_tool';
 import { close } from '../../../../src/main/mcp/mcp_client_close';
 import { connect } from '../../../../src/main/mcp/mcp_client_connect';
 import { listTools } from '../../../../src/main/mcp/mcp_client_list_tools';
+import { readLocalMcpServer } from '../../../../src/main/mcp/mcp_local_read';
 import type { McpClient } from '../../../../src/main/mcp/mcp_types';
 
+const directory = path.resolve('resources/mcp/demo-server');
 const demo = {
 	type: 'stdio' as const,
 	command: process.execPath,
 	args: ['server.mjs'],
-	cwd: path.resolve('resources/mcp/demo-server'),
+	cwd: directory,
 };
 
 describe('demo MCP server', () => {
@@ -21,6 +23,14 @@ describe('demo MCP server', () => {
 
 	afterAll(async () => {
 		await close(client);
+	});
+
+	it('is a valid uploadable local package', () => {
+		expect(readLocalMcpServer(directory)).toMatchObject({
+			id: 'friday-demo',
+			source: 'local',
+			data: { type: 'stdio', command: 'node', args: ['server.mjs'], cwd: directory },
+		});
 	});
 
 	it('publishes the demo tools', async () => {

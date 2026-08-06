@@ -253,6 +253,8 @@ Each discovered local server lives in its own folder and contains an `mcp.json` 
 
 The folder name is used as the ID when `id` is omitted. IDs use lowercase letters, numbers, and single hyphens. Relative `cwd` values are resolved from the package folder; omitting `cwd` also runs the command from that folder. Friday rescans the directory whenever settings or an agent run reads the MCP registry, so adding or removing a valid folder does not require an app restart. Explicitly configured servers take precedence over a discovered package with the same ID, and malformed or duplicate local packages are reported in Settings instead of preventing other servers from loading.
 
+A dependency-free package with three sample tools is available at `resources/mcp/demo-server` and can be selected directly with **Upload local**.
+
 At the start of each normal agent run, enabled servers connect in parallel, expose their tools to the model, and close when the run ends. Unreachable or unauthenticated servers are skipped for that run.
 
 Current limits:
