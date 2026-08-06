@@ -20,7 +20,7 @@ import { wikiFailureStore } from './wiki_failure_store';
 import { wikiReviewStore } from './wiki_review_store';
 import type { WikiOperationRecord } from './wiki_types';
 
-export async function runWiki(): Promise<WikiRunResult> {
+export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 	if (wikiRuntime.run) return wikiRuntime.run;
 
 	wikiRuntime.run = (async () => {
@@ -40,9 +40,17 @@ export async function runWiki(): Promise<WikiRunResult> {
 		await mkdir(settings.sourcePath, { recursive: true });
 		const paths = wikiPaths(settings.targetPath);
 		await ensureWikiSchema(settings.targetPath, paths.config);
-		const sources = await collectWikiSources(settings.sourcePath);
+		const discoveredSources = await collectWikiSources(settings.sourcePath);
+		const selectedPath = relativePath?.trim().replaceAll('\\', '/').replace(/^\.\//, '');
+		const sources = selectedPath
+			? discoveredSources.filter((source) => source.relativePath === selectedPath)
+			: discoveredSources;
 		if (sources.length === 0) {
-			throw new Error(`No supported source documents found in ${settings.sourcePath}.`);
+			throw new Error(
+				selectedPath
+					? `No supported source document found at ${selectedPath}.`
+					: `No supported source documents found in ${settings.sourcePath}.`
+			);
 		}
 
 		const state = getWikiState();

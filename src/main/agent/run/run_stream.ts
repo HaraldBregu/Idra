@@ -53,6 +53,7 @@ import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 import { getPermissionMode } from '../policy';
+import { getWikiTools } from '../../wiki/tools';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -119,6 +120,7 @@ async function* loop(
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
 				...(session.category === 'main' ? [knowledgeSearchTool] : []),
+				...getWikiTools(session.category),
 				updateHealthTool(config),
 				updateHealthSettingsTool,
 				loadSkillTool,
