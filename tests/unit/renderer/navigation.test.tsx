@@ -7,6 +7,22 @@ jest.mock('react-i18next', () => ({
 	useTranslation: () => ({ t: (key: string): string => key }),
 }));
 
+beforeEach(() => {
+	Object.defineProperty(window, 'matchMedia', {
+		configurable: true,
+		value: jest.fn((query: string) => ({
+			matches: false,
+			media: query,
+			onchange: null,
+			addListener: jest.fn(),
+			removeListener: jest.fn(),
+			addEventListener: jest.fn(),
+			removeEventListener: jest.fn(),
+			dispatchEvent: jest.fn(),
+		})),
+	});
+});
+
 it.each([
 	['/settings/knowledge-base', 'settings.rag.title'],
 	['/settings/llm-wiki', 'settings.wiki.title'],
