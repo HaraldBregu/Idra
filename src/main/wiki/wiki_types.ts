@@ -114,6 +114,12 @@ export interface WikiSourceRecord {
 	operationId?: string;
 }
 
+export interface WikiRegisteredSource {
+	source: WikiSource;
+	record: WikiSourceRecord;
+	isNew: boolean;
+}
+
 export interface WikiPageManifestEntry {
 	id: string;
 	path: string;

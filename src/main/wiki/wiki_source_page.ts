@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { WikiSource } from './wiki_types';
 
 export function wikiSourcePage(source: WikiSource): string {
+	if (source.sourceId) return `sources/${source.sourceId}.md`;
 	const stem = source.relativePath
 		.slice(0, -path.extname(source.relativePath).length)
 		.toLowerCase()

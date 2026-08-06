@@ -8,8 +8,13 @@ export interface WikiPaths {
 	config: string;
 }
 
-export function wikiPaths(): WikiPaths {
-	const root = wikiLocation();
+export function wikiPaths(targetPath?: string): WikiPaths {
+	const defaultRoot = wikiLocation();
+	const relative = targetPath ? path.relative(defaultRoot, targetPath) : '';
+	const root =
+		targetPath && (relative.startsWith('..') || path.isAbsolute(relative))
+			? path.dirname(targetPath)
+			: defaultRoot;
 	return {
 		root,
 		evidence: path.resolve(root, 'evidence', 'documents'),
