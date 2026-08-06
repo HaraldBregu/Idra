@@ -2,8 +2,12 @@ import path from 'node:path';
 import cron from 'node-cron';
 import type { WikiSettings } from '../../shared/wiki_types';
 import { realPath } from '../shared/real_path';
+import { DEFAULT_WIKI_SETTINGS } from './wiki_settings_store';
 
-export function normalizeWikiSettings(input: WikiSettings): WikiSettings {
+type WikiSettingsInput = Partial<WikiSettings> &
+	Pick<WikiSettings, 'providerId' | 'modelId' | 'sourcePath' | 'targetPath' | 'schedule'>;
+
+export function normalizeWikiSettings(input: WikiSettingsInput): WikiSettings {
 	const providerId = input.providerId?.trim() ?? '';
 	const modelId = input.modelId?.trim() ?? '';
 	const sourcePath = realPath(input.sourcePath?.trim() ?? '');
@@ -33,10 +37,16 @@ export function normalizeWikiSettings(input: WikiSettings): WikiSettings {
 	}
 
 	return {
+		enabled: input.enabled ?? DEFAULT_WIKI_SETTINGS.enabled,
 		providerId,
 		modelId,
 		sourcePath,
 		targetPath,
+		autoFileAnswers: input.autoFileAnswers ?? DEFAULT_WIKI_SETTINGS.autoFileAnswers,
+		requireReviewForMajorChanges:
+			input.requireReviewForMajorChanges ?? DEFAULT_WIKI_SETTINGS.requireReviewForMajorChanges,
+		retrievalPriority: 'wiki_first',
+		lintOnStartup: input.lintOnStartup ?? DEFAULT_WIKI_SETTINGS.lintOnStartup,
 		schedule: { enabled, cronExpression },
 	};
 }
