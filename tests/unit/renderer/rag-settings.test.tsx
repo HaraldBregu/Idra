@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import RagPage from '../../../src/renderer/src/pages/settings/pages/rag/Page';
 
@@ -14,6 +14,7 @@ jest.mock('react-i18next', () => {
 		'settings.rag.indexNameDescription': 'Pinecone index.',
 		'settings.rag.indexNamePlaceholder': 'friday',
 		'settings.rag.documentsDescription': 'Documents to index.',
+		'settings.rag.sourceFolder': 'Markdown source folder',
 		'settings.rag.sourcePlaceholder': 'Choose source folders',
 		'settings.rag.pickFolder': 'Choose folder',
 		'settings.rag.index': 'Generate index',
@@ -26,6 +27,8 @@ jest.mock('react-i18next', () => {
 		'settings.rag.searchPlaceholder': 'Search documents',
 		'settings.rag.search': 'Search',
 		'settings.vectorDb.defaultTitle': 'Vector database',
+		'settings.vectorDb.databaseDescription': 'Database used for embeddings.',
+		'settings.vectorDb.databasePlaceholder': 'Select a database',
 		'settings.vectorDb.empty': 'No database provider is available.',
 		'settings.modelServices.modelPlaceholder': 'Select model',
 		'settings.modelServices.noModels': 'No models are available.',
@@ -118,6 +121,52 @@ it('loads and saves the embedding model used by RAG', async () => {
 		expect(embeddingApi.setProviderId).toHaveBeenCalledWith('voyage');
 		expect(embeddingApi.setModelId).toHaveBeenCalledWith('voyage-3');
 	});
+});
+
+it('groups providers, model, index, and folder paths in one configuration card', async () => {
+	Object.defineProperty(window, 'app', {
+		configurable: true,
+		value: {
+			databases: jest.fn().mockResolvedValue([
+				{
+					id: 'pinecone',
+					name: 'Pinecone',
+					provider: { id: 'pinecone', name: 'Pinecone' },
+				},
+			]),
+		},
+	});
+	databaseApi.getConfiguration.mockResolvedValue({
+		providerId: 'pinecone',
+		databaseId: 'pinecone',
+		providers: [],
+	});
+	agentApi.ragGetConfiguration.mockResolvedValue({
+		indexName: 'friday',
+		databaseProviderId: 'pinecone',
+		databaseId: 'pinecone',
+		embeddingProviderId: 'openai',
+		embeddingModelId: 'text-embedding-3-small',
+		folders: ['/Users/example/docs'],
+		scheduleEnabled: false,
+		cronExpression: '0 3 * * *',
+	});
+
+	render(<RagPage />);
+
+	const configurationTitle = await screen.findByText('Configuration');
+	const configurationCard = configurationTitle
+		.closest('section')
+		?.querySelector<HTMLElement>('[data-slot="card"]');
+	expect(configurationCard).toBeInTheDocument();
+
+	const configuration = within(configurationCard as HTMLElement);
+	expect(configuration.getByRole('combobox', { name: 'Vector database' })).toBeInTheDocument();
+	expect(configuration.getByRole('combobox', { name: 'Embedding model' })).toBeInTheDocument();
+	expect(configuration.getByLabelText('Index name')).toHaveValue('friday');
+	expect(configuration.getByText('/Users/example/docs')).toBeInTheDocument();
+	expect(configuration.getByRole('button', { name: 'Choose folder' })).toBeInTheDocument();
+	expect(screen.getAllByText('Configuration')).toHaveLength(1);
 });
 
 it('saves the selected RAG index name from the configuration card', async () => {
