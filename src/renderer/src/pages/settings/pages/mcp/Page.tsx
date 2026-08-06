@@ -13,6 +13,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { McpServerDialog } from './components/McpServerDialog';
+import { McpLocalServerCard } from './components/McpLocalServerCard';
 import { McpServerRow } from './components/McpServerRow';
 import { McpCard } from '../providers/McpCard';
 
@@ -231,18 +232,22 @@ const McpPage = (): React.JSX.Element => {
 				title="Local servers"
 				description={`${root || '~/.friday/mcp/servers'} · Configure package commands and environment values here.`}
 			>
-				<SettingsPanel>
-					{loading ? (
+				{loading ? (
+					<SettingsPanel>
 						<SettingsLoadingRows rows={2} />
+					</SettingsPanel>
 					) : local.length === 0 ? (
+					<SettingsPanel>
 						<SettingsEmptyState
 							icon={PlugZap}
 							title="No local MCP servers"
 							description="Upload a folder containing mcp.json or add a local command."
 						/>
+					</SettingsPanel>
 					) : (
+					<div className="grid gap-2">
 						local.map((server) => (
-							<McpServerRow
+							<McpLocalServerCard
 								key={server.id}
 								server={server}
 								testing={testing.has(server.id)}
@@ -252,8 +257,8 @@ const McpPage = (): React.JSX.Element => {
 								onRemove={server.source === 'configured' ? () => remove(server.id) : undefined}
 							/>
 						))
+					</div>
 					)}
-				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>
 	);

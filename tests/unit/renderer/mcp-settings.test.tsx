@@ -67,6 +67,10 @@ describe('MCP settings', () => {
 
 		expect(await screen.findByText('Remote docs')).toBeInTheDocument();
 		expect(screen.getByText('Local files')).toBeInTheDocument();
+		expect(screen.queryByText('Local package')).not.toBeInTheDocument();
+		expect(screen.queryByText('/home/user/.friday/mcp/servers/local')).not.toBeInTheDocument();
+
+		await userEvent.click(screen.getByRole('button', { name: 'Show Local files details' }));
 		expect(screen.getByText('Local package')).toBeInTheDocument();
 		expect(screen.getByText('/home/user/.friday/mcp/servers/local')).toBeInTheDocument();
 	});
@@ -97,6 +101,7 @@ describe('MCP settings', () => {
 		render(<McpPage />);
 		await screen.findByText('Local files');
 
+		await user.click(screen.getByRole('button', { name: 'Show Local files details' }));
 		await user.click(screen.getByRole('button', { name: 'Edit Local files' }));
 		const environment = screen.getByLabelText('Environment variables (optional)');
 		await user.type(environment, 'DEMO_COMPANY=Friday Studio');
