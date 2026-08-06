@@ -3,6 +3,11 @@ import os from 'node:os';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
+import { reviewWikiChange } from '../../../../src/main/wiki/wiki_review';
+import { saveWikiAnalysis } from '../../../../src/main/wiki/wiki_save_analysis';
+import { wikiReviewStore } from '../../../../src/main/wiki/wiki_review_store';
+import { wikiSourceStore } from '../../../../src/main/wiki/wiki_source_store';
+import { DEFAULT_WIKI_SETTINGS, wikiSettingsStore } from '../../../../src/main/wiki/wiki_settings_store';
 import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
 
 const sourceA: WikiSource = {
@@ -205,5 +210,110 @@ describe('incremental wiki knowledge integration', () => {
 		expect(result).toMatchObject({ updatedPages: 0, pendingReviews: 1 });
 		expect(result.reviewItems?.[0]).toMatchObject({ risk: 'high', status: 'pending' });
 		expect(await readFile(path.join(target, 'syntheses/strategy.md'), 'utf8')).toContain(original.trim());
+	});
+
+	it('merges saved analyses into an existing page and keeps index and log synchronized', async () => {
+		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-save-'));
+		const target = path.join(root, 'data');
+		const archive = path.join(root, 'a.md');
+		await import('node:fs/promises').then(({ writeFile }) => writeFile(archive, 'Evidence A', 'utf8'));
+		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, targetPath: target };
+		wikiSourceStore.store = {
+			version: 1,
+			sources: {
+				[sourceA.sourceId!]: {
+					sourceId: sourceA.sourceId!,
+					checksum: sourceA.hash,
+					originalName: 'a.md',
+					relativePaths: ['a.md'],
+					mediaType: 'text/markdown',
+					createdAt: '2026-08-06T00:00:00.000Z',
+					ingestedAt: '2026-08-06T00:00:00.000Z',
+					archivePath: archive,
+					status: 'integrated',
+				},
+			},
+		};
+
+		const first = await saveWikiAnalysis({
+			title: 'Memory approaches',
+			summary: 'Comparison of durable memory approaches.',
+			content: 'The first comparison.',
+			pageType: 'comparison',
+			sourceIds: [sourceA.sourceId!],
+		});
+		const second = await saveWikiAnalysis({
+			title: 'Memory approaches',
+			summary: 'Expanded comparison of durable memory approaches.',
+			content: 'The second comparison adds wiki compilation.',
+			pageType: 'comparison',
+			sourceIds: [sourceA.sourceId!],
+		});
+
+		expect(first).toMatchObject({ created: true, updated: false });
+		expect(second).toMatchObject({ created: false, updated: true, path: first.path });
+		expect(await readFile(path.join(target, first.path), 'utf8')).toContain('The second comparison');
+		expect(await readFile(path.join(target, 'index.md'), 'utf8')).toContain('Memory approaches');
+		expect((await readFile(path.join(target, 'log.md'), 'utf8')).match(/saved_query \| Memory approaches/g)).toHaveLength(2);
+	});
+
+	it('applies a queued major rewrite only after explicit review approval', async () => {
+		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-approve-'));
+		const target = path.join(root, 'data');
+		const archive = path.join(root, 'b.md');
+		await import('node:fs/promises').then(({ writeFile }) => writeFile(archive, 'Evidence B', 'utf8'));
+		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, targetPath: target };
+		wikiSourceStore.store = {
+			version: 1,
+			sources: {
+				[sourceB.sourceId!]: {
+					sourceId: sourceB.sourceId!,
+					checksum: sourceB.hash,
+					originalName: 'b.md',
+					relativePaths: ['b.md'],
+					mediaType: 'text/markdown',
+					createdAt: '2026-08-06T00:00:00.000Z',
+					ingestedAt: '2026-08-06T00:00:00.000Z',
+					archivePath: archive,
+					status: 'integrated',
+				},
+			},
+		};
+		await applyWikiUpdate(target, sourceA, {
+			pages: [
+				{
+					path: 'syntheses/reviewed.md',
+					title: 'Reviewed synthesis',
+					pageType: 'synthesis',
+					summary: 'Original synthesis.',
+					content: 'Original synthesis evidence. '.repeat(30),
+					sources: ['a.md'],
+				},
+			],
+		});
+		const proposed = await applyWikiUpdate(
+			target,
+			sourceB,
+			{
+				pages: [
+					{
+						path: 'syntheses/reviewed.md',
+						title: 'Reviewed synthesis',
+						pageType: 'synthesis',
+						summary: 'Replacement synthesis.',
+						content: 'Human-approved replacement. '.repeat(30),
+						sources: ['b.md'],
+					},
+				],
+			},
+			{ operationId: 'operation-proposed' }
+		);
+		wikiReviewStore.store = { version: 1, items: proposed.reviewItems! };
+
+		const reviewed = await reviewWikiChange(proposed.reviewItems![0].id, 'approve');
+		const page = matter(await readFile(path.join(target, 'syntheses/reviewed.md'), 'utf8'));
+		expect(reviewed.status).toBe('approved');
+		expect(page.data.review_status).toBe('approved');
+		expect(page.content).toContain('Human-approved replacement.');
 	});
 });
