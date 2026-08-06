@@ -1,6 +1,8 @@
 import { CHANNEL_DEFAULT_DM_POLICY, type StoredBotProvider } from '../../shared';
 import type { ChannelInboundMessage } from './channels_types';
 
+const CHANNEL_MAX_VOICE_BYTES = 20 * 1024 * 1024;
+
 export interface ChannelSecurityDecision {
 	allowed: boolean;
 	reason?: string;
@@ -16,6 +18,17 @@ export function canReceive(
 	}
 	if (message.content.type === 'text' && !message.content.text.trim()) {
 		return { allowed: false, reason: 'empty_text' };
+	}
+	if (message.content.type === 'voice') {
+		if (!message.content.voice.mimeType.startsWith('audio/')) {
+			return { allowed: false, reason: 'unsupported_voice_type' };
+		}
+		if (
+			message.content.voice.byteLength &&
+			message.content.voice.byteLength > CHANNEL_MAX_VOICE_BYTES
+		) {
+			return { allowed: false, reason: 'voice_too_large' };
+		}
 	}
 	if (message.chatType === 'dm') {
 		const dmPolicy = credential.dmPolicy ?? CHANNEL_DEFAULT_DM_POLICY;

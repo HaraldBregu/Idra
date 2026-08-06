@@ -44,6 +44,36 @@ describe('canReceive', () => {
 			canReceive(message({ content: { type: 'text', text: '   ' } }), config()).reason
 		).toBe('empty_text');
 	});
+	it('allows valid voice metadata without loading audio', () => {
+		const load = jest.fn();
+		expect(
+			canReceive(
+				message({
+					content: {
+						type: 'voice',
+						voice: { mimeType: 'audio/ogg', byteLength: 1024, load },
+					},
+				}),
+				config()
+			)
+		).toEqual({ allowed: true });
+		expect(load).not.toHaveBeenCalled();
+	});
+	it('rejects oversized voice metadata without loading audio', () => {
+		const load = jest.fn();
+		expect(
+			canReceive(
+				message({
+					content: {
+						type: 'voice',
+						voice: { mimeType: 'audio/ogg', byteLength: 21 * 1024 * 1024, load },
+					},
+				}),
+				config()
+			).reason
+		).toBe('voice_too_large');
+		expect(load).not.toHaveBeenCalled();
+	});
 
 	describe('direct messages', () => {
 		const dm = (o: Partial<ChannelInboundMessage> = {}) => message({ chatType: 'dm', ...o });

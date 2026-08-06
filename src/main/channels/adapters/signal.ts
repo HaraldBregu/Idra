@@ -46,6 +46,10 @@ export function createSignalAdapter(options: SignalAdapterOptions): ChannelAdapt
 	const accountId = options.accountId.trim();
 	if (!accountId) throw new Error('Signal account is required');
 	const baseUrl = (options.baseUrl?.trim() || 'http://127.0.0.1:8080').replace(/\/$/, '');
+	const endpoint = new URL(baseUrl);
+	if (!['127.0.0.1', 'localhost', '::1'].includes(endpoint.hostname)) {
+		throw new Error('Signal daemon must use a loopback address');
+	}
 	const messageHandlers = new Set<ChannelInboundHandler>();
 	const statusHandlers = new Set<ChannelStatusHandler>();
 	const seenMessages = new Set<string>();
@@ -161,9 +165,7 @@ export function createSignalAdapter(options: SignalAdapterOptions): ChannelAdapt
 				if (json) {
 					try {
 						handleEvent(JSON.parse(json) as SignalReceive);
-					} catch {
-						// Ignore malformed events and keep the stream alive.
-					}
+					} catch {}
 				}
 				boundary = buffer.indexOf('\n\n');
 			}
