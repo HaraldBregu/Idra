@@ -26,7 +26,7 @@ export async function loadModels(): Promise<void> {
 			window.app.storages(),
 			window.app.webSearches(),
 			window.app.mcps(),
-			window.app.bots(),
+			window.app.channels(),
 		]);
 }
 

@@ -305,7 +305,7 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: import('./provider_types').CatalogService[];
 	};
-	[AppChannels.bots]: {
+	[AppChannels.channels]: {
 		args: [];
 		result: import('./provider_types').CatalogService[];
 	};

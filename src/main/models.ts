@@ -26,7 +26,6 @@ interface Catalog {
 	readonly storages: readonly CatalogService[];
 	readonly webSearches: readonly CatalogWebSearch[];
 	readonly mcps: readonly CatalogService[];
-	readonly bots: readonly CatalogService[];
 }
 
 let cache: Catalog | undefined;
@@ -62,11 +61,6 @@ export function loadWebSearches(): readonly CatalogWebSearch[] {
 /** Every MCP service across bundled and local provider manifests. */
 export function loadMcps(): readonly CatalogService[] {
 	return loadCatalog().mcps;
-}
-
-/** Every bot service across bundled and local provider manifests. */
-export function loadBots(): readonly CatalogService[] {
-	return loadCatalog().bots;
 }
 
 export function refreshProviderCatalog(): void {
@@ -243,7 +237,6 @@ function readCatalog(): Catalog {
 	const storages: CatalogService[] = [];
 	const webSearches: CatalogWebSearch[] = [];
 	const mcps: CatalogService[] = [];
-	const bots: CatalogService[] = [];
 	const manifests = new Map<string, { entry: ProviderManifest; providerDir: string }>();
 
 	for (const directory of [bundledProvidersDir(), providersDir()]) {
@@ -290,11 +283,6 @@ function readCatalog(): Catalog {
 				.filter((service) => service.type === 'mcp')
 				.map((service) => ({ ...service, provider }))
 		);
-		bots.push(
-			...entry.services
-				.filter((service) => service.type === 'bot')
-				.map((service) => ({ ...service, provider }))
-		);
 	}
 
 	return {
@@ -303,6 +291,5 @@ function readCatalog(): Catalog {
 		storages: storages.sort(compareByName),
 		webSearches: webSearches.sort(compareByName),
 		mcps: mcps.sort(compareByName),
-		bots: bots.sort(compareByName),
 	};
 }

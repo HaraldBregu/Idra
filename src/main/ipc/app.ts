@@ -42,7 +42,6 @@ import {
 } from '../settings_store';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
 import {
-	loadBots,
 	loadDatabases,
 	loadMcps,
 	loadModels,
@@ -55,7 +54,7 @@ import {
 import type { LoggerService } from '../shared';
 import { validateProviderManifest } from '../../shared/providers/validation';
 import type { ChannelStatusEvent, ChannelType } from '../../shared';
-import { type ChannelRegistry } from '../channels';
+import { loadChannels, type ChannelRegistry } from '../channels';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
@@ -322,10 +321,10 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			AppChannels.bots,
+			AppChannels.channels,
 			wrapSimpleHandler(() => {
-				return [...loadBots()];
-			}, AppChannels.bots)
+				return [...loadChannels()];
+			}, AppChannels.channels)
 		);
 
 		// Re-read the catalog and tell renderers when resources/providers changes on disk

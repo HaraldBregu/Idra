@@ -37,7 +37,7 @@ const ChannelDetailPage: React.FC = () => {
 	useEffect(() => {
 		let mounted = true;
 
-		void Promise.all([window.app.bots(), window.provider.get(providerId)])
+		void Promise.all([window.app.channels(), window.provider.get(providerId)])
 			.then(([services, stored]) => {
 				if (!mounted) return;
 				const entry = services.find((item) => item.provider.id === providerId) ?? null;

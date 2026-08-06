@@ -25,7 +25,7 @@ const ChannelsPage: React.FC = () => {
 	useEffect(() => {
 		let mounted = true;
 
-		void Promise.all([window.app.bots(), window.provider.list()])
+		void Promise.all([window.app.channels(), window.provider.list()])
 			.then(([services, stored]) => {
 				if (!mounted) return;
 				setChannels(services);

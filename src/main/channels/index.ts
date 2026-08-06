@@ -1,5 +1,6 @@
 export { createChannelRegistry } from './channels_registry';
 export type { ChannelRegistry, ChannelRegistryDependencies } from './channels_registry';
+export { loadChannels } from './catalog';
 export {
 	getChannelProvider,
 	listChannelProviders,
