@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, type ReactNode } from 'react';
 import {
 	AlertTriangle,
 	ChevronDown,
@@ -62,9 +62,15 @@ interface StorageEntry {
 
 interface StoragePageProps {
 	readonly embedded?: boolean;
+	readonly inline?: boolean;
+	readonly emptyAction?: ReactNode;
 }
 
-const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
+const StoragePage: React.FC<StoragePageProps> = ({
+	embedded = false,
+	inline = false,
+	emptyAction,
+}) => {
 	const { t } = useTranslation();
 	const [entries, setEntries] = useState<StorageEntry[] | null>(null);
 	const [availableFolders, setAvailableFolders] = useState<StorageSyncFolder[]>([]);
@@ -201,8 +207,8 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 	};
 
 	return (
-		<SettingsPageShell className={embedded ? 'max-w-none px-0 pb-0' : undefined}>
-			{!embedded && (
+		<SettingsPageShell className={embedded || inline ? 'max-w-none px-0 pb-0' : undefined}>
+			{!embedded && !inline && (
 				<SettingsPageHeader
 					title={t('settings.storage.configurationTitle')}
 					description={t('settings.storage.description')}
@@ -247,7 +253,10 @@ const StoragePage: React.FC<StoragePageProps> = ({ embedded = false }) => {
 					</Button>
 				</>
 			) : savedEntries.length === 0 ? (
-				<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
+				<>
+					<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
+					{emptyAction}
+				</>
 			) : (
 				<>
 					<Card size="sm" className="gap-0! py-0!">
