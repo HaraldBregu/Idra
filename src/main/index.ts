@@ -145,7 +145,7 @@ app.whenReady().then(async () => {
 	app.once('before-quit', () => {
 		void stopWatchingExtensions();
 	});
-	startWiki();
+	startWiki(logger);
 	// Apply persisted settings on startup (updateLanguage builds the menu)
 	const storedLanguage = getLanguage();
 	menuManager.updateLanguage(storedLanguage);

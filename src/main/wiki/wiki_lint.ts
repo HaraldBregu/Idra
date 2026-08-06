@@ -7,6 +7,8 @@ import { appendWikiLog } from './wiki_log';
 import { wikiOperationStore } from './wiki_operation_store';
 import { wikiSourceStore } from './wiki_source_store';
 import { transactWiki } from './wiki_transaction';
+import { wikiManifestStore } from './wiki_manifest_store';
+import { incrementWikiMetric } from './wiki_metrics';
 import type {
 	WikiClaim,
 	WikiContradiction,
@@ -160,6 +162,26 @@ export async function lintWiki(
 			result.warnings.push({ code: 'source_not_integrated', message: `Integrated source '${record.sourceId}' has no wiki page.` });
 		}
 	}
+	wikiManifestStore.store = {
+		version: 1,
+		pages: Object.fromEntries(
+			pages
+				.filter((page) => typeof page.data.id === 'string' && page.data.id)
+				.map((page) => [
+					String(page.data.id),
+					{
+						id: String(page.data.id),
+						path: page.path,
+						title: page.title,
+						pageType: String(page.data.page_type) as import('./wiki_types').WikiPageType,
+						updatedAt: String(page.data.updated_at ?? page.data.updated ?? ''),
+						sourceIds: Array.isArray(page.data.source_ids)
+							? page.data.source_ids.map(String)
+							: [],
+					},
+				])
+		),
+	};
 	const operationId = `operation-lint-${Date.now().toString(36)}`;
 	const syntheticSource: WikiSource = {
 		absolutePath: '',
@@ -203,5 +225,13 @@ export async function lintWiki(
 		...wikiOperationStore.store,
 		operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
 	};
+	incrementWikiMetric(
+		'wiki_lint_findings_total',
+		result.critical.length +
+			result.warnings.length +
+			result.suggestions.length +
+			result.autoFixable.length +
+			result.requiresReview.length
+	);
 	return result;
 }

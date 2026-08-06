@@ -5,4 +5,8 @@ export const wikiRuntime: {
 	task?: ScheduledTask;
 	run?: Promise<WikiRunResult>;
 	lastRun?: WikiRunResult;
+	logger?: {
+		info(scope: string, message: string, data?: unknown): void;
+		error(scope: string, message: string, error?: unknown): void;
+	};
 } = {};

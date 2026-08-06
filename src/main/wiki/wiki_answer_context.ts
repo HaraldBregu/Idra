@@ -9,12 +9,14 @@ import type {
 	WikiContradiction,
 	WikiRawEvidenceResult,
 } from './wiki_types';
+import { incrementWikiMetric } from './wiki_metrics';
 
 export async function buildWikiAnswerContext(
 	query: string,
 	includeRaw = false,
 	targetPath = getWikiSettings().targetPath
 ): Promise<WikiAnswerContext> {
+	incrementWikiMetric('wiki_queries_total');
 	const compiledWiki = await searchWiki(query, 5, targetPath);
 	const contradictions: WikiContradiction[] = [];
 	for (const page of compiledWiki) {
@@ -28,6 +30,7 @@ export async function buildWikiAnswerContext(
 	const shouldReadRaw = includeRaw || compiledWiki.length === 0 || compiledWiki[0].confidence < 0.65;
 	const primaryEvidence: WikiRawEvidenceResult[] = [];
 	if (shouldReadRaw) {
+		incrementWikiMetric('wiki_query_fallback_to_raw_total');
 		const sourceIds = [
 			...new Set(
 				compiledWiki.length > 0

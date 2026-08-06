@@ -19,6 +19,7 @@ import { wikiOperationStore } from './wiki_operation_store';
 import { wikiFailureStore } from './wiki_failure_store';
 import { wikiReviewStore } from './wiki_review_store';
 import type { WikiOperationRecord } from './wiki_types';
+import { incrementWikiMetric } from './wiki_metrics';
 
 export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 	if (wikiRuntime.run) return wikiRuntime.run;
@@ -37,6 +38,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 		if (!settings.providerId || !settings.modelId) {
 			throw new Error('Select a wiki provider and model before running.');
 		}
+		wikiRuntime.logger?.info('Wiki', 'Wiki ingest started');
 		await mkdir(settings.sourcePath, { recursive: true });
 		const paths = wikiPaths(settings.targetPath);
 		await ensureWikiSchema(settings.targetPath, paths.config);
@@ -157,12 +159,22 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 					claimsAdded: applied.claimsAdded ?? 0,
 					contradictionsDetected: applied.contradictionsDetected ?? 0,
 					reviewStatus: applied.pendingReviews ? 'required' : 'not_required',
+					modelUsage: update.modelUsage,
 				};
 				wikiOperationStore.store = {
 					...wikiOperationStore.store,
 					operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
 				};
 				saveWikiState(state);
+				incrementWikiMetric('wiki_ingest_total');
+				incrementWikiMetric('wiki_pages_created_total', applied.createdPages);
+				incrementWikiMetric('wiki_pages_updated_total', applied.updatedPages);
+				incrementWikiMetric('wiki_claims_added_total', applied.claimsAdded ?? 0);
+				incrementWikiMetric(
+					'wiki_contradictions_detected_total',
+					applied.contradictionsDetected ?? 0
+				);
+				incrementWikiMetric('wiki_review_pending_total', applied.pendingReviews ?? 0);
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
 				operation = {
@@ -184,6 +196,13 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 					operationId,
 				};
 				wikiSourceStore.store = registry;
+				incrementWikiMetric('wiki_ingest_failed_total');
+				incrementWikiMetric('wiki_rollback_total');
+				wikiRuntime.logger?.error('Wiki', 'Wiki ingest rolled back', {
+					operationId,
+					sourceId: registered.record.sourceId,
+					error: message,
+				});
 				throw error;
 			}
 		}
@@ -203,6 +222,16 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 		state.lastRun = result;
 		saveWikiState(state);
 		wikiRuntime.lastRun = result;
+		wikiRuntime.logger?.info('Wiki', 'Wiki ingest completed', {
+			processedSources,
+			skippedSources,
+			createdPages,
+			updatedPages,
+			claimsAdded,
+			contradictionsDetected,
+			pendingReviews,
+			operationIds,
+		});
 		return result;
 	})();
 

@@ -87,6 +87,10 @@ export interface WikiPageUpdate {
 
 export interface WikiUpdate {
 	pages: WikiPageUpdate[];
+	modelUsage?: {
+		inputTokens: number;
+		outputTokens: number;
+	};
 }
 
 export interface WikiApplyResult {
@@ -152,6 +156,10 @@ export interface WikiOperationRecord {
 	validationErrors: string[];
 	reviewStatus?: 'not_required' | 'required' | 'approved' | 'rejected';
 	error?: string;
+	modelUsage?: {
+		inputTokens: number;
+		outputTokens: number;
+	};
 }
 
 export interface WikiReviewItem {

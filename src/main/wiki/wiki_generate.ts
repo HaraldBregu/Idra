@@ -138,5 +138,11 @@ ${source.content}
 	});
 	const toolCall = response.toolCalls?.find((call) => call.name === 'apply_wiki_update');
 	if (!toolCall) throw new Error('The selected model did not return a wiki update.');
-	return parseWikiUpdate(toolCall.args, sourcePage);
+	return {
+		...parseWikiUpdate(toolCall.args, sourcePage),
+		modelUsage: {
+			inputTokens: response.usage?.inputTokens ?? 0,
+			outputTokens: response.usage?.outputTokens ?? 0,
+		},
+	};
 }
