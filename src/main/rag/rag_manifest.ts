@@ -3,6 +3,7 @@ import path from 'node:path';
 import { userDataLocation } from '../shared/user_data_location';
 
 export interface RagManifest {
+	indexName?: string;
 	providerId: string;
 	modelId: string;
 	dimensions: number;

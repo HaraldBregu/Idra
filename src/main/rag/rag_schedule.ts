@@ -43,7 +43,7 @@ function schedule(): void {
 		configuration.cronExpression,
 		async () => {
 			try {
-				await indexRag(configuration.folders);
+				await indexRag(configuration.folders, configuration.indexName);
 				logger.info('RAG', 'Scheduled indexing completed.');
 			} catch (error) {
 				logger.error('RAG', 'Scheduled indexing failed.', error);

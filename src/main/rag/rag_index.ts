@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { Pinecone } from '@pinecone-database/pinecone';
 import { createEmbedding } from '../models/embedding';
 import { chunkText } from './rag_chunk';
-import { RAG_INDEX_NAME, ragClient } from './rag_client';
+import { ragClient } from './rag_client';
 import { writeRagManifest } from './rag_manifest';
 
 const MARKDOWN_EXTENSIONS = new Set(['.md', '.markdown']);
@@ -14,7 +14,10 @@ export interface RagIndexResult {
 	vectors: number;
 }
 
-export async function indexRag(folders: readonly string[]): Promise<RagIndexResult> {
+export async function indexRag(
+	folders: readonly string[],
+	indexName: string
+): Promise<RagIndexResult> {
 	const sources = [...new Set(folders.map((folder) => folder.trim()).filter(Boolean))];
 	if (sources.length === 0) throw new Error('Choose at least one source folder before indexing.');
 	for (const source of sources) {
@@ -50,8 +53,9 @@ export async function indexRag(folders: readonly string[]): Promise<RagIndexResu
 				requireRemote: true,
 			});
 			if (!index) {
-				index = await ensureIndex(pinecone, embedded.dimensions);
+				index = await ensureIndex(pinecone, indexName, embedded.dimensions);
 				writeRagManifest({
+					indexName,
 					providerId: embedded.providerId,
 					modelId: embedded.modelId,
 					dimensions: embedded.dimensions,
@@ -72,18 +76,18 @@ export async function indexRag(folders: readonly string[]): Promise<RagIndexResu
 	return { files: indexedFiles, vectors };
 }
 
-async function ensureIndex(pinecone: Pinecone, dimension: number) {
+async function ensureIndex(pinecone: Pinecone, indexName: string, dimension: number) {
 	if (dimension === 0) throw new Error('Embedding provider returned no dimensions.');
 	// ponytail: indexing re-embeds every file anyway, so rebuild from scratch — drops vectors of
 	// deleted files and survives a dimension change. Swap for incremental sync if runs get slow.
-	await pinecone.deleteIndex(RAG_INDEX_NAME).catch(() => undefined);
+	await pinecone.deleteIndex(indexName).catch(() => undefined);
 	await pinecone.createIndex({
-		name: RAG_INDEX_NAME,
+		name: indexName,
 		dimension,
 		metric: 'cosine',
 		spec: { serverless: { cloud: 'aws', region: 'us-east-1' } },
 		waitUntilReady: true,
 		suppressConflicts: true,
 	});
-	return pinecone.index(RAG_INDEX_NAME);
+	return pinecone.index(indexName);
 }

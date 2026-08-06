@@ -353,10 +353,10 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.ragIndex,
-			wrapSimpleHandler(
-				(): Promise<RagIndexResult> => indexRag(getRagConfiguration().folders),
-				AgentChannels.ragIndex
-			)
+			wrapSimpleHandler((): Promise<RagIndexResult> => {
+				const configuration = getRagConfiguration();
+				return indexRag(configuration.folders, configuration.indexName);
+			}, AgentChannels.ragIndex)
 		);
 
 		ipcMain.handle(
@@ -381,7 +381,11 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler((query: unknown, topK: unknown): Promise<RagMatch[]> => {
 				const text = optionalTrimmedString(query);
 				if (!text) throw new Error('Invalid search query.');
-				return searchRag(text, typeof topK === 'number' ? topK : undefined);
+				return searchRag(
+					text,
+					getRagConfiguration().indexName,
+					typeof topK === 'number' ? topK : undefined
+				);
 			}, AgentChannels.ragSearch)
 		);
 

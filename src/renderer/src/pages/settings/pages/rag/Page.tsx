@@ -20,6 +20,7 @@ import { defaultProviderId, modelsFor } from '@/lib/providers';
 import { getErrorMessage } from '../../../start/constants';
 import {
 	SettingsLoadingRows,
+	SettingsField,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -125,11 +126,13 @@ const RagPage: React.FC = () => {
 	}, [t]);
 
 	const handleIndex = async (): Promise<void> => {
-		if (!ragConfiguration?.folders.length) return;
+		if (!ragConfiguration?.folders.length || !ragConfiguration.indexName.trim()) return;
 		setIndexing(true);
 		setError(null);
 		setIndexed(null);
 		try {
+			const saved = await saveRagConfiguration(ragConfiguration);
+			if (!saved) return;
 			setIndexed(await window.agent.ragIndex());
 		} catch (err) {
 			setError(
@@ -140,13 +143,18 @@ const RagPage: React.FC = () => {
 		}
 	};
 
-	const saveRagConfiguration = async (next: RagConfiguration): Promise<void> => {
+	const saveRagConfiguration = async (
+		next: RagConfiguration
+	): Promise<RagConfiguration | undefined> => {
 		setSavingRagConfiguration(true);
 		setError(null);
 		try {
-			setRagConfiguration(await window.agent.ragSaveConfiguration(next));
+			const saved = await window.agent.ragSaveConfiguration(next);
+			setRagConfiguration(saved);
+			return saved;
 		} catch (err) {
 			setError(getErrorMessage(err, t('settings.rag.saveError')));
+			return undefined;
 		} finally {
 			setSavingRagConfiguration(false);
 		}
@@ -171,11 +179,13 @@ const RagPage: React.FC = () => {
 	};
 
 	const handleSearch = async (): Promise<void> => {
-		if (!query.trim()) return;
+		if (!query.trim() || !ragConfiguration?.indexName.trim()) return;
 		setSearching(true);
 		setError(null);
 		setMatches(null);
 		try {
+			const saved = await saveRagConfiguration(ragConfiguration);
+			if (!saved) return;
 			setMatches(await window.agent.ragSearch(query));
 		} catch (err) {
 			setError(
@@ -331,9 +341,32 @@ const RagPage: React.FC = () => {
 				)}
 			</SettingsSection>
 
-			<SettingsSection title={t('settings.rag.documentsTitle')}>
+			<SettingsSection title={t('settings.rag.configurationTitle')}>
 				<SettingsPanel>
 					<div className="grid gap-3 px-3 py-3">
+						<SettingsField
+							id="rag-index-name"
+							label={t('settings.rag.indexName')}
+							description={t('settings.rag.indexNameDescription')}
+						>
+							<Input
+								id="rag-index-name"
+								value={ragConfiguration?.indexName ?? ''}
+								placeholder={t('settings.rag.indexNamePlaceholder')}
+								maxLength={45}
+								disabled={!ragConfiguration || indexing || savingRagConfiguration}
+								onChange={(event) =>
+									ragConfiguration &&
+									setRagConfiguration({
+										...ragConfiguration,
+										indexName: event.target.value,
+									})
+								}
+								onBlur={() =>
+									ragConfiguration && void saveRagConfiguration(ragConfiguration)
+								}
+							/>
+						</SettingsField>
 						<p className="text-[11px] leading-4 text-muted-foreground">
 							{t('settings.rag.documentsDescription')}
 						</p>
@@ -383,7 +416,12 @@ const RagPage: React.FC = () => {
 							<Button
 								type="button"
 								size="sm"
-								disabled={indexing || savingRagConfiguration || !ragConfiguration?.folders.length}
+								disabled={
+									indexing ||
+									savingRagConfiguration ||
+									!ragConfiguration?.folders.length ||
+									!ragConfiguration.indexName.trim()
+								}
 								onClick={() => void handleIndex()}
 							>
 								{indexing ? (
@@ -450,7 +488,12 @@ const RagPage: React.FC = () => {
 							<Button
 								type="button"
 								size="sm"
-								disabled={searching || !query.trim()}
+								disabled={
+									searching ||
+									savingRagConfiguration ||
+									!ragConfiguration?.indexName.trim() ||
+									!query.trim()
+								}
 								onClick={() => void handleSearch()}
 							>
 								{searching ? (
