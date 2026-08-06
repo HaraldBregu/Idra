@@ -118,7 +118,7 @@ async function* loop(
 				recorderScreenStatusTool,
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
-				knowledgeSearchTool,
+				...(session.category === 'main' ? [knowledgeSearchTool] : []),
 				updateHealthTool(config),
 				updateHealthSettingsTool,
 				loadSkillTool,
