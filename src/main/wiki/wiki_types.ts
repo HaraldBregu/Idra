@@ -94,6 +94,12 @@ export interface WikiApplyResult {
 	claimsAdded?: number;
 	contradictionsDetected?: number;
 	pendingReviews?: number;
+	reviewItems?: WikiReviewItem[];
+}
+
+export interface WikiApplyOptions {
+	operationId?: string;
+	requireReviewForMajorChanges?: boolean;
 }
 
 export interface WikiState {

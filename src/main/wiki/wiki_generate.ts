@@ -31,11 +31,14 @@ export async function generateWikiUpdate(
 				content: `Ingest the source below into the current wiki.
 
 Required source summary page: ${sourcePage}
+Stable source ID: ${source.sourceId ?? 'legacy-source'}
 The source summary must cite the raw source path "${source.relativePath}" and explain its key claims.
 Create or replace complete page bodies for every affected entity, concept, comparison, or synthesis page.
 Do not include YAML frontmatter or an H1 in content; the application adds those.
 Use sections such as Evidence, Connections, Contradictions and open questions when relevant.
 Every page must list all raw source paths used in its sources field.
+Represent every material factual claim in the claims array. Each claim needs a stable claim ID, statement, confidence, status, and evidence with source_id "${source.sourceId ?? 'legacy-source'}" plus a section, heading, row, or paragraph locator.
+Represent disagreements in contradictions with status "unresolved". Never mark a contradiction resolved during ingest.
 
 <wiki-context>
 ${context}
@@ -70,6 +73,59 @@ ${source.content}
 									summary: { type: 'string' },
 									content: { type: 'string' },
 									sources: { type: 'array', items: { type: 'string' } },
+									pageType: {
+										type: 'string',
+										enum: ['source', 'entity', 'concept', 'topic', 'project', 'comparison', 'synthesis', 'question'],
+									},
+									status: { type: 'string', enum: ['active', 'draft', 'superseded'] },
+									tags: { type: 'array', items: { type: 'string' } },
+									aliases: { type: 'array', items: { type: 'string' } },
+									related: { type: 'array', items: { type: 'string' } },
+									confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
+									claims: {
+										type: 'array',
+										items: {
+											type: 'object',
+											additionalProperties: false,
+											required: ['id', 'statement', 'evidence', 'confidence', 'status'],
+											properties: {
+												id: { type: 'string' },
+												statement: { type: 'string' },
+												evidence: {
+													type: 'array',
+													items: {
+														type: 'object',
+														additionalProperties: false,
+														required: ['sourceId', 'locator', 'evidenceType'],
+														properties: {
+															sourceId: { type: 'string' },
+															locator: { type: 'string' },
+															evidenceType: { type: 'string', enum: ['direct', 'indirect'] },
+														},
+													},
+												},
+												confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
+												status: { type: 'string', enum: ['supported', 'disputed', 'superseded', 'unverified'] },
+												contradicts: { type: 'array', items: { type: 'string' } },
+											},
+										},
+									},
+									contradictions: {
+										type: 'array',
+										items: {
+											type: 'object',
+											additionalProperties: false,
+											required: ['id', 'claimIds', 'description', 'status'],
+											properties: {
+												id: { type: 'string' },
+												claimIds: { type: 'array', items: { type: 'string' } },
+												description: { type: 'string' },
+												status: { type: 'string', enum: ['unresolved'] },
+												requiredFollowUp: { type: 'string' },
+											},
+										},
+									},
+									openQuestions: { type: 'array', items: { type: 'string' } },
 								},
 							},
 						},
