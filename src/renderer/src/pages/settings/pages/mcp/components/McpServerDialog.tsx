@@ -44,6 +44,7 @@ export function McpServerDialog({
 						onRemove={
 							onRemove
 								? async () => {
+									if (!window.confirm(`Remove ${initial?.entry.name ?? initial?.id ?? 'this MCP server'}?`)) return;
 									await onRemove();
 									setOpen(false);
 								}

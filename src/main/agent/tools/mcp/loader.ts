@@ -10,7 +10,7 @@ export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Prom
 		Object.entries(getMcpServers()).map(async ([id, data]) => {
 			if (data.enabled === false) return;
 			try {
-				const client = await connect(id, data);
+				const client = await connect(id, data, 30_000);
 				clients.push(client);
 				const listed = await listTools(client);
 				for (const t of listed.tools) {

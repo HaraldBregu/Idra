@@ -92,9 +92,10 @@ const McpPage = (): React.JSX.Element => {
 		try {
 			const result = await window.mcp.importLocal();
 			if (result) {
+				const skipped = result.skipped.map((entry) => `${entry.name}: ${entry.reason}`).join(' ');
 				setSuccess(
 					`Uploaded ${result.imported.length} local MCP server${result.imported.length === 1 ? '' : 's'}.` +
-						(result.skipped.length > 0 ? ` Skipped ${result.skipped.length}.` : '')
+						(result.skipped.length > 0 ? ` Skipped ${result.skipped.length}. ${skipped}` : '')
 				);
 				await load();
 			}
@@ -102,6 +103,15 @@ const McpPage = (): React.JSX.Element => {
 			setError(caught instanceof Error ? caught.message : String(caught));
 		} finally {
 			setImporting(false);
+		}
+	};
+
+	const openRoot = async (): Promise<void> => {
+		setError('');
+		try {
+			await window.mcp.openRoot();
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
 		}
 	};
 
@@ -115,7 +125,7 @@ const McpPage = (): React.JSX.Element => {
 				description="Manage remote services and local MCP server packages."
 				action={
 					<div className="flex flex-wrap items-center gap-2">
-						<Button variant="outline" size="xs" onClick={() => void window.mcp.openRoot()}>
+						<Button variant="outline" size="xs" onClick={() => void openRoot()}>
 							<FolderOpen className="size-3" />
 							Open folder
 						</Button>

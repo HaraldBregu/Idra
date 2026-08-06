@@ -28,6 +28,7 @@ const routes = [
 	'/settings/skills',
 	'/settings/providers',
 	'/settings/providers/keys',
+	'/settings/providers/mcp',
 	'/settings/providers/transcribe',
 	'/settings/providers/voice',
 	'/settings/providers/image',

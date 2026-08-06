@@ -5,6 +5,11 @@ import { buildTransport } from './mcp_client_build_transport';
 
 export async function connect(id: string, data: McpData, timeout = 300_000): Promise<McpClient> {
 	const client = new Client({ name: 'friday', version: '1.0.0' });
-	await client.connect(buildTransport(id, data), { timeout });
-	return client;
+	try {
+		await client.connect(buildTransport(id, data), { timeout });
+		return client;
+	} catch (error) {
+		await client.close().catch(() => {});
+		throw error;
+	}
 }
