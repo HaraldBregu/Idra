@@ -370,7 +370,14 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		ipcMain.handle(
 			AgentChannels.ragSaveConfiguration,
 			wrapSimpleHandler((configuration: RagConfiguration): RagConfiguration => {
-				const saved = saveRagConfiguration(configuration);
+				const current = getRagConfiguration();
+				const saved = saveRagConfiguration({
+					...configuration,
+					databaseProviderId: current.databaseProviderId,
+					databaseId: current.databaseId,
+					embeddingProviderId: current.embeddingProviderId,
+					embeddingModelId: current.embeddingModelId,
+				});
 				rescheduleRagIndexing();
 				return saved;
 			}, AgentChannels.ragSaveConfiguration)
