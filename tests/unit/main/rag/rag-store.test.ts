@@ -9,20 +9,44 @@ import { getRagConfiguration, saveRagConfiguration } from '../../../../src/main/
 
 it('defaults, normalizes, and validates the configured RAG index name', () => {
 	validate.mockReturnValue(true);
-	expect(getRagConfiguration().indexName).toBe('friday');
+	expect(getRagConfiguration()).toEqual(
+		expect.objectContaining({
+			indexName: 'friday',
+			databaseProviderId: '',
+			databaseId: '',
+			embeddingProviderId: '',
+			embeddingModelId: '',
+		})
+	);
 
 	expect(
 		saveRagConfiguration({
 			indexName: ' knowledge-base ',
+			databaseProviderId: ' pinecone ',
+			databaseId: ' pinecone ',
+			embeddingProviderId: ' openai ',
+			embeddingModelId: ' text-embedding-3-small ',
 			folders: ['/documents'],
 			scheduleEnabled: false,
 			cronExpression: '0 3 * * *',
-		}).indexName
-	).toBe('knowledge-base');
+		})
+	).toEqual(
+		expect.objectContaining({
+			indexName: 'knowledge-base',
+			databaseProviderId: 'pinecone',
+			databaseId: 'pinecone',
+			embeddingProviderId: 'openai',
+			embeddingModelId: 'text-embedding-3-small',
+		})
+	);
 
 	expect(() =>
 		saveRagConfiguration({
 			indexName: 'Invalid_Name',
+			databaseProviderId: '',
+			databaseId: '',
+			embeddingProviderId: '',
+			embeddingModelId: '',
 			folders: [],
 			scheduleEnabled: false,
 			cronExpression: '0 3 * * *',

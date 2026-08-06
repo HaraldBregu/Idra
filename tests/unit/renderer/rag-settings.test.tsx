@@ -88,6 +88,10 @@ beforeEach(() => {
 	});
 	agentApi.ragGetConfiguration.mockResolvedValue({
 		indexName: 'friday',
+		databaseProviderId: '',
+		databaseId: '',
+		embeddingProviderId: 'openai',
+		embeddingModelId: 'text-embedding-3-small',
 		folders: [],
 		scheduleEnabled: false,
 		cronExpression: '0 3 * * *',

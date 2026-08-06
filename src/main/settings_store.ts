@@ -104,14 +104,36 @@ const legacyDatabase = persistedSettings.databaseConfiguration;
 const legacyEmbedding = persistedModelSelections.embedding;
 if (legacyDatabase || legacyEmbedding) {
 	const configuration = getRagConfiguration();
+	const hasRagDatabase = Boolean(
+		configuration.databaseProviderId && configuration.databaseId
+	);
+	const hasLegacyDatabase = Boolean(legacyDatabase?.providerId && legacyDatabase.databaseId);
+	const hasRagEmbedding = Boolean(
+		configuration.embeddingProviderId && configuration.embeddingModelId
+	);
+	const hasLegacyEmbedding = Boolean(legacyEmbedding?.providerId && legacyEmbedding.modelId);
 	saveRagConfiguration({
 		...configuration,
-		databaseProviderId:
-			configuration.databaseProviderId || legacyDatabase?.providerId?.trim() || '',
-		databaseId: configuration.databaseId || legacyDatabase?.databaseId?.trim() || '',
-		embeddingProviderId:
-			configuration.embeddingProviderId || legacyEmbedding?.providerId?.trim() || '',
-		embeddingModelId: configuration.embeddingModelId || legacyEmbedding?.modelId?.trim() || '',
+		databaseProviderId: hasRagDatabase
+			? configuration.databaseProviderId
+			: hasLegacyDatabase
+				? legacyDatabase?.providerId?.trim() || ''
+				: '',
+		databaseId: hasRagDatabase
+			? configuration.databaseId
+			: hasLegacyDatabase
+				? legacyDatabase?.databaseId?.trim() || ''
+				: '',
+		embeddingProviderId: hasRagEmbedding
+			? configuration.embeddingProviderId
+			: hasLegacyEmbedding
+				? legacyEmbedding?.providerId?.trim() || ''
+				: '',
+		embeddingModelId: hasRagEmbedding
+			? configuration.embeddingModelId
+			: hasLegacyEmbedding
+				? legacyEmbedding?.modelId?.trim() || ''
+				: '',
 	});
 }
 delete persistedSettings.databaseConfiguration;

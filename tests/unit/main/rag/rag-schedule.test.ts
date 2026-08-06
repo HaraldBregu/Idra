@@ -22,6 +22,10 @@ describe('RAG indexing schedule', () => {
 	const logger = { info: jest.fn(), error: jest.fn() };
 	const configuration = {
 		indexName: 'knowledge-base',
+		databaseProviderId: 'pinecone',
+		databaseId: 'pinecone',
+		embeddingProviderId: 'openai',
+		embeddingModelId: 'text-embedding-3-small',
 		folders: ['/documents'],
 		scheduleEnabled: true,
 		cronExpression: '0 3 * * *',
