@@ -3,7 +3,8 @@ import type { StorageConfig } from '../../shared/storage_types';
 import { getStorage } from './storage_store';
 import { normalizeEndpoint } from './endpoint';
 
-const isR2Endpoint = (endpoint: string): boolean => /\.r2\.cloudflarestorage\.com(\/|$)/i.test(endpoint);
+const isR2Endpoint = (endpoint: string): boolean =>
+	/\.r2\.cloudflarestorage\.com(\/|$)/i.test(endpoint);
 
 export function createStorageClient(config: StorageConfig): S3Client {
 	const endpoint = config.endpoint ? normalizeEndpoint(config.endpoint, config.bucket) : '';
