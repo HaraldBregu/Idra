@@ -13,5 +13,6 @@ export function getWikiStatus(): WikiStatus {
 		nextRunAt: nextRun?.toISOString(),
 		settingsPath: wikiSettingsStore.path,
 		pendingReviews: wikiReviewStore.store.items.filter((item) => item.status === 'pending').length,
+		progress: wikiRuntime.progress,
 	};
 }

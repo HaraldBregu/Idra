@@ -29,6 +29,16 @@ export interface WikiRunResult {
 	validationErrors?: number;
 }
 
+export type WikiProgressPhase = 'preparing' | 'generating' | 'writing' | 'cancelling';
+
+export interface WikiProgress {
+	phase: WikiProgressPhase;
+	currentSource: number;
+	totalSources: number;
+	source: string;
+	startedAt: string;
+}
+
 export interface WikiStatus {
 	running: boolean;
 	enabled?: boolean;
@@ -36,4 +46,5 @@ export interface WikiStatus {
 	nextRunAt?: string;
 	settingsPath: string;
 	pendingReviews?: number;
+	progress?: WikiProgress;
 }

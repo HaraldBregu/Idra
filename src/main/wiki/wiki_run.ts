@@ -23,6 +23,9 @@ import { incrementWikiMetric } from './wiki_metrics';
 
 export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 	if (wikiRuntime.run) return wikiRuntime.run;
+	const controller = new AbortController();
+	const runStartedAt = new Date().toISOString();
+	wikiRuntime.controller = controller;
 
 	wikiRuntime.run = (async () => {
 		const settings = getWikiSettings();
@@ -65,7 +68,15 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 		let contradictionsDetected = 0;
 		let pendingReviews = 0;
 
-		for (const discovered of sources) {
+		for (const [sourceIndex, discovered] of sources.entries()) {
+			controller.signal.throwIfAborted();
+			wikiRuntime.progress = {
+				phase: 'preparing',
+				currentSource: sourceIndex + 1,
+				totalSources: sources.length,
+				source: discovered.relativePath,
+				startedAt: runStartedAt,
+			};
 			const operationId = `operation-ingest-${discovered.hash.slice(0, 16)}`;
 			const registered = await registerWikiSource(discovered, operationId, paths.evidence);
 			const source = registered.source;
@@ -108,7 +119,9 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 
 			try {
 				const context = await buildWikiContext(settings.targetPath, source);
-				const update = await generateWikiUpdate(settings, source, context);
+				wikiRuntime.progress = { ...wikiRuntime.progress, phase: 'generating' };
+				const update = await generateWikiUpdate(settings, source, context, controller.signal);
+				wikiRuntime.progress = { ...wikiRuntime.progress, phase: 'writing' };
 				operation = { ...operation, status: 'executing', updatedAt: new Date().toISOString() };
 				wikiOperationStore.store = {
 					...wikiOperationStore.store,
@@ -242,5 +255,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 		return await wikiRuntime.run;
 	} finally {
 		wikiRuntime.run = undefined;
+		wikiRuntime.controller = undefined;
+		wikiRuntime.progress = undefined;
 	}
 }

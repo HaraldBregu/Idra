@@ -1,5 +1,6 @@
 export { getWikiSettings } from './wiki_get_settings';
 export { getWikiStatus } from './wiki_get_status';
+export { cancelWiki } from './wiki_cancel';
 export { rescheduleWiki } from './wiki_reschedule';
 export { runWiki } from './wiki_run';
 export { saveWikiSettings } from './wiki_save_settings';
