@@ -37,7 +37,11 @@ type SignalEnvelope = {
 
 type SignalReceive = {
 	method?: string;
-	params?: { envelope?: SignalEnvelope; result?: { envelope?: SignalEnvelope } };
+	params?: {
+		account?: string;
+		envelope?: SignalEnvelope;
+		result?: { account?: string; envelope?: SignalEnvelope };
+	};
 };
 
 const SIGNAL_RECONNECT_DELAY_MS = 2_000;
@@ -105,6 +109,8 @@ export function createSignalAdapter(options: SignalAdapterOptions): ChannelAdapt
 
 	function handleEvent(event: SignalReceive): void {
 		if (event.method !== 'receive') return;
+		const eventAccount = event.params?.account ?? event.params?.result?.account;
+		if (eventAccount && eventAccount !== accountId) return;
 		const envelope = event.params?.envelope ?? event.params?.result?.envelope;
 		const data = envelope?.dataMessage;
 		if (!envelope || !data) return;

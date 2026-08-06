@@ -9,6 +9,7 @@ export {
 export type { ChannelsStoreState } from './channels_store';
 export { canReceive } from './channels_security';
 export type { ChannelSecurityDecision } from './channels_security';
+export { CHANNEL_MAX_VOICE_BYTES, loadChannelVoice } from './channels_voice';
 export { sendDurableMessageBatch } from './channels_batch';
 export type {
 	ChannelAdapter,

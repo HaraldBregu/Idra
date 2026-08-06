@@ -7,6 +7,7 @@ import type { SttAudioInput } from '../../shared/stt_transcription';
 import type { SpeechSynthesisResult } from '../../shared/speech_types';
 import { getChannelProvider } from './channels_store';
 import { canReceive } from './channels_security';
+import { loadChannelVoice } from './channels_voice';
 import type {
 	ChannelAdapter,
 	ChannelInboundMessage,
@@ -115,7 +116,7 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			const text =
 				message.content.type === 'text'
 					? message.content.text
-					: await transcribeVoice(await message.content.voice.load());
+					: await transcribeVoice(await loadChannelVoice(message.content.voice));
 			if (text.startsWith('/')) {
 				const command = text.split(/\s+/)[0].slice(1).split('@')[0].toLowerCase();
 				if (command === 'start') {

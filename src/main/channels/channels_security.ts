@@ -1,7 +1,6 @@
 import { CHANNEL_DEFAULT_DM_POLICY, type StoredBotProvider } from '../../shared';
 import type { ChannelInboundMessage } from './channels_types';
-
-const CHANNEL_MAX_VOICE_BYTES = 20 * 1024 * 1024;
+import { CHANNEL_MAX_VOICE_BYTES } from './channels_voice';
 
 export interface ChannelSecurityDecision {
 	allowed: boolean;
