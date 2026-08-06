@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 const appendFile = jest.fn();
+const lstat = jest.fn();
 const mkdir = jest.fn();
 const readFile = jest.fn();
 const readdir = jest.fn();
@@ -18,6 +19,7 @@ const writeRagManifest = jest.fn();
 
 jest.mock('node:fs/promises', () => ({
 	appendFile,
+	lstat,
 	mkdir,
 	readFile,
 	readdir,
@@ -38,8 +40,9 @@ import { indexRag } from '../../../../src/main/rag/rag_index';
 beforeEach(() => {
 	jest.clearAllMocks();
 	stat.mockResolvedValue({ isDirectory: () => true });
+	lstat.mockResolvedValue({ isFile: () => true });
 	readdir.mockResolvedValue(['guide.md']);
-	readFile.mockResolvedValue('# Guide');
+	readFile.mockResolvedValue(Buffer.from('# Guide'));
 	createEmbedding.mockResolvedValue({
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
@@ -90,4 +93,45 @@ it('saves the completed embedding index directly under the RAG directory', async
 		],
 	});
 	expect(rename).toHaveBeenCalledWith(temporaryOutputFile, outputFile);
+});
+
+it('indexes nested and extensionless text files while skipping binary files', async () => {
+	readdir.mockResolvedValue(['nested', 'nested/guide.txt', 'README', 'nested/image.png']);
+	lstat.mockImplementation(async (filePath: string) => ({
+		isFile: () => filePath !== path.join('/documents', 'nested'),
+	}));
+	readFile.mockImplementation(async (filePath: string) => {
+		if (filePath.endsWith('image.png')) return Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x00, 0xff]);
+		if (filePath.endsWith('README')) return Buffer.from('Extensionless notes');
+		return Buffer.from('Nested guide');
+	});
+
+	const result = await indexRag(['/documents'], 'knowledge-base');
+	const records = upsert.mock.calls.flatMap(([request]) => request.records);
+
+	expect(result).toEqual({ files: 2, vectors: 2 });
+	expect(records).toEqual([
+		expect.objectContaining({
+			id: '0:README#0',
+			metadata: expect.objectContaining({ path: path.join('documents', 'README') }),
+		}),
+		expect.objectContaining({
+			id: '0:nested/guide.txt#0',
+			metadata: expect.objectContaining({ path: path.join('documents', 'nested/guide.txt') }),
+		}),
+	]);
+	expect(createEmbedding.mock.calls.map(([request]) => request.texts[0])).toEqual([
+		'Extensionless notes',
+		'Nested guide',
+	]);
+});
+
+it('refuses to upload credential-like text files', async () => {
+	readdir.mockResolvedValue(['.env']);
+	readFile.mockResolvedValue(Buffer.from('API_KEY=abcdefghijklmnopqrstuvwxyz123456'));
+
+	await expect(indexRag(['/documents'], 'knowledge-base')).rejects.toThrow(
+		'Refusing to ingest credential-like file: .env'
+	);
+	expect(createEmbedding).not.toHaveBeenCalled();
 });

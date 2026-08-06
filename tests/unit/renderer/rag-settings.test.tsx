@@ -14,7 +14,7 @@ jest.mock('react-i18next', () => {
 		'settings.rag.indexNameDescription': 'Pinecone index.',
 		'settings.rag.indexNamePlaceholder': 'friday',
 		'settings.rag.documentsDescription': 'Documents to index.',
-		'settings.rag.sourceFolder': 'Markdown source folder',
+		'settings.rag.sourceFolder': 'Source folders',
 		'settings.rag.sourcePlaceholder': 'Choose source folders',
 		'settings.rag.pickFolder': 'Choose folder',
 		'settings.rag.index': 'Generate index',

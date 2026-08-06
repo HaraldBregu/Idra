@@ -1,13 +1,4 @@
-import {
-	appendFile,
-	mkdir,
-	readFile,
-	readdir,
-	rename,
-	rm,
-	stat,
-	writeFile,
-} from 'node:fs/promises';
+import { appendFile, mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Pinecone } from '@pinecone-database/pinecone';
 import { createEmbedding } from '../models/embedding';
@@ -15,9 +6,9 @@ import { chunkText } from './rag_chunk';
 import { ragClient } from './rag_client';
 import { normalizeRagIndexName } from './rag_index_name';
 import { ragLocation } from './rag_location';
+import { collectRagSources } from './source';
 import { writeRagManifest } from './rag_manifest';
 
-const MARKDOWN_EXTENSIONS = new Set(['.md', '.markdown']);
 const BATCH_SIZE = 64;
 
 export interface RagIndexResult {
@@ -32,22 +23,6 @@ export async function indexRag(
 	const selectedIndexName = normalizeRagIndexName(indexName);
 	const sources = [...new Set(folders.map((folder) => folder.trim()).filter(Boolean))];
 	if (sources.length === 0) throw new Error('Choose at least one source folder before indexing.');
-	for (const source of sources) {
-		if (!(await stat(source)).isDirectory())
-			throw new Error(`The selected source is not a folder: ${source}`);
-	}
-
-	const documents = (
-		await Promise.all(
-			sources.map(async (source, sourceIndex) =>
-				(await readdir(source, { recursive: true }))
-					.filter((file) => MARKDOWN_EXTENSIONS.has(path.extname(file).toLowerCase()))
-					.map((file) => ({ source, sourceIndex, file }))
-			)
-		)
-	).flat();
-	if (documents.length === 0)
-		throw new Error('No Markdown documents found in the selected source folders.');
 
 	const outputDirectory = ragLocation();
 	const outputFile = path.join(outputDirectory, 'embeddings.json');
@@ -58,8 +33,8 @@ export async function indexRag(
 	let indexedFiles = 0;
 
 	try {
-		for (const { source, sourceIndex, file } of documents) {
-			const chunks = chunkText(await readFile(path.join(source, file), 'utf8'));
+		for await (const { source, sourceIndex, file, content } of collectRagSources(sources)) {
+			const chunks = chunkText(content);
 			if (chunks.length > 0) indexedFiles += 1;
 			for (let start = 0; start < chunks.length; start += BATCH_SIZE) {
 				const batch = chunks.slice(start, start + BATCH_SIZE);
@@ -100,7 +75,7 @@ export async function indexRag(
 			}
 		}
 		if (!index)
-			throw new Error('No indexable Markdown content found in the selected source folders.');
+			throw new Error('No indexable text content found in the selected source folders.');
 		await appendFile(temporaryOutputFile, ']}\n', 'utf8');
 		await rename(temporaryOutputFile, outputFile);
 		return { files: indexedFiles, vectors };
