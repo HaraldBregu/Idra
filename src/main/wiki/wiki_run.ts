@@ -119,14 +119,14 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 
 			try {
 				const context = await buildWikiContext(settings.targetPath, source);
-				wikiRuntime.progress = { ...wikiRuntime.progress, phase: 'generating' };
-				const update = await generateWikiUpdate(settings, source, context, controller.signal);
-				wikiRuntime.progress = { ...wikiRuntime.progress, phase: 'writing' };
 				operation = { ...operation, status: 'executing', updatedAt: new Date().toISOString() };
 				wikiOperationStore.store = {
 					...wikiOperationStore.store,
 					operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
 				};
+				wikiRuntime.progress = { ...wikiRuntime.progress, phase: 'generating' };
+				const update = await generateWikiUpdate(settings, source, context, controller.signal);
+				wikiRuntime.progress = { ...wikiRuntime.progress, phase: 'writing' };
 				const applied = await transactWiki({
 					targetPath: settings.targetPath,
 					operationId,
