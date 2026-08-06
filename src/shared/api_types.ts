@@ -209,6 +209,7 @@ export interface WikiApi {
 	getStatus: () => Promise<WikiStatus>;
 	saveSettings: (settings: WikiSettings) => Promise<WikiSettings>;
 	run: () => Promise<WikiRunResult>;
+	cancel: () => Promise<boolean>;
 	pickDirectory: (kind: 'source' | 'target') => Promise<string | undefined>;
 	openDirectory: (kind: 'source' | 'target') => Promise<void>;
 }

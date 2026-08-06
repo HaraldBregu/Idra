@@ -198,6 +198,7 @@ export const WikiChannels = {
 	getStatus: 'wiki:status:get',
 	saveSettings: 'wiki:settings:save',
 	run: 'wiki:run',
+	cancel: 'wiki:cancel',
 	pickDirectory: 'wiki:directory:pick',
 	openDirectory: 'wiki:directory:open',
 } as const;

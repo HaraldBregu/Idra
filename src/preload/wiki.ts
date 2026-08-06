@@ -7,6 +7,7 @@ export const wiki: WikiApi = {
 	getStatus: () => typedInvokeUnwrap(WikiChannels.getStatus),
 	saveSettings: (settings) => typedInvokeUnwrap(WikiChannels.saveSettings, settings),
 	run: () => typedInvokeUnwrap(WikiChannels.run),
+	cancel: () => typedInvokeUnwrap(WikiChannels.cancel),
 	pickDirectory: (kind) => typedInvokeUnwrap(WikiChannels.pickDirectory, kind),
 	openDirectory: (kind) => typedInvokeUnwrap(WikiChannels.openDirectory, kind),
 };

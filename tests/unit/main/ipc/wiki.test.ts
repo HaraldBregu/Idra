@@ -1,12 +1,14 @@
 const getWikiSettings = jest.fn();
 const getWikiStatus = jest.fn();
 const runWiki = jest.fn();
+const cancelWiki = jest.fn();
 const saveWikiSettings = jest.fn();
 
 jest.mock('../../../../src/main/wiki', () => ({
 	getWikiSettings,
 	getWikiStatus,
 	runWiki,
+	cancelWiki,
 	saveWikiSettings,
 }));
 
@@ -28,6 +30,7 @@ describe('WikiIpc', () => {
 		expect(registerQuery).toHaveBeenCalledWith(WikiChannels.getStatus, expect.any(Function));
 		expect(registerCommand).toHaveBeenCalledWith(WikiChannels.saveSettings, expect.any(Function));
 		expect(registerCommand).toHaveBeenCalledWith(WikiChannels.run, expect.any(Function));
+		expect(registerCommand).toHaveBeenCalledWith(WikiChannels.cancel, expect.any(Function));
 		expect(registerCommand).toHaveBeenCalledWith(WikiChannels.pickDirectory, expect.any(Function));
 		expect(registerCommand).toHaveBeenCalledWith(WikiChannels.openDirectory, expect.any(Function));
 
@@ -42,5 +45,11 @@ describe('WikiIpc', () => {
 		)?.[1];
 		await runHandler();
 		expect(runWiki).toHaveBeenCalled();
+
+		const cancelHandler = (registerCommand as jest.Mock).mock.calls.find(
+			([channel]) => channel === WikiChannels.cancel
+		)?.[1];
+		cancelHandler();
+		expect(cancelWiki).toHaveBeenCalled();
 	});
 });

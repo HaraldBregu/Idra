@@ -402,6 +402,10 @@ export interface WikiInvokeChannelMap {
 		args: [];
 		result: import('./wiki_types').WikiRunResult;
 	};
+	[WikiChannels.cancel]: {
+		args: [];
+		result: boolean;
+	};
 	[WikiChannels.pickDirectory]: {
 		args: [kind: 'source' | 'target'];
 		result: string | undefined;
