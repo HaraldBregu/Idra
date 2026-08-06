@@ -4,6 +4,7 @@ import type { Pinecone } from '@pinecone-database/pinecone';
 import { createEmbedding } from '../models/embedding';
 import { chunkText } from './rag_chunk';
 import { ragClient } from './rag_client';
+import { normalizeRagIndexName } from './rag_index_name';
 import { writeRagManifest } from './rag_manifest';
 
 const MARKDOWN_EXTENSIONS = new Set(['.md', '.markdown']);
@@ -18,6 +19,7 @@ export async function indexRag(
 	folders: readonly string[],
 	indexName: string
 ): Promise<RagIndexResult> {
+	const selectedIndexName = normalizeRagIndexName(indexName);
 	const sources = [...new Set(folders.map((folder) => folder.trim()).filter(Boolean))];
 	if (sources.length === 0) throw new Error('Choose at least one source folder before indexing.');
 	for (const source of sources) {
@@ -53,9 +55,9 @@ export async function indexRag(
 				requireRemote: true,
 			});
 			if (!index) {
-				index = await ensureIndex(pinecone, indexName, embedded.dimensions);
+				index = await ensureIndex(pinecone, selectedIndexName, embedded.dimensions);
 				writeRagManifest({
-					indexName,
+					indexName: selectedIndexName,
 					providerId: embedded.providerId,
 					modelId: embedded.modelId,
 					dimensions: embedded.dimensions,

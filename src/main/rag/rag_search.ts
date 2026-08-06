@@ -1,6 +1,7 @@
 import { createEmbedding } from '../models/embedding';
 import { DEFAULT_RAG_INDEX_NAME } from '../../shared/rag_types';
 import { ragClient } from './rag_client';
+import { normalizeRagIndexName } from './rag_index_name';
 import { readRagManifest } from './rag_manifest';
 
 export interface RagMatch {
@@ -10,9 +11,10 @@ export interface RagMatch {
 }
 
 export async function searchRag(query: string, indexName: string, topK = 5): Promise<RagMatch[]> {
+	const selectedIndexName = normalizeRagIndexName(indexName);
 	const manifest = readRagManifest();
 	if (!manifest) throw new Error('Index the rag folder before searching.');
-	if ((manifest.indexName ?? DEFAULT_RAG_INDEX_NAME) !== indexName) {
+	if ((manifest.indexName ?? DEFAULT_RAG_INDEX_NAME) !== selectedIndexName) {
 		throw new Error('Generate the selected RAG index before searching.');
 	}
 
@@ -25,7 +27,7 @@ export async function searchRag(query: string, indexName: string, topK = 5): Pro
 		requireRemote: true,
 	});
 	const result = await ragClient()
-		.index(indexName)
+		.index(selectedIndexName)
 		.query({ vector: embeddings[0], topK, includeMetadata: true });
 
 	return (result.matches ?? []).map((match) => ({
