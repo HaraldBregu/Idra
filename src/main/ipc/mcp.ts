@@ -7,7 +7,6 @@ import {
 	createOAuthProvider,
 	deleteMcpServer,
 	getMcpOauth,
-	getMcpServers,
 	importLocalMcpServers,
 	listConfiguredMcpServers,
 	listMcpRegistry,

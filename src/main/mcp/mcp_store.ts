@@ -1,4 +1,4 @@
-import type { McpData, McpSettings } from '../../shared/mcp_types';
+import type { McpSettings } from '../../shared/mcp_types';
 import { getMcpServersState, setMcpServersState } from '../providers/providers_index';
 import { splitRecord } from './mcp_split_record';
 import type { McpOAuthState, McpRecord } from './mcp_types';
