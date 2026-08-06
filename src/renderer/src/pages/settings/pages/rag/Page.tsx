@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	AlertTriangle,
-	ChevronDown,
 	FolderOpen,
 	LoaderCircle,
 	Search,
@@ -11,7 +10,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -200,46 +198,37 @@ const RagPage: React.FC = () => {
 					<SettingsNotice>{t('settings.vectorDb.empty')}</SettingsNotice>
 				) : (
 					<Card size="sm" className="gap-0! py-0!">
-						<Collapsible>
-							<CollapsibleTrigger className="group w-full text-left">
-								<CardHeader className="py-3">
-									<CardTitle className="flex items-center justify-between">
-										{t('settings.vectorDb.database')}
-										<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-									</CardTitle>
-									<CardDescription className="text-xs">
-										{t('settings.vectorDb.databaseDescription')}
-									</CardDescription>
-								</CardHeader>
-							</CollapsibleTrigger>
-							<CollapsibleContent className="border-t border-border/60">
-								<CardContent className="p-0!">
-									<SettingsRow
-										title={t('settings.vectorDb.database')}
-										description={t('settings.vectorDb.databaseDescription')}
-										actions={
-											<Select
-												value={selectedDatabase ? databaseKey(selectedDatabase) : null}
-												onValueChange={(value) => void selectDatabase(value)}
-											>
-												<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
-													<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
-														{selectedDatabase && databaseLabel(selectedDatabase)}
-													</SelectValue>
-												</SelectTrigger>
-												<SelectContent>
-													{databases.map((entry) => (
-														<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
-															{databaseLabel(entry)}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										}
-									/>
-								</CardContent>
-							</CollapsibleContent>
-						</Collapsible>
+						<CardHeader className="py-3">
+							<CardTitle>{t('settings.vectorDb.defaultTitle')}</CardTitle>
+							<CardDescription className="text-xs">
+								{t('settings.vectorDb.databaseDescription')}
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="border-t border-border/60 p-0!">
+							<SettingsRow
+								title={t('settings.vectorDb.database')}
+								description={t('settings.vectorDb.databaseDescription')}
+								actions={
+									<Select
+										value={selectedDatabase ? databaseKey(selectedDatabase) : null}
+										onValueChange={(value) => void selectDatabase(value)}
+									>
+										<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
+											<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
+												{selectedDatabase && databaseLabel(selectedDatabase)}
+											</SelectValue>
+										</SelectTrigger>
+										<SelectContent>
+											{databases.map((entry) => (
+												<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
+													{databaseLabel(entry)}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								}
+							/>
+						</CardContent>
 					</Card>
 				)}
 			</SettingsSection>
