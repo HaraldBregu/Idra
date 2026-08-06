@@ -4,6 +4,13 @@ import { AlertTriangle, FolderOpen, LoaderCircle, Play, Save, Square } from 'luc
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import {
 	llmProviderGroups,
@@ -18,9 +25,11 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
+	SettingsRow,
 	SettingsSection,
 	SettingsValue,
 } from '../../components';
+import { SETTINGS_SCHEDULES } from '../schedules';
 
 const WIKI_ITEM_CLASS = 'flex-nowrap border-b border-border/60 last:border-b-0';
 
@@ -156,6 +165,16 @@ const WikiPage: React.FC = () => {
 		);
 		setSaved(false);
 	};
+
+	const selectedSchedule = SETTINGS_SCHEDULES.find(
+		(schedule) => schedule.cron === settings?.schedule.cronExpression
+	);
+	const scheduleValue = !settings?.schedule.enabled
+		? 'off'
+		: (selectedSchedule?.key ?? 'custom');
+	const scheduleLabel = selectedSchedule
+		? t(`settings.wiki.scheduleOptions.${selectedSchedule.key}`)
+		: t(`settings.wiki.scheduleOptions.${scheduleValue}`);
 
 	return (
 		<SettingsPageShell>
@@ -422,56 +441,63 @@ const WikiPage: React.FC = () => {
 
 					<SettingsSection
 						title={t('settings.wiki.scheduleTitle')}
-						description={t('settings.wiki.scheduleDescription')}
 					>
 						<SettingsPanel>
-							<Item variant="outline" size="sm" className={WIKI_ITEM_CLASS}>
-								<ItemContent className="min-w-0 flex-col items-start gap-0.5">
-									<ItemTitle className="max-w-full line-clamp-none">
-										{t('settings.wiki.scheduleEnabled')}
-									</ItemTitle>
-									<p className="text-[11px] leading-4 text-muted-foreground">
-										{t('settings.wiki.scheduleEnabledDescription')}
-									</p>
-								</ItemContent>
-								<ItemActions className="ml-auto flex-none justify-end">
-									<Switch
-										checked={settings.schedule.enabled}
+							<SettingsRow
+								title={t('settings.wiki.scheduleFrequency')}
+								description={t('settings.wiki.scheduleDescription')}
+								actions={
+									<Select
+										value={scheduleValue}
 										disabled={settings.enabled === false || saving || running}
-										aria-label={t('settings.wiki.scheduleEnabled')}
-										onCheckedChange={(enabled) => {
-											setSettings({
-												...settings,
-												schedule: { ...settings.schedule, enabled },
-											});
-											setSaved(false);
-										}}
-									/>
-								</ItemActions>
-							</Item>
-							<div className="p-3">
-								<SettingsField
-									id="wiki-cron"
-									label={t('settings.wiki.cronExpression')}
-									description={t('settings.wiki.cronDescription')}
-								>
-									<Input
-										id="wiki-cron"
-										value={settings.schedule.cronExpression}
-										disabled={settings.enabled === false || saving || running}
-										onChange={(event) => {
+										onValueChange={(value) => {
+											if (!value) return;
+											if (value === 'off') {
+												setSettings({
+													...settings,
+													schedule: { ...settings.schedule, enabled: false },
+												});
+												setSaved(false);
+												return;
+											}
+											const schedule = SETTINGS_SCHEDULES.find((entry) => entry.key === value);
+											if (!schedule) return;
 											setSettings({
 												...settings,
 												schedule: {
 													...settings.schedule,
-													cronExpression: event.target.value,
+													enabled: true,
+													cronExpression: schedule.cron,
 												},
 											});
 											setSaved(false);
 										}}
-									/>
-								</SettingsField>
-							</div>
+									>
+										<SelectTrigger
+											size="sm"
+											className="w-44 max-w-full text-xs"
+											aria-label={t('settings.wiki.scheduleFrequency')}
+										>
+											<SelectValue>{scheduleLabel}</SelectValue>
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="off">
+												{t('settings.wiki.scheduleOptions.off')}
+											</SelectItem>
+											{SETTINGS_SCHEDULES.map((schedule) => (
+												<SelectItem key={schedule.key} value={schedule.key}>
+													{t(`settings.wiki.scheduleOptions.${schedule.key}`)}
+												</SelectItem>
+											))}
+											{scheduleValue === 'custom' && (
+												<SelectItem value="custom">
+													{t('settings.wiki.scheduleOptions.custom')}
+												</SelectItem>
+											)}
+										</SelectContent>
+									</Select>
+								}
+							/>
 						</SettingsPanel>
 					</SettingsSection>
 

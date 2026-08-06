@@ -24,8 +24,15 @@ jest.mock('react-i18next', () => {
 		'settings.wiki.targetDescription': 'Generated pages',
 		'settings.wiki.pickSource': 'Choose raw source folder',
 		'settings.wiki.pickTarget': 'Choose generated wiki folder',
-		'settings.wiki.scheduleEnabled': 'Scheduled generation',
-		'settings.wiki.cronExpression': 'Cron expression',
+		'settings.wiki.scheduleTitle': 'Automation',
+		'settings.wiki.scheduleFrequency': 'Generation frequency',
+		'settings.wiki.scheduleDescription': 'Choose how often generation runs.',
+		'settings.wiki.scheduleOptions.off': 'Off',
+		'settings.wiki.scheduleOptions.every4h': 'Every 4 hours',
+		'settings.wiki.scheduleOptions.every12h': 'Every 12 hours',
+		'settings.wiki.scheduleOptions.every1d': 'Every day',
+		'settings.wiki.scheduleOptions.every7d': 'Every week',
+		'settings.wiki.scheduleOptions.custom': 'Custom schedule',
 		'settings.wiki.runNow': 'Run now',
 		'settings.wiki.cancelling': 'Cancelling...',
 		'settings.wiki.progress.generating': 'Generating {{current}} of {{total}} · {{source}}',
@@ -153,5 +160,31 @@ describe('Wiki settings', () => {
 		expect(await screen.findByText('Generating 2 of 10 · luna.md')).toBeInTheDocument();
 		await user.click(screen.getByRole('button', { name: 'Cancel' }));
 		await waitFor(() => expect(wikiApi.cancel).toHaveBeenCalled());
+	});
+
+	it('saves a friendly automation schedule preset', async () => {
+		const user = userEvent.setup();
+		wikiApi.getSettings.mockResolvedValue({
+			...settings,
+			schedule: { enabled: true, cronExpression: '0 */12 * * *' },
+		});
+
+		render(<WikiPage />);
+
+		expect(await screen.findByRole('heading', { name: 'Automation' })).toBeInTheDocument();
+		const frequency = screen.getByRole('combobox', { name: 'Generation frequency' });
+		expect(frequency).toHaveTextContent('Every 12 hours');
+
+		await user.click(frequency);
+		await user.click(await screen.findByRole('option', { name: 'Every 4 hours' }));
+		await user.click(screen.getByRole('button', { name: 'Save' }));
+
+		await waitFor(() =>
+			expect(wikiApi.saveSettings).toHaveBeenCalledWith(
+				expect.objectContaining({
+					schedule: { enabled: true, cronExpression: '0 */4 * * *' },
+				})
+			)
+		);
 	});
 });

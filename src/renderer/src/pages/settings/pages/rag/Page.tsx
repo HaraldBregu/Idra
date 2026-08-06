@@ -26,7 +26,7 @@ import {
 	SettingsRow,
 	SettingsSection,
 } from '../../components';
-import { RAG_SCHEDULES } from './schedules';
+import { SETTINGS_SCHEDULES } from '../schedules';
 
 const VALUE_SEPARATOR = '\u001F';
 
@@ -243,15 +243,15 @@ const RagPage: React.FC = () => {
 	const selectedEmbeddingModel = embeddingModels.find(
 		(entry) => entry.provider.id === embeddingProviderId && entry.id === embeddingModelId
 	);
-	const selectedSchedule = RAG_SCHEDULES.find(
+	const selectedSchedule = SETTINGS_SCHEDULES.find(
 		(schedule) => schedule.cron === ragConfiguration?.cronExpression
 	);
 	const scheduleValue = !ragConfiguration?.scheduleEnabled
 		? 'off'
 		: (selectedSchedule?.key ?? 'custom');
 	const scheduleLabel = selectedSchedule
-		? t(selectedSchedule.labelKey)
-		: t(scheduleValue === 'off' ? 'settings.rag.scheduleOff' : 'settings.rag.scheduleCustom');
+		? t(`settings.rag.scheduleOptions.${selectedSchedule.key}`)
+		: t(`settings.rag.scheduleOptions.${scheduleValue}`);
 
 	return (
 		<SettingsPageShell>
@@ -476,7 +476,7 @@ const RagPage: React.FC = () => {
 										});
 										return;
 									}
-									const schedule = RAG_SCHEDULES.find((entry) => entry.key === value);
+									const schedule = SETTINGS_SCHEDULES.find((entry) => entry.key === value);
 									if (!schedule) return;
 									void saveRagConfiguration({
 										...ragConfiguration,
@@ -493,14 +493,18 @@ const RagPage: React.FC = () => {
 									<SelectValue>{ragConfiguration && scheduleLabel}</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="off">{t('settings.rag.scheduleOff')}</SelectItem>
-									{RAG_SCHEDULES.map((schedule) => (
+									<SelectItem value="off">
+										{t('settings.rag.scheduleOptions.off')}
+									</SelectItem>
+									{SETTINGS_SCHEDULES.map((schedule) => (
 										<SelectItem key={schedule.key} value={schedule.key}>
-											{t(schedule.labelKey)}
+											{t(`settings.rag.scheduleOptions.${schedule.key}`)}
 										</SelectItem>
 									))}
 									{scheduleValue === 'custom' && (
-										<SelectItem value="custom">{t('settings.rag.scheduleCustom')}</SelectItem>
+										<SelectItem value="custom">
+											{t('settings.rag.scheduleOptions.custom')}
+										</SelectItem>
 									)}
 								</SelectContent>
 							</Select>
