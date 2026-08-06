@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { ragLocation } from './rag_location';
+import { userDataLocation } from '../shared/user_data_location';
 
 export interface RagManifest {
 	indexName?: string;
@@ -10,7 +10,7 @@ export interface RagManifest {
 }
 
 function manifestPath(): string {
-	return path.join(ragLocation(), 'index.json');
+	return path.join(userDataLocation(), 'rag', 'index.json');
 }
 
 export function readRagManifest(): RagManifest | undefined {
@@ -22,5 +22,7 @@ export function readRagManifest(): RagManifest | undefined {
 }
 
 export function writeRagManifest(manifest: RagManifest): void {
-	writeFileSync(manifestPath(), JSON.stringify(manifest), 'utf8');
+	const file = manifestPath();
+	mkdirSync(path.dirname(file), { recursive: true });
+	writeFileSync(file, JSON.stringify(manifest), 'utf8');
 }

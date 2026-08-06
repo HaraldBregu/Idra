@@ -1,11 +1,12 @@
 import path from 'node:path';
 
+const mkdirSync = jest.fn();
 const readFileSync = jest.fn();
 const writeFileSync = jest.fn();
 
-jest.mock('node:fs', () => ({ readFileSync, writeFileSync }));
-jest.mock('../../../../src/main/rag/rag_location', () => ({
-	ragLocation: () => '/user/data/rag',
+jest.mock('node:fs', () => ({ mkdirSync, readFileSync, writeFileSync }));
+jest.mock('../../../../src/main/shared/user_data_location', () => ({
+	userDataLocation: () => '/user/data',
 }));
 
 import { readRagManifest, writeRagManifest } from '../../../../src/main/rag/rag_manifest';
@@ -20,6 +21,7 @@ const manifest = {
 it('writes the RAG manifest to rag/index.json', () => {
 	writeRagManifest(manifest);
 
+	expect(mkdirSync).toHaveBeenCalledWith(path.join('/user/data', 'rag'), { recursive: true });
 	expect(writeFileSync).toHaveBeenCalledWith(
 		path.join('/user/data/rag', 'index.json'),
 		JSON.stringify(manifest),
