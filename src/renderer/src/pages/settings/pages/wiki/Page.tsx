@@ -177,6 +177,8 @@ const WikiPage: React.FC = () => {
 							<SettingsRow
 								title={t('settings.wiki.enabled')}
 								description={t('settings.wiki.enabledDescription')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={
 									<Switch
 										checked={settings.enabled !== false}
@@ -192,6 +194,8 @@ const WikiPage: React.FC = () => {
 							<SettingsRow
 								title={t('settings.wiki.autoFileAnswers')}
 								description={t('settings.wiki.autoFileAnswersDescription')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={
 									<Switch
 										checked={settings.autoFileAnswers === true}
@@ -207,6 +211,8 @@ const WikiPage: React.FC = () => {
 							<SettingsRow
 								title={t('settings.wiki.requireReview')}
 								description={t('settings.wiki.requireReviewDescription')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={
 									<Switch
 										checked={settings.requireReviewForMajorChanges !== false}
@@ -222,6 +228,8 @@ const WikiPage: React.FC = () => {
 							<SettingsRow
 								title={t('settings.wiki.lintOnStartup')}
 								description={t('settings.wiki.lintOnStartupDescription')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={
 									<Switch
 										checked={settings.lintOnStartup === true}
@@ -333,6 +341,8 @@ const WikiPage: React.FC = () => {
 							<SettingsRow
 								title={t('settings.wiki.scheduleEnabled')}
 								description={t('settings.wiki.scheduleEnabledDescription')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={
 									<Switch
 										checked={settings.schedule.enabled}
@@ -378,14 +388,20 @@ const WikiPage: React.FC = () => {
 						<SettingsPanel>
 							<SettingsRow
 								title={t('settings.wiki.settingsFile')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={<SettingsValue mono>{status?.settingsPath ?? '—'}</SettingsValue>}
 							/>
 							<SettingsRow
 								title={t('settings.wiki.pendingReviews')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={<SettingsValue>{status?.pendingReviews ?? 0}</SettingsValue>}
 							/>
 							<SettingsRow
 								title={t('settings.wiki.nextRun')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={
 									<SettingsValue>
 										{status?.nextRunAt
@@ -396,6 +412,8 @@ const WikiPage: React.FC = () => {
 							/>
 							<SettingsRow
 								title={t('settings.wiki.lastRun')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={
 									<SettingsValue>
 										{status?.lastRun
@@ -406,6 +424,8 @@ const WikiPage: React.FC = () => {
 							/>
 							<SettingsRow
 								title={t('settings.wiki.outputFolder')}
+								className="grid-cols-[minmax(0,1fr)_auto]"
+								actionClassName="w-auto justify-end"
 								actions={
 									<Button
 										type="button"
