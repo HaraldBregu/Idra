@@ -6,7 +6,9 @@ export async function appendWikiLog(
 	targetPath: string,
 	source: WikiSource,
 	result: WikiApplyResult,
-	operationId?: string
+	operationId?: string,
+	operation = 'ingest',
+	title = source.relativePath
 ): Promise<void> {
 	const logPath = path.resolve(targetPath, 'log.md');
 	if (operationId) {
@@ -15,7 +17,7 @@ export async function appendWikiLog(
 	}
 	const now = new Date();
 	const date = now.toISOString().slice(0, 10);
-	const entry = `## [${date}] ingest | ${source.relativePath}
+	const entry = `## [${date}] ${operation} | ${title}
 
 - Source hash: \`${source.hash}\`
 - Source ID: ${source.sourceId ?? 'legacy'}

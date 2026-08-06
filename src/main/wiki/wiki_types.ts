@@ -72,6 +72,7 @@ export interface WikiPageUpdate {
 	summary: string;
 	content: string;
 	sources: string[];
+	sourceIds?: string[];
 	id?: string;
 	pageType?: WikiPageType;
 	status?: 'active' | 'draft' | 'superseded';
@@ -206,4 +207,26 @@ export interface WikiAnswerContext {
 	primaryEvidence: WikiRawEvidenceResult[];
 	contradictions: WikiContradiction[];
 	limitations: string[];
+}
+
+export interface WikiSaveAnalysisInput {
+	title: string;
+	summary: string;
+	content: string;
+	pageType: 'comparison' | 'synthesis' | 'project' | 'question';
+	sourceIds: string[];
+	tags?: string[];
+	aliases?: string[];
+	related?: string[];
+	claims?: WikiClaim[];
+	openQuestions?: string[];
+}
+
+export interface WikiSaveAnalysisResult {
+	operationId: string;
+	path: string;
+	created: boolean;
+	updated: boolean;
+	status: 'completed' | 'awaiting_review';
+	reviewIds: string[];
 }

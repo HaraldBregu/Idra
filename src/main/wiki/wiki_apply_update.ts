@@ -92,6 +92,7 @@ export async function applyWikiUpdate(
 		const sourceIds = [
 			...new Set([
 				...(Array.isArray(previousSourceIds) ? previousSourceIds.map(String) : []),
+				...(page.sourceIds ?? []),
 				...(source.sourceId ? [source.sourceId] : []),
 			]),
 		].sort();

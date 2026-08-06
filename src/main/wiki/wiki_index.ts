@@ -11,6 +11,7 @@ export async function rebuildWikiIndex(targetPath: string): Promise<void> {
 		summary: string;
 		updated: string;
 		sourceCount: number;
+		confidence: string;
 	}> = [];
 
 	for (const entry of entries) {
@@ -27,6 +28,7 @@ export async function rebuildWikiIndex(targetPath: string): Promise<void> {
 			summary: String(parsed.data.summary ?? '').trim(),
 			updated: String(parsed.data.updated ?? '').slice(0, 10),
 			sourceCount: sources.length,
+			confidence: String(parsed.data.confidence ?? ''),
 		});
 	}
 
@@ -38,7 +40,7 @@ export async function rebuildWikiIndex(targetPath: string): Promise<void> {
 				.sort((left, right) => left.title.localeCompare(right.title))
 				.map(
 					(page) =>
-						`- [[${page.link}|${page.title}]] — ${page.summary}${page.updated ? ` (${page.updated}` : ''}${page.updated && page.sourceCount ? `, ${page.sourceCount} source${page.sourceCount === 1 ? '' : 's'}` : ''}${page.updated ? ')' : ''}`
+						`- [[${page.link}|${page.title}]] — ${page.summary}${page.updated ? ` (${page.updated}` : ''}${page.updated && page.sourceCount ? `, ${page.sourceCount} source${page.sourceCount === 1 ? '' : 's'}` : ''}${page.updated && page.confidence ? `, ${page.confidence} confidence` : ''}${page.updated ? ')' : ''}`
 				)
 				.join('\n');
 			return `## ${category}\n\n${rows}`;

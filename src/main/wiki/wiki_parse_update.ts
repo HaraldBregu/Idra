@@ -44,6 +44,7 @@ const wikiUpdateSchema = z.object({
 				summary: z.string().min(1).max(500),
 				content: z.string().min(1),
 				sources: z.array(z.string()).optional().default([]),
+				sourceIds: z.array(z.string().trim().min(1)).optional(),
 				id: z.string().trim().optional(),
 				pageType: z
 					.enum(['source', 'entity', 'concept', 'topic', 'project', 'comparison', 'synthesis', 'question'])
@@ -82,6 +83,7 @@ export function parseWikiUpdate(value: unknown, sourcePage: string): WikiUpdate 
 			summary: page.summary.trim(),
 			content: page.content.trim(),
 			sources: page.sources.map((source) => source.trim()).filter(Boolean),
+			sourceIds: [...new Set(page.sourceIds ?? [])],
 			tags: [...new Set(page.tags ?? [])],
 			aliases: [...new Set(page.aliases ?? [])],
 			related: [...new Set(page.related ?? [])],

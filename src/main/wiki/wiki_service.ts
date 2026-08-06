@@ -1,19 +1,22 @@
-import type { WikiRunResult } from '../../shared/wiki_types';
-import type {
-	WikiAnswerContext,
-	WikiLintResult,
-	WikiReviewItem,
-	WikiSearchResult,
-} from './wiki_types';
+import { buildWikiAnswerContext } from './wiki_answer_context';
+import { lintWiki } from './wiki_lint';
+import { readWikiPage } from './wiki_read_page';
+import { getRecentWikiActivity } from './wiki_recent_activity';
+import { rebuildWikiIndex } from './wiki_index';
+import { reviewWikiChange } from './wiki_review';
+import { runWiki } from './wiki_run';
+import { saveWikiAnalysis } from './wiki_save_analysis';
+import { searchWiki } from './wiki_search';
+import type { WikiService } from './wiki_service_types';
 
-export interface WikiService {
-	ingestSource(relativePath?: string): Promise<WikiRunResult>;
-	search(query: string, count?: number): Promise<WikiSearchResult[]>;
-	readPage(page: string): Promise<WikiSearchResult>;
-	answerContext(query: string, includeRaw?: boolean): Promise<WikiAnswerContext>;
-	saveAnalysis(input: Record<string, unknown>): Promise<unknown>;
-	lint(autoFix?: boolean): Promise<WikiLintResult>;
-	rebuildIndex(): Promise<void>;
-	getRecentActivity(count?: number): Promise<string>;
-	review(reviewId: string, action: 'approve' | 'reject'): Promise<WikiReviewItem>;
-}
+export const wikiService: WikiService = {
+	ingestSource: runWiki,
+	search: searchWiki,
+	readPage: readWikiPage,
+	answerContext: buildWikiAnswerContext,
+	saveAnalysis: saveWikiAnalysis,
+	lint: lintWiki,
+	rebuildIndex: rebuildWikiIndex,
+	getRecentActivity: getRecentWikiActivity,
+	review: reviewWikiChange,
+};
