@@ -63,98 +63,98 @@ ${source.content}
 			],
 			tools: [
 				{
-				name: 'apply_wiki_update',
-				description: 'Apply a complete, validated set of Markdown page updates to the wiki.',
-				run: (input) => input,
-				schema: {
-					type: 'object',
-					additionalProperties: false,
-					required: ['pages'],
-					properties: {
-						pages: {
-							type: 'array',
-							minItems: 1,
-						maxItems: WIKI_MAX_PAGES_PER_SOURCE,
-							items: {
-								type: 'object',
-								additionalProperties: false,
-								required: ['path', 'title', 'summary', 'content', 'sources'],
-								properties: {
-									path: { type: 'string' },
-									title: { type: 'string' },
-									summary: { type: 'string' },
-									content: { type: 'string' },
-									sources: { type: 'array', items: { type: 'string' } },
-									pageType: {
-										type: 'string',
-										enum: [
-											'source',
-											'entity',
-											'concept',
-											'topic',
-											'project',
-											'comparison',
-											'synthesis',
-											'question',
-										],
-									},
-									status: { type: 'string', enum: ['active', 'draft', 'superseded'] },
-									tags: { type: 'array', items: { type: 'string' } },
-									aliases: { type: 'array', items: { type: 'string' } },
-									related: { type: 'array', items: { type: 'string' } },
-									confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
-									claims: {
-										type: 'array',
-										items: {
-											type: 'object',
-											additionalProperties: false,
-											required: ['id', 'statement', 'evidence', 'confidence', 'status'],
-											properties: {
-												id: { type: 'string' },
-												statement: { type: 'string' },
-												evidence: {
-													type: 'array',
-													items: {
-														type: 'object',
-														additionalProperties: false,
-														required: ['sourceId', 'locator', 'evidenceType'],
-														properties: {
-															sourceId: { type: 'string' },
-															locator: { type: 'string' },
-															evidenceType: { type: 'string', enum: ['direct', 'indirect'] },
+					name: 'apply_wiki_update',
+					description: 'Apply a complete, validated set of Markdown page updates to the wiki.',
+					run: (input) => input,
+					schema: {
+						type: 'object',
+						additionalProperties: false,
+						required: ['pages'],
+						properties: {
+							pages: {
+								type: 'array',
+								minItems: 1,
+								maxItems: WIKI_MAX_PAGES_PER_SOURCE,
+								items: {
+									type: 'object',
+									additionalProperties: false,
+									required: ['path', 'title', 'summary', 'content', 'sources'],
+									properties: {
+										path: { type: 'string' },
+										title: { type: 'string' },
+										summary: { type: 'string' },
+										content: { type: 'string' },
+										sources: { type: 'array', items: { type: 'string' } },
+										pageType: {
+											type: 'string',
+											enum: [
+												'source',
+												'entity',
+												'concept',
+												'topic',
+												'project',
+												'comparison',
+												'synthesis',
+												'question',
+											],
+										},
+										status: { type: 'string', enum: ['active', 'draft', 'superseded'] },
+										tags: { type: 'array', items: { type: 'string' } },
+										aliases: { type: 'array', items: { type: 'string' } },
+										related: { type: 'array', items: { type: 'string' } },
+										confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
+										claims: {
+											type: 'array',
+											items: {
+												type: 'object',
+												additionalProperties: false,
+												required: ['id', 'statement', 'evidence', 'confidence', 'status'],
+												properties: {
+													id: { type: 'string' },
+													statement: { type: 'string' },
+													evidence: {
+														type: 'array',
+														items: {
+															type: 'object',
+															additionalProperties: false,
+															required: ['sourceId', 'locator', 'evidenceType'],
+															properties: {
+																sourceId: { type: 'string' },
+																locator: { type: 'string' },
+																evidenceType: { type: 'string', enum: ['direct', 'indirect'] },
+															},
 														},
 													},
+													confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
+													status: {
+														type: 'string',
+														enum: ['supported', 'disputed', 'superseded', 'unverified'],
+													},
+													contradicts: { type: 'array', items: { type: 'string' } },
 												},
-												confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
-												status: {
-													type: 'string',
-													enum: ['supported', 'disputed', 'superseded', 'unverified'],
-												},
-												contradicts: { type: 'array', items: { type: 'string' } },
 											},
 										},
-									},
-									contradictions: {
-										type: 'array',
-										items: {
-											type: 'object',
-											additionalProperties: false,
-											required: ['id', 'claimIds', 'description', 'status'],
-											properties: {
-												id: { type: 'string' },
-												claimIds: { type: 'array', items: { type: 'string' } },
-												description: { type: 'string' },
-												status: { type: 'string', enum: ['unresolved'] },
-												requiredFollowUp: { type: 'string' },
+										contradictions: {
+											type: 'array',
+											items: {
+												type: 'object',
+												additionalProperties: false,
+												required: ['id', 'claimIds', 'description', 'status'],
+												properties: {
+													id: { type: 'string' },
+													claimIds: { type: 'array', items: { type: 'string' } },
+													description: { type: 'string' },
+													status: { type: 'string', enum: ['unresolved'] },
+													requiredFollowUp: { type: 'string' },
+												},
 											},
 										},
+										openQuestions: { type: 'array', items: { type: 'string' } },
 									},
-									openQuestions: { type: 'array', items: { type: 'string' } },
 								},
 							},
 						},
 					},
-				},
 				},
 			],
 		});

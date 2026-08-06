@@ -139,9 +139,7 @@ const WikiPage: React.FC = () => {
 		} catch (cancelError) {
 			cancelRequested.current = false;
 			setCancelling(false);
-			setError(
-				cancelError instanceof Error ? cancelError.message : t('settings.wiki.cancelError')
-			);
+			setError(cancelError instanceof Error ? cancelError.message : t('settings.wiki.cancelError'));
 		}
 	};
 
