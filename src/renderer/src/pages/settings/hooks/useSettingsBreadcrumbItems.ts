@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useMatch } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared';
 import { SETTINGS_MODEL_SERVICE_ITEMS, SETTINGS_NAVIGATION } from '../navigation';
 import { getSystemMedia } from '../pages/system/detail/media';
@@ -19,6 +19,7 @@ const ASSISTANT_SUBPAGE_LABEL_KEYS: Record<string, string> = {
 export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
 	const { t } = useTranslation();
 	const location = useLocation();
+	const mcpDetailMatch = useMatch('/settings/providers/mcp/:mcpServerId');
 
 	if (location.pathname === '/settings') return [];
 
@@ -54,11 +55,10 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		];
 	}
 
-	if (location.pathname.startsWith('/settings/providers/mcp/')) {
-		const id = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
+	if (mcpDetailMatch) {
 		return [
 			{ label: t('settings.tabs.mcp'), path: '/settings/providers/mcp' },
-			{ label: id },
+			{ label: mcpDetailMatch.params.mcpServerId ?? '' },
 		];
 	}
 

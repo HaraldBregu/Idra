@@ -24,7 +24,7 @@ let server: McpServerInfo;
 
 function renderDetails(id: string): ReturnType<typeof render> {
 	return render(
-		<MemoryRouter initialEntries={[`/settings/providers/mcp/${id}`]}>
+		<MemoryRouter initialEntries={[`/settings/providers/mcp/${encodeURIComponent(id)}`]}>
 			<Routes>
 				<Route path="/settings/providers/mcp" element={<p>MCP list</p>} />
 				<Route path="/settings/providers/mcp/:mcpServerId" element={<McpDetailsPage />} />
@@ -57,6 +57,19 @@ beforeEach(() => {
 });
 
 describe('MCP details', () => {
+	it('uses the router-decoded server ID without decoding it twice', async () => {
+		server = {
+			id: 'remote%docs',
+			source: 'configured',
+			data: { type: 'http', name: 'Percent ID server', url: 'https://mcp.test' },
+		};
+
+		renderDetails('remote%docs');
+
+		expect(await screen.findByRole('heading', { name: 'Percent ID server' })).toBeInTheDocument();
+		expect(mcpApi.registry).toHaveBeenCalledTimes(1);
+	});
+
 	it('edits and saves a discovered package through its local manifest API', async () => {
 		const user = userEvent.setup();
 		server = {

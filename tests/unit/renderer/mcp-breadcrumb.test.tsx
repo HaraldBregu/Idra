@@ -9,6 +9,19 @@ jest.mock('react-i18next', () => ({
 
 it('treats an MCP detail route as a child of the MCP list breadcrumb', async () => {
 	const user = userEvent.setup();
+	Object.defineProperty(window, 'matchMedia', {
+		configurable: true,
+		value: jest.fn((query: string) => ({
+			matches: false,
+			media: query,
+			onchange: null,
+			addListener: jest.fn(),
+			removeListener: jest.fn(),
+			addEventListener: jest.fn(),
+			removeEventListener: jest.fn(),
+			dispatchEvent: jest.fn(),
+		})),
+	});
 	render(
 		<MemoryRouter initialEntries={['/settings/providers/mcp/demo-server']}>
 			<Routes>

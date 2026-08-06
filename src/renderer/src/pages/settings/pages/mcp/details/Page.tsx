@@ -18,7 +18,7 @@ import { McpServerForm } from '../components/McpServerForm';
 const McpDetailsPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { mcpServerId } = useParams<{ mcpServerId: string }>();
-	const id = decodeURIComponent(mcpServerId ?? '');
+	const id = mcpServerId ?? '';
 	const [server, setServer] = useState<McpServerInfo | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
