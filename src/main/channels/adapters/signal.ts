@@ -165,7 +165,9 @@ export function createSignalAdapter(options: SignalAdapterOptions): ChannelAdapt
 				if (json) {
 					try {
 						handleEvent(JSON.parse(json) as SignalReceive);
-					} catch {}
+					} catch (error) {
+						if (!(error instanceof SyntaxError)) throw error;
+					}
 				}
 				boundary = buffer.indexOf('\n\n');
 			}
