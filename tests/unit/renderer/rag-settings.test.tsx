@@ -30,7 +30,8 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.modelPlaceholder': 'Select model',
 		'settings.modelServices.noModels': 'No models are available.',
 	};
-	return { useTranslation: () => ({ t: (key: string) => translations[key] ?? key }) };
+	const t = (key: string): string => translations[key] ?? key;
+	return { useTranslation: () => ({ t }) };
 });
 
 jest.mock('@/lib/providers', () => ({
