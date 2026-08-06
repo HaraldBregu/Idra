@@ -92,9 +92,14 @@ const McpPage = (): React.JSX.Element => {
 				description="Manage remote services and local MCP server packages."
 				action={
 					<div className="flex flex-wrap items-center gap-2">
-						<Button variant="outline" size="xs" onClick={() => void openRoot()}>
+						<Button
+							variant="outline"
+							size="icon-xs"
+							aria-label="Open folder"
+							title="Open folder"
+							onClick={() => void openRoot()}
+						>
 							<FolderOpen className="size-3" />
-							Open folder
 						</Button>
 						<Button variant="outline" size="xs" onClick={() => void load()} disabled={loading}>
 							<RefreshCw className="size-3" />
@@ -102,7 +107,7 @@ const McpPage = (): React.JSX.Element => {
 						</Button>
 						<Button variant="outline" size="xs" onClick={() => void upload()} disabled={importing}>
 							<Upload className="size-3" />
-							{importing ? 'Uploading' : 'Upload local'}
+							{importing ? 'Uploading' : 'Upload'}
 						</Button>
 						<McpServerDialog
 							trigger={

@@ -80,6 +80,8 @@ describe('MCP settings', () => {
 		expect(screen.queryByRole('heading', { name: 'Remote servers' })).not.toBeInTheDocument();
 		expect(screen.queryByRole('heading', { name: 'Local servers' })).not.toBeInTheDocument();
 		expect(screen.queryByText('/home/user/.friday/mcp/servers/local')).not.toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Open folder' })).toBeInTheDocument();
+		expect(screen.queryByText('Open folder')).not.toBeInTheDocument();
 	});
 
 	it('opens a server detail route from the list Item', async () => {
@@ -95,7 +97,7 @@ describe('MCP settings', () => {
 		renderPage();
 		await screen.findByText('Local files');
 
-		await user.click(screen.getByRole('button', { name: 'Upload local' }));
+		await user.click(screen.getByRole('button', { name: 'Upload' }));
 		await waitFor(() => expect(mcpApi.importLocal).toHaveBeenCalledTimes(1));
 		expect(mcpApi.registry).toHaveBeenCalledTimes(2);
 		expect(await screen.findByText('Uploaded 0 local MCP servers.')).toBeInTheDocument();
