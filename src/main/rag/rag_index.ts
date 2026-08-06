@@ -1,4 +1,13 @@
-import { appendFile, mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+import {
+	appendFile,
+	mkdir,
+	readFile,
+	readdir,
+	rename,
+	rm,
+	stat,
+	writeFile,
+} from 'node:fs/promises';
 import path from 'node:path';
 import type { Pinecone } from '@pinecone-database/pinecone';
 import { createEmbedding } from '../models/embedding';
