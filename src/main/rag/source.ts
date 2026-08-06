@@ -3,7 +3,6 @@ import path from 'node:path';
 import { TextDecoder } from 'node:util';
 import { assertWikiSourceSafe } from '../wiki/wiki_source_safety';
 
-const BINARY_CONTROL_CHARACTERS = /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/;
 const UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 
 export interface RagSource {
@@ -25,11 +24,14 @@ export async function* collectRagSources(sources: readonly string[]): AsyncGener
 
 			let content: string;
 			try {
-				content = UTF8_DECODER.decode(await readFile(absolutePath));
+				const bytes = await readFile(absolutePath);
+				if (bytes.some((byte) => byte < 32 && byte !== 9 && byte !== 10 && byte !== 13)) {
+					continue;
+				}
+				content = UTF8_DECODER.decode(bytes);
 			} catch {
 				continue;
 			}
-			if (BINARY_CONTROL_CHARACTERS.test(content)) continue;
 
 			assertWikiSourceSafe({ relativePath: file, content });
 			yield { source, sourceIndex, file, content };
