@@ -463,7 +463,7 @@ const RagPage: React.FC = () => {
 					<SettingsRow
 						title={t('settings.rag.scheduleFrequency')}
 						description={t('settings.rag.scheduleDescription')}
-							actions={
+						actions={
 							<Select
 								value={ragConfiguration ? scheduleValue : null}
 								disabled={!ragConfiguration || savingRagConfiguration}
@@ -500,9 +500,7 @@ const RagPage: React.FC = () => {
 										</SelectItem>
 									))}
 									{scheduleValue === 'custom' && (
-										<SelectItem value="custom">
-											{t('settings.rag.scheduleCustom')}
-										</SelectItem>
+										<SelectItem value="custom">{t('settings.rag.scheduleCustom')}</SelectItem>
 									)}
 								</SelectContent>
 							</Select>
