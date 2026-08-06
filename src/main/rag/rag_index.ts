@@ -74,8 +74,7 @@ export async function indexRag(
 				vectors += batch.length;
 			}
 		}
-		if (!index)
-			throw new Error('No indexable text content found in the selected source folders.');
+		if (!index) throw new Error('No indexable text content found in the selected source folders.');
 		await appendFile(temporaryOutputFile, ']}\n', 'utf8');
 		await rename(temporaryOutputFile, outputFile);
 		return { files: indexedFiles, vectors };

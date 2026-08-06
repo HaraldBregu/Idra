@@ -13,9 +13,7 @@ export interface RagSource {
 	readonly content: string;
 }
 
-export async function* collectRagSources(
-	sources: readonly string[]
-): AsyncGenerator<RagSource> {
+export async function* collectRagSources(sources: readonly string[]): AsyncGenerator<RagSource> {
 	for (const [sourceIndex, source] of sources.entries()) {
 		if (!(await stat(source)).isDirectory()) {
 			throw new Error(`The selected source is not a folder: ${source}`);
