@@ -47,7 +47,7 @@ export type AppSettingsState = {
 	keepAwake: boolean;
 	language: AppLanguage;
 	theme: AppTheme;
-	storageConfiguration: StorageConfiguration;
+	cloud: StorageConfiguration;
 	modelSelections: AppModelSelections;
 };
 
@@ -68,7 +68,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	keepAwake: false,
 	language: 'en',
 	theme: 'system',
-	storageConfiguration: DEFAULT_STORAGE_CONFIGURATION,
+	cloud: DEFAULT_STORAGE_CONFIGURATION,
 	modelSelections: DEFAULT_MODEL_SELECTIONS,
 };
 
@@ -84,12 +84,14 @@ const store = new Store<AppSettingsState>({
 type LegacyAppSettingsState = AppSettingsState & {
 	databaseConfiguration?: { providerId?: string; databaseId?: string };
 	modelSelections: AppModelSelections & { embedding?: ModelSelection };
+	storageConfiguration?: StorageConfiguration;
 };
 
 const persistedSettings = { ...store.store } as LegacyAppSettingsState;
 const persistedModelSelections = { ...persistedSettings.modelSelections };
 const legacyDatabase = persistedSettings.databaseConfiguration;
 const legacyEmbedding = persistedModelSelections.embedding;
+const legacyStorageConfiguration = persistedSettings.storageConfiguration;
 if (legacyDatabase || legacyEmbedding) {
 	const configuration = getRagConfiguration();
 	const hasRagDatabase = Boolean(configuration.databaseProviderId && configuration.databaseId);
@@ -124,6 +126,8 @@ if (legacyDatabase || legacyEmbedding) {
 }
 delete persistedSettings.databaseConfiguration;
 delete persistedModelSelections.embedding;
+if (legacyStorageConfiguration) persistedSettings.cloud = legacyStorageConfiguration;
+delete persistedSettings.storageConfiguration;
 store.store = {
 	...DEFAULT_APP_SETTINGS,
 	...persistedSettings,
@@ -341,7 +345,7 @@ export function setSelectedStorageId(id: string): void {
 export function getStorageConfiguration(): StorageConfiguration {
 	const configuration = {
 		...DEFAULT_STORAGE_CONFIGURATION,
-		...store.get('storageConfiguration'),
+		...store.get('cloud'),
 	};
 	if (
 		configuration.providerId &&
@@ -374,7 +378,7 @@ export function saveStorageConfiguration(
 		syncEnabled: configuration.syncEnabled,
 		syncCronExpression: configuration.syncCronExpression.trim().replace(/\s+/g, ' '),
 	};
-	store.set('storageConfiguration', saved);
+	store.set('cloud', saved);
 	return saved;
 }
 
