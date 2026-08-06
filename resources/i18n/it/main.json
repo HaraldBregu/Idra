@@ -1352,6 +1352,7 @@
 			"dismissSuccess": "Chiudi"
 		},
 		"rag": {
+			"title": "Base di conoscenza",
 			"description": "Seleziona una cartella sorgente Markdown, indicizzala e cercala come vettori.",
 			"embeddingModelTitle": "Modello di embedding",
 			"embeddingModelDescription": "Modello usato per incorporare i documenti RAG per la ricerca vettoriale.",

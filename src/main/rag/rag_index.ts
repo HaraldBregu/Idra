@@ -49,7 +49,7 @@ export async function indexRag(
 	if (documents.length === 0)
 		throw new Error('No Markdown documents found in the selected source folders.');
 
-	const outputDirectory = path.join(ragLocation(), selectedIndexName);
+	const outputDirectory = ragLocation();
 	const outputFile = path.join(outputDirectory, 'embeddings.json');
 	const temporaryOutputFile = `${outputFile}.tmp`;
 	const pinecone = ragClient();

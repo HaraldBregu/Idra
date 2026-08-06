@@ -74,6 +74,12 @@ function SettingsOverviewCard({
 	const navigate = useNavigate();
 	const unavailable = disabled || ('comingSoon' in item && item.comingSoon === true);
 	const isWiki = item.path === '/settings/wiki';
+	const labelKey =
+		item.path === '/settings/rag'
+			? 'settings.rag.title'
+			: isWiki
+				? 'settings.wiki.title'
+				: item.labelKey;
 	const handleActivate = (): void => {
 		if (unavailable) return;
 		navigate(item.path);
@@ -92,7 +98,7 @@ function SettingsOverviewCard({
 			<ItemIcon icon={isWiki ? BrainCircuit : item.icon} className="size-8 [&_svg]:size-4" />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
-					{t(isWiki ? 'settings.wiki.title' : item.labelKey)}
+					{t(labelKey)}
 				</ItemTitle>
 				{'descriptionKey' in item && item.descriptionKey && (
 					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">

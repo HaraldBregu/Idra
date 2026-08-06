@@ -61,3 +61,15 @@ it('uses the LLM Wiki identity on the overview', () => {
 	expect(wiki).toHaveTextContent('settings.wiki.title');
 	expect(wiki.querySelector('.lucide-brain-circuit')).toBeInTheDocument();
 });
+
+it('uses the Knowledge Base title on the overview', () => {
+	render(
+		<MemoryRouter initialEntries={['/settings']}>
+			<OverviewPage />
+		</MemoryRouter>
+	);
+
+	expect(screen.getByRole('button', { name: /settings\.rag\.title/ })).toHaveTextContent(
+		'settings.rag.title'
+	);
+});

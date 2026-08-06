@@ -56,9 +56,9 @@ beforeEach(() => {
 	writeFile.mockResolvedValue(undefined);
 });
 
-it('saves the completed embedding index under the Friday RAG directory', async () => {
+it('saves the completed embedding index directly under the RAG directory', async () => {
 	const result = await indexRag(['/documents'], 'knowledge-base');
-	const directory = path.join('/user/data/rag', 'knowledge-base');
+	const directory = path.join('/user/data', 'rag');
 	const outputFile = path.join(directory, 'embeddings.json');
 	const temporaryOutputFile = `${outputFile}.tmp`;
 	const initialContent = writeFile.mock.calls[0][1] as string;

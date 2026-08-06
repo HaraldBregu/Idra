@@ -1353,6 +1353,7 @@
 			"dismissSuccess": "Dismiss"
 		},
 		"rag": {
+			"title": "Knowledge Base",
 			"description": "Select a Markdown source folder, index it, and search it as vectors.",
 			"embeddingModelTitle": "Embedding model",
 			"embeddingModelDescription": "Model used to embed RAG documents for vector search.",
