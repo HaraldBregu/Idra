@@ -432,7 +432,7 @@ const WikiPage: React.FC = () => {
 									<SettingsValue>
 										{status?.nextRunAt
 											? new Date(status.nextRunAt).toLocaleString()
-												: t('settings.wiki.notScheduled')}
+											: t('settings.wiki.notScheduled')}
 									</SettingsValue>
 								</ItemActions>
 							</Item>
@@ -444,7 +444,7 @@ const WikiPage: React.FC = () => {
 									<SettingsValue>
 										{status?.lastRun
 											? new Date(status.lastRun.completedAt).toLocaleString()
-												: t('settings.wiki.neverRun')}
+											: t('settings.wiki.neverRun')}
 									</SettingsValue>
 								</ItemActions>
 							</Item>
