@@ -154,6 +154,8 @@ it('groups providers, model, index, and folder paths in one configuration card',
 
 	render(<RagPage />);
 
+	await screen.findByRole('combobox', { name: 'Vector database' });
+	await screen.findByText('/Users/example/docs');
 	const configurationTitle = await screen.findByText('Configuration');
 	const configurationCard = configurationTitle
 		.closest('section')
