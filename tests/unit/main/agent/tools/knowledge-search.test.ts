@@ -7,6 +7,7 @@ jest.mock('../../../../../src/main/rag', () => ({
 }));
 
 import { knowledgeSearchTool } from '../../../../../src/main/agent/tools/memory/search';
+import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/policy/policy_types';
 
 beforeEach(() => {
 	jest.clearAllMocks();
@@ -27,6 +28,7 @@ it('searches the configured RAG index and returns its matches', async () => {
 
 	expect(knowledgeSearchTool.name).toBe('knowledge_search');
 	expect(knowledgeSearchTool.defaultPermission).toBe('allow');
+	expect(DEFAULT_PERMISSIONS.knowledge_search).toMatchObject({ default: 'allow' });
 	expect(searchRag).toHaveBeenCalledWith('annual leave policy', 'company-knowledge');
 	expect(JSON.parse(output as string)).toEqual(matches);
 });
