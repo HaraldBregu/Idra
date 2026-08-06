@@ -69,6 +69,7 @@ const embeddingApi = {
 };
 
 beforeEach(() => {
+	jest.clearAllMocks();
 	Object.defineProperty(window, 'app', {
 		configurable: true,
 		value: { databases: jest.fn().mockResolvedValue([]) },
