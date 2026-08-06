@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {
 	AlertTriangle,
 	ChevronDown,
-	Database,
 	FolderOpen,
 	LoaderCircle,
 	Search,
@@ -11,6 +10,13 @@ import {
 	Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -25,11 +31,9 @@ import type { RagMatch } from '../../../../../../main/rag';
 import type { RagConfiguration } from '../../../../../../shared/rag_types';
 import type { DatabaseConfiguration } from '../../../../../../shared/database_types';
 import type { CatalogService } from '../../../../../../shared/provider_types';
-import { ProviderAvatar } from '@/components/provider-avatar';
 import { getErrorMessage } from '../../../start/constants';
 import {
 	SettingsLoadingRows,
-	SettingsField,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -201,47 +205,30 @@ const RagPage: React.FC = () => {
 				) : databases.length === 0 ? (
 					<SettingsNotice>{t('settings.vectorDb.empty')}</SettingsNotice>
 				) : (
-					<Collapsible className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
-						<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-							{selectedDatabase ? (
-								<ProviderAvatar
-									providerId={selectedDatabase.provider.id}
-									name={selectedDatabase.provider.name}
-									iconDarkUrl={selectedDatabase.provider.iconDarkUrl}
-									iconLightUrl={selectedDatabase.provider.iconLightUrl}
-									className="size-10"
-								/>
-							) : (
-								<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
-									<Database className="size-4" aria-hidden="true" />
-								</div>
-							)}
-							<div className="min-w-0 flex-1">
-								<div className="truncate text-[13px] font-medium leading-4 text-foreground">
-									{selectedDatabase
-										? selectedDatabase.provider.name
-										: t('settings.vectorDb.databasePlaceholder')}
-								</div>
-								<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-									{selectedDatabase?.name ||
-										selectedDatabase?.id ||
-										t('settings.vectorDb.databaseDescription')}
-								</p>
-							</div>
-							<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-						</CollapsibleTrigger>
-						<CollapsibleContent className="border-t border-border/60">
-							<div className="grid gap-3 px-3 py-3">
-								<SettingsField
-									id="rag-database"
-									label={t('settings.vectorDb.database')}
-									description={t('settings.vectorDb.databaseDescription')}
-								>
+					<Card size="sm" className="gap-0! py-0!">
+						<Collapsible>
+							<CollapsibleTrigger className="group w-full text-left">
+								<CardHeader className="py-3">
+									<CardTitle className="flex items-center justify-between">
+										{t('settings.vectorDb.defaultTitle')}
+										<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+									</CardTitle>
+									<CardDescription className="text-xs">
+										{t('settings.vectorDb.description')}
+									</CardDescription>
+								</CardHeader>
+							</CollapsibleTrigger>
+							<CollapsibleContent className="border-t border-border/60">
+								<CardContent className="p-0!">
+									<SettingsRow
+										title={t('settings.vectorDb.database')}
+										description={t('settings.vectorDb.databaseDescription')}
+										actions={
 									<Select
 										value={selectedDatabase ? databaseKey(selectedDatabase) : null}
 										onValueChange={(value) => void selectDatabase(value)}
 									>
-										<SelectTrigger id="rag-database" className="w-full text-xs">
+										<SelectTrigger size="sm" className="w-56 max-w-full text-xs">
 											<SelectValue placeholder={t('settings.vectorDb.databasePlaceholder')}>
 												{selectedDatabase && databaseLabel(selectedDatabase)}
 											</SelectValue>
@@ -254,10 +241,12 @@ const RagPage: React.FC = () => {
 											))}
 										</SelectContent>
 									</Select>
-								</SettingsField>
-							</div>
-						</CollapsibleContent>
-					</Collapsible>
+										}
+									/>
+								</CardContent>
+							</CollapsibleContent>
+						</Collapsible>
+					</Card>
 				)}
 			</SettingsSection>
 
