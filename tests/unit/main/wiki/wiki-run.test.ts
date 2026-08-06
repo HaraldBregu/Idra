@@ -9,6 +9,7 @@ jest.mock('../../../../src/main/wiki/wiki_generate', () => ({
 }));
 
 import { runWiki } from '../../../../src/main/wiki/wiki_run';
+import { cancelWiki } from '../../../../src/main/wiki/wiki_cancel';
 import { wikiRuntime } from '../../../../src/main/wiki/wiki_runtime';
 import { wikiSettingsStore } from '../../../../src/main/wiki/wiki_settings_store';
 import { wikiSourcePage } from '../../../../src/main/wiki/wiki_source_page';
@@ -25,6 +26,8 @@ describe('runWiki', () => {
 		wikiOperationStore.store = { version: 1, operations: {} };
 		wikiRuntime.run = undefined;
 		wikiRuntime.lastRun = undefined;
+		wikiRuntime.controller = undefined;
+		wikiRuntime.progress = undefined;
 	});
 
 	it('processes changed sources, skips unchanged sources and updates stable pages', async () => {
@@ -134,5 +137,52 @@ describe('runWiki', () => {
 			updatedPages: 0,
 		});
 		expect(generateWikiUpdate).not.toHaveBeenCalled();
+	});
+
+	it('reports source progress and cancels an in-flight model request', async () => {
+		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-cancel-'));
+		const sourcePath = path.join(root, 'raw');
+		const targetPath = path.join(root, 'data');
+		await import('node:fs/promises').then(({ mkdir }) => mkdir(sourcePath, { recursive: true }));
+		await writeFile(path.join(sourcePath, 'slow.md'), 'Slow source', 'utf8');
+		wikiSettingsStore.store = {
+			providerId: 'openai',
+			modelId: 'gpt-5',
+			sourcePath,
+			targetPath,
+			schedule: { enabled: false, cronExpression: '0 3 * * *' },
+		} as never;
+		wikiStateStore.store = { sources: {} };
+		let generationStarted: (() => void) | undefined;
+		const started = new Promise<void>((resolve) => {
+			generationStarted = resolve;
+		});
+		generateWikiUpdate.mockImplementation(
+			async (_settings, _source, _context, signal: AbortSignal) =>
+				new Promise((_resolve, reject) => {
+					generationStarted?.();
+					const abort = (): void => reject(new Error('aborted'));
+					if (signal.aborted) abort();
+					else signal.addEventListener('abort', abort, { once: true });
+				})
+		);
+
+		const run = runWiki();
+		await started;
+		expect(wikiRuntime.progress).toMatchObject({
+			phase: 'generating',
+			currentSource: 1,
+			totalSources: 1,
+			source: 'slow.md',
+		});
+		expect(cancelWiki()).toBe(true);
+		expect(wikiRuntime.progress?.phase).toBe('cancelling');
+		await expect(run).rejects.toThrow('aborted');
+		expect(wikiRuntime.run).toBeUndefined();
+		expect(wikiRuntime.controller).toBeUndefined();
+		expect(wikiRuntime.progress).toBeUndefined();
+		expect(Object.values(wikiOperationStore.store.operations)[0]).toMatchObject({
+			status: 'rolled_back',
+		});
 	});
 });

@@ -171,6 +171,20 @@ The model can select:
 
 The result reports processed/skipped sources, created/updated pages, claims, contradictions, review items, operation IDs, and completion time.
 
+### Generation progress and limits
+
+The settings screen reports the current source and whether Friday is preparing, generating, saving, or cancelling it. **Cancel** aborts the active model request and leaves already completed sources integrated.
+
+To prevent an unresponsive provider from blocking the entire run indefinitely:
+
+- sources remain sequential so each update sees the latest committed wiki;
+- each source may update at most eight pages;
+- model output is limited to 4,000 tokens per source;
+- each model request times out after two minutes;
+- timeout and cancellation roll back only the active source operation.
+
+An unchanged source is skipped on later runs without another model call.
+
 ## Query workflow
 
 Use `wiki_query` for grounded answer context. Retrieval order is:
