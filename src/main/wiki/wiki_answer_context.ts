@@ -4,7 +4,11 @@ import matter from 'gray-matter';
 import { getWikiSettings } from './wiki_get_settings';
 import { searchWiki } from './wiki_search';
 import { wikiSourceStore } from './wiki_source_store';
-import type { WikiAnswerContext, WikiContradiction } from './wiki_types';
+import type {
+	WikiAnswerContext,
+	WikiContradiction,
+	WikiRawEvidenceResult,
+} from './wiki_types';
 
 export async function buildWikiAnswerContext(
 	query: string,
@@ -22,7 +26,7 @@ export async function buildWikiAnswerContext(
 		}
 	}
 	const shouldReadRaw = includeRaw || compiledWiki.length === 0 || compiledWiki[0].confidence < 0.65;
-	const primaryEvidence = [];
+	const primaryEvidence: WikiRawEvidenceResult[] = [];
 	if (shouldReadRaw) {
 		const sourceIds = [
 			...new Set(
