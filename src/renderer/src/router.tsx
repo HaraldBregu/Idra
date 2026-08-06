@@ -30,7 +30,6 @@ import HomePage from './pages/home/Page';
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
 const CloudPage = lazy(() => import('./pages/settings/pages/cloud/Page'));
-const StoragePage = lazy(() => import('./pages/settings/pages/storage/Page'));
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const TaskDetailsPage = lazy(() => import('./pages/settings/pages/tasks/detail/Page'));
 const SearchPage = lazy(() => import('./pages/settings/pages/search/Page'));
@@ -182,24 +181,11 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'cloud',
-						children: [
-							{
-								index: true,
-								element: (
-									<SettingsRouteWrapper>
-										<CloudPage />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: 'object-storage',
-								element: (
-									<SettingsRouteWrapper>
-										<StoragePage />
-									</SettingsRouteWrapper>
-								),
-							},
-						],
+						element: (
+							<SettingsRouteWrapper>
+								<CloudPage />
+							</SettingsRouteWrapper>
+						),
 					},
 					{
 						path: 'tasks',

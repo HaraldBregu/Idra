@@ -1,7 +1,12 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import CloudPage from '../../../src/renderer/src/pages/settings/pages/cloud/Page';
+
+jest.mock('../../../src/renderer/src/pages/settings/pages/storage/Page', () => ({
+	__esModule: true,
+	default: ({ embedded }: { readonly embedded?: boolean }) => (
+		<p>{embedded ? 'Embedded storage configuration' : 'Standalone storage configuration'}</p>
+	),
+}));
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
@@ -15,18 +20,10 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
-it('opens object storage configuration from the Cloud page', async () => {
-	const user = userEvent.setup();
-	render(
-		<MemoryRouter initialEntries={['/settings/cloud']}>
-			<Routes>
-				<Route path="/settings/cloud" element={<CloudPage />} />
-				<Route path="/settings/cloud/object-storage" element={<p>Storage route</p>} />
-			</Routes>
-		</MemoryRouter>
-	);
+it('renders object storage configuration inside the Cloud page', () => {
+	render(<CloudPage />);
 
-	await user.click(screen.getByRole('button', { name: /Object Storage Configuration/ }));
-
-	expect(await screen.findByText('Storage route')).toBeInTheDocument();
+	expect(screen.getByRole('heading', { name: 'Cloud' })).toBeInTheDocument();
+	expect(screen.getByText('Object Storage Configuration')).toBeInTheDocument();
+	expect(screen.getByText('Embedded storage configuration')).toBeInTheDocument();
 });
