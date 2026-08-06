@@ -1,7 +1,6 @@
 import React, { useEffect, useState, type ReactNode } from 'react';
 import {
 	AlertTriangle,
-	ChevronDown,
 	FolderPlus,
 	FolderSync,
 	Play,
@@ -19,7 +18,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
 	Select,
 	SelectContent,
@@ -260,21 +258,14 @@ const StoragePage: React.FC<StoragePageProps> = ({
 			) : (
 				<>
 					<Card size="sm" className="gap-0! py-0!">
-						<Collapsible>
-							<CollapsibleTrigger className="group w-full text-left">
-								<CardHeader className="py-3">
-									<CardTitle className="flex items-center justify-between">
-										{t('settings.storage.cardTitle')}
-										<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-									</CardTitle>
-									<CardDescription className="text-xs">
-										{t('settings.storage.sync.description')}
-									</CardDescription>
-								</CardHeader>
-							</CollapsibleTrigger>
+						<CardHeader className="border-b border-border/60 py-3">
+							<CardTitle>{t('settings.storage.cardTitle')}</CardTitle>
+							<CardDescription className="text-xs">
+								{t('settings.storage.sync.description')}
+							</CardDescription>
+						</CardHeader>
 
-							<CollapsibleContent className="border-t border-border/60">
-								<CardContent className="p-0!">
+						<CardContent className="p-0!">
 									<SettingsRow
 										title={t('settings.storage.profile.label')}
 										description={t('settings.storage.profile.help')}
@@ -391,9 +382,9 @@ const StoragePage: React.FC<StoragePageProps> = ({
 											/>
 										</>
 									)}
-								</CardContent>
+						</CardContent>
 
-								<CardFooter className="justify-end gap-2">
+						<CardFooter className="justify-end gap-2">
 									<Button
 										variant="outline"
 										size="sm"
@@ -426,9 +417,7 @@ const StoragePage: React.FC<StoragePageProps> = ({
 										<Save className="size-3" />
 										{savingSync ? t('settings.storage.saving') : t('settings.storage.sync.save')}
 									</Button>
-								</CardFooter>
-							</CollapsibleContent>
-						</Collapsible>
+						</CardFooter>
 					</Card>
 
 					{syncStatus && <SettingsNotice icon={FolderSync}>{syncStatus}</SettingsNotice>}

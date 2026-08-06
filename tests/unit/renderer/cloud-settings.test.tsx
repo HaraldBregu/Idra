@@ -15,6 +15,7 @@ jest.mock('react-i18next', () => ({
 				'settings.storage.configureProvider': 'Configure storage provider',
 				'settings.storage.cardTitle': 'Object Storage',
 				'settings.storage.sync.description': 'Configure folder sync.',
+				'settings.storage.profile.label': 'Storage to use',
 			})[key] ?? key,
 	}),
 }));
@@ -49,7 +50,8 @@ it('opens storage provider settings when no provider is configured', async () =>
 	);
 
 	expect(screen.getByRole('heading', { name: 'Cloud' })).toBeInTheDocument();
-	expect(screen.getByText('Object Storage Configuration')).toBeInTheDocument();
+	expect(screen.queryByText('Object Storage Configuration')).not.toBeInTheDocument();
+	expect(screen.queryByText('Configure S3-compatible storage providers.')).not.toBeInTheDocument();
 	await user.click(await screen.findByRole('button', { name: 'Configure storage provider' }));
 	expect(await screen.findByText('Storage provider settings')).toBeInTheDocument();
 });
@@ -81,6 +83,8 @@ it('shows storage controls without the provider CTA when a provider exists', asy
 	);
 
 	expect(await screen.findByText('Object Storage')).toBeInTheDocument();
+	expect(screen.getByText('Storage to use')).toBeVisible();
+	expect(screen.queryByRole('button', { name: /Object Storage/ })).not.toBeInTheDocument();
 	expect(
 		screen.queryByRole('button', { name: 'Configure storage provider' })
 	).not.toBeInTheDocument();
