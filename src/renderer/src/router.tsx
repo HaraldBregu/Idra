@@ -422,7 +422,7 @@ const routes: RouteObject[] = [
 						],
 					},
 					{
-						path: 'rag',
+						path: 'knowledge-base',
 						element: (
 							<SettingsRouteWrapper>
 								<RagPage />
@@ -430,7 +430,7 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'wiki',
+						path: 'llm-wiki',
 						element: (
 							<SettingsRouteWrapper>
 								<WikiPage />

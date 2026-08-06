@@ -223,8 +223,8 @@
 			"skills": "Abilità",
 			"extensions": "Extension",
 			"plugins": "Plugin",
-			"rag": "RAG",
-			"wiki": "Wiki",
+			"rag": "Base di conoscenza",
+			"wiki": "LLM Wiki",
 			"vectorDb": "Database"
 		},
 		"breadcrumb": {

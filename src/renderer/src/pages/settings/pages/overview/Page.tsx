@@ -28,8 +28,8 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: [
 			'/settings/assistant',
 			'/settings/skills',
-			'/settings/rag',
-			'/settings/wiki',
+			'/settings/knowledge-base',
+			'/settings/llm-wiki',
 			'/settings/tasks',
 			'/settings/providers/mcp',
 		],
@@ -73,15 +73,9 @@ function SettingsOverviewCard({
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const unavailable = disabled || ('comingSoon' in item && item.comingSoon === true);
-	const isWiki = item.path === '/settings/wiki';
+	const isWiki = item.path === '/settings/llm-wiki';
 	const labelKey =
-		item.path === '/settings/rag'
-			? 'settings.rag.title'
-			: isWiki
-				? 'settings.wiki.title'
-				: item.path === '/settings/tasks'
-					? 'settings.overview.labels.backgroundTasks'
-					: item.labelKey;
+		item.path === '/settings/tasks' ? 'settings.overview.labels.backgroundTasks' : item.labelKey;
 	const handleActivate = (): void => {
 		if (unavailable) return;
 		navigate(item.path);

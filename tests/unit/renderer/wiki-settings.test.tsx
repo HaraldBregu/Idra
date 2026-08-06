@@ -6,7 +6,7 @@ jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
 		'common.save': 'Save',
 		'common.cancel': 'Cancel',
-		'settings.tabs.wiki': 'Wiki',
+		'settings.wiki.title': 'LLM Wiki',
 		'settings.wiki.description': 'Persistent Markdown wiki',
 		'settings.wiki.behaviorTitle': 'Wiki behavior',
 		'settings.wiki.behaviorDescription': 'Behavior settings',
@@ -102,6 +102,7 @@ describe('Wiki settings', () => {
 		const user = userEvent.setup();
 		render(<WikiPage />);
 
+		expect(await screen.findByRole('heading', { name: 'LLM Wiki' })).toBeInTheDocument();
 		const source = await screen.findByLabelText('Raw source folder');
 		expect(source).toHaveValue('/wiki/raw');
 		await user.clear(source);

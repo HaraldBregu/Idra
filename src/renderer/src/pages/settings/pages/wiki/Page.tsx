@@ -160,7 +160,7 @@ const WikiPage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={t('settings.tabs.wiki')}
+				title={t('settings.wiki.title')}
 				description={t('settings.wiki.description')}
 				action={
 					<>

@@ -4,7 +4,7 @@ import RagPage from '../../../src/renderer/src/pages/settings/pages/rag/Page';
 
 jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
-		'settings.tabs.rag': 'RAG',
+		'settings.rag.title': 'Knowledge Base',
 		'settings.rag.description': 'Configure retrieval-augmented generation.',
 		'settings.rag.embeddingModelTitle': 'Embedding model',
 		'settings.rag.embeddingModelDescription':
@@ -110,6 +110,7 @@ it('loads and saves the embedding model used by RAG', async () => {
 	const user = userEvent.setup();
 	render(<RagPage />);
 
+	expect(await screen.findByRole('heading', { name: 'Knowledge Base' })).toBeInTheDocument();
 	const selector = await screen.findByRole('combobox', { name: 'Embedding model' });
 	expect(selector).toHaveTextContent('OpenAI / Text Embedding 3 Small');
 

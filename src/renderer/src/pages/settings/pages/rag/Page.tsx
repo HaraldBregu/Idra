@@ -247,7 +247,7 @@ const RagPage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={t('settings.tabs.rag')}
+				title={t('settings.rag.title')}
 				description={t('settings.rag.description')}
 			/>
 

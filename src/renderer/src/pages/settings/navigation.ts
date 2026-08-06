@@ -380,14 +380,14 @@ export const SETTINGS_NAVIGATION: readonly SettingsNavigationItem[] = [
 		icon: Bot,
 	},
 	{
-		path: '/settings/rag',
-		labelKey: 'settings.tabs.rag',
+		path: '/settings/knowledge-base',
+		labelKey: 'settings.rag.title',
 		descriptionKey: 'settings.overview.descriptions.rag',
 		icon: Library,
 	},
 	{
-		path: '/settings/wiki',
-		labelKey: 'settings.tabs.wiki',
+		path: '/settings/llm-wiki',
+		labelKey: 'settings.wiki.title',
 		descriptionKey: 'settings.overview.descriptions.wiki',
 		icon: BookOpenText,
 	},
