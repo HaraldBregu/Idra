@@ -49,3 +49,15 @@ it('lists Channels once outside the providers group', () => {
 	expect(within(channelsGroup as HTMLElement).getAllByRole('button')).toHaveLength(1);
 	expect(screen.getAllByText('settings.tabs.channels')).toHaveLength(1);
 });
+
+it('uses the LLM Wiki identity on the overview', () => {
+	render(
+		<MemoryRouter initialEntries={['/settings']}>
+			<OverviewPage />
+		</MemoryRouter>
+	);
+
+	const wiki = screen.getByRole('button', { name: /settings\.wiki\.title/ });
+	expect(wiki).toHaveTextContent('settings.wiki.title');
+	expect(wiki.querySelector('.lucide-brain-circuit')).toBeInTheDocument();
+});

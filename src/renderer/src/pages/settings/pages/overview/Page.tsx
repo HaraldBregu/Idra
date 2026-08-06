@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { BrainCircuit, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import {
@@ -73,6 +73,7 @@ function SettingsOverviewCard({
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const unavailable = disabled || ('comingSoon' in item && item.comingSoon === true);
+	const isWiki = item.path === '/settings/wiki';
 	const handleActivate = (): void => {
 		if (unavailable) return;
 		navigate(item.path);
@@ -88,10 +89,10 @@ function SettingsOverviewCard({
 			disabled={unavailable}
 			className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
 		>
-			<ItemIcon icon={item.icon} className="size-8 [&_svg]:size-4" />
+			<ItemIcon icon={isWiki ? BrainCircuit : item.icon} className="size-8 [&_svg]:size-4" />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
-					{t(item.labelKey)}
+					{t(isWiki ? 'settings.wiki.title' : item.labelKey)}
 				</ItemTitle>
 				{'descriptionKey' in item && item.descriptionKey && (
 					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
