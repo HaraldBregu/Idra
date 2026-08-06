@@ -169,9 +169,7 @@ const WikiPage: React.FC = () => {
 	const selectedSchedule = SETTINGS_SCHEDULES.find(
 		(schedule) => schedule.cron === settings?.schedule.cronExpression
 	);
-	const scheduleValue = !settings?.schedule.enabled
-		? 'off'
-		: (selectedSchedule?.key ?? 'custom');
+	const scheduleValue = !settings?.schedule.enabled ? 'off' : (selectedSchedule?.key ?? 'custom');
 	const scheduleLabel = selectedSchedule
 		? t(`settings.wiki.scheduleOptions.${selectedSchedule.key}`)
 		: t(`settings.wiki.scheduleOptions.${scheduleValue}`);
@@ -471,9 +469,7 @@ const WikiPage: React.FC = () => {
 											<SelectValue>{scheduleLabel}</SelectValue>
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="off">
-												{t('settings.wiki.scheduleOptions.off')}
-											</SelectItem>
+											<SelectItem value="off">{t('settings.wiki.scheduleOptions.off')}</SelectItem>
 											{SETTINGS_SCHEDULES.map((schedule) => (
 												<SelectItem key={schedule.key} value={schedule.key}>
 													{t(`settings.wiki.scheduleOptions.${schedule.key}`)}
