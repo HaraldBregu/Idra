@@ -45,9 +45,14 @@ const ragConfiguration = {
 };
 
 beforeEach(() => {
+	jest.clearAllMocks();
+	let currentRagConfiguration = { ...ragConfiguration };
 	getAppModelSelections.mockReturnValue(appSelections);
-	getRagConfiguration.mockReturnValue(ragConfiguration);
-	saveRagConfiguration.mockImplementation((configuration) => configuration);
+	getRagConfiguration.mockImplementation(() => currentRagConfiguration);
+	saveRagConfiguration.mockImplementation((configuration) => {
+		currentRagConfiguration = configuration;
+		return configuration;
+	});
 });
 
 it('reads and writes embedding selection through the RAG store', () => {
@@ -63,6 +68,7 @@ it('reads and writes embedding selection through the RAG store', () => {
 	});
 	expect(saveRagConfiguration).toHaveBeenNthCalledWith(2, {
 		...ragConfiguration,
+		embeddingProviderId: 'voyage',
 		embeddingModelId: 'voyage-3',
 	});
 	expect(setAppModelSelections).not.toHaveBeenCalled();
