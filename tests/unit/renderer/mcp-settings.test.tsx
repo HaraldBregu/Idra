@@ -44,6 +44,7 @@ beforeEach(() => {
 		durationMs: 25,
 	}));
 	mcpApi.importLocal.mockResolvedValue({ imported: [], skipped: [] });
+	mcpApi.upsert.mockResolvedValue({});
 });
 
 describe('MCP settings', () => {
@@ -59,7 +60,7 @@ describe('MCP settings', () => {
 	it('tests each server independently and reports discovered tools', async () => {
 		const user = userEvent.setup();
 		render(<McpPage />);
-		const buttons = await screen.findAllByRole('button', { name: 'Test' });
+		const buttons = await screen.findAllByRole('button', { name: /^Test / });
 
 		await user.click(buttons[0]);
 		await waitFor(() => expect(mcpApi.test).toHaveBeenCalledWith('remote'));
@@ -75,5 +76,35 @@ describe('MCP settings', () => {
 		await waitFor(() => expect(mcpApi.importLocal).toHaveBeenCalledTimes(1));
 		expect(mcpApi.registry).toHaveBeenCalledTimes(2);
 		expect(await screen.findByText('Uploaded 0 local MCP servers.')).toBeInTheDocument();
+	});
+
+	it('invalidates a successful test when the server is disabled', async () => {
+		const user = userEvent.setup();
+		mcpApi.registry
+			.mockResolvedValueOnce({
+				servers: [{ id: 'remote', source: 'configured', data: { type: 'http', name: 'Remote docs', url: 'https://mcp.test' } }],
+				diagnostics: [],
+			})
+			.mockResolvedValueOnce({
+				servers: [{ id: 'remote', source: 'configured', data: { type: 'http', name: 'Remote docs', url: 'https://mcp.test', enabled: false } }],
+				diagnostics: [],
+			});
+		render(<McpPage />);
+		await user.click(await screen.findByRole('button', { name: 'Test Remote docs' }));
+		expect(await screen.findByText('Connected')).toBeInTheDocument();
+
+		await user.click(screen.getByRole('switch', { name: 'Disable Remote docs' }));
+		expect(await screen.findByText('Disabled')).toBeInTheDocument();
+		expect(screen.queryByText('Connected')).not.toBeInTheDocument();
+	});
+
+	it('shows toggle failures without an unhandled rejection', async () => {
+		const user = userEvent.setup();
+		mcpApi.upsert.mockRejectedValueOnce(new Error('Unable to save server'));
+		render(<McpPage />);
+		await screen.findByText('Remote docs');
+
+		await user.click(screen.getByRole('switch', { name: 'Disable Remote docs' }));
+		expect(await screen.findAllByText('Unable to save server')).not.toHaveLength(0);
 	});
 });

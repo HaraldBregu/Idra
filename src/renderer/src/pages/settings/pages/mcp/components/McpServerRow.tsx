@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FlaskConical, Pencil, RefreshCw } from 'lucide-react';
 import type { McpData, McpServerInfo, McpTestResult } from '@shared/mcp_types';
 import { Badge } from '@/components/ui/badge';
@@ -22,16 +22,18 @@ export function McpServerRow({
 	readonly onSave?: (id: string, data: McpData) => Promise<void>;
 	readonly onRemove?: () => Promise<void>;
 }): React.JSX.Element {
+	const [updating, setUpdating] = useState(false);
+	const [actionError, setActionError] = useState('');
 	const description = server.data.type === 'http' ? server.data.url : server.data.command;
-	const status = testing
+	const status = server.data.enabled === false
+		? 'Disabled'
+		: testing
 		? 'Testing'
 		: testResult?.ok
 			? 'Connected'
 			: testResult
 				? 'Error'
-				: server.data.enabled === false
-					? 'Disabled'
-					: 'Configured';
+				: 'Configured';
 	const variant = testResult && !testResult.ok ? 'destructive' : testResult?.ok ? 'default' : 'outline';
 
 	return (
@@ -64,9 +66,16 @@ export function McpServerRow({
 							: testResult.error || 'Unable to connect.'}
 					</p>
 				)}
+				{actionError && <p className="text-[11px] text-destructive" role="alert">{actionError}</p>}
 			</ItemContent>
 			<ItemActions className="ml-auto flex-none justify-end gap-1.5">
-				<Button variant="outline" size="xs" disabled={testing} onClick={() => void onTest()}>
+				<Button
+					variant="outline"
+					size="xs"
+					disabled={testing || updating || server.data.enabled === false}
+					onClick={() => void onTest()}
+					aria-label={`${testing ? 'Testing' : 'Test'} ${server.data.name ?? server.id}`}
+				>
 					{testing ? <RefreshCw className="size-3 animate-spin" /> : <FlaskConical className="size-3" />}
 					{testing ? 'Testing' : 'Test'}
 				</Button>
@@ -74,7 +83,14 @@ export function McpServerRow({
 					<>
 						<Switch
 							checked={server.data.enabled !== false}
-							onCheckedChange={(enabled) => void onSave(server.id, { ...server.data, enabled })}
+							disabled={updating}
+							onCheckedChange={(enabled) => {
+								setUpdating(true);
+								setActionError('');
+								void onSave(server.id, { ...server.data, enabled })
+									.catch((error) => setActionError(error instanceof Error ? error.message : String(error)))
+									.finally(() => setUpdating(false));
+							}}
 							aria-label={`${server.data.enabled === false ? 'Enable' : 'Disable'} ${server.data.name ?? server.id}`}
 						/>
 						<McpServerDialog

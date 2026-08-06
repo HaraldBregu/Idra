@@ -228,9 +228,9 @@ Friday supports two MCP transport types:
 MCP settings provide:
 
 - Separate lists for remote and local servers.
-- Configured, disabled, and error states, with an enable/disable toggle in both the list and detail views.
+- Configured, disabled, testing, connected, and error states, with an enable/disable toggle for configured servers.
 - Add and edit dialogs. Server ID and transport type are fixed after creation.
-- A detail page with ID, status, URL or command/arguments, authentication type, refresh/update timestamps, and the last error.
+- Inline configuration editing and removal for configured servers; filesystem packages remain file-authoritative.
 - OAuth authorization for HTTP servers without a bearer token, including reauthorization.
 - Dynamic discovery of local server packages from `~/.friday/mcp/servers`.
 - Folder upload, local-folder access, manual refresh, and a live connection test that reports tool count and latency for every local or remote server.
@@ -257,7 +257,6 @@ At the start of each normal agent run, enabled servers connect in parallel, expo
 
 Current limits:
 
-- The renderer still has no delete control for a configured server.
 - A stored `require_approval` field is enforced: it sets a loaded MCP tool's default permission to allow or ask. A stored `defer_loading` field is not yet enforced by the tool loader.
 - Dynamically loaded MCP tools are not included in the built-in gated-tool list; only their own `require_approval`-derived default applies.
 

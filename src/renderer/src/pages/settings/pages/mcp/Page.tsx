@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, FolderOpen, Plus, PlugZap, RefreshCw, Upload } from 'lucide-react';
 import type { McpData, McpRegistry, McpTestResult } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
+import { mcps } from '@/lib/providers';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -13,6 +14,7 @@ import {
 } from '../../components';
 import { McpServerDialog } from './components/McpServerDialog';
 import { McpServerRow } from './components/McpServerRow';
+import { McpCard } from '../providers/McpCard';
 
 const McpPage = (): React.JSX.Element => {
 	const [registry, setRegistry] = useState<McpRegistry>({ servers: [], diagnostics: [] });
@@ -27,6 +29,7 @@ const McpPage = (): React.JSX.Element => {
 	const load = useCallback(async (): Promise<void> => {
 		setLoading(true);
 		setError('');
+		setTestResults({});
 		try {
 			const [nextRegistry, nextRoot] = await Promise.all([
 				window.mcp.registry(),
@@ -46,13 +49,25 @@ const McpPage = (): React.JSX.Element => {
 	}, [load]);
 
 	const save = async (id: string, data: McpData): Promise<void> => {
-		await window.mcp.upsert(id, data);
-		await load();
+		setError('');
+		try {
+			await window.mcp.upsert(id, data);
+			await load();
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+			throw caught;
+		}
 	};
 
 	const remove = async (id: string): Promise<void> => {
-		await window.mcp.delete(id);
-		await load();
+		setError('');
+		try {
+			await window.mcp.delete(id);
+			await load();
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+			throw caught;
+		}
 	};
 
 	const test = async (id: string): Promise<void> => {
@@ -93,10 +108,11 @@ const McpPage = (): React.JSX.Element => {
 			const result = await window.mcp.importLocal();
 			if (result) {
 				const skipped = result.skipped.map((entry) => `${entry.name}: ${entry.reason}`).join(' ');
-				setSuccess(
+				const message =
 					`Uploaded ${result.imported.length} local MCP server${result.imported.length === 1 ? '' : 's'}.` +
-						(result.skipped.length > 0 ? ` Skipped ${result.skipped.length}. ${skipped}` : '')
-				);
+					(result.skipped.length > 0 ? ` Skipped ${result.skipped.length}. ${skipped}` : '');
+				if (result.imported.length === 0 && result.skipped.length > 0) setError(message);
+				else setSuccess(message);
 				await load();
 			}
 		} catch (caught) {
@@ -117,6 +133,7 @@ const McpPage = (): React.JSX.Element => {
 
 	const remote = registry.servers.filter((server) => server.data.type === 'http');
 	const local = registry.servers.filter((server) => server.data.type === 'stdio');
+	const catalog = mcps();
 
 	return (
 		<SettingsPageShell>
@@ -162,6 +179,16 @@ const McpPage = (): React.JSX.Element => {
 				</SettingsNotice>
 			))}
 
+			{catalog.length > 0 && (
+				<SettingsSection title="Available remote servers" description="Remote MCP services from installed provider catalogs.">
+					<div className="space-y-3">
+						{catalog.map((service) => (
+							<McpCard key={`${service.provider.id}-${service.id}`} service={service} />
+						))}
+					</div>
+				</SettingsSection>
+			)}
+
 			<SettingsSection title="Remote servers" description="MCP services reached over HTTP.">
 				<SettingsPanel>
 					{loading ? (
@@ -188,7 +215,10 @@ const McpPage = (): React.JSX.Element => {
 				</SettingsPanel>
 			</SettingsSection>
 
-			<SettingsSection title="Local servers" description={root || '~/.friday/mcp/servers'}>
+			<SettingsSection
+				title="Local servers"
+				description={`${root || '~/.friday/mcp/servers'} · Edit a package's mcp.json to configure or disable it.`}
+			>
 				<SettingsPanel>
 					{loading ? (
 						<SettingsLoadingRows rows={2} />

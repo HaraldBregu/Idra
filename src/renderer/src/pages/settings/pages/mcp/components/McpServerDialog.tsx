@@ -22,9 +22,10 @@ export function McpServerDialog({
 	readonly onRemove?: () => Promise<void>;
 }): React.JSX.Element {
 	const [open, setOpen] = useState(false);
+	const [removeError, setRemoveError] = useState('');
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={open} onOpenChange={(nextOpen) => { setOpen(nextOpen); if (!nextOpen) setRemoveError(''); }}>
 			<DialogTrigger render={trigger} />
 			<DialogContent>
 				<DialogHeader>
@@ -34,7 +35,8 @@ export function McpServerDialog({
 					</DialogDescription>
 				</DialogHeader>
 				{open && (
-					<McpServerForm
+					<>
+						<McpServerForm
 						initial={initial}
 						onSubmit={async (id, entry) => {
 							await onSubmit(id, entry);
@@ -45,12 +47,19 @@ export function McpServerDialog({
 							onRemove
 								? async () => {
 									if (!window.confirm(`Remove ${initial?.entry.name ?? initial?.id ?? 'this MCP server'}?`)) return;
-									await onRemove();
-									setOpen(false);
+									setRemoveError('');
+									try {
+										await onRemove();
+										setOpen(false);
+									} catch (error) {
+										setRemoveError(error instanceof Error ? error.message : String(error));
+									}
 								}
 								: undefined
 						}
-					/>
+						/>
+						{removeError && <p className="text-[13px] text-destructive" role="alert">{removeError}</p>}
+					</>
 				)}
 			</DialogContent>
 		</Dialog>
