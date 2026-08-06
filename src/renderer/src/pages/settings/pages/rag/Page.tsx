@@ -82,27 +82,28 @@ const RagPage: React.FC = () => {
 		void Promise.all([
 			window.models.embedding.getProviderId(),
 			window.models.embedding.getModelId(),
-		]).then(
-			([storedProviderId, storedModelId]) => {
-				if (cancelled) return;
-				const stored = embeddingModels.find(
-					(entry) =>
-						entry.provider.id === storedProviderId && entry.id === storedModelId
-				);
-				const fallbackProviderId = defaultProviderId('embedding');
-				const fallback =
-					embeddingModels.find((entry) => entry.provider.id === fallbackProviderId) ??
-					embeddingModels[0];
-				const selected = stored ?? fallback;
-				setEmbeddingProviderId(selected?.provider.id ?? '');
-				setEmbeddingModelId(selected?.id ?? '');
-			},
-			(err) => {
-				if (!cancelled) setError(getErrorMessage(err, t('settings.rag.loadError')));
-			}
-		).finally(() => {
-			if (!cancelled) setLoadingEmbeddingModel(false);
-		});
+		])
+			.then(
+				([storedProviderId, storedModelId]) => {
+					if (cancelled) return;
+					const stored = embeddingModels.find(
+						(entry) => entry.provider.id === storedProviderId && entry.id === storedModelId
+					);
+					const fallbackProviderId = defaultProviderId('embedding');
+					const fallback =
+						embeddingModels.find((entry) => entry.provider.id === fallbackProviderId) ??
+						embeddingModels[0];
+					const selected = stored ?? fallback;
+					setEmbeddingProviderId(selected?.provider.id ?? '');
+					setEmbeddingModelId(selected?.id ?? '');
+				},
+				(err) => {
+					if (!cancelled) setError(getErrorMessage(err, t('settings.rag.loadError')));
+				}
+			)
+			.finally(() => {
+				if (!cancelled) setLoadingEmbeddingModel(false);
+			});
 		return () => {
 			cancelled = true;
 		};
@@ -229,8 +230,7 @@ const RagPage: React.FC = () => {
 			entry.provider.id === databaseConfiguration.providerId
 	);
 	const selectedEmbeddingModel = embeddingModels.find(
-		(entry) =>
-			entry.provider.id === embeddingProviderId && entry.id === embeddingModelId
+		(entry) => entry.provider.id === embeddingProviderId && entry.id === embeddingModelId
 	);
 
 	return (
