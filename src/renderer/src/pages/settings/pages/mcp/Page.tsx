@@ -89,8 +89,6 @@ const McpPage = (): React.JSX.Element => {
 		}
 	};
 
-	const remote = registry.servers.filter((server) => server.data.type === 'http');
-	const local = registry.servers.filter((server) => server.data.type === 'stdio');
 	const catalog = mcps();
 
 	return (
@@ -150,18 +148,21 @@ const McpPage = (): React.JSX.Element => {
 				</SettingsSection>
 			)}
 
-			<SettingsSection title="Remote servers" description="MCP services reached over HTTP.">
+			<SettingsSection
+				title="MCP servers"
+				description={`Remote services, configured commands, and discovered packages in one list · ${root || '~/.friday/mcp/servers'}`}
+			>
 				<SettingsPanel>
 					{loading ? (
 						<SettingsLoadingRows rows={2} />
-					) : remote.length === 0 ? (
+					) : registry.servers.length === 0 ? (
 						<SettingsEmptyState
 							icon={PlugZap}
-							title="No remote MCP servers"
-							description="Add an HTTP server to make its tools available to Friday."
+							title="No MCP servers"
+							description="Add a server or upload a local package to make its tools available to Friday."
 						/>
 					) : (
-						remote.map((server) => (
+						registry.servers.map((server) => (
 							<McpServerRow
 								key={server.id}
 								server={server}
@@ -172,37 +173,6 @@ const McpPage = (): React.JSX.Element => {
 						))
 					)}
 				</SettingsPanel>
-			</SettingsSection>
-
-			<SettingsSection
-				title="Local servers"
-				description={`${root || '~/.friday/mcp/servers'} · Configure package commands and environment values here.`}
-			>
-				{loading ? (
-					<SettingsPanel>
-						<SettingsLoadingRows rows={2} />
-					</SettingsPanel>
-				) : local.length === 0 ? (
-					<SettingsPanel>
-						<SettingsEmptyState
-							icon={PlugZap}
-							title="No local MCP servers"
-							description="Upload a folder containing mcp.json or add a local command."
-						/>
-					</SettingsPanel>
-				) : (
-					<SettingsPanel>
-						{local.map((server) => (
-							<McpServerRow
-								key={server.id}
-								server={server}
-								onOpen={() =>
-									navigate(`/settings/providers/mcp/${encodeURIComponent(server.id)}`)
-								}
-							/>
-						))}
-					</SettingsPanel>
-				)}
 			</SettingsSection>
 		</SettingsPageShell>
 	);
