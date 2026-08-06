@@ -18,3 +18,16 @@ it('lists MCP once under the assistant group', () => {
 	expect(within(assistantGroup as HTMLElement).getByText('settings.tabs.mcp')).toBeInTheDocument();
 	expect(screen.getAllByText('settings.tabs.mcp')).toHaveLength(1);
 });
+
+it('lists Channels once under the providers group', () => {
+	render(
+		<MemoryRouter initialEntries={['/settings']}>
+			<OverviewPage />
+		</MemoryRouter>
+	);
+
+	const providersGroup = screen.getByText('settings.tabs.providers').closest('section');
+	expect(providersGroup).not.toBeNull();
+	expect(within(providersGroup as HTMLElement).getByText('settings.tabs.channels')).toBeInTheDocument();
+	expect(screen.getAllByText('settings.tabs.channels')).toHaveLength(1);
+});
