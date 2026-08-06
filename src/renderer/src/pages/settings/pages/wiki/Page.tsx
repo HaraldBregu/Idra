@@ -178,7 +178,7 @@ const WikiPage: React.FC = () => {
 								actions={
 									<Switch
 										checked={settings.enabled !== false}
-										disabled={settings.enabled === false || saving || running}
+										disabled={saving || running}
 										aria-label={t('settings.wiki.enabled')}
 										onCheckedChange={(enabled) => {
 											setSettings({ ...settings, enabled });
@@ -355,7 +355,7 @@ const WikiPage: React.FC = () => {
 									<Input
 										id="wiki-cron"
 										value={settings.schedule.cronExpression}
-										disabled={saving || running}
+										disabled={settings.enabled === false || saving || running}
 										onChange={(event) => {
 											setSettings({
 												...settings,
