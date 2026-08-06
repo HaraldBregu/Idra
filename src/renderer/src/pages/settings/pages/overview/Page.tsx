@@ -42,8 +42,11 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/providers/search',
 			'/settings/providers/databases',
 			'/settings/providers/storage',
-			'/settings/channels',
 		],
+	},
+	{
+		id: 'channels',
+		paths: ['/settings/channels'],
 	},
 	{
 		id: 'integrations',
