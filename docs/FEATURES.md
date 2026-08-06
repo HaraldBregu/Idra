@@ -536,17 +536,17 @@ Extensions are standalone mini-app windows:
 
 Friday stores configuration and working data below Electron's application-data directory:
 
-| Area        | Stored data                                                                                                                                           |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| App         | Tray, keep-awake, language, and theme settings.                                                                                                       |
-| Providers   | Provider name, API key, and base URL.                                                                                                                 |
+| Area        | Stored data                                                                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| App         | Tray, keep-awake, language, and theme settings.                                                                                             |
+| Providers   | Provider name, API key, and base URL.                                                                                                       |
 | Agent       | Active model, policy, MCP definitions and OAuth state, skills, schedules, health settings, workspace Markdown, sessions, and media library. |
-| Channels    | Bot tokens, sender policies, and channel reply model.                                                                                                 |
-| Services    | Independent text, transcription, voice, image, video, and audio selections.                                                                           |
-| Media       | Standalone generated video and audio files.                                                                                                           |
-| Browser     | Persistent agent-browser profile.                                                                                                                     |
-| Storage     | S3-compatible remote-storage credentials and sync configuration.                                                                                      |
-| Diagnostics | Local rotating logs and crash dumps. Crash dumps are not uploaded by the current configuration.                                                       |
+| Channels    | Bot tokens, sender policies, and channel reply model.                                                                                       |
+| Services    | Independent text, transcription, voice, image, video, and audio selections.                                                                 |
+| Media       | Standalone generated video and audio files.                                                                                                 |
+| Browser     | Persistent agent-browser profile.                                                                                                           |
+| Storage     | S3-compatible remote-storage credentials and sync configuration.                                                                            |
+| Diagnostics | Local rotating logs and crash dumps. Crash dumps are not uploaded by the current configuration.                                             |
 
 Secrets are masked in the renderer after saving, but provider keys, bot tokens, and MCP secrets are stored in ordinary local electron-store files rather than an encrypted credential vault. Anyone with access to the user's application-data files may be able to read them.
 

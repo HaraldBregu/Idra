@@ -53,7 +53,8 @@ const McpDetailsPage: React.FC = () => {
 		setTestResult(undefined);
 		try {
 			if (server.source === 'local') {
-				if (data.type !== 'stdio') throw new Error('Local MCP servers require stdio configuration.');
+				if (data.type !== 'stdio')
+					throw new Error('Local MCP servers require stdio configuration.');
 				setServer(await window.mcp.configureLocal(serverId, data));
 			} else {
 				await window.mcp.upsert(serverId, data);
@@ -108,7 +109,9 @@ const McpDetailsPage: React.FC = () => {
 		return (
 			<SettingsPageShell>
 				<SettingsPageHeader title="MCP server" />
-				<SettingsPanel><SettingsLoadingRows rows={4} /></SettingsPanel>
+				<SettingsPanel>
+					<SettingsLoadingRows rows={4} />
+				</SettingsPanel>
 			</SettingsPageShell>
 		);
 	}
@@ -125,7 +128,11 @@ const McpDetailsPage: React.FC = () => {
 						</Button>
 					}
 				/>
-				{error && <SettingsNotice variant="destructive" icon={AlertTriangle}>{error}</SettingsNotice>}
+				{error && (
+					<SettingsNotice variant="destructive" icon={AlertTriangle}>
+						{error}
+					</SettingsNotice>
+				)}
 				<SettingsPanel>
 					<SettingsEmptyState
 						icon={Plug}
@@ -139,11 +146,12 @@ const McpDetailsPage: React.FC = () => {
 	}
 
 	const title = server.data.name ?? server.id;
-	const description = server.source === 'local'
-		? server.path ?? 'Filesystem package'
-		: server.data.type === 'http'
-			? server.data.url
-			: 'Configured local command';
+	const description =
+		server.source === 'local'
+			? (server.path ?? 'Filesystem package')
+			: server.data.type === 'http'
+				? server.data.url
+				: 'Configured local command';
 
 	return (
 		<SettingsPageShell>
@@ -156,8 +164,17 @@ const McpDetailsPage: React.FC = () => {
 							<ArrowLeft className="size-3" />
 							All servers
 						</Button>
-						<Button variant="outline" size="xs" onClick={() => void test()} disabled={testing || saving}>
-							{testing ? <RefreshCw className="size-3 animate-spin" /> : <FlaskConical className="size-3" />}
+						<Button
+							variant="outline"
+							size="xs"
+							onClick={() => void test()}
+							disabled={testing || saving}
+						>
+							{testing ? (
+								<RefreshCw className="size-3 animate-spin" />
+							) : (
+								<FlaskConical className="size-3" />
+							)}
 							{testing ? 'Testing' : 'Test'}
 						</Button>
 						<label className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -175,20 +192,35 @@ const McpDetailsPage: React.FC = () => {
 				}
 			/>
 
-			{error && <SettingsNotice variant="destructive" icon={AlertTriangle}>{error}</SettingsNotice>}
+			{error && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{error}
+				</SettingsNotice>
+			)}
 			{success && <SettingsNotice>{success}</SettingsNotice>}
 			{testResult && (
-				<SettingsNotice variant={testResult.ok ? 'default' : 'destructive'} icon={testResult.ok ? undefined : AlertTriangle}>
+				<SettingsNotice
+					variant={testResult.ok ? 'default' : 'destructive'}
+					icon={testResult.ok ? undefined : AlertTriangle}
+				>
 					{testResult.ok
 						? `${testResult.toolCount} tool${testResult.toolCount === 1 ? '' : 's'} · ${testResult.durationMs} ms`
 						: testResult.error || 'Unable to connect.'}
 				</SettingsNotice>
 			)}
-			{server.diagnostic && <SettingsNotice variant="destructive" icon={AlertTriangle}>{server.diagnostic}</SettingsNotice>}
+			{server.diagnostic && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{server.diagnostic}
+				</SettingsNotice>
+			)}
 
 			<SettingsSection
 				title="Configuration"
-				description={server.source === 'local' ? 'Changes are saved to this package’s mcp.json.' : 'Changes are saved in Friday settings.'}
+				description={
+					server.source === 'local'
+						? 'Changes are saved to this package’s mcp.json.'
+						: 'Changes are saved in Friday settings.'
+				}
 			>
 				<SettingsPanel>
 					<div className="p-3">

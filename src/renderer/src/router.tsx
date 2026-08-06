@@ -204,7 +204,7 @@ const routes: RouteObject[] = [
 									<SettingsRouteWrapper>
 										<TaskDetailsPage />
 									</SettingsRouteWrapper>
-									),
+								),
 							},
 						],
 					},

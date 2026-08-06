@@ -52,7 +52,8 @@ export function configureLocalMcpServer(
 
 	const server = listLocalMcpServers(root).servers.find((entry) => entry.id === serverId);
 	if (!server?.path) throw new Error(`No local MCP server "${id}".`);
-	if (server.data.type !== 'stdio') throw new Error('Local MCP servers require stdio configuration.');
+	if (server.data.type !== 'stdio')
+		throw new Error('Local MCP servers require stdio configuration.');
 
 	const manifestPath = path.join(server.path, 'mcp.json');
 	const temporaryPath = path.join(server.path, `.mcp-${randomUUID()}.json`);
@@ -63,10 +64,7 @@ export function configureLocalMcpServer(
 		command: input.command.trim(),
 		args: input.args ? [...input.args] : undefined,
 		env: input.env ? { ...input.env } : undefined,
-		cwd:
-			input.cwd === server.data.cwd
-				? manifest.cwd
-				: input.cwd?.trim() || undefined,
+		cwd: input.cwd === server.data.cwd ? manifest.cwd : input.cwd?.trim() || undefined,
 		require_approval: input.require_approval,
 		defer_loading: input.defer_loading,
 		enabled: input.enabled,
