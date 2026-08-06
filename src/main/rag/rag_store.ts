@@ -7,6 +7,10 @@ import { normalizeRagIndexName } from './rag_index_name';
 
 const DEFAULT_RAG_CONFIGURATION: RagConfiguration = {
 	indexName: DEFAULT_RAG_INDEX_NAME,
+	databaseProviderId: '',
+	databaseId: '',
+	embeddingProviderId: '',
+	embeddingModelId: '',
 	folders: [],
 	scheduleEnabled: false,
 	cronExpression: '0 3 * * *',
@@ -34,6 +38,10 @@ export function saveRagConfiguration(configuration: RagConfiguration): RagConfig
 	}
 	const saved = {
 		indexName,
+		databaseProviderId: configuration.databaseProviderId?.trim() ?? '',
+		databaseId: configuration.databaseId?.trim() ?? '',
+		embeddingProviderId: configuration.embeddingProviderId?.trim() ?? '',
+		embeddingModelId: configuration.embeddingModelId?.trim() ?? '',
 		folders,
 		scheduleEnabled: configuration.scheduleEnabled,
 		cronExpression: cronExpression || DEFAULT_RAG_CONFIGURATION.cronExpression,
