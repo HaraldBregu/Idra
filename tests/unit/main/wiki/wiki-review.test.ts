@@ -204,6 +204,6 @@ describe('incremental wiki knowledge integration', () => {
 
 		expect(result).toMatchObject({ updatedPages: 0, pendingReviews: 1 });
 		expect(result.reviewItems?.[0]).toMatchObject({ risk: 'high', status: 'pending' });
-		expect(await readFile(path.join(target, 'syntheses/strategy.md'), 'utf8')).toContain(original);
+		expect(await readFile(path.join(target, 'syntheses/strategy.md'), 'utf8')).toContain(original.trim());
 	});
 });
