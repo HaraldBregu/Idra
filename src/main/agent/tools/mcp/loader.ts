@@ -12,7 +12,7 @@ export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Prom
 			try {
 				const client = await connect(id, data, 30_000);
 				clients.push(client);
-				const listed = await listTools(client);
+				const listed = await listTools(client, 30_000);
 				for (const t of listed.tools) {
 					tools.push(
 						mcpTool(

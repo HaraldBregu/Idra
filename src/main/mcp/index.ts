@@ -13,6 +13,7 @@ export { mcpLocalRoot } from './mcp_local_root';
 export { testMcpServer } from './mcp_server_test';
 export { upsertMcpServer } from './mcp_server_upsert';
 export { deleteMcpServer } from './mcp_server_delete';
+export { listConfiguredMcpServers } from './mcp_configured_list';
 export {
 	type McpCallResult,
 	type McpCallToolResult,

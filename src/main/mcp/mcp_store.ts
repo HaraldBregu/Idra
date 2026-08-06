@@ -3,15 +3,11 @@ import { getMcpServersState, setMcpServersState } from '../providers/providers_i
 import { splitRecord } from './mcp_split_record';
 import type { McpOAuthState, McpRecord } from './mcp_types';
 import { listLocalMcpServers } from './mcp_local_list';
+import { listConfiguredMcpServers } from './mcp_configured_list';
 
 // tokens and the code verifier never leave the main process; the rest round-trips through the UI
 export function getMcpServers(): McpSettings {
-	const servers: McpSettings = {};
-	for (const record of getMcpServersState()) {
-		const { id, ...stored } = record;
-		const { tokens: _tokens, codeVerifier: _verifier, ...data } = stored;
-		servers[id] = data as McpData;
-	}
+	const servers = listConfiguredMcpServers();
 	for (const server of listLocalMcpServers().servers) {
 		if (!servers[server.id]) servers[server.id] = server.data;
 	}

@@ -5,6 +5,13 @@ import type { McpRecord } from './mcp_types';
 export function upsertMcpServer(id: string, data: McpData): void {
 	const current = getMcpServersState();
 	const existing = current.find((server) => server.id === id);
-	const next = { ...existing, id, ...data } as McpRecord;
+	const preserveAuth =
+		existing?.type === 'http' &&
+		data.type === 'http' &&
+		existing.url === data.url &&
+		existing.token === data.token &&
+		existing.client_id === data.client_id &&
+		existing.client_secret === data.client_secret;
+	const next = { ...(preserveAuth ? existing : undefined), id, ...data } as McpRecord;
 	setMcpServersState([...current.filter((server) => server.id !== id), next]);
 }

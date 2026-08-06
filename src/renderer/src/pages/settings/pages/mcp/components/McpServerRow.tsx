@@ -72,7 +72,7 @@ export function McpServerRow({
 				<Button
 					variant="outline"
 					size="xs"
-					disabled={testing || updating || server.data.enabled === false}
+					disabled={testing || updating}
 					onClick={() => void onTest()}
 					aria-label={`${testing ? 'Testing' : 'Test'} ${server.data.name ?? server.id}`}
 				>

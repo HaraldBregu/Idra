@@ -168,7 +168,11 @@ export function McpServerForm({
 							placeholder="https://example.com/mcp"
 						/>
 					</Field>
-					{isValid && <McpOAuthButton id={serverId} beforeStart={persist} />}
+					{isEdit && isValid ? (
+						<McpOAuthButton id={serverId} beforeStart={persist} />
+					) : (
+						<p className="text-[12px] text-muted-foreground">Save the server before connecting with OAuth.</p>
+					)}
 					<details>
 						<summary className="cursor-pointer text-[13px] text-muted-foreground">Advanced</summary>
 						<div className="grid gap-4 pt-4">

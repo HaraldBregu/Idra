@@ -1,13 +1,12 @@
-import type { McpData, McpRegistry, McpServerInfo } from '../../shared/mcp_types';
-import { getMcpServersState } from '../providers/providers_index';
+import type { McpRegistry, McpServerInfo } from '../../shared/mcp_types';
+import { listConfiguredMcpServers } from './mcp_configured_list';
 import { listLocalMcpServers } from './mcp_local_list';
 
 export function listMcpRegistry(): McpRegistry {
 	const local = listLocalMcpServers();
 	const configured = new Map<string, McpServerInfo>();
-	for (const record of getMcpServersState()) {
-		const { id, tokens: _tokens, codeVerifier: _verifier, ...data } = record;
-		configured.set(id, { id, source: 'configured', data: data as McpData });
+	for (const [id, data] of Object.entries(listConfiguredMcpServers())) {
+		configured.set(id, { id, source: 'configured', data });
 	}
 	for (const server of local.servers) {
 		const collision = configured.get(server.id);

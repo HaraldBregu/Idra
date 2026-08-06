@@ -9,6 +9,7 @@ import {
 	getMcpOauth,
 	getMcpServers,
 	importLocalMcpServers,
+	listConfiguredMcpServers,
 	listMcpRegistry,
 	mcpLocalRoot,
 	saveMcpOauth,
@@ -65,6 +66,7 @@ function isMcpEntry(value: unknown): value is McpData {
 		return (
 			typeof value.command === 'string' &&
 			(value.args === undefined || Array.isArray(value.args)) &&
+			(value.args === undefined || value.args.every((item) => typeof item === 'string')) &&
 			(value.env === undefined || isStringRecord(value.env)) &&
 			(value.cwd === undefined || typeof value.cwd === 'string') &&
 			hasCommonMcpFields(value)
@@ -94,7 +96,7 @@ function normalizeMcpSettings(value: unknown): McpSettings {
 }
 
 function listMcp(): McpSettings {
-	const servers = getMcpServers();
+	const servers = listConfiguredMcpServers();
 	const out: McpSettings = {};
 	for (const [id, entry] of Object.entries(servers)) out[id] = inferMcpType(entry);
 	return out;
