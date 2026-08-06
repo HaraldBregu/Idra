@@ -31,7 +31,12 @@ beforeEach(() => {
 			{
 				id: 'remote',
 				source: 'configured',
-				data: { type: 'http', name: 'Remote docs', url: 'https://mcp.test', enabled: remoteEnabled },
+				data: {
+					type: 'http',
+					name: 'Remote docs',
+					url: 'https://mcp.test',
+					enabled: remoteEnabled,
+				},
 			},
 			{
 				id: 'local',

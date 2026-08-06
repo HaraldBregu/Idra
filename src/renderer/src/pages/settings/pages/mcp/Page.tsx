@@ -193,7 +193,10 @@ const McpPage = (): React.JSX.Element => {
 			))}
 
 			{catalog.length > 0 && (
-				<SettingsSection title="Available remote servers" description="Remote MCP services from installed provider catalogs.">
+				<SettingsSection
+					title="Available remote servers"
+					description="Remote MCP services from installed provider catalogs."
+				>
 					<div className="space-y-3">
 						{catalog.map((service) => (
 							<McpCard key={`${service.provider.id}-${service.id}`} service={service} />
@@ -236,7 +239,7 @@ const McpPage = (): React.JSX.Element => {
 					<SettingsPanel>
 						<SettingsLoadingRows rows={2} />
 					</SettingsPanel>
-					) : local.length === 0 ? (
+				) : local.length === 0 ? (
 					<SettingsPanel>
 						<SettingsEmptyState
 							icon={PlugZap}
@@ -244,7 +247,7 @@ const McpPage = (): React.JSX.Element => {
 							description="Upload a folder containing mcp.json or add a local command."
 						/>
 					</SettingsPanel>
-					) : (
+				) : (
 					<div className="grid gap-2">
 						{local.map((server) => (
 							<McpLocalServerCard
@@ -258,7 +261,7 @@ const McpPage = (): React.JSX.Element => {
 							/>
 						))}
 					</div>
-					)}
+				)}
 			</SettingsSection>
 		</SettingsPageShell>
 	);

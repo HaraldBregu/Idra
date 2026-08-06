@@ -13,11 +13,15 @@ export function configureLocalMcpServer(
 ): McpServerInfo {
 	const serverId = id.trim().toLowerCase();
 	if (!serverId) throw new Error('Connector ID is required.');
-	if (!input || input.type !== 'stdio') throw new Error('Local MCP servers require stdio configuration.');
+	if (!input || input.type !== 'stdio')
+		throw new Error('Local MCP servers require stdio configuration.');
 	if (typeof input.command !== 'string' || !input.command.trim()) {
 		throw new Error('A non-empty command is required.');
 	}
-	if (input.args !== undefined && (!Array.isArray(input.args) || input.args.some((item) => typeof item !== 'string'))) {
+	if (
+		input.args !== undefined &&
+		(!Array.isArray(input.args) || input.args.some((item) => typeof item !== 'string'))
+	) {
 		throw new Error('Arguments must be an array of strings.');
 	}
 	if (
