@@ -1,0 +1,14 @@
+{
+	"providerId": "signal",
+	"providerName": "Signal",
+	"apiKeyUrl": "https://github.com/AsamK/signal-cli",
+	"instructions": "Run a linked signal-cli daemon with --http on localhost, then enter the Signal account number as the credential.",
+	"services": [
+		{
+			"id": "signal-cli",
+			"name": "Signal CLI",
+			"type": "bot",
+			"url": "http://127.0.0.1:8080"
+		}
+	]
+}

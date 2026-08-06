@@ -5,8 +5,10 @@ type Config = Parameters<typeof canReceive>[1];
 
 function config(overrides: Partial<Config> = {}): Config {
 	return {
-		enabled: true,
-		token: 'tok',
+		id: 'telegram',
+		name: 'Telegram',
+		apiKey: 'tok',
+		baseUrl: '',
 		allowFrom: [],
 		...overrides,
 	} as Config;
@@ -20,7 +22,7 @@ function message(overrides: Partial<ChannelInboundMessage> = {}): ChannelInbound
 		chatId: 'c1',
 		chatType: 'group',
 		messageId: 'm1',
-		text: 'hello',
+		content: { type: 'text', text: 'hello' },
 		idempotencyKey: 'k1',
 		receivedAt: 0,
 		...overrides,
@@ -29,16 +31,18 @@ function message(overrides: Partial<ChannelInboundMessage> = {}): ChannelInbound
 
 describe('canReceive', () => {
 	it('rejects disabled channels', () => {
-		expect(canReceive(message(), config({ enabled: false }))).toEqual({
+		expect(canReceive(message(), undefined)).toEqual({
 			allowed: false,
-			reason: 'channel_disabled',
+			reason: 'channel_not_configured',
 		});
 	});
 	it('rejects unconfigured channels (blank token)', () => {
-		expect(canReceive(message(), config({ token: '  ' })).reason).toBe('channel_not_configured');
+		expect(canReceive(message(), config({ apiKey: '  ' })).reason).toBe('channel_not_configured');
 	});
 	it('rejects empty text', () => {
-		expect(canReceive(message({ text: '   ' }), config()).reason).toBe('empty_text');
+		expect(
+			canReceive(message({ content: { type: 'text', text: '   ' } }), config()).reason
+		).toBe('empty_text');
 	});
 
 	describe('direct messages', () => {

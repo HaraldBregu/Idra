@@ -8,6 +8,12 @@ export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = [
 		brandIconId: 'discord',
 	},
 	{
+		id: 'signal',
+		label: 'Signal',
+		blurb: 'Receive and send Signal messages through a local signal-cli daemon.',
+		brandIconId: 'signal',
+	},
+	{
 		id: 'telegram',
 		label: 'Telegram',
 		blurb: 'Receive Telegram bot messages and send agent replies.',

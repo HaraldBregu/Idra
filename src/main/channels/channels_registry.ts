@@ -3,6 +3,8 @@ import { AppChannels } from '../../shared/ipc_channels_definitions';
 import type { EventBus } from '../event_bus';
 import type { LoggerService } from '../shared';
 import type { Agent } from '../agent/agent';
+import { toText } from '../models/transcribe';
+import { synthesize } from '../models/voice';
 import { getChannelProvider } from './channels_store';
 import { canReceive } from './channels_security';
 import type {
@@ -41,13 +43,23 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 		return getChannelProvider(channel);
 	}
 
-	async function createAdapter(channel: ChannelType, token: string): Promise<ChannelAdapter> {
+	async function createAdapter(
+		channel: ChannelType,
+		credential: StoredBotProvider
+	): Promise<ChannelAdapter> {
 		if (channel === 'telegram') {
 			const { createTelegramAdapter } = await import('./adapters/telegram');
-			return createTelegramAdapter({ token });
+			return createTelegramAdapter({ token: credential.apiKey });
 		}
-		const { createDiscordAdapter } = await import('./adapters/discord');
-		return createDiscordAdapter({ token });
+		if (channel === 'discord') {
+			const { createDiscordAdapter } = await import('./adapters/discord');
+			return createDiscordAdapter({ token: credential.apiKey });
+		}
+		const { createSignalAdapter } = await import('./adapters/signal');
+		return createSignalAdapter({
+			accountId: credential.apiKey,
+			baseUrl: credential.baseUrl,
+		});
 	}
 
 	function handleStatus(channel: ChannelType, update: ChannelStatusUpdate): void {
@@ -73,21 +85,28 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			});
 			return;
 		}
-		const reply = (text: string) =>
+		const reply = (content: ChannelOutboundMessage['content']) =>
 			send({
 				channel: message.channel,
 				accountId: message.accountId,
 				to: message.chatId,
 				threadId: message.threadId,
 				replyToMessageId: message.messageId,
-				text,
+				chatType: message.chatType,
+				content,
 				idempotencyKey: `${message.idempotencyKey}:reply`,
 			});
 
 		try {
-			if (message.text.startsWith('/')) {
-				const command = message.text.split(/\s+/)[0].slice(1).split('@')[0].toLowerCase();
-				if (command === 'start') await reply(CHANNEL_START_REPLY);
+			const text =
+				message.content.type === 'text'
+					? message.content.text
+					: await toText({ audio: await message.content.voice.load() });
+			if (text.startsWith('/')) {
+				const command = text.split(/\s+/)[0].slice(1).split('@')[0].toLowerCase();
+				if (command === 'start') {
+					await reply({ type: 'text', text: CHANNEL_START_REPLY });
+				}
 				return;
 			}
 			if (!agentService) return;
@@ -100,12 +119,33 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				replyToMessageId: message.messageId,
 				chatType: message.chatType,
 			});
-			const response = await agentService.send(message.text, 'channels', {
+			const response = await agentService.send(text, 'channels', {
 				category: 'bot',
 				interactive: false,
 				sessionId: CHANNEL_SESSION_ID,
 			});
-			await reply(response);
+			if (message.content.type === 'voice') {
+				try {
+					const voice = await synthesize({ text: response });
+					await reply({
+						type: 'voice',
+						voice: {
+							data: voice.audio,
+							mimeType: voice.mimeType,
+							fileName: voiceFileName(voice.mimeType),
+						},
+						fallbackText: response,
+					});
+				} catch (error) {
+					logger.warn('ChannelRegistry', 'Voice reply failed; sending text', {
+						channel: message.channel,
+						error: error instanceof Error ? error.message : String(error),
+					});
+					await reply({ type: 'text', text: response });
+				}
+			} else {
+				await reply({ type: 'text', text: response });
+			}
 			logger.info('ChannelRegistry', 'Replied to channel message', {
 				channel: message.channel,
 				chatType: message.chatType,
@@ -118,13 +158,13 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 	async function start(channel: ChannelType): Promise<void> {
 		if (adapters.has(channel)) return;
 
-		const token = botCredential(channel)?.apiKey.trim() ?? '';
-		if (!token) {
+		const credential = botCredential(channel);
+		if (!credential?.apiKey.trim()) {
 			logger.warn('ChannelRegistry', `${channel} channel is not configured`);
 			return;
 		}
 
-		const adapter = await createAdapter(channel, token);
+		const adapter = await createAdapter(channel, credential);
 		adapter.onStatus((update) => handleStatus(channel, update));
 		adapter.onMessage((message) => {
 			void handleMessage(message);
@@ -170,4 +210,11 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			}
 		},
 	};
+}
+
+function voiceFileName(mimeType: string): string {
+	if (mimeType.includes('ogg')) return 'reply.ogg';
+	if (mimeType.includes('mp4') || mimeType.includes('m4a')) return 'reply.m4a';
+	if (mimeType.includes('wav')) return 'reply.wav';
+	return 'reply.mp3';
 }

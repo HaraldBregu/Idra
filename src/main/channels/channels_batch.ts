@@ -9,7 +9,10 @@ export async function sendDurableMessageBatch(
 	sendPart: (text: string) => Promise<ChannelDeliveryPart>,
 	options: { maxLength: number }
 ): Promise<ChannelMessageReceipt> {
-	const parts = splitText(message.text, options.maxLength);
+	if (message.content.type !== 'text') {
+		throw new Error('Text batch requires text content');
+	}
+	const parts = splitText(message.content.text, options.maxLength);
 	const delivered: ChannelDeliveryPart[] = [];
 	let error: string | undefined;
 

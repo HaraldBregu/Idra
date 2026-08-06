@@ -15,11 +15,16 @@ export type {
 	ChannelChatType,
 	ChannelDeliveryPart,
 	ChannelInboundHandler,
+	ChannelInboundContent,
 	ChannelInboundMessage,
+	ChannelInboundVoice,
 	ChannelMessageReceipt,
 	ChannelOutboundMessage,
+	ChannelOutboundContent,
+	ChannelOutboundVoice,
 	ChannelStatusHandler,
 	ChannelStatusUpdate,
 } from './channels_types';
 export type { TelegramAdapterOptions } from './adapters/telegram';
 export type { DiscordAdapterOptions } from './adapters/discord';
+export type { SignalAdapterOptions } from './adapters/signal';

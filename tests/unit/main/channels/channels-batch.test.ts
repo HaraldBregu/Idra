@@ -5,7 +5,7 @@ import type {
 } from '../../../../src/main/channels/channels_types';
 
 function outbound(text: string): ChannelOutboundMessage {
-	return { channel: 'telegram', to: 'c1', text, accountId: 'acc' };
+	return { channel: 'telegram', to: 'c1', content: { type: 'text', text }, accountId: 'acc' };
 }
 
 function part(id: string): ChannelDeliveryPart {

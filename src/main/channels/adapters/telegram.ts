@@ -1,4 +1,4 @@
-import { Bot, GrammyError, HttpError } from 'grammy';
+import { Bot, GrammyError, HttpError, InputFile } from 'grammy';
 import { sendDurableMessageBatch } from '../channels_batch';
 import type {
 	ChannelAdapter,
@@ -10,7 +10,6 @@ import type {
 	ChannelStatusHandler,
 	ChannelStatusUpdate,
 } from '../channels_types';
-import { registerVoiceHandler } from './voice';
 
 export interface TelegramAdapterOptions {
 	token: string;
@@ -38,8 +37,7 @@ export function createTelegramAdapter(options: TelegramAdapterOptions): ChannelA
 
 	function createBot(): Bot {
 		const next = new Bot(token);
-		registerVoiceHandler(next);
-		registerTextHandler(next, accountId, (message) => {
+		registerMessageHandlers(next, token, accountId, (message) => {
 			if (seenMessages.has(message.idempotencyKey)) return;
 			seenMessages.add(message.idempotencyKey);
 			for (const handler of messageHandlers) handler(message);
@@ -173,7 +171,12 @@ export function createTelegramAdapter(options: TelegramAdapterOptions): ChannelA
 	};
 }
 
-function registerTextHandler(bot: Bot, accountId: string, emit: ChannelInboundHandler): void {
+function registerMessageHandlers(
+	bot: Bot,
+	token: string,
+	accountId: string,
+	emit: ChannelInboundHandler
+): void {
 	bot.on('message:text', (ctx) => {
 		const text = ctx.message.text;
 		if (!text) return;
@@ -194,13 +197,62 @@ function registerTextHandler(bot: Bot, accountId: string, emit: ChannelInboundHa
 			chatType: getChatType(ctx.chat.type, threadId),
 			messageId,
 			threadId,
-			text,
+			content: { type: 'text', text },
 			idempotencyKey: ['telegram', accountId, chatId, threadId, messageId]
 				.filter(Boolean)
 				.join(':'),
 			receivedAt: Date.now(),
 		};
 		emit(message);
+	});
+	bot.on('message:voice', (ctx) => {
+		const voice = ctx.message.voice;
+		const chatId = String(ctx.chat.id);
+		const threadId = ctx.message.message_thread_id
+			? String(ctx.message.message_thread_id)
+			: undefined;
+		const messageId = String(ctx.message.message_id);
+		emit({
+			channel: 'telegram',
+			accountId,
+			senderId: String(ctx.from?.id ?? ''),
+			senderName:
+				[ctx.from?.first_name, ctx.from?.last_name].filter(Boolean).join(' ') ||
+				ctx.from?.username,
+			chatId,
+			chatType: getChatType(ctx.chat.type, threadId),
+			messageId,
+			threadId,
+			content: {
+				type: 'voice',
+				voice: {
+					mimeType: voice.mime_type ?? 'audio/ogg',
+					fileName: 'voice.ogg',
+					byteLength: voice.file_size,
+					durationSeconds: voice.duration,
+					async load() {
+						const file = await ctx.api.getFile(voice.file_id);
+						if (!file.file_path) throw new Error('Telegram voice file has no path');
+						const response = await fetch(
+							`https://api.telegram.org/file/bot${token}/${file.file_path}`
+						);
+						if (!response.ok) throw new Error(`Telegram voice download failed: ${response.status}`);
+						const bytes = Buffer.from(await response.arrayBuffer());
+						return {
+							data: bytes.toString('base64'),
+							encoding: 'base64',
+							mimeType: voice.mime_type ?? response.headers.get('content-type') ?? 'audio/ogg',
+							fileName: 'voice.ogg',
+							byteLength: bytes.length,
+						};
+					},
+				},
+			},
+			idempotencyKey: ['telegram', accountId, chatId, threadId, messageId]
+				.filter(Boolean)
+				.join(':'),
+			receivedAt: Date.now(),
+		});
 	});
 }
 
@@ -215,6 +267,30 @@ async function sendMessage(
 	bot: Bot,
 	message: ChannelOutboundMessage
 ): Promise<ChannelMessageReceipt> {
+	if (message.content.type === 'voice') {
+		const sent = await bot.api.sendVoice(
+			message.to,
+			new InputFile(
+				Buffer.from(message.content.voice.data, 'base64'),
+				message.content.voice.fileName ?? 'reply.mp3'
+			),
+			{
+				message_thread_id: message.threadId ? Number(message.threadId) : undefined,
+				reply_parameters: message.replyToMessageId
+					? { message_id: Number(message.replyToMessageId) }
+					: undefined,
+			}
+		);
+		return {
+			channel: message.channel,
+			accountId: message.accountId,
+			to: message.to,
+			status: 'sent',
+			platformMessageIds: [String(sent.message_id)],
+			parts: [{ platformMessageId: String(sent.message_id), timestamp: Date.now() }],
+			sentAt: Date.now(),
+		};
+	}
 	return sendDurableMessageBatch(
 		message,
 		async (text) => {

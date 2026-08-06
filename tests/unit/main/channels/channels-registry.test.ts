@@ -25,7 +25,7 @@ describe('createChannelRegistry', () => {
 	it('throws when sending on a channel that is not running', async () => {
 		const registry = createChannelRegistry(deps());
 		await expect(
-			registry.send({ channel: 'telegram', to: 'c1', text: 'hi' })
+			registry.send({ channel: 'telegram', to: 'c1', content: { type: 'text', text: 'hi' } })
 		).rejects.toThrow(/telegram channel is not running/);
 	});
 });

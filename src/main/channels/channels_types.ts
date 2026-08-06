@@ -1,6 +1,29 @@
 import type { ChannelConnectionStatus, ChannelType } from '../../shared';
+import type { SttAudioInput } from '../../shared/stt_transcription';
 
 export type ChannelChatType = 'dm' | 'group' | 'channel' | 'thread';
+
+export interface ChannelInboundVoice {
+	mimeType: string;
+	fileName?: string;
+	byteLength?: number;
+	durationSeconds?: number;
+	load(): Promise<SttAudioInput>;
+}
+
+export type ChannelInboundContent =
+	| { type: 'text'; text: string }
+	| { type: 'voice'; voice: ChannelInboundVoice };
+
+export interface ChannelOutboundVoice {
+	data: string;
+	mimeType: string;
+	fileName?: string;
+}
+
+export type ChannelOutboundContent =
+	| { type: 'text'; text: string }
+	| { type: 'voice'; voice: ChannelOutboundVoice; fallbackText: string };
 
 export interface ChannelInboundMessage {
 	channel: ChannelType;
@@ -11,7 +34,7 @@ export interface ChannelInboundMessage {
 	chatType: ChannelChatType;
 	messageId: string;
 	threadId?: string;
-	text: string;
+	content: ChannelInboundContent;
 	idempotencyKey: string;
 	receivedAt: number;
 }
@@ -19,10 +42,11 @@ export interface ChannelInboundMessage {
 export interface ChannelOutboundMessage {
 	channel: ChannelType;
 	to: string;
-	text: string;
+	content: ChannelOutboundContent;
 	accountId?: string;
 	threadId?: string;
 	replyToMessageId?: string;
+	chatType?: ChannelChatType;
 	idempotencyKey?: string;
 }
 

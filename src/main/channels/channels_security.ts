@@ -14,7 +14,7 @@ export function canReceive(
 	if (!credential?.apiKey.trim()) {
 		return { allowed: false, reason: 'channel_not_configured' };
 	}
-	if (!message.text.trim()) {
+	if (message.content.type === 'text' && !message.content.text.trim()) {
 		return { allowed: false, reason: 'empty_text' };
 	}
 	if (message.chatType === 'dm') {
