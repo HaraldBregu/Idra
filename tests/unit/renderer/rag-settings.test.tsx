@@ -122,7 +122,7 @@ it('saves the selected RAG index name from the configuration card', async () => 
 
 	expect(await screen.findByText('Configuration')).toBeInTheDocument();
 	const indexName = screen.getByLabelText('Index name');
-	expect(indexName).toHaveValue('friday');
+	await waitFor(() => expect(indexName).toHaveValue('friday'));
 	await user.clear(indexName);
 	await user.type(indexName, 'knowledge-base');
 	expect(indexName).toHaveValue('knowledge-base');
