@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tool } from '../../agent/tools/tool';
-import { buildWikiAnswerContext } from '../wiki_answer_context';
+import { buildWikiAnswerContext } from '../../../wiki/wiki_answer_context';
+import { tool } from '../tool';
 
 export const wikiQueryTool = tool({
 	name: 'wiki_query',

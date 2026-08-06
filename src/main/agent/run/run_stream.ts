@@ -53,7 +53,7 @@ import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 import { getPermissionMode } from '../policy';
-import { getWikiTools } from '../../wiki/tools';
+import { getWikiTools } from '../tools/wiki';
 
 export interface StreamOptions {
 	tools?: Tool[];

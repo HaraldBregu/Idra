@@ -1,6 +1,6 @@
-import type { SessionCategory } from '../../agent/session';
-import type { Tool } from '../../agent/types';
-import { getWikiSettings } from '../wiki_get_settings';
+import type { SessionCategory } from '../../session';
+import type { Tool } from '../../types';
+import { getWikiSettings } from '../../../wiki/wiki_get_settings';
 import { wikiIngestTool } from './ingest';
 import { wikiQueryTool } from './query';
 import { wikiReadTool } from './read';

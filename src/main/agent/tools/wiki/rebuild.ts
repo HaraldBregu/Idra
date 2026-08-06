@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tool } from '../../agent/tools/tool';
-import { lintWiki } from '../wiki_lint';
+import { lintWiki } from '../../../wiki/wiki_lint';
+import { tool } from '../tool';
 
 export const wikiRebuildTool = tool({
 	name: 'wiki_rebuild_index',

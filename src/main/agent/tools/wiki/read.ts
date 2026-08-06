@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tool } from '../../agent/tools/tool';
-import { readWikiPage } from '../wiki_read_page';
+import { readWikiPage } from '../../../wiki/wiki_read_page';
+import { tool } from '../tool';
 
 export const wikiReadTool = tool({
 	name: 'wiki_read_page',

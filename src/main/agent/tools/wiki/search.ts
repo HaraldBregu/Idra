@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tool } from '../../agent/tools/tool';
-import { searchWiki } from '../wiki_search';
+import { searchWiki } from '../../../wiki/wiki_search';
+import { tool } from '../tool';
 
 export const wikiSearchTool = tool({
 	name: 'wiki_search',

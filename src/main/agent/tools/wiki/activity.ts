@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tool } from '../../agent/tools/tool';
-import { getRecentWikiActivity } from '../wiki_recent_activity';
+import { getRecentWikiActivity } from '../../../wiki/wiki_recent_activity';
+import { tool } from '../tool';
 
 export const wikiActivityTool = tool({
 	name: 'wiki_get_recent_activity',

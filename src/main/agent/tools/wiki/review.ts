@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tool } from '../../agent/tools/tool';
-import { reviewWikiChange } from '../wiki_review';
+import { reviewWikiChange } from '../../../wiki/wiki_review';
+import { tool } from '../tool';
 
 export const wikiReviewTool = tool({
 	name: 'wiki_review_changes',

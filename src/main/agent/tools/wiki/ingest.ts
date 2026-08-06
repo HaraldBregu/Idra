@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tool } from '../../agent/tools/tool';
-import { runWiki } from '../wiki_run';
+import { runWiki } from '../../../wiki/wiki_run';
+import { tool } from '../tool';
 
 export const wikiIngestTool = tool({
 	name: 'wiki_ingest_source',

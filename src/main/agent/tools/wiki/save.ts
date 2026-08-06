@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tool } from '../../agent/tools/tool';
-import { saveWikiAnalysis } from '../wiki_save_analysis';
+import { saveWikiAnalysis } from '../../../wiki/wiki_save_analysis';
+import { tool } from '../tool';
 
 const evidence = z.object({
 	sourceId: z.string().trim().min(1),
