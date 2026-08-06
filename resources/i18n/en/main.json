@@ -1354,6 +1354,8 @@
 		},
 		"rag": {
 			"description": "Select a Markdown source folder, index it, and search it as vectors.",
+			"embeddingModelTitle": "Embedding model",
+			"embeddingModelDescription": "Model used to embed RAG documents for vector search.",
 			"documentsTitle": "Documents",
 			"documentsDescription": "Markdown files in the selected folders are chunked, embedded with the selected embedding model and stored in Pinecone.",
 			"sourceFolder": "Markdown source folder",

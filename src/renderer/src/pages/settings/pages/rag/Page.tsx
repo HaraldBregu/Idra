@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FolderOpen, LoaderCircle, Search, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import type { RagMatch } from '../../../../../../main/rag';
 import type { RagConfiguration } from '../../../../../../shared/rag_types';
 import type { DatabaseConfiguration } from '../../../../../../shared/database_types';
 import type { CatalogService } from '../../../../../../shared/provider_types';
+import { defaultProviderId, modelsFor } from '@/lib/providers';
 import { getErrorMessage } from '../../../start/constants';
 import {
 	SettingsLoadingRows,
@@ -39,6 +40,7 @@ function databaseLabel(entry: CatalogService): string {
 
 const RagPage: React.FC = () => {
 	const { t } = useTranslation();
+	const embeddingModels = useMemo(() => modelsFor('embedding'), []);
 	const [error, setError] = useState<string | null>(null);
 	const [indexing, setIndexing] = useState(false);
 	const [indexed, setIndexed] = useState<{ files: number; vectors: number } | null>(null);
@@ -53,6 +55,10 @@ const RagPage: React.FC = () => {
 		databaseId: undefined,
 		providers: [],
 	});
+	const [embeddingProviderId, setEmbeddingProviderId] = useState('');
+	const [embeddingModelId, setEmbeddingModelId] = useState('');
+	const [loadingEmbeddingModel, setLoadingEmbeddingModel] = useState(true);
+	const [savingEmbeddingModel, setSavingEmbeddingModel] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -70,6 +76,37 @@ const RagPage: React.FC = () => {
 			cancelled = true;
 		};
 	}, [t]);
+
+	useEffect(() => {
+		let cancelled = false;
+		void Promise.all([
+			window.models.embedding.getProviderId(),
+			window.models.embedding.getModelId(),
+		]).then(
+			([storedProviderId, storedModelId]) => {
+				if (cancelled) return;
+				const stored = embeddingModels.find(
+					(entry) =>
+						entry.provider.id === storedProviderId && entry.id === storedModelId
+				);
+				const fallbackProviderId = defaultProviderId('embedding');
+				const fallback =
+					embeddingModels.find((entry) => entry.provider.id === fallbackProviderId) ??
+					embeddingModels[0];
+				const selected = stored ?? fallback;
+				setEmbeddingProviderId(selected?.provider.id ?? '');
+				setEmbeddingModelId(selected?.id ?? '');
+			},
+			(err) => {
+				if (!cancelled) setError(getErrorMessage(err, t('settings.rag.loadError')));
+			}
+		).finally(() => {
+			if (!cancelled) setLoadingEmbeddingModel(false);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [embeddingModels, t]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -165,10 +202,35 @@ const RagPage: React.FC = () => {
 		}
 	};
 
+	const selectEmbeddingModel = async (value: string | null): Promise<void> => {
+		if (!value) return;
+		const [providerId = '', modelId = ''] = value.split(VALUE_SEPARATOR);
+		const entry = embeddingModels.find(
+			(model) => model.provider.id === providerId && model.id === modelId
+		);
+		if (!entry) return;
+		setEmbeddingProviderId(providerId);
+		setEmbeddingModelId(modelId);
+		setSavingEmbeddingModel(true);
+		setError(null);
+		try {
+			await window.models.embedding.setProviderId(providerId);
+			await window.models.embedding.setModelId(modelId);
+		} catch (err) {
+			setError(getErrorMessage(err, t('settings.rag.saveError')));
+		} finally {
+			setSavingEmbeddingModel(false);
+		}
+	};
+
 	const selectedDatabase = databases?.find(
 		(entry) =>
 			entry.id === databaseConfiguration.databaseId &&
 			entry.provider.id === databaseConfiguration.providerId
+	);
+	const selectedEmbeddingModel = embeddingModels.find(
+		(entry) =>
+			entry.provider.id === embeddingProviderId && entry.id === embeddingModelId
 	);
 
 	return (
@@ -211,6 +273,55 @@ const RagPage: React.FC = () => {
 									{databases.map((entry) => (
 										<SelectItem key={databaseKey(entry)} value={databaseKey(entry)}>
 											{databaseLabel(entry)}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</CardContent>
+					</Card>
+				)}
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.rag.embeddingModelTitle')}>
+				{loadingEmbeddingModel ? (
+					<SettingsLoadingRows rows={1} />
+				) : embeddingModels.length === 0 ? (
+					<SettingsNotice>{t('settings.modelServices.noModels')}</SettingsNotice>
+				) : (
+					<Card size="sm" className="gap-0! py-0!">
+						<CardHeader className="py-3">
+							<CardTitle>{t('settings.rag.embeddingModelTitle')}</CardTitle>
+							<CardDescription className="text-xs">
+								{t('settings.rag.embeddingModelDescription')}
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="flex min-h-11 items-center justify-start border-t border-border/60 px-3! py-2!">
+							<Select
+								value={
+									selectedEmbeddingModel
+										? `${selectedEmbeddingModel.provider.id}${VALUE_SEPARATOR}${selectedEmbeddingModel.id}`
+										: null
+								}
+								onValueChange={(value) => void selectEmbeddingModel(value)}
+								disabled={savingEmbeddingModel}
+							>
+								<SelectTrigger
+									size="sm"
+									className="w-56 max-w-full text-xs"
+									aria-label={t('settings.rag.embeddingModelTitle')}
+								>
+									<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')}>
+										{selectedEmbeddingModel &&
+											`${selectedEmbeddingModel.provider.name} / ${selectedEmbeddingModel.name || selectedEmbeddingModel.id}`}
+									</SelectValue>
+								</SelectTrigger>
+								<SelectContent>
+									{embeddingModels.map((entry) => (
+										<SelectItem
+											key={`${entry.provider.id}${VALUE_SEPARATOR}${entry.id}`}
+											value={`${entry.provider.id}${VALUE_SEPARATOR}${entry.id}`}
+										>
+											{`${entry.provider.name} / ${entry.name || entry.id}`}
 										</SelectItem>
 									))}
 								</SelectContent>

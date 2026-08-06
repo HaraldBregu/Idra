@@ -1353,6 +1353,8 @@
 		},
 		"rag": {
 			"description": "Seleziona una cartella sorgente Markdown, indicizzala e cercala come vettori.",
+			"embeddingModelTitle": "Modello di embedding",
+			"embeddingModelDescription": "Modello usato per incorporare i documenti RAG per la ricerca vettoriale.",
 			"documentsTitle": "Documenti",
 			"documentsDescription": "I file Markdown nelle cartelle selezionate vengono suddivisi, incorporati con il modello di embedding selezionato e salvati su Pinecone.",
 			"sourceFolder": "Cartella sorgente Markdown",
