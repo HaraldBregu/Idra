@@ -1,5 +1,12 @@
 import type { StoredProvider } from '../../shared/provider_types';
-import { getAppModelSelections, setAppModelSelections, type AppModelSelections, type ModelKind, type ModelSelection, type ModelsStoreState } from '../settings_store';
+import {
+	getAppModelSelections,
+	setAppModelSelections,
+	type AppModelSelections,
+	type ModelKind,
+	type ModelSelection,
+	type ModelsStoreState,
+} from '../settings_store';
 import { getModelProvidersState, setModelProvidersState } from '../providers/providers_index';
 import { getRagConfiguration, saveRagConfiguration } from '../rag/rag_store';
 

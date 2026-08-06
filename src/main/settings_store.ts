@@ -1,14 +1,26 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import cron from 'node-cron';
-import type { ResolvedProvider, StoredProvider, StoredProviderKind } from '../shared/provider_types';
+import type {
+	ResolvedProvider,
+	StoredProvider,
+	StoredProviderKind,
+} from '../shared/provider_types';
 import type { StorageConfig, StorageConfiguration } from '../shared/storage_types';
 import { userDataLocation } from './shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
 import { loadStorages } from './models';
 import type { PersistedTaskState } from './tasks/tasks_types';
 import type { AppLanguage, AppTheme } from '../shared/app_types';
-import { getModelProvidersState, setModelProvidersState, getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from './providers/providers_index';
+import {
+	getModelProvidersState,
+	setModelProvidersState,
+	getDatabaseProvidersState,
+	setDatabaseProvidersState,
+	getStorageProvidersState,
+	setStorageProvidersState,
+	type StoredStorage,
+} from './providers/providers_index';
 import { getRagConfiguration, saveRagConfiguration } from './rag/rag_store';
 
 export type ModelKind =
@@ -99,8 +111,7 @@ if (legacyDatabase || legacyEmbedding) {
 		databaseId: configuration.databaseId || legacyDatabase?.databaseId?.trim() || '',
 		embeddingProviderId:
 			configuration.embeddingProviderId || legacyEmbedding?.providerId?.trim() || '',
-		embeddingModelId:
-			configuration.embeddingModelId || legacyEmbedding?.modelId?.trim() || '',
+		embeddingModelId: configuration.embeddingModelId || legacyEmbedding?.modelId?.trim() || '',
 	});
 }
 delete persistedSettings.databaseConfiguration;
@@ -111,7 +122,6 @@ store.store = {
 	modelSelections: { ...DEFAULT_MODEL_SELECTIONS, ...persistedModelSelections },
 };
 
-
 export const appSettingsStorePath = store.path;
 
 const taskConfigurationStore = new Store<PersistedTaskState>({
@@ -120,7 +130,6 @@ const taskConfigurationStore = new Store<PersistedTaskState>({
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_TASK_CONFIGURATION,
 });
-
 
 export const taskConfigurationStorePath = taskConfigurationStore.path;
 
@@ -172,9 +181,7 @@ function readProviders(kind: StoredProviderKind): StoredProvider[] {
 }
 
 export function listProviders(kind?: StoredProviderKind): StoredProvider[] {
-	return kind
-		? readProviders(kind)
-		: [...readProviders('models'), ...readProviders('databases')];
+	return kind ? readProviders(kind) : [...readProviders('models'), ...readProviders('databases')];
 }
 
 export function getProvider(id: string): StoredProvider | undefined {
@@ -285,11 +292,17 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 	const saved = toStoredStorage({ ...config, id: config.id || crypto.randomUUID() });
 	const storages = getStoredStorages();
 	const index = storages.findIndex((storage) => storage.id === saved.id);
-	setStorageProvidersState(index >= 0
-		? storages.map((storage, i) => (i === index ? saved : storage))
-		: [...storages, saved]);
+	setStorageProvidersState(
+		index >= 0
+			? storages.map((storage, i) => (i === index ? saved : storage))
+			: [...storages, saved]
+	);
 	const current = getStorageConfiguration();
-	if (configuration.paths || configuration.syncEnabled !== undefined || configuration.syncCronExpression) {
+	if (
+		configuration.paths ||
+		configuration.syncEnabled !== undefined ||
+		configuration.syncCronExpression
+	) {
 		saveStorageConfiguration({
 			...current,
 			providerId: current.providerId ?? saved.id,
