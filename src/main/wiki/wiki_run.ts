@@ -24,7 +24,7 @@ export async function runWiki(): Promise<WikiRunResult> {
 
 	wikiRuntime.run = (async () => {
 		const settings = getWikiSettings();
-		if (!settings.enabled) {
+		if (settings.enabled === false) {
 			return {
 				processedSources: 0,
 				skippedSources: 0,
