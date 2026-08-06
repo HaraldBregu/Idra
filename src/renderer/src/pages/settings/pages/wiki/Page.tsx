@@ -125,7 +125,7 @@ const WikiPage: React.FC = () => {
 							type="button"
 							size="sm"
 							variant="outline"
-							disabled={!settings || settings.enabled === false || saving || running}
+							disabled={!settings || saving || running}
 							onClick={() => void handleSave()}
 						>
 							{saving ? <LoaderCircle className="size-3 animate-spin" /> : <Save className="size-3" />}
@@ -134,7 +134,7 @@ const WikiPage: React.FC = () => {
 						<Button
 							type="button"
 							size="sm"
-							disabled={!settings || saving || running}
+							disabled={!settings || settings.enabled === false || saving || running}
 							onClick={() => void handleRun()}
 						>
 							{running ? <LoaderCircle className="size-3 animate-spin" /> : <Play className="size-3" />}
@@ -178,7 +178,7 @@ const WikiPage: React.FC = () => {
 								actions={
 									<Switch
 										checked={settings.enabled !== false}
-										disabled={saving || running}
+										disabled={settings.enabled === false || saving || running}
 										aria-label={t('settings.wiki.enabled')}
 										onCheckedChange={(enabled) => {
 											setSettings({ ...settings, enabled });
