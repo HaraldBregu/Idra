@@ -18,11 +18,15 @@ jest.mock('react-i18next', () => {
 		'settings.rag.sourcePlaceholder': 'Choose source folders',
 		'settings.rag.pickFolder': 'Choose folder',
 		'settings.rag.index': 'Generate index',
-		'settings.rag.scheduleTitle': 'Automatic indexing',
-		'settings.rag.scheduleEnabled': 'Run on a schedule',
-		'settings.rag.scheduleDescription': 'Index automatically.',
-		'settings.rag.cronPlaceholder': '0 3 * * *',
-		'settings.rag.cronExpression': 'Cron expression',
+		'settings.rag.scheduleTitle': 'Automation',
+		'settings.rag.scheduleFrequency': 'Indexing frequency',
+		'settings.rag.scheduleDescription': 'Choose how often indexing runs.',
+		'settings.rag.scheduleOff': 'Off',
+		'settings.rag.scheduleevery4h': 'Every 4 hours',
+		'settings.rag.scheduleevery12h': 'Every 12 hours',
+		'settings.rag.scheduleevery1d': 'Every day',
+		'settings.rag.scheduleevery7d': 'Every week',
+		'settings.rag.scheduleCustom': 'Custom schedule',
 		'settings.rag.searchTitle': 'Search',
 		'settings.rag.searchPlaceholder': 'Search documents',
 		'settings.rag.search': 'Search',
@@ -187,6 +191,38 @@ it('saves the selected RAG index name from the configuration card', async () => 
 	await waitFor(() =>
 		expect(agentApi.ragSaveConfiguration).toHaveBeenCalledWith(
 			expect.objectContaining({ indexName: 'knowledge-base' })
+		)
+	);
+});
+
+it('saves a friendly automation schedule preset', async () => {
+	const user = userEvent.setup();
+	agentApi.ragGetConfiguration.mockResolvedValue({
+		indexName: 'friday',
+		databaseProviderId: '',
+		databaseId: '',
+		embeddingProviderId: 'openai',
+		embeddingModelId: 'text-embedding-3-small',
+		folders: [],
+		scheduleEnabled: true,
+		cronExpression: '0 */12 * * *',
+	});
+
+	render(<RagPage />);
+
+	expect(await screen.findByRole('heading', { name: 'Automation' })).toBeInTheDocument();
+	const frequency = screen.getByRole('combobox', { name: 'Indexing frequency' });
+	expect(frequency).toHaveTextContent('Every 12 hours');
+
+	await user.click(frequency);
+	await user.click(await screen.findByRole('option', { name: 'Every 4 hours' }));
+
+	await waitFor(() =>
+		expect(agentApi.ragSaveConfiguration).toHaveBeenCalledWith(
+			expect.objectContaining({
+				scheduleEnabled: true,
+				cronExpression: '0 */4 * * *',
+			})
 		)
 	);
 });

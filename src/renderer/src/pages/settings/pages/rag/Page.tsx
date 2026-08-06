@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FolderOpen, LoaderCircle, Search, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import {
 	Select,
 	SelectContent,
@@ -27,6 +26,7 @@ import {
 	SettingsRow,
 	SettingsSection,
 } from '../../components';
+import { RAG_SCHEDULES } from './schedules';
 
 const VALUE_SEPARATOR = '\u001F';
 
@@ -243,6 +243,11 @@ const RagPage: React.FC = () => {
 	const selectedEmbeddingModel = embeddingModels.find(
 		(entry) => entry.provider.id === embeddingProviderId && entry.id === embeddingModelId
 	);
+	const scheduleValue = !ragConfiguration?.scheduleEnabled
+		? 'off'
+		: (RAG_SCHEDULES.find(
+				(schedule) => schedule.cron === ragConfiguration.cronExpression
+			)?.key ?? 'custom');
 
 	return (
 		<SettingsPageShell>
@@ -451,33 +456,54 @@ const RagPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.rag.scheduleTitle')}>
 				<SettingsPanel>
-					<div className="grid gap-3 px-3 py-3">
-						<SettingsRow
-							title={t('settings.rag.scheduleEnabled')}
-							description={t('settings.rag.scheduleDescription')}
-							actions={
-								<Switch
-									checked={ragConfiguration?.scheduleEnabled ?? false}
-									disabled={!ragConfiguration || savingRagConfiguration}
-									onCheckedChange={(scheduleEnabled) =>
-										ragConfiguration &&
-										void saveRagConfiguration({ ...ragConfiguration, scheduleEnabled })
+					<SettingsRow
+						title={t('settings.rag.scheduleFrequency')}
+						description={t('settings.rag.scheduleDescription')}
+						actions={
+							<Select
+								value={scheduleValue}
+								disabled={!ragConfiguration || savingRagConfiguration}
+								onValueChange={(value) => {
+									if (!ragConfiguration || !value) return;
+									if (value === 'off') {
+										void saveRagConfiguration({
+											...ragConfiguration,
+											scheduleEnabled: false,
+										});
+										return;
 									}
-								/>
-							}
-						/>
-						<Input
-							value={ragConfiguration?.cronExpression ?? ''}
-							disabled={!ragConfiguration || savingRagConfiguration}
-							placeholder={t('settings.rag.cronPlaceholder')}
-							aria-label={t('settings.rag.cronExpression')}
-							onChange={(event) =>
-								ragConfiguration &&
-								setRagConfiguration({ ...ragConfiguration, cronExpression: event.target.value })
-							}
-							onBlur={() => ragConfiguration && void saveRagConfiguration(ragConfiguration)}
-						/>
-					</div>
+									const schedule = RAG_SCHEDULES.find((entry) => entry.key === value);
+									if (!schedule) return;
+									void saveRagConfiguration({
+										...ragConfiguration,
+										scheduleEnabled: true,
+										cronExpression: schedule.cron,
+									});
+								}}
+							>
+								<SelectTrigger
+									size="sm"
+									className="w-44 max-w-full text-xs"
+									aria-label={t('settings.rag.scheduleFrequency')}
+								>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="off">{t('settings.rag.scheduleOff')}</SelectItem>
+									{RAG_SCHEDULES.map((schedule) => (
+										<SelectItem key={schedule.key} value={schedule.key}>
+											{t(`settings.rag.schedule${schedule.key}`)}
+										</SelectItem>
+									))}
+									{scheduleValue === 'custom' && (
+										<SelectItem value="custom">
+											{t('settings.rag.scheduleCustom')}
+										</SelectItem>
+									)}
+								</SelectContent>
+							</Select>
+						}
+					/>
 				</SettingsPanel>
 			</SettingsSection>
 
