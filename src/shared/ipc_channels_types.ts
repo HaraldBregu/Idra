@@ -63,6 +63,7 @@ export interface AgentInvokeChannelMap {
 		args: [];
 		result: import('./agent_types').WorkspaceTreeEntry[];
 	};
+	[AgentChannels.readWorkspaceFile]: { args: [filePath: string]; result: string };
 	[AgentChannels.getProvider]: {
 		args: [];
 		result: import('./provider_types').PublicProvider | undefined;

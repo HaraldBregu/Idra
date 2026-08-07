@@ -111,6 +111,7 @@ export interface AgentApi {
 	deleteSession: (sessionId: string) => Promise<void>;
 	getWorkspaceLocation: () => Promise<string>;
 	listWorkspaceFiles: () => Promise<WorkspaceTreeEntry[]>;
+	readWorkspaceFile: (filePath: string) => Promise<string>;
 	getProvider: () => Promise<PublicProvider | undefined>;
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;

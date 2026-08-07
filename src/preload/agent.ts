@@ -142,6 +142,11 @@ export const agent: AgentApi = {
 	listWorkspaceFiles: () => {
 		return typedInvokeUnwrap(AgentChannels.listWorkspaceFiles);
 	},
+	readWorkspaceFile: (filePath: string): Promise<string> => {
+		const normalizedFilePath = optionalTrimmedString(filePath);
+		if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
+		return typedInvokeUnwrap(AgentChannels.readWorkspaceFile, normalizedFilePath);
+	},
 	getProvider: (): Promise<PublicProvider | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.getProvider);
 	},

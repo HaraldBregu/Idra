@@ -9,6 +9,7 @@ export const AgentChannels = {
 	deleteSession: 'agent:delete-session',
 	getWorkspaceLocation: 'agent:workspace:location:get',
 	listWorkspaceFiles: 'agent:workspace:files:list',
+	readWorkspaceFile: 'agent:workspace:file:read',
 	getProvider: 'agent:get-provider',
 	setProvider: 'agent:set-provider',
 	getModelId: 'agent:get-model-id',

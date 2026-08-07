@@ -184,6 +184,15 @@ async function readWorkspaceTree(root: string, directory = root): Promise<Worksp
 	});
 }
 
+function resolveWorkspaceFile(root: string, filePath: string): string {
+	const resolvedPath = path.resolve(root, filePath);
+	const relativePath = path.relative(root, resolvedPath);
+	if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+		throw new Error('Workspace file path resolves outside workspace.');
+	}
+	return resolvedPath;
+}
+
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
 	if (options === undefined || options === null) return {};
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
@@ -279,6 +288,19 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler((): Promise<WorkspaceTreeEntry[]> => {
 				return readWorkspaceTree(workspacePath(agent.config));
 			}, AgentChannels.listWorkspaceFiles)
+		);
+
+		ipcMain.handle(
+			AgentChannels.readWorkspaceFile,
+			wrapSimpleHandler(async (filePath: unknown): Promise<string> => {
+				const normalizedFilePath = optionalTrimmedString(filePath);
+				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
+				const root = workspacePath(agent.config);
+				const resolvedPath = resolveWorkspaceFile(root, normalizedFilePath);
+				const stats = await fs.stat(resolvedPath);
+				if (!stats.isFile()) throw new Error('Workspace path is not a file.');
+				return fs.readFile(resolvedPath, 'utf8');
+			}, AgentChannels.readWorkspaceFile)
 		);
 
 		ipcMain.handle(
