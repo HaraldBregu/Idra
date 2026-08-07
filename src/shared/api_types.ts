@@ -80,6 +80,7 @@ import type {
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
 	AppLanguage,
+	AppThemeData,
 	AppTheme,
 } from './app_types';
 import type { WikiRunResult, WikiSettings, WikiStatus } from './wiki_types';
@@ -345,6 +346,7 @@ export interface AppApi {
 	getLanguage: () => Promise<AppLanguage>;
 	setTheme: (theme: AppTheme) => Promise<void>;
 	getTheme: () => Promise<AppTheme>;
+	getThemeData: () => Promise<AppThemeData>;
 	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
 	setMicrophoneEnabled: (enabled: boolean) => Promise<MicrophonePermissionSettings>;
 	requestMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
