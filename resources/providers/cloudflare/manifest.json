@@ -1,14 +1,23 @@
 {
-	"providerId": "cloudflare",
-	"providerName": "CloudFlare",
-	"apiKeyUrl": "https://dash.cloudflare.com",
-	"images_url": "/images",
-	"services": [
-		{
-			"id": "object-storage",
-			"name": "Object Storage",
-			"url": "https://r2.cloudflarestorage.com",
-			"type": "storage"
-		}
-	]
+  "providerId": "cloudflare",
+  "providerName": "CloudFlare",
+  "apiKeyUrl": "https://dash.cloudflare.com",
+  "images_url": "/images",
+  "services": [
+    {
+      "id": "object-storage",
+      "name": "Object Storage",
+      "url": "https://r2.cloudflarestorage.com",
+      "type": "storage",
+      "metadata": {
+        "documentationUrl": "https://developers.cloudflare.com/r2/api/",
+        "inputs": {
+          "contentType": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
