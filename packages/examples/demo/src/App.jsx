@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+
 import { app, isFriday } from '@friday/sdk';
+import { cn } from './lib/utils.js';
 
 const fallbackTheme = { themeMode: 'light', isDark: false };
 
@@ -22,15 +24,5 @@ export default function App() {
 		};
 	}, []);
 
-	const styles = theme.isDark
-		? {
-				backgroundColor: 'rgb(15, 23, 42)',
-				color: 'rgb(226, 232, 240)',
-		  }
-		: {
-				backgroundColor: 'rgb(248, 250, 252)',
-				color: 'rgb(15, 23, 42)',
-		  };
-
-	return <main className="app-demo" style={styles} />;
+	return <main className={cn('app-demo', theme.isDark ? 'dark' : 'light')} />;
 }
