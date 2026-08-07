@@ -60,6 +60,8 @@ describe('ModelOptions', () => {
 		await user.click(screen.getByRole('button', { name: 'Advanced' }));
 		expect(screen.getByRole('combobox')).toHaveTextContent('Provider default (16:9)');
 		expect(screen.getByRole('spinbutton')).toHaveValue(8);
+		expect(screen.getByRole('spinbutton')).toHaveAttribute('min', '1');
+		expect(screen.getByRole('spinbutton')).toHaveAttribute('max', '30');
 		expect(screen.getByRole('switch')).toBeChecked();
 	});
 
