@@ -4,6 +4,7 @@
 	"view": "View",
 	"window": "Window",
 	"extensions": "Extensions",
+	"noExtensions": "No extensions",
 	"developer": "Developer",
 	"language": "Language",
 	"newWindow": "New Window",
