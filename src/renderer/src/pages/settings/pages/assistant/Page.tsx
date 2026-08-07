@@ -4,9 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ModelOptions } from '@/components/model-options';
 import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
@@ -164,63 +162,7 @@ const AssistantPage: React.FC = () => {
 					description={t('settings.modelServices.modelDescription')}
 					onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
 				>
-					{Object.keys(inputs).length > 0 && (
-						<div className="-mx-3 -mb-3 mt-1 border-t border-border/60">
-						{Object.entries(inputs).map(([key, schema]) => {
-							const definition = schema as { type?: string; enum?: unknown[] };
-							const value = modelOptions[key];
-							if (definition.type === 'object') return null;
-							if (definition.type === 'boolean') {
-								return (
-									<SettingsRow
-										key={key}
-										title={key}
-										actions={
-											<Switch
-												checked={value === true}
-												onCheckedChange={(checked) => updateModelOption(key, checked)}
-											/>
-										}
-									/>
-								);
-							}
-							if (definition.enum?.every((item) => typeof item === 'string')) {
-								return (
-									<SettingsRow
-										key={key}
-										title={key}
-										actions={
-											<Select
-												value={typeof value === 'string' ? value : undefined}
-												onValueChange={(next) => updateModelOption(key, next)}
-											>
-												<SelectTrigger className="w-40"><SelectValue placeholder="Default" /></SelectTrigger>
-												<SelectContent>
-													{definition.enum.map((item) => <SelectItem key={String(item)} value={String(item)}>{String(item)}</SelectItem>)}
-												</SelectContent>
-											</Select>
-										}
-									/>
-								);
-							}
-							const numeric = definition.type === 'number' || definition.type === 'integer';
-							return (
-								<SettingsRow
-									key={key}
-									title={key}
-									actions={
-										<Input
-											className="w-40"
-											type={numeric ? 'number' : 'text'}
-											value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
-											onChange={(event) => updateModelOption(key, event.target.value === '' ? undefined : numeric ? Number(event.target.value) : event.target.value)}
-										/>
-									}
-								/>
-							);
-						})}
-						</div>
-					)}
+					<ModelOptions inputs={inputs} values={modelOptions} onChange={updateModelOption} />
 				</ModelProviderConfiguration>
 			</SettingsSection>
 
