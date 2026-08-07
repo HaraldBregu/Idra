@@ -108,10 +108,12 @@
         "documentationStatus": "verified",
         "inputs": {
           "aspectRatio": {
-            "type": "string"
+            "type": "string",
+            "default": "1:1"
           },
           "imageSize": {
             "type": "string",
+            "default": "1K",
             "enum": ["512", "1K"]
           }
         }
@@ -127,10 +129,12 @@
         "documentationStatus": "verified",
         "inputs": {
           "aspectRatio": {
-            "type": "string"
+            "type": "string",
+            "default": "1:1"
           },
           "imageSize": {
             "type": "string",
+            "default": "1K",
             "enum": ["1K", "2K", "4K"]
           }
         }
@@ -147,6 +151,7 @@
         "inputs": {
           "aspectRatio": {
             "type": "string",
+            "default": "16:9",
             "enum": ["16:9", "9:16"]
           },
           "durationSeconds": {
@@ -154,7 +159,8 @@
             "enum": [4, 6, 8]
           },
           "resolution": {
-            "type": "string"
+            "type": "string",
+            "default": "720p"
           },
           "negativePrompt": {
             "type": "string"
@@ -169,7 +175,8 @@
             "type": "integer"
           },
           "numberOfVideos": {
-            "type": "integer"
+            "type": "integer",
+            "enum": [1]
           },
           "image": {
             "type": "object"
@@ -197,6 +204,7 @@
         "inputs": {
           "aspectRatio": {
             "type": "string",
+            "default": "16:9",
             "enum": ["16:9", "9:16"]
           },
           "durationSeconds": {
@@ -204,7 +212,8 @@
             "enum": [4, 6, 8]
           },
           "resolution": {
-            "type": "string"
+            "type": "string",
+            "default": "720p"
           },
           "negativePrompt": {
             "type": "string"
@@ -219,7 +228,8 @@
             "type": "integer"
           },
           "numberOfVideos": {
-            "type": "integer"
+            "type": "integer",
+            "enum": [1]
           },
           "image": {
             "type": "object"

@@ -27,13 +27,17 @@
           },
           "output_format": {
             "type": "string",
+            "default": "jpeg",
             "enum": [
               "jpeg",
               "png"
             ]
           },
           "safety_tolerance": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5,
+            "default": 2
           },
           "raw": {
             "type": "boolean"
@@ -58,20 +62,25 @@
             "type": "string"
           },
           "aspect_ratio": {
-            "type": "string"
+            "type": "string",
+            "default": "1:1"
           },
           "seed": {
             "type": "integer"
           },
           "output_format": {
             "type": "string",
+            "default": "jpeg",
             "enum": [
               "jpeg",
               "png"
             ]
           },
           "safety_tolerance": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6,
+            "default": 2
           }
         }
       }
@@ -90,27 +99,32 @@
             "required": true
           },
           "aspect_ratio": {
-            "type": "string"
+            "type": "string",
+            "default": "16:9"
           },
           "seed": {
             "type": "integer"
           },
           "output_format": {
             "type": "string",
+            "default": "jpeg",
             "enum": [
               "jpeg",
               "png"
             ]
           },
           "raw": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "safety_tolerance": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6,
+            "default": 2
           }
         }
       }
     }
   ]
 }
-

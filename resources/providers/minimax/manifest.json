@@ -173,17 +173,21 @@
         "inputs": {
           "duration": {
             "type": "integer",
+            "default": 6,
             "enum": [6, 10]
           },
           "resolution": {
             "type": "string",
+            "default": "768P",
             "enum": ["768P", "1080P"]
           },
           "prompt_optimizer": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
           },
           "fast_pretreatment": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "first_frame_image": {
             "type": "string"
@@ -208,17 +212,21 @@
         "inputs": {
           "duration": {
             "type": "integer",
+            "default": 6,
             "enum": [6, 10]
           },
           "resolution": {
             "type": "string",
+            "default": "768P",
             "enum": ["768P", "1080P"]
           },
           "prompt_optimizer": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
           },
           "fast_pretreatment": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "first_frame_image": {
             "type": "string"
@@ -245,16 +253,20 @@
             "type": "string"
           },
           "is_instrumental": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "lyrics_optimizer": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "stream": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "output_format": {
-            "type": "string"
+            "type": "string",
+            "default": "hex"
           },
           "audio_setting": {
             "type": "object"
@@ -278,7 +290,8 @@
             "type": "string"
           },
           "output_format": {
-            "type": "string"
+            "type": "string",
+            "default": "hex"
           }
         }
       }

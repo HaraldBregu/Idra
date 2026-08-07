@@ -133,7 +133,8 @@
         "documentationStatus": "verified",
         "inputs": {
           "n": {
-            "type": "integer"
+            "type": "integer",
+            "maximum": 10
           },
           "aspect_ratio": {
             "type": "string"
@@ -143,6 +144,7 @@
           },
           "response_format": {
             "type": "string",
+            "default": "url",
             "enum": [
               "url",
               "b64_json"
@@ -164,7 +166,8 @@
         "documentationStatus": "verified",
         "inputs": {
           "n": {
-            "type": "integer"
+            "type": "integer",
+            "maximum": 10
           },
           "aspect_ratio": {
             "type": "string"
@@ -174,6 +177,7 @@
           },
           "response_format": {
             "type": "string",
+            "default": "url",
             "enum": [
               "url",
               "b64_json"
@@ -199,10 +203,13 @@
             "required": true
           },
           "duration": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 15
           },
           "resolution": {
             "type": "string",
+            "default": "480p",
             "enum": [
               "480p",
               "720p",
@@ -214,4 +221,3 @@
     }
   ]
 }
-

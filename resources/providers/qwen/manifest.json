@@ -201,17 +201,23 @@
         "documentationStatus": "verified",
         "inputs": {
           "size": {
-            "type": "string"
+            "type": "string",
+            "default": "1664*928"
           },
           "n": {
             "type": "integer",
+            "minimum": 1,
+            "maximum": 1,
+            "default": 1,
             "enum": [1]
           },
           "prompt_extend": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
           },
           "watermark": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           }
         }
       }
@@ -234,13 +240,17 @@
           },
           "n": {
             "type": "integer",
+            "minimum": 1,
+            "maximum": 1,
+            "default": 1,
             "enum": [1]
           },
           "prompt_extend": {
             "type": "boolean"
           },
           "watermark": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           }
         }
       }
@@ -255,23 +265,29 @@
         "documentationStatus": "verified",
         "inputs": {
           "size": {
-            "type": "string"
+            "type": "string",
+            "default": "1920*1080"
           },
           "duration": {
             "type": "integer",
+            "default": 5,
             "enum": [5, 10]
           },
           "prompt_extend": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
           },
           "negative_prompt": {
             "type": "string"
           },
           "watermark": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "seed": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
           }
         }
       }
@@ -286,20 +302,24 @@
         "documentationStatus": "verified",
         "inputs": {
           "size": {
-            "type": "string"
+            "type": "string",
+            "default": "1920*1080"
           },
           "duration": {
             "type": "integer",
+            "default": 5,
             "enum": [5]
           },
           "prompt_extend": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
           },
           "negative_prompt": {
             "type": "string"
           },
           "watermark": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           }
         }
       }

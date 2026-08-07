@@ -35,10 +35,13 @@
             ]
           },
           "duration": {
-            "type": "integer"
+            "type": "integer",
+            "enum": [5, 10]
           },
           "seed": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
           },
           "contentModeration": {
             "type": "object"
@@ -67,7 +70,8 @@
             "type": "string"
           },
           "duration": {
-            "type": "integer"
+            "type": "integer",
+            "enum": [5, 10]
           },
           "seed": {
             "type": "integer"
@@ -77,4 +81,3 @@
     }
   ]
 }
-

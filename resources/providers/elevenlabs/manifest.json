@@ -172,13 +172,17 @@
             "type": "string"
           },
           "music_length_ms": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 3000,
+            "maximum": 600000
           },
           "force_instrumental": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "output_format": {
-            "type": "string"
+            "type": "string",
+            "default": "auto"
           }
         }
       }
@@ -197,20 +201,25 @@
             "required": true
           },
           "duration_seconds": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 30
           },
           "prompt_influence": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.3
           },
           "output_format": {
             "type": "string"
           },
           "loop": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           }
         }
       }
     }
   ]
 }
-
