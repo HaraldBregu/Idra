@@ -12,21 +12,57 @@
       "type": "large-language-model",
       "url": "https://api.deepseek.com",
       "metadata": {
-        "documentationUrl": "https://api-docs.deepseek.com",
+        "documentationUrl": "https://api-docs.deepseek.com/guides/thinking_mode",
+        "documentationStatus": "verified",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "thinking": {
+            "type": "string"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "maxTokens": {
+          "max_tokens": {
             "type": "integer",
-            "minimum": 1
+            "maximum": 384000
+          },
+          "temperature": {
+            "type": "number"
+          },
+          "top_p": {
+            "type": "number"
+          },
+          "top_k": {
+            "type": "integer"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "stream_options": {
+            "type": "object"
+          },
+          "logprobs": {
+            "type": "boolean"
+          },
+          "top_logprobs": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "string"
           }
         }
       }
@@ -37,21 +73,57 @@
       "type": "large-language-model",
       "url": "https://api.deepseek.com",
       "metadata": {
-        "documentationUrl": "https://api-docs.deepseek.com",
+        "documentationUrl": "https://api-docs.deepseek.com/guides/thinking_mode",
+        "documentationStatus": "verified",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "thinking": {
+            "type": "string"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "maxTokens": {
+          "max_tokens": {
             "type": "integer",
-            "minimum": 1
+            "maximum": 384000
+          },
+          "temperature": {
+            "type": "number"
+          },
+          "top_p": {
+            "type": "number"
+          },
+          "top_k": {
+            "type": "integer"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "stream_options": {
+            "type": "object"
+          },
+          "logprobs": {
+            "type": "boolean"
+          },
+          "top_logprobs": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "string"
           }
         }
       }
