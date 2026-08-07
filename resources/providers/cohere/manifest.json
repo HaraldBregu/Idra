@@ -12,17 +12,45 @@
       "type": "embedding-model",
       "url": "https://api.cohere.com/v2",
       "metadata": {
-        "documentationUrl": "https://docs.cohere.com",
+        "documentationUrl": "https://docs.cohere.com/v2/reference/embed",
+        "documentationStatus": "verified",
         "inputs": {
-          "dimensions": {
-            "type": "integer",
-            "minimum": 1
+          "input_type": {
+            "type": "string",
+            "enum": [
+              "search_document",
+              "search_query",
+              "classification",
+              "clustering",
+              "image"
+            ],
+            "required": true
           },
-          "inputType": {
-            "type": "string"
+          "output_dimension": {
+            "type": "integer",
+            "enum": [
+              256,
+              512,
+              1024,
+              1536
+            ]
+          },
+          "embedding_types": {
+            "type": "array"
           },
           "truncate": {
-            "type": "boolean"
+            "type": "string",
+            "enum": [
+              "NONE",
+              "START",
+              "END"
+            ]
+          },
+          "max_tokens": {
+            "type": "integer"
+          },
+          "priority": {
+            "type": "integer"
           }
         }
       }
