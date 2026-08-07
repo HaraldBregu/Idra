@@ -108,6 +108,13 @@ const AssistantPage: React.FC = () => {
 		void window.agent.setModelOptions(next);
 	};
 
+	const updateModelOption = (key: string, value: unknown): void => {
+		const next = { ...modelOptions };
+		if (value === undefined || value === '') delete next[key];
+		else next[key] = value;
+		saveModelOptions(next);
+	};
+
 	const handleChange = async (nextProviderId: string, nextModelId: string): Promise<void> => {
 		const group = state.modelGroups.find((item) => item.provider.id === nextProviderId);
 		const model = group?.models.find((item) => item.id === nextModelId);
@@ -156,27 +163,66 @@ const AssistantPage: React.FC = () => {
 					idPrefix="assistant"
 					description={t('settings.modelServices.modelDescription')}
 					onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
-				/>
-			</SettingsSection>
-
-			{Object.keys(inputs).length > 0 && (
-				<SettingsSection title="Model options">
-					<SettingsPanel>
+				>
+					{Object.keys(inputs).length > 0 && (
+						<div className="-mx-3 -mb-3 mt-1 border-t border-border/60">
 						{Object.entries(inputs).map(([key, schema]) => {
 							const definition = schema as { type?: string; enum?: unknown[] };
 							const value = modelOptions[key];
 							if (definition.type === 'object') return null;
 							if (definition.type === 'boolean') {
-								return <SettingsRow key={key} title={key} actions={<Switch checked={value === true} onCheckedChange={(checked) => saveModelOptions({ ...modelOptions, [key]: checked })} />} />;
+								return (
+									<SettingsRow
+										key={key}
+										title={key}
+										actions={
+											<Switch
+												checked={value === true}
+												onCheckedChange={(checked) => updateModelOption(key, checked)}
+											/>
+										}
+									/>
+								);
 							}
 							if (definition.enum?.every((item) => typeof item === 'string')) {
-								return <SettingsRow key={key} title={key} actions={<Select value={typeof value === 'string' ? value : undefined} onValueChange={(next) => saveModelOptions({ ...modelOptions, [key]: next })}><SelectTrigger className="w-40"><SelectValue placeholder="Default" /></SelectTrigger><SelectContent>{definition.enum.map((item) => <SelectItem key={String(item)} value={String(item)}>{String(item)}</SelectItem>)}</SelectContent></Select>} />;
+								return (
+									<SettingsRow
+										key={key}
+										title={key}
+										actions={
+											<Select
+												value={typeof value === 'string' ? value : undefined}
+												onValueChange={(next) => updateModelOption(key, next)}
+											>
+												<SelectTrigger className="w-40"><SelectValue placeholder="Default" /></SelectTrigger>
+												<SelectContent>
+													{definition.enum.map((item) => <SelectItem key={String(item)} value={String(item)}>{String(item)}</SelectItem>)}
+												</SelectContent>
+											</Select>
+										}
+									/>
+								);
 							}
-							return <SettingsRow key={key} title={key} actions={<Input className="w-40" type={definition.type === 'number' || definition.type === 'integer' ? 'number' : 'text'} value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''} onChange={(event) => { const next = event.target.value; saveModelOptions({ ...modelOptions, [key]: definition.type === 'number' || definition.type === 'integer' ? Number(next) : next }); }} />} />;
+							const numeric = definition.type === 'number' || definition.type === 'integer';
+							return (
+								<SettingsRow
+									key={key}
+									title={key}
+									actions={
+										<Input
+											className="w-40"
+											type={numeric ? 'number' : 'text'}
+											value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
+											onChange={(event) => updateModelOption(key, event.target.value === '' ? undefined : numeric ? Number(event.target.value) : event.target.value)}
+										/>
+									}
+								/>
+							);
 						})}
-					</SettingsPanel>
-				</SettingsSection>
-			)}
+						</div>
+					)}
+				</ModelProviderConfiguration>
+			</SettingsSection>
 
 			<SettingsSection title={t('settings.modelServices.history')}>
 				<SettingsPanel>
