@@ -21,6 +21,14 @@ function isSttRealtimeSessionId(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;
 }
 
+function normalizeOptions(value: unknown): Record<string, unknown> | undefined {
+	if (value === undefined) return undefined;
+	if (!value || typeof value !== 'object' || Array.isArray(value)) {
+		throw new Error('Invalid model options.');
+	}
+	return { ...(value as Record<string, unknown>) };
+}
+
 export const models: ModelsApi = {
 	embedding: {
 		createEmbedding: (request) => {
@@ -60,10 +68,12 @@ export const models: ModelsApi = {
 			if (!prompt) throw new Error('Invalid image prompt.');
 			const providerId = optionalTrimmedString(request?.providerId);
 			const modelId = optionalTrimmedString(request?.modelId);
+			const options = normalizeOptions(request?.options);
 			return typedInvokeUnwrap(ImageChannels.createImage, {
 				prompt,
 				...(providerId ? { providerId } : {}),
 				...(modelId ? { modelId } : {}),
+				...(options ? { options } : {}),
 			});
 		},
 		getProviderId: () => {
@@ -82,6 +92,9 @@ export const models: ModelsApi = {
 			if (!normalizedModelId) throw new Error('Invalid image model id.');
 			return typedInvokeUnwrap(ImageChannels.setModelId, normalizedModelId);
 		},
+		getOptions: () => typedInvokeUnwrap(ImageChannels.getOptions),
+		setOptions: (options) =>
+			typedInvokeUnwrap(ImageChannels.setOptions, normalizeOptions(options) ?? {}),
 	},
 	sound: {
 		createSound: (request) => {
@@ -89,10 +102,12 @@ export const models: ModelsApi = {
 			if (!prompt) throw new Error('Invalid sound prompt.');
 			const providerId = optionalTrimmedString(request?.providerId);
 			const modelId = optionalTrimmedString(request?.modelId);
+			const options = normalizeOptions(request?.options);
 			return typedInvokeUnwrap(SoundChannels.createSound, {
 				prompt,
 				...(providerId ? { providerId } : {}),
 				...(modelId ? { modelId } : {}),
+				...(options ? { options } : {}),
 			});
 		},
 		listSounds: () => {
@@ -114,6 +129,9 @@ export const models: ModelsApi = {
 			if (!normalizedModelId) throw new Error('Invalid sound model id.');
 			return typedInvokeUnwrap(SoundChannels.setModelId, normalizedModelId);
 		},
+		getOptions: () => typedInvokeUnwrap(SoundChannels.getOptions),
+		setOptions: (options) =>
+			typedInvokeUnwrap(SoundChannels.setOptions, normalizeOptions(options) ?? {}),
 	},
 	text: {
 		generateText: (request) => {
@@ -222,10 +240,12 @@ export const models: ModelsApi = {
 			if (!prompt) throw new Error('Invalid video prompt.');
 			const providerId = optionalTrimmedString(request?.providerId);
 			const modelId = optionalTrimmedString(request?.modelId);
+			const options = normalizeOptions(request?.options);
 			return typedInvokeUnwrap(VideoChannels.createVideo, {
 				prompt,
 				...(providerId ? { providerId } : {}),
 				...(modelId ? { modelId } : {}),
+				...(options ? { options } : {}),
 			});
 		},
 		getProviderId: () => {
@@ -244,6 +264,9 @@ export const models: ModelsApi = {
 			if (!normalizedModelId) throw new Error('Invalid video model id.');
 			return typedInvokeUnwrap(VideoChannels.setModelId, normalizedModelId);
 		},
+		getOptions: () => typedInvokeUnwrap(VideoChannels.getOptions),
+		setOptions: (options) =>
+			typedInvokeUnwrap(VideoChannels.setOptions, normalizeOptions(options) ?? {}),
 	},
 	voice: {
 		synthesize: (request) => {
