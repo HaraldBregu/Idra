@@ -9,8 +9,8 @@ export type {
 	AppThemeColors,
 	AppThemeData,
 	AppLanguage,
-	WorkspaceTreeEntry,
 } from '../../src/shared/api_types';
+export type { WorkspaceTreeEntry } from '../../src/shared/agent_types';
 
 // The SDK is scoped to app-level data only.
 // This is a typed lazy view over the host preload globals.
