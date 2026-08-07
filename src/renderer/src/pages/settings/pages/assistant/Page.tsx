@@ -1,11 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight } from 'lucide-react';
+import {
+	AlertTriangle,
+	ChevronDown,
+	ChevronRight,
+	Search,
+} from 'lucide-react';
 import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
 import { ModelOptions } from '@/components/model-options';
 import { updateModelOptions } from '@/lib/options';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
@@ -24,6 +37,8 @@ import {
 } from '../../components/model-configuration-state';
 import type { ProviderModelGroup } from '../../../start/types';
 import { AgentMediaModelConfiguration } from './media';
+import { SEARCH_ENGINES } from '../search/catalog';
+import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
 
 type CatalogProvider = PublicProvider;
 
@@ -71,10 +86,14 @@ const AssistantPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
 	const [modelOptions, setModelOptions] = useState<Record<string, unknown>>({});
+	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
+	const [searchEngineError, setSearchEngineError] = useState<string | null>(null);
+	const [searchSavingEngineId, setSearchSavingEngineId] = useState<SearchEngineId | null>(null);
 	const model = modelsFor('llm').find(
 		(item) => item.provider.id === state.providerId && item.id === state.modelId
 	);
 	const inputs = model?.metadata?.documentationStatus === 'verified' ? model.metadata.inputs : {};
+	const selectedSearchEngine = SEARCH_ENGINES.find((engine) => engine.id === searchSettings?.engineId);
 
 	useEffect(() => {
 		let mounted = true;
@@ -99,6 +118,23 @@ const AssistantPage: React.FC = () => {
 	useEffect(() => {
 		void window.agent.getModelOptions().then(setModelOptions);
 	}, []);
+	useEffect(() => {
+		let mounted = true;
+		void window.search.getSettings().then(
+			(next) => {
+				if (!mounted) return;
+				setSearchSettings(next);
+				setSearchEngineError(null);
+			},
+			(error) => {
+				if (!mounted) return;
+				setSearchEngineError(firstErrorMessage(error, t('settings.searchEngine.errors.load')));
+			}
+		);
+		return () => {
+			mounted = false;
+		};
+	}, [t]);
 
 	const saveModelOptions = (next: Record<string, unknown>): void => {
 		setModelOptions(next);
@@ -137,6 +173,22 @@ const AssistantPage: React.FC = () => {
 				error: firstErrorMessage(error, t('settings.modelServices.saveError')),
 			}));
 		}
+	};
+
+	const handleSearchEngineChange = (value: string): void => {
+		const engineId = value as SearchEngineId;
+		setSearchSavingEngineId(engineId);
+		setSearchEngineError(null);
+		void window.search.selectEngine(engineId).then(
+			(next) => {
+				setSearchSettings(next);
+			},
+			(error) => {
+				setSearchEngineError(firstErrorMessage(error, t('settings.searchEngine.errors.select')));
+			}
+		).finally(() => {
+			setSearchSavingEngineId(null);
+		});
 	};
 
 	return (
@@ -187,6 +239,51 @@ const AssistantPage: React.FC = () => {
 					title={t('settings.modelServices.videoCreatorName')}
 					description={t('settings.modelServices.videoModelDescription')}
 				/>
+				<Collapsible className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+						<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+							<Search className="size-4" aria-hidden="true" />
+						</div>
+						<div className="min-w-0 flex-1">
+							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
+								{selectedSearchEngine?.name ?? t('settings.searchEngine.provider')}
+							</div>
+							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
+								{t('settings.overview.descriptions.searchEngine')}
+							</p>
+						</div>
+						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+					</CollapsibleTrigger>
+					<CollapsibleContent className="border-t border-border/60">
+						<div className="grid min-w-0 gap-3 px-3 py-3">
+							{searchEngineError && (
+								<SettingsNotice variant="destructive" icon={AlertTriangle}>
+									{searchEngineError}
+								</SettingsNotice>
+							)}
+							<Select
+								value={searchSettings?.engineId ?? null}
+								onValueChange={handleSearchEngineChange}
+								disabled={!searchSettings || searchSavingEngineId !== null}
+							>
+								<SelectTrigger className="w-full text-xs [&_svg]:size-3">
+									<SelectValue placeholder={t('settings.searchEngine.defaultTitle')} />
+								</SelectTrigger>
+								<SelectContent>
+									{SEARCH_ENGINES.map((engine) => (
+										<SelectItem
+											key={engine.id}
+											value={engine.id}
+											disabled={!searchSettings?.configured[engine.id]}
+										>
+											{engine.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+					</CollapsibleContent>
+				</Collapsible>
 			</SettingsSection>
 
 			<SettingsSection title={t('settings.modelServices.history')}>
@@ -239,17 +336,17 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/search')}
+					onClick={() => navigate('/settings/assistant/policies')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
 							event.preventDefault();
-							navigate('/settings/search');
+							navigate('/settings/assistant/policies');
 						}
 					}}
 				>
 					<SettingsRow
-						title={t('settings.tabs.searchEngine')}
-						description={t('settings.overview.descriptions.searchEngine')}
+						title={t('settings.tabs.policies')}
+						description={t('settings.overview.descriptions.policies')}
 						className="grid-cols-[minmax(0,1fr)_auto]"
 						actionClassName="w-auto justify-end"
 						actions={<ChevronRight className="size-4 text-muted-foreground" />}
