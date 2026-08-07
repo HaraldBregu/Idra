@@ -18,3 +18,14 @@ export type Extension = ExtensionManifest & {
 export type ExtensionSettings = {
 	enabled: boolean;
 };
+
+export interface ExtensionImportSkipped {
+	name: string;
+	sourcePath: string;
+	reason: string;
+}
+
+export interface ExtensionImportResult {
+	imported: Extension[];
+	skipped: ExtensionImportSkipped[];
+}
