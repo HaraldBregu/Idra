@@ -22,6 +22,7 @@ export default function App() {
 	const [theme, setTheme] = useState(fallbackTheme);
 	const [language, setLanguage] = useState(fallbackLanguage);
 	const [status, setStatus] = useState('Waiting for app data');
+	const inFridayApp = isFriday();
 
 	const getStatusText = (themeMode, isDark, appLanguage) => {
 		return `theme=${themeMode}, resolved-dark=${String(isDark)}, language=${appLanguage}`;
@@ -96,23 +97,12 @@ export default function App() {
 	}, []);
 
 	if (!isFriday()) {
-		return (
-			<main className="app-demo bg-slate-50 text-slate-900">
-				<div className="flex h-full items-center justify-center p-8">
-					<div className="w-full max-w-md space-y-4 rounded-xl border p-6">
-						<p className="text-lg font-semibold">Friday app IPC demo</p>
-						<p className="text-sm">Run inside the Friday app to use app IPC theme and language APIs.</p>
-					</div>
-				</div>
-			</main>
-		);
-	}
-
 	return (
 		<main className={cn('app-demo', theme.isDark ? 'dark-mode' : 'light-mode')}>
 			<div className="flex h-full items-center justify-center p-8">
 				<div className="w-full max-w-md space-y-4 rounded-xl border p-6">
 					<p className="text-lg font-semibold">Friday app IPC demo</p>
+					<p className="text-sm text-orange-600">{inFridayApp ? 'Connected to Friday app runtime.' : 'Running outside Friday app; controls are disabled.'}</p>
 					<div className="space-y-2">
 						<p className="text-sm font-semibold">Theme</p>
 						<p className="text-sm">Theme mode from app IPC: {theme.themeMode}</p>
@@ -121,6 +111,7 @@ export default function App() {
 							<button
 								type="button"
 								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
+								disabled={!inFridayApp}
 								onClick={() => setAppTheme('light')}
 							>
 								Set light
@@ -128,6 +119,7 @@ export default function App() {
 							<button
 								type="button"
 								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
+								disabled={!inFridayApp}
 								onClick={() => setAppTheme('dark')}
 							>
 								Set dark
@@ -135,6 +127,7 @@ export default function App() {
 							<button
 								type="button"
 								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
+								disabled={!inFridayApp}
 								onClick={() => setAppTheme('system')}
 							>
 								Set system
@@ -142,6 +135,7 @@ export default function App() {
 							<button
 								type="button"
 								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
+								disabled={!inFridayApp}
 								onClick={refreshTheme}
 							>
 								Get theme
@@ -155,6 +149,7 @@ export default function App() {
 							<button
 								type="button"
 								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
+								disabled={!inFridayApp}
 								onClick={() => setAppLanguage('en')}
 							>
 								Set EN
@@ -162,6 +157,7 @@ export default function App() {
 							<button
 								type="button"
 								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
+								disabled={!inFridayApp}
 								onClick={() => setAppLanguage('it')}
 							>
 								Set IT
@@ -169,6 +165,7 @@ export default function App() {
 							<button
 								type="button"
 								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
+								disabled={!inFridayApp}
 								onClick={refreshLanguage}
 							>
 								Get language
