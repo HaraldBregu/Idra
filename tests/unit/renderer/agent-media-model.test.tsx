@@ -30,7 +30,10 @@ const mockCatalog = [
 	},
 ];
 
-jest.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
+jest.mock('react-i18next', () => {
+	const t = (key: string): string => key;
+	return { useTranslation: () => ({ t }) };
+});
 jest.mock('@/lib/providers', () => ({
 	modelsFor: () => mockCatalog,
 	providerIdsFor: () => ['google', 'xai'],
