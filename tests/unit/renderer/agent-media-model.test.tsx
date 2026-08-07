@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AgentMediaModelConfiguration } from '../../../src/renderer/src/pages/settings/pages/assistant/media';
 
-const catalog = [
+const mockCatalog = [
 	{
 		id: 'gemini-image',
 		name: 'Gemini Image',
@@ -32,10 +32,10 @@ const catalog = [
 
 jest.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 jest.mock('@/lib/providers', () => ({
-	modelsFor: () => catalog,
+	modelsFor: () => mockCatalog,
 	providerIdsFor: () => ['google', 'xai'],
 	providerModels: (providerId: string) =>
-		catalog.filter((model) => model.provider.id === providerId),
+		mockCatalog.filter((model) => model.provider.id === providerId),
 	providers: () => [
 		{ id: 'google', name: 'Google' },
 		{ id: 'xai', name: 'xAI' },
