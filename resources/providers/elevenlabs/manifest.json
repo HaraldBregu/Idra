@@ -1,64 +1,175 @@
 {
-	"providerId": "elevenlabs",
-	"providerName": "ElevenLabs",
-	"apiKeyUrl": "https://elevenlabs.io/app/settings/api-keys",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/elevenlabs.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/elevenlabs.png",
-	"services": [
-		{
-			"id": "scribe_v2",
-			"name": "Scribe v2",
-			"apiTypes": [
-				"batch"
-			],
-			"type": "speech-to-text-model",
-			"url": "https://api.elevenlabs.io/v1",
-			"sampleRate": 16000
-		},
-		{
-			"id": "scribe_v2_realtime",
-			"name": "Scribe v2 Realtime",
-			"apiTypes": [
-				"stream"
-			],
-			"realtime": true,
-			"type": "speech-to-text-model",
-			"url": "https://api.elevenlabs.io/v1",
-			"sampleRate": 16000
-		},
-		{
-			"id": "eleven_v3",
-			"name": "Eleven v3",
-			"type": "text-to-speech-model",
-			"url": "https://api.elevenlabs.io/v1",
-			"default": true
-		},
-		{
-			"id": "eleven_multilingual_v2",
-			"name": "Eleven Multilingual v2",
-			"type": "text-to-speech-model",
-			"url": "https://api.elevenlabs.io/v1",
-			"default": true
-		},
-		{
-			"id": "eleven_flash_v2_5",
-			"name": "Eleven Flash v2.5",
-			"type": "text-to-speech-model",
-			"url": "https://api.elevenlabs.io/v1",
-			"default": true
-		},
-		{
-			"id": "eleven-music",
-			"name": "Eleven Music",
-			"type": "text-to-audio-model",
-			"url": "https://api.elevenlabs.io/v1"
-		},
-		{
-			"id": "elevenlabs-sound-effects",
-			"name": "ElevenLabs Sound Effects",
-			"type": "text-to-audio-model",
-			"url": "https://api.elevenlabs.io/v1"
-		}
-	]
+  "providerId": "elevenlabs",
+  "providerName": "ElevenLabs",
+  "apiKeyUrl": "https://elevenlabs.io/app/settings/api-keys",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/png_dark/elevenlabs.png",
+  "icon_light_url": "/images/fallback_lobehub/png_light/elevenlabs.png",
+  "services": [
+    {
+      "id": "scribe_v2",
+      "name": "Scribe v2",
+      "apiTypes": [
+        "batch"
+      ],
+      "type": "speech-to-text-model",
+      "url": "https://api.elevenlabs.io/v1",
+      "sampleRate": 16000,
+      "metadata": {
+        "documentationUrl": "https://elevenlabs.io/docs/api-reference",
+        "inputs": {
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "scribe_v2_realtime",
+      "name": "Scribe v2 Realtime",
+      "apiTypes": [
+        "stream"
+      ],
+      "realtime": true,
+      "type": "speech-to-text-model",
+      "url": "https://api.elevenlabs.io/v1",
+      "sampleRate": 16000,
+      "metadata": {
+        "documentationUrl": "https://elevenlabs.io/docs/api-reference",
+        "inputs": {
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "eleven_v3",
+      "name": "Eleven v3",
+      "type": "text-to-speech-model",
+      "url": "https://api.elevenlabs.io/v1",
+      "default": true,
+      "metadata": {
+        "documentationUrl": "https://elevenlabs.io/docs/api-reference",
+        "inputs": {
+          "voice": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0.25,
+            "maximum": 4
+          },
+          "outputFormat": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "eleven_multilingual_v2",
+      "name": "Eleven Multilingual v2",
+      "type": "text-to-speech-model",
+      "url": "https://api.elevenlabs.io/v1",
+      "default": true,
+      "metadata": {
+        "documentationUrl": "https://elevenlabs.io/docs/api-reference",
+        "inputs": {
+          "voice": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0.25,
+            "maximum": 4
+          },
+          "outputFormat": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "eleven_flash_v2_5",
+      "name": "Eleven Flash v2.5",
+      "type": "text-to-speech-model",
+      "url": "https://api.elevenlabs.io/v1",
+      "default": true,
+      "metadata": {
+        "documentationUrl": "https://elevenlabs.io/docs/api-reference",
+        "inputs": {
+          "voice": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0.25,
+            "maximum": 4
+          },
+          "outputFormat": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "eleven-music",
+      "name": "Eleven Music",
+      "type": "text-to-audio-model",
+      "url": "https://api.elevenlabs.io/v1",
+      "metadata": {
+        "documentationUrl": "https://elevenlabs.io/docs/api-reference",
+        "inputs": {
+          "duration": {
+            "type": "number",
+            "minimum": 1
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "outputFormat": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "elevenlabs-sound-effects",
+      "name": "ElevenLabs Sound Effects",
+      "type": "text-to-audio-model",
+      "url": "https://api.elevenlabs.io/v1",
+      "metadata": {
+        "documentationUrl": "https://elevenlabs.io/docs/api-reference",
+        "inputs": {
+          "duration": {
+            "type": "number",
+            "minimum": 1
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "outputFormat": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
