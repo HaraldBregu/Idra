@@ -17,7 +17,7 @@
         "inputs": {
           "reasoning_effort": {
             "type": "string",
-            "enum": ["low", "medium", "high"]
+            "enum": ["minimal", "low", "medium", "high"]
           },
           "temperature": {
             "type": "number",
