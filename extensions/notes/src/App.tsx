@@ -1,9 +1,10 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties, type PointerEvent } from 'react';
 
 import { agent, app, isFriday, type AppThemeData, type WorkspaceTreeEntry } from '@friday/sdk';
 import { AppSidebar } from '@/components/app-sidebar';
 import { WorkspaceViewer } from '@/components/workspace-viewer';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +13,9 @@ const fallbackTheme: AppThemeData = {
 	isDark: false,
 	colors: {},
 };
+const sidebarMinWidth = 260;
+const sidebarMaxWidth = 520;
+const sidebarDefaultWidth = 340;
 
 export default function App() {
 	const [theme, setTheme] = useState<AppThemeData>(fallbackTheme);
@@ -24,6 +28,7 @@ export default function App() {
 	const [selectedContent, setSelectedContent] = useState('');
 	const [selectedLoading, setSelectedLoading] = useState(false);
 	const [selectedError, setSelectedError] = useState('');
+	const [sidebarWidth, setSidebarWidth] = useState(sidebarDefaultWidth);
 	const themeStyle = Object.fromEntries(
 		Object.entries(theme.colors).map(([name, value]) => [`--${name}`, value]),
 	) as CSSProperties;
@@ -91,6 +96,27 @@ export default function App() {
 		}
 	}
 
+	function startSidebarResize(event: PointerEvent<HTMLButtonElement>) {
+		event.preventDefault();
+		const startX = event.clientX;
+		const startWidth = sidebarWidth;
+
+		const resize = (moveEvent: globalThis.PointerEvent) => {
+			const nextWidth = Math.min(
+				sidebarMaxWidth,
+				Math.max(sidebarMinWidth, startWidth + moveEvent.clientX - startX),
+			);
+			setSidebarWidth(nextWidth);
+		};
+		const stop = () => {
+			window.removeEventListener('pointermove', resize);
+			window.removeEventListener('pointerup', stop);
+		};
+
+		window.addEventListener('pointermove', resize);
+		window.addEventListener('pointerup', stop, { once: true });
+	}
+
 	const sidebar = (
 		<AppSidebar
 			onWorkspaceSelect={selectWorkspaceEntry}
@@ -108,7 +134,10 @@ export default function App() {
 				className={cn('flex h-dvh min-h-[520px] overflow-hidden bg-background text-foreground', theme.isDark && 'dark')}
 				style={themeStyle}
 			>
-				<aside className="hidden w-[176px] shrink-0 border-r border-sidebar-border lg:block">{sidebar}</aside>
+				<Sidebar width={sidebarWidth}>
+					<SidebarContent>{sidebar}</SidebarContent>
+					<SidebarResizeHandle onPointerDown={startSidebarResize} />
+				</Sidebar>
 
 				<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
 					<SheetContent
