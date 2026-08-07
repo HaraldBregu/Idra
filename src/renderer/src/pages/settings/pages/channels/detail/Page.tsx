@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { Hash, KeyRound, Plus, ShieldCheck, UserRound, X } from 'lucide-react';
+import { Hash, KeyRound, Mic, Plus, ShieldCheck, UserRound, Volume2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,9 +14,22 @@ import {
 } from '@/components/ui/select';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../../components';
-import type { CatalogService } from '@shared/provider_types';
+import type { CatalogService, PublicProvider } from '@shared/provider_types';
 import { CHANNEL_DM_POLICIES } from '@shared/channels_types';
 import type { ChannelDmPolicy, StoredBotProvider } from '@shared/channels_types';
+import { providerIdsFor, providerModels, providers, supportsSpeechToTextApiType } from '@/lib/providers';
+
+const MODEL_SELECTION_VALUE_SEPARATOR = '\u001F';
+
+interface ModelChoice {
+	readonly id: string;
+	readonly name: string;
+}
+
+interface ChannelModelGroup {
+	readonly provider: PublicProvider;
+	readonly models: readonly ModelChoice[];
+}
 
 type ListField = 'allowFrom' | 'groupAllowFrom';
 
