@@ -55,6 +55,7 @@ function WorkspaceTree({
   files,
   loading,
   error,
+  label,
   onSelect,
   onToggle,
   selectedPath,
@@ -63,28 +64,39 @@ function WorkspaceTree({
   files: WorkspaceTreeEntry[]
   loading: boolean
   error: string
+  label: string
   onSelect: (entry: WorkspaceTreeEntry) => void
   onToggle: (path: string) => void
   selectedPath: string | null
 }) {
-  if (loading) return <div className="px-8 py-2 text-[12px] text-sidebar-muted">Loading workspace...</div>
-  if (error) return <div className="px-8 py-2 text-[12px] leading-5 text-sidebar-muted">{error}</div>
-  if (files.length === 0) return <div className="px-8 py-2 text-[12px] text-sidebar-muted">No files</div>
-
   return (
-    <ul className="mt-1 space-y-0.5 border-l border-sidebar-border/70 pl-2 ml-4">
-      {files.map((entry) => (
-        <WorkspaceTreeItem
-          key={entry.path}
-          depth={0}
-          entry={entry}
-          expanded={expanded}
-          onToggle={onToggle}
-          onSelect={onSelect}
-          selectedPath={selectedPath}
-        />
-      ))}
-    </ul>
+    <div className="ml-4 mt-1 border-l border-sidebar-border/70 pl-2">
+      <div className="flex h-8 items-center gap-2 rounded-md px-2 text-[12px] font-medium text-sidebar-foreground">
+        <FolderOpen className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+      </div>
+      {loading ? (
+        <div className="px-7 py-2 text-[12px] text-sidebar-muted">Loading files...</div>
+      ) : error ? (
+        <div className="px-7 py-2 text-[12px] leading-5 text-sidebar-muted">{error}</div>
+      ) : files.length === 0 ? (
+        <div className="px-7 py-2 text-[12px] text-sidebar-muted">No files</div>
+      ) : (
+        <ul className="space-y-0.5">
+          {files.map((entry) => (
+            <WorkspaceTreeItem
+              key={entry.path}
+              depth={0}
+              entry={entry}
+              expanded={expanded}
+              onToggle={onToggle}
+              onSelect={onSelect}
+              selectedPath={selectedPath}
+            />
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -243,6 +255,7 @@ export function AppSidebar({
             files={workspaceFiles}
             loading={workspaceLoading}
             error={workspaceError}
+            label={workspaceName}
             onToggle={toggleDirectory}
             onSelect={onWorkspaceSelect}
             selectedPath={selectedWorkspacePath}
