@@ -12,7 +12,7 @@ export default function App() {
 		let mounted = true;
 		app
 			.getThemeData()
-			then((themeData) => {
+			.then((themeData) => {
 				if (mounted) setTheme(themeData);
 			})
 			.catch(() => {});
@@ -24,15 +24,13 @@ export default function App() {
 
 	const styles = theme.isDark
 		? {
-				dark
-				? 'rgb(15, 23, 42)'
-				: '#0f172a',
+				backgroundColor: 'rgb(15, 23, 42)',
 				color: 'rgb(226, 232, 240)',
-			}
+		  }
 		: {
 				backgroundColor: 'rgb(248, 250, 252)',
 				color: 'rgb(15, 23, 42)',
-			};
+		  };
 
 	return <main className="app-demo" style={styles} />;
 }
