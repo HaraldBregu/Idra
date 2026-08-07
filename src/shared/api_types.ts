@@ -108,6 +108,7 @@ export interface AgentApi {
 	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
 	clearMessages: (sessionId: string) => Promise<void>;
 	deleteSession: (sessionId: string) => Promise<void>;
+	getWorkspaceLocation: () => Promise<string>;
 	getProvider: () => Promise<PublicProvider | undefined>;
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;

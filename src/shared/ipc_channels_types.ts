@@ -58,6 +58,7 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.clearMessages]: { args: [sessionId: string]; result: void };
 	[AgentChannels.deleteSession]: { args: [sessionId: string]; result: void };
+	[AgentChannels.getWorkspaceLocation]: { args: []; result: string };
 	[AgentChannels.getProvider]: {
 		args: [];
 		result: import('./provider_types').PublicProvider | undefined;

@@ -136,6 +136,9 @@ export const agent: AgentApi = {
 		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
 		return typedInvokeUnwrap(AgentChannels.deleteSession, normalizedSessionId);
 	},
+	getWorkspaceLocation: (): Promise<string> => {
+		return typedInvokeUnwrap(AgentChannels.getWorkspaceLocation);
+	},
 	getProvider: (): Promise<PublicProvider | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.getProvider);
 	},

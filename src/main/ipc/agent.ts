@@ -240,6 +240,13 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.getWorkspaceLocation,
+			wrapSimpleHandler((): string => {
+				return workspacePath(agent.config);
+			}, AgentChannels.getWorkspaceLocation)
+		);
+
+		ipcMain.handle(
 			AgentChannels.getProvider,
 			wrapSimpleHandler((): PublicProvider | undefined => {
 				const providerId = getProviderId();
