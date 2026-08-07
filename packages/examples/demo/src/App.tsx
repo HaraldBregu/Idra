@@ -11,6 +11,7 @@ import {
 } from '@friday/sdk';
 import { cn } from './lib/utils';
 import { Button } from './components/ui/button';
+import translations from './i18n.json';
 
 const fallbackColors: AppThemeColors = {
 	'radius': '0.625rem',
@@ -65,15 +66,16 @@ const themeBadgeClass = cva('inline-flex h-9 items-center rounded-full border px
 export default function App() {
 	const [theme, setTheme] = useState<AppThemeData>(fallbackTheme);
 	const [language, setLanguage] = useState<AppLanguage>(fallbackLanguage);
-	const [status, setStatus] = useState('Waiting for app data');
+	const [status, setStatus] = useState(translations.en.waiting);
 	const inFridayApp = isFriday();
+	const text = translations[language] ?? translations.en;
 	const themeStyle = Object.fromEntries(
 		Object.entries(theme.colors).map(([name, value]) => [`--${name}`, value]),
 	) as CSSProperties;
 
 	const ensureFridayApp = () => {
 		if (!isFriday()) {
-			setStatus('Friday app runtime not connected. Run inside the app host to use live data.');
+			setStatus(text.runtimeMissing);
 			return false;
 		}
 		return true;
@@ -88,9 +90,9 @@ export default function App() {
 		try {
 			const themeData = await app.getThemeData();
 			setTheme(themeData);
-			setStatus(`theme refreshed (${getStatusText(themeData, language)})`);
+			setStatus(`${text.themeRefreshed} (${getStatusText(themeData, language)})`);
 		} catch {
-			setStatus('failed to refresh theme');
+			setStatus(text.themeRefreshFailed);
 		}
 	};
 
@@ -99,9 +101,9 @@ export default function App() {
 		try {
 			const appLanguage = await app.getLanguage();
 			setLanguage(appLanguage);
-			setStatus(`language refreshed (${getStatusText(theme, appLanguage)})`);
+			setStatus(`${translations[appLanguage].languageRefreshed} (${getStatusText(theme, appLanguage)})`);
 		} catch {
-			setStatus('failed to refresh language');
+			setStatus(text.languageRefreshFailed);
 		}
 	};
 
@@ -110,9 +112,9 @@ export default function App() {
 		try {
 			await app.setTheme(nextTheme);
 			await refreshTheme();
-			setStatus(`theme set to ${nextTheme}`);
+			setStatus(`${text.themeSet} ${nextTheme}`);
 		} catch {
-			setStatus('failed to set theme');
+			setStatus(text.themeSetFailed);
 		}
 	};
 
@@ -121,9 +123,9 @@ export default function App() {
 		try {
 			await app.setLanguage(nextLanguage);
 			await refreshLanguage();
-			setStatus(`language set to ${nextLanguage}`);
+			setStatus(`${translations[nextLanguage].languageSet} ${nextLanguage}`);
 		} catch {
-			setStatus('failed to set language');
+			setStatus(text.languageSetFailed);
 		}
 	};
 
@@ -133,9 +135,9 @@ export default function App() {
 			const themeData = await app.getThemeData();
 			setTheme(themeData);
 			console.log('Friday app theme data', themeData);
-			setStatus('theme data printed to browser console');
+			setStatus(text.printThemeDataSuccess);
 		} catch {
-			setStatus('failed to print theme data');
+			setStatus(text.printThemeDataFailed);
 		}
 	};
 
@@ -149,16 +151,16 @@ export default function App() {
 				if (!mounted) return;
 				setTheme(themeData);
 				setLanguage(appLanguage);
-				setStatus(`loaded (${getStatusText(themeData, appLanguage)})`);
+				setStatus(`${translations[appLanguage].loaded} (${getStatusText(themeData, appLanguage)})`);
 			} catch {
-				if (mounted) setStatus('failed to load app data');
+				if (mounted) setStatus(text.loadFailed);
 			}
 		};
 		void loadCurrentState();
 		const unsubscribe = app.onThemeModeChanged((themeData) => {
 			if (!mounted) return;
 			setTheme(themeData);
-			setStatus(`theme changed (${getStatusText(themeData, language)})`);
+			setStatus(`${text.themeChanged} (${getStatusText(themeData, language)})`);
 		});
 
 		return () => {
@@ -171,46 +173,46 @@ export default function App() {
 		<main className={cn('app-demo', theme.isDark && 'dark')} style={themeStyle}>
 			<div className="flex h-full items-center justify-center p-8">
 				<div className="w-full max-w-md space-y-4 rounded-lg border border-border bg-card p-6 text-card-foreground shadow-sm">
-					<p className="text-lg font-semibold">Friday app IPC demo</p>
-					<p className="text-sm text-muted-foreground">{inFridayApp ? 'Connected to Friday app runtime.' : 'Running outside Friday app. Buttons are available but use app actions from host runtime only.'}</p>
+					<p className="text-lg font-semibold">{text.title}</p>
+					<p className="text-sm text-muted-foreground">{inFridayApp ? text.connected : text.disconnected}</p>
 					<div className="space-y-2">
-						<p className="text-sm font-semibold">Theme</p>
-						<p className="text-sm">Theme mode from app IPC: {theme.themeMode}</p>
-						<p className="text-sm">Resolved dark mode: {theme.isDark ? 'true' : 'false'}</p>
+						<p className="text-sm font-semibold">{text.theme}</p>
+						<p className="text-sm">{text.themeMode}: {theme.themeMode}</p>
+						<p className="text-sm">{text.resolvedDarkMode}: {theme.isDark ? 'true' : 'false'}</p>
 						<div className="mt-2 flex flex-wrap gap-2">
 							<Button variant="outline" onClick={() => setAppTheme('light')}>
-								Set light
+								{text.setLight}
 							</Button>
 							<Button variant="outline" onClick={() => setAppTheme('dark')}>
-								Set dark
+								{text.setDark}
 							</Button>
 							<Button variant="outline" onClick={() => setAppTheme('system')}>
-								Set system
+								{text.setSystem}
 							</Button>
 							<Button variant="secondary" onClick={refreshTheme}>
-								Get theme
+								{text.getTheme}
 							</Button>
-							<Button onClick={printThemeData}>Print theme data</Button>
+							<Button onClick={printThemeData}>{text.printThemeData}</Button>
 						</div>
 					</div>
 					<div className="space-y-2">
-						<p className="text-sm font-semibold">Language</p>
-						<p className="text-sm">Current language from app IPC: {language}</p>
+						<p className="text-sm font-semibold">{text.language}</p>
+						<p className="text-sm">{text.currentLanguage}: {language}</p>
 						<div className="mt-2 flex flex-wrap gap-2">
 							<Button variant="outline" onClick={() => setAppLanguage('en')}>
-								Set EN
+								{text.setEnglish}
 							</Button>
 							<Button variant="outline" onClick={() => setAppLanguage('it')}>
-								Set IT
+								{text.setItalian}
 							</Button>
 							<Button variant="secondary" onClick={refreshLanguage}>
-								Get language
+								{text.getLanguage}
 							</Button>
 						</div>
 					</div>
-					<p className="text-sm text-muted-foreground">Status: {status}</p>
+					<p className="text-sm text-muted-foreground">{text.status}: {status}</p>
 					<span className={themeBadgeClass({ variant: theme.isDark ? 'dark' : 'light' })}>
-						{theme.isDark ? 'Dark' : 'Light'}
+						{theme.isDark ? text.dark : text.light}
 					</span>
 				</div>
 			</div>
