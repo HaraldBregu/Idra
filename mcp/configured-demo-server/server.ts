@@ -70,6 +70,9 @@ const toolError = (message: string): ToolResult => ({
 	isError: true,
 });
 
+const objectArgs = (args: unknown): Record<string, unknown> =>
+	args && typeof args === 'object' && !Array.isArray(args) ? (args as Record<string, unknown>) : {};
+
 const configurationError = (): string | undefined => {
 	const missing: string[] = [];
 	if (!configuration.company) missing.push('DEMO_COMPANY');
@@ -206,11 +209,10 @@ const handle = (message: JsonRpcRequest | null) => {
 
 	if (message.method === 'tools/call') {
 		const name = message.params?.name;
-		const args = message.params?.arguments;
 		send({
 			jsonrpc: '2.0',
 			id: message.id,
-			result: callTool(typeof name === 'string' ? name : '', args && typeof args === 'object' ? args : {}),
+			result: callTool(typeof name === 'string' ? name : '', objectArgs(message.params?.arguments)),
 		});
 		return;
 	}
