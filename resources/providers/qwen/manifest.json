@@ -134,20 +134,9 @@
       "url": "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",
       "sampleRate": 16000,
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
-        "inputs": {
-          "language": {
-            "type": "string"
-          },
-          "prompt": {
-            "type": "string"
-          },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          }
-        }
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -156,15 +145,9 @@
       "type": "realtime-voice-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
-        "inputs": {
-          "voice": {
-            "type": "string"
-          },
-          "language": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -173,15 +156,9 @@
       "type": "realtime-voice-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
-        "inputs": {
-          "voice": {
-            "type": "string"
-          },
-          "language": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -190,15 +167,9 @@
       "type": "realtime-voice-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
-        "inputs": {
-          "voice": {
-            "type": "string"
-          },
-          "language": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
