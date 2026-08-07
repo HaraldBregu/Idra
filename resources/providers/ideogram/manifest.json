@@ -12,26 +12,55 @@
       "type": "text-to-image-model",
       "url": "https://api.ideogram.ai",
       "metadata": {
-        "documentationUrl": "https://developer.ideogram.ai/api-reference",
+        "documentationUrl": "https://developer.ideogram.ai/api-reference/api-reference/generate-v3",
+        "documentationStatus": "verified",
         "inputs": {
+          "prompt": {
+            "type": "string",
+            "required": true
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "resolution": {
+            "type": "string"
+          },
           "aspect_ratio": {
             "type": "string"
           },
           "rendering_speed": {
             "type": "string",
             "enum": [
+              "FLASH",
               "TURBO",
-              "BALANCED",
+              "DEFAULT",
               "QUALITY"
+            ]
+          },
+          "magic_prompt": {
+            "type": "string",
+            "enum": [
+              "AUTO",
+              "ON",
+              "OFF"
             ]
           },
           "style_type": {
             "type": "string"
           },
-          "magic_prompt_option": {
+          "style_reference_images": {
+            "type": "array"
+          },
+          "image_weight": {
+            "type": "number"
+          },
+          "character_reference_images": {
+            "type": "array"
+          },
+          "character_reference_text_description": {
             "type": "string"
           },
-          "seed": {
+          "num_images": {
             "type": "integer"
           }
         }
@@ -43,23 +72,14 @@
       "type": "text-to-image-model",
       "url": "https://api.ideogram.ai",
       "metadata": {
-        "documentationUrl": "https://developer.ideogram.ai/api-reference",
+        "documentationUrl": "https://developer.ideogram.ai/api-reference/api-reference/generate-v3",
+        "documentationStatus": "verified",
         "inputs": {
-          "aspect_ratio": {
-            "type": "string"
-          },
-          "rendering_speed": {
+          "prompt": {
             "type": "string",
-            "enum": [
-              "TURBO",
-              "BALANCED",
-              "QUALITY"
-            ]
+            "required": true
           },
-          "style_type": {
-            "type": "string"
-          },
-          "magic_prompt_option": {
+          "aspect_ratio": {
             "type": "string"
           },
           "seed": {
