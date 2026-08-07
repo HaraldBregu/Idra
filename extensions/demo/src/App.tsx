@@ -51,6 +51,8 @@ const fallbackColors: AppThemeColors = {
 };
 const fallbackTheme: AppThemeData = { themeMode: 'light', isDark: false, colors: fallbackColors };
 const fallbackLanguage: AppLanguage = 'en';
+const demoStorageKey = 'demo';
+const demoStorageValue = 'demo';
 const themeBadgeClass = cva('inline-flex h-9 items-center rounded-full border px-4 text-sm font-semibold', {
 	variants: {
 		variant: {
@@ -67,6 +69,7 @@ export default function App() {
 	const [theme, setTheme] = useState<AppThemeData>(fallbackTheme);
 	const [language, setLanguage] = useState<AppLanguage>(fallbackLanguage);
 	const [status, setStatus] = useState(translations.en.waiting);
+	const [localStorageValue, setLocalStorageValue] = useState('');
 	const inFridayApp = isFriday();
 	const text = translations[language] ?? translations.en;
 	const themeStyle = Object.fromEntries(
@@ -141,6 +144,16 @@ export default function App() {
 		}
 	};
 
+	const setDemoLocalStorage = () => {
+		localStorage.setItem(demoStorageKey, demoStorageValue);
+		setStatus('Set local storage demo value.');
+	};
+
+	const getDemoLocalStorage = () => {
+		setLocalStorageValue(localStorage.getItem(demoStorageKey) ?? '');
+		setStatus('Got local storage demo value.');
+	};
+
 	useEffect(() => {
 		if (!isFriday()) return;
 
@@ -207,6 +220,18 @@ export default function App() {
 							</Button>
 							<Button variant="secondary" onClick={refreshLanguage}>
 								{text.getLanguage}
+							</Button>
+						</div>
+					</div>
+					<div className="space-y-2">
+						<p className="text-sm font-semibold">Local storage</p>
+						<p className="text-sm">Value: {localStorageValue || 'empty'}</p>
+						<div className="mt-2 flex flex-wrap gap-2">
+							<Button variant="outline" onClick={setDemoLocalStorage}>
+								Set demo
+							</Button>
+							<Button variant="secondary" onClick={getDemoLocalStorage}>
+								Get demo
 							</Button>
 						</div>
 					</div>
