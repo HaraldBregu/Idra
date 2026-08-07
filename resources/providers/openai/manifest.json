@@ -12,9 +12,32 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
+        "documentationUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["none", "low", "medium", "high", "xhigh", "max"]
+              },
+              "mode": {
+                "type": "string",
+                "enum": ["standard", "pro"]
+              }
+            }
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "verbosity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -23,9 +46,32 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
+        "documentationUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["none", "low", "medium", "high", "xhigh", "max"]
+              },
+              "mode": {
+                "type": "string",
+                "enum": ["standard", "pro"]
+              }
+            }
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "verbosity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -34,9 +80,32 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
+        "documentationUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["none", "low", "medium", "high", "xhigh", "max"]
+              },
+              "mode": {
+                "type": "string",
+                "enum": ["standard", "pro"]
+              }
+            }
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "verbosity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -45,9 +114,28 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
+        "documentationUrl": "https://developers.openai.com/api/docs/models/gpt-5.5",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["none", "low", "medium", "high", "xhigh"]
+              }
+            }
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "verbosity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -56,9 +144,28 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
+        "documentationUrl": "https://developers.openai.com/api/docs/models/gpt-5.5-pro",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["medium", "high", "xhigh"]
+              }
+            }
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "verbosity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -67,9 +174,28 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
+        "documentationUrl": "https://developers.openai.com/api/docs/models/gpt-5.4",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["none", "low", "medium", "high", "xhigh"]
+              }
+            }
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "verbosity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -78,9 +204,28 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
+        "documentationUrl": "https://developers.openai.com/api/docs/models/gpt-5.4-pro",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["medium", "high", "xhigh"]
+              }
+            }
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "verbosity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -89,9 +234,28 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
+        "documentationUrl": "https://developers.openai.com/api/docs/models/gpt-5.4-mini",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["none", "low", "medium", "high", "xhigh"]
+              }
+            }
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "verbosity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -100,9 +264,28 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
+        "documentationUrl": "https://developers.openai.com/api/docs/models/gpt-5.4-nano",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reasoning": {
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["none", "low", "medium", "high", "xhigh"]
+              }
+            }
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "verbosity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -320,4 +503,3 @@
     }
   ]
 }
-
