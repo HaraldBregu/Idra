@@ -1,8 +1,8 @@
 import type { AppApi } from '../../src/shared/api_types';
-import type { AppLanguage, AppTheme, AppThemeData } from '../../src/shared/app_types';
+import type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
 
 export { connect, type ConnectOptions, type FridayClient } from './connect';
-export type { AppApi, AppTheme, AppThemeData, AppLanguage };
+export type { AppApi, AppTheme, AppThemeColors, AppThemeData, AppLanguage };
 
 // The SDK is scoped to app-level data only.
 // This is a typed lazy view over the host preload globals.
