@@ -19,6 +19,7 @@ globalThis.app = {
 globalThis.agent = {
 	getWorkspaceLocation: async () => '/tmp/friday-workspace',
 	listWorkspaceFiles: async () => [{ name: 'USER.md', path: 'USER.md', type: 'file' }],
+	readWorkspaceFile: async (filePath) => `content:${filePath}`,
 };
 
 assert.equal(isFriday(), true);
@@ -29,6 +30,7 @@ assert.deepEqual(await app.getThemeData(), {
 });
 assert.equal(await agent.getWorkspaceLocation(), '/tmp/friday-workspace');
 assert.deepEqual(await agent.listWorkspaceFiles(), [{ name: 'USER.md', path: 'USER.md', type: 'file' }]);
+assert.equal(await agent.readWorkspaceFile('USER.md'), 'content:USER.md');
 
 // --- remote mode: bound to the app API server --------------------------------
 
@@ -61,6 +63,8 @@ const server = createServer(async (req, res) => {
 					? '/tmp/friday-workspace'
 					: channel === 'agent:workspace:files:list'
 						? [{ name: 'USER.md', path: 'USER.md', type: 'file' }]
+						: channel === 'agent:workspace:file:read'
+							? `content:${args[0]}`
 						: (args[0] ?? null),
 		})
 	);
@@ -75,11 +79,13 @@ assert.equal(await friday.agent.getWorkspaceLocation(), '/tmp/friday-workspace')
 assert.deepEqual(await friday.agent.listWorkspaceFiles(), [
 	{ name: 'USER.md', path: 'USER.md', type: 'file' },
 ]);
+assert.equal(await friday.agent.readWorkspaceFile('USER.md'), 'content:USER.md');
 
 assert.deepEqual(calls.map((call) => call.channel), [
 	'app:get-theme-data',
 	'agent:workspace:location:get',
 	'agent:workspace:files:list',
+	'agent:workspace:file:read',
 ]);
 
 // events reach subscribers over the stream

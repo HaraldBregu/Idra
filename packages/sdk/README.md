@@ -32,6 +32,7 @@ await friday.app.setTheme('dark');
 
 const workspace = await friday.agent.getWorkspaceLocation();
 const files = await friday.agent.listWorkspaceFiles();
+const content = await friday.agent.readWorkspaceFile('USER.md');
 ```
 
 Streaming callbacks (for `app` events) use the SSE stream opened on first use; call
@@ -49,12 +50,13 @@ await app.setTheme(themeData.themeMode === 'dark' ? 'light' : 'dark');
 
 const workspace = await agent.getWorkspaceLocation();
 const files = await agent.listWorkspaceFiles();
+const content = await agent.readWorkspaceFile('USER.md');
 ```
 
 ## What's available
 
 - `app`: app data + settings APIs exposed by preload (`setTheme`, `getThemeData`, `getLanguage`, etc.)
-- `agent`: agent APIs exposed by preload, including `getWorkspaceLocation` and `listWorkspaceFiles`.
+- `agent`: agent APIs exposed by preload, including `getWorkspaceLocation`, `listWorkspaceFiles`, and `readWorkspaceFile`.
 - `connect()`: remote client for the app API and workspace agent APIs.
 - `isFriday()`: host check for in-app mode.
 - `ping()`: validate API reachability in remote mode.
