@@ -6,8 +6,8 @@ import { isExtensionManifest } from './extension_manifest_validate';
 import { isExtensionEntry } from './extension_entry_validate';
 import type { ExtensionManifest } from './extension_types';
 
-function readPackageManifestFromFridayMetadata(id: string, appLocation?: string): ExtensionManifest | null {
-	const file = path.join(extensionsRoot(appLocation), id, 'package.json');
+function readPackageManifestFromFridayMetadata(directory: string): ExtensionManifest | null {
+	const file = path.join(directory, 'package.json');
 	if (!existsSync(file)) return null;
 
 	try {
@@ -90,5 +90,19 @@ export function readExtensionManifest(id: string, appLocation?: string): Extensi
 		}
 	}
 
-	return readPackageManifestFromFridayMetadata(id, appLocation);
+	return readPackageManifestFromFridayMetadata(extensionsRoot(appLocation));
+}
+
+export function readExtensionManifestFromDirectory(directory: string): ExtensionManifest | null {
+	const file = path.join(directory, 'manifest.json');
+	if (existsSync(file)) {
+		try {
+			const manifest = JSON.parse(readFileSync(file, 'utf8')) as unknown;
+			return isExtensionManifest(manifest) ? manifest : null;
+		} catch {
+			return null;
+		}
+	}
+
+	return readPackageManifestFromFridayMetadata(directory);
 }
