@@ -104,10 +104,7 @@ export function getMediaModel(kind: AgentMediaModelKind): AgentMediaModelSetting
 	return store.get(`${kind}_model`);
 }
 
-export function setMediaModel(
-	kind: AgentMediaModelKind,
-	settings: AgentMediaModelSettings
-): void {
+export function setMediaModel(kind: AgentMediaModelKind, settings: AgentMediaModelSettings): void {
 	store.set(`${kind}_model`, settings);
 }
 
@@ -163,11 +160,7 @@ export function setDirectoryPermissions(directories: DirectoryPermissions): Perm
 	return getPermissions();
 }
 
-export function addPermissionRule(
-	toolName: string,
-	bucket: PermissionBucket,
-	rule: string
-): void {
+export function addPermissionRule(toolName: string, bucket: PermissionBucket, rule: string): void {
 	const permission = getToolPermission(toolName);
 	if (permission[bucket].includes(rule)) return;
 	setToolPermission(toolName, {

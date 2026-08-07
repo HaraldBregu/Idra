@@ -167,7 +167,10 @@ export const models: ModelsApi = {
 			return typedInvokeUnwrap(SttChannels.transcribe, normalizeSttTranscriptionRequest(request));
 		},
 		startRealtime: (request) => {
-			return typedInvokeUnwrap(SttChannels.startRealtime, normalizeSttRealtimeStartRequest(request));
+			return typedInvokeUnwrap(
+				SttChannels.startRealtime,
+				normalizeSttRealtimeStartRequest(request)
+			);
 		},
 		appendRealtimeAudio: (sessionId, audio) => {
 			if (!isSttRealtimeSessionId(sessionId)) {

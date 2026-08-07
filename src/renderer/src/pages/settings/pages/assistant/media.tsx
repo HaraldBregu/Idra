@@ -24,7 +24,10 @@ interface MediaModelApi {
 
 interface AgentMediaModelConfigurationProps {
 	readonly api: MediaModelApi;
-	readonly capability: Extract<ModelCapability, 'text-to-image' | 'text-to-audio' | 'text-to-video'>;
+	readonly capability: Extract<
+		ModelCapability,
+		'text-to-image' | 'text-to-audio' | 'text-to-video'
+	>;
 	readonly idPrefix: string;
 	readonly title: ReactNode;
 	readonly description: ReactNode;
