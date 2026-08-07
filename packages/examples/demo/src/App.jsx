@@ -96,7 +96,6 @@ export default function App() {
 		};
 	}, []);
 
-	if (!isFriday()) {
 	return (
 		<main className={cn('app-demo', theme.isDark ? 'dark-mode' : 'light-mode')}>
 			<div className="flex h-full items-center justify-center p-8">
