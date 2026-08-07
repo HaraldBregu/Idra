@@ -22,13 +22,14 @@
           "language": {
             "type": "string"
           },
-          "prompt": {
-            "type": "string"
+          "smart_format": {
+            "type": "boolean"
           },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "diarize": {
+            "type": "boolean"
+          },
+          "punctuate": {
+            "type": "boolean"
           }
         }
       }
@@ -49,13 +50,14 @@
           "language": {
             "type": "string"
           },
-          "prompt": {
-            "type": "string"
+          "smart_format": {
+            "type": "boolean"
           },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "diarize": {
+            "type": "boolean"
+          },
+          "punctuate": {
+            "type": "boolean"
           }
         }
       }
@@ -68,16 +70,11 @@
       "metadata": {
         "documentationUrl": "https://developers.deepgram.com/reference",
         "inputs": {
-          "voice": {
+          "encoding": {
             "type": "string"
           },
-          "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
-          },
-          "outputFormat": {
-            "type": "string"
+          "sample_rate": {
+            "type": "integer"
           }
         }
       }
