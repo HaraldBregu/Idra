@@ -23,7 +23,9 @@ export function createElevenLabsMusicAdapter(spec: MusicProviderSpec): MusicAdap
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(
-						soundEffects ? { text: request.prompt } : { prompt: request.prompt }
+						soundEffects
+							? { text: request.prompt, ...request.options }
+							: { prompt: request.prompt, ...request.options }
 					),
 					signal: request.signal,
 				}

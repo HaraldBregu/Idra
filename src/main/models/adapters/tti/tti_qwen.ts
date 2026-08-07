@@ -28,6 +28,7 @@ export function createQwenImageAdapter(spec: ImageProviderSpec): ImageAdapter {
 					body: JSON.stringify({
 						model: request.modelId,
 						input: { messages: [{ role: 'user', content: [{ text: request.prompt }] }] },
+						...(request.options ? { parameters: request.options } : {}),
 					}),
 					signal: request.signal,
 				}

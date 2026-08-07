@@ -13,6 +13,11 @@ export function createStabilityMusicAdapter(spec: MusicProviderSpec): MusicAdapt
 			const form = new FormData();
 			form.set('prompt', request.prompt);
 			form.set('output_format', 'mp3');
+			for (const [key, value] of Object.entries(request.options ?? {})) {
+				if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+					form.set(key, String(value));
+				}
+			}
 			return requestAudio(spec.name, `${baseURL}/audio/stable-audio-2/text-to-audio`, {
 				method: 'POST',
 				headers: { Authorization: `Bearer ${spec.apiKey}`, Accept: 'audio/*' },

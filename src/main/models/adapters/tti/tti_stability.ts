@@ -19,6 +19,11 @@ export function createStabilityImageAdapter(spec: ImageProviderSpec): ImageAdapt
 			const endpoint = STABILITY_ENDPOINTS[request.modelId] ?? request.modelId;
 			const form = new FormData();
 			form.set('prompt', request.prompt);
+			for (const [key, value] of Object.entries(request.options ?? {})) {
+				if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+					form.set(key, String(value));
+				}
+			}
 			const response = await requestJson<StabilityResponse>(
 				spec.name,
 				`${baseURL}/stable-image/generate/${endpoint}`,

@@ -28,7 +28,10 @@ export function createGoogleVideoAdapter(spec: VideoProviderSpec): VideoAdapter 
 				{
 					method: 'POST',
 					headers,
-					body: JSON.stringify({ instances: [{ prompt: request.prompt }] }),
+					body: JSON.stringify({
+						instances: [{ prompt: request.prompt }],
+						...(request.options ? { parameters: request.options } : {}),
+					}),
 					signal: request.signal,
 				}
 			);

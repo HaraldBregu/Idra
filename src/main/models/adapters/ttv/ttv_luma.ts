@@ -21,7 +21,7 @@ export function createLumaVideoAdapter(spec: VideoProviderSpec): VideoAdapter {
 			const submitted = await requestJson<LumaGeneration>(spec.name, `${baseURL}/generations`, {
 				method: 'POST',
 				headers,
-				body: JSON.stringify({ prompt: request.prompt, model: request.modelId }),
+				body: JSON.stringify({ prompt: request.prompt, model: request.modelId, ...request.options }),
 				signal: request.signal,
 			});
 			if (!submitted.id) {

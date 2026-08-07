@@ -31,6 +31,7 @@ export function createRunwayVideoAdapter(spec: VideoProviderSpec): VideoAdapter 
 					promptText: request.prompt,
 					ratio: '1280:720',
 					duration: 5,
+					...request.options,
 				}),
 				signal: request.signal,
 			});

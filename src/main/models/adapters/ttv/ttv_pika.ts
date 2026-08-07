@@ -19,7 +19,7 @@ export function createPikaVideoAdapter(spec: VideoProviderSpec): VideoAdapter {
 			const response = await requestJson<PikaResponse>(spec.name, `${baseURL}/${endpoint}`, {
 				method: 'POST',
 				headers: { Authorization: `Key ${spec.apiKey}`, 'Content-Type': 'application/json' },
-				body: JSON.stringify({ prompt: request.prompt }),
+				body: JSON.stringify({ prompt: request.prompt, ...request.options }),
 				signal: request.signal,
 			});
 			if (!response.video?.url) {

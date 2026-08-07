@@ -14,7 +14,12 @@ export function createXaiImageAdapter(spec: ImageProviderSpec): ImageAdapter {
 			let response: OpenAI.Images.ImagesResponse;
 			try {
 				response = await client.images.generate(
-					{ model: request.modelId, prompt: request.prompt, response_format: 'b64_json' },
+					{
+						model: request.modelId,
+						prompt: request.prompt,
+						response_format: 'b64_json',
+						...request.options,
+					},
 					{ signal: request.signal }
 				);
 			} catch (error) {

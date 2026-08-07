@@ -19,13 +19,15 @@ export function createIdeogramImageAdapter(spec: ImageProviderSpec): ImageAdapte
 				? await requestJson<IdeogramResponse>(spec.name, `${baseURL}/generate`, {
 						method: 'POST',
 						headers,
-						body: JSON.stringify({ image_request: { prompt: request.prompt, model: legacyModel } }),
+						body: JSON.stringify({
+							image_request: { prompt: request.prompt, model: legacyModel, ...request.options },
+						}),
 						signal: request.signal,
 					})
 				: await requestJson<IdeogramResponse>(spec.name, `${baseURL}/v1/ideogram-v3/generate`, {
 						method: 'POST',
 						headers,
-						body: JSON.stringify({ prompt: request.prompt }),
+						body: JSON.stringify({ prompt: request.prompt, ...request.options }),
 						signal: request.signal,
 					});
 			const url = response.data?.[0]?.url;

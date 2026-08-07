@@ -29,6 +29,7 @@ export function createQwenVideoAdapter(spec: VideoProviderSpec): VideoAdapter {
 					body: JSON.stringify({
 						model: request.modelId,
 						input: { prompt: request.prompt },
+						...(request.options ? { parameters: request.options } : {}),
 					}),
 					signal: request.signal,
 				}

@@ -23,7 +23,7 @@ export function createBflImageAdapter(spec: ImageProviderSpec): ImageAdapter {
 			const submitted = await requestJson<BflSubmitResponse>(spec.name, `${baseURL}/${endpoint}`, {
 				method: 'POST',
 				headers,
-				body: JSON.stringify({ prompt: request.prompt }),
+				body: JSON.stringify({ prompt: request.prompt, ...request.options }),
 				signal: request.signal,
 			});
 			const pollingUrl =

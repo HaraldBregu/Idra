@@ -26,7 +26,10 @@ export function createGoogleImageAdapter(spec: ImageProviderSpec): ImageAdapter 
 					headers: { 'x-goog-api-key': spec.apiKey, 'Content-Type': 'application/json' },
 					body: JSON.stringify({
 						contents: [{ parts: [{ text: request.prompt }] }],
-						generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
+						generationConfig: {
+							responseModalities: ['TEXT', 'IMAGE'],
+							...(request.options ? { imageConfig: request.options } : {}),
+						},
 					}),
 					signal: request.signal,
 				}

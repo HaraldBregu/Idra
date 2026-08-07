@@ -24,7 +24,7 @@ export function createLumaImageAdapter(spec: ImageProviderSpec): ImageAdapter {
 				{
 					method: 'POST',
 					headers,
-					body: JSON.stringify({ prompt: request.prompt, model: request.modelId }),
+					body: JSON.stringify({ prompt: request.prompt, model: request.modelId, ...request.options }),
 					signal: request.signal,
 				}
 			);
