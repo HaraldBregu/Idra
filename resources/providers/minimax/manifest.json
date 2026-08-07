@@ -12,7 +12,7 @@
       "type": "large-language-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationUrl": "https://platform.minimax.io/docs/api-reference/text-openai-api",
         "documentationStatus": "verified",
         "inputs": {
           "max_tokens": {
@@ -30,8 +30,8 @@
           "stop_sequences": {
             "type": "array"
           },
-          "thinking": {
-            "type": "object"
+          "reasoning_split": {
+            "type": "boolean"
           },
           "tools": {
             "type": "array"
@@ -48,7 +48,7 @@
       "type": "large-language-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationUrl": "https://platform.minimax.io/docs/api-reference/text-openai-api",
         "documentationStatus": "verified",
         "inputs": {
           "max_tokens": {
@@ -66,8 +66,8 @@
           "stop_sequences": {
             "type": "array"
           },
-          "thinking": {
-            "type": "object"
+          "reasoning_split": {
+            "type": "boolean"
           },
           "tools": {
             "type": "array"
@@ -297,4 +297,3 @@
     }
   ]
 }
-
