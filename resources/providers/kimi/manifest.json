@@ -1,40 +1,136 @@
 {
-	"providerId": "kimi",
-	"providerName": "Moonshot AI / Kimi",
-	"apiKeyUrl": "https://platform.moonshot.ai/console/api-keys",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/kimi-color.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/kimi-color.png",
-	"services": [
-		{
-			"id": "kimi-k3",
-			"name": "Kimi K3",
-			"type": "large-language-model",
-			"url": "https://api.moonshot.ai/v1"
-		},
-		{
-			"id": "kimi-k2.7-code",
-			"name": "Kimi K2.7 Code",
-			"type": "large-language-model",
-			"url": "https://api.moonshot.ai/v1"
-		},
-		{
-			"id": "kimi-k2.7-code-highspeed",
-			"name": "Kimi K2.7 Code Highspeed",
-			"type": "large-language-model",
-			"url": "https://api.moonshot.ai/v1"
-		},
-		{
-			"id": "kimi-k2.6",
-			"name": "Kimi K2.6",
-			"type": "large-language-model",
-			"url": "https://api.moonshot.ai/v1"
-		},
-		{
-			"id": "kimi-k2.5",
-			"name": "Kimi K2.5",
-			"type": "large-language-model",
-			"url": "https://api.moonshot.ai/v1"
-		}
-	]
+  "providerId": "kimi",
+  "providerName": "Moonshot AI / Kimi",
+  "apiKeyUrl": "https://platform.moonshot.ai/console/api-keys",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/png_dark/kimi-color.png",
+  "icon_light_url": "/images/fallback_lobehub/png_light/kimi-color.png",
+  "services": [
+    {
+      "id": "kimi-k3",
+      "name": "Kimi K3",
+      "type": "large-language-model",
+      "url": "https://api.moonshot.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.7-code",
+      "name": "Kimi K2.7 Code",
+      "type": "large-language-model",
+      "url": "https://api.moonshot.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.7-code-highspeed",
+      "name": "Kimi K2.7 Code Highspeed",
+      "type": "large-language-model",
+      "url": "https://api.moonshot.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.6",
+      "name": "Kimi K2.6",
+      "type": "large-language-model",
+      "url": "https://api.moonshot.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.5",
+      "name": "Kimi K2.5",
+      "type": "large-language-model",
+      "url": "https://api.moonshot.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    }
+  ]
 }
+
