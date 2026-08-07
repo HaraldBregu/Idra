@@ -29,11 +29,6 @@ interface SidebarItemProps {
   onClick: () => void
 }
 
-const primaryItems: Array<{ id: ViewId; label: string; icon: SidebarItemProps["icon"] }> = [
-  { id: "all", label: "All notes", icon: FileText },
-  { id: "favorites", label: "Favorites", icon: Star },
-]
-
 function SidebarItem({ active, count, icon: Icon, label, onClick }: SidebarItemProps) {
   return (
     <button
@@ -52,6 +47,44 @@ function SidebarItem({ active, count, icon: Icon, label, onClick }: SidebarItemP
         {count}
       </span>
     </button>
+  )
+}
+
+function WorkspaceTree({
+  expanded,
+  files,
+  loading,
+  error,
+  onSelect,
+  onToggle,
+  selectedPath,
+}: {
+  expanded: Set<string>
+  files: WorkspaceTreeEntry[]
+  loading: boolean
+  error: string
+  onSelect: (entry: WorkspaceTreeEntry) => void
+  onToggle: (path: string) => void
+  selectedPath: string | null
+}) {
+  if (loading) return <div className="px-8 py-2 text-[12px] text-sidebar-muted">Loading workspace...</div>
+  if (error) return <div className="px-8 py-2 text-[12px] leading-5 text-sidebar-muted">{error}</div>
+  if (files.length === 0) return <div className="px-8 py-2 text-[12px] text-sidebar-muted">No files</div>
+
+  return (
+    <ul className="mt-1 space-y-0.5 border-l border-sidebar-border/70 pl-2 ml-4">
+      {files.map((entry) => (
+        <WorkspaceTreeItem
+          key={entry.path}
+          depth={0}
+          entry={entry}
+          expanded={expanded}
+          onToggle={onToggle}
+          onSelect={onSelect}
+          selectedPath={selectedPath}
+        />
+      ))}
+    </ul>
   )
 }
 
@@ -198,15 +231,29 @@ export function AppSidebar({
 
       <nav className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 scrollbar-subtle" aria-label="Notes navigation">
         <div className="space-y-0.5">
-          {primaryItems.map((item) => (
-            <SidebarItem
-              key={item.id}
-              {...item}
-              active={activeView === item.id}
-              count={counts[item.id]}
-              onClick={() => onViewChange(item.id)}
-            />
-          ))}
+          <SidebarItem
+            active={activeView === "all"}
+            count={counts.all}
+            icon={FileText}
+            label="All notes"
+            onClick={() => onViewChange("all")}
+          />
+          <WorkspaceTree
+            expanded={expanded}
+            files={workspaceFiles}
+            loading={workspaceLoading}
+            error={workspaceError}
+            onToggle={toggleDirectory}
+            onSelect={onWorkspaceSelect}
+            selectedPath={selectedWorkspacePath}
+          />
+          <SidebarItem
+            active={activeView === "favorites"}
+            count={counts.favorites}
+            icon={Star}
+            label="Favorites"
+            onClick={() => onViewChange("favorites")}
+          />
           <SidebarItem
             active={activeView === "search"}
             count={counts.all}
@@ -215,31 +262,6 @@ export function AppSidebar({
             onClick={() => onViewChange("search")}
           />
         </div>
-
-        <div className="mb-2 mt-7 flex items-center justify-between px-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sidebar-muted">Workspace</p>
-        </div>
-        {workspaceLoading ? (
-          <div className="px-3 py-2 text-[12px] text-sidebar-muted">Loading workspace...</div>
-        ) : workspaceError ? (
-          <div className="px-3 py-2 text-[12px] leading-5 text-sidebar-muted">{workspaceError}</div>
-        ) : workspaceFiles.length === 0 ? (
-          <div className="px-3 py-2 text-[12px] text-sidebar-muted">No files</div>
-        ) : (
-          <ul className="space-y-0.5">
-            {workspaceFiles.map((entry) => (
-              <WorkspaceTreeItem
-                key={entry.path}
-                depth={0}
-                entry={entry}
-                expanded={expanded}
-                onToggle={toggleDirectory}
-                onSelect={onWorkspaceSelect}
-                selectedPath={selectedWorkspacePath}
-              />
-            ))}
-          </ul>
-        )}
       </nav>
 
       <div className="p-3 pt-0">
