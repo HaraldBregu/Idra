@@ -348,6 +348,11 @@ export interface AppApi {
 	setTheme: (theme: AppTheme) => Promise<void>;
 	getTheme: () => Promise<AppTheme>;
 	getThemeData: () => Promise<AppThemeData>;
+	/**
+	 * Fires when theme mode or resolved dark-mode state changes.
+	 * Returns a cleanup function to remove the listener.
+	 */
+	onThemeModeChanged: (callback: (theme: AppThemeData) => void) => () => void;
 	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
 	setMicrophoneEnabled: (enabled: boolean) => Promise<MicrophonePermissionSettings>;
 	requestMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
