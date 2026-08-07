@@ -15,10 +15,6 @@ export type Extension = ExtensionManifest & {
 	id: string;
 };
 
-export type ExtensionSettings = {
-	enabled: boolean;
-};
-
 export interface ExtensionImportSkipped {
 	name: string;
 	sourcePath: string;
