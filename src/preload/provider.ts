@@ -3,6 +3,8 @@ import { ProviderStoreChannels } from '../shared/ipc_channels_definitions';
 import type { ProviderApi } from './index.d';
 import type { StoredProvider as Provider, StoredProviderKind } from '../shared/provider_types';
 import type { PublicProvider } from '../shared/provider_types';
+import type { StoredBotProvider } from '../shared/channels_types';
+type ProviderStoreRecord = Provider | StoredBotProvider;
 
 /** Unique providers from catalog entries, overlaid with stored settings data. */
 async function uniqueProvidersWithStored(
@@ -23,12 +25,12 @@ async function uniqueProvidersWithStored(
 
 export const provider: ProviderApi = {
 	get: (id: string): Promise<Provider | undefined> => {
-		return typedInvokeUnwrap(ProviderStoreChannels.get, id);
+	return typedInvokeUnwrap(ProviderStoreChannels.get, id);
 	},
-	set: (provider: Provider, kind?: StoredProviderKind): Promise<Provider> => {
+	set: (provider: ProviderStoreRecord, kind?: StoredProviderKind): Promise<ProviderStoreRecord> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.set, provider, kind);
 	},
-	list: (): Promise<Provider[]> => {
+	list: (): Promise<ProviderStoreRecord[]> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.list);
 	},
 	getModelProviders: async (): Promise<PublicProvider[]> => {
