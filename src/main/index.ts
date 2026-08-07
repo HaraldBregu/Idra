@@ -116,6 +116,8 @@ const trayManager = new Tray({
 		app.quit();
 	},
 	isAppVisible: () => mainWindow.isVisible(),
+	getExtensions: () => listExtensions(),
+	onOpenExtension: (extension) => loadExtension(windowFactory, extension),
 });
 
 const menuManager = new Menu({
@@ -139,7 +141,10 @@ app.whenReady().then(async () => {
 	setupMediaPermissionHandlers();
 	ensureExtensions();
 	const stopWatchingExtensions = watchExtensions(
-		() => menuManager.create(),
+		() => {
+			menuManager.create();
+			trayManager.updateContextMenu();
+		},
 		(error) => logger.error('Extensions', 'Extension watcher failed', error)
 	);
 	app.once('before-quit', () => {
