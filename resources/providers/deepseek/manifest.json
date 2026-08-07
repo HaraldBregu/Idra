@@ -16,7 +16,17 @@
         "documentationStatus": "verified",
         "inputs": {
           "thinking": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["enabled", "disabled"]
+              }
+            }
+          },
+          "reasoning_effort": {
+            "type": "string",
+            "enum": ["high", "max"]
           },
           "max_tokens": {
             "type": "integer",
@@ -77,7 +87,17 @@
         "documentationStatus": "verified",
         "inputs": {
           "thinking": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["enabled", "disabled"]
+              }
+            }
+          },
+          "reasoning_effort": {
+            "type": "string",
+            "enum": ["high", "max"]
           },
           "max_tokens": {
             "type": "integer",
@@ -130,4 +150,3 @@
     }
   ]
 }
-
