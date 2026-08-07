@@ -12,21 +12,53 @@
       "type": "large-language-model",
       "url": "https://api.z.ai/api/paas/v4",
       "metadata": {
-        "documentationUrl": "https://docs.z.ai/api-reference/",
+        "documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
             "type": "number",
             "minimum": 0,
-            "maximum": 2
-          },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
             "maximum": 1
           },
-          "maxTokens": {
+          "top_p": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 1
+          },
+          "max_tokens": {
             "type": "integer",
-            "minimum": 1
+            "maximum": 131072
+          },
+          "thinking": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "disabled"
+            ]
+          },
+          "stop": {
+            "type": "array"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "do_sample": {
+            "type": "boolean"
+          },
+          "repetition_penalty": {
+            "type": "number"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "user_id": {
+            "type": "string"
           }
         }
       }
@@ -37,21 +69,53 @@
       "type": "large-language-model",
       "url": "https://api.z.ai/api/paas/v4",
       "metadata": {
-        "documentationUrl": "https://docs.z.ai/api-reference/",
+        "documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
             "type": "number",
             "minimum": 0,
-            "maximum": 2
-          },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
             "maximum": 1
           },
-          "maxTokens": {
+          "top_p": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 1
+          },
+          "max_tokens": {
             "type": "integer",
-            "minimum": 1
+            "maximum": 131072
+          },
+          "thinking": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "disabled"
+            ]
+          },
+          "stop": {
+            "type": "array"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "do_sample": {
+            "type": "boolean"
+          },
+          "repetition_penalty": {
+            "type": "number"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "user_id": {
+            "type": "string"
           }
         }
       }
@@ -62,21 +126,53 @@
       "type": "large-language-model",
       "url": "https://api.z.ai/api/paas/v4",
       "metadata": {
-        "documentationUrl": "https://docs.z.ai/api-reference/",
+        "documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
             "type": "number",
             "minimum": 0,
-            "maximum": 2
-          },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
             "maximum": 1
           },
-          "maxTokens": {
+          "top_p": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 1
+          },
+          "max_tokens": {
             "type": "integer",
-            "minimum": 1
+            "maximum": 131072
+          },
+          "thinking": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "disabled"
+            ]
+          },
+          "stop": {
+            "type": "array"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "do_sample": {
+            "type": "boolean"
+          },
+          "repetition_penalty": {
+            "type": "number"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "user_id": {
+            "type": "string"
           }
         }
       }
