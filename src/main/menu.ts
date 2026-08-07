@@ -30,6 +30,15 @@ export class Menu {
 		const isMac = process.platform === 'darwin';
 		const m = loadTranslations(this.currentLanguage, 'menu');
 
+		const extensions = this.callbacks.getExtensions();
+		const extensionSubmenu =
+			extensions.length > 0
+				? extensions.map((extension) => ({
+						label: extension.title,
+						click: (): void => this.callbacks.onOpenExtension(extension),
+					}))
+				: [{ label: m.noExtensions || 'No extensions', enabled: false }];
+
 		const switchLanguage = (lng: string): void => {
 			this.currentLanguage = lng;
 			this.buildMenu();
@@ -91,10 +100,7 @@ export class Menu {
 			},
 			{
 				label: m.extensions,
-				submenu: this.callbacks.getExtensions().map((extension) => ({
-					label: extension.title,
-					click: (): void => this.callbacks.onOpenExtension(extension),
-				})),
+				submenu: extensionSubmenu,
 			},
 			{
 				label: m.window,
