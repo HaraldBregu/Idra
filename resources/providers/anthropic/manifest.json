@@ -12,8 +12,47 @@
       "type": "large-language-model",
       "url": "https://api.anthropic.com",
       "metadata": {
-        "documentationUrl": "x",
-        "inputs": {}
+        "documentationUrl": "https://platform.claude.com/docs/en/api/messages",
+        "documentationStatus": "verified",
+        "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "required": true
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "thinking": {
+            "type": "object"
+          },
+          "output_config": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
       }
     },
     {
@@ -22,8 +61,47 @@
       "type": "large-language-model",
       "url": "https://api.anthropic.com",
       "metadata": {
-        "documentationUrl": "x",
-        "inputs": {}
+        "documentationUrl": "https://platform.claude.com/docs/en/api/messages",
+        "documentationStatus": "verified",
+        "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "required": true
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "thinking": {
+            "type": "object"
+          },
+          "output_config": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
       }
     },
     {
@@ -32,8 +110,47 @@
       "type": "large-language-model",
       "url": "https://api.anthropic.com",
       "metadata": {
-        "documentationUrl": "x",
-        "inputs": {}
+        "documentationUrl": "https://platform.claude.com/docs/en/api/messages",
+        "documentationStatus": "verified",
+        "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "required": true
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "thinking": {
+            "type": "object"
+          },
+          "output_config": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
       }
     },
     {
@@ -42,8 +159,47 @@
       "type": "large-language-model",
       "url": "https://api.anthropic.com",
       "metadata": {
-        "documentationUrl": "x",
-        "inputs": {}
+        "documentationUrl": "https://platform.claude.com/docs/en/api/messages",
+        "documentationStatus": "verified",
+        "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "required": true
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "thinking": {
+            "type": "object"
+          },
+          "output_config": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
       }
     },
     {
@@ -52,8 +208,47 @@
       "type": "large-language-model",
       "url": "https://api.anthropic.com",
       "metadata": {
-        "documentationUrl": "x",
-        "inputs": {}
+        "documentationUrl": "https://platform.claude.com/docs/en/api/messages",
+        "documentationStatus": "verified",
+        "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "required": true
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "thinking": {
+            "type": "object"
+          },
+          "output_config": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
       }
     },
     {
@@ -62,8 +257,47 @@
       "type": "large-language-model",
       "url": "https://api.anthropic.com",
       "metadata": {
-        "documentationUrl": "x",
-        "inputs": {}
+        "documentationUrl": "https://platform.claude.com/docs/en/api/messages",
+        "documentationStatus": "verified",
+        "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "required": true
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "thinking": {
+            "type": "object"
+          },
+          "output_config": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
       }
     }
   ]
