@@ -13,14 +13,11 @@
       "url": "https://api.bfl.ai/v1",
       "metadata": {
         "documentationUrl": "https://docs.bfl.ai/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
-          "width": {
-            "type": "integer",
-            "minimum": 256
-          },
-          "height": {
-            "type": "integer",
-            "minimum": 256
+          "prompt": {
+            "type": "string",
+            "required": true
           },
           "aspect_ratio": {
             "type": "string"
@@ -34,6 +31,12 @@
               "jpeg",
               "png"
             ]
+          },
+          "safety_tolerance": {
+            "type": "integer"
+          },
+          "raw": {
+            "type": "boolean"
           }
         }
       }
@@ -45,14 +48,14 @@
       "url": "https://api.bfl.ai/v1",
       "metadata": {
         "documentationUrl": "https://docs.bfl.ai/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
-          "width": {
-            "type": "integer",
-            "minimum": 256
+          "prompt": {
+            "type": "string",
+            "required": true
           },
-          "height": {
-            "type": "integer",
-            "minimum": 256
+          "input_image": {
+            "type": "string"
           },
           "aspect_ratio": {
             "type": "string"
@@ -66,6 +69,9 @@
               "jpeg",
               "png"
             ]
+          },
+          "safety_tolerance": {
+            "type": "integer"
           }
         }
       }
@@ -77,14 +83,11 @@
       "url": "https://api.bfl.ai/v1",
       "metadata": {
         "documentationUrl": "https://docs.bfl.ai/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
-          "width": {
-            "type": "integer",
-            "minimum": 256
-          },
-          "height": {
-            "type": "integer",
-            "minimum": 256
+          "prompt": {
+            "type": "string",
+            "required": true
           },
           "aspect_ratio": {
             "type": "string"
@@ -98,6 +101,12 @@
               "jpeg",
               "png"
             ]
+          },
+          "raw": {
+            "type": "boolean"
+          },
+          "safety_tolerance": {
+            "type": "integer"
           }
         }
       }
