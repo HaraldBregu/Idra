@@ -47,10 +47,11 @@ async function loadLlmState(
 	t: (key: string) => string
 ): Promise<ModelConfigurationState> {
 	try {
-		const [storedProvider, storedModelId] = await Promise.all([
-			window.agent.getProvider(),
-			window.agent.getModelId(),
+		const [storedProviderId, storedModelId] = await Promise.all([
+			window.models.text.getProviderId(),
+			window.models.text.getModelId(),
 		]);
+		const storedProvider = storedProviderId ? getCatalogProviderById(storedProviderId) : undefined;
 		const availableProviders = mergeProviders(providerModelGroups('llm').map((group) => group.provider), storedProvider);
 		const modelGroups: ProviderModelGroup[] = [];
 		let firstModelError: unknown;
