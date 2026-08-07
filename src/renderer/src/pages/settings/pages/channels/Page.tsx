@@ -10,6 +10,7 @@ import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item'
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { cn } from '@/lib/utils';
 import type { CatalogService, PublicProvider } from '@shared/provider_types';
+import type { ChannelModelSelection, ChannelModelKind } from '@shared/channels_types';
 import { ModelProviderConfiguration } from '../../components/model-configuration';
 import {
 	firstErrorMessage,
@@ -46,11 +47,11 @@ function getCatalogProviderById(providerId: string): CatalogProvider | undefined
 async function loadLlmState(
 	t: (key: string) => string
 ): Promise<ModelConfigurationState> {
+	const kind: ChannelModelKind = 'llm';
 	try {
-		const [storedProviderId, storedModelId] = await Promise.all([
-			window.models.text.getProviderId(),
-			window.models.text.getModelId(),
-		]);
+		const selection: ChannelModelSelection = await window.app.getChannelsModelSelection(kind);
+		const storedProviderId = selection.providerId?.trim();
+		const storedModelId = selection.modelId?.trim();
 		const storedProvider = storedProviderId ? getCatalogProviderById(storedProviderId) : undefined;
 		const availableProviders = mergeProviders(providerModelGroups('llm').map((group) => group.provider), storedProvider);
 		const modelGroups: ProviderModelGroup[] = [];
@@ -104,9 +105,13 @@ function filterBatchSpeechModels(providerId: string, models: readonly Model[]): 
 async function loadSttState(
 	t: (key: string) => string
 ): Promise<ModelConfigurationState> {
+	const kind: ChannelModelKind = 'stt';
 	try {
-		const selection = await window.models.transcribe.getSelection('transcribe');
-		const availableProviders = mergeProviders(await window.models.transcribe.listProviders(), selection?.provider);
+		const selection = await window.app.getChannelsModelSelection(kind);
+		const storedProviderId = selection.providerId?.trim();
+		const storedModelId = selection.modelId?.trim();
+		const storedProvider = storedProviderId ? getCatalogProviderById(storedProviderId) : undefined;
+		const availableProviders = mergeProviders(await window.models.transcribe.listProviders(), storedProvider);
 		const modelGroups: ProviderModelGroup[] = [];
 		let firstModelError: unknown;
 
@@ -116,19 +121,18 @@ async function loadSttState(
 					provider.id,
 					await window.models.transcribe.listModels(provider.id)
 				);
-				const nextModels =
-					selection?.provider.id === provider.id && selection.model
-						? mergeModels(models, selection.model)
-						: models;
+				const selectedModel =
+					storedProviderId === provider.id ? models.find((model) => model.id === storedModelId) : undefined;
+				const nextModels = selectedModel ? mergeModels(models, selectedModel) : models;
 				if (nextModels.length > 0) modelGroups.push({ provider, models: nextModels });
 			} catch (error) {
 				firstModelError ??= error;
 			}
 		}
 
-		const preferredGroup = modelGroups.find((group) => group.provider.id === selection?.provider.id) ?? modelGroups[0];
+		const preferredGroup = modelGroups.find((group) => group.provider.id === storedProviderId) ?? modelGroups[0];
 		const preferredModel =
-			preferredGroup?.models.find((model) => model.id === selection?.model.id) ??
+			preferredGroup?.models.find((model) => model.id === storedModelId) ??
 			preferredGroup?.models[0];
 
 		return {
@@ -157,11 +161,11 @@ async function loadSttState(
 async function loadTtsState(
 	t: (key: string) => string
 ): Promise<ModelConfigurationState> {
+	const kind: ChannelModelKind = 'tts';
 	try {
-		const [storedProviderId, storedModelId] = await Promise.all([
-			window.models.voice.getProviderId(),
-			window.models.voice.getModelId(),
-		]);
+		const selection = await window.app.getChannelsModelSelection(kind);
+		const storedProviderId = selection.providerId?.trim();
+		const storedModelId = selection.modelId?.trim();
 		const storedProvider = storedProviderId ? getCatalogProviderById(storedProviderId) : undefined;
 		const availableProviders = mergeProviders(
 			providerModelGroups('text-to-speech').map((group) => group.provider),
@@ -272,8 +276,7 @@ const ChannelsPage: React.FC = () => {
 		}));
 
 		try {
-			await window.models.text.setProviderId(providerId);
-			await window.models.text.setModelId(model.id);
+			await window.app.setChannelsModelSelection('llm', providerId, model.id);
 			setLlmState((current) => ({ ...current, saving: false, saved: true }));
 		} catch (error) {
 			setLlmState((current) => ({
@@ -299,8 +302,7 @@ const ChannelsPage: React.FC = () => {
 		}));
 
 		try {
-			const didSave = await window.models.transcribe.saveSelection(group.provider.id, model.id, 'transcribe');
-			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
+			await window.app.setChannelsModelSelection('stt', group.provider.id, model.id);
 			setSttState((current) => ({ ...current, saving: false, saved: true }));
 		} catch (error) {
 			setSttState((current) => ({
@@ -326,8 +328,7 @@ const ChannelsPage: React.FC = () => {
 		}));
 
 		try {
-			await window.models.voice.setProviderId(group.provider.id);
-			await window.models.voice.setModelId(model.id);
+			await window.app.setChannelsModelSelection('tts', group.provider.id, model.id);
 			setTtsState((current) => ({ ...current, saving: false, saved: true }));
 		} catch (error) {
 			setTtsState((current) => ({
