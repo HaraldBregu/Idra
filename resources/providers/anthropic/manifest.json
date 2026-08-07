@@ -51,7 +51,7 @@
             "properties": {
               "effort": {
                 "type": "string",
-                "enum": ["low", "medium", "high", "max"]
+                "enum": ["low", "medium", "high", "xhigh", "max"]
               }
             }
           },
@@ -299,7 +299,7 @@
             "properties": {
               "effort": {
                 "type": "string",
-                "enum": ["low", "medium", "high", "xhigh", "max"]
+                "enum": ["low", "medium", "high", "max"]
               }
             }
           },
