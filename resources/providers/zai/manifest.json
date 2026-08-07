@@ -30,11 +30,16 @@
             "maximum": 131072
           },
           "thinking": {
-            "type": "string",
-            "enum": [
-              "enabled",
-              "disabled"
-            ]
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["enabled", "disabled"]
+              },
+              "clear_thinking": {
+                "type": "boolean"
+              }
+            }
           },
           "stop": {
             "type": "array"
@@ -87,11 +92,16 @@
             "maximum": 131072
           },
           "thinking": {
-            "type": "string",
-            "enum": [
-              "enabled",
-              "disabled"
-            ]
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["enabled", "disabled"]
+              },
+              "clear_thinking": {
+                "type": "boolean"
+              }
+            }
           },
           "stop": {
             "type": "array"
@@ -144,11 +154,16 @@
             "maximum": 131072
           },
           "thinking": {
-            "type": "string",
-            "enum": [
-              "enabled",
-              "disabled"
-            ]
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["enabled", "disabled"]
+              },
+              "clear_thinking": {
+                "type": "boolean"
+              }
+            }
           },
           "stop": {
             "type": "array"
@@ -179,4 +194,3 @@
     }
   ]
 }
-
