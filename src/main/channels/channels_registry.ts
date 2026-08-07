@@ -15,6 +15,8 @@ import type {
 	ChannelOutboundMessage,
 	ChannelStatusUpdate,
 } from './channels_types';
+import { toText } from '../models/transcribe';
+import { synthesize } from '../models/voice';
 
 // Fixed UUID so every channel message reuses the same agent session.
 const CHANNEL_SESSION_ID = '7c1f41d3-9b2a-4e8f-b5c6-2d0a8e4f6a91';
@@ -24,8 +26,14 @@ export interface ChannelRegistryDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
 	agentService?: Agent;
-	transcribeVoice?: (audio: SttAudioInput) => Promise<string>;
-	synthesizeVoice?: (text: string) => Promise<SpeechSynthesisResult>;
+	transcribeVoice?: (
+		audio: SttAudioInput,
+		options?: { providerId?: string; modelId?: string }
+	) => Promise<string>;
+	synthesizeVoice?: (
+		text: string,
+		options?: { providerId?: string; modelId?: string }
+	) => Promise<SpeechSynthesisResult>;
 }
 
 export interface ChannelRegistry {
@@ -41,15 +49,21 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 	const { logger, eventBus, agentService } = dependencies;
 	const transcribeVoice =
 		dependencies.transcribeVoice ??
-		(async (audio: SttAudioInput) => {
-			const { toText } = await import('../models/transcribe');
-			return toText({ audio });
+		(async (audio: SttAudioInput, options?: { providerId?: string; modelId?: string }) => {
+			return toText({
+				audio,
+				...(options?.providerId ? { providerId: options.providerId } : {}),
+				...(options?.modelId ? { modelId: options.modelId } : {}),
+			});
 		});
 	const synthesizeVoice =
 		dependencies.synthesizeVoice ??
-		(async (text: string) => {
-			const { synthesize } = await import('../models/voice');
-			return synthesize({ text });
+		(async (text: string, options?: { providerId?: string; modelId?: string }) => {
+			return synthesize({
+				text,
+				...(options?.providerId ? { providerId: options.providerId } : {}),
+				...(options?.modelId ? { modelId: options.modelId } : {}),
+			});
 		});
 	const adapters = new Map<ChannelType, ChannelAdapter>();
 	const statusCache = new Map<ChannelType, ChannelStatusEvent>();
@@ -109,7 +123,9 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			const text =
 				message.content.type === 'text'
 					? message.content.text
-					: await transcribeVoice(await loadChannelVoice(message.content.voice));
+					: await transcribeVoice(await loadChannelVoice(message.content.voice), {
+						...channelModelSelection(message.channel, 'stt'),
+					});
 			if (text.startsWith('/')) {
 				const command = text.split(/\s+/)[0].slice(1).split('@')[0].toLowerCase();
 				if (command === 'start') {
@@ -134,7 +150,9 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			});
 			if (message.content.type === 'voice') {
 				try {
-					const voice = await synthesizeVoice(response);
+					const voice = await synthesizeVoice(response, {
+						...channelModelSelection(message.channel, 'tts'),
+					});
 					await reply({
 						type: 'voice',
 						voice: {
@@ -225,4 +243,23 @@ function voiceFileName(mimeType: string): string {
 	if (mimeType.includes('mp4') || mimeType.includes('m4a')) return 'reply.m4a';
 	if (mimeType.includes('wav')) return 'reply.wav';
 	return 'reply.mp3';
+}
+
+function trimOrEmpty(value?: string): string {
+	return (value ?? '').trim();
+}
+
+function channelModelSelection(
+	channelId: ChannelType,
+	kind: 'stt' | 'tts'
+): { providerId?: string; modelId?: string } {
+	const credential = getChannelProvider(channelId);
+	if (!credential) return {};
+	const providerId =
+		kind === 'stt'
+			? trimOrEmpty(credential.sttProviderId)
+			: trimOrEmpty(credential.ttsProviderId);
+	const modelId = kind === 'stt' ? trimOrEmpty(credential.sttModelId) : trimOrEmpty(credential.ttsModelId);
+	if (!providerId) return {};
+	return { providerId, ...(modelId ? { modelId } : {}) };
 }
