@@ -1,28 +1,86 @@
 {
-	"providerId": "zai",
-	"providerName": "Z.ai / Zhipu AI",
-	"apiKeyUrl": "https://z.ai/manage-apikey/apikey-list",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/zai.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/zai.png",
-	"services": [
-		{
-			"id": "glm-5.1",
-			"name": "GLM-5.1",
-			"type": "large-language-model",
-			"url": "https://api.z.ai/api/paas/v4"
-		},
-		{
-			"id": "glm-5",
-			"name": "GLM-5",
-			"type": "large-language-model",
-			"url": "https://api.z.ai/api/paas/v4"
-		},
-		{
-			"id": "glm-5-turbo",
-			"name": "GLM-5 Turbo",
-			"type": "large-language-model",
-			"url": "https://api.z.ai/api/paas/v4"
-		}
-	]
+  "providerId": "zai",
+  "providerName": "Z.ai / Zhipu AI",
+  "apiKeyUrl": "https://z.ai/manage-apikey/apikey-list",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/png_dark/zai.png",
+  "icon_light_url": "/images/fallback_lobehub/png_light/zai.png",
+  "services": [
+    {
+      "id": "glm-5.1",
+      "name": "GLM-5.1",
+      "type": "large-language-model",
+      "url": "https://api.z.ai/api/paas/v4",
+      "metadata": {
+        "documentationUrl": "https://docs.z.ai/api-reference/",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "glm-5",
+      "name": "GLM-5",
+      "type": "large-language-model",
+      "url": "https://api.z.ai/api/paas/v4",
+      "metadata": {
+        "documentationUrl": "https://docs.z.ai/api-reference/",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "glm-5-turbo",
+      "name": "GLM-5 Turbo",
+      "type": "large-language-model",
+      "url": "https://api.z.ai/api/paas/v4",
+      "metadata": {
+        "documentationUrl": "https://docs.z.ai/api-reference/",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    }
+  ]
 }
+
