@@ -90,7 +90,7 @@ export function readExtensionManifest(id: string, appLocation?: string): Extensi
 		}
 	}
 
-	return readPackageManifestFromFridayMetadata(extensionsRoot(appLocation));
+	return readPackageManifestFromFridayMetadata(extensionsRoot(appLocation), id, appLocation);
 }
 
 export function readExtensionManifestFromDirectory(directory: string): ExtensionManifest | null {
