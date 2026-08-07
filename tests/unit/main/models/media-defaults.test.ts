@@ -48,8 +48,12 @@ beforeEach(() => {
 	getProviderId.mockImplementation((kind: string) => `${kind}-provider`);
 	getModelId.mockImplementation((kind: string) => `${kind}-model`);
 	resolveOptions.mockImplementation(
-		(_kind: string, _providerId: string, _modelId: string, overrides?: Record<string, unknown>) =>
-			({ stored: true, ...overrides })
+		(
+			_kind: string,
+			_providerId: string,
+			_modelId: string,
+			overrides?: Record<string, unknown>
+		) => ({ stored: true, ...overrides })
 	);
 	generateImage.mockResolvedValue({ base64: 'image', mimeType: 'image/png' });
 	generateVideo.mockResolvedValue({ base64: 'video', mimeType: 'video/mp4' });
@@ -59,12 +63,9 @@ beforeEach(() => {
 it('passes agent image defaults and request overrides to image generation', async () => {
 	await createImage({ prompt: 'cat', options: { imageSize: '2K' } });
 
-	expect(resolveOptions).toHaveBeenCalledWith(
-		'image',
-		'image-provider',
-		'image-model',
-		{ imageSize: '2K' }
-	);
+	expect(resolveOptions).toHaveBeenCalledWith('image', 'image-provider', 'image-model', {
+		imageSize: '2K',
+	});
 	expect(generateImage).toHaveBeenCalledWith(
 		expect.objectContaining({ options: { stored: true, imageSize: '2K' } })
 	);
@@ -73,12 +74,9 @@ it('passes agent image defaults and request overrides to image generation', asyn
 it('passes agent audio defaults and request overrides to sound generation', async () => {
 	await createSound({ prompt: 'rain', options: { duration_seconds: 10 } });
 
-	expect(resolveOptions).toHaveBeenCalledWith(
-		'sound',
-		'sound-provider',
-		'sound-model',
-		{ duration_seconds: 10 }
-	);
+	expect(resolveOptions).toHaveBeenCalledWith('sound', 'sound-provider', 'sound-model', {
+		duration_seconds: 10,
+	});
 	expect(generateMusic).toHaveBeenCalledWith(
 		expect.objectContaining({ options: { stored: true, duration_seconds: 10 } })
 	);
@@ -87,12 +85,9 @@ it('passes agent audio defaults and request overrides to sound generation', asyn
 it('passes agent video defaults and request overrides to video generation', async () => {
 	await createVideo({ prompt: 'sunrise', options: { duration: 8 } });
 
-	expect(resolveOptions).toHaveBeenCalledWith(
-		'video',
-		'video-provider',
-		'video-model',
-		{ duration: 8 }
-	);
+	expect(resolveOptions).toHaveBeenCalledWith('video', 'video-provider', 'video-model', {
+		duration: 8,
+	});
 	expect(generateVideo).toHaveBeenCalledWith(
 		expect.objectContaining({ options: { stored: true, duration: 8 } })
 	);
