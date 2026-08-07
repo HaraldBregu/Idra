@@ -256,6 +256,8 @@ export interface ModelsApi {
 	};
 	image: {
 		createImage: (request: ImageRequest) => Promise<ImageResult>;
+		getOptions: () => Promise<Record<string, unknown>>;
+		setOptions: (options: Record<string, unknown>) => Promise<Record<string, unknown>>;
 		getProviderId: () => Promise<string | undefined>;
 		setProviderId: (providerId: string) => Promise<void>;
 		getModelId: () => Promise<string | undefined>;
@@ -264,6 +266,8 @@ export interface ModelsApi {
 	sound: {
 		createSound: (request: SoundRequest) => Promise<SoundResult>;
 		listSounds: () => Promise<SoundFile[]>;
+		getOptions: () => Promise<Record<string, unknown>>;
+		setOptions: (options: Record<string, unknown>) => Promise<Record<string, unknown>>;
 		getProviderId: () => Promise<string | undefined>;
 		setProviderId: (providerId: string) => Promise<void>;
 		getModelId: () => Promise<string | undefined>;
@@ -298,6 +302,8 @@ export interface ModelsApi {
 	};
 	video: {
 		createVideo: (request: VideoRequest) => Promise<VideoResult>;
+		getOptions: () => Promise<Record<string, unknown>>;
+		setOptions: (options: Record<string, unknown>) => Promise<Record<string, unknown>>;
 		getProviderId: () => Promise<string | undefined>;
 		setProviderId: (providerId: string) => Promise<void>;
 		getModelId: () => Promise<string | undefined>;

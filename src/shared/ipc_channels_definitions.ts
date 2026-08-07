@@ -143,8 +143,10 @@ export const EmbeddingChannels = {
 
 export const ImageChannels = {
 	createImage: 'image:create-image',
+	getOptions: 'image:get-options',
 	getModelId: 'image:get-model-id',
 	getProviderId: 'image:get-provider-id',
+	setOptions: 'image:set-options',
 	setModelId: 'image:set-model-id',
 	setProviderId: 'image:set-provider-id',
 } as const;
@@ -152,8 +154,10 @@ export const ImageChannels = {
 export const SoundChannels = {
 	createSound: 'sound:create-sound',
 	listSounds: 'sound:list-sounds',
+	getOptions: 'sound:get-options',
 	getModelId: 'sound:get-model-id',
 	getProviderId: 'sound:get-provider-id',
+	setOptions: 'sound:set-options',
 	setModelId: 'sound:set-model-id',
 	setProviderId: 'sound:set-provider-id',
 } as const;
@@ -240,8 +244,10 @@ export const TextChannels = {
 
 export const VideoChannels = {
 	createVideo: 'video:create-video',
+	getOptions: 'video:get-options',
 	getModelId: 'video:get-model-id',
 	getProviderId: 'video:get-provider-id',
+	setOptions: 'video:set-options',
 	setModelId: 'video:set-model-id',
 	setProviderId: 'video:set-provider-id',
 } as const;

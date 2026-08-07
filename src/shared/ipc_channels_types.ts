@@ -539,6 +539,11 @@ export interface ImageInvokeChannelMap {
 		args: [modelId: string];
 		result: void;
 	};
+	[ImageChannels.getOptions]: { args: []; result: Record<string, unknown> };
+	[ImageChannels.setOptions]: {
+		args: [options: Record<string, unknown>];
+		result: Record<string, unknown>;
+	};
 }
 
 export interface SoundInvokeChannelMap {
@@ -566,6 +571,11 @@ export interface SoundInvokeChannelMap {
 		args: [modelId: string];
 		result: void;
 	};
+	[SoundChannels.getOptions]: { args: []; result: Record<string, unknown> };
+	[SoundChannels.setOptions]: {
+		args: [options: Record<string, unknown>];
+		result: Record<string, unknown>;
+	};
 }
 
 export interface VideoInvokeChannelMap {
@@ -588,6 +598,11 @@ export interface VideoInvokeChannelMap {
 	[VideoChannels.setModelId]: {
 		args: [modelId: string];
 		result: void;
+	};
+	[VideoChannels.getOptions]: { args: []; result: Record<string, unknown> };
+	[VideoChannels.setOptions]: {
+		args: [options: Record<string, unknown>];
+		result: Record<string, unknown>;
 	};
 }
 

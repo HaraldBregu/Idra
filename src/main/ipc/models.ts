@@ -11,7 +11,14 @@ import {
 	VideoChannels,
 } from '../../shared/ipc_channels_definitions';
 import { embedding, image, sound, text, video, voice } from '../models/index';
-import { getModelId, getProviderId, setModelId, setProviderId } from '../models/models_store';
+import {
+	getModelId,
+	getOptions,
+	getProviderId,
+	setModelId,
+	setOptions,
+	setProviderId,
+} from '../models/models_store';
 import {
 	appendRealtimeAudio,
 	cancelRealtime,
@@ -45,6 +52,11 @@ export class ModelsIpc implements IpcModule {
 		);
 		registerQuery(ImageChannels.getModelId, () => getModelId('image'));
 		registerCommand(ImageChannels.setModelId, (modelId) => setModelId('image', modelId));
+		registerQuery(ImageChannels.getOptions, () => getOptions('image'));
+		registerCommand(ImageChannels.setOptions, (options) => {
+			setOptions('image', options);
+			return getOptions('image');
+		});
 
 		registerCommand(SoundChannels.createSound, async (request) => {
 			const result = await sound.createSound(request);
@@ -58,6 +70,11 @@ export class ModelsIpc implements IpcModule {
 		);
 		registerQuery(SoundChannels.getModelId, () => getModelId('sound'));
 		registerCommand(SoundChannels.setModelId, (modelId) => setModelId('sound', modelId));
+		registerQuery(SoundChannels.getOptions, () => getOptions('sound'));
+		registerCommand(SoundChannels.setOptions, (options) => {
+			setOptions('sound', options);
+			return getOptions('sound');
+		});
 
 		registerCommand(TextChannels.generateText, (request) => text.generateText(request));
 		registerQuery(TextChannels.getProviderId, () => getProviderId('text'));
@@ -76,6 +93,11 @@ export class ModelsIpc implements IpcModule {
 		);
 		registerQuery(VideoChannels.getModelId, () => getModelId('video'));
 		registerCommand(VideoChannels.setModelId, (modelId) => setModelId('video', modelId));
+		registerQuery(VideoChannels.getOptions, () => getOptions('video'));
+		registerCommand(VideoChannels.setOptions, (options) => {
+			setOptions('video', options);
+			return getOptions('video');
+		});
 
 		registerCommand(SpeechChannels.synthesize, (request) => voice.synthesize(request));
 		registerQuery(SpeechChannels.getProviderId, () => getProviderId('voice'));
