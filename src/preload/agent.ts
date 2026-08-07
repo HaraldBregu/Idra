@@ -139,6 +139,9 @@ export const agent: AgentApi = {
 	getWorkspaceLocation: (): Promise<string> => {
 		return typedInvokeUnwrap(AgentChannels.getWorkspaceLocation);
 	},
+	listWorkspaceFiles: () => {
+		return typedInvokeUnwrap(AgentChannels.listWorkspaceFiles);
+	},
 	getProvider: (): Promise<PublicProvider | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.getProvider);
 	},

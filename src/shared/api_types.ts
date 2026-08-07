@@ -44,6 +44,7 @@ import type {
 	AgentSessionSummary,
 	AgentPermissionMode,
 	AgentToolPermissionDecision,
+	WorkspaceTreeEntry,
 } from './agent_types';
 import type { CatalogModel, ProviderModel } from './model_types';
 import type { ChannelModelKind, ChannelModelSelection, ChannelStatusEvent, ChannelType } from './channels_types';
@@ -109,6 +110,7 @@ export interface AgentApi {
 	clearMessages: (sessionId: string) => Promise<void>;
 	deleteSession: (sessionId: string) => Promise<void>;
 	getWorkspaceLocation: () => Promise<string>;
+	listWorkspaceFiles: () => Promise<WorkspaceTreeEntry[]>;
 	getProvider: () => Promise<PublicProvider | undefined>;
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;

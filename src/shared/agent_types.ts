@@ -41,6 +41,13 @@ export interface AgentInputFile {
 	data: string;
 }
 
+export interface WorkspaceTreeEntry {
+	name: string;
+	path: string;
+	type: 'file' | 'directory';
+	children?: WorkspaceTreeEntry[];
+}
+
 export interface AgentTokenUsage {
 	inputTokens?: number;
 	outputTokens?: number;
