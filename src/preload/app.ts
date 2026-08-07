@@ -2,7 +2,7 @@ import { webUtils } from 'electron';
 import { typedInvokeUnwrap, typedOn } from '../shared/ipc_types';
 import { AppChannels } from '../shared/ipc_channels_definitions';
 import type { AppApi } from './index.d';
-import type { ChannelStatusEvent, ChannelType } from '../shared';
+import type { ChannelModelKind, ChannelStatusEvent, ChannelType } from '../shared';
 import { optionalTrimmedString } from './normalize';
 
 export const app: AppApi = {
@@ -23,6 +23,19 @@ export const app: AppApi = {
 	},
 	channels: () => {
 		return typedInvokeUnwrap(AppChannels.channels);
+	},
+	getChannelsModelSelection: (kind: ChannelModelKind) => {
+		return typedInvokeUnwrap(AppChannels.getChannelModelSelection, kind);
+	},
+	setChannelsModelSelection: (kind: ChannelModelKind, providerId: string, modelId: string) => {
+		const normalizedProviderId = optionalTrimmedString(providerId);
+		const normalizedModelId = optionalTrimmedString(modelId);
+		return typedInvokeUnwrap(
+			AppChannels.setChannelModelSelection,
+			kind,
+			normalizedProviderId ?? '',
+			normalizedModelId ?? ''
+		);
 	},
 	onModelsChanged: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.modelsChanged, callback);
