@@ -14,14 +14,26 @@
       "metadata": {
         "documentationUrl": "https://docs.bfl.ai/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "width": {
+            "type": "integer",
+            "minimum": 256
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 256
+          },
+          "aspect_ratio": {
             "type": "string"
           },
           "seed": {
             "type": "integer"
           },
-          "negativePrompt": {
-            "type": "string"
+          "output_format": {
+            "type": "string",
+            "enum": [
+              "jpeg",
+              "png"
+            ]
           }
         }
       }
@@ -34,14 +46,26 @@
       "metadata": {
         "documentationUrl": "https://docs.bfl.ai/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "width": {
+            "type": "integer",
+            "minimum": 256
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 256
+          },
+          "aspect_ratio": {
             "type": "string"
           },
           "seed": {
             "type": "integer"
           },
-          "negativePrompt": {
-            "type": "string"
+          "output_format": {
+            "type": "string",
+            "enum": [
+              "jpeg",
+              "png"
+            ]
           }
         }
       }
@@ -54,14 +78,26 @@
       "metadata": {
         "documentationUrl": "https://docs.bfl.ai/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "width": {
+            "type": "integer",
+            "minimum": 256
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 256
+          },
+          "aspect_ratio": {
             "type": "string"
           },
           "seed": {
             "type": "integer"
           },
-          "negativePrompt": {
-            "type": "string"
+          "output_format": {
+            "type": "string",
+            "enum": [
+              "jpeg",
+              "png"
+            ]
           }
         }
       }
