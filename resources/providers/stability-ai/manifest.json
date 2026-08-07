@@ -13,15 +13,13 @@
       "url": "https://api.stability.ai/v2beta",
       "metadata": {
         "documentationUrl": "https://platform.stability.ai/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
           "aspect_ratio": {
             "type": "string"
           },
           "seed": {
             "type": "integer"
-          },
-          "negative_prompt": {
-            "type": "string"
           },
           "output_format": {
             "type": "string",
@@ -30,6 +28,9 @@
               "png",
               "webp"
             ]
+          },
+          "style_preset": {
+            "type": "string"
           }
         }
       }
@@ -41,15 +42,13 @@
       "url": "https://api.stability.ai/v2beta",
       "metadata": {
         "documentationUrl": "https://platform.stability.ai/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
           "aspect_ratio": {
             "type": "string"
           },
           "seed": {
             "type": "integer"
-          },
-          "negative_prompt": {
-            "type": "string"
           },
           "output_format": {
             "type": "string",
@@ -69,16 +68,34 @@
       "url": "https://api.stability.ai/v2beta",
       "metadata": {
         "documentationUrl": "https://platform.stability.ai/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
-          "seconds_total": {
+          "duration": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "maximum": 190
           },
           "seed": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967294
+          },
+          "steps": {
+            "type": "integer",
+            "minimum": 4,
+            "maximum": 8
+          },
+          "cfg_scale": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 25
           },
           "output_format": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "mp3",
+              "wav"
+            ]
           }
         }
       }
