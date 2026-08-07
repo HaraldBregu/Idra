@@ -8,11 +8,12 @@ assert.equal(isFriday(), false);
 assert.throws(() => app.getTheme, /unavailable/);
 
 globalThis.app = {
-	themeMode: 'system',
-	isDark: false,
 	getThemeData: async () => ({ themeMode: 'system', isDark: false }),
 	getTheme: async () => 'system',
 	setTheme: async () => undefined,
+	getLanguage: async () => 'en',
+	setLanguage: async () => undefined,
+	onThemeModeChanged: () => () => undefined,
 };
 
 assert.equal(isFriday(), true);
