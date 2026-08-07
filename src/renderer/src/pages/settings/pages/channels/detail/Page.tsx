@@ -224,11 +224,119 @@ const ChannelDetailPage: React.FC = () => {
 								setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
 							}
 							onAdd={() => addListValue('groupAllowFrom')}
-							onRemove={(value) => removeListValue('groupAllowFrom', value)}
-						/>
-					</Item>
-				</Card>
-			) : (
+								onRemove={(value) => removeListValue('groupAllowFrom', value)}
+							/>
+						</Item>
+						<Item
+							variant="outline"
+							size="md"
+							className="flex-col items-stretch gap-3 border-b border-border/60"
+						>
+							<div className="flex w-full min-w-0 items-start gap-3">
+								<ItemMedia variant="icon">
+									<Mic className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<div className="min-w-0 flex-1">
+									<ItemTitle className="w-full">{t('settings.channels.sttModel')}</ItemTitle>
+									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.channels.sttModelDescription')}
+									</p>
+								</div>
+							</div>
+							<div className="w-full min-w-0">
+								<Select
+									value={selectionValue(selectedSttModel)}
+									onValueChange={(value) => {
+										if (!value) return;
+										const [nextProviderId = '', nextModelId = ''] = value.split(
+											MODEL_SELECTION_VALUE_SEPARATOR
+										);
+										if (!nextProviderId || !nextModelId || !credential) return;
+										void save({
+											...credential,
+											sttProviderId: nextProviderId,
+											sttModelId: nextModelId,
+										});
+									}}
+									disabled={sttGroups.length === 0}
+								>
+									<SelectTrigger className="w-full text-xs sm:w-80">
+										<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
+									</SelectTrigger>
+									<SelectContent>
+										{sttGroups.flatMap((group) =>
+											group.models.map((model) => (
+												<SelectItem
+													key={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
+													value={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
+												>
+													{formatModelSelection(group.provider, model)}
+												</SelectItem>
+											))
+										)}
+									</SelectContent>
+								</Select>
+								{sttGroups.length === 0 && (
+									<p className="mt-1 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.channels.noModelOptions')}
+									</p>
+								)}
+							</div>
+						</Item>
+						<Item variant="outline" size="md" className="flex-col items-stretch gap-3">
+							<div className="flex w-full min-w-0 items-start gap-3">
+								<ItemMedia variant="icon">
+									<Volume2 className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<div className="min-w-0 flex-1">
+									<ItemTitle className="w-full">{t('settings.channels.ttsModel')}</ItemTitle>
+									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.channels.ttsModelDescription')}
+									</p>
+								</div>
+							</div>
+							<div className="w-full min-w-0">
+								<Select
+									value={selectionValue(selectedTtsModel)}
+									onValueChange={(value) => {
+										if (!value) return;
+										const [nextProviderId = '', nextModelId = ''] = value.split(
+											MODEL_SELECTION_VALUE_SEPARATOR
+										);
+										if (!nextProviderId || !nextModelId || !credential) return;
+										void save({
+											...credential,
+											ttsProviderId: nextProviderId,
+											ttsModelId: nextModelId,
+										});
+									}}
+									disabled={ttsGroups.length === 0}
+								>
+									<SelectTrigger className="w-full text-xs sm:w-80">
+										<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
+									</SelectTrigger>
+									<SelectContent>
+										{ttsGroups.flatMap((group) =>
+											group.models.map((model) => (
+												<SelectItem
+													key={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
+													value={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
+												>
+													{formatModelSelection(group.provider, model)}
+												</SelectItem>
+											))
+										)}
+									</SelectContent>
+								</Select>
+								{ttsGroups.length === 0 && (
+									<p className="mt-1 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.channels.noModelOptions')}
+									</p>
+								)}
+							</div>
+						</Item>
+					</Card>
+				) : (
 				<SettingsNotice variant="destructive">
 					{t('settings.channels.notConfigured')}
 				</SettingsNotice>
