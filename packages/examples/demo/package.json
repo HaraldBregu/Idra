@@ -2,18 +2,10 @@
 	"name": "friday-demo",
 	"private": true,
 	"version": "1.0.0",
+	"description": "Minimal Friday app-data demo extension.",
+	"keywords": ["utility"],
+	"main": "dist/index.html",
 	"type": "module",
-	"friday": {
-		"id": "demo",
-		"title": "Demo",
-		"description": "Minimal Friday host extension using the SDK theme API.",
-		"category": "utility",
-		"version": "1.0.0",
-		"distribution": {
-			"dir": "dist",
-			"entry": "index.html"
-		}
-	},
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
