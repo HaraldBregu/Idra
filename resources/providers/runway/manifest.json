@@ -1,22 +1,59 @@
 {
-	"providerId": "runway",
-	"providerName": "Runway",
-	"apiKeyUrl": "https://dev.runwayml.com",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/runway.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/runway.png",
-	"services": [
-		{
-			"id": "gen4_turbo",
-			"name": "Gen-4 Turbo",
-			"type": "text-to-video-model",
-			"url": "https://api.dev.runwayml.com/v1"
-		},
-		{
-			"id": "gen3a_turbo",
-			"name": "Gen-3 Alpha Turbo",
-			"type": "text-to-video-model",
-			"url": "https://api.dev.runwayml.com/v1"
-		}
-	]
+  "providerId": "runway",
+  "providerName": "Runway",
+  "apiKeyUrl": "https://dev.runwayml.com",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/png_dark/runway.png",
+  "icon_light_url": "/images/fallback_lobehub/png_light/runway.png",
+  "services": [
+    {
+      "id": "gen4_turbo",
+      "name": "Gen-4 Turbo",
+      "type": "text-to-video-model",
+      "url": "https://api.dev.runwayml.com/v1",
+      "metadata": {
+        "documentationUrl": "https://docs.dev.runwayml.com/",
+        "inputs": {
+          "aspectRatio": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "minimum": 1
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "negativePrompt": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "gen3a_turbo",
+      "name": "Gen-3 Alpha Turbo",
+      "type": "text-to-video-model",
+      "url": "https://api.dev.runwayml.com/v1",
+      "metadata": {
+        "documentationUrl": "https://docs.dev.runwayml.com/",
+        "inputs": {
+          "aspectRatio": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "minimum": 1
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "negativePrompt": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
