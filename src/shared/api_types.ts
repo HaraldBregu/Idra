@@ -314,7 +314,7 @@ export interface ModelsApi {
 		synthesize: (request: SpeechSynthesisRequest) => Promise<SpeechSynthesisResult>;
 		getProviderId: () => Promise<string | undefined>;
 		setProviderId: (providerId: string) => Promise<void>;
-			getModelId: () => Promise<string | undefined>;
+		getModelId: () => Promise<string | undefined>;
 		setModelId: (modelId: string) => Promise<void>;
 	};
 }

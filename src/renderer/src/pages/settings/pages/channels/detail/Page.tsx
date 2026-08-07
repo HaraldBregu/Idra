@@ -17,7 +17,12 @@ import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../../
 import type { CatalogService, PublicProvider } from '@shared/provider_types';
 import { CHANNEL_DM_POLICIES } from '@shared/channels_types';
 import type { ChannelDmPolicy, StoredBotProvider } from '@shared/channels_types';
-import { providerIdsFor, providerModels, providers, supportsSpeechToTextApiType } from '@/lib/providers';
+import {
+	providerIdsFor,
+	providerModels,
+	providers,
+	supportsSpeechToTextApiType,
+} from '@/lib/providers';
 
 const MODEL_SELECTION_VALUE_SEPARATOR = '\u001F';
 
@@ -48,8 +53,16 @@ const ChannelDetailPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const sttGroups = getSttModelGroups();
 	const ttsGroups = getTtsModelGroups();
-	const selectedSttModel = getSelectedModel(sttGroups, credential?.sttProviderId, credential?.sttModelId);
-	const selectedTtsModel = getSelectedModel(ttsGroups, credential?.ttsProviderId, credential?.ttsModelId);
+	const selectedSttModel = getSelectedModel(
+		sttGroups,
+		credential?.sttProviderId,
+		credential?.sttModelId
+	);
+	const selectedTtsModel = getSelectedModel(
+		ttsGroups,
+		credential?.ttsProviderId,
+		credential?.ttsModelId
+	);
 
 	useEffect(() => {
 		let mounted = true;
@@ -126,9 +139,7 @@ const ChannelDetailPage: React.FC = () => {
 								type="password"
 								autoComplete="off"
 								value={credential.apiKey}
-								onChange={(event) =>
-									setCredential({ ...credential, apiKey: event.target.value })
-								}
+								onChange={(event) => setCredential({ ...credential, apiKey: event.target.value })}
 								onBlur={() => void save(credential)}
 								placeholder={t('settings.channels.tokenPlaceholder')}
 								className={SETTINGS_INPUT_CLASS}
@@ -151,7 +162,8 @@ const ChannelDetailPage: React.FC = () => {
 							<Select
 								value={credential.dmPolicy ?? 'allowlist'}
 								onValueChange={(value: string | null) => {
-									if (value !== null) void save({ ...credential, dmPolicy: value as ChannelDmPolicy });
+									if (value !== null)
+										void save({ ...credential, dmPolicy: value as ChannelDmPolicy });
 								}}
 							>
 								<SelectTrigger id={`${providerId}-dm-policy`} className="w-full text-xs">
@@ -224,119 +236,119 @@ const ChannelDetailPage: React.FC = () => {
 								setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
 							}
 							onAdd={() => addListValue('groupAllowFrom')}
-								onRemove={(value) => removeListValue('groupAllowFrom', value)}
-							/>
-						</Item>
-						<Item
-							variant="outline"
-							size="md"
-							className="flex-col items-stretch gap-3 border-b border-border/60"
-						>
-							<div className="flex w-full min-w-0 items-start gap-3">
-								<ItemMedia variant="icon">
-									<Mic className="size-3" strokeWidth={1.8} />
-								</ItemMedia>
-								<div className="min-w-0 flex-1">
-									<ItemTitle className="w-full">{t('settings.channels.sttModel')}</ItemTitle>
-									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-										{t('settings.channels.sttModelDescription')}
-									</p>
-								</div>
+							onRemove={(value) => removeListValue('groupAllowFrom', value)}
+						/>
+					</Item>
+					<Item
+						variant="outline"
+						size="md"
+						className="flex-col items-stretch gap-3 border-b border-border/60"
+					>
+						<div className="flex w-full min-w-0 items-start gap-3">
+							<ItemMedia variant="icon">
+								<Mic className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<div className="min-w-0 flex-1">
+								<ItemTitle className="w-full">{t('settings.channels.sttModel')}</ItemTitle>
+								<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+									{t('settings.channels.sttModelDescription')}
+								</p>
 							</div>
-							<div className="w-full min-w-0">
-								<Select
-									value={selectionValue(selectedSttModel)}
-									onValueChange={(value) => {
-										if (!value) return;
-										const [nextProviderId = '', nextModelId = ''] = value.split(
-											MODEL_SELECTION_VALUE_SEPARATOR
-										);
-										if (!nextProviderId || !nextModelId || !credential) return;
-										void save({
-											...credential,
-											sttProviderId: nextProviderId,
-											sttModelId: nextModelId,
-										});
-									}}
-									disabled={sttGroups.length === 0}
-								>
-									<SelectTrigger className="w-full text-xs sm:w-80">
-										<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
-									</SelectTrigger>
-									<SelectContent>
-										{sttGroups.flatMap((group) =>
-											group.models.map((model) => (
-												<SelectItem
-													key={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
-													value={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
-												>
-													{formatModelSelection(group.provider, model)}
-												</SelectItem>
-											))
-										)}
-									</SelectContent>
-								</Select>
-								{sttGroups.length === 0 && (
-									<p className="mt-1 text-[11px] leading-4 text-muted-foreground">
-										{t('settings.channels.noModelOptions')}
-									</p>
-								)}
+						</div>
+						<div className="w-full min-w-0">
+							<Select
+								value={selectionValue(selectedSttModel)}
+								onValueChange={(value) => {
+									if (!value) return;
+									const [nextProviderId = '', nextModelId = ''] = value.split(
+										MODEL_SELECTION_VALUE_SEPARATOR
+									);
+									if (!nextProviderId || !nextModelId || !credential) return;
+									void save({
+										...credential,
+										sttProviderId: nextProviderId,
+										sttModelId: nextModelId,
+									});
+								}}
+								disabled={sttGroups.length === 0}
+							>
+								<SelectTrigger className="w-full text-xs sm:w-80">
+									<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
+								</SelectTrigger>
+								<SelectContent>
+									{sttGroups.flatMap((group) =>
+										group.models.map((model) => (
+											<SelectItem
+												key={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
+												value={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
+											>
+												{formatModelSelection(group.provider, model)}
+											</SelectItem>
+										))
+									)}
+								</SelectContent>
+							</Select>
+							{sttGroups.length === 0 && (
+								<p className="mt-1 text-[11px] leading-4 text-muted-foreground">
+									{t('settings.channels.noModelOptions')}
+								</p>
+							)}
+						</div>
+					</Item>
+					<Item variant="outline" size="md" className="flex-col items-stretch gap-3">
+						<div className="flex w-full min-w-0 items-start gap-3">
+							<ItemMedia variant="icon">
+								<Volume2 className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<div className="min-w-0 flex-1">
+								<ItemTitle className="w-full">{t('settings.channels.ttsModel')}</ItemTitle>
+								<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+									{t('settings.channels.ttsModelDescription')}
+								</p>
 							</div>
-						</Item>
-						<Item variant="outline" size="md" className="flex-col items-stretch gap-3">
-							<div className="flex w-full min-w-0 items-start gap-3">
-								<ItemMedia variant="icon">
-									<Volume2 className="size-3" strokeWidth={1.8} />
-								</ItemMedia>
-								<div className="min-w-0 flex-1">
-									<ItemTitle className="w-full">{t('settings.channels.ttsModel')}</ItemTitle>
-									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-										{t('settings.channels.ttsModelDescription')}
-									</p>
-								</div>
-							</div>
-							<div className="w-full min-w-0">
-								<Select
-									value={selectionValue(selectedTtsModel)}
-									onValueChange={(value) => {
-										if (!value) return;
-										const [nextProviderId = '', nextModelId = ''] = value.split(
-											MODEL_SELECTION_VALUE_SEPARATOR
-										);
-										if (!nextProviderId || !nextModelId || !credential) return;
-										void save({
-											...credential,
-											ttsProviderId: nextProviderId,
-											ttsModelId: nextModelId,
-										});
-									}}
-									disabled={ttsGroups.length === 0}
-								>
-									<SelectTrigger className="w-full text-xs sm:w-80">
-										<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
-									</SelectTrigger>
-									<SelectContent>
-										{ttsGroups.flatMap((group) =>
-											group.models.map((model) => (
-												<SelectItem
-													key={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
-													value={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
-												>
-													{formatModelSelection(group.provider, model)}
-												</SelectItem>
-											))
-										)}
-									</SelectContent>
-								</Select>
-								{ttsGroups.length === 0 && (
-									<p className="mt-1 text-[11px] leading-4 text-muted-foreground">
-										{t('settings.channels.noModelOptions')}
-									</p>
-								)}
-							</div>
-						</Item>
-					</Card>
-				) : (
+						</div>
+						<div className="w-full min-w-0">
+							<Select
+								value={selectionValue(selectedTtsModel)}
+								onValueChange={(value) => {
+									if (!value) return;
+									const [nextProviderId = '', nextModelId = ''] = value.split(
+										MODEL_SELECTION_VALUE_SEPARATOR
+									);
+									if (!nextProviderId || !nextModelId || !credential) return;
+									void save({
+										...credential,
+										ttsProviderId: nextProviderId,
+										ttsModelId: nextModelId,
+									});
+								}}
+								disabled={ttsGroups.length === 0}
+							>
+								<SelectTrigger className="w-full text-xs sm:w-80">
+									<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
+								</SelectTrigger>
+								<SelectContent>
+									{ttsGroups.flatMap((group) =>
+										group.models.map((model) => (
+											<SelectItem
+												key={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
+												value={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
+											>
+												{formatModelSelection(group.provider, model)}
+											</SelectItem>
+										))
+									)}
+								</SelectContent>
+							</Select>
+							{ttsGroups.length === 0 && (
+								<p className="mt-1 text-[11px] leading-4 text-muted-foreground">
+									{t('settings.channels.noModelOptions')}
+								</p>
+							)}
+						</div>
+					</Item>
+				</Card>
+			) : (
 				<SettingsNotice variant="destructive">
 					{t('settings.channels.notConfigured')}
 				</SettingsNotice>
@@ -437,10 +449,7 @@ function ListEditor({
 	);
 }
 
-function blankCredential(
-	providerId: string,
-	service: CatalogService | null
-): StoredBotProvider {
+function blankCredential(providerId: string, service: CatalogService | null): StoredBotProvider {
 	return {
 		id: providerId,
 		name: service?.provider.name ?? providerId,
@@ -486,9 +495,10 @@ function getSelectedModel(
 ): { providerId: string; modelId: string } {
 	const preferredProviderId = (providerId ?? '').trim();
 	const preferredModelId = (modelId ?? '').trim();
-	const providerGroup = groups.find((group) => group.provider.id === preferredProviderId) ?? groups[0];
-	const model = providerGroup?.models.find((item) => item.id === preferredModelId) ??
-		providerGroup?.models[0];
+	const providerGroup =
+		groups.find((group) => group.provider.id === preferredProviderId) ?? groups[0];
+	const model =
+		providerGroup?.models.find((item) => item.id === preferredModelId) ?? providerGroup?.models[0];
 	return {
 		providerId: providerGroup?.provider.id ?? '',
 		modelId: model?.id ?? '',

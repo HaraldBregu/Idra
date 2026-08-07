@@ -124,8 +124,8 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				message.content.type === 'text'
 					? message.content.text
 					: await transcribeVoice(await loadChannelVoice(message.content.voice), {
-						...channelModelSelection(message.channel, 'stt'),
-					});
+							...channelModelSelection(message.channel, 'stt'),
+						});
 			if (text.startsWith('/')) {
 				const command = text.split(/\s+/)[0].slice(1).split('@')[0].toLowerCase();
 				if (command === 'start') {
@@ -256,10 +256,9 @@ function channelModelSelection(
 	const credential = getChannelProvider(channelId);
 	if (!credential) return {};
 	const providerId =
-		kind === 'stt'
-			? trimOrEmpty(credential.sttProviderId)
-			: trimOrEmpty(credential.ttsProviderId);
-	const modelId = kind === 'stt' ? trimOrEmpty(credential.sttModelId) : trimOrEmpty(credential.ttsModelId);
+		kind === 'stt' ? trimOrEmpty(credential.sttProviderId) : trimOrEmpty(credential.ttsProviderId);
+	const modelId =
+		kind === 'stt' ? trimOrEmpty(credential.sttModelId) : trimOrEmpty(credential.ttsModelId);
 	if (!providerId) return {};
 	return { providerId, ...(modelId ? { modelId } : {}) };
 }

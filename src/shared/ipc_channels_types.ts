@@ -360,10 +360,7 @@ export interface ProviderInvokeChannelMap {
 		result: ProviderStoreRecord | undefined;
 	};
 	[ProviderChannels.set]: {
-		args: [
-			provider: ProviderStoreRecord,
-			kind?: import('./provider_types').StoredProviderKind,
-		];
+		args: [provider: ProviderStoreRecord, kind?: import('./provider_types').StoredProviderKind];
 		result: ProviderStoreRecord;
 	};
 	[ProviderChannels.list]: {

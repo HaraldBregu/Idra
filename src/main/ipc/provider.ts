@@ -12,7 +12,10 @@ export class ProviderStoreIpc implements IpcModule {
 	readonly name = 'provider-store';
 
 	register(_deps: undefined, _eventBus: EventBus): void {
-		registerQuery(ProviderStoreChannels.get, (id: string) => getProvider(id) ?? getChannelProvider(id));
+		registerQuery(
+			ProviderStoreChannels.get,
+			(id: string) => getProvider(id) ?? getChannelProvider(id)
+		);
 		registerQuery(ProviderStoreChannels.list, () => [
 			...listProviders('models'),
 			...listProviders('databases'),
