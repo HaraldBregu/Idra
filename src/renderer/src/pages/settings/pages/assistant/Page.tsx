@@ -249,10 +249,10 @@ const AssistantPage: React.FC = () => {
 						</div>
 						<div className="min-w-0 flex-1">
 							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
-								{selectedSearchEngine?.name ?? t('settings.searchEngine.provider')}
+								{t('settings.tabs.searchEngine')}
 							</div>
 							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-								{selectedSearchEngineDescription}
+								{selectedSearchEngine?.name ?? selectedSearchEngineDescription}
 							</p>
 						</div>
 						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
