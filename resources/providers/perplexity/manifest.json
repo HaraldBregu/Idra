@@ -12,19 +12,62 @@
       "type": "research-chat-model",
       "url": "https://api.perplexity.ai",
       "metadata": {
-        "documentationUrl": "https://docs.perplexity.ai",
+        "documentationUrl": "https://docs.perplexity.ai/api-reference/sonar-post",
+        "documentationStatus": "verified",
         "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 128000
+          },
           "temperature": {
             "type": "number",
             "minimum": 0,
             "maximum": 2
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_p": {
+            "type": "number"
           },
-          "searchRecencyFilter": {
+          "top_k": {
+            "type": "integer"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "search_domain_filter": {
+            "type": "array"
+          },
+          "search_recency_filter": {
             "type": "string"
+          },
+          "search_after_date_filter": {
+            "type": "string"
+          },
+          "search_before_date_filter": {
+            "type": "string"
+          },
+          "web_search_options": {
+            "type": "object"
+          },
+          "search_context_size": {
+            "type": "string"
+          },
+          "reasoning_effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           }
         }
       }
@@ -35,19 +78,62 @@
       "type": "research-chat-model",
       "url": "https://api.perplexity.ai",
       "metadata": {
-        "documentationUrl": "https://docs.perplexity.ai",
+        "documentationUrl": "https://docs.perplexity.ai/api-reference/sonar-post",
+        "documentationStatus": "verified",
         "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 128000
+          },
           "temperature": {
             "type": "number",
             "minimum": 0,
             "maximum": 2
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_p": {
+            "type": "number"
           },
-          "searchRecencyFilter": {
+          "top_k": {
+            "type": "integer"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "search_domain_filter": {
+            "type": "array"
+          },
+          "search_recency_filter": {
             "type": "string"
+          },
+          "search_after_date_filter": {
+            "type": "string"
+          },
+          "search_before_date_filter": {
+            "type": "string"
+          },
+          "web_search_options": {
+            "type": "object"
+          },
+          "search_context_size": {
+            "type": "string"
+          },
+          "reasoning_effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           }
         }
       }
@@ -58,18 +144,53 @@
       "type": "research-chat-model",
       "url": "https://api.perplexity.ai",
       "metadata": {
-        "documentationUrl": "https://docs.perplexity.ai",
+        "documentationUrl": "https://docs.perplexity.ai/api-reference/sonar-post",
+        "documentationStatus": "verified",
         "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 128000
+          },
           "temperature": {
             "type": "number",
             "minimum": 0,
             "maximum": 2
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_p": {
+            "type": "number"
           },
-          "searchRecencyFilter": {
+          "top_k": {
+            "type": "integer"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "search_domain_filter": {
+            "type": "array"
+          },
+          "search_recency_filter": {
+            "type": "string"
+          },
+          "search_after_date_filter": {
+            "type": "string"
+          },
+          "search_before_date_filter": {
+            "type": "string"
+          },
+          "web_search_options": {
+            "type": "object"
+          },
+          "search_context_size": {
             "type": "string"
           }
         }
@@ -81,18 +202,53 @@
       "type": "research-chat-model",
       "url": "https://api.perplexity.ai",
       "metadata": {
-        "documentationUrl": "https://docs.perplexity.ai",
+        "documentationUrl": "https://docs.perplexity.ai/api-reference/sonar-post",
+        "documentationStatus": "verified",
         "inputs": {
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 128000
+          },
           "temperature": {
             "type": "number",
             "minimum": 0,
             "maximum": 2
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_p": {
+            "type": "number"
           },
-          "searchRecencyFilter": {
+          "top_k": {
+            "type": "integer"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "search_domain_filter": {
+            "type": "array"
+          },
+          "search_recency_filter": {
+            "type": "string"
+          },
+          "search_after_date_filter": {
+            "type": "string"
+          },
+          "search_before_date_filter": {
+            "type": "string"
+          },
+          "web_search_options": {
+            "type": "object"
+          },
+          "search_context_size": {
             "type": "string"
           }
         }
