@@ -20,6 +20,7 @@ jest.mock('electron-store', () =>
 
 import {
 	getModelId,
+	getMediaModel,
 	getPermissions,
 	getPermissionMode,
 	getProviderId,
@@ -27,13 +28,19 @@ import {
 	resetPermissions,
 	setDirectoryPermissions,
 	setModelId,
+	setMediaModel,
 	setPermissionMode,
 	setProviderId,
 	setSearchEngine,
 	setToolPermission,
 } from '../../../../../src/main/agent/agent_store';
 
-beforeEach(() => resetPermissions());
+beforeEach(() => {
+	resetPermissions();
+	setMediaModel('image', { providerId: '', modelId: '', options: {} });
+	setMediaModel('audio', { providerId: '', modelId: '', options: {} });
+	setMediaModel('video', { providerId: '', modelId: '', options: {} });
+});
 
 describe('agent store permissions', () => {
 	it('persists the agent permission mode', () => {
@@ -76,6 +83,11 @@ describe('agent store permissions', () => {
 		setProviderId('provider');
 		setModelId('model');
 		setSearchEngine({ providerId: 'search', providerName: 'Search', enabled: true });
+		setMediaModel('image', {
+			providerId: 'google',
+			modelId: 'gemini-image',
+			options: { aspectRatio: '16:9' },
+		});
 
 		setPermissionMode('bypass');
 
@@ -85,6 +97,45 @@ describe('agent store permissions', () => {
 			providerId: 'search',
 			providerName: 'Search',
 			enabled: true,
+		});
+		expect(getMediaModel('image')).toEqual({
+			providerId: 'google',
+			modelId: 'gemini-image',
+			options: { aspectRatio: '16:9' },
+		});
+	});
+
+	it('persists image, audio, and video model settings independently', () => {
+		setMediaModel('image', {
+			providerId: 'google',
+			modelId: 'gemini-image',
+			options: { imageSize: '2K' },
+		});
+		setMediaModel('audio', {
+			providerId: 'elevenlabs',
+			modelId: 'eleven-music',
+			options: { force_instrumental: true },
+		});
+		setMediaModel('video', {
+			providerId: 'google',
+			modelId: 'veo-3.1',
+			options: { durationSeconds: 8 },
+		});
+
+		expect(getMediaModel('image')).toEqual({
+			providerId: 'google',
+			modelId: 'gemini-image',
+			options: { imageSize: '2K' },
+		});
+		expect(getMediaModel('audio')).toEqual({
+			providerId: 'elevenlabs',
+			modelId: 'eleven-music',
+			options: { force_instrumental: true },
+		});
+		expect(getMediaModel('video')).toEqual({
+			providerId: 'google',
+			modelId: 'veo-3.1',
+			options: { durationSeconds: 8 },
 		});
 	});
 });
