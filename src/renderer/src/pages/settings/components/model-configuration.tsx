@@ -18,6 +18,7 @@ interface ModelProviderConfigurationProps {
 	readonly collapsible?: boolean;
 	readonly defaultOpen?: boolean;
 	readonly onChange: (nextProviderId: string, nextModelId: string) => void;
+	readonly children?: ReactNode;
 }
 
 export function ModelProviderConfiguration({
@@ -30,6 +31,7 @@ export function ModelProviderConfiguration({
 	collapsible = true,
 	defaultOpen = false,
 	onChange,
+	children,
 }: ModelProviderConfigurationProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -65,6 +67,8 @@ export function ModelProviderConfiguration({
 						: undefined,
 				}}
 			/>
+
+			{children}
 
 			{configState.providers.length === 0 && (
 				<p className="text-[11px] leading-4 text-muted-foreground">
