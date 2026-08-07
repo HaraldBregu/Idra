@@ -82,6 +82,9 @@ export const app: AppApi = {
 	getThemeData: () => {
 		return typedInvokeUnwrap(AppChannels.getThemeData);
 	},
+	onThemeModeChanged: (callback: (theme: { themeMode: string; isDark: boolean }) => void): (() => void) => {
+		return typedOn(AppChannels.themeModeChanged, callback);
+	},
 	getMicrophonePermission: () => {
 		return typedInvokeUnwrap(AppChannels.getMicrophonePermission);
 	},
