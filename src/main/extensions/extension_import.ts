@@ -51,7 +51,7 @@ export function importExtensions(sources: string[]): ExtensionImportResult {
 			skipped.push(
 				createSkipped(
 					source,
-					'Missing or invalid manifest. Expected manifest.json or package.json with friday metadata.'
+					'Missing or invalid manifest. Expected manifest.json or package.json.'
 				)
 			);
 			continue;
