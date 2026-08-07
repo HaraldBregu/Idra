@@ -5,6 +5,7 @@ import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
 import { ModelOptions } from '@/components/model-options';
+import { updateModelOptions } from '@/lib/options';
 import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
@@ -104,28 +105,7 @@ const AssistantPage: React.FC = () => {
 	};
 
 	const updateModelOption = (path: readonly string[], value: unknown): void => {
-		const next = structuredClone(modelOptions);
-		let target = next;
-		for (const key of path.slice(0, -1)) {
-			const current = target[key];
-			target[key] = current && typeof current === 'object' ? { ...current } : {};
-			target = target[key] as Record<string, unknown>;
-		}
-		const key = path.at(-1);
-		if (!key) return;
-		if (value === undefined || value === '') delete target[key];
-		else target[key] = value;
-		for (let index = path.length - 2; index >= 0; index -= 1) {
-			let parent: Record<string, unknown> = next;
-			for (const part of path.slice(0, index)) {
-				parent = parent[part] as Record<string, unknown>;
-			}
-			const child = parent[path[index]];
-			if (child && typeof child === 'object' && Object.keys(child).length === 0) {
-				delete parent[path[index]];
-			}
-		}
-		saveModelOptions(next);
+		saveModelOptions(updateModelOptions(modelOptions, path, value));
 	};
 
 	const handleChange = async (nextProviderId: string, nextModelId: string): Promise<void> => {

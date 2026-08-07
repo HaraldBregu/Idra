@@ -15,6 +15,7 @@ import { ChevronDown } from 'lucide-react';
 interface ModelOptionsProps {
 	readonly inputs: Readonly<Record<string, ModelInputSchema>>;
 	readonly values: Readonly<Record<string, unknown>>;
+	readonly excludedInputs?: ReadonlySet<string>;
 	readonly onChange: (path: readonly string[], value: unknown) => void;
 }
 
@@ -31,13 +32,14 @@ const RESERVED_INPUTS = new Set([
 export function ModelOptions({
 	inputs,
 	values,
+	excludedInputs,
 	onChange,
 }: ModelOptionsProps): React.JSX.Element | null {
 	const entries: Array<{ path: string[]; schema: ModelInputSchema }> = [];
 	const pending = Object.entries(inputs).map(([key, schema]) => ({ path: [key], schema }));
 	while (pending.length > 0) {
 		const entry = pending.shift();
-		if (!entry || RESERVED_INPUTS.has(entry.path[0])) continue;
+		if (!entry || RESERVED_INPUTS.has(entry.path[0]) || excludedInputs?.has(entry.path[0])) continue;
 		if (entry.schema.type === 'object' && entry.schema.properties) {
 			pending.unshift(
 				...Object.entries(entry.schema.properties).map(([key, schema]) => ({
