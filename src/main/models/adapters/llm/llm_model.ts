@@ -223,9 +223,11 @@ export class LlmModel implements LlmAdapter {
 			parameters: tool.schema as Record<string, unknown>,
 			strict: false,
 		}));
+		const responseOptions = req.options as Partial<ResponseCreateParamsStreaming> | undefined;
+		const configuredReasoning = responseOptions?.reasoning;
 
 		const params: ResponseCreateParamsStreaming = {
-			...(req.options as Partial<ResponseCreateParamsStreaming>),
+			...responseOptions,
 			model: req.model,
 			instructions: req.system || undefined,
 			input:
@@ -233,7 +235,9 @@ export class LlmModel implements LlmAdapter {
 				llmBuildResponseInput(req.messages),
 			previous_response_id: req.previousResponseId,
 			tools: tools.length > 0 ? tools : undefined,
-			reasoning: req.effort ? { effort: req.effort } : undefined,
+			reasoning: req.effort
+				? { ...(configuredReasoning ?? {}), effort: req.effort }
+				: configuredReasoning,
 			max_output_tokens: req.maxTokens,
 			include: ['reasoning.encrypted_content'],
 			stream: true,
