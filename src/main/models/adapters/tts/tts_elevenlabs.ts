@@ -20,6 +20,7 @@ export function createElevenLabsSpeechAdapter(provider: SpeechProviderSpec): Spe
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
+						...request.options,
 						text: request.text,
 						model_id: request.modelId,
 					}),

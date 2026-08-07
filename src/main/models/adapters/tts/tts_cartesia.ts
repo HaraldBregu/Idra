@@ -17,6 +17,7 @@ export function createCartesiaSpeechAdapter(provider: SpeechProviderSpec): Speec
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
+					...request.options,
 					model_id: request.modelId,
 					transcript: request.text,
 					voice: { mode: 'id', id: request.voice ?? CARTESIA_DEFAULT_VOICE_ID },

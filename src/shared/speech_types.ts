@@ -5,6 +5,8 @@ export interface SpeechSynthesisRequest {
 	providerId?: string;
 	modelId?: string;
 	voice?: string;
+	/** Provider-specific controls declared in the selected model metadata. */
+	options?: Record<string, unknown>;
 }
 
 export interface SpeechSynthesisMetadata {
@@ -44,5 +46,10 @@ export function normalizeSpeechSynthesisRequest(
 		providerId: optionalTrimmedString(request.providerId),
 		modelId: optionalTrimmedString(request.modelId),
 		voice: optionalTrimmedString(request.voice),
+		...(isOptions(request.options) ? { options: request.options } : {}),
 	};
+}
+
+function isOptions(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

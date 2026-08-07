@@ -21,6 +21,7 @@ export function createMiniMaxSpeechAdapter(provider: SpeechProviderSpec): Speech
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
+					...request.options,
 					model: request.modelId,
 					text: request.text,
 					stream: false,

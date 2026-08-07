@@ -15,6 +15,7 @@ export function createOpenAISpeechAdapter(provider: SpeechProviderSpec): SpeechA
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
+					...request.options,
 					model: request.modelId,
 					input: request.text,
 					voice: request.voice ?? OPENAI_DEFAULT_VOICE,
