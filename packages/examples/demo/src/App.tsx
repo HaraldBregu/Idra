@@ -25,11 +25,20 @@ export default function App() {
 	const [status, setStatus] = useState('Waiting for app data');
 	const inFridayApp = isFriday();
 
+	const ensureFridayApp = () => {
+		if (!isFriday()) {
+			setStatus('Friday app runtime not connected. Run inside the app host to use live data.');
+			return false;
+		}
+		return true;
+	};
+
 	const getStatusText = (themeData: AppThemeData, appLanguage: AppLanguage): string => {
 		return `theme=${themeData.themeMode}, resolved-dark=${String(themeData.isDark)}, language=${appLanguage}`;
 	};
 
 	const refreshTheme = async () => {
+		if (!ensureFridayApp()) return;
 		try {
 			const themeData = await app.getThemeData();
 			setTheme(themeData);
@@ -40,6 +49,7 @@ export default function App() {
 	};
 
 	const refreshLanguage = async () => {
+		if (!ensureFridayApp()) return;
 		try {
 			const appLanguage = await app.getLanguage();
 			setLanguage(appLanguage);
@@ -50,6 +60,7 @@ export default function App() {
 	};
 
 	const setAppTheme = async (nextTheme: AppTheme) => {
+		if (!ensureFridayApp()) return;
 		try {
 			await app.setTheme(nextTheme);
 			await refreshTheme();
@@ -60,6 +71,7 @@ export default function App() {
 	};
 
 	const setAppLanguage = async (nextLanguage: AppLanguage) => {
+		if (!ensureFridayApp()) return;
 		try {
 			await app.setLanguage(nextLanguage);
 			await refreshLanguage();
@@ -102,39 +114,39 @@ export default function App() {
 			<div className="flex h-full items-center justify-center p-8">
 				<div className="w-full max-w-md space-y-4 rounded-xl border p-6">
 					<p className="text-lg font-semibold">Friday app IPC demo</p>
-					<p className="text-sm text-orange-600">{inFridayApp ? 'Connected to Friday app runtime.' : 'Running outside Friday app; controls are disabled.'}</p>
+					<p className="text-sm text-orange-600">{inFridayApp ? 'Connected to Friday app runtime.' : 'Running outside Friday app. Buttons are available but use app actions from host runtime only.'}</p>
 					<div className="space-y-2">
 						<p className="text-sm font-semibold">Theme</p>
 						<p className="text-sm">Theme mode from app IPC: {theme.themeMode}</p>
 						<p className="text-sm">Resolved dark mode: {theme.isDark ? 'true' : 'false'}</p>
 						<div className="mt-2 flex flex-wrap gap-2">
-							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppTheme('light')}>
-								Set light
-							</Button>
-							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppTheme('dark')}>
-								Set dark
-							</Button>
-							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppTheme('system')}>
-								Set system
-							</Button>
-							<Button variant="secondary" disabled={!inFridayApp} onClick={refreshTheme}>
-								Get theme
-							</Button>
-						</div>
+						<Button variant="outline" onClick={() => setAppTheme('light')}>
+							Set light
+						</Button>
+						<Button variant="outline" onClick={() => setAppTheme('dark')}>
+							Set dark
+						</Button>
+						<Button variant="outline" onClick={() => setAppTheme('system')}>
+							Set system
+						</Button>
+						<Button variant="secondary" onClick={refreshTheme}>
+							Get theme
+						</Button>
 					</div>
+				</div>
 					<div className="space-y-2">
 						<p className="text-sm font-semibold">Language</p>
 						<p className="text-sm">Current language from app IPC: {language}</p>
 						<div className="mt-2 flex flex-wrap gap-2">
-							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppLanguage('en')}>
-								Set EN
-							</Button>
-							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppLanguage('it')}>
-								Set IT
-							</Button>
-							<Button variant="secondary" disabled={!inFridayApp} onClick={refreshLanguage}>
-								Get language
-							</Button>
+						<Button variant="outline" onClick={() => setAppLanguage('en')}>
+							Set EN
+						</Button>
+						<Button variant="outline" onClick={() => setAppLanguage('it')}>
+							Set IT
+						</Button>
+						<Button variant="secondary" onClick={refreshLanguage}>
+							Get language
+						</Button>
 						</div>
 					</div>
 					<p className="text-sm">Status: {status}</p>
