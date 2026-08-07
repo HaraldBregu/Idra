@@ -14,14 +14,22 @@
       "metadata": {
         "documentationUrl": "https://platform.stability.ai/docs/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "aspect_ratio": {
             "type": "string"
           },
           "seed": {
             "type": "integer"
           },
-          "negativePrompt": {
+          "negative_prompt": {
             "type": "string"
+          },
+          "output_format": {
+            "type": "string",
+            "enum": [
+              "jpeg",
+              "png",
+              "webp"
+            ]
           }
         }
       }
@@ -34,14 +42,22 @@
       "metadata": {
         "documentationUrl": "https://platform.stability.ai/docs/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "aspect_ratio": {
             "type": "string"
           },
           "seed": {
             "type": "integer"
           },
-          "negativePrompt": {
+          "negative_prompt": {
             "type": "string"
+          },
+          "output_format": {
+            "type": "string",
+            "enum": [
+              "jpeg",
+              "png",
+              "webp"
+            ]
           }
         }
       }
@@ -54,14 +70,14 @@
       "metadata": {
         "documentationUrl": "https://platform.stability.ai/docs/api-reference",
         "inputs": {
-          "duration": {
-            "type": "number",
+          "seconds_total": {
+            "type": "integer",
             "minimum": 1
           },
           "seed": {
             "type": "integer"
           },
-          "outputFormat": {
+          "output_format": {
             "type": "string"
           }
         }
