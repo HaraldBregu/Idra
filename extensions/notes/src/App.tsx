@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 
+import { app, isFriday, type AppThemeData } from '@friday/sdk';
 import { AppSidebar, type ViewId } from '@/components/app-sidebar';
 import { NoteEditor } from '@/components/note-editor';
 import { NoteList } from '@/components/note-list';
@@ -16,7 +17,14 @@ const titles: Record<ViewId, string> = {
 	trash: 'Recently deleted',
 };
 
+const fallbackTheme: AppThemeData = {
+	themeMode: 'light',
+	isDark: false,
+	colors: {},
+};
+
 export default function App() {
+	const [theme, setTheme] = useState<AppThemeData>(fallbackTheme);
 	const [notes, setNotes] = useState<Note[]>([]);
 	const [activeView, setActiveView] = useState<ViewId | `folder:${string}`>('all');
 	const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -24,6 +32,9 @@ export default function App() {
 	const [sort, setSort] = useState<SortMode>('updated');
 	const [mobilePane, setMobilePane] = useState<'list' | 'editor'>('list');
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const themeStyle = Object.fromEntries(
+		Object.entries(theme.colors).map(([name, value]) => [`--${name}`, value]),
+	) as CSSProperties;
 
 	useEffect(() => {
 		let active = true;
@@ -36,6 +47,27 @@ export default function App() {
 
 		return () => {
 			active = false;
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!isFriday()) return;
+
+		let active = true;
+
+		app.getThemeData()
+			.then((themeData) => {
+				if (active) setTheme(themeData);
+			})
+			.catch(() => undefined);
+
+		const unsubscribe = app.onThemeModeChanged((themeData) => {
+			if (active) setTheme(themeData);
+		});
+
+		return () => {
+			active = false;
+			unsubscribe();
 		};
 	}, []);
 
@@ -162,7 +194,10 @@ export default function App() {
 
 	return (
 		<TooltipProvider delayDuration={400}>
-			<div className="flex h-dvh min-h-[520px] overflow-hidden bg-background text-foreground">
+			<div
+				className={cn('flex h-dvh min-h-[520px] overflow-hidden bg-background text-foreground', theme.isDark && 'dark')}
+				style={themeStyle}
+			>
 				<aside className="hidden w-[176px] shrink-0 border-r border-sidebar-border lg:block">{sidebar}</aside>
 
 				<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>

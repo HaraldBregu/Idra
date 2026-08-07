@@ -13,16 +13,16 @@ const markdownHighlight = HighlightStyle.define([
   { tag: tags.strong, fontWeight: "700" },
   { tag: tags.emphasis, fontStyle: "italic" },
   { tag: tags.strikethrough, textDecoration: "line-through" },
-  { tag: [tags.link, tags.url], color: "hsl(var(--primary))", textDecoration: "underline" },
-  { tag: tags.monospace, color: "hsl(var(--primary))" },
-  { tag: [tags.processingInstruction, tags.meta], color: "hsl(var(--muted-foreground) / 0.6)" },
+  { tag: [tags.link, tags.url], color: "var(--primary)", textDecoration: "underline" },
+  { tag: tags.monospace, color: "var(--primary)" },
+  { tag: [tags.processingInstruction, tags.meta], color: "color-mix(in oklch, var(--muted-foreground) 60%, transparent)" },
 ])
 
 const noteEditorTheme = EditorView.theme({
   "&": {
     height: "100%",
     backgroundColor: "transparent",
-    color: "hsl(var(--foreground))",
+    color: "var(--foreground)",
     fontSize: "15px",
   },
   "&.cm-focused": {
@@ -36,16 +36,16 @@ const noteEditorTheme = EditorView.theme({
   ".cm-content": {
     minHeight: "360px",
     padding: "0",
-    caretColor: "hsl(var(--primary))",
+    caretColor: "var(--primary)",
   },
   ".cm-line": {
     padding: "0",
   },
   ".cm-cursor, .cm-dropCursor": {
-    borderLeftColor: "hsl(var(--primary))",
+    borderLeftColor: "var(--primary)",
   },
   "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection": {
-    backgroundColor: "hsl(var(--primary) / 0.16) !important",
+    backgroundColor: "color-mix(in oklch, var(--primary) 16%, transparent) !important",
   },
   ".cm-gutters": {
     display: "none",
@@ -54,7 +54,7 @@ const noteEditorTheme = EditorView.theme({
     backgroundColor: "transparent",
   },
   ".cm-placeholder": {
-    color: "hsl(var(--muted-foreground) / 0.55)",
+    color: "color-mix(in oklch, var(--muted-foreground) 55%, transparent)",
   },
 })
 
