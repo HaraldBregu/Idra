@@ -348,7 +348,6 @@ const ChannelsPage: React.FC = () => {
 
 			<SettingsSection
 				title={t('settings.channels.configuration')}
-				description={t('settings.channels.noModelOptions')}
 			>
 				<div className="grid gap-2">
 					<ModelProviderConfiguration
