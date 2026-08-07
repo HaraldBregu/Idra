@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 
-import { app, isFriday, type AppThemeData } from '@friday/sdk';
+import { agent, app, isFriday, type AppThemeData, type WorkspaceTreeEntry } from '@friday/sdk';
 import { AppSidebar, type ViewId } from '@/components/app-sidebar';
 import { NoteEditor } from '@/components/note-editor';
 import { NoteList } from '@/components/note-list';
@@ -32,6 +32,11 @@ export default function App() {
 	const [sort, setSort] = useState<SortMode>('updated');
 	const [mobilePane, setMobilePane] = useState<'list' | 'editor'>('list');
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const [workspaceLocation, setWorkspaceLocation] = useState('');
+	const [workspaceFiles, setWorkspaceFiles] = useState<WorkspaceTreeEntry[]>([]);
+	const [workspaceLoading, setWorkspaceLoading] = useState(false);
+	const [workspaceError, setWorkspaceError] = useState('');
+	const [selectedWorkspacePath, setSelectedWorkspacePath] = useState<string | null>(null);
 	const themeStyle = Object.fromEntries(
 		Object.entries(theme.colors).map(([name, value]) => [`--${name}`, value]),
 	) as CSSProperties;
@@ -68,6 +73,31 @@ export default function App() {
 		return () => {
 			active = false;
 			unsubscribe();
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!isFriday()) return;
+
+		let active = true;
+		setWorkspaceLoading(true);
+		setWorkspaceError('');
+
+		Promise.all([agent.getWorkspaceLocation(), agent.listWorkspaceFiles()])
+			.then(([location, files]) => {
+				if (!active) return;
+				setWorkspaceLocation(location);
+				setWorkspaceFiles(files);
+			})
+			.catch((error) => {
+				if (active) setWorkspaceError(error instanceof Error ? error.message : 'Unable to load workspace.');
+			})
+			.finally(() => {
+				if (active) setWorkspaceLoading(false);
+			});
+
+		return () => {
+			active = false;
 		};
 	}, []);
 
@@ -123,6 +153,7 @@ export default function App() {
 	function selectView(view: ViewId | `folder:${string}`) {
 		setActiveView(view);
 		setSidebarOpen(false);
+		setSelectedWorkspacePath(null);
 		if (view === 'search') setSearch('');
 
 		const next = notes.find((note) => (view === 'trash' ? note.trashed : !note.trashed));
@@ -189,7 +220,21 @@ export default function App() {
 	}
 
 	const sidebar = (
-		<AppSidebar activeView={activeView} counts={counts} onCreate={createNote} onViewChange={selectView} />
+		<AppSidebar
+			activeView={activeView}
+			counts={counts}
+			onCreate={createNote}
+			onViewChange={selectView}
+			onWorkspaceSelect={(entry) => {
+				setSelectedWorkspacePath(entry.path);
+				setSidebarOpen(false);
+			}}
+			selectedWorkspacePath={selectedWorkspacePath}
+			workspaceError={workspaceError}
+			workspaceFiles={workspaceFiles}
+			workspaceLoading={workspaceLoading}
+			workspaceLocation={workspaceLocation}
+		/>
 	);
 
 	return (
