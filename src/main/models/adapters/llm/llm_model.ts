@@ -472,14 +472,17 @@ export class LlmModel implements LlmAdapter {
 		const blockIndexToToolUseId = new Map<number, string>();
 
 		try {
-			const stream = client.messages.stream({
-				...req.options,
-				model: req.model,
-				system: req.system,
-				max_tokens: req.maxTokens,
-				tools: tools.length > 0 ? tools : undefined,
-				messages: llmBuildAnthropicMessages(req.messages),
-			}, { signal: req.signal });
+			const stream = client.messages.stream(
+				{
+					...req.options,
+					model: req.model,
+					system: req.system,
+					max_tokens: req.maxTokens,
+					tools: tools.length > 0 ? tools : undefined,
+					messages: llmBuildAnthropicMessages(req.messages),
+				},
+				{ signal: req.signal }
+			);
 
 			for await (const rawEvent of stream) {
 				if (!rawEvent || typeof rawEvent !== 'object') continue;
@@ -665,8 +668,6 @@ export class LlmModel implements LlmAdapter {
 	}
 }
 
-function isLlmRequest(
-	request: LlmRequest | LlmStreamRequest
-): request is LlmRequest {
+function isLlmRequest(request: LlmRequest | LlmStreamRequest): request is LlmRequest {
 	return 'provider' in request;
 }

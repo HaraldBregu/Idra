@@ -67,8 +67,7 @@ export function ModelOptions({
 							: undefined;
 				}
 				const key = path.join('.');
-				const label =
-					schema.title ?? path.map((part) => part.replaceAll('_', ' ')).join(' ');
+				const label = schema.title ?? path.map((part) => part.replaceAll('_', ' ')).join(' ');
 				const choices =
 					schema.oneOf?.map((choice) => ({
 						label: choice.title ?? String(choice.const),
@@ -94,9 +93,7 @@ export function ModelOptions({
 								>
 									<SelectTrigger className="w-40">
 										<SelectValue>
-											{selectedIndex < 0
-												? 'Provider default'
-												: choices[selectedIndex]?.label}
+											{selectedIndex < 0 ? 'Provider default' : choices[selectedIndex]?.label}
 										</SelectValue>
 									</SelectTrigger>
 									<SelectContent>
@@ -138,9 +135,7 @@ export function ModelOptions({
 								min={schema.minimum}
 								max={schema.maximum}
 								step={schema.type === 'integer' ? 1 : undefined}
-								value={
-									typeof value === 'string' || typeof value === 'number' ? String(value) : ''
-								}
+								value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
 								onChange={(event) =>
 									onChange(
 										path,
