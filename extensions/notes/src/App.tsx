@@ -1,221 +1,214 @@
-import { useEffect, useState, type CSSProperties } from 'react';
-import { cva } from 'class-variance-authority';
+import { useEffect, useMemo, useState } from 'react';
 
-import {
-	app,
-	isFriday,
-	type AppLanguage,
-	type AppTheme,
-	type AppThemeColors,
-	type AppThemeData,
-} from '@friday/sdk';
-import { cn } from './lib/utils';
-import { Button } from './components/ui/button';
-import translations from './i18n.json';
+import { AppSidebar, type ViewId } from '@/components/app-sidebar';
+import { NoteEditor } from '@/components/note-editor';
+import { NoteList } from '@/components/note-list';
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { notesApi } from '@/lib/notes-api';
+import { cn } from '@/lib/utils';
+import type { Note, SortMode } from '@/lib/notes';
 
-const fallbackColors: AppThemeColors = {
-	'radius': '0.625rem',
-	'app-window-radius': '16px',
-	'app-bg-opacity': '1',
-	'app-surface-opacity': '1',
-	'app-popover-opacity': '1',
-	'app-sidebar-opacity': '1',
-	'app-window-background-base': '#fbfbfa',
-	'app-surface-background-base': '#ffffff',
-	'app-popover-background-base': '#ffffff',
-	'app-sidebar-background-base': '#fafaf8',
-	'app-window-border': '#19635f',
-	'app-window-background':
-		'color-mix(in oklch, var(--app-window-background-base) calc(var(--app-bg-opacity) * 100%), transparent)',
-	'app-surface-background':
-		'color-mix(in oklch, var(--app-surface-background-base) calc(var(--app-surface-opacity) * 100%), transparent)',
-	'app-popover-background':
-		'color-mix(in oklch, var(--app-popover-background-base) calc(var(--app-popover-opacity) * 100%), transparent)',
-	'app-sidebar-background':
-		'color-mix(in oklch, var(--app-sidebar-background-base) calc(var(--app-sidebar-opacity) * 100%), transparent)',
-	'background': 'var(--app-window-background)',
-	'foreground': '#0e0e0e',
-	'card': 'var(--app-surface-background)',
-	'card-foreground': '#0e0e0e',
-	'primary': '#0e0e0e',
-	'primary-foreground': '#fbfbfa',
-	'secondary': '#eeede9',
-	'secondary-foreground': '#0e0e0e',
-	'muted': '#eeede9',
-	'muted-foreground': '#a3a7a7',
-	'accent': '#eae9e5',
-	'accent-foreground': '#0e0e0e',
-	'border': 'color-mix(in oklch, #a3a7a7 45%, transparent)',
-	'input': 'color-mix(in oklch, #a3a7a7 45%, transparent)',
-	'ring': '#2b5fb1',
+const titles: Record<ViewId, string> = {
+	all: 'All notes',
+	favorites: 'Favorites',
+	search: 'Search',
+	trash: 'Recently deleted',
 };
-const fallbackTheme: AppThemeData = { themeMode: 'light', isDark: false, colors: fallbackColors };
-const fallbackLanguage: AppLanguage = 'en';
-const themeBadgeClass = cva('inline-flex h-9 items-center rounded-full border px-4 text-sm font-semibold', {
-	variants: {
-		variant: {
-			light: 'border-border bg-secondary text-secondary-foreground',
-			dark: 'border-border bg-secondary text-secondary-foreground',
-		},
-	},
-	defaultVariants: {
-		variant: 'light',
-	},
-});
 
 export default function App() {
-	const [theme, setTheme] = useState<AppThemeData>(fallbackTheme);
-	const [language, setLanguage] = useState<AppLanguage>(fallbackLanguage);
-	const [status, setStatus] = useState(translations.en.waiting);
-	const inFridayApp = isFriday();
-	const text = translations[language] ?? translations.en;
-	const themeStyle = Object.fromEntries(
-		Object.entries(theme.colors).map(([name, value]) => [`--${name}`, value]),
-	) as CSSProperties;
-
-	const ensureFridayApp = () => {
-		if (!isFriday()) {
-			setStatus(text.runtimeMissing);
-			return false;
-		}
-		return true;
-	};
-
-	const getStatusText = (themeData: AppThemeData, appLanguage: AppLanguage): string => {
-		return `theme=${themeData.themeMode}, resolved-dark=${String(themeData.isDark)}, language=${appLanguage}`;
-	};
-
-	const refreshTheme = async () => {
-		if (!ensureFridayApp()) return;
-		try {
-			const themeData = await app.getThemeData();
-			setTheme(themeData);
-			setStatus(`${text.themeRefreshed} (${getStatusText(themeData, language)})`);
-		} catch {
-			setStatus(text.themeRefreshFailed);
-		}
-	};
-
-	const refreshLanguage = async () => {
-		if (!ensureFridayApp()) return;
-		try {
-			const appLanguage = await app.getLanguage();
-			setLanguage(appLanguage);
-			setStatus(`${translations[appLanguage].languageRefreshed} (${getStatusText(theme, appLanguage)})`);
-		} catch {
-			setStatus(text.languageRefreshFailed);
-		}
-	};
-
-	const setAppTheme = async (nextTheme: AppTheme) => {
-		if (!ensureFridayApp()) return;
-		try {
-			await app.setTheme(nextTheme);
-			await refreshTheme();
-			setStatus(`${text.themeSet} ${nextTheme}`);
-		} catch {
-			setStatus(text.themeSetFailed);
-		}
-	};
-
-	const setAppLanguage = async (nextLanguage: AppLanguage) => {
-		if (!ensureFridayApp()) return;
-		try {
-			await app.setLanguage(nextLanguage);
-			await refreshLanguage();
-			setStatus(`${translations[nextLanguage].languageSet} ${nextLanguage}`);
-		} catch {
-			setStatus(text.languageSetFailed);
-		}
-	};
-
-	const printThemeData = async () => {
-		if (!ensureFridayApp()) return;
-		try {
-			const themeData = await app.getThemeData();
-			setTheme(themeData);
-			console.log('Friday app theme data', themeData);
-			setStatus(text.printThemeDataSuccess);
-		} catch {
-			setStatus(text.printThemeDataFailed);
-		}
-	};
+	const [notes, setNotes] = useState<Note[]>([]);
+	const [activeView, setActiveView] = useState<ViewId | `folder:${string}`>('all');
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+	const [search, setSearch] = useState('');
+	const [sort, setSort] = useState<SortMode>('updated');
+	const [mobilePane, setMobilePane] = useState<'list' | 'editor'>('list');
+	const [sidebarOpen, setSidebarOpen] = useState(false);
 
 	useEffect(() => {
-		if (!isFriday()) return;
+		let active = true;
 
-		let mounted = true;
-		const loadCurrentState = async () => {
-			try {
-				const [themeData, appLanguage] = await Promise.all([app.getThemeData(), app.getLanguage()]);
-				if (!mounted) return;
-				setTheme(themeData);
-				setLanguage(appLanguage);
-				setStatus(`${translations[appLanguage].loaded} (${getStatusText(themeData, appLanguage)})`);
-			} catch {
-				if (mounted) setStatus(text.loadFailed);
-			}
-		};
-		void loadCurrentState();
-		const unsubscribe = app.onThemeModeChanged((themeData) => {
-			if (!mounted) return;
-			setTheme(themeData);
-			setStatus(`${text.themeChanged} (${getStatusText(themeData, language)})`);
+		notesApi.list().then((loaded) => {
+			if (!active) return;
+			setNotes(loaded);
+			setSelectedId((current) => current ?? loaded.find((note) => !note.trashed)?.id ?? null);
 		});
 
 		return () => {
-			mounted = false;
-			unsubscribe();
+			active = false;
 		};
 	}, []);
 
+	useEffect(() => {
+		const onKeyDown = (event: KeyboardEvent) => {
+			if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'n') {
+				event.preventDefault();
+				void createNote();
+			}
+		};
+
+		window.addEventListener('keydown', onKeyDown);
+		return () => window.removeEventListener('keydown', onKeyDown);
+	});
+
+	const counts = useMemo(() => {
+		const active = notes.filter((note) => !note.trashed);
+
+		return {
+			all: active.length,
+			favorites: active.filter((note) => note.favorite).length,
+			trash: notes.filter((note) => note.trashed).length,
+			Work: active.filter((note) => note.folder === 'Work').length,
+			Personal: active.filter((note) => note.folder === 'Personal').length,
+			Ideas: active.filter((note) => note.folder === 'Ideas').length,
+		};
+	}, [notes]);
+
+	const visibleNotes = useMemo(() => {
+		let result = notes.filter((note) => (activeView === 'trash' ? note.trashed : !note.trashed));
+
+		if (activeView === 'favorites') result = result.filter((note) => note.favorite);
+		if (activeView.startsWith('folder:')) {
+			result = result.filter((note) => note.folder === activeView.slice('folder:'.length));
+		}
+
+		const query = search.trim().toLowerCase();
+		if (query) {
+			result = result.filter((note) =>
+				[note.title, note.content, note.folder, ...note.tags].some((value) => value.toLowerCase().includes(query)),
+			);
+		}
+
+		return [...result].sort((a, b) => {
+			if (sort === 'title') return a.title.localeCompare(b.title);
+			return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+		});
+	}, [activeView, notes, search, sort]);
+
+	const selectedNote = notes.find((note) => note.id === selectedId) ?? null;
+	const title = activeView.startsWith('folder:') ? activeView.slice('folder:'.length) : titles[activeView];
+
+	function selectView(view: ViewId | `folder:${string}`) {
+		setActiveView(view);
+		setSidebarOpen(false);
+		if (view === 'search') setSearch('');
+
+		const next = notes.find((note) => (view === 'trash' ? note.trashed : !note.trashed));
+		if (next) setSelectedId(next.id);
+		setMobilePane('list');
+	}
+
+	async function createNote() {
+		const currentFolder = activeView.startsWith('folder:') ? activeView.slice('folder:'.length) : 'Ideas';
+		const note = await notesApi.create({
+			title: 'Untitled note',
+			content: '',
+			folder: currentFolder,
+			tags: [],
+			favorite: false,
+			trashed: false,
+		});
+
+		setNotes((current) => [note, ...current]);
+		setSelectedId(note.id);
+		setActiveView(currentFolder === 'Ideas' ? 'all' : `folder:${currentFolder}`);
+		setSearch('');
+		setSidebarOpen(false);
+		setMobilePane('editor');
+	}
+
+	function updateSelected(patch: Partial<Omit<Note, 'id' | 'updatedAt'>>) {
+		if (!selectedId) return;
+
+		setNotes((current) =>
+			current.map((note) => (note.id === selectedId ? { ...note, ...patch, updatedAt: Date.now() } : note)),
+		);
+		void notesApi.update(selectedId, patch);
+	}
+
+	function deleteSelected() {
+		if (!selectedNote) return;
+		const { id } = selectedNote;
+
+		if (selectedNote.trashed) {
+			void notesApi.delete(id);
+			setNotes((current) => current.filter((note) => note.id !== id));
+		} else {
+			void notesApi.update(id, { trashed: true });
+			setNotes((current) =>
+				current.map((note) => (note.id === id ? { ...note, trashed: true, updatedAt: Date.now() } : note)),
+			);
+		}
+
+		const next = visibleNotes.find((note) => note.id !== id);
+		setSelectedId(next?.id ?? null);
+		setMobilePane('list');
+	}
+
+	function restoreSelected() {
+		if (!selectedNote) return;
+		const { id } = selectedNote;
+
+		void notesApi.update(id, { trashed: false });
+		setNotes((current) =>
+			current.map((note) => (note.id === id ? { ...note, trashed: false, updatedAt: Date.now() } : note)),
+		);
+		setActiveView('all');
+	}
+
+	const sidebar = (
+		<AppSidebar activeView={activeView} counts={counts} onCreate={createNote} onViewChange={selectView} />
+	);
+
 	return (
-		<main className={cn('app-demo', theme.isDark && 'dark')} style={themeStyle}>
-			<div className="flex h-full items-center justify-center p-8">
-				<div className="w-full max-w-md space-y-4 rounded-lg border border-border bg-card p-6 text-card-foreground shadow-sm">
-					<p className="text-lg font-semibold">{text.title}</p>
-					<p className="text-sm text-muted-foreground">{inFridayApp ? text.connected : text.disconnected}</p>
-					<div className="space-y-2">
-						<p className="text-sm font-semibold">{text.theme}</p>
-						<p className="text-sm">{text.themeMode}: {theme.themeMode}</p>
-						<p className="text-sm">{text.resolvedDarkMode}: {theme.isDark ? 'true' : 'false'}</p>
-						<div className="mt-2 flex flex-wrap gap-2">
-							<Button variant="outline" onClick={() => setAppTheme('light')}>
-								{text.setLight}
-							</Button>
-							<Button variant="outline" onClick={() => setAppTheme('dark')}>
-								{text.setDark}
-							</Button>
-							<Button variant="outline" onClick={() => setAppTheme('system')}>
-								{text.setSystem}
-							</Button>
-							<Button variant="secondary" onClick={refreshTheme}>
-								{text.getTheme}
-							</Button>
-							<Button onClick={printThemeData}>{text.printThemeData}</Button>
-						</div>
+		<TooltipProvider delayDuration={400}>
+			<div className="flex h-dvh min-h-[520px] overflow-hidden bg-background text-foreground">
+				<aside className="hidden w-[176px] shrink-0 border-r border-sidebar-border lg:block">{sidebar}</aside>
+
+				<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+					<SheetContent
+						side="left"
+						className="w-[286px] border-sidebar-border bg-sidebar p-0 text-sidebar-foreground sm:max-w-[286px] [&>button]:text-sidebar-foreground"
+					>
+						<SheetTitle className="sr-only">Notes navigation</SheetTitle>
+						<SheetDescription className="sr-only">Choose a notebook or create a new note.</SheetDescription>
+						{sidebar}
+					</SheetContent>
+				</Sheet>
+
+				<main className="relative grid min-h-0 min-w-0 flex-1 grid-cols-1 md:grid-cols-[310px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)]">
+					<div className={cn('relative h-full min-h-0 min-w-0', mobilePane === 'editor' && 'hidden md:block')}>
+						<NoteList
+							activeView={activeView}
+							notes={visibleNotes}
+							onCreate={createNote}
+							onOpenMenu={() => setSidebarOpen(true)}
+							onSelect={(id) => {
+								setSelectedId(id);
+								setMobilePane('editor');
+							}}
+							search={search}
+							selectedId={selectedId}
+							setSearch={setSearch}
+							setSort={setSort}
+							sort={sort}
+							title={title}
+						/>
 					</div>
-					<div className="space-y-2">
-						<p className="text-sm font-semibold">{text.language}</p>
-						<p className="text-sm">{text.currentLanguage}: {language}</p>
-						<div className="mt-2 flex flex-wrap gap-2">
-							<Button variant="outline" onClick={() => setAppLanguage('en')}>
-								{text.setEnglish}
-							</Button>
-							<Button variant="outline" onClick={() => setAppLanguage('it')}>
-								{text.setItalian}
-							</Button>
-							<Button variant="secondary" onClick={refreshLanguage}>
-								{text.getLanguage}
-							</Button>
-						</div>
+
+					<div className={cn('h-full min-h-0 min-w-0', mobilePane === 'list' && 'hidden md:block')}>
+						<NoteEditor
+							note={selectedNote}
+							onBack={() => setMobilePane('list')}
+							onCreate={createNote}
+							onDelete={deleteSelected}
+							onRestore={restoreSelected}
+							onToggleFavorite={() => updateSelected({ favorite: !selectedNote?.favorite })}
+							onUpdate={updateSelected}
+						/>
 					</div>
-					<p className="text-sm text-muted-foreground">{text.status}: {status}</p>
-					<span className={themeBadgeClass({ variant: theme.isDark ? 'dark' : 'light' })}>
-						{theme.isDark ? text.dark : text.light}
-					</span>
-				</div>
+				</main>
 			</div>
-		</main>
+		</TooltipProvider>
 	);
 }
