@@ -12,22 +12,9 @@
       "type": "text-to-video-model",
       "url": "https://kling.ai",
       "metadata": {
-        "documentationUrl": "https://app.klingai.com/global/dev/document-api",
-        "inputs": {
-          "aspectRatio": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://kling.ai",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -36,22 +23,9 @@
       "type": "text-to-video-model",
       "url": "https://kling.ai",
       "metadata": {
-        "documentationUrl": "https://app.klingai.com/global/dev/document-api",
-        "inputs": {
-          "aspectRatio": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://kling.ai",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -60,19 +34,9 @@
       "type": "text-to-audio-model",
       "url": "https://kling.ai",
       "metadata": {
-        "documentationUrl": "https://app.klingai.com/global/dev/document-api",
-        "inputs": {
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "outputFormat": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://kling.ai",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     }
   ]
