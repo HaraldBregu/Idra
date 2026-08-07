@@ -2,14 +2,8 @@ import type { AgentApi, AppApi } from '../../src/shared/api_types';
 import type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
 
 export { connect, type ConnectOptions, type FridayClient, type WorkspaceAgentApi } from './connect';
-export type {
-	AgentApi,
-	AppApi,
-	AppTheme,
-	AppThemeColors,
-	AppThemeData,
-	AppLanguage,
-} from '../../src/shared/api_types';
+export type { AgentApi, AppApi } from '../../src/shared/api_types';
+export type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
 export type { WorkspaceTreeEntry } from '../../src/shared/agent_types';
 
 // The SDK is scoped to app-level data only.

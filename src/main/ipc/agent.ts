@@ -13,7 +13,7 @@ import type {
 	AgentPermissionMode,
 	AgentToolPermissionDecision,
 	ModelReasoningEffort,
-	type WorkspaceTreeEntry,
+	WorkspaceTreeEntry,
 } from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
 import { workspacePath } from '../agent/system';
