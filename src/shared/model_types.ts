@@ -13,6 +13,15 @@ export type ModelCapability =
 	| 'text-to-audio'
 	| 'embedding';
 
+export interface ModelMetadata {
+	/** Official provider page that documents this service's request contract. */
+	readonly documentationUrl: string;
+	/** Whether the catalog model has an externally documented request contract. */
+	readonly documentationStatus?: 'verified' | 'unverified';
+	/** API request fields supported by this exact service or model. */
+	readonly inputs: Readonly<Record<string, unknown>>;
+}
+
 export interface ProviderModel {
 	readonly id: string;
 	readonly name: string;
@@ -21,7 +30,7 @@ export interface ProviderModel {
 	/** Speech-to-text only: model streams transcripts in realtime. */
 	readonly realtime?: boolean;
 	/** Provider-documented, model-specific input controls. */
-	readonly metadata?: Record<string, unknown>;
+	readonly metadata?: ModelMetadata;
 }
 
 export type ModelCatalog = Readonly<Record<string, readonly ProviderModel[]>>;

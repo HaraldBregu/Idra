@@ -1,4 +1,4 @@
-import type { ModelCapability, ProviderModel } from './model_types';
+import type { ModelCapability, ModelMetadata, ProviderModel } from './model_types';
 
 export interface ProviderApiConfiguration {
 	readonly credentialType: string | null;
@@ -36,7 +36,7 @@ export interface CatalogEntryModel extends ProviderModel {
 	/** Speech-to-text only: realtime capture sample rate. */
 	readonly sampleRate?: number;
 	/** Provider-documented, model-specific input controls. */
-	readonly metadata?: Record<string, unknown>;
+	readonly metadata?: ModelMetadata;
 }
 
 export type ProviderServiceType =
@@ -68,7 +68,7 @@ export interface CatalogEntryService {
 	/** Base URL of the API serving this service. */
 	readonly url?: string;
 	/** Provider-documented, service-specific input controls. */
-	readonly metadata?: Record<string, unknown>;
+	readonly metadata?: ModelMetadata;
 }
 
 /** A database or storage offering, carrying the provider that serves it. */
