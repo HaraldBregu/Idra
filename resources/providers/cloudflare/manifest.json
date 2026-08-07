@@ -10,10 +10,27 @@
       "url": "https://r2.cloudflarestorage.com",
       "type": "storage",
       "metadata": {
-        "documentationUrl": "https://developers.cloudflare.com/r2/api/",
+        "documentationUrl": "https://developers.cloudflare.com/r2/api/workers/workers-api-reference/",
+        "documentationStatus": "verified",
         "inputs": {
-          "contentType": {
+          "httpMetadata": {
+            "type": "object"
+          },
+          "customMetadata": {
+            "type": "object"
+          },
+          "storageClass": {
+            "type": "string",
+            "enum": [
+              "Standard",
+              "InfrequentAccess"
+            ]
+          },
+          "md5": {
             "type": "string"
+          },
+          "onlyIf": {
+            "type": "object"
           }
         }
       }
