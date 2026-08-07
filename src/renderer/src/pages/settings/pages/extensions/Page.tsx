@@ -70,6 +70,11 @@ const ExtensionsPage: React.FC = () => {
 		}
 	}, [loadExtensions, t]);
 
+	const extensionPath = useCallback(
+		(extensionId: string): string => `/settings/extensions/${encodeURIComponent(extensionId)}`,
+		[]
+	);
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
@@ -121,17 +126,11 @@ const ExtensionsPage: React.FC = () => {
 								variant="outline"
 								size="md"
 								className="cursor-pointer border-b border-border/60 hover:bg-muted/40 last:border-b-0"
-								onClick={() =>
-									navigate(
-										`/settings/extensions/extensiondetails/${encodeURIComponent(extension.id)}`
-									)
-								}
+								onClick={() => navigate(extensionPath(extension.id))}
 								onKeyDown={(event) => {
 									if (event.key === 'Enter' || event.key === ' ') {
 										event.preventDefault();
-										navigate(
-											`/settings/extensions/extensiondetails/${encodeURIComponent(extension.id)}`
-										);
+										navigate(extensionPath(extension.id));
 									}
 								}}
 							>

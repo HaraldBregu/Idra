@@ -71,6 +71,11 @@ function ModelServiceLegacyRedirect(): React.JSX.Element {
 	return <Navigate to={isChatHistory ? `${item.path}/chathistory` : item.path} replace />;
 }
 
+function ExtensionDetailsLegacyRedirect(): React.JSX.Element {
+	const { extensionId } = useParams();
+	return <Navigate to={`/settings/extensions/${extensionId ?? ''}`} replace />;
+}
+
 function RouteWrapper({
 	children,
 	fallback = <PageLoadingSkeleton />,
@@ -526,12 +531,16 @@ const routes: RouteObject[] = [
 								),
 							},
 							{
-								path: 'extensiondetails/:extensionId',
+								path: ':extensionId',
 								element: (
 									<SettingsRouteWrapper>
 										<ExtensionDetailsPage />
 									</SettingsRouteWrapper>
 								),
+							},
+							{
+								path: 'extensiondetails/:extensionId',
+								element: <ExtensionDetailsLegacyRedirect />,
 							},
 						],
 					},

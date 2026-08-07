@@ -20,6 +20,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	const { t } = useTranslation();
 	const location = useLocation();
 	const mcpDetailMatch = useMatch('/settings/providers/mcp/:mcpServerId');
+	const extensionDetailMatch = useMatch('/settings/extensions/:extensionId');
 
 	if (location.pathname === '/settings') return [];
 
@@ -59,6 +60,13 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		return [
 			{ label: t('settings.tabs.mcp'), path: '/settings/providers/mcp' },
 			{ label: mcpDetailMatch.params.mcpServerId ?? '' },
+		];
+	}
+
+	if (extensionDetailMatch) {
+		return [
+			{ label: t('settings.tabs.extensions'), path: '/settings/extensions' },
+			{ label: extensionDetailMatch.params.extensionId ?? '' },
 		];
 	}
 
