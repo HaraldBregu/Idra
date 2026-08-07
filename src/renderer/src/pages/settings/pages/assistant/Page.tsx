@@ -94,6 +94,9 @@ const AssistantPage: React.FC = () => {
 	);
 	const inputs = model?.metadata?.documentationStatus === 'verified' ? model.metadata.inputs : {};
 	const selectedSearchEngine = SEARCH_ENGINES.find((engine) => engine.id === searchSettings?.engineId);
+	const selectedSearchEngineDescription = selectedSearchEngine
+		? t(selectedSearchEngine.descriptionKey)
+		: t('settings.searchEngine.defaultDescription');
 
 	useEffect(() => {
 		let mounted = true;
@@ -249,7 +252,7 @@ const AssistantPage: React.FC = () => {
 								{selectedSearchEngine?.name ?? t('settings.searchEngine.provider')}
 							</div>
 							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-								{t('settings.overview.descriptions.searchEngine')}
+								{selectedSearchEngineDescription}
 							</p>
 						</div>
 						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
