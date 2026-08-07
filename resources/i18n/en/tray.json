@@ -1,6 +1,8 @@
 {
 	"showFriday": "Show Friday",
 	"hideFriday": "Hide Friday",
+	"extensions": "Extensions",
 	"apps": "Apps",
+	"noExtensions": "No extensions",
 	"quit": "Quit"
 }
