@@ -24,5 +24,5 @@ export default function App() {
 		};
 	}, []);
 
-	return <main className={cn('app-demo', theme.isDark ? 'dark' : 'light')} />;
+	return <main className={cn('app-demo', theme.isDark ? 'dark-mode' : 'light-mode')} />;
 }

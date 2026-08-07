@@ -4,10 +4,6 @@
 	color-scheme: light dark;
 }
 
-@theme {
-	--default-font-family: 'Inter', 'Segoe UI', sans-serif;
-}
-
 * {
 	box-sizing: border-box;
 }
@@ -20,9 +16,12 @@ body,
 
 .app-demo {
 	@apply h-full w-full;
-	@apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50;
 }
 
-html.dark .app-demo {
-	@apply bg-slate-900 text-slate-100;
+.app-demo.light-mode {
+	@apply bg-slate-50 text-slate-900;
+}
+
+.app-demo.dark-mode {
+	@apply bg-slate-950 text-slate-50;
 }
