@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import type { Model } from '@/lib/compat';
 import { providerIdsFor, providerModels, providers, supportsSpeechToTextApiType } from '@/lib/providers';
 import { Badge } from '@/components/ui/badge';
@@ -348,7 +348,7 @@ const ChannelsPage: React.FC = () => {
 
 			<SettingsSection
 				title={t('settings.channels.configuration')}
-				description={t('settings.channels.configuration')}
+				description={t('settings.channels.noModelOptions')}
 			>
 				<div className="grid gap-2">
 					<ModelProviderConfiguration
@@ -430,7 +430,7 @@ const ChannelsPage: React.FC = () => {
 					</Card>
 				)}
 			</SettingsSection>
-		</SettingsSettingsPageShell>
+		</SettingsPageShell>
 	);
 };
 
