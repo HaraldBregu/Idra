@@ -124,6 +124,8 @@ export const AppChannels = {
 	webSearches: 'app:web-searches',
 	mcps: 'app:mcps',
 	channels: 'app:channels:list',
+	getChannelModelSelection: 'app:channels:model-selection:get',
+	setChannelModelSelection: 'app:channels:model-selection:set',
 	modelsChanged: 'app:models-changed',
 	uploadProvider: 'app:upload-provider',
 	getChannelsStatus: 'app:channels:get-status',

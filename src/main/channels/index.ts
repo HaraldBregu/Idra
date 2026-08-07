@@ -4,6 +4,10 @@ export { loadChannels } from './catalog';
 export {
 	getChannelProvider,
 	listChannelProviders,
+	getChannelModelSelection,
+	setChannelModelSelection,
+	getChannelModelSelections,
+	setChannelModelSelections,
 	setChannelProvider,
 } from './channels_store';
 export type { ChannelsStoreState } from './channels_store';
