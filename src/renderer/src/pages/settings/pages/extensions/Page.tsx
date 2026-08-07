@@ -100,6 +100,8 @@ const ExtensionsPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
+			{successMessage && <SettingsNotice>{successMessage}</SettingsNotice>}
+
 			<SettingsSection title={t('settings.extensions.title')}>
 				<SettingsPanel>
 					{loading ? (
