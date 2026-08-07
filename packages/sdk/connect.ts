@@ -4,7 +4,7 @@ import type { AgentApi, AppApi } from '../../src/shared/api_types';
 import type { ChannelStatusEvent } from '../../src/shared/channels_types';
 import type { AppThemeData } from '../../src/shared/app_types';
 
-export type WorkspaceAgentApi = Pick<AgentApi, 'getWorkspaceLocation'>;
+export type WorkspaceAgentApi = Pick<AgentApi, 'getWorkspaceLocation' | 'listWorkspaceFiles'>;
 
 export interface ConnectOptions {
 	/** Base URL of the Friday API. Defaults to `http://127.0.0.1:8765`. */
@@ -125,6 +125,8 @@ export function connect(options: ConnectOptions): FridayClient {
 		agent: {
 			getWorkspaceLocation: () =>
 				invoke(AgentChannels.getWorkspaceLocation, []) as Promise<string>,
+			listWorkspaceFiles: () =>
+				invoke(AgentChannels.listWorkspaceFiles, []) as ReturnType<AgentApi['listWorkspaceFiles']>,
 		},
 		ping: async () => {
 			const response = await call(`${base}/health`, { headers });

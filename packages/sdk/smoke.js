@@ -18,6 +18,7 @@ globalThis.app = {
 };
 globalThis.agent = {
 	getWorkspaceLocation: async () => '/tmp/friday-workspace',
+	listWorkspaceFiles: async () => [{ name: 'USER.md', path: 'USER.md', type: 'file' }],
 };
 
 assert.equal(isFriday(), true);
@@ -27,6 +28,7 @@ assert.deepEqual(await app.getThemeData(), {
 	colors: { background: '#fff' },
 });
 assert.equal(await agent.getWorkspaceLocation(), '/tmp/friday-workspace');
+assert.deepEqual(await agent.listWorkspaceFiles(), [{ name: 'USER.md', path: 'USER.md', type: 'file' }]);
 
 // --- remote mode: bound to the app API server --------------------------------
 
@@ -54,7 +56,12 @@ const server = createServer(async (req, res) => {
 	res.end(
 		JSON.stringify({
 			success: true,
-			data: channel === 'agent:workspace:location:get' ? '/tmp/friday-workspace' : (args[0] ?? null),
+			data:
+				channel === 'agent:workspace:location:get'
+					? '/tmp/friday-workspace'
+					: channel === 'agent:workspace:files:list'
+						? [{ name: 'USER.md', path: 'USER.md', type: 'file' }]
+						: (args[0] ?? null),
 		})
 	);
 });
@@ -65,10 +72,14 @@ const friday = connect({ url: `http://127.0.0.1:${server.address().port}`, token
 assert.deepEqual(await friday.ping(), { name: 'friday', version: '1.0.0' });
 await friday.app.getThemeData();
 assert.equal(await friday.agent.getWorkspaceLocation(), '/tmp/friday-workspace');
+assert.deepEqual(await friday.agent.listWorkspaceFiles(), [
+	{ name: 'USER.md', path: 'USER.md', type: 'file' },
+]);
 
 assert.deepEqual(calls.map((call) => call.channel), [
 	'app:get-theme-data',
 	'agent:workspace:location:get',
+	'agent:workspace:files:list',
 ]);
 
 // events reach subscribers over the stream

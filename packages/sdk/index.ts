@@ -2,7 +2,15 @@ import type { AgentApi, AppApi } from '../../src/shared/api_types';
 import type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
 
 export { connect, type ConnectOptions, type FridayClient, type WorkspaceAgentApi } from './connect';
-export type { AgentApi, AppApi, AppTheme, AppThemeColors, AppThemeData, AppLanguage };
+export type {
+	AgentApi,
+	AppApi,
+	AppTheme,
+	AppThemeColors,
+	AppThemeData,
+	AppLanguage,
+	WorkspaceTreeEntry,
+} from '../../src/shared/api_types';
 
 // The SDK is scoped to app-level data only.
 // This is a typed lazy view over the host preload globals.
