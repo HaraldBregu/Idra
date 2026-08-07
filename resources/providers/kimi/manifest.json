@@ -13,20 +13,49 @@
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
         "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "n": {
+            "type": "integer"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "parallel_tool_calls": {
+            "type": "boolean"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "stream_options": {
+            "type": "object"
+          },
+          "user": {
+            "type": "string"
           }
         }
       }
@@ -38,20 +67,49 @@
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
         "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "n": {
+            "type": "integer"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "parallel_tool_calls": {
+            "type": "boolean"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "stream_options": {
+            "type": "object"
+          },
+          "user": {
+            "type": "string"
           }
         }
       }
@@ -63,20 +121,49 @@
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
         "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "n": {
+            "type": "integer"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "parallel_tool_calls": {
+            "type": "boolean"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "stream_options": {
+            "type": "object"
+          },
+          "user": {
+            "type": "string"
           }
         }
       }
@@ -88,20 +175,49 @@
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
         "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "n": {
+            "type": "integer"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "parallel_tool_calls": {
+            "type": "boolean"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "stream_options": {
+            "type": "object"
+          },
+          "user": {
+            "type": "string"
           }
         }
       }
@@ -113,20 +229,49 @@
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
         "documentationUrl": "https://platform.moonshot.ai/docs/api/chat",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "n": {
+            "type": "integer"
+          },
+          "presence_penalty": {
+            "type": "number"
+          },
+          "frequency_penalty": {
+            "type": "number"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "parallel_tool_calls": {
+            "type": "boolean"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "stream_options": {
+            "type": "object"
+          },
+          "user": {
+            "type": "string"
           }
         }
       }
