@@ -8,7 +8,7 @@ import type {
 	SttTranscriptionRequest,
 	SttTranscriptionResult,
 } from './stt_transcription';
-import type { PublicProvider } from './provider_types';
+import type { PublicProvider, StoredProvider } from './provider_types';
 import type { ProviderModel } from './model_types';
 import type { EmbeddingRequest, EmbeddingResult } from './embedding_types';
 import type { ImageRequest, ImageResult } from './image_types';
@@ -21,6 +21,7 @@ import type {
 	RecorderCaptureResult,
 	RecorderCommand,
 } from './recorder_types';
+import type { StoredBotProvider } from './channels_types';
 import {
 	AgentChannels,
 	AppChannels,
@@ -43,6 +44,7 @@ import {
 	WikiChannels,
 	WindowChannels,
 } from './ipc_channels_definitions';
+type ProviderStoreRecord = StoredProvider | StoredBotProvider;
 
 export interface AgentInvokeChannelMap {
 	[AgentChannels.send]: {
