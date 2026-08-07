@@ -40,9 +40,7 @@ async function loadAssistantState(): Promise<ModelConfigurationState> {
 	]);
 	const providers = providerIdsFor('llm').flatMap((providerId) => {
 		const provider = getCatalogProviderById(providerId);
-		return provider && getProviderLlmModels(providerId).length > 0
-			? [provider]
-			: [];
+		return provider && getProviderLlmModels(providerId).length > 0 ? [provider] : [];
 	});
 	const modelGroups: ProviderModelGroup[] = providers.map((provider) => ({
 		provider,
@@ -51,8 +49,7 @@ async function loadAssistantState(): Promise<ModelConfigurationState> {
 	const preferredGroup =
 		modelGroups.find((group) => group.provider.id === storedProvider?.id) ?? modelGroups[0];
 	const preferredModel =
-		preferredGroup?.models.find((model) => model.id === storedModelId) ??
-		preferredGroup?.models[0];
+		preferredGroup?.models.find((model) => model.id === storedModelId) ?? preferredGroup?.models[0];
 
 	return {
 		providers,

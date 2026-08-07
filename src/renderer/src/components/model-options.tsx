@@ -1,5 +1,11 @@
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { SettingsRow } from '@pages/settings/components';
 
@@ -19,7 +25,11 @@ const RESERVED_INPUTS = new Set([
 	'tools',
 ]);
 
-export function ModelOptions({ inputs, values, onChange }: ModelOptionsProps): React.JSX.Element | null {
+export function ModelOptions({
+	inputs,
+	values,
+	onChange,
+}: ModelOptionsProps): React.JSX.Element | null {
 	const entries = Object.entries(inputs).filter(([key, schema]) => {
 		if (RESERVED_INPUTS.has(key)) return false;
 		const type = (schema as { type?: string }).type;
@@ -43,7 +53,12 @@ export function ModelOptions({ inputs, values, onChange }: ModelOptionsProps): R
 						<SettingsRow
 							key={key}
 							title={label}
-							actions={<Switch checked={value === true} onCheckedChange={(checked) => onChange(key, checked)} />}
+							actions={
+								<Switch
+									checked={value === true}
+									onCheckedChange={(checked) => onChange(key, checked)}
+								/>
+							}
 						/>
 					);
 				}
@@ -53,10 +68,19 @@ export function ModelOptions({ inputs, values, onChange }: ModelOptionsProps): R
 							key={key}
 							title={label}
 							actions={
-								<Select value={typeof value === 'string' ? value : undefined} onValueChange={(next) => onChange(key, next)}>
-									<SelectTrigger className="w-40"><SelectValue placeholder="Default" /></SelectTrigger>
+								<Select
+									value={typeof value === 'string' ? value : undefined}
+									onValueChange={(next) => onChange(key, next)}
+								>
+									<SelectTrigger className="w-40">
+										<SelectValue placeholder="Default" />
+									</SelectTrigger>
 									<SelectContent>
-										{definition.enum.map((item) => <SelectItem key={String(item)} value={String(item)}>{String(item)}</SelectItem>)}
+										{definition.enum.map((item) => (
+											<SelectItem key={String(item)} value={String(item)}>
+												{String(item)}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 							}
@@ -75,7 +99,16 @@ export function ModelOptions({ inputs, values, onChange }: ModelOptionsProps): R
 								min={definition.minimum}
 								max={definition.maximum}
 								value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
-								onChange={(event) => onChange(key, event.target.value === '' ? undefined : numeric ? Number(event.target.value) : event.target.value)}
+								onChange={(event) =>
+									onChange(
+										key,
+										event.target.value === ''
+											? undefined
+											: numeric
+												? Number(event.target.value)
+												: event.target.value
+									)
+								}
 							/>
 						}
 					/>
