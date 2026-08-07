@@ -10,8 +10,9 @@ const fallbackLanguage: AppLanguage = 'en';
 const themeBadgeClass = cva('inline-flex h-9 items-center rounded-full border px-4 text-sm font-semibold', {
 	variants: {
 		variant: {
-			light: 'border-slate-300 bg-white text-slate-900',
-			dark: 'border-slate-700 bg-slate-900 text-slate-100',
+			light:
+				'border-[rgb(var(--border))] bg-[rgb(var(--secondary))] text-[rgb(var(--secondary-foreground))]',
+			dark: 'border-[rgb(var(--border))] bg-[rgb(var(--secondary))] text-[rgb(var(--secondary-foreground))]',
 		},
 	},
 	defaultVariants: {
@@ -110,46 +111,46 @@ export default function App() {
 	}, []);
 
 	return (
-		<main className={cn('app-demo', theme.isDark ? 'dark-mode' : 'light-mode')}>
+		<main className={cn('app-demo', theme.isDark && 'dark')}>
 			<div className="flex h-full items-center justify-center p-8">
-				<div className="w-full max-w-md space-y-4 rounded-xl border p-6">
+				<div className="w-full max-w-md space-y-4 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--card))] p-6 text-[rgb(var(--card-foreground))] shadow-sm">
 					<p className="text-lg font-semibold">Friday app IPC demo</p>
-					<p className="text-sm text-orange-600">{inFridayApp ? 'Connected to Friday app runtime.' : 'Running outside Friday app. Buttons are available but use app actions from host runtime only.'}</p>
+					<p className="text-sm text-[rgb(var(--muted-foreground))]">{inFridayApp ? 'Connected to Friday app runtime.' : 'Running outside Friday app. Buttons are available but use app actions from host runtime only.'}</p>
 					<div className="space-y-2">
 						<p className="text-sm font-semibold">Theme</p>
 						<p className="text-sm">Theme mode from app IPC: {theme.themeMode}</p>
 						<p className="text-sm">Resolved dark mode: {theme.isDark ? 'true' : 'false'}</p>
 						<div className="mt-2 flex flex-wrap gap-2">
-						<Button variant="outline" onClick={() => setAppTheme('light')}>
-							Set light
-						</Button>
-						<Button variant="outline" onClick={() => setAppTheme('dark')}>
-							Set dark
-						</Button>
-						<Button variant="outline" onClick={() => setAppTheme('system')}>
-							Set system
-						</Button>
-						<Button variant="secondary" onClick={refreshTheme}>
-							Get theme
-						</Button>
+							<Button variant="outline" onClick={() => setAppTheme('light')}>
+								Set light
+							</Button>
+							<Button variant="outline" onClick={() => setAppTheme('dark')}>
+								Set dark
+							</Button>
+							<Button variant="outline" onClick={() => setAppTheme('system')}>
+								Set system
+							</Button>
+							<Button variant="secondary" onClick={refreshTheme}>
+								Get theme
+							</Button>
+						</div>
 					</div>
-				</div>
 					<div className="space-y-2">
 						<p className="text-sm font-semibold">Language</p>
 						<p className="text-sm">Current language from app IPC: {language}</p>
 						<div className="mt-2 flex flex-wrap gap-2">
-						<Button variant="outline" onClick={() => setAppLanguage('en')}>
-							Set EN
-						</Button>
-						<Button variant="outline" onClick={() => setAppLanguage('it')}>
-							Set IT
-						</Button>
-						<Button variant="secondary" onClick={refreshLanguage}>
-							Get language
-						</Button>
+							<Button variant="outline" onClick={() => setAppLanguage('en')}>
+								Set EN
+							</Button>
+							<Button variant="outline" onClick={() => setAppLanguage('it')}>
+								Set IT
+							</Button>
+							<Button variant="secondary" onClick={refreshLanguage}>
+								Get language
+							</Button>
 						</div>
 					</div>
-					<p className="text-sm">Status: {status}</p>
+					<p className="text-sm text-[rgb(var(--muted-foreground))]">Status: {status}</p>
 					<span className={themeBadgeClass({ variant: theme.isDark ? 'dark' : 'light' })}>
 						{theme.isDark ? 'Dark' : 'Light'}
 					</span>
