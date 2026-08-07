@@ -21,7 +21,7 @@ import type {
 	RecorderCaptureResult,
 	RecorderCommand,
 } from './recorder_types';
-import type { StoredBotProvider } from './channels_types';
+import type { ChannelModelKind, ChannelModelSelection, StoredBotProvider } from './channels_types';
 import {
 	AgentChannels,
 	AppChannels,
@@ -315,6 +315,14 @@ export interface AppInvokeChannelMap {
 	[AppChannels.channels]: {
 		args: [];
 		result: import('./provider_types').CatalogService[];
+	};
+	[AppChannels.getChannelModelSelection]: {
+		args: [kind: ChannelModelKind];
+		result: ChannelModelSelection;
+	};
+	[AppChannels.setChannelModelSelection]: {
+		args: [kind: ChannelModelKind, providerId: string, modelId: string];
+		result: void;
 	};
 	[AppChannels.openVideo]: {
 		args: [path: string];
