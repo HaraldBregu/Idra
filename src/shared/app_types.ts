@@ -39,6 +39,11 @@ export type AppLanguage = 'en' | 'it';
 
 export type AppTheme = 'light' | 'dark' | 'system';
 
+export interface AppThemeData {
+	readonly themeMode: AppTheme;
+	readonly isDark: boolean;
+}
+
 export const ShortcutId = {
 	openDocumentList: 'openDocumentList',
 	openAppSearch: 'openAppSearch',
