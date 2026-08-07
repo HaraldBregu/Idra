@@ -3,7 +3,7 @@ export function updateModelOptions(
 	path: readonly string[],
 	value: unknown
 ): Record<string, unknown> {
-	const next = structuredClone(values);
+	const next = structuredClone(values) as Record<string, unknown>;
 	let target = next;
 	for (const key of path.slice(0, -1)) {
 		const current = target[key];
