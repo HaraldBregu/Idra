@@ -12,24 +12,38 @@
       "type": "large-language-model",
       "url": "https://api.x.ai/v1",
       "metadata": {
-        "documentationUrl": "https://docs.x.ai/docs/api-reference",
+        "documentationUrl": "https://docs.x.ai/developers/models",
+        "documentationStatus": "verified",
         "inputs": {
-          "effort": {
+          "reasoning_effort": {
             "type": "string",
             "enum": [
+              "none",
               "low",
               "medium",
               "high"
             ]
           },
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_p": {
+            "type": "number"
+          },
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
           }
         }
       }
@@ -40,24 +54,29 @@
       "type": "large-language-model",
       "url": "https://api.x.ai/v1",
       "metadata": {
-        "documentationUrl": "https://docs.x.ai/docs/api-reference",
+        "documentationUrl": "https://docs.x.ai/developers/models",
+        "documentationStatus": "verified",
         "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_p": {
+            "type": "number"
+          },
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
           }
         }
       }
@@ -138,17 +157,27 @@
       "type": "text-to-image-model",
       "url": "https://api.x.ai/v1",
       "metadata": {
-        "documentationUrl": "https://docs.x.ai/docs/api-reference",
+        "documentationUrl": "https://docs.x.ai/developers/models",
+        "documentationStatus": "verified",
         "inputs": {
+          "n": {
+            "type": "integer"
+          },
           "aspect_ratio": {
             "type": "string"
           },
           "resolution": {
             "type": "string"
           },
-          "n": {
-            "type": "integer",
-            "minimum": 1
+          "response_format": {
+            "type": "string",
+            "enum": [
+              "url",
+              "b64_json"
+            ]
+          },
+          "storage_options": {
+            "type": "object"
           }
         }
       }
@@ -159,17 +188,27 @@
       "type": "text-to-image-model",
       "url": "https://api.x.ai/v1",
       "metadata": {
-        "documentationUrl": "https://docs.x.ai/docs/api-reference",
+        "documentationUrl": "https://docs.x.ai/developers/models",
+        "documentationStatus": "verified",
         "inputs": {
+          "n": {
+            "type": "integer"
+          },
           "aspect_ratio": {
             "type": "string"
           },
           "resolution": {
             "type": "string"
           },
-          "n": {
-            "type": "integer",
-            "minimum": 1
+          "response_format": {
+            "type": "string",
+            "enum": [
+              "url",
+              "b64_json"
+            ]
+          },
+          "storage_options": {
+            "type": "object"
           }
         }
       }
@@ -180,16 +219,23 @@
       "type": "text-to-video-model",
       "url": "https://api.x.ai/v1",
       "metadata": {
-        "documentationUrl": "https://docs.x.ai/docs/api-reference",
+        "documentationUrl": "https://docs.x.ai/developers/models",
+        "documentationStatus": "verified",
         "inputs": {
-          "aspect_ratio": {
-            "type": "string"
+          "image": {
+            "type": "string",
+            "required": true
           },
           "duration": {
             "type": "integer"
           },
           "resolution": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ]
           }
         }
       }
