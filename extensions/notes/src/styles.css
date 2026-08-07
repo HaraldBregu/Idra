@@ -91,10 +91,18 @@ body,
 
 body {
 	@apply m-0 min-w-[320px] bg-background text-foreground antialiased;
+	user-select: text;
+	-webkit-user-select: text;
 }
 
 ::selection {
 	background: color-mix(in oklch, var(--primary) 18%, transparent);
+}
+
+button,
+[role='button'] {
+	user-select: text;
+	-webkit-user-select: text;
 }
 
 .scrollbar-subtle {

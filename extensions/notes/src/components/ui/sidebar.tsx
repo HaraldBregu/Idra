@@ -8,7 +8,7 @@ const Sidebar = React.forwardRef<
 >(({ className, style, width, ...props }, ref) => (
   <aside
     ref={ref}
-    className={cn("relative hidden h-full shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:block", className)}
+    className={cn("relative h-full shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground", className)}
     style={{ width, ...style }}
     {...props}
   />

@@ -1,25 +1,39 @@
-import { ArrowLeft, FileText } from "lucide-react"
+import { useEffect, useRef } from "react"
+import { FileText } from "lucide-react"
 
 import { CodeMirrorEditor } from "@/components/code-mirror-editor"
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
 interface WorkspaceViewerProps {
   content: string
   error: string
   loading: boolean
-  onOpenMenu: () => void
   path: string | null
 }
 
-export function WorkspaceViewer({ content, error, loading, onOpenMenu, path }: WorkspaceViewerProps) {
+export function WorkspaceViewer({ content, error, loading, path }: WorkspaceViewerProps) {
+  const sectionRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section || !path) return undefined
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((!event.metaKey && !event.ctrlKey) || event.key.toLowerCase() !== "c") return
+      const selection = window.getSelection()?.toString()
+      if (selection) return
+      event.preventDefault()
+      void navigator.clipboard?.writeText(content)
+    }
+
+    section.addEventListener("keydown", onKeyDown)
+    return () => section.removeEventListener("keydown", onKeyDown)
+  }, [content, path])
+
   if (!path) {
     return (
-      <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background" aria-label="Workspace file">
+      <section ref={sectionRef} className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background" aria-label="Workspace file">
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-5">
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={onOpenMenu} aria-label="Open sidebar">
-            <ArrowLeft />
-          </Button>
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-[17px] font-semibold tracking-[-0.025em]">Workspace</h1>
             <p className="mt-0.5 text-[11px] text-muted-foreground">Select a file from the sidebar.</p>
@@ -41,11 +55,8 @@ export function WorkspaceViewer({ content, error, loading, onOpenMenu, path }: W
   }
 
   return (
-    <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background" aria-label="Workspace file">
+    <section ref={sectionRef} className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background" aria-label="Workspace file" tabIndex={0}>
       <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-5">
-        <Button variant="ghost" size="icon" className="lg:hidden" onClick={onOpenMenu} aria-label="Open sidebar">
-          <ArrowLeft />
-        </Button>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-[17px] font-semibold tracking-[-0.025em]">{path.split(/[\\/]/).pop()}</h1>
           <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{path}</p>

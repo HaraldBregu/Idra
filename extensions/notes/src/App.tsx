@@ -3,7 +3,6 @@ import { useEffect, useState, type CSSProperties, type PointerEvent } from 'reac
 import { agent, app, isFriday, type AppThemeData, type WorkspaceTreeEntry } from '@friday/sdk';
 import { AppSidebar } from '@/components/app-sidebar';
 import { WorkspaceViewer } from '@/components/workspace-viewer';
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -19,7 +18,6 @@ const sidebarDefaultWidth = 340;
 
 export default function App() {
 	const [theme, setTheme] = useState<AppThemeData>(fallbackTheme);
-	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [workspaceLocation, setWorkspaceLocation] = useState('');
 	const [workspaceFiles, setWorkspaceFiles] = useState<WorkspaceTreeEntry[]>([]);
 	const [workspaceLoading, setWorkspaceLoading] = useState(false);
@@ -83,7 +81,6 @@ export default function App() {
 		setSelectedWorkspacePath(entry.path);
 		setSelectedContent('');
 		setSelectedError('');
-		setSidebarOpen(false);
 		if (entry.type !== 'file') return;
 
 		setSelectedLoading(true);
@@ -139,23 +136,11 @@ export default function App() {
 					<SidebarResizeHandle onPointerDown={startSidebarResize} />
 				</Sidebar>
 
-				<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-					<SheetContent
-						side="left"
-						className="w-[286px] border-sidebar-border bg-sidebar p-0 text-sidebar-foreground sm:max-w-[286px] [&>button]:text-sidebar-foreground"
-					>
-						<SheetTitle className="sr-only">Notes navigation</SheetTitle>
-						<SheetDescription className="sr-only">Choose a notebook or create a new note.</SheetDescription>
-						{sidebar}
-					</SheetContent>
-				</Sheet>
-
 				<main className="relative min-h-0 min-w-0 flex-1">
 					<WorkspaceViewer
 						content={selectedContent}
 						error={selectedError}
 						loading={selectedLoading}
-						onOpenMenu={() => setSidebarOpen(true)}
 						path={selectedWorkspacePath}
 					/>
 				</main>

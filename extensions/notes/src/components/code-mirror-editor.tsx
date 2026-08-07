@@ -32,11 +32,13 @@ const noteEditorTheme = EditorView.theme({
     overflow: "auto",
     fontFamily: "inherit",
     lineHeight: "1.85",
+    userSelect: "text",
   },
   ".cm-content": {
     minHeight: "360px",
     padding: "0",
     caretColor: "var(--primary)",
+    userSelect: "text",
   },
   ".cm-line": {
     padding: "0",
