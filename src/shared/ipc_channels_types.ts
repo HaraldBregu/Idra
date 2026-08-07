@@ -741,7 +741,10 @@ export interface SttEventChannelMap {
 export interface ExtensionsInvokeChannelMap {
 	[ExtensionChannels.list]: { args: []; result: import('./extension_types').Extension[] };
 	[ExtensionChannels.open]: { args: [extensionId: string]; result: void };
-	[ExtensionChannels.import]: { args: []; result: import('./extension_types').ExtensionImportResult };
+	[ExtensionChannels.import]: {
+		args: [];
+		result: import('./extension_types').ExtensionImportResult | undefined;
+	};
 }
 
 export interface WindowInvokeChannelMap {
