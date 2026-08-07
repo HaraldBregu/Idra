@@ -357,18 +357,18 @@ export interface AppInvokeChannelMap {
 export interface ProviderInvokeChannelMap {
 	[ProviderChannels.get]: {
 		args: [id: string];
-		result: import('./provider_types').StoredProvider | undefined;
+		result: ProviderStoreRecord | undefined;
 	};
 	[ProviderChannels.set]: {
 		args: [
-			provider: import('./provider_types').StoredProvider,
+			provider: ProviderStoreRecord,
 			kind?: import('./provider_types').StoredProviderKind,
 		];
-		result: import('./provider_types').StoredProvider;
+		result: ProviderStoreRecord;
 	};
 	[ProviderChannels.list]: {
 		args: [];
-		result: import('./provider_types').StoredProvider[];
+		result: ProviderStoreRecord[];
 	};
 }
 
