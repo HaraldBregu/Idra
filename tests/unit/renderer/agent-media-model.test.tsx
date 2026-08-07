@@ -37,8 +37,8 @@ jest.mock('@/lib/providers', () => ({
 	providerModels: (providerId: string) =>
 		mockCatalog.filter((model) => model.provider.id === providerId),
 	providers: () => [
-		{ id: 'google', name: 'Google' },
-		{ id: 'xai', name: 'xAI' },
+		{ id: 'google', name: 'Google', baseUrl: 'https://google.example' },
+		{ id: 'xai', name: 'xAI', baseUrl: 'https://xai.example' },
 	],
 }));
 
