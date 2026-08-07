@@ -91,20 +91,9 @@
       "url": "https://api.x.ai/v1",
       "sampleRate": 24000,
       "metadata": {
-        "documentationUrl": "https://docs.x.ai/docs/api-reference",
-        "inputs": {
-          "language": {
-            "type": "string"
-          },
-          "prompt": {
-            "type": "string"
-          },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          }
-        }
+        "documentationUrl": "https://docs.x.ai/developers/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -118,20 +107,9 @@
       "url": "https://api.x.ai/v1",
       "sampleRate": 24000,
       "metadata": {
-        "documentationUrl": "https://docs.x.ai/docs/api-reference",
-        "inputs": {
-          "language": {
-            "type": "string"
-          },
-          "prompt": {
-            "type": "string"
-          },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          }
-        }
+        "documentationUrl": "https://docs.x.ai/developers/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -140,15 +118,9 @@
       "type": "realtime-voice-model",
       "url": "https://api.x.ai/v1",
       "metadata": {
-        "documentationUrl": "https://docs.x.ai/docs/api-reference",
-        "inputs": {
-          "voice": {
-            "type": "string"
-          },
-          "language": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://docs.x.ai/developers/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
