@@ -47,7 +47,6 @@ import type {
 } from './agent_types';
 import type { CatalogModel, ProviderModel } from './model_types';
 import type { ChannelStatusEvent, ChannelType } from './channels_types';
-type ProviderStoreRecord = Provider | BotProvider;
 import type { EmbeddingRequest, EmbeddingResult } from './embedding_types';
 import type { ImageRequest, ImageResult } from './image_types';
 import type { SoundFile, SoundRequest, SoundResult } from './sound_types';
