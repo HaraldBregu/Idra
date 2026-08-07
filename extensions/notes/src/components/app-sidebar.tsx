@@ -2,53 +2,13 @@ import {
   Archive,
   ChevronRight,
   File,
-  FileText,
   Folder,
   FolderOpen,
-  Plus,
-  Search,
-  Star,
-  Trash2,
 } from "lucide-react"
-import { useEffect, useMemo, useState, type ComponentType } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { WorkspaceTreeEntry } from "@friday/sdk"
 
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-
-export type ViewId = "all" | "favorites" | "search" | "trash"
-
-type Counts = Record<string, number>
-
-interface SidebarItemProps {
-  active: boolean
-  count: number
-  icon: ComponentType<{ className?: string; strokeWidth?: number }>
-  label: string
-  onClick: () => void
-}
-
-function SidebarItem({ active, count, icon: Icon, label, onClick }: SidebarItemProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-current={active ? "page" : undefined}
-      className={cn(
-        "group flex h-9 w-full items-center gap-3 rounded-md px-3 text-left text-[13px] font-medium text-sidebar-muted transition-colors",
-        "hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-foreground/50",
-        active && "bg-sidebar-accent text-sidebar-foreground",
-      )}
-    >
-      <Icon className="h-4 w-4" strokeWidth={1.8} />
-      <span className="min-w-0 flex-1 truncate">{label}</span>
-      <span className="text-[11px] tabular-nums text-sidebar-muted group-hover:text-sidebar-foreground/70">
-        {count}
-      </span>
-    </button>
-  )
-}
 
 function WorkspaceTree({
   expanded,
@@ -101,10 +61,6 @@ function WorkspaceTree({
 }
 
 interface AppSidebarProps {
-  activeView: ViewId | `folder:${string}`
-  counts: Counts
-  onCreate: () => void
-  onViewChange: (view: ViewId | `folder:${string}`) => void
   onWorkspaceSelect: (entry: WorkspaceTreeEntry) => void
   selectedWorkspacePath: string | null
   workspaceError: string
@@ -188,10 +144,6 @@ function WorkspaceTreeItem({
 }
 
 export function AppSidebar({
-  activeView,
-  counts,
-  onCreate,
-  onViewChange,
   onWorkspaceSelect,
   selectedWorkspacePath,
   workspaceError,
@@ -230,63 +182,18 @@ export function AppSidebar({
         </div>
       </div>
 
-      <div className="px-4 pb-5">
-        <Button
-          onClick={onCreate}
-          className="h-9 w-full justify-start bg-sidebar-foreground px-3 text-sidebar shadow-none hover:bg-sidebar-foreground/90"
-        >
-          <Plus className="h-4 w-4" />
-          New note
-          <span className="ml-auto text-[10px] font-medium opacity-55">Cmd N</span>
-        </Button>
-      </div>
-
-      <nav className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 scrollbar-subtle" aria-label="Notes navigation">
-        <div className="space-y-0.5">
-          <SidebarItem
-            active={activeView === "all"}
-            count={counts.all}
-            icon={FileText}
-            label="All notes"
-            onClick={() => onViewChange("all")}
-          />
-          <WorkspaceTree
-            expanded={expanded}
-            files={workspaceFiles}
-            loading={workspaceLoading}
-            error={workspaceError}
-            label={workspaceName}
-            onToggle={toggleDirectory}
-            onSelect={onWorkspaceSelect}
-            selectedPath={selectedWorkspacePath}
-          />
-          <SidebarItem
-            active={activeView === "favorites"}
-            count={counts.favorites}
-            icon={Star}
-            label="Favorites"
-            onClick={() => onViewChange("favorites")}
-          />
-          <SidebarItem
-            active={activeView === "search"}
-            count={counts.all}
-            icon={Search}
-            label="Search"
-            onClick={() => onViewChange("search")}
-          />
-        </div>
-      </nav>
-
-      <div className="p-3 pt-0">
-        <Separator className="mb-3 bg-sidebar-border" />
-        <SidebarItem
-          active={activeView === "trash"}
-          count={counts.trash}
-          icon={Trash2}
-          label="Recently deleted"
-          onClick={() => onViewChange("trash")}
+      <nav className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 scrollbar-subtle" aria-label="Workspace files">
+        <WorkspaceTree
+          expanded={expanded}
+          files={workspaceFiles}
+          loading={workspaceLoading}
+          error={workspaceError}
+          label={workspaceName}
+          onToggle={toggleDirectory}
+          onSelect={onWorkspaceSelect}
+          selectedPath={selectedWorkspacePath}
         />
-      </div>
+      </nav>
     </div>
   )
 }
