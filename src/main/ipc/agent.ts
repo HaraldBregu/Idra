@@ -1,4 +1,6 @@
 import { BrowserWindow, dialog, ipcMain } from 'electron';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../event_bus';
 import { wrapSimpleHandler } from './core/error_handler';
@@ -11,6 +13,7 @@ import type {
 	AgentPermissionMode,
 	AgentToolPermissionDecision,
 	ModelReasoningEffort,
+	type WorkspaceTreeEntry,
 } from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
 import { workspacePath } from '../agent/system';
@@ -156,6 +159,31 @@ function normalizeHealthSettingsPatch(value: Partial<HealthSettings>): Partial<H
 	return { ...value };
 }
 
+async function readWorkspaceTree(root: string, directory = root): Promise<WorkspaceTreeEntry[]> {
+	const entries = await fs.readdir(directory, { withFileTypes: true });
+	const result: WorkspaceTreeEntry[] = [];
+
+	for (const entry of entries) {
+		const absolutePath = path.join(directory, entry.name);
+		const relativePath = path.relative(root, absolutePath) || entry.name;
+		if (entry.isDirectory()) {
+			result.push({
+				name: entry.name,
+				path: relativePath,
+				type: 'directory',
+				children: await readWorkspaceTree(root, absolutePath),
+			});
+			continue;
+		}
+		if (entry.isFile()) result.push({ name: entry.name, path: relativePath, type: 'file' });
+	}
+
+	return result.sort((left, right) => {
+		if (left.type !== right.type) return left.type === 'directory' ? -1 : 1;
+		return left.name.localeCompare(right.name);
+	});
+}
+
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
 	if (options === undefined || options === null) return {};
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
@@ -244,6 +272,13 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler((): string => {
 				return workspacePath(agent.config);
 			}, AgentChannels.getWorkspaceLocation)
+		);
+
+		ipcMain.handle(
+			AgentChannels.listWorkspaceFiles,
+			wrapSimpleHandler((): Promise<WorkspaceTreeEntry[]> => {
+				return readWorkspaceTree(workspacePath(agent.config));
+			}, AgentChannels.listWorkspaceFiles)
 		);
 
 		ipcMain.handle(
