@@ -1,12 +1,10 @@
 import type { AppApi } from '../../src/shared/api_types';
-import type { AppThemeData, AppTheme, AppLanguage } from '../../src/shared/app_types';
+import type { AppLanguage, AppTheme, AppThemeData } from '../../src/shared/app_types';
 
 export { connect, type ConnectOptions, type FridayClient } from './connect';
-
-export type * from '../../src/shared/api_types';
 export type { AppApi, AppTheme, AppThemeData, AppLanguage };
 
-// The SDK is now scoped to app-level data only.
+// The SDK is scoped to app-level data only.
 // This is a typed lazy view over the host preload globals.
 function bridge<T extends object>(name: string): T {
 	return new Proxy({} as T, {
