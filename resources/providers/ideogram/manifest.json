@@ -14,14 +14,25 @@
       "metadata": {
         "documentationUrl": "https://developer.ideogram.ai/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "aspect_ratio": {
+            "type": "string"
+          },
+          "rendering_speed": {
+            "type": "string",
+            "enum": [
+              "TURBO",
+              "BALANCED",
+              "QUALITY"
+            ]
+          },
+          "style_type": {
+            "type": "string"
+          },
+          "magic_prompt_option": {
             "type": "string"
           },
           "seed": {
             "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
           }
         }
       }
@@ -34,14 +45,25 @@
       "metadata": {
         "documentationUrl": "https://developer.ideogram.ai/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "aspect_ratio": {
+            "type": "string"
+          },
+          "rendering_speed": {
+            "type": "string",
+            "enum": [
+              "TURBO",
+              "BALANCED",
+              "QUALITY"
+            ]
+          },
+          "style_type": {
+            "type": "string"
+          },
+          "magic_prompt_option": {
             "type": "string"
           },
           "seed": {
             "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
           }
         }
       }
