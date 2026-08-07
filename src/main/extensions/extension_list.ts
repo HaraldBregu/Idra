@@ -3,11 +3,9 @@ import { extensionEntryPath } from './extension_entry';
 import { isExtensionId } from './extension_id';
 import { readExtensionManifest } from './extension_read';
 import { extensionsRoot } from './extension_root';
-import { readExtensionSettings } from './extension_settings_read';
 import type { Extension } from './extension_types';
 
 export function listExtensions(appLocation?: string): Extension[] {
-	if (!readExtensionSettings(appLocation).enabled) return [];
 	const root = extensionsRoot(appLocation);
 	const extensions: Extension[] = [];
 	const directories = existsSync(root)
