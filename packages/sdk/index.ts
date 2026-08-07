@@ -22,10 +22,6 @@ function bridge<T extends object>(name: string): T {
 	});
 }
 
-export function isFriday(): boolean {
-	return typeof (globalThis as Record<string, unknown>).app === 'object';
-}
-
 export const app = bridge<AppApi>('app');
 
 const requiredMethods = [
