@@ -76,10 +76,21 @@ const ExtensionsPage: React.FC = () => {
 				title={t('settings.tabs.extensions')}
 				description={t('settings.extensions.description')}
 				action={
-					<Button variant="outline" size="xs" onClick={loadExtensions} disabled={loading}>
-						<RefreshCw className="size-3" />
-						{t('settings.extensions.refresh')}
-					</Button>
+					<div className="flex flex-wrap items-center gap-2">
+						<Button
+							variant="outline"
+							size="xs"
+							onClick={loadExtensions}
+							disabled={loading || importing}
+						>
+							<RefreshCw className="size-3" />
+							{t('settings.extensions.refresh')}
+						</Button>
+						<Button size="xs" onClick={() => void handleImport()} disabled={loading || importing}>
+							<Upload className="size-3" />
+							{importing ? t('settings.extensions.uploading') : t('settings.extensions.upload')}
+						</Button>
+					</div>
 				}
 			/>
 
