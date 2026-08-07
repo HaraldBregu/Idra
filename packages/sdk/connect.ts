@@ -2,6 +2,7 @@ import { decode, encode } from '../../src/shared/api_codec';
 import { AppChannels } from '../../src/shared/ipc_channels_definitions';
 import type { AppApi } from '../../src/shared/api_types';
 import type { ChannelStatusEvent } from '../../src/shared/channels_types';
+import type { AppThemeData } from '../../src/shared/app_types';
 
 export interface ConnectOptions {
 	/** Base URL of the Friday API. Defaults to `http://127.0.0.1:8765`. */
@@ -104,6 +105,14 @@ export function connect(options: ConnectOptions): FridayClient {
 			onChannelsStatusChanged: (callback: (event: ChannelStatusEvent) => void) => {
 				const pending = listen((channel, data) => {
 					if (channel === AppChannels.channelsStatusChanged) callback(data as ChannelStatusEvent);
+				});
+				return (): void => {
+					void pending.then((off) => off());
+				};
+			},
+			onThemeModeChanged: (callback: (theme: AppThemeData) => void) => {
+				const pending = listen((channel, data) => {
+					if (channel === AppChannels.themeModeChanged) callback(data as AppThemeData);
 				});
 				return (): void => {
 					void pending.then((off) => off());
