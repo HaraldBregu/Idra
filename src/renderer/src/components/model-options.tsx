@@ -61,9 +61,7 @@ export function ModelOptions({
 		let value: unknown = values;
 		for (const key of path) {
 			value =
-				value && typeof value === 'object'
-					? (value as Record<string, unknown>)[key]
-					: undefined;
+				value && typeof value === 'object' ? (value as Record<string, unknown>)[key] : undefined;
 		}
 		const key = path.join('.');
 		const label = schema.title ?? path.map((part) => part.replaceAll('_', ' ')).join(' ');
@@ -85,10 +83,7 @@ export function ModelOptions({
 						<Select
 							value={selectedIndex < 0 ? '__default__' : String(selectedIndex)}
 							onValueChange={(next) =>
-								onChange(
-									path,
-									next === '__default__' ? undefined : choices[Number(next)]?.value
-								)
+								onChange(path, next === '__default__' ? undefined : choices[Number(next)]?.value)
 							}
 						>
 							<SelectTrigger className="w-40">
@@ -114,7 +109,10 @@ export function ModelOptions({
 					key={key}
 					title={label}
 					actions={
-						<Switch checked={value === true} onCheckedChange={(checked) => onChange(path, checked)} />
+						<Switch
+							checked={value === true}
+							onCheckedChange={(checked) => onChange(path, checked)}
+						/>
 					}
 				/>
 			);
@@ -164,9 +162,7 @@ export function ModelOptions({
 						<span>Advanced</span>
 						<ChevronDown className="size-3.5 transition-transform group-data-panel-open:rotate-180" />
 					</CollapsibleTrigger>
-					<CollapsibleContent className="border-t border-border/60">
-						{advanced}
-					</CollapsibleContent>
+					<CollapsibleContent className="border-t border-border/60">{advanced}</CollapsibleContent>
 				</Collapsible>
 			)}
 		</div>
