@@ -28,7 +28,9 @@ const ExtensionsPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [extensions, setExtensions] = useState<Extension[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [importing, setImporting] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
+	const [successMessage, setSuccessMessage] = useState('');
 
 	const loadExtensions = useCallback(async (): Promise<void> => {
 		setLoading(true);
