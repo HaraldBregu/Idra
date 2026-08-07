@@ -3,11 +3,14 @@ import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 
 import { loadTranslations } from './i18n';
+import type { Extension } from './extensions/extension_index';
 
 interface TrayManagerCallbacks {
 	onToggleApp: () => void;
 	onQuit: () => void;
 	isAppVisible: () => boolean;
+	getExtensions: () => Extension[];
+	onOpenExtension: (extension: Extension) => void;
 }
 
 export class Tray {
@@ -75,6 +78,13 @@ export class Tray {
 		}
 		const m = loadTranslations(this.currentLanguage, 'tray');
 		const isVisible = this.callbacks.isAppVisible();
+		const extensions = this.callbacks.getExtensions();
+		const extensionItems: Array<Electron.MenuItemConstructorOptions> = extensions.length
+			? extensions.map((extension) => ({
+					label: extension.title,
+					click: (): void => this.callbacks.onOpenExtension(extension),
+				}))
+			: [{ label: m.noExtensions || 'No extensions', enabled: false }];
 
 		this.contextMenu = Menu.buildFromTemplate([
 			{
@@ -82,9 +92,8 @@ export class Tray {
 				click: () => this.callbacks.onToggleApp(),
 			},
 			{
-				// ponytail: placeholder, no Apps concept exists yet — wire a click handler when it does
-				label: m.apps || 'Apps',
-				enabled: false,
+				label: m.extensions || 'Extensions',
+				submenu: extensionItems,
 			},
 			{ type: 'separator' },
 			{
