@@ -15,6 +15,7 @@ import type {
 	ChannelOutboundMessage,
 	ChannelStatusUpdate,
 } from './channels_types';
+import { getModelId, getProviderId } from '../models/models_store';
 import { toText } from '../models/transcribe';
 import { synthesize } from '../models/voice';
 
@@ -124,8 +125,8 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				message.content.type === 'text'
 					? message.content.text
 					: await transcribeVoice(await loadChannelVoice(message.content.voice), {
-							...channelModelSelection(message.channel, 'stt'),
-						});
+								...channelModelSelection('stt'),
+							});
 			if (text.startsWith('/')) {
 				const command = text.split(/\s+/)[0].slice(1).split('@')[0].toLowerCase();
 				if (command === 'start') {
@@ -147,12 +148,13 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				category: 'bot',
 				interactive: false,
 				sessionId: CHANNEL_SESSION_ID,
+				...channelModelSelection('llm'),
 			});
 			if (message.content.type === 'voice') {
 				try {
 					const voice = await synthesizeVoice(response, {
-						...channelModelSelection(message.channel, 'tts'),
-					});
+							...channelModelSelection('tts'),
+						});
 					await reply({
 						type: 'voice',
 						voice: {
@@ -250,15 +252,15 @@ function trimOrEmpty(value?: string): string {
 }
 
 function channelModelSelection(
-	channelId: ChannelType,
-	kind: 'stt' | 'tts'
+	kind: 'stt' | 'tts' | 'llm'
 ): { providerId?: string; modelId?: string } {
-	const credential = getChannelProvider(channelId);
-	if (!credential) return {};
-	const providerId =
-		kind === 'stt' ? trimOrEmpty(credential.sttProviderId) : trimOrEmpty(credential.ttsProviderId);
-	const modelId =
-		kind === 'stt' ? trimOrEmpty(credential.sttModelId) : trimOrEmpty(credential.ttsModelId);
+	const kindMap: Record<typeof kind, 'transcribe' | 'voice' | 'text'> = {
+		stt: 'transcribe',
+		tts: 'voice',
+		llm: 'text',
+	};
+	const providerId = trimOrEmpty(getProviderId(kindMap[kind]));
+	const modelId = trimOrEmpty(getModelId(kindMap[kind]));
 	if (!providerId) return {};
 	return { providerId, ...(modelId ? { modelId } : {}) };
 }

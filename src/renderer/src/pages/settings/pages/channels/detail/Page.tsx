@@ -1,40 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { Hash, KeyRound, Mic, Plus, ShieldCheck, UserRound, Volume2, X } from 'lucide-react';
+import { Hash, KeyRound, Plus, ShieldCheck, UserRound, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../../components';
-import type { CatalogService, PublicProvider } from '@shared/provider_types';
+import type { CatalogService } from '@shared/provider_types';
 import { CHANNEL_DM_POLICIES } from '@shared/channels_types';
 import type { ChannelDmPolicy, StoredBotProvider } from '@shared/channels_types';
-import {
-	providerIdsFor,
-	providerModels,
-	providers,
-	supportsSpeechToTextApiType,
-} from '@/lib/providers';
-
-const MODEL_SELECTION_VALUE_SEPARATOR = '\u001F';
-
-interface ModelChoice {
-	readonly id: string;
-	readonly name: string;
-}
-
-interface ChannelModelGroup {
-	readonly provider: PublicProvider;
-	readonly models: readonly ModelChoice[];
-}
 
 type ListField = 'allowFrom' | 'groupAllowFrom';
 
@@ -51,18 +26,6 @@ const ChannelDetailPage: React.FC = () => {
 		groupAllowFrom: '',
 	});
 	const [error, setError] = useState<string | null>(null);
-	const sttGroups = getSttModelGroups();
-	const ttsGroups = getTtsModelGroups();
-	const selectedSttModel = getSelectedModel(
-		sttGroups,
-		credential?.sttProviderId,
-		credential?.sttModelId
-	);
-	const selectedTtsModel = getSelectedModel(
-		ttsGroups,
-		credential?.ttsProviderId,
-		credential?.ttsModelId
-	);
 
 	useEffect(() => {
 		let mounted = true;
@@ -159,24 +122,19 @@ const ChannelDetailPage: React.FC = () => {
 							</p>
 						</ItemContent>
 						<ItemActions className="ml-auto w-full flex-none justify-end sm:w-56">
-							<Select
+							<select
 								value={credential.dmPolicy ?? 'allowlist'}
-								onValueChange={(value: string | null) => {
-									if (value !== null)
-										void save({ ...credential, dmPolicy: value as ChannelDmPolicy });
+								onChange={(event) => {
+									void save({ ...credential, dmPolicy: event.target.value as ChannelDmPolicy });
 								}}
+								className="h-8 rounded-md border border-input bg-background px-2 text-xs"
 							>
-								<SelectTrigger id={`${providerId}-dm-policy`} className="w-full text-xs">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{CHANNEL_DM_POLICIES.map((policy) => (
-										<SelectItem key={policy} value={policy}>
-											{t(`settings.channels.dmPolicies.${policy}`)}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+								{CHANNEL_DM_POLICIES.map((policy) => (
+									<option key={policy} value={policy}>
+										{t(`settings.channels.dmPolicies.${policy}`)}
+									</option>
+								))}
+							</select>
 						</ItemActions>
 					</Item>
 
@@ -211,7 +169,6 @@ const ChannelDetailPage: React.FC = () => {
 							onRemove={(value) => removeListValue('allowFrom', value)}
 						/>
 					</Item>
-
 					<Item variant="outline" size="md" className="flex-col items-stretch gap-3">
 						<div className="flex w-full min-w-0 items-start gap-3">
 							<ItemMedia variant="icon">
@@ -238,114 +195,6 @@ const ChannelDetailPage: React.FC = () => {
 							onAdd={() => addListValue('groupAllowFrom')}
 							onRemove={(value) => removeListValue('groupAllowFrom', value)}
 						/>
-					</Item>
-					<Item
-						variant="outline"
-						size="md"
-						className="flex-col items-stretch gap-3 border-b border-border/60"
-					>
-						<div className="flex w-full min-w-0 items-start gap-3">
-							<ItemMedia variant="icon">
-								<Mic className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<div className="min-w-0 flex-1">
-								<ItemTitle className="w-full">{t('settings.channels.sttModel')}</ItemTitle>
-								<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-									{t('settings.channels.sttModelDescription')}
-								</p>
-							</div>
-						</div>
-						<div className="w-full min-w-0">
-							<Select
-								value={selectionValue(selectedSttModel)}
-								onValueChange={(value) => {
-									if (!value) return;
-									const [nextProviderId = '', nextModelId = ''] = value.split(
-										MODEL_SELECTION_VALUE_SEPARATOR
-									);
-									if (!nextProviderId || !nextModelId || !credential) return;
-									void save({
-										...credential,
-										sttProviderId: nextProviderId,
-										sttModelId: nextModelId,
-									});
-								}}
-								disabled={sttGroups.length === 0}
-							>
-								<SelectTrigger className="w-full text-xs sm:w-80">
-									<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
-								</SelectTrigger>
-								<SelectContent>
-									{sttGroups.flatMap((group) =>
-										group.models.map((model) => (
-											<SelectItem
-												key={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
-												value={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
-											>
-												{formatModelSelection(group.provider, model)}
-											</SelectItem>
-										))
-									)}
-								</SelectContent>
-							</Select>
-							{sttGroups.length === 0 && (
-								<p className="mt-1 text-[11px] leading-4 text-muted-foreground">
-									{t('settings.channels.noModelOptions')}
-								</p>
-							)}
-						</div>
-					</Item>
-					<Item variant="outline" size="md" className="flex-col items-stretch gap-3">
-						<div className="flex w-full min-w-0 items-start gap-3">
-							<ItemMedia variant="icon">
-								<Volume2 className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<div className="min-w-0 flex-1">
-								<ItemTitle className="w-full">{t('settings.channels.ttsModel')}</ItemTitle>
-								<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-									{t('settings.channels.ttsModelDescription')}
-								</p>
-							</div>
-						</div>
-						<div className="w-full min-w-0">
-							<Select
-								value={selectionValue(selectedTtsModel)}
-								onValueChange={(value) => {
-									if (!value) return;
-									const [nextProviderId = '', nextModelId = ''] = value.split(
-										MODEL_SELECTION_VALUE_SEPARATOR
-									);
-									if (!nextProviderId || !nextModelId || !credential) return;
-									void save({
-										...credential,
-										ttsProviderId: nextProviderId,
-										ttsModelId: nextModelId,
-									});
-								}}
-								disabled={ttsGroups.length === 0}
-							>
-								<SelectTrigger className="w-full text-xs sm:w-80">
-									<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
-								</SelectTrigger>
-								<SelectContent>
-									{ttsGroups.flatMap((group) =>
-										group.models.map((model) => (
-											<SelectItem
-												key={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
-												value={`${group.provider.id}${MODEL_SELECTION_VALUE_SEPARATOR}${model.id}`}
-											>
-												{formatModelSelection(group.provider, model)}
-											</SelectItem>
-										))
-									)}
-								</SelectContent>
-							</Select>
-							{ttsGroups.length === 0 && (
-								<p className="mt-1 text-[11px] leading-4 text-muted-foreground">
-									{t('settings.channels.noModelOptions')}
-								</p>
-							)}
-						</div>
 					</Item>
 				</Card>
 			) : (
@@ -458,60 +307,7 @@ function blankCredential(providerId: string, service: CatalogService | null): St
 		allowFrom: [],
 		groupAllowFrom: [],
 		dmPolicy: 'allowlist',
-		sttProviderId: '',
-		sttModelId: '',
-		ttsProviderId: '',
-		ttsModelId: '',
 	};
-}
-
-function getModelGroups(capability: 'speech-to-text' | 'text-to-speech'): ChannelModelGroup[] {
-	return providerIdsFor(capability).flatMap((providerId) => {
-		const provider = providers().find((entry) => entry.id === providerId);
-		if (!provider) return [];
-		const models = providerModels(providerId, capability)
-			.filter((model) =>
-				capability === 'speech-to-text'
-					? supportsSpeechToTextApiType(providerId, model.id, 'batch')
-					: true
-			)
-			.map((model) => ({ id: model.id, name: model.name }));
-		return models.length > 0 ? [{ provider, models }] : [];
-	});
-}
-
-function getSttModelGroups(): ChannelModelGroup[] {
-	return getModelGroups('speech-to-text');
-}
-
-function getTtsModelGroups(): ChannelModelGroup[] {
-	return getModelGroups('text-to-speech');
-}
-
-function getSelectedModel(
-	groups: readonly ChannelModelGroup[],
-	providerId: string | undefined,
-	modelId: string | undefined
-): { providerId: string; modelId: string } {
-	const preferredProviderId = (providerId ?? '').trim();
-	const preferredModelId = (modelId ?? '').trim();
-	const providerGroup =
-		groups.find((group) => group.provider.id === preferredProviderId) ?? groups[0];
-	const model =
-		providerGroup?.models.find((item) => item.id === preferredModelId) ?? providerGroup?.models[0];
-	return {
-		providerId: providerGroup?.provider.id ?? '',
-		modelId: model?.id ?? '',
-	};
-}
-
-function selectionValue(selection: { providerId: string; modelId: string }): string {
-	if (!selection.providerId || !selection.modelId) return '';
-	return `${selection.providerId}${MODEL_SELECTION_VALUE_SEPARATOR}${selection.modelId}`;
-}
-
-function formatModelSelection(provider: PublicProvider, model: ModelChoice): string {
-	return `${provider.name} / ${model.name}`;
 }
 
 export default ChannelDetailPage;
