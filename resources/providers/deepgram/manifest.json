@@ -17,7 +17,8 @@
       "url": "https://api.deepgram.com/v1",
       "sampleRate": 24000,
       "metadata": {
-        "documentationUrl": "https://developers.deepgram.com/reference",
+        "documentationUrl": "https://developers.deepgram.com/docs/model",
+        "documentationStatus": "verified",
         "inputs": {
           "language": {
             "type": "string"
@@ -25,10 +26,30 @@
           "smart_format": {
             "type": "boolean"
           },
-          "diarize": {
+          "punctuate": {
             "type": "boolean"
           },
-          "punctuate": {
+          "utterances": {
+            "type": "boolean"
+          },
+          "paragraphs": {
+            "type": "boolean"
+          },
+          "diarize_model": {
+            "type": "string",
+            "enum": [
+              "latest",
+              "v1",
+              "v2"
+            ]
+          },
+          "keyterm": {
+            "type": "array"
+          },
+          "alternatives": {
+            "type": "integer"
+          },
+          "detect_language": {
             "type": "boolean"
           }
         }
@@ -45,19 +66,26 @@
       "url": "https://api.deepgram.com/v1",
       "sampleRate": 24000,
       "metadata": {
-        "documentationUrl": "https://developers.deepgram.com/reference",
+        "documentationUrl": "https://developers.deepgram.com/docs/model",
+        "documentationStatus": "verified",
         "inputs": {
-          "language": {
+          "language_hint": {
             "type": "string"
           },
-          "smart_format": {
-            "type": "boolean"
+          "eot_threshold": {
+            "type": "number"
           },
-          "diarize": {
-            "type": "boolean"
+          "eot_timeout_ms": {
+            "type": "integer"
           },
-          "punctuate": {
-            "type": "boolean"
+          "eager_eot_threshold": {
+            "type": "number"
+          },
+          "encoding": {
+            "type": "string"
+          },
+          "sample_rate": {
+            "type": "integer"
           }
         }
       }
@@ -68,13 +96,23 @@
       "type": "text-to-speech-model",
       "url": "https://api.deepgram.com/v1",
       "metadata": {
-        "documentationUrl": "https://developers.deepgram.com/reference",
+        "documentationUrl": "https://developers.deepgram.com/docs/model",
+        "documentationStatus": "verified",
         "inputs": {
           "encoding": {
             "type": "string"
           },
           "sample_rate": {
             "type": "integer"
+          },
+          "container": {
+            "type": "string"
+          },
+          "bit_rate": {
+            "type": "integer"
+          },
+          "callback": {
+            "type": "string"
           }
         }
       }
