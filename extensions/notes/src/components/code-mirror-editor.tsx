@@ -8,8 +8,6 @@ import { tags } from "@lezer/highlight"
 
 import { cn } from "@/lib/utils"
 
-// ponytail: theme-aware replacement for defaultHighlightStyle (that one hardcodes
-// light-theme hex colors and underlines headings). Links use --primary; headings aren't underlined.
 const markdownHighlight = HighlightStyle.define([
   { tag: tags.heading, fontWeight: "600" },
   { tag: tags.strong, fontWeight: "700" },
@@ -136,7 +134,7 @@ export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
         syntaxHighlighting(markdownHighlight, { fallback: true }),
         EditorView.lineWrapping,
         noteEditorTheme,
-        placeholder("Start writing…"),
+        placeholder("Start writing..."),
         EditorState.readOnly.of(initialReadOnlyRef.current),
         EditorView.editable.of(!initialReadOnlyRef.current),
         EditorView.contentAttributes.of({

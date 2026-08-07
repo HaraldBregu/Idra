@@ -2,7 +2,6 @@ import { starterNotes } from "@/lib/notes"
 
 // The host injects window.notes (the NotesApi). Everything below the `localNotes`
 // fallback exists only so the widget still runs standalone in dev, preview, and tests.
-// ponytail: localStorage fallback mirrors the old persistence; delete it if the host is always present.
 const KEY = "friday-notes:v1"
 
 function read() {

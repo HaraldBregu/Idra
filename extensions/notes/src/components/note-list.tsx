@@ -20,7 +20,7 @@ function EmptyList({ activeView, onCreate }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
       <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-muted text-muted-foreground">
-        {isTrash ? <span className="text-lg">✓</span> : <Search className="h-4 w-4" />}
+        {isTrash ? <span className="text-lg">Done</span> : <Search className="h-4 w-4" />}
       </div>
       <p className="text-sm font-semibold">{isTrash ? "Nothing in recently deleted" : "No notes found"}</p>
       <p className="mt-1.5 max-w-48 text-xs leading-5 text-muted-foreground">
@@ -111,7 +111,7 @@ export function NoteList({
               >
                 <div className="flex items-start gap-2">
                   <h2 className="min-w-0 flex-1 truncate text-[13px] font-semibold tracking-[-0.01em]">{note.title || "Untitled note"}</h2>
-                  {note.favorite && <span className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-300">★</span>}
+                  {note.favorite && <span className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-300">Star</span>}
                 </div>
                 <p className="mt-1.5 line-clamp-2 text-[11px] leading-[1.55] text-muted-foreground">
                   {notePreview(note.content)}

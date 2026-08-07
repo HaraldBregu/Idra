@@ -1,13 +1,9 @@
 import {
   Archive,
-  Check,
   FileText,
-  Lightbulb,
-  Moon,
   Plus,
   Search,
   Star,
-  Sun,
   Trash2,
 } from "lucide-react"
 
@@ -16,12 +12,24 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { folders } from "@/lib/notes"
 
-const primaryItems = [
+export type ViewId = "all" | "favorites" | "search" | "trash"
+
+type Counts = Record<string, number>
+
+interface SidebarItemProps {
+  active: boolean
+  count: number
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
+  label: string
+  onClick: () => void
+}
+
+const primaryItems: Array<{ id: ViewId; label: string; icon: SidebarItemProps["icon"] }> = [
   { id: "all", label: "All notes", icon: FileText },
   { id: "favorites", label: "Favorites", icon: Star },
 ]
 
-function SidebarItem({ active, count, icon: Icon, label, onClick }) {
+function SidebarItem({ active, count, icon: Icon, label, onClick }: SidebarItemProps) {
   return (
     <button
       type="button"
@@ -42,7 +50,14 @@ function SidebarItem({ active, count, icon: Icon, label, onClick }) {
   )
 }
 
-export function AppSidebar({ activeView, counts, darkMode, onCreate, onThemeChange, onViewChange }) {
+interface AppSidebarProps {
+  activeView: ViewId | `folder:${string}`
+  counts: Counts
+  onCreate: () => void
+  onViewChange: (view: ViewId | `folder:${string}`) => void
+}
+
+export function AppSidebar({ activeView, counts, onCreate, onViewChange }: AppSidebarProps) {
   return (
     <div className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-14 items-center gap-3 px-5">
@@ -62,7 +77,7 @@ export function AppSidebar({ activeView, counts, darkMode, onCreate, onThemeChan
         >
           <Plus className="h-4 w-4" />
           New note
-          <span className="ml-auto text-[10px] font-medium opacity-55">⌘ N</span>
+          <span className="ml-auto text-[10px] font-medium opacity-55">Cmd N</span>
         </Button>
       </div>
 
@@ -120,22 +135,6 @@ export function AppSidebar({ activeView, counts, darkMode, onCreate, onThemeChan
           label="Recently deleted"
           onClick={() => onViewChange("trash")}
         />
-        <button
-          type="button"
-          onClick={onThemeChange}
-          className="mt-2 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-xs text-sidebar-muted transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-foreground/50"
-        >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-sidebar-accent text-sidebar-foreground">
-            {darkMode ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
-          </span>
-          <span className="flex-1">
-            <span className="block font-medium text-sidebar-foreground">{darkMode ? "Dark mode" : "Light mode"}</span>
-            <span className="mt-0.5 flex items-center gap-1 text-[10px]">
-              <Check className="h-3 w-3" /> Saved locally
-            </span>
-          </span>
-          <Lightbulb className="h-3.5 w-3.5" />
-        </button>
       </div>
     </div>
   )

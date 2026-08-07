@@ -36,7 +36,7 @@ export const starterNotes = [
   },
   {
     id: "product-decisions",
-    title: "Product decisions · July",
+    title: "Product decisions - July",
     content:
       "Decisions from the July product review.\n\n- Keep quick capture available from every screen\n- Ship local-first storage before collaboration\n- Use folders for broad structure and tags for context\n\nOpen question: should archived notes appear in global search?",
     folder: "Work",
