@@ -1,22 +1,53 @@
 {
-	"providerId": "suno",
-	"providerName": "Suno",
-	"apiKeyUrl": "https://suno.com/account",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/suno.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/suno.png",
-	"services": [
-		{
-			"id": "suno-v5.5",
-			"name": "Suno v5.5",
-			"type": "text-to-audio-model",
-			"url": "https://suno.com"
-		},
-		{
-			"id": "suno-v4.5-all",
-			"name": "Suno v4.5 All",
-			"type": "text-to-audio-model",
-			"url": "https://suno.com"
-		}
-	]
+  "providerId": "suno",
+  "providerName": "Suno",
+  "apiKeyUrl": "https://suno.com/account",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/png_dark/suno.png",
+  "icon_light_url": "/images/fallback_lobehub/png_light/suno.png",
+  "services": [
+    {
+      "id": "suno-v5.5",
+      "name": "Suno v5.5",
+      "type": "text-to-audio-model",
+      "url": "https://suno.com",
+      "metadata": {
+        "documentationUrl": "https://docs.sunoapi.org/",
+        "inputs": {
+          "duration": {
+            "type": "number",
+            "minimum": 1
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "outputFormat": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "suno-v4.5-all",
+      "name": "Suno v4.5 All",
+      "type": "text-to-audio-model",
+      "url": "https://suno.com",
+      "metadata": {
+        "documentationUrl": "https://docs.sunoapi.org/",
+        "inputs": {
+          "duration": {
+            "type": "number",
+            "minimum": 1
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "outputFormat": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
