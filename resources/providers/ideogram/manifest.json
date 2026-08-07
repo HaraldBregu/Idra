@@ -1,22 +1,51 @@
 {
-	"providerId": "ideogram",
-	"providerName": "Ideogram",
-	"apiKeyUrl": "https://ideogram.ai/manage-api",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/ideogram.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/ideogram.png",
-	"services": [
-		{
-			"id": "ideogram-3.0",
-			"name": "Ideogram 3.0",
-			"type": "text-to-image-model",
-			"url": "https://api.ideogram.ai"
-		},
-		{
-			"id": "ideogram-2a",
-			"name": "Ideogram 2a",
-			"type": "text-to-image-model",
-			"url": "https://api.ideogram.ai"
-		}
-	]
+  "providerId": "ideogram",
+  "providerName": "Ideogram",
+  "apiKeyUrl": "https://ideogram.ai/manage-api",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/png_dark/ideogram.png",
+  "icon_light_url": "/images/fallback_lobehub/png_light/ideogram.png",
+  "services": [
+    {
+      "id": "ideogram-3.0",
+      "name": "Ideogram 3.0",
+      "type": "text-to-image-model",
+      "url": "https://api.ideogram.ai",
+      "metadata": {
+        "documentationUrl": "https://developer.ideogram.ai/api-reference",
+        "inputs": {
+          "aspectRatio": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "negativePrompt": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "ideogram-2a",
+      "name": "Ideogram 2a",
+      "type": "text-to-image-model",
+      "url": "https://api.ideogram.ai",
+      "metadata": {
+        "documentationUrl": "https://developer.ideogram.ai/api-reference",
+        "inputs": {
+          "aspectRatio": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "negativePrompt": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
