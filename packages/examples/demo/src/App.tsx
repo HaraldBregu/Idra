@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { cva } from 'class-variance-authority';
 
-import { app, isFriday } from '@friday/sdk';
-import { cn } from './lib/utils.js';
+import { app, isFriday, type AppLanguage, type AppTheme, type AppThemeData } from '@friday/sdk';
+import { cn } from './lib/utils';
+import { Button } from './components/ui/button';
 
-const fallbackTheme = { themeMode: 'light', isDark: false };
-const fallbackLanguage = 'en';
+const fallbackTheme: AppThemeData = { themeMode: 'light', isDark: false };
+const fallbackLanguage: AppLanguage = 'en';
 const themeBadgeClass = cva('inline-flex h-9 items-center rounded-full border px-4 text-sm font-semibold', {
 	variants: {
 		variant: {
@@ -19,20 +20,20 @@ const themeBadgeClass = cva('inline-flex h-9 items-center rounded-full border px
 });
 
 export default function App() {
-	const [theme, setTheme] = useState(fallbackTheme);
-	const [language, setLanguage] = useState(fallbackLanguage);
+	const [theme, setTheme] = useState<AppThemeData>(fallbackTheme);
+	const [language, setLanguage] = useState<AppLanguage>(fallbackLanguage);
 	const [status, setStatus] = useState('Waiting for app data');
 	const inFridayApp = isFriday();
 
-	const getStatusText = (themeMode, isDark, appLanguage) => {
-		return `theme=${themeMode}, resolved-dark=${String(isDark)}, language=${appLanguage}`;
+	const getStatusText = (themeData: AppThemeData, appLanguage: AppLanguage): string => {
+		return `theme=${themeData.themeMode}, resolved-dark=${String(themeData.isDark)}, language=${appLanguage}`;
 	};
 
 	const refreshTheme = async () => {
 		try {
 			const themeData = await app.getThemeData();
 			setTheme(themeData);
-			setStatus(`theme refreshed (${getStatusText(theme.themeMode, theme.isDark, language)})`);
+			setStatus(`theme refreshed (${getStatusText(themeData, language)})`);
 		} catch {
 			setStatus('failed to refresh theme');
 		}
@@ -42,13 +43,13 @@ export default function App() {
 		try {
 			const appLanguage = await app.getLanguage();
 			setLanguage(appLanguage);
-			setStatus(`language refreshed (${getStatusText(theme.themeMode, theme.isDark, appLanguage)})`);
+			setStatus(`language refreshed (${getStatusText(theme, appLanguage)})`);
 		} catch {
 			setStatus('failed to refresh language');
 		}
 	};
 
-	const setAppTheme = async (nextTheme) => {
+	const setAppTheme = async (nextTheme: AppTheme) => {
 		try {
 			await app.setTheme(nextTheme);
 			await refreshTheme();
@@ -58,7 +59,7 @@ export default function App() {
 		}
 	};
 
-	const setAppLanguage = async (nextLanguage) => {
+	const setAppLanguage = async (nextLanguage: AppLanguage) => {
 		try {
 			await app.setLanguage(nextLanguage);
 			await refreshLanguage();
@@ -78,16 +79,16 @@ export default function App() {
 				if (!mounted) return;
 				setTheme(themeData);
 				setLanguage(appLanguage);
-				setStatus(`loaded (${getStatusText(themeData.themeMode, themeData.isDark, appLanguage)})`);
+				setStatus(`loaded (${getStatusText(themeData, appLanguage)})`);
 			} catch {
 				if (mounted) setStatus('failed to load app data');
 			}
 		};
-		loadCurrentState();
+		void loadCurrentState();
 		const unsubscribe = app.onThemeModeChanged((themeData) => {
 			if (!mounted) return;
 			setTheme(themeData);
-			setStatus(`theme changed (${getStatusText(themeData.themeMode, themeData.isDark, language)})`);
+			setStatus(`theme changed (${getStatusText(themeData, language)})`);
 		});
 
 		return () => {
@@ -107,68 +108,33 @@ export default function App() {
 						<p className="text-sm">Theme mode from app IPC: {theme.themeMode}</p>
 						<p className="text-sm">Resolved dark mode: {theme.isDark ? 'true' : 'false'}</p>
 						<div className="mt-2 flex flex-wrap gap-2">
-							<button
-								type="button"
-								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
-								disabled={!inFridayApp}
-								onClick={() => setAppTheme('light')}
-							>
+							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppTheme('light')}>
 								Set light
-							</button>
-							<button
-								type="button"
-								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
-								disabled={!inFridayApp}
-								onClick={() => setAppTheme('dark')}
-							>
+							</Button>
+							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppTheme('dark')}>
 								Set dark
-							</button>
-							<button
-								type="button"
-								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
-								disabled={!inFridayApp}
-								onClick={() => setAppTheme('system')}
-							>
+							</Button>
+							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppTheme('system')}>
 								Set system
-							</button>
-							<button
-								type="button"
-								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
-								disabled={!inFridayApp}
-								onClick={refreshTheme}
-							>
+							</Button>
+							<Button variant="secondary" disabled={!inFridayApp} onClick={refreshTheme}>
 								Get theme
-							</button>
+							</Button>
 						</div>
 					</div>
 					<div className="space-y-2">
 						<p className="text-sm font-semibold">Language</p>
 						<p className="text-sm">Current language from app IPC: {language}</p>
 						<div className="mt-2 flex flex-wrap gap-2">
-							<button
-								type="button"
-								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
-								disabled={!inFridayApp}
-								onClick={() => setAppLanguage('en')}
-							>
+							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppLanguage('en')}>
 								Set EN
-							</button>
-							<button
-								type="button"
-								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
-								disabled={!inFridayApp}
-								onClick={() => setAppLanguage('it')}
-							>
+							</Button>
+							<Button variant="outline" disabled={!inFridayApp} onClick={() => setAppLanguage('it')}>
 								Set IT
-							</button>
-							<button
-								type="button"
-								className="inline-flex h-9 items-center rounded-md border px-3 text-sm"
-								disabled={!inFridayApp}
-								onClick={refreshLanguage}
-							>
+							</Button>
+							<Button variant="secondary" disabled={!inFridayApp} onClick={refreshLanguage}>
 								Get language
-							</button>
+							</Button>
 						</div>
 					</div>
 					<p className="text-sm">Status: {status}</p>
