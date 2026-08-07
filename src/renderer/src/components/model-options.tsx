@@ -7,12 +7,13 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import type { ModelInputSchema } from '@shared/model_types';
 import { SettingsRow } from '@pages/settings/components';
 
 interface ModelOptionsProps {
-	readonly inputs: Readonly<Record<string, unknown>>;
+	readonly inputs: Readonly<Record<string, ModelInputSchema>>;
 	readonly values: Readonly<Record<string, unknown>>;
-	readonly onChange: (key: string, value: unknown) => void;
+	readonly onChange: (path: readonly string[], value: unknown) => void;
 }
 
 const RESERVED_INPUTS = new Set([
@@ -30,55 +31,75 @@ export function ModelOptions({
 	values,
 	onChange,
 }: ModelOptionsProps): React.JSX.Element | null {
-	const entries = Object.entries(inputs).filter(([key, schema]) => {
-		if (RESERVED_INPUTS.has(key)) return false;
-		const type = (schema as { type?: string }).type;
-		return type === 'string' || type === 'number' || type === 'integer' || type === 'boolean';
-	});
+	const entries: Array<{ path: string[]; schema: ModelInputSchema }> = [];
+	const pending = Object.entries(inputs).map(([key, schema]) => ({ path: [key], schema }));
+	while (pending.length > 0) {
+		const entry = pending.shift();
+		if (!entry || RESERVED_INPUTS.has(entry.path[0])) continue;
+		if (entry.schema.type === 'object' && entry.schema.properties) {
+			pending.unshift(
+				...Object.entries(entry.schema.properties).map(([key, schema]) => ({
+					path: [...entry.path, key],
+					schema,
+				}))
+			);
+			continue;
+		}
+		if (
+			entry.schema.type === 'string' ||
+			entry.schema.type === 'number' ||
+			entry.schema.type === 'integer' ||
+			entry.schema.type === 'boolean'
+		) {
+			entries.push(entry);
+		}
+	}
 	if (entries.length === 0) return null;
 
 	return (
 		<div className="-mx-3 -mb-3 mt-1 border-t border-border/60">
-			{entries.map(([key, schema]) => {
-				const definition = schema as {
-					type?: string;
-					enum?: unknown[];
-					minimum?: number;
-					maximum?: number;
-				};
-				const value = values[key];
-				const label = key.replaceAll('_', ' ');
-				if (definition.type === 'boolean') {
-					return (
-						<SettingsRow
-							key={key}
-							title={label}
-							actions={
-								<Switch
-									checked={value === true}
-									onCheckedChange={(checked) => onChange(key, checked)}
-								/>
-							}
-						/>
-					);
+			{entries.map(({ path, schema }) => {
+				let value: unknown = values;
+				for (const key of path) {
+					value =
+						value && typeof value === 'object'
+							? (value as Record<string, unknown>)[key]
+							: undefined;
 				}
-				if (definition.enum?.every((item) => typeof item === 'string')) {
+				const key = path.join('.');
+				const label =
+					schema.title ?? path.map((part) => part.replaceAll('_', ' ')).join(' ');
+				const choices =
+					schema.oneOf?.map((choice) => ({
+						label: choice.title ?? String(choice.const),
+						value: choice.const,
+					})) ??
+					schema.enum?.map((choice) => ({ label: String(choice), value: choice })) ??
+					[];
+				if (choices.length > 0) {
+					const selectedIndex = choices.findIndex((choice) => Object.is(choice.value, value));
 					return (
 						<SettingsRow
 							key={key}
 							title={label}
 							actions={
 								<Select
-									value={typeof value === 'string' ? value : undefined}
-									onValueChange={(next) => onChange(key, next)}
+									value={selectedIndex < 0 ? '__default__' : String(selectedIndex)}
+									onValueChange={(next) =>
+										onChange(
+											path,
+											next === '__default__' ? undefined : choices[Number(next)]?.value
+										)
+									}
 								>
 									<SelectTrigger className="w-40">
-										<SelectValue placeholder="Default" />
+										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										{definition.enum.map((item) => (
-											<SelectItem key={String(item)} value={String(item)}>
-												{String(item)}
+										<SelectItem value="__default__">Provider default</SelectItem>
+										{choices.map((choice, index) => (
+											<SelectItem key={`${String(choice.value)}-${index}`} value={String(index)}>
+												{choice.label}
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -87,7 +108,21 @@ export function ModelOptions({
 						/>
 					);
 				}
-				const numeric = definition.type === 'number' || definition.type === 'integer';
+				if (schema.type === 'boolean') {
+					return (
+						<SettingsRow
+							key={key}
+							title={label}
+							actions={
+								<Switch
+									checked={value === true}
+									onCheckedChange={(checked) => onChange(path, checked)}
+								/>
+							}
+						/>
+					);
+				}
+				const numeric = schema.type === 'number' || schema.type === 'integer';
 				return (
 					<SettingsRow
 						key={key}
@@ -96,12 +131,15 @@ export function ModelOptions({
 							<Input
 								className="w-40"
 								type={numeric ? 'number' : 'text'}
-								min={definition.minimum}
-								max={definition.maximum}
-								value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
+								min={schema.minimum}
+								max={schema.maximum}
+								step={schema.type === 'integer' ? 1 : undefined}
+								value={
+									typeof value === 'string' || typeof value === 'number' ? String(value) : ''
+								}
 								onChange={(event) =>
 									onChange(
-										key,
+										path,
 										event.target.value === ''
 											? undefined
 											: numeric
