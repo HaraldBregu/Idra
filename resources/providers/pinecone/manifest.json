@@ -10,10 +10,21 @@
       "url": "https://api.pinecone.io",
       "type": "database",
       "metadata": {
-        "documentationUrl": "https://docs.pinecone.io",
+        "documentationUrl": "https://docs.pinecone.io/reference/api/2025-01/data-plane/upsert",
+        "documentationStatus": "verified",
         "inputs": {
+          "vectors": {
+            "type": "array",
+            "required": true
+          },
           "namespace": {
             "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "sparse_values": {
+            "type": "object"
           }
         }
       }
