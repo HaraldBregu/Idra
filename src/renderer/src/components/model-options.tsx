@@ -75,6 +75,10 @@ export function ModelOptions({
 			})) ??
 			schema.enum?.map((choice) => ({ label: String(choice), value: choice })) ??
 			[];
+		const defaultLabel =
+			schema.default === undefined
+				? 'Provider default'
+				: `Provider default (${String(schema.default)})`;
 		let node: React.JSX.Element;
 		if (choices.length > 0) {
 			const selectedIndex = choices.findIndex((choice) => Object.is(choice.value, value));
@@ -90,12 +94,12 @@ export function ModelOptions({
 							}
 						>
 							<SelectTrigger className="w-40">
-								<SelectValue>
-									{selectedIndex < 0 ? 'Provider default' : choices[selectedIndex]?.label}
+							<SelectValue>
+									{selectedIndex < 0 ? defaultLabel : choices[selectedIndex]?.label}
 								</SelectValue>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="__default__">Provider default</SelectItem>
+								<SelectItem value="__default__">{defaultLabel}</SelectItem>
 								{choices.map((choice, index) => (
 									<SelectItem key={`${String(choice.value)}-${index}`} value={String(index)}>
 										{choice.label}
@@ -107,13 +111,14 @@ export function ModelOptions({
 				/>
 			);
 		} else if (schema.type === 'boolean') {
+			const checked = value === undefined ? schema.default === true : value === true;
 			node = (
 				<SettingsRow
 					key={key}
 					title={label}
 					actions={
 						<Switch
-							checked={value === true}
+							checked={checked}
 							onCheckedChange={(checked) => onChange(path, checked)}
 						/>
 					}
@@ -121,6 +126,7 @@ export function ModelOptions({
 			);
 		} else {
 			const numeric = schema.type === 'number' || schema.type === 'integer';
+			const displayedValue = value === undefined ? schema.default : value;
 			node = (
 				<SettingsRow
 					key={key}
@@ -132,7 +138,11 @@ export function ModelOptions({
 							min={schema.minimum}
 							max={schema.maximum}
 							step={schema.type === 'integer' ? 1 : undefined}
-							value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
+							value={
+								typeof displayedValue === 'string' || typeof displayedValue === 'number'
+									? String(displayedValue)
+									: ''
+							}
 							onChange={(event) =>
 								onChange(
 									path,

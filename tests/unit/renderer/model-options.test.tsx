@@ -43,6 +43,26 @@ describe('ModelOptions', () => {
 		expect(screen.getByRole('option', { name: '10', hidden: true })).toBeInTheDocument();
 	});
 
+	it('displays provider defaults without storing them as overrides', async () => {
+		const user = userEvent.setup();
+		render(
+			<ModelOptions
+				inputs={{
+					aspect_ratio: { type: 'string', enum: ['16:9', '9:16'], default: '16:9' },
+					duration: { type: 'integer', minimum: 1, maximum: 30, default: 8 },
+					enhance_prompt: { type: 'boolean', default: true },
+				}}
+				values={{}}
+				onChange={jest.fn()}
+			/>
+		);
+
+		await user.click(screen.getByRole('button', { name: 'Advanced' }));
+		expect(screen.getByRole('combobox')).toHaveTextContent('Provider default (16:9)');
+		expect(screen.getByRole('spinbutton')).toHaveValue(8);
+		expect(screen.getByRole('switch')).toBeChecked();
+	});
+
 	it('replaces properties when the selected model inputs change', () => {
 		const { rerender } = render(
 			<ModelOptions
