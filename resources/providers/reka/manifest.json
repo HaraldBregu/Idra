@@ -10,21 +10,29 @@
       "type": "large-language-model",
       "url": "https://api.reka.ai/v1",
       "metadata": {
-        "documentationUrl": "https://docs.reka.ai/",
+        "documentationUrl": "https://docs.reka.ai/chat/models",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
           }
         }
       }
@@ -35,21 +43,29 @@
       "type": "large-language-model",
       "url": "https://api.reka.ai/v1",
       "metadata": {
-        "documentationUrl": "https://docs.reka.ai/",
+        "documentationUrl": "https://docs.reka.ai/chat/models",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
           }
         }
       }
