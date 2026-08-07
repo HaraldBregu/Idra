@@ -1,3 +1,4 @@
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import {
 	Select,
@@ -9,6 +10,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import type { ModelInputSchema } from '@shared/model_types';
 import { SettingsRow } from '@pages/settings/components';
+import { ChevronDown } from 'lucide-react';
 
 interface ModelOptionsProps {
 	readonly inputs: Readonly<Record<string, ModelInputSchema>>;
@@ -55,102 +57,118 @@ export function ModelOptions({
 		}
 	}
 	if (entries.length === 0) return null;
+	const rendered = entries.map(({ path, schema }) => {
+		let value: unknown = values;
+		for (const key of path) {
+			value =
+				value && typeof value === 'object'
+					? (value as Record<string, unknown>)[key]
+					: undefined;
+		}
+		const key = path.join('.');
+		const label = schema.title ?? path.map((part) => part.replaceAll('_', ' ')).join(' ');
+		const choices =
+			schema.oneOf?.map((choice) => ({
+				label: choice.title ?? String(choice.const),
+				value: choice.const,
+			})) ??
+			schema.enum?.map((choice) => ({ label: String(choice), value: choice })) ??
+			[];
+		let node: React.JSX.Element;
+		if (choices.length > 0) {
+			const selectedIndex = choices.findIndex((choice) => Object.is(choice.value, value));
+			node = (
+				<SettingsRow
+					key={key}
+					title={label}
+					actions={
+						<Select
+							value={selectedIndex < 0 ? '__default__' : String(selectedIndex)}
+							onValueChange={(next) =>
+								onChange(
+									path,
+									next === '__default__' ? undefined : choices[Number(next)]?.value
+								)
+							}
+						>
+							<SelectTrigger className="w-40">
+								<SelectValue>
+									{selectedIndex < 0 ? 'Provider default' : choices[selectedIndex]?.label}
+								</SelectValue>
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="__default__">Provider default</SelectItem>
+								{choices.map((choice, index) => (
+									<SelectItem key={`${String(choice.value)}-${index}`} value={String(index)}>
+										{choice.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					}
+				/>
+			);
+		} else if (schema.type === 'boolean') {
+			node = (
+				<SettingsRow
+					key={key}
+					title={label}
+					actions={
+						<Switch checked={value === true} onCheckedChange={(checked) => onChange(path, checked)} />
+					}
+				/>
+			);
+		} else {
+			const numeric = schema.type === 'number' || schema.type === 'integer';
+			node = (
+				<SettingsRow
+					key={key}
+					title={label}
+					actions={
+						<Input
+							className="w-40"
+							type={numeric ? 'number' : 'text'}
+							min={schema.minimum}
+							max={schema.maximum}
+							step={schema.type === 'integer' ? 1 : undefined}
+							value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
+							onChange={(event) =>
+								onChange(
+									path,
+									event.target.value === ''
+										? undefined
+										: numeric
+											? Number(event.target.value)
+											: event.target.value
+								)
+							}
+						/>
+					}
+				/>
+			);
+		}
+		return {
+			primary: path.some((part) => part.includes('effort') || part.includes('thinking')),
+			node,
+		};
+	});
+	const primary = rendered.filter((entry) => entry.primary).map((entry) => entry.node);
+	const advanced = rendered.filter((entry) => !entry.primary).map((entry) => entry.node);
 
 	return (
 		<div className="-mx-3 -mb-3 mt-1 border-t border-border/60">
-			{entries.map(({ path, schema }) => {
-				let value: unknown = values;
-				for (const key of path) {
-					value =
-						value && typeof value === 'object'
-							? (value as Record<string, unknown>)[key]
-							: undefined;
-				}
-				const key = path.join('.');
-				const label = schema.title ?? path.map((part) => part.replaceAll('_', ' ')).join(' ');
-				const choices =
-					schema.oneOf?.map((choice) => ({
-						label: choice.title ?? String(choice.const),
-						value: choice.const,
-					})) ??
-					schema.enum?.map((choice) => ({ label: String(choice), value: choice })) ??
-					[];
-				if (choices.length > 0) {
-					const selectedIndex = choices.findIndex((choice) => Object.is(choice.value, value));
-					return (
-						<SettingsRow
-							key={key}
-							title={label}
-							actions={
-								<Select
-									value={selectedIndex < 0 ? '__default__' : String(selectedIndex)}
-									onValueChange={(next) =>
-										onChange(
-											path,
-											next === '__default__' ? undefined : choices[Number(next)]?.value
-										)
-									}
-								>
-									<SelectTrigger className="w-40">
-										<SelectValue>
-											{selectedIndex < 0 ? 'Provider default' : choices[selectedIndex]?.label}
-										</SelectValue>
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="__default__">Provider default</SelectItem>
-										{choices.map((choice, index) => (
-											<SelectItem key={`${String(choice.value)}-${index}`} value={String(index)}>
-												{choice.label}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							}
-						/>
-					);
-				}
-				if (schema.type === 'boolean') {
-					return (
-						<SettingsRow
-							key={key}
-							title={label}
-							actions={
-								<Switch
-									checked={value === true}
-									onCheckedChange={(checked) => onChange(path, checked)}
-								/>
-							}
-						/>
-					);
-				}
-				const numeric = schema.type === 'number' || schema.type === 'integer';
-				return (
-					<SettingsRow
-						key={key}
-						title={label}
-						actions={
-							<Input
-								className="w-40"
-								type={numeric ? 'number' : 'text'}
-								min={schema.minimum}
-								max={schema.maximum}
-								step={schema.type === 'integer' ? 1 : undefined}
-								value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
-								onChange={(event) =>
-									onChange(
-										path,
-										event.target.value === ''
-											? undefined
-											: numeric
-												? Number(event.target.value)
-												: event.target.value
-									)
-								}
-							/>
-						}
-					/>
-				);
-			})}
+			{primary}
+			{advanced.length > 0 && (
+				<Collapsible>
+					<CollapsibleTrigger className="group flex min-h-10 w-full items-center justify-between px-3 py-2 text-left text-[12px] font-medium text-muted-foreground hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
+						<span>Advanced</span>
+						<ChevronDown className="size-3.5 transition-transform group-data-panel-open:rotate-180" />
+					</CollapsibleTrigger>
+					<CollapsibleContent className="border-t border-border/60">
+						{advanced}
+					</CollapsibleContent>
+				</Collapsible>
+			)}
 		</div>
 	);
 }
