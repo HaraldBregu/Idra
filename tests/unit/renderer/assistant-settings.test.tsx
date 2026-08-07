@@ -58,15 +58,11 @@ jest.mock('@/lib/providers', () => ({
 	modelsFor: (capability: string) => mockCatalog.filter((model) => model.type === capability),
 	providerIdsFor: (capability: string) => [
 		...new Set(
-			mockCatalog
-				.filter((model) => model.type === capability)
-				.map((model) => model.provider.id)
+			mockCatalog.filter((model) => model.type === capability).map((model) => model.provider.id)
 		),
 	],
 	providerModels: (providerId: string, capability: string) =>
-		mockCatalog.filter(
-			(model) => model.provider.id === providerId && model.type === capability
-		),
+		mockCatalog.filter((model) => model.provider.id === providerId && model.type === capability),
 	providers: () => mockProviders,
 }));
 
