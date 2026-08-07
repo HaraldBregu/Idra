@@ -16,6 +16,13 @@ import {
 	SettingsSection,
 } from '../../components';
 
+function getErrorMessage(error: unknown, fallback: string): string {
+	if (error instanceof Error && error.message.trim().length > 0) {
+		return error.message;
+	}
+	return fallback;
+}
+
 const ExtensionsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
