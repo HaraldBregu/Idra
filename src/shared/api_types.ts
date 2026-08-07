@@ -28,7 +28,7 @@ import type {
 	McpStdioData,
 	McpTestResult,
 } from './mcp_types';
-import type { Extension } from './extension_types';
+import type { Extension, ExtensionImportResult } from './extension_types';
 import type { TaskRuntime, TaskSchedule } from '../main/tasks/tasks_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { RagIndexResult, RagMatch } from '../main/rag';
@@ -200,6 +200,7 @@ export interface DatabaseApi {
 export interface ExtensionsApi {
 	list: () => Promise<Extension[]>;
 	open: (extensionId: string) => Promise<void>;
+	import: () => Promise<ExtensionImportResult>;
 }
 
 export interface SearchApi {
