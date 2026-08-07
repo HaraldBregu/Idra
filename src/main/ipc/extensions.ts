@@ -1,8 +1,9 @@
+import { BrowserWindow, dialog } from 'electron';
 import type { EventBus } from '../event_bus';
 import type { WindowFactory } from '../window_factory';
-import { listExtensions, loadExtension } from '../extensions/extension_index';
+import { importExtensions, listExtensions, loadExtension } from '../extensions/extension_index';
 import { ExtensionChannels } from '../../shared/ipc_channels_definitions';
-import { registerCommand, registerQuery } from './core/gateway';
+import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 
 export interface ExtensionsIpcDeps {
@@ -19,5 +20,23 @@ export class ExtensionsIpc implements IpcModule<ExtensionsIpcDeps> {
 			if (!extension) throw new Error(`Extension not found: ${extensionId}`);
 			loadExtension(windowFactory, extension);
 		});
+		registerCommandWithEvent(
+			ExtensionChannels.import,
+			async (event): Promise<import('../../shared/extension_types').ExtensionImportResult | undefined> => {
+				const window = BrowserWindow.fromWebContents(event.sender);
+				const result = await (window
+					? dialog.showOpenDialog(window, {
+							title: 'Select extension folder(s)',
+							properties: ['openDirectory', 'multiSelections'],
+					})
+					: dialog.showOpenDialog({
+							title: 'Select extension folder(s)',
+							properties: ['openDirectory', 'multiSelections'],
+					}));
+
+				if (result.canceled || result.filePaths.length === 0) return undefined;
+				return importExtensions(result.filePaths);
+			}
+		);
 	}
 }
