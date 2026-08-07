@@ -24,8 +24,8 @@ async function uniqueProvidersWithStored(
 }
 
 export const provider: ProviderApi = {
-	get: (id: string): Promise<Provider | undefined> => {
-	return typedInvokeUnwrap(ProviderStoreChannels.get, id);
+	get: (id: string): Promise<ProviderStoreRecord | undefined> => {
+		return typedInvokeUnwrap(ProviderStoreChannels.get, id);
 	},
 	set: (provider: ProviderStoreRecord, kind?: StoredProviderKind): Promise<ProviderStoreRecord> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.set, provider, kind);
