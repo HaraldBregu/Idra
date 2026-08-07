@@ -255,11 +255,6 @@ function channelModelSelection(kind: 'stt' | 'tts' | 'llm'): {
 	providerId?: string;
 	modelId?: string;
 } {
-	const kindMap: Record<typeof kind, 'transcribe' | 'voice' | 'text'> = {
-		stt: 'transcribe',
-		tts: 'voice',
-		llm: 'text',
-	};
 	const current = getChannelModelSelection(kind);
 	const providerId = trimOrEmpty(current.providerId);
 	const modelId = trimOrEmpty(current.modelId);
