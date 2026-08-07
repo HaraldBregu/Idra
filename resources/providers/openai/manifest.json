@@ -14,17 +14,25 @@
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "verbosity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
-          "maxTokens": {
+          "maxOutputTokens": {
             "type": "integer",
             "minimum": 1
           }
@@ -39,17 +47,25 @@
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "verbosity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
-          "maxTokens": {
+          "maxOutputTokens": {
             "type": "integer",
             "minimum": 1
           }
@@ -64,17 +80,25 @@
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "verbosity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
-          "maxTokens": {
+          "maxOutputTokens": {
             "type": "integer",
             "minimum": 1
           }
@@ -89,17 +113,25 @@
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "verbosity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
-          "maxTokens": {
+          "maxOutputTokens": {
             "type": "integer",
             "minimum": 1
           }
@@ -114,17 +146,25 @@
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "verbosity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
-          "maxTokens": {
+          "maxOutputTokens": {
             "type": "integer",
             "minimum": 1
           }
@@ -139,17 +179,25 @@
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "verbosity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
-          "maxTokens": {
+          "maxOutputTokens": {
             "type": "integer",
             "minimum": 1
           }
@@ -164,17 +212,25 @@
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "verbosity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
-          "maxTokens": {
+          "maxOutputTokens": {
             "type": "integer",
             "minimum": 1
           }
@@ -189,17 +245,25 @@
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "verbosity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
-          "maxTokens": {
+          "maxOutputTokens": {
             "type": "integer",
             "minimum": 1
           }
@@ -214,17 +278,25 @@
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
         "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "verbosity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
           },
-          "maxTokens": {
+          "maxOutputTokens": {
             "type": "integer",
             "minimum": 1
           }
@@ -324,13 +396,24 @@
           "voice": {
             "type": "string"
           },
+          "instructions": {
+            "type": "string"
+          },
           "speed": {
             "type": "number",
             "minimum": 0.25,
             "maximum": 4
           },
-          "outputFormat": {
-            "type": "string"
+          "responseFormat": {
+            "type": "string",
+            "enum": [
+              "mp3",
+              "opus",
+              "aac",
+              "flac",
+              "wav",
+              "pcm"
+            ]
           }
         }
       }
@@ -346,13 +429,24 @@
           "voice": {
             "type": "string"
           },
+          "instructions": {
+            "type": "string"
+          },
           "speed": {
             "type": "number",
             "minimum": 0.25,
             "maximum": 4
           },
-          "outputFormat": {
-            "type": "string"
+          "responseFormat": {
+            "type": "string",
+            "enum": [
+              "mp3",
+              "opus",
+              "aac",
+              "flac",
+              "wav",
+              "pcm"
+            ]
           }
         }
       }
@@ -370,11 +464,12 @@
             "type": "integer",
             "minimum": 1
           },
-          "inputType": {
-            "type": "string"
-          },
-          "truncate": {
-            "type": "boolean"
+          "encodingFormat": {
+            "type": "string",
+            "enum": [
+              "float",
+              "base64"
+            ]
           }
         }
       }
@@ -392,11 +487,12 @@
             "type": "integer",
             "minimum": 1
           },
-          "inputType": {
-            "type": "string"
-          },
-          "truncate": {
-            "type": "boolean"
+          "encodingFormat": {
+            "type": "string",
+            "enum": [
+              "float",
+              "base64"
+            ]
           }
         }
       }
