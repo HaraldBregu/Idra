@@ -267,6 +267,25 @@ export class AppIpc implements IpcModule {
 	register({ logger, channelRegistry }: AppIpcDeps, eventBus: EventBus): void {
 		// Honor the persisted keep-awake setting on startup
 		applyKeepAwake(getStoredKeepAwake());
+		let currentThemeData: AppThemeData = {
+			themeMode: getStoredTheme(),
+			isDark: nativeTheme.shouldUseDarkColors,
+		};
+		const emitThemeChangeEvent = (): void => {
+			const nextThemeData: AppThemeData = {
+				themeMode: getStoredTheme(),
+				isDark: nativeTheme.shouldUseDarkColors,
+			};
+			if (
+				nextThemeData.themeMode === currentThemeData.themeMode &&
+				nextThemeData.isDark === currentThemeData.isDark
+			) {
+				return;
+			}
+			currentThemeData = nextThemeData;
+			eventBus.broadcast(AppChannels.themeModeChanged, nextThemeData);
+		};
+		nativeTheme.on('updated', emitThemeChangeEvent);
 
 		// Open application data folder in system file explorer
 		ipcMain.handle(
@@ -410,6 +429,7 @@ export class AppIpc implements IpcModule {
 			wrapSimpleHandler((theme: AppTheme) => {
 				setStoredTheme(theme);
 				nativeTheme.themeSource = theme;
+				emitThemeChangeEvent();
 			}, AppChannels.setTheme)
 		);
 
