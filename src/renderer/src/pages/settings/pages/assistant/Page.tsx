@@ -132,6 +132,7 @@ const AssistantPage: React.FC = () => {
 		const group = state.modelGroups.find((item) => item.provider.id === nextProviderId);
 		const model = group?.models.find((item) => item.id === nextModelId);
 		if (!group || !model) return;
+		setModelOptions({});
 		setState((current) => ({
 			...current,
 			providerId: nextProviderId,
@@ -177,7 +178,12 @@ const AssistantPage: React.FC = () => {
 					description={t('settings.modelServices.modelDescription')}
 					onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
 				>
-					<ModelOptions inputs={inputs} values={modelOptions} onChange={updateModelOption} />
+					<ModelOptions
+						key={`${state.providerId}:${state.modelId}`}
+						inputs={inputs}
+						values={modelOptions}
+						onChange={updateModelOption}
+					/>
 				</ModelProviderConfiguration>
 			</SettingsSection>
 
