@@ -108,6 +108,7 @@ export const AppChannels = {
 	getLanguage: 'app:get-language',
 	setTheme: 'app:set-theme',
 	getTheme: 'app:get-theme',
+	getThemeData: 'app:get-theme-data',
 	getMicrophonePermission: 'app:get-microphone-permission',
 	setMicrophoneEnabled: 'app:set-microphone-enabled',
 	requestMicrophonePermission: 'app:request-microphone-permission',
