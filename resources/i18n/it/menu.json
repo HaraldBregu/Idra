@@ -4,6 +4,7 @@
 	"view": "Vista",
 	"window": "Finestra",
 	"extensions": "Extension",
+	"noExtensions": "Nessuna estensione",
 	"developer": "Sviluppatore",
 	"language": "Lingua",
 	"newWindow": "Nuova finestra",
