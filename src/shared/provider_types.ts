@@ -35,6 +35,8 @@ export interface CatalogEntryModel extends ProviderModel {
 	readonly default?: boolean;
 	/** Speech-to-text only: realtime capture sample rate. */
 	readonly sampleRate?: number;
+	/** Provider-documented, model-specific input controls. */
+	readonly metadata?: Record<string, unknown>;
 }
 
 export type ProviderServiceType =
@@ -65,6 +67,8 @@ export interface CatalogEntryService {
 	readonly type: string;
 	/** Base URL of the API serving this service. */
 	readonly url?: string;
+	/** Provider-documented, service-specific input controls. */
+	readonly metadata?: Record<string, unknown>;
 }
 
 /** A database or storage offering, carrying the provider that serves it. */

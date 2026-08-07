@@ -8,6 +8,7 @@ export interface ImageProviderSpec {
 export interface ImageAdapterGenerationRequest {
 	modelId: string;
 	prompt: string;
+	options?: Record<string, unknown>;
 	signal?: AbortSignal;
 }
 

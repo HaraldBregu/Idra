@@ -6,6 +6,7 @@ export interface GenerateVideoOptions {
 	apiKey: string;
 	modelId: string;
 	prompt: string;
+	options?: Record<string, unknown>;
 	baseURL?: string;
 	signal?: AbortSignal;
 }
@@ -20,6 +21,7 @@ export async function generateVideo(options: GenerateVideoOptions): Promise<Vide
 	return adapter.generate({
 		modelId: options.modelId,
 		prompt: options.prompt,
+		options: options.options,
 		signal: options.signal,
 	});
 }

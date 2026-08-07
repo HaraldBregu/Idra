@@ -8,6 +8,7 @@ export interface MusicProviderSpec {
 export interface MusicAdapterGenerationRequest {
 	modelId: string;
 	prompt: string;
+	options?: Record<string, unknown>;
 	signal?: AbortSignal;
 }
 

@@ -21,7 +21,7 @@ export async function createSound(request: SoundRequest): Promise<SoundResult> {
 	);
 	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('sound'));
 	const apiKey = resolveApiKey(providerId);
-	return generateMusic({ providerId, apiKey, modelId, prompt });
+	return generateMusic({ providerId, apiKey, modelId, prompt, options: request.options });
 }
 
 function resolveProviderId(providerId: string): string {

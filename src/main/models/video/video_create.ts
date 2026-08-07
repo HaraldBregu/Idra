@@ -21,7 +21,7 @@ export async function createVideo(request: VideoRequest): Promise<VideoResult> {
 	);
 	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('video'));
 	const apiKey = resolveApiKey(providerId);
-	return generateVideo({ providerId, apiKey, modelId, prompt });
+	return generateVideo({ providerId, apiKey, modelId, prompt, options: request.options });
 }
 
 function resolveProviderId(providerId: string): string {

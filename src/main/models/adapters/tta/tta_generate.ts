@@ -6,6 +6,7 @@ export interface GenerateMusicOptions {
 	apiKey: string;
 	modelId: string;
 	prompt: string;
+	options?: Record<string, unknown>;
 	baseURL?: string;
 	signal?: AbortSignal;
 }
@@ -20,6 +21,7 @@ export async function generateMusic(options: GenerateMusicOptions): Promise<Musi
 	return adapter.generate({
 		modelId: options.modelId,
 		prompt: options.prompt,
+		options: options.options,
 		signal: options.signal,
 	});
 }

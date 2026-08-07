@@ -21,7 +21,7 @@ export async function createImage(request: ImageRequest): Promise<ImageResult> {
 	);
 	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('image'));
 	const apiKey = resolveApiKey(providerId);
-	return generateImage({ providerId, apiKey, modelId, prompt });
+	return generateImage({ providerId, apiKey, modelId, prompt, options: request.options });
 }
 
 function resolveProviderId(providerId: string): string {

@@ -20,6 +20,8 @@ export interface ProviderModel {
 	readonly apiTypes?: readonly SpeechToTextApiType[];
 	/** Speech-to-text only: model streams transcripts in realtime. */
 	readonly realtime?: boolean;
+	/** Provider-documented, model-specific input controls. */
+	readonly metadata?: Record<string, unknown>;
 }
 
 export type ModelCatalog = Readonly<Record<string, readonly ProviderModel[]>>;

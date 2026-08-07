@@ -8,6 +8,7 @@ export interface VideoProviderSpec {
 export interface VideoAdapterGenerationRequest {
 	modelId: string;
 	prompt: string;
+	options?: Record<string, unknown>;
 	signal?: AbortSignal;
 }
 
