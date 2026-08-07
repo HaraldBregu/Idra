@@ -6,6 +6,7 @@ import type { Agent } from '../agent/agent';
 import type { SttAudioInput } from '../../shared/stt_transcription';
 import type { SpeechSynthesisResult } from '../../shared/speech_types';
 import { getChannelProvider } from './channels_store';
+import { getChannelModelSelection } from './channels_store';
 import { canReceive } from './channels_security';
 import { loadChannelVoice } from './channels_voice';
 import type {
@@ -15,7 +16,6 @@ import type {
 	ChannelOutboundMessage,
 	ChannelStatusUpdate,
 } from './channels_types';
-import { getModelId, getProviderId } from '../models/models_store';
 import { toText } from '../models/transcribe';
 import { synthesize } from '../models/voice';
 
@@ -251,16 +251,18 @@ function trimOrEmpty(value?: string): string {
 	return (value ?? '').trim();
 }
 
-function channelModelSelection(
-	kind: 'stt' | 'tts' | 'llm'
-): { providerId?: string; modelId?: string } {
+function channelModelSelection(kind: 'stt' | 'tts' | 'llm'): {
+	providerId?: string;
+	modelId?: string;
+} {
 	const kindMap: Record<typeof kind, 'transcribe' | 'voice' | 'text'> = {
 		stt: 'transcribe',
 		tts: 'voice',
 		llm: 'text',
 	};
-	const providerId = trimOrEmpty(getProviderId(kindMap[kind]));
-	const modelId = trimOrEmpty(getModelId(kindMap[kind]));
+	const current = getChannelModelSelection(kind);
+	const providerId = trimOrEmpty(current.providerId);
+	const modelId = trimOrEmpty(current.modelId);
 	if (!providerId) return {};
 	return { providerId, ...(modelId ? { modelId } : {}) };
 }

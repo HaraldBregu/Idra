@@ -332,6 +332,23 @@ export class AppIpc implements IpcModule {
 			}, AppChannels.channels)
 		);
 
+		ipcMain.handle(
+			AppChannels.getChannelModelSelection,
+			wrapSimpleHandler((kind: 'llm' | 'stt' | 'tts') => {
+				return getChannelModelSelection(kind);
+			}, AppChannels.getChannelModelSelection)
+		);
+
+		ipcMain.handle(
+			AppChannels.setChannelModelSelection,
+			wrapSimpleHandler((kind: 'llm' | 'stt' | 'tts', providerId: string, modelId: string) => {
+				setChannelModelSelection(kind, {
+					providerId: providerId?.trim(),
+					modelId: modelId?.trim(),
+				});
+			}, AppChannels.setChannelModelSelection)
+		);
+
 		// Re-read the catalog and tell renderers when resources/providers changes on disk
 		watchModels(() => eventBus.broadcast(AppChannels.modelsChanged));
 
