@@ -79,6 +79,9 @@ export const app: AppApi = {
 	getTheme: () => {
 		return typedInvokeUnwrap(AppChannels.getTheme);
 	},
+	getThemeData: () => {
+		return typedInvokeUnwrap(AppChannels.getThemeData);
+	},
 	getMicrophonePermission: () => {
 		return typedInvokeUnwrap(AppChannels.getMicrophonePermission);
 	},
