@@ -39,9 +39,12 @@ export type AppLanguage = 'en' | 'it';
 
 export type AppTheme = 'light' | 'dark' | 'system';
 
+export type AppThemeColors = Record<string, string>;
+
 export interface AppThemeData {
 	readonly themeMode: AppTheme;
 	readonly isDark: boolean;
+	readonly colors: AppThemeColors;
 }
 
 export const ShortcutId = {
