@@ -1,22 +1,5 @@
 import process from 'node:process';
 
-type JsonRpcRequest = {
-	jsonrpc?: unknown;
-	id?: unknown;
-	method?: unknown;
-	params?: {
-		protocolVersion?: string;
-		name?: unknown;
-		arguments?: unknown;
-	};
-};
-
-type ToolResult = {
-	content: Array<{ type: 'text'; text: string }>;
-	isError?: boolean;
-	structuredContent?: Record<string, unknown>;
-};
-
 const configuration = {
 	company: process.env.DEMO_COMPANY?.trim() ?? '',
 	currency: process.env.DEMO_CURRENCY?.trim() ?? '',
@@ -61,17 +44,17 @@ const tools = [
 	},
 ];
 
-const send = (message: Record<string, unknown>) => {
+const send = (message) => {
 	process.stdout.write(`${JSON.stringify(message)}\n`);
 };
 
-const toolError = (message: string): ToolResult => ({
+const toolError = (message) => ({
 	content: [{ type: 'text', text: message }],
 	isError: true,
 });
 
-const configurationError = (): string | undefined => {
-	const missing: string[] = [];
+const configurationError = () => {
+	const missing = [];
 	if (!configuration.company) missing.push('DEMO_COMPANY');
 	if (!configuration.currency) missing.push('DEMO_CURRENCY');
 	if (!Number.isFinite(configuration.taxRate)) missing.push('DEMO_TAX_RATE');
@@ -79,7 +62,7 @@ const configurationError = (): string | undefined => {
 	return missing.length > 0 ? `Missing or invalid server values: ${missing.join(', ')}` : undefined;
 };
 
-const callTool = (name: string, args: Record<string, unknown>): ToolResult => {
+const callTool = (name, args) => {
 	const invalidConfiguration = configurationError();
 	if (invalidConfiguration) return toolError(invalidConfiguration);
 
@@ -171,7 +154,7 @@ const callTool = (name: string, args: Record<string, unknown>): ToolResult => {
 	return toolError(`Unknown tool: ${name}`);
 };
 
-const handle = (message: JsonRpcRequest | null) => {
+const handle = (message) => {
 	if (!message || message.jsonrpc !== '2.0' || typeof message.method !== 'string') {
 		if (message?.id !== undefined) {
 			send({ jsonrpc: '2.0', id: message.id, error: { code: -32600, message: 'Invalid request.' } });
@@ -224,7 +207,7 @@ const handle = (message: JsonRpcRequest | null) => {
 
 let buffer = '';
 process.stdin.setEncoding('utf8');
-process.stdin.on('data', (chunk: string) => {
+process.stdin.on('data', (chunk) => {
 	buffer += chunk;
 	let newline = buffer.indexOf('\n');
 	while (newline >= 0) {

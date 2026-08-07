@@ -3,7 +3,7 @@
 	"name": "Friday Demo Tools",
 	"type": "stdio",
 	"command": "node",
-	"args": ["--experimental-strip-types", "server.ts"],
+	"args": ["server.mjs"],
 	"cwd": ".",
 	"require_approval": "always",
 	"enabled": true

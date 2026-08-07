@@ -1,22 +1,5 @@
 import process from 'node:process';
 
-type JsonRpcRequest = {
-	jsonrpc?: unknown;
-	id?: unknown;
-	method?: unknown;
-	params?: {
-		protocolVersion?: string;
-		name?: unknown;
-		arguments?: unknown;
-	};
-};
-
-type ToolResult = {
-	content: Array<{ type: 'text'; text: string }>;
-	isError?: boolean;
-	structuredContent?: Record<string, unknown>;
-};
-
 const tools = [
 	{
 		name: 'echo',
@@ -61,16 +44,16 @@ const tools = [
 	},
 ];
 
-const send = (message: Record<string, unknown>) => {
+const send = (message) => {
 	process.stdout.write(`${JSON.stringify(message)}\n`);
 };
 
-const toolError = (message: string): ToolResult => ({
+const toolError = (message) => ({
 	content: [{ type: 'text', text: message }],
 	isError: true,
 });
 
-const callTool = (name: string, args: Record<string, unknown>): ToolResult => {
+const callTool = (name, args) => {
 	if (name === 'echo') {
 		return typeof args.message === 'string'
 			? { content: [{ type: 'text', text: args.message }] }
@@ -107,7 +90,7 @@ const callTool = (name: string, args: Record<string, unknown>): ToolResult => {
 	return toolError(`Unknown tool: ${name}`);
 };
 
-const handle = (message: JsonRpcRequest | null) => {
+const handle = (message) => {
 	if (!message || message.jsonrpc !== '2.0' || typeof message.method !== 'string') {
 		if (message?.id !== undefined) {
 			send({ jsonrpc: '2.0', id: message.id, error: { code: -32600, message: 'Invalid request.' } });
@@ -160,7 +143,7 @@ const handle = (message: JsonRpcRequest | null) => {
 
 let buffer = '';
 process.stdin.setEncoding('utf8');
-process.stdin.on('data', (chunk: string) => {
+process.stdin.on('data', (chunk) => {
 	buffer += chunk;
 	let newline = buffer.indexOf('\n');
 	while (newline >= 0) {

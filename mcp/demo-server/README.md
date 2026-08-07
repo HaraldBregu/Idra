@@ -10,7 +10,7 @@ A dependency-free local MCP server for testing Friday's dynamic server workflow.
 4. Click **Test Friday Demo Tools**. Friday should report three tools.
 
 The folder can also be copied manually to `~/.friday/mcp/servers/friday-demo` and loaded with
-the **Refresh** action. The TypeScript server uses only Node.js built-ins, so no package installation is needed.
+the **Refresh** action. The server uses only Node.js built-ins, so no package installation is needed.
 
 ## Tools
 
