@@ -167,14 +167,20 @@
       "metadata": {
         "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
         "inputs": {
-          "aspectRatio": {
+          "size": {
             "type": "string"
+          },
+          "negative_prompt": {
+            "type": "string"
+          },
+          "prompt_extend": {
+            "type": "boolean"
+          },
+          "watermark": {
+            "type": "boolean"
           },
           "seed": {
             "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
           }
         }
       }
@@ -187,14 +193,20 @@
       "metadata": {
         "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
         "inputs": {
-          "aspectRatio": {
+          "size": {
             "type": "string"
+          },
+          "negative_prompt": {
+            "type": "string"
+          },
+          "prompt_extend": {
+            "type": "boolean"
+          },
+          "watermark": {
+            "type": "boolean"
           },
           "seed": {
             "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
           }
         }
       }
@@ -207,18 +219,20 @@
       "metadata": {
         "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
         "inputs": {
-          "aspectRatio": {
+          "size": {
             "type": "string"
           },
           "duration": {
-            "type": "number",
-            "minimum": 1
+            "type": "integer"
+          },
+          "prompt_extend": {
+            "type": "boolean"
+          },
+          "negative_prompt": {
+            "type": "string"
           },
           "seed": {
             "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
           }
         }
       }
@@ -231,18 +245,20 @@
       "metadata": {
         "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
         "inputs": {
-          "aspectRatio": {
+          "size": {
             "type": "string"
           },
           "duration": {
-            "type": "number",
-            "minimum": 1
+            "type": "integer"
+          },
+          "prompt_extend": {
+            "type": "boolean"
+          },
+          "negative_prompt": {
+            "type": "string"
           },
           "seed": {
             "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
           }
         }
       }
