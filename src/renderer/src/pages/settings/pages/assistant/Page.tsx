@@ -23,6 +23,7 @@ import {
 	type ModelConfigurationState,
 } from '../../components/model-configuration-state';
 import type { ProviderModelGroup } from '../../../start/types';
+import { AgentMediaModelConfiguration } from './media';
 
 type CatalogProvider = PublicProvider;
 
@@ -165,6 +166,27 @@ const AssistantPage: React.FC = () => {
 						onChange={updateModelOption}
 					/>
 				</ModelProviderConfiguration>
+				<AgentMediaModelConfiguration
+					api={window.models.image}
+					capability="text-to-image"
+					idPrefix="agent-image"
+					title={t('settings.modelServices.imageAssistantName')}
+					description={t('settings.modelServices.imageModelDescription')}
+				/>
+				<AgentMediaModelConfiguration
+					api={window.models.sound}
+					capability="text-to-audio"
+					idPrefix="agent-audio"
+					title={t('settings.modelServices.musicCreatorName')}
+					description={t('settings.modelServices.musicModelDescription')}
+				/>
+				<AgentMediaModelConfiguration
+					api={window.models.video}
+					capability="text-to-video"
+					idPrefix="agent-video"
+					title={t('settings.modelServices.videoCreatorName')}
+					description={t('settings.modelServices.videoModelDescription')}
+				/>
 			</SettingsSection>
 
 			<SettingsSection title={t('settings.modelServices.history')}>
