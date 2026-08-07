@@ -12,18 +12,9 @@
       "type": "text-to-image-model",
       "url": "https://www.midjourney.com",
       "metadata": {
-        "documentationUrl": "https://docs.midjourney.com/",
-        "inputs": {
-          "aspectRatio": {
-            "type": "string"
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://docs.midjourney.com",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -32,18 +23,9 @@
       "type": "text-to-image-model",
       "url": "https://www.midjourney.com",
       "metadata": {
-        "documentationUrl": "https://docs.midjourney.com/",
-        "inputs": {
-          "aspectRatio": {
-            "type": "string"
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://docs.midjourney.com",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -52,22 +34,9 @@
       "type": "text-to-video-model",
       "url": "https://www.midjourney.com",
       "metadata": {
-        "documentationUrl": "https://docs.midjourney.com/",
-        "inputs": {
-          "aspectRatio": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://docs.midjourney.com",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     }
   ]
