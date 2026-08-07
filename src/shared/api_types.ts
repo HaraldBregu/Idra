@@ -166,9 +166,9 @@ export interface McpApi {
 }
 
 export interface ProviderApi {
-	get: (id: string) => Promise<Provider | undefined>;
-	set: (provider: Provider, kind?: StoredProviderKind) => Promise<Provider>;
-	list: () => Promise<Provider[]>;
+	get: (id: string) => Promise<ProviderStoreRecord | undefined>;
+	set: (provider: ProviderStoreRecord, kind?: StoredProviderKind) => Promise<ProviderStoreRecord>;
+	list: () => Promise<ProviderStoreRecord[]>;
 	getModelProviders: () => Promise<PublicProvider[]>;
 	getStorageProviders: () => Promise<PublicProvider[]>;
 	getDatabaseProviders: () => Promise<PublicProvider[]>;
