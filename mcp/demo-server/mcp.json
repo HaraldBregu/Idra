@@ -1,0 +1,10 @@
+{
+	"id": "friday-demo",
+	"name": "Friday Demo Tools",
+	"type": "stdio",
+	"command": "node",
+	"args": ["server.mjs"],
+	"cwd": ".",
+	"require_approval": "always",
+	"enabled": true
+}
