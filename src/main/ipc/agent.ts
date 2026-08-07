@@ -32,7 +32,14 @@ import {
 } from '../agent/health/health_store';
 import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
 import type { HealthSettings } from '../agent/health/health_types';
-import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/agent_store';
+import {
+	getModelId,
+	getModelOptions,
+	getProviderId,
+	setModelId,
+	setModelOptions,
+	setProviderId,
+} from '../agent/agent_store';
 import {
 	getRagConfiguration,
 	indexRag,
@@ -264,6 +271,19 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				setModelId(trimmed);
 				return true;
 			}, AgentChannels.setModelId)
+		);
+
+		ipcMain.handle(
+			AgentChannels.getModelOptions,
+			wrapSimpleHandler(() => getModelOptions(), AgentChannels.getModelOptions)
+		);
+		ipcMain.handle(
+			AgentChannels.setModelOptions,
+			wrapSimpleHandler((options: unknown) => {
+				if (!isRecord(options)) throw new Error('Invalid model options.');
+				setModelOptions(options);
+				return getModelOptions();
+			}, AgentChannels.setModelOptions)
 		);
 
 		ipcMain.handle(

@@ -110,6 +110,8 @@ export interface AgentApi {
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;
 	setModelId: (modelId: string) => Promise<boolean>;
+	getModelOptions: () => Promise<Record<string, unknown>>;
+	setModelOptions: (options: Record<string, unknown>) => Promise<Record<string, unknown>>;
 	policyGet: () => Promise<PermissionsSchema>;
 	policyPickDirectory: () => Promise<string | undefined>;
 	policySetTool: (toolName: string, permission: ToolPermission) => Promise<PermissionsSchema>;

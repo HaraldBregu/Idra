@@ -72,6 +72,11 @@ export interface AgentInvokeChannelMap {
 		args: [modelId: string];
 		result: boolean;
 	};
+	[AgentChannels.getModelOptions]: { args: []; result: Record<string, unknown> };
+	[AgentChannels.setModelOptions]: {
+		args: [options: Record<string, unknown>];
+		result: Record<string, unknown>;
+	};
 	[AgentChannels.policyGet]: {
 		args: [];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;

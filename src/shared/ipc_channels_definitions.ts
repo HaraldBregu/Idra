@@ -11,6 +11,8 @@ export const AgentChannels = {
 	setProvider: 'agent:set-provider',
 	getModelId: 'agent:get-model-id',
 	setModelId: 'agent:set-model-id',
+	getModelOptions: 'agent:get-model-options',
+	setModelOptions: 'agent:set-model-options',
 	policyGet: 'agent:policy:get',
 	policyPickDirectory: 'agent:policy:permission:pick',
 	policySetTool: 'agent:policy:tool:set',

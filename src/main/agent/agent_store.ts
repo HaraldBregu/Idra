@@ -23,6 +23,7 @@ export type SearchEngineSettings = {
 type AgentStoreSchema = {
 	providerId: string | undefined;
 	modelId: string | undefined;
+	modelOptions: Record<string, unknown>;
 	search_engine: SearchEngineSettings;
 	permissions: PermissionsSchema;
 };
@@ -38,6 +39,7 @@ const UNKNOWN_TOOL_PERMISSION: ToolPermission = {
 const DEFAULT_AGENT_STORE: AgentStoreSchema = {
 	providerId: undefined,
 	modelId: undefined,
+	modelOptions: {},
 	search_engine: { providerId: '', providerName: '', enabled: false },
 	permissions: DEFAULT_PERMISSIONS,
 };
@@ -65,6 +67,14 @@ export function getModelId(): string | undefined {
 
 export function setModelId(modelId: string): void {
 	store.set('modelId', modelId);
+}
+
+export function getModelOptions(): Record<string, unknown> {
+	return store.get('modelOptions');
+}
+
+export function setModelOptions(modelOptions: Record<string, unknown>): void {
+	store.set('modelOptions', modelOptions);
 }
 
 export function getSearchEngine(): SearchEngineSettings {

@@ -148,6 +148,12 @@ export const agent: AgentApi = {
 	setModelId: (modelId: string): Promise<boolean> => {
 		return typedInvokeUnwrap(AgentChannels.setModelId, modelId);
 	},
+	getModelOptions: (): Promise<Record<string, unknown>> => {
+		return typedInvokeUnwrap(AgentChannels.getModelOptions);
+	},
+	setModelOptions: (options: Record<string, unknown>): Promise<Record<string, unknown>> => {
+		return typedInvokeUnwrap(AgentChannels.setModelOptions, options);
+	},
 	policyGet: (): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyGet);
 	},
