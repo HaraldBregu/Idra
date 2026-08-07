@@ -13,20 +13,36 @@
       "url": "https://api.mistral.ai/v1",
       "metadata": {
         "documentationUrl": "https://docs.mistral.ai/api/",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
             "type": "number",
             "minimum": 0,
-            "maximum": 2
-          },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
             "maximum": 1
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_p": {
+            "type": "number"
+          },
+          "max_tokens": {
+            "type": "integer"
+          },
+          "min_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "random_seed": {
+            "type": "integer"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
           }
         }
       }
@@ -38,20 +54,36 @@
       "url": "https://api.mistral.ai/v1",
       "metadata": {
         "documentationUrl": "https://docs.mistral.ai/api/",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
             "type": "number",
             "minimum": 0,
-            "maximum": 2
-          },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
             "maximum": 1
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_p": {
+            "type": "number"
+          },
+          "max_tokens": {
+            "type": "integer"
+          },
+          "min_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "random_seed": {
+            "type": "integer"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
           }
         }
       }
@@ -63,20 +95,36 @@
       "url": "https://api.mistral.ai/v1",
       "metadata": {
         "documentationUrl": "https://docs.mistral.ai/api/",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
             "type": "number",
             "minimum": 0,
-            "maximum": 2
-          },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
             "maximum": 1
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_p": {
+            "type": "number"
+          },
+          "max_tokens": {
+            "type": "integer"
+          },
+          "min_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "random_seed": {
+            "type": "integer"
+          },
+          "response_format": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
           }
         }
       }
@@ -92,17 +140,19 @@
       "sampleRate": 16000,
       "metadata": {
         "documentationUrl": "https://docs.mistral.ai/api/",
+        "documentationStatus": "verified",
         "inputs": {
           "language": {
             "type": "string"
           },
-          "prompt": {
-            "type": "string"
+          "timestamp_granularities": {
+            "type": "array"
           },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "diarize": {
+            "type": "boolean"
+          },
+          "context_bias": {
+            "type": "array"
           }
         }
       }
@@ -119,17 +169,10 @@
       "sampleRate": 16000,
       "metadata": {
         "documentationUrl": "https://docs.mistral.ai/api/",
+        "documentationStatus": "verified",
         "inputs": {
-          "language": {
-            "type": "string"
-          },
-          "prompt": {
-            "type": "string"
-          },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "transcription_config": {
+            "type": "object"
           }
         }
       }
@@ -141,17 +184,19 @@
       "url": "https://api.mistral.ai/v1",
       "metadata": {
         "documentationUrl": "https://docs.mistral.ai/api/",
+        "documentationStatus": "verified",
         "inputs": {
-          "voice": {
+          "voice_id": {
             "type": "string"
           },
-          "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
-          },
-          "outputFormat": {
+          "ref_audio": {
             "type": "string"
+          },
+          "response_format": {
+            "type": "string"
+          },
+          "stream": {
+            "type": "boolean"
           }
         }
       }
