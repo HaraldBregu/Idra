@@ -8,7 +8,7 @@ import {
 	ImageProviderRequestError,
 	ImageProviderUnsupportedError,
 } from '../adapters/tti';
-import { getModelId, getProviderId } from '../models_store';
+import { getModelId, getProviderId, resolveOptions } from '../models_store';
 
 const DEFAULT_IMAGE_PROVIDER_ID = 'google';
 
@@ -21,7 +21,13 @@ export async function createImage(request: ImageRequest): Promise<ImageResult> {
 	);
 	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('image'));
 	const apiKey = resolveApiKey(providerId);
-	return generateImage({ providerId, apiKey, modelId, prompt, options: request.options });
+	return generateImage({
+		providerId,
+		apiKey,
+		modelId,
+		prompt,
+		options: resolveOptions('image', providerId, modelId, request.options),
+	});
 }
 
 function resolveProviderId(providerId: string): string {

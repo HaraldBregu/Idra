@@ -8,7 +8,7 @@ import {
 	VideoProviderRequestError,
 	VideoProviderUnsupportedError,
 } from '../adapters/ttv';
-import { getModelId, getProviderId } from '../models_store';
+import { getModelId, getProviderId, resolveOptions } from '../models_store';
 
 const DEFAULT_VIDEO_PROVIDER_ID = 'google';
 
@@ -21,7 +21,13 @@ export async function createVideo(request: VideoRequest): Promise<VideoResult> {
 	);
 	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('video'));
 	const apiKey = resolveApiKey(providerId);
-	return generateVideo({ providerId, apiKey, modelId, prompt, options: request.options });
+	return generateVideo({
+		providerId,
+		apiKey,
+		modelId,
+		prompt,
+		options: resolveOptions('video', providerId, modelId, request.options),
+	});
 }
 
 function resolveProviderId(providerId: string): string {

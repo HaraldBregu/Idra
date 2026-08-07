@@ -8,7 +8,7 @@ import {
 	MusicProviderRequestError,
 	MusicProviderUnsupportedError,
 } from '../adapters/tta';
-import { getModelId, getProviderId } from '../models_store';
+import { getModelId, getProviderId, resolveOptions } from '../models_store';
 
 const DEFAULT_SOUND_PROVIDER_ID = 'elevenlabs';
 
@@ -21,7 +21,13 @@ export async function createSound(request: SoundRequest): Promise<SoundResult> {
 	);
 	const modelId = resolveModelId(providerId, request.modelId ?? getModelId('sound'));
 	const apiKey = resolveApiKey(providerId);
-	return generateMusic({ providerId, apiKey, modelId, prompt, options: request.options });
+	return generateMusic({
+		providerId,
+		apiKey,
+		modelId,
+		prompt,
+		options: resolveOptions('sound', providerId, modelId, request.options),
+	});
 }
 
 function resolveProviderId(providerId: string): string {
