@@ -12,34 +12,24 @@
       "type": "large-language-model",
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
-        "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationUrl": "https://ai.google.dev/gemini-api/docs/openai",
         "documentationStatus": "verified",
         "inputs": {
+          "reasoning_effort": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          },
           "temperature": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
           },
-          "topP": {
-            "type": "number"
+          "top_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
           },
-          "topK": {
-            "type": "integer"
-          },
-          "maxOutputTokens": {
-            "type": "integer"
-          },
-          "candidateCount": {
-            "type": "integer"
-          },
-          "stopSequences": {
-            "type": "array"
-          },
-          "responseMimeType": {
-            "type": "string"
-          },
-          "responseSchema": {
-            "type": "object"
-          },
-          "thinkingConfig": {
+          "response_format": {
             "type": "object"
           }
         }
@@ -51,34 +41,24 @@
       "type": "large-language-model",
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
-        "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationUrl": "https://ai.google.dev/gemini-api/docs/openai",
         "documentationStatus": "verified",
         "inputs": {
+          "reasoning_effort": {
+            "type": "string",
+            "enum": ["minimal", "low", "medium", "high"]
+          },
           "temperature": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
           },
-          "topP": {
-            "type": "number"
+          "top_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
           },
-          "topK": {
-            "type": "integer"
-          },
-          "maxOutputTokens": {
-            "type": "integer"
-          },
-          "candidateCount": {
-            "type": "integer"
-          },
-          "stopSequences": {
-            "type": "array"
-          },
-          "responseMimeType": {
-            "type": "string"
-          },
-          "responseSchema": {
-            "type": "object"
-          },
-          "thinkingConfig": {
+          "response_format": {
             "type": "object"
           }
         }
@@ -331,4 +311,3 @@
     }
   ]
 }
-
