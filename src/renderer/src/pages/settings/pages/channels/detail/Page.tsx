@@ -46,6 +46,10 @@ const ChannelDetailPage: React.FC = () => {
 		groupAllowFrom: '',
 	});
 	const [error, setError] = useState<string | null>(null);
+	const sttGroups = getSttModelGroups();
+	const ttsGroups = getTtsModelGroups();
+	const selectedSttModel = getSelectedModel(sttGroups, credential?.sttProviderId, credential?.sttModelId);
+	const selectedTtsModel = getSelectedModel(ttsGroups, credential?.ttsProviderId, credential?.ttsModelId);
 
 	useEffect(() => {
 		let mounted = true;
