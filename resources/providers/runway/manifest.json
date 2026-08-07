@@ -14,18 +14,22 @@
       "metadata": {
         "documentationUrl": "https://docs.dev.runwayml.com/",
         "inputs": {
-          "aspectRatio": {
-            "type": "string"
+          "ratio": {
+            "type": "string",
+            "enum": [
+              "1280:720",
+              "720:1280",
+              "1104:832",
+              "832:1104"
+            ]
           },
           "duration": {
-            "type": "number",
-            "minimum": 1
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 10
           },
           "seed": {
             "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
           }
         }
       }
@@ -38,18 +42,22 @@
       "metadata": {
         "documentationUrl": "https://docs.dev.runwayml.com/",
         "inputs": {
-          "aspectRatio": {
-            "type": "string"
+          "ratio": {
+            "type": "string",
+            "enum": [
+              "1280:720",
+              "720:1280",
+              "1104:832",
+              "832:1104"
+            ]
           },
           "duration": {
-            "type": "number",
-            "minimum": 1
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 10
           },
           "seed": {
             "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
           }
         }
       }
