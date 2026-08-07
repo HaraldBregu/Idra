@@ -1,18 +1,72 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { StoredBotProvider } from '../../shared';
+import type {
+	ChannelModelKind,
+	ChannelModelSelection,
+	StoredBotProvider,
+} from '../../shared';
 import { userDataLocation } from '../shared/user_data_location';
 
-export type ChannelsStoreState = { readonly providers: StoredBotProvider[] };
+type ChannelModelKeys = {
+	providerId: keyof ChannelsStoreState;
+	modelId: keyof ChannelsStoreState;
+};
+
+const CHANNEL_MODEL_KEYS: Record<ChannelModelKind, ChannelModelKeys> = {
+	llm: {
+		providerId: 'llmProviderId',
+		modelId: 'llmModelId',
+	},
+	stt: {
+		providerId: 'sttProviderId',
+		modelId: 'sttModelId',
+	},
+	tts: {
+		providerId: 'ttsProviderId',
+		modelId: 'ttsModelId',
+	},
+} as const;
+
+export interface ChannelsStoreState {
+	readonly providers: StoredBotProvider[];
+	readonly llmProviderId?: string;
+	readonly llmModelId?: string;
+	readonly sttProviderId?: string;
+	readonly sttModelId?: string;
+	readonly ttsProviderId?: string;
+	readonly ttsModelId?: string;
+}
+
+const CHANNEL_MODELS_FALLBACKS: Record<ChannelModelKind, ChannelModelSelection> = {
+	llm: { providerId: '', modelId: '' },
+	stt: { providerId: '', modelId: '' },
+	tts: { providerId: '', modelId: '' },
+};
 
 const store = new Store<ChannelsStoreState>({
 	name: 'channels',
 	cwd: path.resolve(userDataLocation(), 'settings'),
 	accessPropertiesByDotNotation: false,
-	defaults: { providers: [] },
+	defaults: {
+		providers: [],
+	},
 });
 
 export const channelsStorePath = store.path;
+
+function trimValue(value: unknown): string | undefined {
+	if (typeof value !== 'string') return undefined;
+	const trimmed = value.trim();
+	return trimmed || undefined;
+}
+
+function fallbackSelection(): Record<ChannelModelKind, ChannelModelSelection> {
+	return {
+		llm: { ...CHANNEL_MODELS_FALLBACKS.llm },
+		stt: { ...CHANNEL_MODELS_FALLBACKS.stt },
+		tts: { ...CHANNEL_MODELS_FALLBACKS.tts },
+	};
+}
 
 export function listChannelProviders(): StoredBotProvider[] {
 	return store.get('providers');
@@ -29,4 +83,42 @@ export function setChannelProvider(provider: StoredBotProvider): StoredBotProvid
 	else providers[index] = provider;
 	store.set('providers', providers);
 	return provider;
+}
+
+export function getChannelModelSelection(kind: ChannelModelKind): ChannelModelSelection {
+	const keys = CHANNEL_MODEL_KEYS[kind];
+	const providerId = trimValue(store.get(keys.providerId)) ??
+		(CHANNEL_MODELS_FALLBACKS[kind].providerId || undefined);
+	const modelId = trimValue(store.get(keys.modelId)) ??
+		(CHANNEL_MODELS_FALLBACKS[kind].modelId || undefined);
+
+	return {
+		providerId,
+		modelId,
+	};
+}
+
+export function setChannelModelSelection(kind: ChannelModelKind, selection: ChannelModelSelection): void {
+	const keys = CHANNEL_MODEL_KEYS[kind];
+	store.set(keys.providerId, trimValue(selection.providerId) ?? '');
+	store.set(keys.modelId, trimValue(selection.modelId) ?? '');
+}
+
+export function getChannelModelSelections(): Record<ChannelModelKind, ChannelModelSelection> {
+	const selections: Record<ChannelModelKind, ChannelModelSelection> = {
+		llm: getChannelModelSelection('llm'),
+		stt: getChannelModelSelection('stt'),
+		tts: getChannelModelSelection('tts'),
+	};
+	return selections;
+}
+
+export function setChannelModelSelections(
+	selections: Partial<Record<ChannelModelKind, ChannelModelSelection>>
+): void {
+	for (const kind of ['llm', 'stt', 'tts'] as const) {
+		const selection = selections[kind];
+		if (!selection) continue;
+		setChannelModelSelection(kind, selection);
+	}
 }

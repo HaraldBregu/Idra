@@ -31,6 +31,13 @@ export interface StoredBotProvider extends StoredProvider {
 	ttsModelId?: string;
 }
 
+export type ChannelModelKind = 'llm' | 'stt' | 'tts';
+
+export interface ChannelModelSelection {
+	providerId?: string;
+	modelId?: string;
+}
+
 export interface ChannelStatusEvent {
 	type: ChannelType;
 	status: ChannelConnectionStatus;
