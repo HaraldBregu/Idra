@@ -95,6 +95,19 @@ beforeEach(() => {
 			video: mediaApi('google', 'veo'),
 		},
 	});
+	Object.defineProperty(window, 'search', {
+		configurable: true,
+		value: {
+			getSettings: jest.fn().mockResolvedValue({
+				engineId: 'brave',
+				configured: { brave: true, tavily: false },
+			}),
+			selectEngine: jest.fn().mockImplementation(async (engineId: string) => ({
+				engineId,
+				configured: { brave: true, tavily: false },
+			})),
+		},
+	});
 });
 
 it('shows image, audio, and video defaults on the Agent settings page', async () => {
