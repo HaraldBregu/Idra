@@ -16,10 +16,14 @@ describe('provider manifests', () => {
 		const openAi = loadModels().find(
 			(model) => model.provider.id === 'openai' && model.id === 'gpt-5.6-sol'
 		);
-		expect(openAi?.metadata).toEqual(
+		const stableImage = loadModels().find(
+			(model) => model.provider.id === 'stability-ai' && model.id === 'stable-image-core'
+		);
+		expect(stableImage?.metadata).toEqual(
 			expect.objectContaining({
-				documentationUrl: 'https://platform.openai.com/docs/api-reference',
-				inputs: expect.objectContaining({ effort: expect.any(Object) }),
+				documentationUrl: 'https://platform.stability.ai/docs/api-reference',
+				documentationStatus: 'verified',
+				inputs: expect.objectContaining({ aspect_ratio: expect.any(Object) }),
 			})
 		);
 		expect(openAi?.provider.iconDarkUrl).toMatch(/^local-resource:\/\/file/);
