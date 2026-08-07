@@ -10,22 +10,9 @@
       "type": "text-to-video-model",
       "url": "https://pika.art",
       "metadata": {
-        "documentationUrl": "https://docs.pika.art/",
-        "inputs": {
-          "aspectRatio": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://pika.art",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     }
   ]
