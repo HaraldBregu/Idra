@@ -1,287 +1,287 @@
 {
-	"providerId": "minimax",
-	"providerName": "MiniMax",
-	"apiKeyUrl": "https://platform.minimax.io/user-center/basic-information/interface-key",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/minimax-color.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/minimax-color.png",
-	"services": [
-		{
-			"id": "MiniMax-M2.7",
-			"name": "MiniMax M2.7",
-			"type": "large-language-model",
-			"url": "https://api.minimax.io/v1",
-			"metadata": {
-				"documentationUrl": "https://platform.minimax.io/docs/api-reference/text-openai-api",
-				"documentationStatus": "verified",
-				"inputs": {
-					"max_tokens": {
-						"type": "integer"
-					},
-					"temperature": {
-						"type": "number"
-					},
-					"top_p": {
-						"type": "number"
-					},
-					"top_k": {
-						"type": "integer"
-					},
-					"stop_sequences": {
-						"type": "array"
-					},
-					"reasoning_split": {
-						"type": "boolean"
-					},
-					"tools": {
-						"type": "array"
-					},
-					"tool_choice": {
-						"type": "object"
-					}
-				}
-			}
-		},
-		{
-			"id": "MiniMax-M2.5",
-			"name": "MiniMax M2.5",
-			"type": "large-language-model",
-			"url": "https://api.minimax.io/v1",
-			"metadata": {
-				"documentationUrl": "https://platform.minimax.io/docs/api-reference/text-openai-api",
-				"documentationStatus": "verified",
-				"inputs": {
-					"max_tokens": {
-						"type": "integer"
-					},
-					"temperature": {
-						"type": "number"
-					},
-					"top_p": {
-						"type": "number"
-					},
-					"top_k": {
-						"type": "integer"
-					},
-					"stop_sequences": {
-						"type": "array"
-					},
-					"reasoning_split": {
-						"type": "boolean"
-					},
-					"tools": {
-						"type": "array"
-					},
-					"tool_choice": {
-						"type": "object"
-					}
-				}
-			}
-		},
-		{
-			"id": "speech-2.8-hd",
-			"name": "Speech 2.8 HD",
-			"type": "text-to-speech-model",
-			"url": "https://api.minimax.io/v1",
-			"metadata": {
-				"documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
-				"documentationStatus": "verified",
-				"inputs": {
-					"voice_id": {
-						"type": "string"
-					},
-					"speed": {
-						"type": "number"
-					},
-					"vol": {
-						"type": "number"
-					},
-					"pitch": {
-						"type": "number"
-					},
-					"emotion": {
-						"type": "string"
-					},
-					"sample_rate": {
-						"type": "integer"
-					},
-					"bitrate": {
-						"type": "integer"
-					},
-					"format": {
-						"type": "string"
-					},
-					"channel": {
-						"type": "integer"
-					},
-					"stream": {
-						"type": "boolean"
-					}
-				}
-			}
-		},
-		{
-			"id": "speech-2.8-turbo",
-			"name": "Speech 2.8 Turbo",
-			"type": "text-to-speech-model",
-			"url": "https://api.minimax.io/v1",
-			"metadata": {
-				"documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
-				"documentationStatus": "verified",
-				"inputs": {
-					"voice_id": {
-						"type": "string"
-					},
-					"speed": {
-						"type": "number"
-					},
-					"vol": {
-						"type": "number"
-					},
-					"pitch": {
-						"type": "number"
-					},
-					"emotion": {
-						"type": "string"
-					},
-					"sample_rate": {
-						"type": "integer"
-					},
-					"bitrate": {
-						"type": "integer"
-					},
-					"format": {
-						"type": "string"
-					},
-					"channel": {
-						"type": "integer"
-					},
-					"stream": {
-						"type": "boolean"
-					}
-				}
-			}
-		},
-		{
-			"id": "MiniMax-Hailuo-2.3",
-			"name": "Hailuo 2.3",
-			"type": "text-to-video-model",
-			"url": "https://api.minimax.io/v1",
-			"metadata": {
-				"documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
-				"documentationStatus": "verified",
-				"inputs": {
-					"duration": {
-						"type": "integer",
-						"enum": [6, 10]
-					},
-					"resolution": {
-						"type": "string",
-						"enum": ["768P", "1080P"]
-					},
-					"prompt_optimizer": {
-						"type": "boolean"
-					},
-					"fast_pretreatment": {
-						"type": "boolean"
-					},
-					"first_frame_image": {
-						"type": "string"
-					},
-					"last_frame_image": {
-						"type": "string"
-					},
-					"callback_url": {
-						"type": "string"
-					}
-				}
-			}
-		},
-		{
-			"id": "MiniMax-Hailuo-02",
-			"name": "Hailuo 02",
-			"type": "text-to-video-model",
-			"url": "https://api.minimax.io/v1",
-			"metadata": {
-				"documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
-				"documentationStatus": "verified",
-				"inputs": {
-					"duration": {
-						"type": "integer",
-						"enum": [6, 10]
-					},
-					"resolution": {
-						"type": "string",
-						"enum": ["768P", "1080P"]
-					},
-					"prompt_optimizer": {
-						"type": "boolean"
-					},
-					"fast_pretreatment": {
-						"type": "boolean"
-					},
-					"first_frame_image": {
-						"type": "string"
-					},
-					"last_frame_image": {
-						"type": "string"
-					},
-					"callback_url": {
-						"type": "string"
-					}
-				}
-			}
-		},
-		{
-			"id": "music-2.6",
-			"name": "Music 2.6",
-			"type": "text-to-audio-model",
-			"url": "https://api.minimax.io/v1",
-			"metadata": {
-				"documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
-				"documentationStatus": "verified",
-				"inputs": {
-					"lyrics": {
-						"type": "string"
-					},
-					"is_instrumental": {
-						"type": "boolean"
-					},
-					"lyrics_optimizer": {
-						"type": "boolean"
-					},
-					"stream": {
-						"type": "boolean"
-					},
-					"output_format": {
-						"type": "string"
-					},
-					"audio_setting": {
-						"type": "object"
-					}
-				}
-			}
-		},
-		{
-			"id": "music-cover",
-			"name": "Music Cover",
-			"type": "text-to-audio-model",
-			"url": "https://api.minimax.io/v1",
-			"metadata": {
-				"documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
-				"documentationStatus": "verified",
-				"inputs": {
-					"reference_audio": {
-						"type": "string"
-					},
-					"lyrics": {
-						"type": "string"
-					},
-					"output_format": {
-						"type": "string"
-					}
-				}
-			}
-		}
-	]
+  "providerId": "minimax",
+  "providerName": "MiniMax",
+  "apiKeyUrl": "https://platform.minimax.io/user-center/basic-information/interface-key",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/png_dark/minimax-color.png",
+  "icon_light_url": "/images/fallback_lobehub/png_light/minimax-color.png",
+  "services": [
+    {
+      "id": "MiniMax-M2.7",
+      "name": "MiniMax M2.7",
+      "type": "large-language-model",
+      "url": "https://api.minimax.io/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.minimax.io/docs/api-reference/text-openai-api",
+        "documentationStatus": "verified",
+        "inputs": {
+          "max_tokens": {
+            "type": "integer"
+          },
+          "temperature": {
+            "type": "number"
+          },
+          "top_p": {
+            "type": "number"
+          },
+          "top_k": {
+            "type": "integer"
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "reasoning_split": {
+            "type": "boolean"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "id": "MiniMax-M2.5",
+      "name": "MiniMax M2.5",
+      "type": "large-language-model",
+      "url": "https://api.minimax.io/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.minimax.io/docs/api-reference/text-openai-api",
+        "documentationStatus": "verified",
+        "inputs": {
+          "max_tokens": {
+            "type": "integer"
+          },
+          "temperature": {
+            "type": "number"
+          },
+          "top_p": {
+            "type": "number"
+          },
+          "top_k": {
+            "type": "integer"
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "reasoning_split": {
+            "type": "boolean"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "id": "speech-2.8-hd",
+      "name": "Speech 2.8 HD",
+      "type": "text-to-speech-model",
+      "url": "https://api.minimax.io/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
+        "inputs": {
+          "voice_id": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "number"
+          },
+          "vol": {
+            "type": "number"
+          },
+          "pitch": {
+            "type": "number"
+          },
+          "emotion": {
+            "type": "string"
+          },
+          "sample_rate": {
+            "type": "integer"
+          },
+          "bitrate": {
+            "type": "integer"
+          },
+          "format": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "integer"
+          },
+          "stream": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "id": "speech-2.8-turbo",
+      "name": "Speech 2.8 Turbo",
+      "type": "text-to-speech-model",
+      "url": "https://api.minimax.io/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
+        "inputs": {
+          "voice_id": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "number"
+          },
+          "vol": {
+            "type": "number"
+          },
+          "pitch": {
+            "type": "number"
+          },
+          "emotion": {
+            "type": "string"
+          },
+          "sample_rate": {
+            "type": "integer"
+          },
+          "bitrate": {
+            "type": "integer"
+          },
+          "format": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "integer"
+          },
+          "stream": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "id": "MiniMax-Hailuo-2.3",
+      "name": "Hailuo 2.3",
+      "type": "text-to-video-model",
+      "url": "https://api.minimax.io/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
+        "inputs": {
+          "duration": {
+            "type": "integer",
+            "enum": [6, 10]
+          },
+          "resolution": {
+            "type": "string",
+            "enum": ["768P", "1080P"]
+          },
+          "prompt_optimizer": {
+            "type": "boolean"
+          },
+          "fast_pretreatment": {
+            "type": "boolean"
+          },
+          "first_frame_image": {
+            "type": "string"
+          },
+          "last_frame_image": {
+            "type": "string"
+          },
+          "callback_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "MiniMax-Hailuo-02",
+      "name": "Hailuo 02",
+      "type": "text-to-video-model",
+      "url": "https://api.minimax.io/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
+        "inputs": {
+          "duration": {
+            "type": "integer",
+            "enum": [6, 10]
+          },
+          "resolution": {
+            "type": "string",
+            "enum": ["768P", "1080P"]
+          },
+          "prompt_optimizer": {
+            "type": "boolean"
+          },
+          "fast_pretreatment": {
+            "type": "boolean"
+          },
+          "first_frame_image": {
+            "type": "string"
+          },
+          "last_frame_image": {
+            "type": "string"
+          },
+          "callback_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "music-2.6",
+      "name": "Music 2.6",
+      "type": "text-to-audio-model",
+      "url": "https://api.minimax.io/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
+        "inputs": {
+          "lyrics": {
+            "type": "string"
+          },
+          "is_instrumental": {
+            "type": "boolean"
+          },
+          "lyrics_optimizer": {
+            "type": "boolean"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "output_format": {
+            "type": "string"
+          },
+          "audio_setting": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "id": "music-cover",
+      "name": "Music Cover",
+      "type": "text-to-audio-model",
+      "url": "https://api.minimax.io/v1",
+      "metadata": {
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
+        "inputs": {
+          "reference_audio": {
+            "type": "string"
+          },
+          "lyrics": {
+            "type": "string"
+          },
+          "output_format": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
