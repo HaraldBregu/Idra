@@ -5,6 +5,7 @@ import type {
 	StoredProviderKind,
 } from './provider_types';
 import type { StoredProvider as Provider } from './provider_types';
+import type { StoredBotProvider as BotProvider } from './channels_types';
 import type { SearchEngineId, SearchEngineInput, SearchSettings } from './search_types';
 import type {
 	StorageConfig,
@@ -46,6 +47,7 @@ import type {
 } from './agent_types';
 import type { CatalogModel, ProviderModel } from './model_types';
 import type { ChannelStatusEvent, ChannelType } from './channels_types';
+type ProviderStoreRecord = Provider | BotProvider;
 import type { EmbeddingRequest, EmbeddingResult } from './embedding_types';
 import type { ImageRequest, ImageResult } from './image_types';
 import type { SoundFile, SoundRequest, SoundResult } from './sound_types';
