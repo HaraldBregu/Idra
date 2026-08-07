@@ -94,7 +94,7 @@ export function ModelOptions({
 							}
 						>
 							<SelectTrigger className="w-40">
-							<SelectValue>
+								<SelectValue>
 									{selectedIndex < 0 ? defaultLabel : choices[selectedIndex]?.label}
 								</SelectValue>
 							</SelectTrigger>
