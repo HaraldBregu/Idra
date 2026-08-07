@@ -12,18 +12,33 @@
       "type": "text-to-speech-model",
       "url": "https://api.cartesia.ai",
       "metadata": {
-        "documentationUrl": "https://docs.cartesia.ai",
+        "documentationUrl": "https://docs.cartesia.ai/api-reference/tts/bytes",
+        "documentationStatus": "verified",
         "inputs": {
+          "model_id": {
+            "type": "string",
+            "required": true
+          },
+          "transcript": {
+            "type": "string",
+            "required": true
+          },
           "voice": {
+            "type": "object",
+            "required": true
+          },
+          "output_format": {
+            "type": "object",
+            "required": true
+          },
+          "language": {
             "type": "string"
           },
-          "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
-          },
-          "outputFormat": {
+          "pronunciation_dict_id": {
             "type": "string"
+          },
+          "generation_config": {
+            "type": "object"
           }
         }
       }
@@ -34,18 +49,33 @@
       "type": "text-to-speech-model",
       "url": "https://api.cartesia.ai",
       "metadata": {
-        "documentationUrl": "https://docs.cartesia.ai",
+        "documentationUrl": "https://docs.cartesia.ai/api-reference/tts/bytes",
+        "documentationStatus": "verified",
         "inputs": {
+          "model_id": {
+            "type": "string",
+            "required": true
+          },
+          "transcript": {
+            "type": "string",
+            "required": true
+          },
           "voice": {
+            "type": "object",
+            "required": true
+          },
+          "output_format": {
+            "type": "object",
+            "required": true
+          },
+          "language": {
             "type": "string"
           },
-          "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
-          },
-          "outputFormat": {
+          "pronunciation_dict_id": {
             "type": "string"
+          },
+          "generation_config": {
+            "type": "object"
           }
         }
       }
