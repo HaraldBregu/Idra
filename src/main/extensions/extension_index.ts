@@ -2,6 +2,8 @@ export { ensureExtensions } from './extension_ensure';
 export { listExtensions } from './extension_list';
 export { loadExtension } from './extension_load';
 export { readExtensionManifest } from './extension_read';
+export { readExtensionManifestFromDirectory } from './extension_read';
+export { importExtensions } from './extension_import';
 export { readExtensionSettings } from './extension_settings_read';
 export { storeExtensionSettings } from './extension_store';
 export { watchExtensions } from './extension_watch';
