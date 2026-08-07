@@ -12,21 +12,35 @@
       "type": "large-language-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "enable_thinking": {
+            "type": "boolean"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "parallel_tool_calls": {
+            "type": "boolean"
+          },
+          "response_format": {
+            "type": "object"
           }
         }
       }
@@ -37,21 +51,35 @@
       "type": "large-language-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "enable_thinking": {
+            "type": "boolean"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "parallel_tool_calls": {
+            "type": "boolean"
+          },
+          "response_format": {
+            "type": "object"
           }
         }
       }
@@ -62,21 +90,35 @@
       "type": "large-language-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "max_tokens": {
+            "type": "integer"
+          },
+          "stop": {
+            "type": "array"
+          },
+          "enable_thinking": {
+            "type": "boolean"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
+          },
+          "parallel_tool_calls": {
+            "type": "boolean"
+          },
+          "response_format": {
+            "type": "object"
           }
         }
       }
@@ -165,22 +207,23 @@
       "type": "text-to-image-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
+        "documentationStatus": "verified",
         "inputs": {
           "size": {
             "type": "string"
           },
-          "negative_prompt": {
-            "type": "string"
+          "n": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
           },
           "prompt_extend": {
             "type": "boolean"
           },
           "watermark": {
             "type": "boolean"
-          },
-          "seed": {
-            "type": "integer"
           }
         }
       }
@@ -191,22 +234,27 @@
       "type": "text-to-image-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
+        "documentationStatus": "verified",
         "inputs": {
+          "image": {
+            "type": "string",
+            "required": true
+          },
           "size": {
             "type": "string"
           },
-          "negative_prompt": {
-            "type": "string"
+          "n": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
           },
           "prompt_extend": {
             "type": "boolean"
           },
           "watermark": {
             "type": "boolean"
-          },
-          "seed": {
-            "type": "integer"
           }
         }
       }
@@ -217,19 +265,27 @@
       "type": "text-to-video-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
+        "documentationStatus": "verified",
         "inputs": {
           "size": {
             "type": "string"
           },
           "duration": {
-            "type": "integer"
+            "type": "integer",
+            "enum": [
+              5,
+              10
+            ]
           },
           "prompt_extend": {
             "type": "boolean"
           },
           "negative_prompt": {
             "type": "string"
+          },
+          "watermark": {
+            "type": "boolean"
           },
           "seed": {
             "type": "integer"
@@ -243,13 +299,17 @@
       "type": "text-to-video-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
-        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
+        "documentationStatus": "verified",
         "inputs": {
           "size": {
             "type": "string"
           },
           "duration": {
-            "type": "integer"
+            "type": "integer",
+            "enum": [
+              5
+            ]
           },
           "prompt_extend": {
             "type": "boolean"
@@ -257,8 +317,8 @@
           "negative_prompt": {
             "type": "string"
           },
-          "seed": {
-            "type": "integer"
+          "watermark": {
+            "type": "boolean"
           }
         }
       }
