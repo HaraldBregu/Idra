@@ -12,19 +12,9 @@
       "type": "text-to-audio-model",
       "url": "https://suno.com",
       "metadata": {
-        "documentationUrl": "https://docs.sunoapi.org/",
-        "inputs": {
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "outputFormat": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://suno.com",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -33,19 +23,9 @@
       "type": "text-to-audio-model",
       "url": "https://suno.com",
       "metadata": {
-        "documentationUrl": "https://docs.sunoapi.org/",
-        "inputs": {
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "outputFormat": {
-            "type": "string"
-          }
-        }
+        "documentationUrl": "https://suno.com",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     }
   ]
