@@ -19,6 +19,7 @@ export async function* runModelTurn(
 	messages: Message[],
 	tools: Tool[],
 	signal: AbortSignal,
+	modelOptions: Record<string, unknown> = {},
 	llm: ModelTurnStream = llmModel
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	const maxRetries = 1;
@@ -40,6 +41,7 @@ export async function* runModelTurn(
 				messages,
 				tools,
 				maxTokens,
+				options: modelOptions,
 				signal,
 			})) {
 				if (event.type === 'model_call_delta') content += event.delta;

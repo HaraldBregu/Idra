@@ -8,6 +8,7 @@ export interface LlmRequest {
 	provider: ResolvedProvider;
 	model: string;
 	effort?: ModelReasoningEffort;
+	options?: Record<string, unknown>;
 	maxTokens: number;
 	tools?: Tool[];
 	signal?: AbortSignal;
@@ -141,6 +142,7 @@ export interface LlmToolSpec {
 export interface LlmStreamRequest {
 	model: string;
 	effort?: ModelReasoningEffort;
+	options?: Record<string, unknown>;
 	system: string;
 	messages: LlmTranscriptEntry[];
 	inputItems?: unknown[];

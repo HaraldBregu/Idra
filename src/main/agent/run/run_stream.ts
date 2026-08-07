@@ -1,5 +1,5 @@
 import { getResolvedProvider } from '../../settings_store';
-import { getModelId, getProviderId } from '../agent_store';
+import { getModelId, getModelOptions, getProviderId } from '../agent_store';
 import {
 	addAssistantMessage,
 	addToolResults,
@@ -91,6 +91,7 @@ async function* loop(
 ): AsyncGenerator<RuntimeEvent> {
 	const provider = getResolvedProvider(input.providerId ?? getProviderId());
 	const modelId = input.model ?? getModelId();
+	const modelOptions = getModelOptions();
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
@@ -179,6 +180,7 @@ async function* loop(
 				runtimeContext ? [{ role: 'user', content: runtimeContext }, ...messages] : messages,
 				tools,
 				signal
+				,modelOptions
 			);
 
 			recordTurn(session, turn);

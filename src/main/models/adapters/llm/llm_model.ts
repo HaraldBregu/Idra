@@ -142,6 +142,7 @@ export class LlmModel implements LlmAdapter {
 		for await (const event of this.createProviderModel(request.provider).stream({
 			model: request.model,
 			effort: request.effort,
+			options: request.options,
 			system,
 			messages: messages.flatMap(llmToTranscriptEntry),
 			tools: (request.tools ?? []).map((tool) => ({
@@ -224,6 +225,7 @@ export class LlmModel implements LlmAdapter {
 		}));
 
 		const params: ResponseCreateParamsStreaming = {
+			...(req.options as Partial<ResponseCreateParamsStreaming>),
 			model: req.model,
 			instructions: req.system || undefined,
 			input:
@@ -467,6 +469,7 @@ export class LlmModel implements LlmAdapter {
 
 		try {
 			const stream = client.messages.stream({
+				...req.options,
 				model: req.model,
 				system: req.system,
 				max_tokens: req.maxTokens,
@@ -536,6 +539,7 @@ export class LlmModel implements LlmAdapter {
 
 		try {
 			const params: Record<string, unknown> = {
+				...req.options,
 				model: req.model,
 				messages: llmBuildChatMessages(req.system, req.messages, {
 					includeReasoningContent: this.reasoningContentEnabled,
