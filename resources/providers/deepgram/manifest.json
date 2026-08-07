@@ -1,38 +1,87 @@
 {
-	"providerId": "deepgram",
-	"providerName": "Deepgram",
-	"apiKeyUrl": "https://console.deepgram.com",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_simpleicons/png/deepgram.png",
-	"icon_light_url": "/images/fallback_simpleicons/png/deepgram.png",
-	"services": [
-		{
-			"id": "nova-3",
-			"name": "Nova 3",
-			"apiTypes": [
-				"batch",
-				"stream"
-			],
-			"type": "speech-to-text-model",
-			"url": "https://api.deepgram.com/v1",
-			"sampleRate": 24000
-		},
-		{
-			"id": "flux-general-en",
-			"name": "Flux",
-			"apiTypes": [
-				"stream"
-			],
-			"realtime": true,
-			"type": "speech-to-text-model",
-			"url": "https://api.deepgram.com/v1",
-			"sampleRate": 24000
-		},
-		{
-			"id": "aura-2",
-			"name": "Aura 2",
-			"type": "text-to-speech-model",
-			"url": "https://api.deepgram.com/v1"
-		}
-	]
+  "providerId": "deepgram",
+  "providerName": "Deepgram",
+  "apiKeyUrl": "https://console.deepgram.com",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_simpleicons/png/deepgram.png",
+  "icon_light_url": "/images/fallback_simpleicons/png/deepgram.png",
+  "services": [
+    {
+      "id": "nova-3",
+      "name": "Nova 3",
+      "apiTypes": [
+        "batch",
+        "stream"
+      ],
+      "type": "speech-to-text-model",
+      "url": "https://api.deepgram.com/v1",
+      "sampleRate": 24000,
+      "metadata": {
+        "documentationUrl": "https://developers.deepgram.com/reference",
+        "inputs": {
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "flux-general-en",
+      "name": "Flux",
+      "apiTypes": [
+        "stream"
+      ],
+      "realtime": true,
+      "type": "speech-to-text-model",
+      "url": "https://api.deepgram.com/v1",
+      "sampleRate": 24000,
+      "metadata": {
+        "documentationUrl": "https://developers.deepgram.com/reference",
+        "inputs": {
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "aura-2",
+      "name": "Aura 2",
+      "type": "text-to-speech-model",
+      "url": "https://api.deepgram.com/v1",
+      "metadata": {
+        "documentationUrl": "https://developers.deepgram.com/reference",
+        "inputs": {
+          "voice": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0.25,
+            "maximum": 4
+          },
+          "outputFormat": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
