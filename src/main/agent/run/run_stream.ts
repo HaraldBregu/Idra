@@ -179,8 +179,8 @@ async function* loop(
 				session.context.systemPrompt,
 				runtimeContext ? [{ role: 'user', content: runtimeContext }, ...messages] : messages,
 				tools,
-				signal
-				,modelOptions
+				signal,
+				modelOptions
 			);
 
 			recordTurn(session, turn);
