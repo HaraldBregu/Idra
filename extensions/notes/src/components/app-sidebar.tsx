@@ -1,16 +1,21 @@
 import {
   Archive,
+  ChevronRight,
+  File,
   FileText,
+  Folder,
+  FolderOpen,
   Plus,
   Search,
   Star,
   Trash2,
 } from "lucide-react"
+import { useEffect, useMemo, useState, type ComponentType } from "react"
+import type { WorkspaceTreeEntry } from "@friday/sdk"
 
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { folders } from "@/lib/notes"
 
 export type ViewId = "all" | "favorites" | "search" | "trash"
 
@@ -19,7 +24,7 @@ type Counts = Record<string, number>
 interface SidebarItemProps {
   active: boolean
   count: number
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
+  icon: ComponentType<{ className?: string; strokeWidth?: number }>
   label: string
   onClick: () => void
 }
@@ -55,9 +60,119 @@ interface AppSidebarProps {
   counts: Counts
   onCreate: () => void
   onViewChange: (view: ViewId | `folder:${string}`) => void
+  onWorkspaceSelect: (entry: WorkspaceTreeEntry) => void
+  selectedWorkspacePath: string | null
+  workspaceError: string
+  workspaceFiles: WorkspaceTreeEntry[]
+  workspaceLoading: boolean
+  workspaceLocation: string
 }
 
-export function AppSidebar({ activeView, counts, onCreate, onViewChange }: AppSidebarProps) {
+function collectDirectoryPaths(entries: WorkspaceTreeEntry[]): string[] {
+  return entries.flatMap((entry) =>
+    entry.type === "directory" ? [entry.path, ...collectDirectoryPaths(entry.children ?? [])] : [],
+  )
+}
+
+function WorkspaceTreeItem({
+  depth,
+  entry,
+  expanded,
+  onToggle,
+  onSelect,
+  selectedPath,
+}: {
+  depth: number
+  entry: WorkspaceTreeEntry
+  expanded: Set<string>
+  onToggle: (path: string) => void
+  onSelect: (entry: WorkspaceTreeEntry) => void
+  selectedPath: string | null
+}) {
+  const isDirectory = entry.type === "directory"
+  const isExpanded = expanded.has(entry.path)
+  const selected = selectedPath === entry.path
+  const Icon = isDirectory ? (isExpanded ? FolderOpen : Folder) : File
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={() => {
+          if (isDirectory) onToggle(entry.path)
+          onSelect(entry)
+        }}
+        aria-expanded={isDirectory ? isExpanded : undefined}
+        aria-current={selected ? "page" : undefined}
+        title={entry.path}
+        className={cn(
+          "flex h-8 w-full items-center gap-2 rounded-md pr-2 text-left text-[12px] font-medium text-sidebar-muted transition-colors",
+          "hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-foreground/50",
+          selected && "bg-sidebar-accent text-sidebar-foreground",
+        )}
+        style={{ paddingLeft: `${10 + depth * 12}px` }}
+      >
+        {isDirectory ? (
+          <ChevronRight
+            className={cn("h-3.5 w-3.5 shrink-0 transition-transform", isExpanded && "rotate-90")}
+            strokeWidth={1.8}
+          />
+        ) : (
+          <span className="h-3.5 w-3.5 shrink-0" />
+        )}
+        <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
+        <span className="min-w-0 flex-1 truncate">{entry.name}</span>
+      </button>
+      {isDirectory && isExpanded && entry.children && entry.children.length > 0 ? (
+        <ul className="mt-0.5 space-y-0.5">
+          {entry.children.map((child) => (
+            <WorkspaceTreeItem
+              key={child.path}
+              depth={depth + 1}
+              entry={child}
+              expanded={expanded}
+              onToggle={onToggle}
+              onSelect={onSelect}
+              selectedPath={selectedPath}
+            />
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  )
+}
+
+export function AppSidebar({
+  activeView,
+  counts,
+  onCreate,
+  onViewChange,
+  onWorkspaceSelect,
+  selectedWorkspacePath,
+  workspaceError,
+  workspaceFiles,
+  workspaceLoading,
+  workspaceLocation,
+}: AppSidebarProps) {
+  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const workspaceName = useMemo(() => {
+    if (!workspaceLocation) return "Workspace"
+    return workspaceLocation.split(/[\\/]/).filter(Boolean).pop() ?? workspaceLocation
+  }, [workspaceLocation])
+
+  useEffect(() => {
+    setExpanded(new Set(collectDirectoryPaths(workspaceFiles)))
+  }, [workspaceFiles])
+
+  function toggleDirectory(path: string) {
+    setExpanded((current) => {
+      const next = new Set(current)
+      if (next.has(path)) next.delete(path)
+      else next.add(path)
+      return next
+    })
+  }
+
   return (
     <div className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-14 items-center gap-3 px-5">
@@ -66,7 +181,7 @@ export function AppSidebar({ activeView, counts, onCreate, onViewChange }: AppSi
         </div>
         <div className="min-w-0">
           <p className="truncate text-[15px] font-semibold tracking-[-0.02em]">Fieldnotes</p>
-          <p className="text-[11px] text-sidebar-muted">Local workspace</p>
+          <p className="truncate text-[11px] text-sidebar-muted">{workspaceName}</p>
         </div>
       </div>
 
@@ -102,28 +217,29 @@ export function AppSidebar({ activeView, counts, onCreate, onViewChange }: AppSi
         </div>
 
         <div className="mb-2 mt-7 flex items-center justify-between px-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sidebar-muted">Notebooks</p>
-          <Plus className="h-3.5 w-3.5 text-sidebar-muted" aria-hidden="true" />
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sidebar-muted">Workspace</p>
         </div>
-        <div className="space-y-0.5">
-          {folders.map((folder) => (
-            <button
-              type="button"
-              key={folder.name}
-              onClick={() => onViewChange(`folder:${folder.name}`)}
-              aria-current={activeView === `folder:${folder.name}` ? "page" : undefined}
-              className={cn(
-                "flex h-9 w-full items-center gap-3 rounded-md px-3 text-left text-[13px] font-medium text-sidebar-muted transition-colors",
-                "hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-foreground/50",
-                activeView === `folder:${folder.name}` && "bg-sidebar-accent text-sidebar-foreground",
-              )}
-            >
-              <span className={cn("h-2 w-2 rounded-sm", folder.color)} />
-              <span className="flex-1">{folder.name}</span>
-              <span className="text-[11px] tabular-nums text-sidebar-muted">{counts[folder.name]}</span>
-            </button>
-          ))}
-        </div>
+        {workspaceLoading ? (
+          <div className="px-3 py-2 text-[12px] text-sidebar-muted">Loading workspace...</div>
+        ) : workspaceError ? (
+          <div className="px-3 py-2 text-[12px] leading-5 text-sidebar-muted">{workspaceError}</div>
+        ) : workspaceFiles.length === 0 ? (
+          <div className="px-3 py-2 text-[12px] text-sidebar-muted">No files</div>
+        ) : (
+          <ul className="space-y-0.5">
+            {workspaceFiles.map((entry) => (
+              <WorkspaceTreeItem
+                key={entry.path}
+                depth={0}
+                entry={entry}
+                expanded={expanded}
+                onToggle={toggleDirectory}
+                onSelect={onWorkspaceSelect}
+                selectedPath={selectedWorkspacePath}
+              />
+            ))}
+          </ul>
+        )}
       </nav>
 
       <div className="p-3 pt-0">
