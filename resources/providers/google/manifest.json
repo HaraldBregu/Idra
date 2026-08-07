@@ -176,6 +176,7 @@
           },
           "numberOfVideos": {
             "type": "integer",
+            "default": 1,
             "enum": [1]
           },
           "image": {
@@ -229,6 +230,7 @@
           },
           "numberOfVideos": {
             "type": "integer",
+            "default": 1,
             "enum": [1]
           },
           "image": {
