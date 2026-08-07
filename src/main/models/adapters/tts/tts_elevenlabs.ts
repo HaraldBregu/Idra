@@ -9,7 +9,10 @@ const ELEVENLABS_DEFAULT_VOICE_ID = '21m00Tcm4TlvDq8ikWAM';
 export function createElevenLabsSpeechAdapter(provider: SpeechProviderSpec): SpeechAdapter {
 	return {
 		async synthesize(request: SpeechAdapterRequest): Promise<SpeechSynthesisResult> {
-			const voiceId = request.voice ?? ELEVENLABS_DEFAULT_VOICE_ID;
+			const optionVoiceId = request.options?.voice_id;
+			const voiceId =
+				request.voice ??
+				(typeof optionVoiceId === 'string' ? optionVoiceId : ELEVENLABS_DEFAULT_VOICE_ID);
 			const response = await fetch(
 				new URL(`${ELEVENLABS_TTS_PATH}/${voiceId}`, `${provider.baseURL}/`),
 				{

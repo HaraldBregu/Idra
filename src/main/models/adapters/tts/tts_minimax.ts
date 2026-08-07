@@ -14,6 +14,10 @@ type MiniMaxTtsResponse = {
 export function createMiniMaxSpeechAdapter(provider: SpeechProviderSpec): SpeechAdapter {
 	return {
 		async synthesize(request: SpeechAdapterRequest): Promise<SpeechSynthesisResult> {
+			const optionVoiceId = request.options?.voice_id;
+			const voiceId =
+				request.voice ??
+				(typeof optionVoiceId === 'string' ? optionVoiceId : MINIMAX_DEFAULT_VOICE_ID);
 			const response = await fetch(new URL(MINIMAX_TTS_PATH, `${provider.baseURL}/`), {
 				method: 'POST',
 				headers: {
@@ -25,7 +29,7 @@ export function createMiniMaxSpeechAdapter(provider: SpeechProviderSpec): Speech
 					model: request.modelId,
 					text: request.text,
 					stream: false,
-					voice_setting: { voice_id: request.voice ?? MINIMAX_DEFAULT_VOICE_ID },
+					voice_setting: { voice_id: voiceId },
 					audio_setting: { format: 'mp3' },
 				}),
 			});

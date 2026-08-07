@@ -21,6 +21,10 @@ export function createGoogleSpeechAdapter(provider: SpeechProviderSpec): SpeechA
 
 	return {
 		async synthesize(request: SpeechAdapterRequest): Promise<SpeechSynthesisResult> {
+			const optionVoiceName = request.options?.voiceName;
+			const voiceName =
+				request.voice ??
+				(typeof optionVoiceName === 'string' ? optionVoiceName : GOOGLE_DEFAULT_VOICE);
 			const response = await fetch(`${baseURL}/models/${request.modelId}:generateContent`, {
 				method: 'POST',
 				headers: {
@@ -33,7 +37,7 @@ export function createGoogleSpeechAdapter(provider: SpeechProviderSpec): SpeechA
 						responseModalities: ['AUDIO'],
 						speechConfig: {
 							voiceConfig: {
-								prebuiltVoiceConfig: { voiceName: request.voice ?? GOOGLE_DEFAULT_VOICE },
+								prebuiltVoiceConfig: { voiceName },
 							},
 						},
 					},
