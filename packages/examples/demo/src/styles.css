@@ -11,11 +11,11 @@
 html,
 body,
 #root {
-	@apply min-h-screen min-w-full m-0 p-0;
+	@apply h-full min-h-screen w-full m-0 p-0;
 }
 
 .app-demo {
-	@apply h-full w-full;
+	@apply h-screen w-screen;
 }
 
 .app-demo.light-mode {
