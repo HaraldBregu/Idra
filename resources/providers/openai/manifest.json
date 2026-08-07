@@ -12,31 +12,9 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
-        "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh",
-              "max"
-            ]
-          },
-          "verbosity": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
+        "documentationUrl": "https://platform.openai.com/docs/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -45,31 +23,9 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
-        "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh",
-              "max"
-            ]
-          },
-          "verbosity": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
+        "documentationUrl": "https://platform.openai.com/docs/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -78,31 +34,9 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
-        "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh",
-              "max"
-            ]
-          },
-          "verbosity": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
+        "documentationUrl": "https://platform.openai.com/docs/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -111,31 +45,9 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
-        "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh",
-              "max"
-            ]
-          },
-          "verbosity": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
+        "documentationUrl": "https://platform.openai.com/docs/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -144,31 +56,9 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
-        "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh",
-              "max"
-            ]
-          },
-          "verbosity": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
+        "documentationUrl": "https://platform.openai.com/docs/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -177,31 +67,9 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
-        "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh",
-              "max"
-            ]
-          },
-          "verbosity": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
+        "documentationUrl": "https://platform.openai.com/docs/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -210,31 +78,9 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
-        "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh",
-              "max"
-            ]
-          },
-          "verbosity": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
+        "documentationUrl": "https://platform.openai.com/docs/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -243,31 +89,9 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
-        "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh",
-              "max"
-            ]
-          },
-          "verbosity": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
+        "documentationUrl": "https://platform.openai.com/docs/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -276,31 +100,9 @@
       "type": "large-language-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
-        "inputs": {
-          "effort": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high",
-              "xhigh",
-              "max"
-            ]
-          },
-          "verbosity": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
+        "documentationUrl": "https://platform.openai.com/docs/models",
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
