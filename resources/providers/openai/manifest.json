@@ -315,6 +315,7 @@
       "sampleRate": 24000,
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
           "language": {
             "type": "string"
@@ -322,10 +323,20 @@
           "prompt": {
             "type": "string"
           },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "response_format": {
+            "type": "string",
+            "enum": [
+              "json"
+            ]
+          },
+          "include": {
+            "type": "array"
+          },
+          "chunking_strategy": {
+            "type": "object"
+          },
+          "stream": {
+            "type": "boolean"
           }
         }
       }
@@ -342,6 +353,7 @@
       "sampleRate": 24000,
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
           "language": {
             "type": "string"
@@ -349,10 +361,20 @@
           "prompt": {
             "type": "string"
           },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "response_format": {
+            "type": "string",
+            "enum": [
+              "json"
+            ]
+          },
+          "include": {
+            "type": "array"
+          },
+          "chunking_strategy": {
+            "type": "object"
+          },
+          "stream": {
+            "type": "boolean"
           }
         }
       }
@@ -370,17 +392,19 @@
       "sampleRate": 24000,
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
-          "language": {
-            "type": "string"
+          "audio": {
+            "type": "object"
           },
-          "prompt": {
-            "type": "string"
+          "noise_reduction": {
+            "type": "object"
           },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "transcription": {
+            "type": "object"
+          },
+          "turn_detection": {
+            "type": "object"
           }
         }
       }
@@ -392,6 +416,7 @@
       "url": "https://api.openai.com/v1",
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
           "voice": {
             "type": "string"
@@ -399,21 +424,14 @@
           "instructions": {
             "type": "string"
           },
-          "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
+          "response_format": {
+            "type": "string"
           },
-          "responseFormat": {
-            "type": "string",
-            "enum": [
-              "mp3",
-              "opus",
-              "aac",
-              "flac",
-              "wav",
-              "pcm"
-            ]
+          "speed": {
+            "type": "number"
+          },
+          "stream_format": {
+            "type": "string"
           }
         }
       }
@@ -425,28 +443,19 @@
       "url": "https://api.openai.com/v1",
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
           "voice": {
             "type": "string"
           },
-          "instructions": {
+          "response_format": {
             "type": "string"
           },
           "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
+            "type": "number"
           },
-          "responseFormat": {
-            "type": "string",
-            "enum": [
-              "mp3",
-              "opus",
-              "aac",
-              "flac",
-              "wav",
-              "pcm"
-            ]
+          "stream_format": {
+            "type": "string"
           }
         }
       }
@@ -459,17 +468,22 @@
       "default": true,
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
           "dimensions": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "maximum": 3072
           },
-          "encodingFormat": {
+          "encoding_format": {
             "type": "string",
             "enum": [
               "float",
               "base64"
             ]
+          },
+          "user": {
+            "type": "string"
           }
         }
       }
@@ -482,17 +496,22 @@
       "default": true,
       "metadata": {
         "documentationUrl": "https://platform.openai.com/docs/api-reference",
+        "documentationStatus": "verified",
         "inputs": {
           "dimensions": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "maximum": 1536
           },
-          "encodingFormat": {
+          "encoding_format": {
             "type": "string",
             "enum": [
               "float",
               "base64"
             ]
+          },
+          "user": {
+            "type": "string"
           }
         }
       }
