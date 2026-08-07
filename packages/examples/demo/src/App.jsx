@@ -30,9 +30,13 @@ export default function App() {
 				if (mounted) setTheme(themeData);
 			})
 			.catch(() => {});
+		const unsubscribe = app.onThemeModeChanged((themeData) => {
+			if (mounted) setTheme(themeData);
+		});
 
 		return () => {
 			mounted = false;
+			unsubscribe();
 		};
 	}, []);
 
