@@ -38,10 +38,22 @@
             "type": "array"
           },
           "thinking": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["adaptive", "disabled"]
+              }
+            }
           },
           "output_config": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "xhigh", "max"]
+              }
+            }
           },
           "tools": {
             "type": "array"
@@ -87,10 +99,22 @@
             "type": "array"
           },
           "thinking": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["adaptive", "disabled"]
+              }
+            }
           },
           "output_config": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "xhigh", "max"]
+              }
+            }
           },
           "tools": {
             "type": "array"
@@ -136,10 +160,22 @@
             "type": "array"
           },
           "thinking": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["adaptive", "disabled"]
+              }
+            }
           },
           "output_config": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "xhigh", "max"]
+              }
+            }
           },
           "tools": {
             "type": "array"
@@ -185,10 +221,22 @@
             "type": "array"
           },
           "thinking": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["adaptive", "disabled"]
+              }
+            }
           },
           "output_config": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "xhigh", "max"]
+              }
+            }
           },
           "tools": {
             "type": "array"
@@ -234,10 +282,26 @@
             "type": "array"
           },
           "thinking": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["adaptive", "enabled", "disabled"]
+              },
+              "budget_tokens": {
+                "type": "integer",
+                "minimum": 1024
+              }
+            }
           },
           "output_config": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "effort": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "xhigh", "max"]
+              }
+            }
           },
           "tools": {
             "type": "array"
@@ -283,7 +347,17 @@
             "type": "array"
           },
           "thinking": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["enabled", "disabled"]
+              },
+              "budget_tokens": {
+                "type": "integer",
+                "minimum": 1024
+              }
+            }
           },
           "output_config": {
             "type": "object"
@@ -302,4 +376,3 @@
     }
   ]
 }
-
