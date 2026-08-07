@@ -1,14 +1,30 @@
 {
-	"providerId": "brave",
-	"providerName": "Brave",
-	"apiKeyUrl": "https://api-dashboard.search.brave.com/app/keys",
-	"images_url": "/images",
-	"services": [
-		{
-			"id": "brave-web-search",
-			"name": "Brave Web Search",
-			"url": "https://api.search.brave.com/res/v1/web/search",
-			"type": "web-search"
-		}
-	]
+  "providerId": "brave",
+  "providerName": "Brave",
+  "apiKeyUrl": "https://api-dashboard.search.brave.com/app/keys",
+  "images_url": "/images",
+  "services": [
+    {
+      "id": "brave-web-search",
+      "name": "Brave Web Search",
+      "url": "https://api.search.brave.com/res/v1/web/search",
+      "type": "web-search",
+      "metadata": {
+        "documentationUrl": "https://api.search.brave.com/app/documentation",
+        "inputs": {
+          "count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "country": {
+            "type": "string"
+          },
+          "searchLang": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
