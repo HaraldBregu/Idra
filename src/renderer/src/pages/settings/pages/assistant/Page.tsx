@@ -96,7 +96,7 @@ const AssistantPage: React.FC = () => {
 
 	useEffect(() => {
 		void window.agent.getModelOptions().then(setModelOptions);
-	}, [state.providerId, state.modelId]);
+	}, []);
 
 	const saveModelOptions = (next: Record<string, unknown>): void => {
 		setModelOptions(next);

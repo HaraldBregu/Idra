@@ -93,7 +93,11 @@ export function ModelOptions({
 									}
 								>
 									<SelectTrigger className="w-40">
-										<SelectValue />
+										<SelectValue>
+											{selectedIndex < 0
+												? 'Provider default'
+												: choices[selectedIndex]?.label}
+										</SelectValue>
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="__default__">Provider default</SelectItem>
