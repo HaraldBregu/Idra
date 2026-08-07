@@ -2,6 +2,7 @@ import { webUtils } from 'electron';
 import { typedInvokeUnwrap, typedOn } from '../shared/ipc_types';
 import { AppChannels } from '../shared/ipc_channels_definitions';
 import type { AppApi } from './index.d';
+import type { AppThemeData } from '../shared/app_types';
 import type { ChannelModelKind, ChannelStatusEvent, ChannelType } from '../shared';
 import { optionalTrimmedString } from './normalize';
 
@@ -82,7 +83,7 @@ export const app: AppApi = {
 	getThemeData: () => {
 		return typedInvokeUnwrap(AppChannels.getThemeData);
 	},
-	onThemeModeChanged: (callback: (theme: { themeMode: string; isDark: boolean }) => void): (() => void) => {
+	onThemeModeChanged: (callback: (theme: AppThemeData) => void): (() => void) => {
 		return typedOn(AppChannels.themeModeChanged, callback);
 	},
 	getMicrophonePermission: () => {
