@@ -3,7 +3,7 @@
 	"name": "Friday Configured Demo",
 	"type": "stdio",
 	"command": "node",
-	"args": ["server.mjs"],
+	"args": ["--experimental-strip-types", "server.ts"],
 	"cwd": ".",
 	"env": {
 		"DEMO_COMPANY": "Friday Studio",
