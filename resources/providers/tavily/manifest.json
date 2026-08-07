@@ -1,14 +1,30 @@
 {
-	"providerId": "tavily",
-	"providerName": "Tavily",
-	"apiKeyUrl": "https://app.tavily.com/home",
-	"images_url": "/images",
-	"services": [
-		{
-			"id": "tavily-web-search",
-			"name": "Tavily Web Search",
-			"url": "https://api.tavily.com/search",
-			"type": "web-search"
-		}
-	]
+  "providerId": "tavily",
+  "providerName": "Tavily",
+  "apiKeyUrl": "https://app.tavily.com/home",
+  "images_url": "/images",
+  "services": [
+    {
+      "id": "tavily-web-search",
+      "name": "Tavily Web Search",
+      "url": "https://api.tavily.com/search",
+      "type": "web-search",
+      "metadata": {
+        "documentationUrl": "https://docs.tavily.com",
+        "inputs": {
+          "count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "country": {
+            "type": "string"
+          },
+          "searchLang": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
