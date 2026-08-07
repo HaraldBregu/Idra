@@ -3,6 +3,7 @@ import type { EventBus } from '../event_bus';
 import type { WindowFactory } from '../window_factory';
 import { importExtensions, listExtensions, loadExtension } from '../extensions/extension_index';
 import { ExtensionChannels } from '../../shared/ipc_channels_definitions';
+import type { ExtensionImportResult } from '../../shared/extension_types';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 
@@ -22,7 +23,7 @@ export class ExtensionsIpc implements IpcModule<ExtensionsIpcDeps> {
 		});
 		registerCommandWithEvent(
 			ExtensionChannels.import,
-			async (event): Promise<import('../../shared/extension_types').ExtensionImportResult | undefined> => {
+			async (event): Promise<ExtensionImportResult | undefined> => {
 				const window = BrowserWindow.fromWebContents(event.sender);
 				const result = await (window
 					? dialog.showOpenDialog(window, {
