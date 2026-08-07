@@ -2,8 +2,8 @@
 
 Typed client for app-data access in Friday.
 
-This package is now scoped to `app` APIs (settings/data operations exposed on `window.app`) and
-the accompanying remote client used to call the same API over Friday's local HTTP bridge.
+This package exposes typed Friday APIs for in-app code and the accompanying remote client
+used to call supported APIs over Friday's local HTTP bridge.
 
 ## Install
 
@@ -29,6 +29,8 @@ await friday.ping(); // { name: 'friday', version: '1.0.0' }
 
 const theme = await friday.app.getThemeData();
 await friday.app.setTheme('dark');
+
+const workspace = await friday.agent.getWorkspaceLocation();
 ```
 
 Streaming callbacks (for `app` events) use the SSE stream opened on first use; call
@@ -37,18 +39,21 @@ Streaming callbacks (for `app` events) use the SSE stream opened on first use; c
 ## Usage inside Friday
 
 ```ts
-import { app, isFriday, type AppThemeData } from '@friday/sdk';
+import { agent, app, isFriday, type AppThemeData } from '@friday/sdk';
 
 if (!isFriday()) throw new Error('Not running inside Friday');
 
 const themeData: AppThemeData = await app.getThemeData();
 await app.setTheme(themeData.themeMode === 'dark' ? 'light' : 'dark');
+
+const workspace = await agent.getWorkspaceLocation();
 ```
 
 ## What's available
 
 - `app`: app data + settings APIs exposed by preload (`setTheme`, `getThemeData`, `getLanguage`, etc.)
-- `connect()`: remote client for the same `app` API.
+- `agent`: agent APIs exposed by preload, including `getWorkspaceLocation`.
+- `connect()`: remote client for the app API and `agent.getWorkspaceLocation`.
 - `isFriday()`: host check for in-app mode.
 - `ping()`: validate API reachability in remote mode.
 

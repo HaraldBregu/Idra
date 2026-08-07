@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { app, connect, isFriday } from './dist/packages/sdk/index.js';
+import { agent, app, connect, isFriday } from './dist/packages/sdk/index.js';
 
 // --- embedded mode: bound to the app's preload globals ----------------------
 
 assert.equal(isFriday(), false);
 assert.throws(() => app.getTheme, /unavailable/);
+assert.throws(() => agent.getWorkspaceLocation, /unavailable/);
 
 globalThis.app = {
 	getThemeData: async () => ({ themeMode: 'system', isDark: false, colors: { background: '#fff' } }),
@@ -15,6 +16,9 @@ globalThis.app = {
 	setLanguage: async () => undefined,
 	onThemeModeChanged: () => () => undefined,
 };
+globalThis.agent = {
+	getWorkspaceLocation: async () => '/tmp/friday-workspace',
+};
 
 assert.equal(isFriday(), true);
 assert.deepEqual(await app.getThemeData(), {
@@ -22,6 +26,7 @@ assert.deepEqual(await app.getThemeData(), {
 	isDark: false,
 	colors: { background: '#fff' },
 });
+assert.equal(await agent.getWorkspaceLocation(), '/tmp/friday-workspace');
 
 // --- remote mode: bound to the app API server --------------------------------
 
@@ -54,8 +59,12 @@ const friday = connect({ url: `http://127.0.0.1:${server.address().port}`, token
 
 assert.deepEqual(await friday.ping(), { name: 'friday', version: '1.0.0' });
 await friday.app.getThemeData();
+assert.equal(await friday.agent.getWorkspaceLocation(), null);
 
-assert.deepEqual(calls.map((call) => call.channel), ['app:get-theme-data']);
+assert.deepEqual(calls.map((call) => call.channel), [
+	'app:get-theme-data',
+	'agent:workspace:location:get',
+]);
 
 // events reach subscribers over the stream
 const seen = [];

@@ -1,8 +1,11 @@
 import { decode, encode } from '../../src/shared/api_codec';
+import { AgentChannels } from '../../src/shared/ipc_channels_definitions';
 import { AppChannels } from '../../src/shared/ipc_channels_definitions';
-import type { AppApi } from '../../src/shared/api_types';
+import type { AgentApi, AppApi } from '../../src/shared/api_types';
 import type { ChannelStatusEvent } from '../../src/shared/channels_types';
 import type { AppThemeData } from '../../src/shared/app_types';
+
+export type WorkspaceAgentApi = Pick<AgentApi, 'getWorkspaceLocation'>;
 
 export interface ConnectOptions {
 	/** Base URL of the Friday API. Defaults to `http://127.0.0.1:8765`. */
@@ -15,6 +18,7 @@ export interface ConnectOptions {
 
 export interface FridayClient {
 	app: AppApi;
+	agent: WorkspaceAgentApi;
 	/** Verify the app is reachable and the token is accepted. */
 	ping: () => Promise<{ name: string; version: string }>;
 	/** Close the event stream, if one was opened. */
@@ -119,6 +123,10 @@ export function connect(options: ConnectOptions): FridayClient {
 				};
 			},
 		}),
+		agent: {
+			getWorkspaceLocation: () =>
+				invoke(AgentChannels.getWorkspaceLocation, []) as Promise<string>,
+		},
 		ping: async () => {
 			const response = await call(`${base}/health`, { headers });
 			if (!response.ok) throw new Error(`Friday API unreachable: ${response.status}`);
