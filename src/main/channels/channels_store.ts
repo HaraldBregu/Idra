@@ -6,6 +6,7 @@ import type {
 	StoredBotProvider,
 } from '../../shared';
 import { userDataLocation } from '../shared/user_data_location';
+import { getModelId, getProviderId } from '../models/models_store';
 
 type ChannelModelKeys = {
 	providerId: keyof ChannelsStoreState;
@@ -37,10 +38,10 @@ export interface ChannelsStoreState {
 	readonly ttsModelId?: string;
 }
 
-const CHANNEL_MODELS_FALLBACKS: Record<ChannelModelKind, ChannelModelSelection> = {
-	llm: { providerId: '', modelId: '' },
-	stt: { providerId: '', modelId: '' },
-	tts: { providerId: '', modelId: '' },
+const CHANNEL_MODELS_FALLBACKS: Record<ChannelModelKind, () => ChannelModelSelection> = {
+	llm: () => ({ providerId: getProviderId('text'), modelId: getModelId('text') }),
+	stt: () => ({ providerId: getProviderId('transcribe'), modelId: getModelId('transcribe') }),
+	tts: () => ({ providerId: getProviderId('voice'), modelId: getModelId('voice') }),
 };
 
 const store = new Store<ChannelsStoreState>({
@@ -58,14 +59,6 @@ function trimValue(value: unknown): string | undefined {
 	if (typeof value !== 'string') return undefined;
 	const trimmed = value.trim();
 	return trimmed || undefined;
-}
-
-function fallbackSelection(): Record<ChannelModelKind, ChannelModelSelection> {
-	return {
-		llm: { ...CHANNEL_MODELS_FALLBACKS.llm },
-		stt: { ...CHANNEL_MODELS_FALLBACKS.stt },
-		tts: { ...CHANNEL_MODELS_FALLBACKS.tts },
-	};
 }
 
 export function listChannelProviders(): StoredBotProvider[] {
@@ -87,10 +80,9 @@ export function setChannelProvider(provider: StoredBotProvider): StoredBotProvid
 
 export function getChannelModelSelection(kind: ChannelModelKind): ChannelModelSelection {
 	const keys = CHANNEL_MODEL_KEYS[kind];
-	const providerId = trimValue(store.get(keys.providerId)) ??
-		(CHANNEL_MODELS_FALLBACKS[kind].providerId || undefined);
-	const modelId = trimValue(store.get(keys.modelId)) ??
-		(CHANNEL_MODELS_FALLBACKS[kind].modelId || undefined);
+	const fallback = CHANNEL_MODELS_FALLBACKS[kind]();
+	const providerId = trimValue(store.get(keys.providerId)) ?? trimValue(fallback.providerId);
+	const modelId = trimValue(store.get(keys.modelId)) ?? trimValue(fallback.modelId);
 
 	return {
 		providerId,
