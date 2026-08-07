@@ -449,7 +449,59 @@ function blankCredential(
 		allowFrom: [],
 		groupAllowFrom: [],
 		dmPolicy: 'allowlist',
+		sttProviderId: '',
+		sttModelId: '',
+		ttsProviderId: '',
+		ttsModelId: '',
 	};
+}
+
+function getModelGroups(capability: 'speech-to-text' | 'text-to-speech'): ChannelModelGroup[] {
+	return providerIdsFor(capability).flatMap((providerId) => {
+		const provider = providers().find((entry) => entry.id === providerId);
+		if (!provider) return [];
+		const models = providerModels(providerId, capability)
+			.filter((model) =>
+				capability === 'speech-to-text'
+					? supportsSpeechToTextApiType(providerId, model.id, 'batch')
+					: true
+			)
+			.map((model) => ({ id: model.id, name: model.name }));
+		return models.length > 0 ? [{ provider, models }] : [];
+	});
+}
+
+function getSttModelGroups(): ChannelModelGroup[] {
+	return getModelGroups('speech-to-text');
+}
+
+function getTtsModelGroups(): ChannelModelGroup[] {
+	return getModelGroups('text-to-speech');
+}
+
+function getSelectedModel(
+	groups: readonly ChannelModelGroup[],
+	providerId: string | undefined,
+	modelId: string | undefined
+): { providerId: string; modelId: string } {
+	const preferredProviderId = (providerId ?? '').trim();
+	const preferredModelId = (modelId ?? '').trim();
+	const providerGroup = groups.find((group) => group.provider.id === preferredProviderId) ?? groups[0];
+	const model = providerGroup?.models.find((item) => item.id === preferredModelId) ??
+		providerGroup?.models[0];
+	return {
+		providerId: providerGroup?.provider.id ?? '',
+		modelId: model?.id ?? '',
+	};
+}
+
+function selectionValue(selection: { providerId: string; modelId: string }): string {
+	if (!selection.providerId || !selection.modelId) return '';
+	return `${selection.providerId}${MODEL_SELECTION_VALUE_SEPARATOR}${selection.modelId}`;
+}
+
+function formatModelSelection(provider: PublicProvider, model: ModelChoice): string {
+	return `${provider.name} / ${model.name}`;
 }
 
 export default ChannelDetailPage;
