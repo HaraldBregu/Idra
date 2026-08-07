@@ -1,6 +1,5 @@
 import { decode, encode } from '../../src/shared/api_codec';
-import { AgentChannels } from '../../src/shared/ipc_channels_definitions';
-import { AppChannels } from '../../src/shared/ipc_channels_definitions';
+import { AgentChannels, AppChannels } from '../../src/shared/ipc_channels_definitions';
 import type { AgentApi, AppApi } from '../../src/shared/api_types';
 import type { ChannelStatusEvent } from '../../src/shared/channels_types';
 import type { AppThemeData } from '../../src/shared/app_types';

@@ -51,7 +51,12 @@ const server = createServer(async (req, res) => {
 	const { channel, args } = JSON.parse(Buffer.concat(chunks).toString());
 	calls.push({ channel, args });
 	res.writeHead(200, { 'content-type': 'application/json' });
-	res.end(JSON.stringify({ success: true, data: args[0] ?? null }));
+	res.end(
+		JSON.stringify({
+			success: true,
+			data: channel === 'agent:workspace:location:get' ? '/tmp/friday-workspace' : (args[0] ?? null),
+		})
+	);
 });
 
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -59,7 +64,7 @@ const friday = connect({ url: `http://127.0.0.1:${server.address().port}`, token
 
 assert.deepEqual(await friday.ping(), { name: 'friday', version: '1.0.0' });
 await friday.app.getThemeData();
-assert.equal(await friday.agent.getWorkspaceLocation(), null);
+assert.equal(await friday.agent.getWorkspaceLocation(), '/tmp/friday-workspace');
 
 assert.deepEqual(calls.map((call) => call.channel), [
 	'app:get-theme-data',
