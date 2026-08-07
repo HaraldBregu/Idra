@@ -14,15 +14,18 @@
       "metadata": {
         "documentationUrl": "https://docs.x.ai/docs/api-reference",
         "inputs": {
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
           "temperature": {
             "type": "number",
             "minimum": 0,
             "maximum": 2
-          },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
           },
           "maxTokens": {
             "type": "integer",
@@ -39,15 +42,18 @@
       "metadata": {
         "documentationUrl": "https://docs.x.ai/docs/api-reference",
         "inputs": {
+          "effort": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
           "temperature": {
             "type": "number",
             "minimum": 0,
             "maximum": 2
-          },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
           },
           "maxTokens": {
             "type": "integer",
@@ -134,14 +140,15 @@
       "metadata": {
         "documentationUrl": "https://docs.x.ai/docs/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "aspect_ratio": {
             "type": "string"
           },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
+          "resolution": {
             "type": "string"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1
           }
         }
       }
@@ -154,14 +161,15 @@
       "metadata": {
         "documentationUrl": "https://docs.x.ai/docs/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "aspect_ratio": {
             "type": "string"
           },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
+          "resolution": {
             "type": "string"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1
           }
         }
       }
@@ -174,17 +182,13 @@
       "metadata": {
         "documentationUrl": "https://docs.x.ai/docs/api-reference",
         "inputs": {
-          "aspectRatio": {
+          "aspect_ratio": {
             "type": "string"
           },
           "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
             "type": "integer"
           },
-          "negativePrompt": {
+          "resolution": {
             "type": "string"
           }
         }
