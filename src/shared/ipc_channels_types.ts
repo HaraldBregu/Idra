@@ -791,6 +791,7 @@ export interface SendChannelMap extends WindowSendChannelMap {}
 
 export interface AppEventChannelMap {
 	[AppChannels.modelsChanged]: { data: void };
+	[AppChannels.themeModeChanged]: { data: import('./app_types').AppThemeData };
 	[AppChannels.channelsStatusChanged]: { data: import('./channels_types').ChannelStatusEvent };
 }
 
