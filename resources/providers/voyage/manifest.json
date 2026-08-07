@@ -10,17 +10,43 @@
       "type": "embedding-model",
       "url": "https://api.voyageai.com/v1",
       "metadata": {
-        "documentationUrl": "https://docs.voyageai.com",
+        "documentationUrl": "https://docs.voyageai.com/reference/embeddings-api-1",
+        "documentationStatus": "verified",
         "inputs": {
-          "dimensions": {
-            "type": "integer",
-            "minimum": 1
+          "input_type": {
+            "type": "string",
+            "enum": [
+              "query",
+              "document"
+            ]
           },
-          "inputType": {
-            "type": "string"
-          },
-          "truncate": {
+          "truncation": {
             "type": "boolean"
+          },
+          "output_dimension": {
+            "type": "integer",
+            "enum": [
+              256,
+              512,
+              1024,
+              2048
+            ]
+          },
+          "output_dtype": {
+            "type": "string",
+            "enum": [
+              "float",
+              "int8",
+              "uint8",
+              "binary",
+              "ubinary"
+            ]
+          },
+          "encoding_format": {
+            "type": "string",
+            "enum": [
+              "base64"
+            ]
           }
         }
       }
