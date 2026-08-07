@@ -8,7 +8,7 @@ assert.equal(isFriday(), false);
 assert.throws(() => app.getTheme, /unavailable/);
 
 globalThis.app = {
-	getThemeData: async () => ({ themeMode: 'system', isDark: false }),
+	getThemeData: async () => ({ themeMode: 'system', isDark: false, colors: { background: '#fff' } }),
 	getTheme: async () => 'system',
 	setTheme: async () => undefined,
 	getLanguage: async () => 'en',
@@ -17,7 +17,11 @@ globalThis.app = {
 };
 
 assert.equal(isFriday(), true);
-assert.deepEqual(await app.getThemeData(), { themeMode: 'system', isDark: false });
+assert.deepEqual(await app.getThemeData(), {
+	themeMode: 'system',
+	isDark: false,
+	colors: { background: '#fff' },
+});
 
 // --- remote mode: bound to the app API server --------------------------------
 
