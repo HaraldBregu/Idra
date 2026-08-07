@@ -13,24 +13,34 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
           "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+            "type": "number"
+          },
+          "topK": {
+            "type": "integer"
           },
           "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
+            "type": "integer"
           },
-          "thinkingBudget": {
-            "type": "integer",
-            "minimum": 0
+          "candidateCount": {
+            "type": "integer"
+          },
+          "stopSequences": {
+            "type": "array"
+          },
+          "responseMimeType": {
+            "type": "string"
+          },
+          "responseSchema": {
+            "type": "object"
+          },
+          "thinkingConfig": {
+            "type": "object"
           }
         }
       }
@@ -42,24 +52,34 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
           "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+            "type": "number"
+          },
+          "topK": {
+            "type": "integer"
           },
           "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 1
+            "type": "integer"
           },
-          "thinkingBudget": {
-            "type": "integer",
-            "minimum": 0
+          "candidateCount": {
+            "type": "integer"
+          },
+          "stopSequences": {
+            "type": "array"
+          },
+          "responseMimeType": {
+            "type": "string"
+          },
+          "responseSchema": {
+            "type": "object"
+          },
+          "thinkingConfig": {
+            "type": "object"
           }
         }
       }
@@ -71,17 +91,16 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
-          "voice": {
+          "voiceName": {
             "type": "string"
           },
-          "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
-          },
-          "outputFormat": {
-            "type": "string"
+          "responseModalities": {
+            "type": "array",
+            "enum": [
+              "AUDIO"
+            ]
           }
         }
       }
@@ -93,11 +112,9 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
-          "voice": {
-            "type": "string"
-          },
-          "language": {
+          "voiceName": {
             "type": "string"
           }
         }
@@ -110,28 +127,16 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
           "aspectRatio": {
-            "type": "string",
-            "enum": [
-              "1:1",
-              "2:3",
-              "3:2",
-              "3:4",
-              "4:3",
-              "4:5",
-              "5:4",
-              "9:16",
-              "16:9",
-              "21:9"
-            ]
+            "type": "string"
           },
           "imageSize": {
             "type": "string",
             "enum": [
-              "1K",
-              "2K",
-              "4K"
+              "512",
+              "1K"
             ]
           }
         }
@@ -144,21 +149,10 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
           "aspectRatio": {
-            "type": "string",
-            "enum": [
-              "1:1",
-              "2:3",
-              "3:2",
-              "3:4",
-              "4:3",
-              "4:5",
-              "5:4",
-              "9:16",
-              "16:9",
-              "21:9"
-            ]
+            "type": "string"
           },
           "imageSize": {
             "type": "string",
@@ -178,6 +172,7 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
           "aspectRatio": {
             "type": "string",
@@ -187,23 +182,42 @@
             ]
           },
           "durationSeconds": {
-            "type": "string",
+            "type": "integer",
             "enum": [
-              "4",
-              "6",
-              "8"
+              4,
+              6,
+              8
             ]
           },
           "resolution": {
-            "type": "string",
-            "enum": [
-              "720p",
-              "1080p",
-              "4k"
-            ]
+            "type": "string"
+          },
+          "negativePrompt": {
+            "type": "string"
           },
           "personGeneration": {
             "type": "string"
+          },
+          "generateAudio": {
+            "type": "boolean"
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "numberOfVideos": {
+            "type": "integer"
+          },
+          "image": {
+            "type": "object"
+          },
+          "lastFrame": {
+            "type": "object"
+          },
+          "referenceImages": {
+            "type": "array"
+          },
+          "video": {
+            "type": "object"
           }
         }
       }
@@ -215,6 +229,7 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
           "aspectRatio": {
             "type": "string",
@@ -224,23 +239,39 @@
             ]
           },
           "durationSeconds": {
-            "type": "string",
+            "type": "integer",
             "enum": [
-              "4",
-              "6",
-              "8"
+              4,
+              6,
+              8
             ]
           },
           "resolution": {
-            "type": "string",
-            "enum": [
-              "720p",
-              "1080p",
-              "4k"
-            ]
+            "type": "string"
+          },
+          "negativePrompt": {
+            "type": "string"
           },
           "personGeneration": {
             "type": "string"
+          },
+          "generateAudio": {
+            "type": "boolean"
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "numberOfVideos": {
+            "type": "integer"
+          },
+          "image": {
+            "type": "object"
+          },
+          "lastFrame": {
+            "type": "object"
+          },
+          "referenceImages": {
+            "type": "array"
           }
         }
       }
@@ -252,16 +283,14 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
-          "duration": {
-            "type": "number",
-            "minimum": 1
+          "prompt": {
+            "type": "string",
+            "required": true
           },
-          "seed": {
-            "type": "integer"
-          },
-          "outputFormat": {
-            "type": "string"
+          "response_format": {
+            "type": "object"
           }
         }
       }
@@ -273,16 +302,14 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
-          "duration": {
-            "type": "number",
-            "minimum": 1
+          "prompt": {
+            "type": "string",
+            "required": true
           },
-          "seed": {
-            "type": "integer"
-          },
-          "outputFormat": {
-            "type": "string"
+          "response_format": {
+            "type": "object"
           }
         }
       }
@@ -294,16 +321,10 @@
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
         "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationStatus": "verified",
         "inputs": {
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "outputFormat": {
-            "type": "string"
+          "session": {
+            "type": "object"
           }
         }
       }
