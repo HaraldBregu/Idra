@@ -25,6 +25,10 @@ export interface StoredBotProvider extends StoredProvider {
 	allowFrom?: string[];
 	groupAllowFrom?: string[];
 	dmPolicy?: ChannelDmPolicy;
+	sttProviderId?: string;
+	sttModelId?: string;
+	ttsProviderId?: string;
+	ttsModelId?: string;
 }
 
 export interface ChannelStatusEvent {
