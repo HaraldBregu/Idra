@@ -13,13 +13,32 @@ export type ModelCapability =
 	| 'text-to-audio'
 	| 'embedding';
 
+export interface ModelInputChoice {
+	readonly const: string | number;
+	readonly title?: string;
+}
+
+export interface ModelInputSchema {
+	readonly type?: 'string' | 'number' | 'integer' | 'boolean' | 'object' | 'array';
+	readonly title?: string;
+	readonly description?: string;
+	readonly enum?: readonly (string | number)[];
+	readonly oneOf?: readonly ModelInputChoice[];
+	readonly minimum?: number;
+	readonly maximum?: number;
+	readonly default?: string | number | boolean;
+	readonly properties?: Readonly<Record<string, ModelInputSchema>>;
+	readonly items?: ModelInputSchema;
+	readonly required?: boolean;
+}
+
 export interface ModelMetadata {
 	/** Official provider page that documents this service's request contract. */
 	readonly documentationUrl: string;
 	/** Whether the catalog model has an externally documented request contract. */
 	readonly documentationStatus?: 'verified' | 'unverified';
 	/** API request fields supported by this exact service or model. */
-	readonly inputs: Readonly<Record<string, unknown>>;
+	readonly inputs: Readonly<Record<string, ModelInputSchema>>;
 }
 
 export interface ProviderModel {
