@@ -1,6 +1,10 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { AgentPermissionMode } from '../../shared/agent_types';
+import type {
+	AgentMediaModelKind,
+	AgentMediaModelSettings,
+	AgentPermissionMode,
+} from '../../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
 import { isToolPermission } from './policy/policy_is_tool_permission';
@@ -25,6 +29,9 @@ type AgentStoreSchema = {
 	modelId: string | undefined;
 	modelOptions: Record<string, unknown>;
 	search_engine: SearchEngineSettings;
+	image_model: AgentMediaModelSettings;
+	audio_model: AgentMediaModelSettings;
+	video_model: AgentMediaModelSettings;
 	permissions: PermissionsSchema;
 };
 
@@ -36,11 +43,19 @@ const UNKNOWN_TOOL_PERMISSION: ToolPermission = {
 	deny: [],
 	ask: [],
 };
+const EMPTY_MEDIA_MODEL: AgentMediaModelSettings = {
+	providerId: '',
+	modelId: '',
+	options: {},
+};
 const DEFAULT_AGENT_STORE: AgentStoreSchema = {
 	providerId: undefined,
 	modelId: undefined,
 	modelOptions: {},
 	search_engine: { providerId: '', providerName: '', enabled: false },
+	image_model: EMPTY_MEDIA_MODEL,
+	audio_model: EMPTY_MEDIA_MODEL,
+	video_model: EMPTY_MEDIA_MODEL,
 	permissions: DEFAULT_PERMISSIONS,
 };
 
@@ -83,6 +98,17 @@ export function getSearchEngine(): SearchEngineSettings {
 
 export function setSearchEngine(searchEngine: SearchEngineSettings): void {
 	store.set('search_engine', searchEngine);
+}
+
+export function getMediaModel(kind: AgentMediaModelKind): AgentMediaModelSettings {
+	return store.get(`${kind}_model`);
+}
+
+export function setMediaModel(
+	kind: AgentMediaModelKind,
+	settings: AgentMediaModelSettings
+): void {
+	store.set(`${kind}_model`, settings);
 }
 
 export function getPermissions(): PermissionsSchema {

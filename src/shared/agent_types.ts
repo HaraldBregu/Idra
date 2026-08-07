@@ -27,6 +27,14 @@ export type AgentToolPermissionDecision = 'approve' | 'reject' | 'approve_always
 
 export type AgentPermissionMode = 'ask' | 'bypass';
 
+export type AgentMediaModelKind = 'image' | 'audio' | 'video';
+
+export interface AgentMediaModelSettings {
+	providerId: string;
+	modelId: string;
+	options: Record<string, unknown>;
+}
+
 export interface AgentInputFile {
 	name: string;
 	mimeType: string;
