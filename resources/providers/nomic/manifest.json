@@ -11,16 +11,30 @@
       "url": "https://api-atlas.nomic.ai/v1",
       "metadata": {
         "documentationUrl": "https://docs.nomic.ai/atlas/capabilities/embeddings",
+        "documentationStatus": "verified",
         "inputs": {
-          "dimensions": {
-            "type": "integer",
-            "minimum": 1
+          "texts": {
+            "type": "array",
+            "required": true
           },
-          "inputType": {
-            "type": "string"
+          "task_type": {
+            "type": "string",
+            "enum": [
+              "search_query",
+              "search_document",
+              "classification",
+              "clustering"
+            ]
           },
-          "truncate": {
-            "type": "boolean"
+          "dimensionality": {
+            "type": "integer"
+          },
+          "long_text_mode": {
+            "type": "string",
+            "enum": [
+              "truncate",
+              "mean_pool"
+            ]
           }
         }
       }
