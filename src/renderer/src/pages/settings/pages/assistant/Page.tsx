@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
-import { providers } from '@/lib/providers';
+import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
@@ -70,6 +73,11 @@ const AssistantPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
+	const [modelOptions, setModelOptions] = useState<Record<string, unknown>>({});
+	const model = modelsFor('llm').find(
+		(item) => item.provider.id === state.providerId && item.id === state.modelId
+	);
+	const inputs = model?.metadata?.documentationStatus === 'verified' ? model.metadata.inputs : {};
 
 	useEffect(() => {
 		let mounted = true;
@@ -91,6 +99,15 @@ const AssistantPage: React.FC = () => {
 		};
 	}, [t]);
 
+	useEffect(() => {
+		void window.agent.getModelOptions().then(setModelOptions);
+	}, [state.providerId, state.modelId]);
+
+	const saveModelOptions = (next: Record<string, unknown>): void => {
+		setModelOptions(next);
+		void window.agent.setModelOptions(next);
+	};
+
 	const handleChange = async (nextProviderId: string, nextModelId: string): Promise<void> => {
 		const group = state.modelGroups.find((item) => item.provider.id === nextProviderId);
 		const model = group?.models.find((item) => item.id === nextModelId);
@@ -108,6 +125,8 @@ const AssistantPage: React.FC = () => {
 				(await window.agent.setProvider(group.provider)) &&
 				(await window.agent.setModelId(model.id));
 			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
+			await window.agent.setModelOptions({});
+			setModelOptions({});
 			setState((current) => ({ ...current, saving: false, saved: true }));
 		} catch (error) {
 			setState((current) => ({
@@ -139,6 +158,25 @@ const AssistantPage: React.FC = () => {
 					onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
 				/>
 			</SettingsSection>
+
+			{Object.keys(inputs).length > 0 && (
+				<SettingsSection title="Model options">
+					<SettingsPanel>
+						{Object.entries(inputs).map(([key, schema]) => {
+							const definition = schema as { type?: string; enum?: unknown[] };
+							const value = modelOptions[key];
+							if (definition.type === 'object') return null;
+							if (definition.type === 'boolean') {
+								return <SettingsRow key={key} title={key} actions={<Switch checked={value === true} onCheckedChange={(checked) => saveModelOptions({ ...modelOptions, [key]: checked })} />} />;
+							}
+							if (definition.enum?.every((item) => typeof item === 'string')) {
+								return <SettingsRow key={key} title={key} actions={<Select value={typeof value === 'string' ? value : undefined} onValueChange={(next) => saveModelOptions({ ...modelOptions, [key]: next })}><SelectTrigger className="w-40"><SelectValue placeholder="Default" /></SelectTrigger><SelectContent>{definition.enum.map((item) => <SelectItem key={String(item)} value={String(item)}>{String(item)}</SelectItem>)}</SelectContent></Select>} />;
+							}
+							return <SettingsRow key={key} title={key} actions={<Input className="w-40" type={definition.type === 'number' || definition.type === 'integer' ? 'number' : 'text'} value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''} onChange={(event) => { const next = event.target.value; saveModelOptions({ ...modelOptions, [key]: definition.type === 'number' || definition.type === 'integer' ? Number(next) : next }); }} />} />;
+						})}
+					</SettingsPanel>
+				</SettingsSection>
+			)}
 
 			<SettingsSection title={t('settings.modelServices.history')}>
 				<SettingsPanel>
