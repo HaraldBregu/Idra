@@ -1,14 +1,23 @@
 {
-	"providerId": "pinecone",
-	"providerName": "Pinecone",
-	"apiKeyUrl": "https://app.pinecone.io",
-	"images_url": "/images",
-	"services": [
-		{
-			"id": "vector-database",
-			"name": "Vector Database",
-			"url": "https://api.pinecone.io",
-			"type": "database"
-		}
-	]
+  "providerId": "pinecone",
+  "providerName": "Pinecone",
+  "apiKeyUrl": "https://app.pinecone.io",
+  "images_url": "/images",
+  "services": [
+    {
+      "id": "vector-database",
+      "name": "Vector Database",
+      "url": "https://api.pinecone.io",
+      "type": "database",
+      "metadata": {
+        "documentationUrl": "https://docs.pinecone.io",
+        "inputs": {
+          "namespace": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
