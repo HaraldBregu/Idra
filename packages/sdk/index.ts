@@ -27,3 +27,24 @@ export function isFriday(): boolean {
 }
 
 export const app = bridge<AppApi>('app');
+
+const requiredMethods = [
+	'getThemeData',
+	'setTheme',
+	'getLanguage',
+	'setLanguage',
+	'onThemeModeChanged',
+] as const;
+
+function hasAppMethods(api: unknown): api is AppApi {
+	if (typeof api !== 'object' || api === null) return false;
+	for (const method of requiredMethods) {
+		if (typeof (api as Record<string, unknown>)[method] !== 'function') return false;
+	}
+	return true;
+}
+
+export function isFriday(): boolean {
+	const fridayApp = (globalThis as Record<string, unknown>).app;
+	return hasAppMethods(fridayApp);
+}
