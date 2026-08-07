@@ -71,12 +71,13 @@
           "voice": {
             "type": "string"
           },
-          "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
+          "voice_settings": {
+            "type": "object"
           },
-          "outputFormat": {
+          "output_format": {
+            "type": "string"
+          },
+          "language_code": {
             "type": "string"
           }
         }
@@ -94,12 +95,13 @@
           "voice": {
             "type": "string"
           },
-          "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
+          "voice_settings": {
+            "type": "object"
           },
-          "outputFormat": {
+          "output_format": {
+            "type": "string"
+          },
+          "language_code": {
             "type": "string"
           }
         }
@@ -117,12 +119,13 @@
           "voice": {
             "type": "string"
           },
-          "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
+          "voice_settings": {
+            "type": "object"
           },
-          "outputFormat": {
+          "output_format": {
+            "type": "string"
+          },
+          "language_code": {
             "type": "string"
           }
         }
@@ -136,15 +139,14 @@
       "metadata": {
         "documentationUrl": "https://elevenlabs.io/docs/api-reference",
         "inputs": {
-          "duration": {
+          "duration_seconds": {
             "type": "number",
-            "minimum": 1
+            "minimum": 0.5
           },
-          "seed": {
-            "type": "integer"
-          },
-          "outputFormat": {
-            "type": "string"
+          "prompt_influence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
           }
         }
       }
@@ -157,15 +159,14 @@
       "metadata": {
         "documentationUrl": "https://elevenlabs.io/docs/api-reference",
         "inputs": {
-          "duration": {
+          "duration_seconds": {
             "type": "number",
-            "minimum": 1
+            "minimum": 0.5
           },
-          "seed": {
-            "type": "integer"
-          },
-          "outputFormat": {
-            "type": "string"
+          "prompt_influence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
           }
         }
       }
