@@ -12,21 +12,32 @@
       "type": "large-language-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://www.minimax.io/platform/document",
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
         "inputs": {
+          "max_tokens": {
+            "type": "integer"
+          },
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_k": {
+            "type": "integer"
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "thinking": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
           }
         }
       }
@@ -37,21 +48,32 @@
       "type": "large-language-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://www.minimax.io/platform/document",
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
         "inputs": {
+          "max_tokens": {
+            "type": "integer"
+          },
           "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2
+            "type": "number"
           },
-          "topP": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+          "top_p": {
+            "type": "number"
           },
-          "maxTokens": {
-            "type": "integer",
-            "minimum": 1
+          "top_k": {
+            "type": "integer"
+          },
+          "stop_sequences": {
+            "type": "array"
+          },
+          "thinking": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array"
+          },
+          "tool_choice": {
+            "type": "object"
           }
         }
       }
@@ -62,18 +84,38 @@
       "type": "text-to-speech-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://www.minimax.io/platform/document",
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
         "inputs": {
-          "voice": {
+          "voice_id": {
             "type": "string"
           },
           "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
+            "type": "number"
           },
-          "outputFormat": {
+          "vol": {
+            "type": "number"
+          },
+          "pitch": {
+            "type": "number"
+          },
+          "emotion": {
             "type": "string"
+          },
+          "sample_rate": {
+            "type": "integer"
+          },
+          "bitrate": {
+            "type": "integer"
+          },
+          "format": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "integer"
+          },
+          "stream": {
+            "type": "boolean"
           }
         }
       }
@@ -84,18 +126,38 @@
       "type": "text-to-speech-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://www.minimax.io/platform/document",
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
         "inputs": {
-          "voice": {
+          "voice_id": {
             "type": "string"
           },
           "speed": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 4
+            "type": "number"
           },
-          "outputFormat": {
+          "vol": {
+            "type": "number"
+          },
+          "pitch": {
+            "type": "number"
+          },
+          "emotion": {
             "type": "string"
+          },
+          "sample_rate": {
+            "type": "integer"
+          },
+          "bitrate": {
+            "type": "integer"
+          },
+          "format": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "integer"
+          },
+          "stream": {
+            "type": "boolean"
           }
         }
       }
@@ -106,19 +168,36 @@
       "type": "text-to-video-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://www.minimax.io/platform/document",
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
         "inputs": {
-          "aspectRatio": {
+          "duration": {
+            "type": "integer",
+            "enum": [
+              6,
+              10
+            ]
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "768P",
+              "1080P"
+            ]
+          },
+          "prompt_optimizer": {
+            "type": "boolean"
+          },
+          "fast_pretreatment": {
+            "type": "boolean"
+          },
+          "first_frame_image": {
             "type": "string"
           },
-          "duration": {
-            "type": "number",
-            "minimum": 1
+          "last_frame_image": {
+            "type": "string"
           },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
+          "callback_url": {
             "type": "string"
           }
         }
@@ -130,19 +209,36 @@
       "type": "text-to-video-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://www.minimax.io/platform/document",
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
         "inputs": {
-          "aspectRatio": {
+          "duration": {
+            "type": "integer",
+            "enum": [
+              6,
+              10
+            ]
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "768P",
+              "1080P"
+            ]
+          },
+          "prompt_optimizer": {
+            "type": "boolean"
+          },
+          "fast_pretreatment": {
+            "type": "boolean"
+          },
+          "first_frame_image": {
             "type": "string"
           },
-          "duration": {
-            "type": "number",
-            "minimum": 1
+          "last_frame_image": {
+            "type": "string"
           },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
+          "callback_url": {
             "type": "string"
           }
         }
@@ -154,17 +250,26 @@
       "type": "text-to-audio-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://www.minimax.io/platform/document",
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
         "inputs": {
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "outputFormat": {
+          "lyrics": {
             "type": "string"
+          },
+          "is_instrumental": {
+            "type": "boolean"
+          },
+          "lyrics_optimizer": {
+            "type": "boolean"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "output_format": {
+            "type": "string"
+          },
+          "audio_setting": {
+            "type": "object"
           }
         }
       }
@@ -175,16 +280,16 @@
       "type": "text-to-audio-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://www.minimax.io/platform/document",
+        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationStatus": "verified",
         "inputs": {
-          "duration": {
-            "type": "number",
-            "minimum": 1
+          "reference_audio": {
+            "type": "string"
           },
-          "seed": {
-            "type": "integer"
+          "lyrics": {
+            "type": "string"
           },
-          "outputFormat": {
+          "output_format": {
             "type": "string"
           }
         }
