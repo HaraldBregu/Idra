@@ -30,6 +30,13 @@
           "enable_thinking": {
             "type": "boolean"
           },
+          "thinking_budget": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "preserve_thinking": {
+            "type": "boolean"
+          },
           "tools": {
             "type": "array"
           },
@@ -69,6 +76,13 @@
           "enable_thinking": {
             "type": "boolean"
           },
+          "thinking_budget": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "preserve_thinking": {
+            "type": "boolean"
+          },
           "tools": {
             "type": "array"
           },
@@ -106,6 +120,13 @@
             "type": "array"
           },
           "enable_thinking": {
+            "type": "boolean"
+          },
+          "thinking_budget": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "preserve_thinking": {
             "type": "boolean"
           },
           "tools": {
@@ -296,4 +317,3 @@
     }
   ]
 }
-
