@@ -1,14 +1,30 @@
 {
-	"providerId": "nomic",
-	"providerName": "Nomic",
-	"apiKeyUrl": "https://atlas.nomic.ai",
-	"images_url": "/images",
-	"services": [
-		{
-			"id": "nomic-embed-text-v2-moe",
-			"name": "Nomic Embed v2",
-			"type": "embedding-model",
-			"url": "https://api-atlas.nomic.ai/v1"
-		}
-	]
+  "providerId": "nomic",
+  "providerName": "Nomic",
+  "apiKeyUrl": "https://atlas.nomic.ai",
+  "images_url": "/images",
+  "services": [
+    {
+      "id": "nomic-embed-text-v2-moe",
+      "name": "Nomic Embed v2",
+      "type": "embedding-model",
+      "url": "https://api-atlas.nomic.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://docs.nomic.ai/atlas/capabilities/embeddings",
+        "inputs": {
+          "dimensions": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "inputType": {
+            "type": "string"
+          },
+          "truncate": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  ]
 }
+
