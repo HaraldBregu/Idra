@@ -48,6 +48,28 @@ const ExtensionsPage: React.FC = () => {
 		void loadExtensions();
 	}, [loadExtensions]);
 
+	const handleImport = useCallback(async (): Promise<void> => {
+		setImporting(true);
+		setErrorMessage('');
+		setSuccessMessage('');
+		try {
+			const result = await window.extensions.import();
+			if (result) {
+				setSuccessMessage(
+					t('settings.extensions.uploaded', {
+						count: String(result.imported.length),
+						skipped: String(result.skipped.length),
+					})
+				);
+				await loadExtensions();
+			}
+		} catch (error) {
+			setErrorMessage(getErrorMessage(error, t('settings.extensions.uploadError')));
+		} finally {
+			setImporting(false);
+		}
+	}, [loadExtensions, t]);
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
