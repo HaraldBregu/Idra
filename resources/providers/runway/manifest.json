@@ -12,24 +12,36 @@
       "type": "text-to-video-model",
       "url": "https://api.dev.runwayml.com/v1",
       "metadata": {
-        "documentationUrl": "https://docs.dev.runwayml.com/",
+        "documentationUrl": "https://docs.dev.runwayml.com/api/",
+        "documentationStatus": "verified",
         "inputs": {
+          "promptImage": {
+            "type": "string",
+            "required": true
+          },
+          "promptText": {
+            "type": "string",
+            "required": true
+          },
           "ratio": {
             "type": "string",
             "enum": [
               "1280:720",
               "720:1280",
               "1104:832",
-              "832:1104"
+              "832:1104",
+              "960:960",
+              "1584:672"
             ]
           },
           "duration": {
-            "type": "integer",
-            "minimum": 2,
-            "maximum": 10
+            "type": "integer"
           },
           "seed": {
             "type": "integer"
+          },
+          "contentModeration": {
+            "type": "object"
           }
         }
       }
@@ -40,21 +52,22 @@
       "type": "text-to-video-model",
       "url": "https://api.dev.runwayml.com/v1",
       "metadata": {
-        "documentationUrl": "https://docs.dev.runwayml.com/",
+        "documentationUrl": "https://docs.dev.runwayml.com/api/",
+        "documentationStatus": "verified",
         "inputs": {
-          "ratio": {
+          "promptImage": {
             "type": "string",
-            "enum": [
-              "1280:720",
-              "720:1280",
-              "1104:832",
-              "832:1104"
-            ]
+            "required": true
+          },
+          "promptText": {
+            "type": "string",
+            "required": true
+          },
+          "ratio": {
+            "type": "string"
           },
           "duration": {
-            "type": "integer",
-            "minimum": 2,
-            "maximum": 10
+            "type": "integer"
           },
           "seed": {
             "type": "integer"
