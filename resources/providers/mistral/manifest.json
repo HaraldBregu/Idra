@@ -1,55 +1,161 @@
 {
-	"providerId": "mistral",
-	"providerName": "Mistral AI",
-	"apiKeyUrl": "https://console.mistral.ai/api-keys",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/mistral-color.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/mistral-color.png",
-	"services": [
-		{
-			"id": "mistral-large-2512",
-			"name": "Mistral Large 2512",
-			"type": "large-language-model",
-			"url": "https://api.mistral.ai/v1"
-		},
-		{
-			"id": "mistral-medium-3-5",
-			"name": "Mistral Medium 3.5",
-			"type": "large-language-model",
-			"url": "https://api.mistral.ai/v1"
-		},
-		{
-			"id": "devstral-2512",
-			"name": "Devstral 2512",
-			"type": "large-language-model",
-			"url": "https://api.mistral.ai/v1"
-		},
-		{
-			"id": "voxtral-mini-latest",
-			"name": "Voxtral Mini 2602",
-			"apiTypes": [
-				"batch"
-			],
-			"type": "speech-to-text-model",
-			"url": "https://api.mistral.ai/v1",
-			"sampleRate": 16000
-		},
-		{
-			"id": "voxtral-mini-transcribe-realtime-2602",
-			"name": "Voxtral Mini Transcribe Realtime 2602",
-			"apiTypes": [
-				"stream"
-			],
-			"realtime": true,
-			"type": "speech-to-text-model",
-			"url": "https://api.mistral.ai/v1",
-			"sampleRate": 16000
-		},
-		{
-			"id": "voxtral-mini-tts-2603",
-			"name": "Voxtral Mini TTS 2603",
-			"type": "text-to-speech-model",
-			"url": "https://api.mistral.ai/v1"
-		}
-	]
+  "providerId": "mistral",
+  "providerName": "Mistral AI",
+  "apiKeyUrl": "https://console.mistral.ai/api-keys",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/png_dark/mistral-color.png",
+  "icon_light_url": "/images/fallback_lobehub/png_light/mistral-color.png",
+  "services": [
+    {
+      "id": "mistral-large-2512",
+      "name": "Mistral Large 2512",
+      "type": "large-language-model",
+      "url": "https://api.mistral.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://docs.mistral.ai/api/",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "mistral-medium-3-5",
+      "name": "Mistral Medium 3.5",
+      "type": "large-language-model",
+      "url": "https://api.mistral.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://docs.mistral.ai/api/",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "devstral-2512",
+      "name": "Devstral 2512",
+      "type": "large-language-model",
+      "url": "https://api.mistral.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://docs.mistral.ai/api/",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "voxtral-mini-latest",
+      "name": "Voxtral Mini 2602",
+      "apiTypes": [
+        "batch"
+      ],
+      "type": "speech-to-text-model",
+      "url": "https://api.mistral.ai/v1",
+      "sampleRate": 16000,
+      "metadata": {
+        "documentationUrl": "https://docs.mistral.ai/api/",
+        "inputs": {
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "voxtral-mini-transcribe-realtime-2602",
+      "name": "Voxtral Mini Transcribe Realtime 2602",
+      "apiTypes": [
+        "stream"
+      ],
+      "realtime": true,
+      "type": "speech-to-text-model",
+      "url": "https://api.mistral.ai/v1",
+      "sampleRate": 16000,
+      "metadata": {
+        "documentationUrl": "https://docs.mistral.ai/api/",
+        "inputs": {
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "voxtral-mini-tts-2603",
+      "name": "Voxtral Mini TTS 2603",
+      "type": "text-to-speech-model",
+      "url": "https://api.mistral.ai/v1",
+      "metadata": {
+        "documentationUrl": "https://docs.mistral.ai/api/",
+        "inputs": {
+          "voice": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0.25,
+            "maximum": 4
+          },
+          "outputFormat": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
