@@ -27,6 +27,7 @@ import type {
 	SystemPreferencePaneId,
 	AppLanguage,
 	AppTheme,
+	AppThemeData,
 } from '../../shared/app_types';
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
 import { setKeepAwake as applyKeepAwake } from '../keep_awake';
@@ -417,6 +418,16 @@ export class AppIpc implements IpcModule {
 			wrapSimpleHandler(() => {
 				return getStoredTheme();
 			}, AppChannels.getTheme)
+		);
+
+		ipcMain.handle(
+			AppChannels.getThemeData,
+			wrapSimpleHandler((): AppThemeData => {
+				return {
+					themeMode: getStoredTheme(),
+					isDark: nativeTheme.shouldUseDarkColors,
+				};
+			}, AppChannels.getThemeData)
 		);
 
 		ipcMain.handle(
