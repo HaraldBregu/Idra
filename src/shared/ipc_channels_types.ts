@@ -264,6 +264,26 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: boolean;
 	};
+	[AppChannels.setLanguage]: {
+		args: [language: import('./app_types').AppLanguage];
+		result: void;
+	};
+	[AppChannels.getLanguage]: {
+		args: [];
+		result: import('./app_types').AppLanguage;
+	};
+	[AppChannels.setTheme]: {
+		args: [theme: import('./app_types').AppTheme];
+		result: void;
+	};
+	[AppChannels.getTheme]: {
+		args: [];
+		result: import('./app_types').AppTheme;
+	};
+	[AppChannels.getThemeData]: {
+		args: [];
+		result: import('./app_types').AppThemeData;
+	};
 	[AppChannels.getMicrophonePermission]: {
 		args: [];
 		result: import('./app_types').MicrophonePermissionSettings;
