@@ -1,14 +1,30 @@
 {
-	"providerId": "voyage",
-	"providerName": "Voyage AI",
-	"apiKeyUrl": "https://dashboard.voyageai.com",
-	"images_url": "/images",
-	"services": [
-		{
-			"id": "voyage-3-large",
-			"name": "Voyage 3 Large",
-			"type": "embedding-model",
-			"url": "https://api.voyageai.com/v1"
-		}
-	]
+  "providerId": "voyage",
+  "providerName": "Voyage AI",
+  "apiKeyUrl": "https://dashboard.voyageai.com",
+  "images_url": "/images",
+  "services": [
+    {
+      "id": "voyage-3-large",
+      "name": "Voyage 3 Large",
+      "type": "embedding-model",
+      "url": "https://api.voyageai.com/v1",
+      "metadata": {
+        "documentationUrl": "https://docs.voyageai.com",
+        "inputs": {
+          "dimensions": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "inputType": {
+            "type": "string"
+          },
+          "truncate": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  ]
 }
+
