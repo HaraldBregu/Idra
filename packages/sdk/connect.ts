@@ -22,13 +22,6 @@ export interface FridayClient {
 
 type Listener = (channel: string, data: unknown) => void;
 
-function uuid(): string {
-	return (
-		globalThis.crypto?.randomUUID?.() ??
-		`run-${Date.now()}-${Math.random().toString(36).slice(2)}`
-	);
-}
-
 export function connect(options: ConnectOptions): FridayClient {
 	const base = (options.url ?? 'http://127.0.0.1:8765').replace(/\/$/, '');
 	const call = options.fetch ?? globalThis.fetch;
