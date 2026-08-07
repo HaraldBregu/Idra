@@ -66,15 +66,8 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			const { createTelegramAdapter } = await import('./adapters/telegram');
 			return createTelegramAdapter({ token: credential.apiKey });
 		}
-		if (channel === 'discord') {
-			const { createDiscordAdapter } = await import('./adapters/discord');
-			return createDiscordAdapter({ token: credential.apiKey });
-		}
-		const { createSignalAdapter } = await import('./adapters/signal');
-		return createSignalAdapter({
-			accountId: credential.apiKey,
-			baseUrl: credential.baseUrl,
-		});
+		const { createDiscordAdapter } = await import('./adapters/discord');
+		return createDiscordAdapter({ token: credential.apiKey });
 	}
 
 	function handleStatus(channel: ChannelType, update: ChannelStatusUpdate): void {

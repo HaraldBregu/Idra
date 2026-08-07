@@ -28,4 +28,3 @@ export type {
 } from './channels_types';
 export type { TelegramAdapterOptions } from './adapters/telegram';
 export type { DiscordAdapterOptions } from './adapters/discord';
-export type { SignalAdapterOptions } from './adapters/signal';
