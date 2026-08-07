@@ -258,6 +258,7 @@ export const VideoChannels = {
 export const ExtensionChannels = {
 	list: 'extensions:list',
 	open: 'extensions:open',
+	import: 'extensions:import',
 } as const;
 
 export const WindowChannels = {
