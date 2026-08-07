@@ -16,6 +16,12 @@ describe('provider manifests', () => {
 		const openAi = loadModels().find(
 			(model) => model.provider.id === 'openai' && model.id === 'gpt-5.6-sol'
 		);
+		expect(openAi?.metadata).toEqual(
+			expect.objectContaining({
+				documentationUrl: 'https://platform.openai.com/docs/api-reference',
+				inputs: expect.objectContaining({ effort: expect.any(Object) }),
+			})
+		);
 		expect(openAi?.provider.iconDarkUrl).toMatch(/^local-resource:\/\/file/);
 		expect(openAi?.provider.iconDarkUrl).toContain(
 			'/resources/providers/openai/images/fallback_lobehub/png_dark/openai.png'
