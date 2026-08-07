@@ -1,81 +1,252 @@
 {
-	"providerId": "qwen",
-	"providerName": "Alibaba / Qwen / Wan",
-	"apiKeyUrl": "https://modelstudio.console.alibabacloud.com",
-	"images_url": "/images",
-	"icon_dark_url": "/images/fallback_lobehub/png_dark/qwen-color.png",
-	"icon_light_url": "/images/fallback_lobehub/png_light/qwen-color.png",
-	"services": [
-		{
-			"id": "qwen3.7-max",
-			"name": "Qwen3.7 Max",
-			"type": "large-language-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		},
-		{
-			"id": "qwen3.6-plus",
-			"name": "Qwen3.6 Plus",
-			"type": "large-language-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		},
-		{
-			"id": "qwen3.6-flash",
-			"name": "Qwen3.6 Flash",
-			"type": "large-language-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		},
-		{
-			"id": "qwen3-asr-flash-realtime",
-			"name": "Qwen3 ASR Flash Realtime",
-			"apiTypes": [
-				"stream"
-			],
-			"realtime": true,
-			"type": "speech-to-text-model",
-			"url": "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",
-			"sampleRate": 16000
-		},
-		{
-			"id": "qwen-omni-realtime",
-			"name": "Qwen Omni Realtime",
-			"type": "realtime-voice-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		},
-		{
-			"id": "qwen3.5-omni",
-			"name": "Qwen3.5 Omni",
-			"type": "realtime-voice-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		},
-		{
-			"id": "qwen3-omni-flash",
-			"name": "Qwen3 Omni Flash",
-			"type": "realtime-voice-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		},
-		{
-			"id": "qwen-image",
-			"name": "Qwen Image",
-			"type": "text-to-image-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		},
-		{
-			"id": "qwen-image-edit",
-			"name": "Qwen Image Edit",
-			"type": "text-to-image-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		},
-		{
-			"id": "wan2.5-t2v",
-			"name": "Wan 2.5 T2V",
-			"type": "text-to-video-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		},
-		{
-			"id": "wan2.2-t2v-plus",
-			"name": "Wan 2.2 T2V Plus",
-			"type": "text-to-video-model",
-			"url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-		}
-	]
+  "providerId": "qwen",
+  "providerName": "Alibaba / Qwen / Wan",
+  "apiKeyUrl": "https://modelstudio.console.alibabacloud.com",
+  "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/png_dark/qwen-color.png",
+  "icon_light_url": "/images/fallback_lobehub/png_light/qwen-color.png",
+  "services": [
+    {
+      "id": "qwen3.7-max",
+      "name": "Qwen3.7 Max",
+      "type": "large-language-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "qwen3.6-plus",
+      "name": "Qwen3.6 Plus",
+      "type": "large-language-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "qwen3.6-flash",
+      "name": "Qwen3.6 Flash",
+      "type": "large-language-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxTokens": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "qwen3-asr-flash-realtime",
+      "name": "Qwen3 ASR Flash Realtime",
+      "apiTypes": [
+        "stream"
+      ],
+      "realtime": true,
+      "type": "speech-to-text-model",
+      "url": "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",
+      "sampleRate": 16000,
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "qwen-omni-realtime",
+      "name": "Qwen Omni Realtime",
+      "type": "realtime-voice-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "voice": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-omni",
+      "name": "Qwen3.5 Omni",
+      "type": "realtime-voice-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "voice": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "qwen3-omni-flash",
+      "name": "Qwen3 Omni Flash",
+      "type": "realtime-voice-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "voice": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "qwen-image",
+      "name": "Qwen Image",
+      "type": "text-to-image-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "aspectRatio": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "negativePrompt": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "qwen-image-edit",
+      "name": "Qwen Image Edit",
+      "type": "text-to-image-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "aspectRatio": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "negativePrompt": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "wan2.5-t2v",
+      "name": "Wan 2.5 T2V",
+      "type": "text-to-video-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "aspectRatio": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "minimum": 1
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "negativePrompt": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "wan2.2-t2v-plus",
+      "name": "Wan 2.2 T2V Plus",
+      "type": "text-to-video-model",
+      "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "metadata": {
+        "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/",
+        "inputs": {
+          "aspectRatio": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "minimum": 1
+          },
+          "seed": {
+            "type": "integer"
+          },
+          "negativePrompt": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
 }
+
