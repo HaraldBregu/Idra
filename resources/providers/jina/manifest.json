@@ -10,17 +10,21 @@
       "type": "embedding-model",
       "url": "https://api.jina.ai/v1",
       "metadata": {
-        "documentationUrl": "https://jina.ai/embeddings/",
+        "documentationUrl": "https://jina.ai/en-US/embeddings/",
+        "documentationStatus": "verified",
         "inputs": {
+          "task": {
+            "type": "string"
+          },
           "dimensions": {
             "type": "integer",
-            "minimum": 1
-          },
-          "inputType": {
-            "type": "string"
+            "minimum": 32
           },
           "truncate": {
             "type": "boolean"
+          },
+          "embedding_type": {
+            "type": "string"
           }
         }
       }
