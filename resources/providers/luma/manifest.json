@@ -13,14 +13,8 @@
       "url": "https://api.lumalabs.ai/dream-machine/v1",
       "metadata": {
         "documentationUrl": "https://docs.lumalabs.ai",
-        "inputs": {
-          "voice": {
-            "type": "string"
-          },
-          "language": {
-            "type": "string"
-          }
-        }
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -30,17 +24,8 @@
       "url": "https://api.lumalabs.ai/dream-machine/v1",
       "metadata": {
         "documentationUrl": "https://docs.lumalabs.ai",
-        "inputs": {
-          "aspectRatio": {
-            "type": "string"
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
-          }
-        }
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -50,21 +35,8 @@
       "url": "https://api.lumalabs.ai/dream-machine/v1",
       "metadata": {
         "documentationUrl": "https://docs.lumalabs.ai",
-        "inputs": {
-          "aspectRatio": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
-          }
-        }
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     },
     {
@@ -74,21 +46,8 @@
       "url": "https://api.lumalabs.ai/dream-machine/v1",
       "metadata": {
         "documentationUrl": "https://docs.lumalabs.ai",
-        "inputs": {
-          "aspectRatio": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "number",
-            "minimum": 1
-          },
-          "seed": {
-            "type": "integer"
-          },
-          "negativePrompt": {
-            "type": "string"
-          }
-        }
+        "documentationStatus": "unverified",
+        "inputs": {}
       }
     }
   ]
