@@ -60,7 +60,7 @@ export class WindowFactory {
 	}
 
 	private secureNavigation(webContents: WebContents, fileRoot?: string): void {
-		webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+		if (fileRoot) webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 		webContents.on('will-navigate', (event, url) => {
 			const target = new URL(url);
 			if (target.protocol === 'file:') {
