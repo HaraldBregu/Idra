@@ -74,6 +74,19 @@ export class SqliteVectorStore implements VectorStore {
 			CREATE INDEX IF NOT EXISTS rag_chunks_source
 				ON rag_chunks (index_name, generation, source_id, source_fingerprint);
 		`);
+		const columns = new Set(
+			(
+				this.database.prepare('PRAGMA table_info(rag_chunks)').all() as unknown as Array<{
+					name: string;
+				}>
+			).map((column) => column.name)
+		);
+		if (!columns.has('line_start')) {
+			this.database.exec('ALTER TABLE rag_chunks ADD COLUMN line_start INTEGER NOT NULL DEFAULT 1');
+		}
+		if (!columns.has('line_end')) {
+			this.database.exec('ALTER TABLE rag_chunks ADD COLUMN line_end INTEGER NOT NULL DEFAULT 1');
+		}
 		this.getIndexStatement = this.database.prepare(`
 			SELECT index_name, active_generation, provider_id, model_id, dimensions, completed_at
 			FROM rag_indexes WHERE index_name = ?

@@ -9,6 +9,9 @@ jest.mock('react-i18next', () => {
 		'settings.rag.behaviorTitle': 'Knowledge Base behavior',
 		'settings.rag.enabled': 'Enable Knowledge Base',
 		'settings.rag.enabledDescription': 'Allow document indexing and assistant search.',
+		'settings.rag.embeddingConsent': 'Send document text for embeddings',
+		'settings.rag.embeddingConsentDescription':
+			'Allow Friday to send document chunks to the selected embedding provider.',
 		'settings.rag.embeddingModelTitle': 'Embedding model',
 		'settings.rag.embeddingModelDescription':
 			'Model used to embed RAG documents for vector search.',
