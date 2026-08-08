@@ -20,8 +20,8 @@ beforeEach(() => {
 	ragClient.mockReturnValue({ index });
 	readRagManifest.mockReturnValue({
 		indexName: 'knowledge-base',
-		activeNamespace: 'friday-build-one',
-		artifactFile: 'embeddings-friday-build-one.json',
+		activeNamespace: 'friday-a1b2c3d4',
+		artifactFile: 'embeddings-friday-a1b2c3d4.json',
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,
@@ -29,7 +29,7 @@ beforeEach(() => {
 	});
 	readRagArtifact.mockReturnValue({
 		indexName: 'knowledge-base',
-		activeNamespace: 'friday-build-one',
+		activeNamespace: 'friday-a1b2c3d4',
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,
@@ -53,7 +53,7 @@ it('queries the active namespace and joins opaque matches to local text', async 
 	]);
 
 	expect(index).toHaveBeenCalledWith('knowledge-base');
-	expect(namespace).toHaveBeenCalledWith('friday-build-one');
+	expect(namespace).toHaveBeenCalledWith('friday-a1b2c3d4');
 	expect(query).toHaveBeenCalledWith({
 		vector: [0.1, 0.2],
 		topK: 5,

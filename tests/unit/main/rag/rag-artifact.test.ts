@@ -12,7 +12,7 @@ import { readRagArtifact } from '../../../../src/main/rag/rag_artifact';
 it('reads a Friday-owned versioned artifact from the local RAG directory', () => {
 	const artifact = {
 		indexName: 'knowledge-base',
-		activeNamespace: 'friday-build-one',
+		activeNamespace: 'friday-a1b2c3d4',
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,
@@ -20,14 +20,14 @@ it('reads a Friday-owned versioned artifact from the local RAG directory', () =>
 	};
 	readFileSync.mockReturnValue(JSON.stringify(artifact));
 
-	expect(readRagArtifact('embeddings-friday-build-one.json')).toEqual(artifact);
+	expect(readRagArtifact('embeddings-friday-a1b2c3d4.json')).toEqual(artifact);
 	expect(readFileSync).toHaveBeenCalledWith(
-		path.join('/user/data/rag', 'embeddings-friday-build-one.json'),
+		path.join('/user/data/rag', 'embeddings-friday-a1b2c3d4.json'),
 		'utf8'
 	);
 });
 
 it('rejects artifact paths outside the local RAG directory', () => {
-	expect(readRagArtifact('../embeddings-friday-build-one.json')).toBeUndefined();
+	expect(readRagArtifact('../embeddings-friday-a1b2c3d4.json')).toBeUndefined();
 	expect(readFileSync).not.toHaveBeenCalled();
 });

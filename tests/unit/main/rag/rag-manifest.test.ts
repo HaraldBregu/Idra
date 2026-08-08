@@ -15,8 +15,8 @@ import { readRagManifest, writeRagManifest } from '../../../../src/main/rag/rag_
 
 const manifest = {
 	indexName: 'friday',
-	activeNamespace: 'friday-build-one',
-	artifactFile: 'embeddings-friday-build-one.json',
+	activeNamespace: 'friday-a1b2c3d4',
+	artifactFile: 'embeddings-friday-a1b2c3d4.json',
 	providerId: 'openai',
 	modelId: 'text-embedding-3-small',
 	dimensions: 1536,
