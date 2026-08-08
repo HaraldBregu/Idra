@@ -1,0 +1,244 @@
+import { mkdirSync } from 'node:fs';
+import path from 'node:path';
+import { DatabaseSync, type StatementSync } from 'node:sqlite';
+import type {
+	VectorIndex,
+	VectorMatch,
+	VectorPublication,
+	VectorRecord,
+	VectorStore,
+} from './vector_store';
+
+interface IndexRow {
+	index_name: string;
+	active_generation: string;
+	provider_id: string;
+	model_id: string;
+	dimensions: number;
+	completed_at: string;
+}
+
+interface RecordRow {
+	id: string;
+	source_id: string;
+	source_fingerprint: string;
+	path: string;
+	chunk_index: number;
+	text: string;
+	checksum: string;
+	indexed_at: string;
+	vector: Uint8Array;
+}
+
+export class SqliteVectorStore implements VectorStore {
+	private readonly database: DatabaseSync;
+	private readonly getIndexStatement: StatementSync;
+	private readonly reusableSourceStatement: StatementSync;
+	private readonly activeRecordsStatement: StatementSync;
+	private readonly insertRecordStatement: StatementSync;
+	private readonly publishIndexStatement: StatementSync;
+	private readonly deleteOldRecordsStatement: StatementSync;
+
+	constructor(file: string) {
+		if (file !== ':memory:') mkdirSync(path.dirname(file), { recursive: true });
+		this.database = new DatabaseSync(file);
+		this.database.exec(`
+			PRAGMA journal_mode = WAL;
+			PRAGMA foreign_keys = ON;
+			CREATE TABLE IF NOT EXISTS rag_indexes (
+				index_name TEXT PRIMARY KEY,
+				active_generation TEXT NOT NULL,
+				provider_id TEXT NOT NULL,
+				model_id TEXT NOT NULL,
+				dimensions INTEGER NOT NULL CHECK (dimensions > 0),
+				completed_at TEXT NOT NULL
+			) STRICT;
+			CREATE TABLE IF NOT EXISTS rag_chunks (
+				index_name TEXT NOT NULL,
+				generation TEXT NOT NULL,
+				id TEXT NOT NULL,
+				source_id TEXT NOT NULL,
+				source_fingerprint TEXT NOT NULL,
+				path TEXT NOT NULL,
+				chunk_index INTEGER NOT NULL,
+				text TEXT NOT NULL,
+				checksum TEXT NOT NULL,
+				indexed_at TEXT NOT NULL,
+				vector BLOB NOT NULL,
+				PRIMARY KEY (index_name, generation, id)
+			) STRICT;
+			CREATE INDEX IF NOT EXISTS rag_chunks_source
+				ON rag_chunks (index_name, generation, source_id, source_fingerprint);
+		`);
+		this.getIndexStatement = this.database.prepare(`
+			SELECT index_name, active_generation, provider_id, model_id, dimensions, completed_at
+			FROM rag_indexes WHERE index_name = ?
+		`);
+		this.reusableSourceStatement = this.database.prepare(`
+			SELECT c.id, c.source_id, c.source_fingerprint, c.path, c.chunk_index, c.text,
+				c.checksum, c.indexed_at, c.vector
+			FROM rag_chunks c
+			JOIN rag_indexes i
+				ON i.index_name = c.index_name AND i.active_generation = c.generation
+			WHERE c.index_name = ? AND c.source_id = ? AND c.source_fingerprint = ?
+				AND i.provider_id = ? AND i.model_id = ?
+			ORDER BY c.chunk_index
+		`);
+		this.activeRecordsStatement = this.database.prepare(`
+			SELECT c.id, c.source_id, c.source_fingerprint, c.path, c.chunk_index, c.text,
+				c.checksum, c.indexed_at, c.vector
+			FROM rag_chunks c
+			JOIN rag_indexes i
+				ON i.index_name = c.index_name AND i.active_generation = c.generation
+			WHERE c.index_name = ?
+		`);
+		this.insertRecordStatement = this.database.prepare(`
+			INSERT INTO rag_chunks (
+				index_name, generation, id, source_id, source_fingerprint, path, chunk_index,
+				text, checksum, indexed_at, vector
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		`);
+		this.publishIndexStatement = this.database.prepare(`
+			INSERT INTO rag_indexes (
+				index_name, active_generation, provider_id, model_id, dimensions, completed_at
+			) VALUES (?, ?, ?, ?, ?, ?)
+			ON CONFLICT(index_name) DO UPDATE SET
+				active_generation = excluded.active_generation,
+				provider_id = excluded.provider_id,
+				model_id = excluded.model_id,
+				dimensions = excluded.dimensions,
+				completed_at = excluded.completed_at
+		`);
+		this.deleteOldRecordsStatement = this.database.prepare(
+			'DELETE FROM rag_chunks WHERE index_name = ? AND generation <> ?'
+		);
+	}
+
+	getIndex(indexName: string): VectorIndex | undefined {
+		const row = this.getIndexStatement.get(indexName) as unknown as IndexRow | undefined;
+		return row ? mapIndex(row) : undefined;
+	}
+
+	getReusableSource(
+		indexName: string,
+		sourceId: string,
+		sourceFingerprint: string,
+		providerId: string,
+		modelId: string
+	): VectorRecord[] | undefined {
+		const rows = this.reusableSourceStatement.all(
+			indexName,
+			sourceId,
+			sourceFingerprint,
+			providerId,
+			modelId
+		) as unknown as RecordRow[];
+		return rows.length > 0 ? rows.map(mapRecord) : undefined;
+	}
+
+	publish(publication: VectorPublication): void {
+		if (publication.records.length === 0) throw new Error('Cannot publish an empty vector index.');
+		for (const record of publication.records) {
+			if (record.vector.length !== publication.dimensions) {
+				throw new Error(`Vector dimensions do not match for chunk: ${record.id}`);
+			}
+		}
+
+		this.database.exec('BEGIN IMMEDIATE');
+		try {
+			for (const record of publication.records) {
+				this.insertRecordStatement.run(
+					publication.indexName,
+					publication.generation,
+					record.id,
+					record.sourceId,
+					record.sourceFingerprint,
+					record.path,
+					record.chunkIndex,
+					record.text,
+					record.checksum,
+					record.indexedAt,
+					encodeVector(record.vector)
+				);
+			}
+			this.publishIndexStatement.run(
+				publication.indexName,
+				publication.generation,
+				publication.providerId,
+				publication.modelId,
+				publication.dimensions,
+				publication.completedAt
+			);
+			this.deleteOldRecordsStatement.run(publication.indexName, publication.generation);
+			this.database.exec('COMMIT');
+		} catch (error) {
+			this.database.exec('ROLLBACK');
+			throw error;
+		}
+	}
+
+	search(indexName: string, vector: readonly number[], topK: number): VectorMatch[] {
+		const index = this.getIndex(indexName);
+		if (!index) return [];
+		if (vector.length !== index.dimensions) throw new Error('Query vector dimensions do not match.');
+		const count = Math.max(1, Math.min(Math.trunc(topK), 100));
+		const rows = this.activeRecordsStatement.all(indexName) as unknown as RecordRow[];
+		return rows
+			.map((row) => {
+				const record = mapRecord(row);
+				return { ...record, score: cosine(vector, record.vector) };
+			})
+			.sort((left, right) => right.score - left.score || left.id.localeCompare(right.id))
+			.slice(0, count);
+	}
+
+	close(): void {
+		this.database.close();
+	}
+}
+
+function mapIndex(row: IndexRow): VectorIndex {
+	return {
+		indexName: row.index_name,
+		generation: row.active_generation,
+		providerId: row.provider_id,
+		modelId: row.model_id,
+		dimensions: row.dimensions,
+		completedAt: row.completed_at,
+	};
+}
+
+function mapRecord(row: RecordRow): VectorRecord {
+	return {
+		id: row.id,
+		sourceId: row.source_id,
+		sourceFingerprint: row.source_fingerprint,
+		path: row.path,
+		chunkIndex: row.chunk_index,
+		text: row.text,
+		checksum: row.checksum,
+		indexedAt: row.indexed_at,
+		vector: decodeVector(row.vector),
+	};
+}
+
+function encodeVector(values: readonly number[]): Uint8Array {
+	return new Uint8Array(new Float32Array(values).buffer);
+}
+
+function decodeVector(value: Uint8Array): number[] {
+	const bytes = Buffer.from(value);
+	return [...new Float32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / Float32Array.BYTES_PER_ELEMENT)];
+}
+
+function cosine(left: readonly number[], right: readonly number[]): number {
+	let dot = 0;
+	let leftNorm = 0;
+	let rightNorm = 0;
+	for (let index = 0; index < left.length; index += 1) {
+		dot += left[index] * right[index];
+		leftNorm += left[index] * left[index];
+		rightNorm += right[index] * right[index];
+	}
+	return leftNorm === 0 || rightNorm === 0 ? 0 : dot / Math.sqrt(leftNorm * rightNorm);
+}

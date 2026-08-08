@@ -6,7 +6,7 @@ import { userDataLocation } from '../shared/user_data_location';
 export interface RagManifest {
 	indexName: string;
 	activeNamespace: string;
-	artifactFile: string;
+	artifactFile?: string;
 	providerId: string;
 	modelId: string;
 	dimensions: number;

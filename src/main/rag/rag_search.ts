@@ -1,53 +1,61 @@
-import { createEmbedding } from '../models/embedding';
 import { DEFAULT_RAG_INDEX_NAME } from '../../shared/rag_types';
-import { ragClient } from './rag_client';
-import { readRagArtifact } from './rag_artifact';
+import { SelectedEmbeddingProvider, type EmbeddingProvider } from './embedding';
 import { normalizeRagIndexName } from './rag_index_name';
-import { readRagManifest } from './rag_manifest';
+import { ragVectorStore } from './vector';
+import type { VectorStore } from './vector_store';
 
 export interface RagMatch {
+	sourceId: string;
+	chunkId: string;
 	path: string;
+	checksum: string;
+	indexedAt: string;
 	text: string;
 	score: number;
 }
 
-export async function searchRag(query: string, indexName: string, topK = 5): Promise<RagMatch[]> {
+export interface RagSearchDependencies {
+	embeddings?: EmbeddingProvider;
+	vectors?: VectorStore;
+}
+
+export async function searchRag(
+	query: string,
+	indexName: string,
+	topK = 5,
+	dependencies: RagSearchDependencies = {}
+): Promise<RagMatch[]> {
 	const selectedIndexName = normalizeRagIndexName(indexName);
-	const manifest = readRagManifest();
-	if (!manifest) throw new Error('Index the rag folder before searching.');
-	if ((manifest.indexName ?? DEFAULT_RAG_INDEX_NAME) !== selectedIndexName) {
-		throw new Error('Generate the selected RAG index before searching.');
-	}
-	if (!manifest.activeNamespace || !manifest.artifactFile) {
-		throw new Error('Generate the selected RAG index before searching.');
-	}
-	const artifact = readRagArtifact(manifest.artifactFile);
-	if (
-		!artifact ||
-		artifact.indexName !== selectedIndexName ||
-		artifact.activeNamespace !== manifest.activeNamespace
-	) {
-		throw new Error('The active RAG artifact is missing or does not match the published index.');
-	}
+	const vectorStore = dependencies.vectors ?? ragVectorStore();
+	const embeddingProvider = dependencies.embeddings ?? new SelectedEmbeddingProvider();
 
-	// Query with the model the index was built with, not whatever is selected now.
-	const { embeddings } = await createEmbedding({
-		texts: [query],
-		inputType: 'query',
-		providerId: manifest.providerId,
-		modelId: manifest.modelId,
-		requireRemote: true,
-	});
-	const result = await ragClient()
-		.index(selectedIndexName)
-		.namespace(manifest.activeNamespace)
-		.query({ vector: embeddings[0], topK, includeMetadata: false });
+	try {
+		const index = vectorStore.getIndex(selectedIndexName);
+		if (!index) throw new Error('Index the rag folder before searching.');
+		if ((index.indexName ?? DEFAULT_RAG_INDEX_NAME) !== selectedIndexName) {
+			throw new Error('Generate the selected RAG index before searching.');
+		}
 
-	const localRecords = new Map(artifact.records.map((record) => [record.id, record]));
-	return (result.matches ?? []).flatMap((match) => {
-		const record = localRecords.get(match.id);
-		return record
-			? [{ path: record.metadata.path, text: record.metadata.text, score: match.score ?? 0 }]
-			: [];
-	});
+		const embedded = await embeddingProvider.embed({
+			texts: [query],
+			inputType: 'query',
+			providerId: index.providerId,
+			modelId: index.modelId,
+		});
+		if (embedded.providerId !== index.providerId || embedded.modelId !== index.modelId) {
+			throw new Error('Embedding provider did not use the indexed provider and model.');
+		}
+
+		return vectorStore.search(selectedIndexName, embedded.embeddings[0], topK).map((match) => ({
+			sourceId: match.sourceId,
+			chunkId: match.id,
+			path: match.path,
+			checksum: match.checksum,
+			indexedAt: match.indexedAt,
+			text: match.text,
+			score: match.score,
+		}));
+	} finally {
+		if (!dependencies.vectors) vectorStore.close();
+	}
 }

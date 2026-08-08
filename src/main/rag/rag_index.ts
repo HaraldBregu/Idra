@@ -1,14 +1,15 @@
-import { randomUUID } from 'node:crypto';
-import { appendFile, mkdir, rename, rm, writeFile } from 'node:fs/promises';
+import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import type { Pinecone } from '@pinecone-database/pinecone';
-import { createEmbedding } from '../models/embedding';
 import { chunkText } from './rag_chunk';
 import { ragClient } from './rag_client';
+import { SelectedEmbeddingProvider, type EmbeddingProvider } from './embedding';
 import { normalizeRagIndexName } from './rag_index_name';
-import { ragLocation } from './rag_location';
 import { collectRagSources } from './source';
 import { writeRagManifest } from './rag_manifest';
+import { getRagConfiguration } from './rag_store';
+import { ragVectorStore } from './vector';
+import type { VectorRecord, VectorStore } from './vector_store';
 
 const BATCH_SIZE = 64;
 
@@ -17,87 +18,137 @@ export interface RagIndexResult {
 	vectors: number;
 }
 
+export interface RagIndexDependencies {
+	embeddings?: EmbeddingProvider;
+	vectors?: VectorStore;
+}
+
 export async function indexRag(
 	folders: readonly string[],
-	indexName: string
+	indexName: string,
+	dependencies: RagIndexDependencies = {}
 ): Promise<RagIndexResult> {
 	const selectedIndexName = normalizeRagIndexName(indexName);
 	const sources = [...new Set(folders.map((folder) => folder.trim()).filter(Boolean))];
 	if (sources.length === 0) throw new Error('Choose at least one source folder before indexing.');
 
-	const outputDirectory = ragLocation();
-	const activeNamespace = `friday-${randomUUID()}`;
-	const artifactFile = `embeddings-${activeNamespace}.json`;
-	const outputFile = path.join(outputDirectory, artifactFile);
-	const temporaryOutputFile = `${outputFile}.tmp`;
-	const pinecone = ragClient();
-	let index: ReturnType<Pinecone['index']> | undefined;
-	let embeddingIdentity:
-		| { providerId: string; modelId: string; dimensions: number }
-		| undefined;
-	let vectors = 0;
+	const configuration = getRagConfiguration();
+	const providerId = configuration.embeddingProviderId.trim();
+	const modelId = configuration.embeddingModelId.trim();
+	if (!providerId || !modelId) {
+		throw new Error('Select an embedding provider and model before indexing.');
+	}
+
+	const vectorStore = dependencies.vectors ?? ragVectorStore();
+	const embeddingProvider = dependencies.embeddings ?? new SelectedEmbeddingProvider();
+	const generation = `friday-${randomUUID()}`;
+	const records: VectorRecord[] = [];
+	let dimensions: number | undefined;
 	let indexedFiles = 0;
 
 	try {
-		for await (const { source, sourceIndex, file, content } of collectRagSources(sources)) {
+		for await (const { source, file, content } of collectRagSources(sources)) {
 			const chunks = chunkText(content);
-			if (chunks.length > 0) indexedFiles += 1;
+			if (chunks.length === 0) continue;
+			indexedFiles += 1;
+			const sourceId = createHash('sha256')
+				.update(path.resolve(source))
+				.update('\0')
+				.update(file)
+				.digest('hex');
+			const sourceFingerprint = createHash('sha256').update(content).digest('hex');
+			const reused = vectorStore.getReusableSource(
+				selectedIndexName,
+				sourceId,
+				sourceFingerprint,
+				providerId,
+				modelId
+			);
+			if (reused) {
+				dimensions ??= reused[0].vector.length;
+				records.push(...reused);
+				continue;
+			}
+
 			for (let start = 0; start < chunks.length; start += BATCH_SIZE) {
 				const batch = chunks.slice(start, start + BATCH_SIZE);
-				const embedded = await createEmbedding({
+				const embedded = await embeddingProvider.embed({
 					texts: batch,
 					inputType: 'document',
-					requireRemote: true,
+					providerId,
+					modelId,
 				});
-				if (!index) {
-					embeddingIdentity = {
-						providerId: embedded.providerId,
-						modelId: embedded.modelId,
-						dimensions: embedded.dimensions,
-					};
-					index = (
-						await ensureIndex(pinecone, selectedIndexName, embedded.dimensions)
-					).namespace(activeNamespace);
-					await mkdir(outputDirectory, { recursive: true });
-					const metadata = JSON.stringify({
-						indexName: selectedIndexName,
-						activeNamespace,
-						...embeddingIdentity,
-					});
-					await writeFile(temporaryOutputFile, `${metadata.slice(0, -1)},"records":[`, 'utf8');
+				if (embedded.providerId !== providerId || embedded.modelId !== modelId) {
+					throw new Error('Embedding provider did not use the selected provider and model.');
 				}
-				const remoteRecords = batch.map((_text, offset) => ({
-					id: `${sourceIndex}:${file}#${start + offset}`,
-					values: embedded.embeddings[offset],
-				}));
-				const localRecords = batch.map((text, offset) => ({
-					...remoteRecords[offset],
-					metadata: { path: path.join(path.basename(source), file), text },
-				}));
-				await index.upsert({ records: remoteRecords });
-				await appendFile(
-					temporaryOutputFile,
-					`${vectors > 0 ? ',' : ''}${localRecords.map((record) => JSON.stringify(record)).join(',')}`,
-					'utf8'
-				);
-				vectors += batch.length;
+				dimensions ??= embedded.dimensions;
+				if (embedded.dimensions !== dimensions) {
+					throw new Error('Embedding dimensions changed while indexing.');
+				}
+				for (const [offset, text] of batch.entries()) {
+					const chunkIndex = start + offset;
+					records.push({
+						id: `${sourceId}#${chunkIndex}`,
+						sourceId,
+						sourceFingerprint,
+						path: path.join(path.basename(source), file),
+						chunkIndex,
+						text,
+						checksum: createHash('sha256').update(text).digest('hex'),
+						indexedAt: new Date().toISOString(),
+						vector: embedded.embeddings[offset],
+					});
+				}
 			}
 		}
-		if (!index || !embeddingIdentity) {
+
+		if (!dimensions || records.length === 0) {
 			throw new Error('No indexable text content found in the selected source folders.');
 		}
-		await appendFile(temporaryOutputFile, ']}\n', 'utf8');
-		await rename(temporaryOutputFile, outputFile);
+
+		if (configuration.databaseProviderId === 'pinecone') {
+			await mirrorToPinecone(selectedIndexName, generation, dimensions, records);
+		}
+
+		const completedAt = new Date().toISOString();
+		vectorStore.publish({
+			indexName: selectedIndexName,
+			generation,
+			providerId,
+			modelId,
+			dimensions,
+			completedAt,
+			records,
+		});
 		writeRagManifest({
 			indexName: selectedIndexName,
-			activeNamespace,
-			artifactFile,
-			...embeddingIdentity,
-			completedAt: new Date().toISOString(),
+			activeNamespace: generation,
+			providerId,
+			modelId,
+			dimensions,
+			completedAt,
 		});
-		return { files: indexedFiles, vectors };
+		return { files: indexedFiles, vectors: records.length };
 	} finally {
-		await rm(temporaryOutputFile, { force: true }).catch(() => undefined);
+		if (!dependencies.vectors) vectorStore.close();
+	}
+}
+
+async function mirrorToPinecone(
+	indexName: string,
+	generation: string,
+	dimensions: number,
+	records: readonly VectorRecord[]
+): Promise<void> {
+	const pinecone = ragClient();
+	const index = (await ensureIndex(pinecone, indexName, dimensions)).namespace(generation);
+	for (let start = 0; start < records.length; start += BATCH_SIZE) {
+		await index.upsert({
+			records: records.slice(start, start + BATCH_SIZE).map((record) => ({
+				id: record.id,
+				values: record.vector,
+			})),
+		});
 	}
 }
 
