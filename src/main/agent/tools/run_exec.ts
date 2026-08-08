@@ -159,7 +159,6 @@ async function runExec(
 			child.once('spawn', () => {
 				if (settled || abortSignal?.aborted) return;
 				settled = true;
-				cleanup();
 				child.unref();
 				resolve({
 					command,
@@ -205,6 +204,7 @@ async function runExec(
 	return await new Promise<ExecResult>((resolve, reject) => {
 		let settled = false;
 		let aborted = false;
+		let ownedSessionId: string | undefined;
 		let timeoutTimer: NodeJS.Timeout | undefined;
 		const yieldTimer = setTimeout(() => {
 			if (settled || aborted) return;
@@ -212,6 +212,7 @@ async function runExec(
 			abortSignal?.removeEventListener('abort', abort);
 
 			const sessionId = randomUUID();
+			ownedSessionId = sessionId;
 			const session = registry.register({
 				id: sessionId,
 				pid: child.pid,
@@ -257,6 +258,7 @@ async function runExec(
 		const abort = (): void => {
 			aborted = true;
 			child.kill('SIGTERM');
+			if (ownedSessionId) registry.remove(ownedSessionId);
 		};
 		abortSignal?.addEventListener('abort', abort, { once: true });
 		if (abortSignal?.aborted) abort();

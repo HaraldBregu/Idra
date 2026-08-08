@@ -79,6 +79,37 @@ it('kills a background exec cancelled before its spawn acknowledgement', async (
 	expect(child.kill).toHaveBeenCalledWith('SIGTERM');
 });
 
+it('keeps background exec ownership until the parent run is cancelled', async () => {
+	const child = childProcess();
+	spawn.mockReturnValue(child);
+	const controller = new AbortController();
+	const result = execTool.run(
+		{ command: 'background command', workdir: '/tmp', background: true },
+		controller.signal
+	);
+	child.emit('spawn');
+	await expect(result).resolves.toMatchObject({ background: true, pid: child.pid });
+	controller.abort(new Error('cancel owning run'));
+
+	expect(child.kill).toHaveBeenCalledWith('SIGTERM');
+});
+
+it('kills and removes a yielded exec session when its parent run is cancelled', async () => {
+	const child = childProcess();
+	spawn.mockReturnValue(child);
+	const controller = new AbortController();
+	const result = await execTool.run(
+		{ command: 'yielded command', workdir: '/tmp', yieldMs: 0 },
+		controller.signal
+	);
+	const sessionId = (result as { sessionId: string }).sessionId;
+	expect(registry.get(sessionId)).toBeDefined();
+	controller.abort(new Error('cancel owning run'));
+
+	expect(child.kill).toHaveBeenCalledWith('SIGTERM');
+	expect(registry.get(sessionId)).toBeUndefined();
+});
+
 it('cancels a process poll without killing or removing its existing session', async () => {
 	const child = childProcess();
 	const session: ProcessSession = {

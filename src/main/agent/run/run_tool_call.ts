@@ -148,8 +148,15 @@ export async function* runToolCall(
 		} else {
 			try {
 				if (signal?.aborted) throw signal.reason;
-				const timeoutSignal = AbortSignal.timeout(tool.timeoutMs);
-				const toolSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
+				const timeoutController = new AbortController();
+				const timeoutTimer = setTimeout(
+					() => timeoutController.abort(new DOMException('Tool call timed out.', 'TimeoutError')),
+					tool.timeoutMs
+				);
+				timeoutTimer.unref?.();
+				const toolSignal = signal
+					? AbortSignal.any([signal, timeoutController.signal])
+					: timeoutController.signal;
 				let abort: ((reason?: unknown) => void) | undefined;
 				const aborted = new Promise<never>((_, reject) => {
 					abort = () => reject(toolSignal.reason ?? new Error('Tool call aborted.'));
@@ -164,6 +171,7 @@ export async function* runToolCall(
 					if (toolCall.name === 'read' && state) rememberTool(context, state);
 					if (createsFile && state) rememberTool(context, state);
 				} finally {
+					clearTimeout(timeoutTimer);
 					if (abort) toolSignal.removeEventListener('abort', abort);
 				}
 			} catch (error) {
