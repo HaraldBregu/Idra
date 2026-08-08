@@ -93,12 +93,13 @@ const ExtensionsPage: React.FC = () => {
 					<div className="flex flex-wrap items-center gap-2">
 						<Button
 							variant="outline"
-							size="xs"
+							size="icon-xs"
 							onClick={() => void handleOpenFolder()}
 							disabled={loading || importing}
+							aria-label={t('settings.extensions.openFolder')}
+							title={t('settings.extensions.openFolder')}
 						>
 							<FolderOpen className="size-3" />
-							{t('settings.extensions.openFolder')}
 						</Button>
 						<Button
 							variant="outline"
