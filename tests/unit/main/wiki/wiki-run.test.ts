@@ -185,4 +185,42 @@ describe('runWiki', () => {
 			status: 'rolled_back',
 		});
 	});
+
+	it('propagates an external agent cancellation into the active model request', async () => {
+		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-agent-cancel-'));
+		const sourcePath = path.join(root, 'raw');
+		const targetPath = path.join(root, 'data');
+		await import('node:fs/promises').then(({ mkdir }) => mkdir(sourcePath, { recursive: true }));
+		await writeFile(path.join(sourcePath, 'slow.md'), 'Slow source', 'utf8');
+		wikiSettingsStore.store = {
+			enabled: true,
+			providerId: 'openai',
+			modelId: 'gpt-5',
+			sourcePath,
+			targetPath,
+			schedule: { enabled: false, cronExpression: '0 3 * * *' },
+		} as never;
+		let receivedSignal: AbortSignal | undefined;
+		let generationStarted: (() => void) | undefined;
+		const started = new Promise<void>((resolve) => {
+			generationStarted = resolve;
+		});
+		generateWikiUpdate.mockImplementation(
+			async (_settings, _source, _context, signal: AbortSignal) =>
+				new Promise((_resolve, reject) => {
+					receivedSignal = signal;
+					generationStarted?.();
+					signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+				})
+		);
+		const controller = new AbortController();
+		const run = runWiki(undefined, controller.signal);
+		await started;
+		const reason = new Error('agent run cancelled');
+		controller.abort(reason);
+
+		await expect(run).rejects.toBe(reason);
+		expect(receivedSignal?.aborted).toBe(true);
+		expect(wikiRuntime.run).toBeUndefined();
+	});
 });

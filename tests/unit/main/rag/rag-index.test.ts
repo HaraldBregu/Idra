@@ -171,6 +171,35 @@ it('does not publish locally when the optional Pinecone mirror fails', async () 
 	expect(writeRagManifest).not.toHaveBeenCalled();
 });
 
+it('does not publish an index when its embedding run is cancelled', async () => {
+	getRagConfiguration.mockReturnValue({
+		embeddingProviderId: 'openai',
+		embeddingModelId: 'text-embedding-3-small',
+		embeddingConsent: { providerId: 'openai', modelId: 'text-embedding-3-small' },
+		databaseProviderId: '',
+	});
+	const controller = new AbortController();
+	const reason = new Error('cancel indexing');
+	embed.mockImplementationOnce(
+		(_input, signal: AbortSignal) =>
+			new Promise((_resolve, reject) => {
+				signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+			})
+	);
+	const result = indexRag(['/documents'], 'knowledge-base', {
+		embeddings,
+		vectors,
+		signal: controller.signal,
+	});
+	await Promise.resolve();
+	controller.abort(reason);
+
+	await expect(result).rejects.toBe(reason);
+	expect(embed.mock.calls[0][1]).toBe(controller.signal);
+	expect(publish).not.toHaveBeenCalled();
+	expect(writeRagManifest).not.toHaveBeenCalled();
+});
+
 it('requires an explicit embedding provider and model', async () => {
 	getRagConfiguration.mockReturnValue({
 		embeddingProviderId: '',

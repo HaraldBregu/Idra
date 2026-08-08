@@ -34,12 +34,20 @@ beforeEach(() => {
 });
 
 it('exposes one main-session knowledge broker and prefers confident compiled wiki evidence', async () => {
-	const output = JSON.parse((await knowledgeQueryTool.run({ query: ' leave ' })) as string);
+	const controller = new AbortController();
+	const output = JSON.parse(
+		(await knowledgeQueryTool.run({ query: ' leave ' }, controller.signal)) as string
+	);
 
 	expect(getKnowledgeTools('main').map((tool) => tool.name)).toEqual(['knowledge_query']);
 	expect(getKnowledgeTools('bot')).toEqual([]);
 	expect(DEFAULT_PERMISSIONS.knowledge_query).toMatchObject({ default: 'allow' });
-	expect(buildWikiAnswerContext).toHaveBeenCalledWith('leave', false);
+	expect(buildWikiAnswerContext).toHaveBeenCalledWith(
+		'leave',
+		false,
+		undefined,
+		controller.signal
+	);
 	expect(searchRag).not.toHaveBeenCalled();
 	expect(output).toMatchObject({ route: 'compiled_wiki', abstain: false });
 	expect(output.results[0]).toMatchObject({
@@ -52,6 +60,7 @@ it('exposes one main-session knowledge broker and prefers confident compiled wik
 });
 
 it('falls back to the configured local index when wiki confidence is low', async () => {
+	const controller = new AbortController();
 	buildWikiAnswerContext.mockResolvedValue({
 		query: 'leave',
 		compiledWiki: [],
@@ -73,9 +82,13 @@ it('falls back to the configured local index when wiki confidence is low', async
 		},
 	]);
 
-	const output = JSON.parse((await knowledgeQueryTool.run({ query: 'leave', count: 3 })) as string);
+	const output = JSON.parse(
+		(await knowledgeQueryTool.run({ query: 'leave', count: 3 }, controller.signal)) as string
+	);
 
-	expect(searchRag).toHaveBeenCalledWith('leave', 'company-knowledge', 3);
+	expect(searchRag).toHaveBeenCalledWith('leave', 'company-knowledge', 3, {
+		signal: controller.signal,
+	});
 	expect(output.route).toBe('wiki_then_local_rag');
 	expect(output.results[0]).toMatchObject({
 		kind: 'local_rag',

@@ -185,14 +185,15 @@ describe('generic web search', () => {
 	it('dispatches to the selected provider at execution time', async () => {
 		saveSearchEngine('tavily', { apiKey: 'tavily-key' });
 		(global.fetch as jest.Mock).mockResolvedValue(response({ results: [] }));
+		const controller = new AbortController();
 
-		await expect(searchWeb({ query: 'current events', count: 2 })).resolves.toEqual({
+		await expect(searchWeb({ query: 'current events', count: 2 }, controller.signal)).resolves.toEqual({
 			query: 'current events',
 			results: [],
 		});
 		expect(global.fetch).toHaveBeenCalledWith(
 			'https://api.tavily.com/search',
-			expect.objectContaining({ method: 'POST' })
+			expect.objectContaining({ method: 'POST', signal: controller.signal })
 		);
 	});
 

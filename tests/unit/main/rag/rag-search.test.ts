@@ -64,13 +64,37 @@ it('searches SQLite with the exact embedding identity used to build the index', 
 			score: 0.91,
 		},
 	]);
-	expect(embed).toHaveBeenCalledWith({
-		texts: ['query'],
-		inputType: 'query',
-		providerId: 'openai',
-		modelId: 'text-embedding-3-small',
-	});
+	expect(embed).toHaveBeenCalledWith(
+		{
+			texts: ['query'],
+			inputType: 'query',
+			providerId: 'openai',
+			modelId: 'text-embedding-3-small',
+		},
+		undefined
+	);
 	expect(search).toHaveBeenCalledWith('knowledge-base', [0.1, 0.2], 5);
+});
+
+it('passes cancellation to the query embedding provider', async () => {
+	const controller = new AbortController();
+	const reason = new Error('cancel query');
+	embed.mockImplementationOnce(
+		(_input, signal: AbortSignal) =>
+			new Promise((_resolve, reject) => {
+				signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+			})
+	);
+	const result = searchRag('query', 'knowledge-base', 5, {
+		embeddings,
+		vectors,
+		signal: controller.signal,
+	});
+	controller.abort(reason);
+
+	await expect(result).rejects.toBe(reason);
+	expect(embed.mock.calls[0][1]).toBe(controller.signal);
+	expect(search).not.toHaveBeenCalled();
 });
 
 it('requires the selected local index to exist', async () => {
