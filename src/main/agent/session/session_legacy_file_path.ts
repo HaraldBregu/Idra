@@ -1,6 +1,6 @@
-import path from 'node:path';
+import { containedSessionPath } from './session_contained_path';
 import { safeName } from './session_safe_name';
 
 export function legacyFilePath(sessionsPath: string, sessionId: string): string {
-	return path.join(sessionsPath, `${safeName(sessionId)}.json`);
+	return containedSessionPath(sessionsPath, `${safeName(sessionId)}.json`);
 }

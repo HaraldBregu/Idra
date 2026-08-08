@@ -8,6 +8,7 @@ import type { SpeechSynthesisResult } from '../../shared/speech_types';
 import { getChannelProvider } from './channels_store';
 import { getChannelModelSelection } from './channels_store';
 import { canReceive } from './channels_security';
+import { channelSessionId } from './channels_session';
 import { loadChannelVoice } from './channels_voice';
 import type {
 	ChannelAdapter,
@@ -19,8 +20,6 @@ import type {
 import { toText } from '../models/transcribe';
 import { synthesize } from '../models/voice';
 
-// Fixed UUID so every channel message reuses the same agent session.
-const CHANNEL_SESSION_ID = '7c1f41d3-9b2a-4e8f-b5c6-2d0a8e4f6a91';
 const CHANNEL_START_REPLY = "Hi! I'm connected. Send me a message and I'll reply.";
 
 export interface ChannelRegistryDependencies {
@@ -144,12 +143,12 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				replyToMessageId: message.messageId,
 				chatType: message.chatType,
 			});
-			const response = await agentService.send(text, 'channels', {
-				category: 'bot',
-				interactive: false,
-				sessionId: CHANNEL_SESSION_ID,
-				...channelModelSelection('llm'),
-			});
+				const response = await agentService.send(text, 'channels', {
+					category: 'bot',
+					interactive: false,
+					sessionId: channelSessionId(message),
+					...channelModelSelection('llm'),
+				});
 			if (message.content.type === 'voice') {
 				try {
 					const voice = await synthesizeVoice(response, {
