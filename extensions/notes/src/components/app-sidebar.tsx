@@ -17,6 +17,7 @@ function WorkspaceTree({
   files,
   loading,
   error,
+  onDeleteRequest,
   onSelect,
   onToggle,
   selectedPath,
@@ -26,6 +27,7 @@ function WorkspaceTree({
   files: WorkspaceTreeEntry[]
   loading: boolean
   error: string
+  onDeleteRequest: (entry: WorkspaceTreeEntry) => void
   onSelect: (entry: WorkspaceTreeEntry) => void
   onToggle: (path: string) => void
   selectedPath: string | null
@@ -47,6 +49,7 @@ function WorkspaceTree({
               depth={0}
               entry={entry}
               expanded={expanded}
+              onDeleteRequest={onDeleteRequest}
               onToggle={onToggle}
               onSelect={onSelect}
               selectedPath={selectedPath}
@@ -59,6 +62,7 @@ function WorkspaceTree({
 }
 
 interface AppSidebarProps {
+  onDeleteRequest: (entry: WorkspaceTreeEntry) => void
   onWorkspaceSelect: (entry: WorkspaceTreeEntry) => void
   selectedWorkspacePath: string | null
   workspaceError: string
@@ -71,6 +75,7 @@ function WorkspaceTreeItem({
   depth,
   entry,
   expanded,
+  onDeleteRequest,
   onToggle,
   onSelect,
   selectedPath,
@@ -78,6 +83,7 @@ function WorkspaceTreeItem({
   depth: number
   entry: WorkspaceTreeEntry
   expanded: Set<string>
+  onDeleteRequest: (entry: WorkspaceTreeEntry) => void
   onToggle: (path: string) => void
   onSelect: (entry: WorkspaceTreeEntry) => void
   selectedPath: string | null
@@ -103,16 +109,26 @@ function WorkspaceTreeItem({
               },
               { type: "separator" },
               { id: "copy-path", label: "Copy Path" },
+              ...(!isDirectory
+                ? ([{ type: "separator" }, { id: "delete", label: "Delete File" }] as const)
+                : []),
             ],
             {
               toggle: () => onToggle(entry.path),
               open: () => onSelect(entry),
               "copy-path": () => navigator.clipboard.writeText(entry.path),
+              delete: () => onDeleteRequest(entry),
             },
           )
         }}
         onClick={() => {
           if (!isDirectory) onSelect(entry)
+        }}
+        onKeyDown={(event) => {
+          if (!isDirectory && (event.key === "Backspace" || event.key === "Delete")) {
+            event.preventDefault()
+            onDeleteRequest(entry)
+          }
         }}
         aria-expanded={isDirectory ? isExpanded : undefined}
         aria-current={selected ? "page" : undefined}
@@ -145,12 +161,13 @@ function WorkspaceTreeItem({
         <CollapsibleTrigger asChild>{trigger}</CollapsibleTrigger>
         <CollapsibleContent asChild>
           <ul>
-          {entry.children.map((child) => (
+          {entry.children?.map((child) => (
             <WorkspaceTreeItem
               key={child.path}
               depth={depth + 1}
               entry={child}
               expanded={expanded}
+              onDeleteRequest={onDeleteRequest}
               onToggle={onToggle}
               onSelect={onSelect}
               selectedPath={selectedPath}
@@ -164,6 +181,7 @@ function WorkspaceTreeItem({
 }
 
 export function AppSidebar({
+  onDeleteRequest,
   onWorkspaceSelect,
   selectedWorkspacePath,
   workspaceError,
@@ -271,6 +289,7 @@ export function AppSidebar({
                     depth={1}
                     entry={entry}
                     expanded={expanded}
+                    onDeleteRequest={onDeleteRequest}
                     onToggle={toggleDirectory}
                     onSelect={onWorkspaceSelect}
                     selectedPath={selectedWorkspacePath}
@@ -285,6 +304,7 @@ export function AppSidebar({
           files={regularFiles}
           loading={workspaceLoading}
           error={workspaceError}
+          onDeleteRequest={onDeleteRequest}
           onToggle={toggleDirectory}
           onSelect={onWorkspaceSelect}
           selectedPath={selectedWorkspacePath}
