@@ -85,3 +85,13 @@ it('uses the Background tasks label on the overview', () => {
 		'settings.tabs.taskScheduler'
 	);
 });
+
+it('keeps module toggles off the overview', () => {
+	render(
+		<MemoryRouter initialEntries={['/settings']}>
+			<OverviewPage />
+		</MemoryRouter>
+	);
+
+	expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+});
