@@ -27,6 +27,7 @@ it('clears the tool timeout while retaining parent-run cancellation after return
 			undefined,
 			'bypass'
 		)) {
+			void _event;
 		}
 		jest.advanceTimersByTime(100);
 		expect(receivedSignal?.aborted).toBe(false);
