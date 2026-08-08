@@ -20,6 +20,7 @@ import { createContext, fileToolState, rememberTool } from '../../../../../src/m
 import { respondToolPermission } from '../../../../../src/main/agent/policy';
 import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import { runToolCalls } from '../../../../../src/main/agent/run/run_tool_calls';
+import { jsonTool } from '../../../../../src/main/agent/tools/tool';
 import type { RuntimeEvent, Tool, ToolCall } from '../../../../../src/main/agent/types';
 
 const asking = { default: 'ask' as const, allow: [], deny: [], ask: [] };
@@ -113,9 +114,11 @@ describe('tool context permissions', () => {
 		);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({ type: 'tool_permission_request' });
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
 		const end = events.next();
-		expect(respondToolPermission(call.id, 'approve_always')).toBe(true);
+		expect(respondToolPermission(request.approvalId, 'approve_always')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
 		expect(setToolPermission).toHaveBeenCalledWith('inspect', {
 			...asking,
@@ -137,9 +140,11 @@ describe('tool context permissions', () => {
 		);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({ type: 'tool_permission_request' });
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
 		const end = events.next();
-		expect(respondToolPermission(call.id, 'reject')).toBe(true);
+		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(edit).not.toHaveBeenCalled();
 	});
@@ -154,9 +159,11 @@ describe('tool context permissions', () => {
 		const events = runToolCall(fakeTool('write', write), call, true, undefined, context);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({ type: 'tool_permission_request' });
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
 		const end = events.next();
-		expect(respondToolPermission(call.id, 'reject')).toBe(true);
+		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(write).not.toHaveBeenCalled();
 		expect(context.tools).toBeUndefined();
@@ -217,7 +224,7 @@ describe('tool context permissions', () => {
 		expect(write).toHaveBeenCalledTimes(1);
 	});
 
-	it('runs a system-directory tool before consulting its stored deny', async () => {
+	it('does not let the system directory override a stored deny', async () => {
 		const target = '/appdata/agent/nested/example.txt';
 		getPermissions.mockReturnValue({
 			...askingPermissions,
@@ -230,8 +237,8 @@ describe('tool context permissions', () => {
 		for await (const event of runToolCall(fakeTool('write', write), call, true)) events.push(event);
 
 		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: undefined });
-		expect(write).toHaveBeenCalledTimes(1);
+		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+		expect(write).not.toHaveBeenCalled();
 	});
 
 	it('runs a tool allowed by a matching directory', async () => {
@@ -264,9 +271,12 @@ describe('tool context permissions', () => {
 			const firstEvents = runToolCall(fakeTool('read', read), firstCall, true, undefined, context);
 
 			expect((await firstEvents.next()).value).toMatchObject({ type: 'tool_call_start' });
-			expect((await firstEvents.next()).value).toMatchObject({ type: 'tool_permission_request' });
+			const request = (await firstEvents.next()).value;
+			expect(request).toMatchObject({ type: 'tool_permission_request' });
+			if (!request || request.type !== 'tool_permission_request')
+				throw new Error('Expected approval');
 			const firstEnd = firstEvents.next();
-			expect(respondToolPermission(firstCall.id, decision)).toBe(true);
+			expect(respondToolPermission(request.approvalId, decision)).toBe(true);
 			expect((await firstEnd).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
 			expect(context.tools).toEqual([
 				{
@@ -316,9 +326,11 @@ describe('tool context permissions', () => {
 		const events = runToolCall(fakeTool('read', read), call, true, undefined, context);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({ type: 'tool_permission_request' });
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
 		const end = events.next();
-		expect(respondToolPermission(call.id, 'reject')).toBe(true);
+		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(read).not.toHaveBeenCalled();
 	});
@@ -331,9 +343,11 @@ describe('tool context permissions', () => {
 		const events = runToolCall(fakeTool('read', read), call, true, undefined, context);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({ type: 'tool_permission_request' });
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
 		const end = events.next();
-		expect(respondToolPermission(call.id, 'reject')).toBe(true);
+		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(context.tools).toBeUndefined();
 	});
@@ -373,14 +387,16 @@ describe('tool context permissions', () => {
 		const events = runToolCall(fakeTool('read', read), call, true, undefined, context);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({ type: 'tool_permission_request' });
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
 		const end = events.next();
-		expect(respondToolPermission(call.id, 'reject')).toBe(true);
+		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(read).not.toHaveBeenCalled();
 	});
 });
 
 function fakeTool(name: string, run: jest.Mock): Tool {
-	return { name, description: name, schema: { type: 'object' }, run };
+	return jsonTool({ name, description: name, schema: { type: 'object' }, execute: run });
 }

@@ -1,19 +1,20 @@
 import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
-import type { Tool, ToolCall } from '../../../../../src/main/agent/types';
+import { jsonTool } from '../../../../../src/main/agent/tools/tool';
+import type { ToolCall } from '../../../../../src/main/agent/types';
 
 describe('runToolCall', () => {
 	it('propagates cancellation to the tool and stops waiting', async () => {
 		const controller = new AbortController();
 		let receivedSignal: AbortSignal | undefined;
-		const tool: Tool = {
+		const tool = jsonTool({
 			name: 'web_search',
 			description: 'inspect',
 			schema: { type: 'object' },
-			run: (_input, signal) => {
+			execute: (_input, signal) => {
 				receivedSignal = signal;
 				return new Promise(() => undefined);
 			},
-		};
+		});
 		const call: ToolCall = { id: 'tool-1', name: 'web_search', args: {} };
 		const events = runToolCall(tool, call, false, controller.signal);
 
@@ -22,19 +23,19 @@ describe('runToolCall', () => {
 		controller.abort(new Error('cancelled'));
 
 		await expect(pending).rejects.toThrow('cancelled');
-		expect(receivedSignal).toBe(controller.signal);
+		expect(receivedSignal?.aborted).toBe(true);
 		expect(call.result).toBeUndefined();
 	});
 
 	it('bypasses policy checks only when explicitly requested', async () => {
 		const run = jest.fn().mockResolvedValue('done');
-		const tool: Tool = {
+		const tool = jsonTool({
 			name: 'restricted_tool',
 			description: 'run',
 			schema: { type: 'object' },
 			defaultPermission: 'ask',
-			run,
-		};
+			execute: run,
+		});
 		const call: ToolCall = {
 			id: 'tool-1',
 			name: 'restricted_tool',

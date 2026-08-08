@@ -37,7 +37,14 @@ describe('run stream system prompt', () => {
 			for await (const event of stream(
 				{ location: root },
 				session,
-				{ task: 'chat', message: 'Current request', model: 'test-model' },
+				{
+					runId: 'run',
+					task: 'chat',
+					message: 'Current request',
+					model: 'test-model',
+					origin: 'main',
+					contextMode: 'workspace',
+				},
 				new AbortController().signal,
 				{ tools: [] }
 			))
