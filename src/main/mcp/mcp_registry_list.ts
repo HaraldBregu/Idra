@@ -1,9 +1,10 @@
 import type { McpRegistry, McpServerInfo } from '../../shared/mcp_types';
 import { listConfiguredMcpServers } from './mcp_configured_list';
 import { listLocalMcpServers } from './mcp_local_list';
+import { mcpLocalRoot } from './mcp_local_root';
 
 export function listMcpRegistry(): McpRegistry {
-	const local = listLocalMcpServers();
+	const local = listLocalMcpServers(mcpLocalRoot());
 	const configured = new Map<string, McpServerInfo>();
 	for (const [id, data] of Object.entries(listConfiguredMcpServers())) {
 		configured.set(id, { id, source: 'configured', data });
