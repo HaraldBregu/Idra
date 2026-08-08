@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import type { McpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -76,6 +84,8 @@ export function McpServerForm({
 	const [deferLoading, setDeferLoading] = useState(entry?.defer_loading ?? false);
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
+	const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+	const [deleting, setDeleting] = useState(false);
 
 	const serverId = id.trim().toLowerCase();
 
@@ -132,6 +142,60 @@ export function McpServerForm({
 	};
 
 	const isValid = Boolean(serverId && (type === 'http' ? url.trim() : command.trim()));
+	const serverName = entry?.name ?? id;
+
+	const confirmDelete = async (): Promise<void> => {
+		if (!onRemove) return;
+		setDeleting(true);
+		try {
+			await onRemove();
+			setConfirmDeleteOpen(false);
+		} finally {
+			setDeleting(false);
+		}
+	};
+
+	const removeAction = (): React.JSX.Element | null => {
+		if (!onRemove) return null;
+
+		return (
+			<Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+				<div className="border-t border-border pt-4">
+					<Button
+						type="button"
+						variant="destructive"
+						size="sm"
+						onClick={() => setConfirmDeleteOpen(true)}
+					>
+						<Trash2 className="size-3.5" />
+						Remove MCP server
+					</Button>
+				</div>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Delete MCP server</DialogTitle>
+						<DialogDescription>
+							Remove <span className="font-medium text-foreground">{serverName}</span>?
+							This cannot be undone.
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button type="button" variant="outline" onClick={() => setConfirmDeleteOpen(false)}>
+							Cancel
+						</Button>
+						<Button
+							type="button"
+							variant="destructive"
+							onClick={() => void confirmDelete()}
+							disabled={deleting}
+						>
+							Delete
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		);
+	};
 
 	const submit = async (event: React.FormEvent): Promise<void> => {
 		event.preventDefault();
@@ -280,19 +344,7 @@ export function McpServerForm({
 									className={SMALL_INPUT_CLASS}
 								/>
 							</Field>
-							{onRemove && (
-								<div className="border-t border-border pt-4">
-									<Button
-										type="button"
-										variant="destructive"
-										size="sm"
-										onClick={() => void onRemove()}
-									>
-										<Trash2 className="size-3.5" />
-										Remove MCP server
-									</Button>
-								</div>
-							)}
+							{removeAction()}
 						</div>
 					</details>
 				</>
@@ -445,17 +497,7 @@ export function McpServerForm({
 							<summary className="cursor-pointer text-[13px] text-muted-foreground">
 								Advanced
 							</summary>
-							<div className="border-t border-border pt-4">
-								<Button
-									type="button"
-									variant="destructive"
-									size="sm"
-									onClick={() => void onRemove()}
-								>
-									<Trash2 className="size-3.5" />
-									Remove MCP server
-								</Button>
-							</div>
+							{removeAction()}
 						</details>
 					)}
 				</>
