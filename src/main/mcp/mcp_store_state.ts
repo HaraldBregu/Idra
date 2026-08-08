@@ -40,7 +40,7 @@ function migrateLegacyMcpServers(): void {
 		setMcpServersState(legacyServers);
 	}
 
-	if (legacyStore.has('mcp_servers')) {
+	if (legacyStore.get('mcp_servers') !== undefined && typeof legacyStore.delete === 'function') {
 		legacyStore.delete('mcp_servers');
 	}
 }
