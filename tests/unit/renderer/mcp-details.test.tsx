@@ -91,14 +91,13 @@ describe('MCP details', () => {
 		expect(await screen.findByRole('heading', { name: 'Local files' })).toBeInTheDocument();
 		expect(screen.getByLabelText('Command')).toHaveValue('node');
 		expect(screen.getByLabelText('Working directory (optional)')).toHaveValue('/local');
-		const [envKey, envValue] = [
-			screen.getAllByRole('textbox', { name: 'Key' })[0],
-			screen.getAllByRole('textbox', { name: 'Value' })[0],
-		];
+		const envKey = screen.getByLabelText('Environment variables (optional)');
+		const envValue = screen.getByLabelText('Value', { selector: '#mcp-env-value' });
+		await user.type(envKey, 'DEMO_COMPANY');
+		await user.type(envValue, 'Friday Studio');
+		await user.click(screen.getByRole('button', { name: 'Add' }));
 		await user.clear(envKey);
 		await user.type(envKey, 'DEMO_COMPANY');
-		await user.clear(envValue);
-		await user.type(envValue, 'Friday Studio');
 		await user.click(screen.getByRole('button', { name: 'Save' }));
 
 		await waitFor(() =>
@@ -106,7 +105,7 @@ describe('MCP details', () => {
 				'local',
 				expect.objectContaining({
 					type: 'stdio',
-					env: { DEMO_COMPANY: 'Friday Studio' },
+					env: { MODE: 'dev', DEMO_COMPANY: 'Friday Studio' },
 					cwd: '/local',
 					require_approval: 'always',
 				})
