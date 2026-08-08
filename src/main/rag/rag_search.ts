@@ -8,6 +8,8 @@ export interface RagMatch {
 	sourceId: string;
 	chunkId: string;
 	path: string;
+	lineStart: number;
+	lineEnd: number;
 	checksum: string;
 	indexedAt: string;
 	text: string;
@@ -50,6 +52,8 @@ export async function searchRag(
 			sourceId: match.sourceId,
 			chunkId: match.id,
 			path: match.path,
+			lineStart: match.lineStart,
+			lineEnd: match.lineEnd,
 			checksum: match.checksum,
 			indexedAt: match.indexedAt,
 			text: match.text,

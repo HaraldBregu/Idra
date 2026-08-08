@@ -12,6 +12,7 @@ const DEFAULT_RAG_CONFIGURATION: RagConfiguration = {
 	databaseId: '',
 	embeddingProviderId: '',
 	embeddingModelId: '',
+	embeddingConsent: null,
 	folders: [],
 	scheduleEnabled: false,
 	cronExpression: '0 3 * * *',
@@ -46,6 +47,14 @@ export function saveRagConfiguration(configuration: RagConfiguration): RagConfig
 		databaseId: configuration.databaseId?.trim() ?? '',
 		embeddingProviderId: configuration.embeddingProviderId?.trim() ?? '',
 		embeddingModelId: configuration.embeddingModelId?.trim() ?? '',
+		embeddingConsent:
+			configuration.embeddingConsent?.providerId.trim() &&
+			configuration.embeddingConsent.modelId.trim()
+				? {
+						providerId: configuration.embeddingConsent.providerId.trim(),
+						modelId: configuration.embeddingConsent.modelId.trim(),
+					}
+				: null,
 		folders,
 		scheduleEnabled: configuration.scheduleEnabled,
 		cronExpression: cronExpression || DEFAULT_RAG_CONFIGURATION.cronExpression,

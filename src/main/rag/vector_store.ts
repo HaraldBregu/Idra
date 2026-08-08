@@ -13,6 +13,8 @@ export interface VectorRecord {
 	sourceFingerprint: string;
 	path: string;
 	chunkIndex: number;
+	lineStart: number;
+	lineEnd: number;
 	text: string;
 	checksum: string;
 	indexedAt: string;

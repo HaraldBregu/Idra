@@ -24,6 +24,8 @@ interface RecordRow {
 	source_fingerprint: string;
 	path: string;
 	chunk_index: number;
+	line_start: number;
+	line_end: number;
 	text: string;
 	checksum: string;
 	indexed_at: string;
@@ -61,6 +63,8 @@ export class SqliteVectorStore implements VectorStore {
 				source_fingerprint TEXT NOT NULL,
 				path TEXT NOT NULL,
 				chunk_index INTEGER NOT NULL,
+				line_start INTEGER NOT NULL,
+				line_end INTEGER NOT NULL,
 				text TEXT NOT NULL,
 				checksum TEXT NOT NULL,
 				indexed_at TEXT NOT NULL,
@@ -75,7 +79,8 @@ export class SqliteVectorStore implements VectorStore {
 			FROM rag_indexes WHERE index_name = ?
 		`);
 		this.reusableSourceStatement = this.database.prepare(`
-			SELECT c.id, c.source_id, c.source_fingerprint, c.path, c.chunk_index, c.text,
+			SELECT c.id, c.source_id, c.source_fingerprint, c.path, c.chunk_index,
+				c.line_start, c.line_end, c.text,
 				c.checksum, c.indexed_at, c.vector
 			FROM rag_chunks c
 			JOIN rag_indexes i
@@ -85,7 +90,8 @@ export class SqliteVectorStore implements VectorStore {
 			ORDER BY c.chunk_index
 		`);
 		this.activeRecordsStatement = this.database.prepare(`
-			SELECT c.id, c.source_id, c.source_fingerprint, c.path, c.chunk_index, c.text,
+			SELECT c.id, c.source_id, c.source_fingerprint, c.path, c.chunk_index,
+				c.line_start, c.line_end, c.text,
 				c.checksum, c.indexed_at, c.vector
 			FROM rag_chunks c
 			JOIN rag_indexes i
@@ -95,8 +101,8 @@ export class SqliteVectorStore implements VectorStore {
 		this.insertRecordStatement = this.database.prepare(`
 			INSERT INTO rag_chunks (
 				index_name, generation, id, source_id, source_fingerprint, path, chunk_index,
-				text, checksum, indexed_at, vector
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				line_start, line_end, text, checksum, indexed_at, vector
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`);
 		this.publishIndexStatement = this.database.prepare(`
 			INSERT INTO rag_indexes (
@@ -155,6 +161,8 @@ export class SqliteVectorStore implements VectorStore {
 					record.sourceFingerprint,
 					record.path,
 					record.chunkIndex,
+					record.lineStart,
+					record.lineEnd,
 					record.text,
 					record.checksum,
 					record.indexedAt,
@@ -215,6 +223,8 @@ function mapRecord(row: RecordRow): VectorRecord {
 		sourceFingerprint: row.source_fingerprint,
 		path: row.path,
 		chunkIndex: row.chunk_index,
+		lineStart: row.line_start,
+		lineEnd: row.line_end,
 		text: row.text,
 		checksum: row.checksum,
 		indexedAt: row.indexed_at,

@@ -1,13 +1,13 @@
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import type { Pinecone } from '@pinecone-database/pinecone';
-import { chunkText } from './rag_chunk';
 import { ragClient } from './rag_client';
 import { SelectedEmbeddingProvider, type EmbeddingProvider } from './embedding';
 import { normalizeRagIndexName } from './rag_index_name';
 import { collectRagSources } from './source';
 import { writeRagManifest } from './rag_manifest';
 import { getRagConfiguration } from './rag_store';
+import { chunkSpans } from './spans';
 import { ragVectorStore } from './vector';
 import type { VectorRecord, VectorStore } from './vector_store';
 
@@ -38,6 +38,14 @@ export async function indexRag(
 	if (!providerId || !modelId) {
 		throw new Error('Select an embedding provider and model before indexing.');
 	}
+	if (
+		configuration.embeddingConsent?.providerId !== providerId ||
+		configuration.embeddingConsent.modelId !== modelId
+	) {
+		throw new Error(
+			'Confirm remote embedding disclosure for the selected provider and model before indexing.'
+		);
+	}
 
 	const vectorStore = dependencies.vectors ?? ragVectorStore();
 	const embeddingProvider = dependencies.embeddings ?? new SelectedEmbeddingProvider();
@@ -48,7 +56,7 @@ export async function indexRag(
 
 	try {
 		for await (const { source, file, content } of collectRagSources(sources)) {
-			const chunks = chunkText(content);
+			const chunks = chunkSpans(content);
 			if (chunks.length === 0) continue;
 			indexedFiles += 1;
 			const sourceId = createHash('sha256')
@@ -73,7 +81,7 @@ export async function indexRag(
 			for (let start = 0; start < chunks.length; start += BATCH_SIZE) {
 				const batch = chunks.slice(start, start + BATCH_SIZE);
 				const embedded = await embeddingProvider.embed({
-					texts: batch,
+					texts: batch.map((chunk) => chunk.text),
 					inputType: 'document',
 					providerId,
 					modelId,
@@ -85,7 +93,7 @@ export async function indexRag(
 				if (embedded.dimensions !== dimensions) {
 					throw new Error('Embedding dimensions changed while indexing.');
 				}
-				for (const [offset, text] of batch.entries()) {
+				for (const [offset, chunk] of batch.entries()) {
 					const chunkIndex = start + offset;
 					records.push({
 						id: `${sourceId}#${chunkIndex}`,
@@ -93,8 +101,10 @@ export async function indexRag(
 						sourceFingerprint,
 						path: path.join(path.basename(source), file),
 						chunkIndex,
-						text,
-						checksum: createHash('sha256').update(text).digest('hex'),
+						lineStart: chunk.lineStart,
+						lineEnd: chunk.lineEnd,
+						text: chunk.text,
+						checksum: createHash('sha256').update(chunk.text).digest('hex'),
 						indexedAt: new Date().toISOString(),
 						vector: embedded.embeddings[offset],
 					});
