@@ -279,6 +279,8 @@ const AssistantPage: React.FC = () => {
 			</Button>
 		</>
 	);
+	const sessionDataScope = dataScope('sessions');
+	const sessionCount = sessionDataScope?.kind === 'sessions' ? sessionDataScope.sessionIds.length : 0;
 
 	return (
 		<SettingsPageShell>
@@ -415,10 +417,7 @@ const AssistantPage: React.FC = () => {
 					<SettingsRow
 						title={t('settings.dataControls.sessions')}
 						description={t('settings.dataControls.sessionsDescription', {
-							count:
-								dataScope('sessions')?.kind === 'sessions'
-									? dataScope('sessions').sessionIds.length
-									: 0,
+							count: sessionCount,
 						})}
 						actions={dataActions('sessions')}
 					/>
