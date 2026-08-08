@@ -92,7 +92,6 @@ const McpDetailsPage: React.FC = () => {
 
 	const remove = async (): Promise<void> => {
 		if (!server || server.source !== 'configured') return;
-		if (!window.confirm(`Remove ${server.data.name ?? server.id}?`)) return;
 		setSaving(true);
 		setError('');
 		try {
