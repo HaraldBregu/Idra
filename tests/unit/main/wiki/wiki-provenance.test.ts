@@ -3,6 +3,11 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import matter from 'gray-matter';
+
+jest.mock('../../../../src/main/wiki/wiki_location', () => ({
+	wikiLocation: () => '/tmp/friday-wiki-provenance-data',
+}));
+
 import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
 import { buildWikiAnswerContext } from '../../../../src/main/wiki/wiki_answer_context';
 import { commitWikiSourceLineage } from '../../../../src/main/wiki/wiki_commit_lineage';
