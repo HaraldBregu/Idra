@@ -48,7 +48,7 @@ export function ToolPermissionCard({
 				</p>
 			)}
 			<div className="mt-3 flex flex-wrap justify-end gap-2">
-				{!permission.hardApproval && <Button
+				<Button
 					type="button"
 					variant="ghost"
 					size="sm"
@@ -57,7 +57,7 @@ export function ToolPermissionCard({
 				>
 					Deny
 				</Button>
-				<Button
+				{!permission.hardApproval && <Button
 					type="button"
 					variant="outline"
 					size="sm"
