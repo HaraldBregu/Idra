@@ -5,7 +5,7 @@ import type { McpServerInfo, McpStdioData } from '../../shared/mcp_types';
 import { listLocalMcpServers } from './mcp_local_list';
 import { importLocalMcpServers } from './mcp_local_import';
 import { readLocalMcpServer } from './mcp_local_read';
-import { mcpLocalDiscoveryRoots, mcpLocalRoot } from './mcp_local_root';
+import { mcpLocalDiscoveryRoots } from './mcp_local_root';
 
 export function configureLocalMcpServer(
 	id: string,
