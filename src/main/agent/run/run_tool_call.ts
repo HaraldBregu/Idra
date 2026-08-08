@@ -79,15 +79,15 @@ export async function* runToolCall(
 		let permission =
 			permissionMode === 'bypass' && policyPermission !== 'deny' ? 'allow' : policyPermission;
 
-		const carriesPrivateRead =
+		const carriesPrivateContext =
 			(tool.effect === 'external' || tool.effect === 'paid') &&
-			context?.tools?.some((entry) => entry.toolName === 'read') === true;
+			context?.hasPrivateContext === true;
 		const hardApproval =
 			(typeof tool.hardApproval === 'function'
 				? tool.hardApproval(canonicalInput)
 				: tool.hardApproval === true) ||
 			tool.alwaysAsk === true ||
-			carriesPrivateRead;
+			carriesPrivateContext;
 		if (permission !== 'deny' && (hardApproval || (tool.alwaysAsk && permissionMode !== 'bypass')))
 			permission = 'ask';
 		if (permission === 'ask' && !interactive) permission = 'deny';
@@ -144,8 +144,8 @@ export async function* runToolCall(
 		if (permission === 'deny') {
 			output = `Error: permission denied for '${toolCall.name}'`;
 			isError = true;
-		} else {
-			try {
+			} else {
+				try {
 				if (signal?.aborted) throw signal.reason;
 				const timeoutSignal = AbortSignal.timeout(tool.timeoutMs);
 				const toolSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
@@ -165,13 +165,16 @@ export async function* runToolCall(
 				} finally {
 					if (abort) toolSignal.removeEventListener('abort', abort);
 				}
-			} catch (error) {
-				if (signal?.aborted) throw error;
-				const message = error instanceof Error ? error.message : String(error);
-				output = `Error: tool '${toolCall.name}' failed: ${message}`;
-				isError = true;
+				} catch (error) {
+					if (signal?.aborted) throw error;
+					const message = error instanceof Error ? error.message : String(error);
+					output = `Error: tool '${toolCall.name}' failed: ${message}`;
+					isError = true;
+				}
+				if (context && toolCall.name !== 'web_search' && toolCall.name !== 'web_fetch') {
+					context.hasPrivateContext = true;
+				}
 			}
-		}
 	}
 
 	yield {

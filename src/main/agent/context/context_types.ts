@@ -17,6 +17,7 @@ export interface ToolContextState {
 export interface ToolsContext {
 	tools?: ToolContextState[];
 	cancelled?: boolean;
+	hasPrivateContext?: boolean;
 }
 
 export interface AgentContext {

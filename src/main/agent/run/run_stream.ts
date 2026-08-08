@@ -59,6 +59,7 @@ import { getWikiTools } from '../tools/wiki';
 import { selectOriginTools } from './run_origin_tools';
 import { formatToolOutput } from './run_common';
 import { selectSkillTools } from './run_skill_tools';
+import { hasPrivateInput } from './run_has_private_input';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -68,6 +69,7 @@ export interface StreamOptions {
 const MAX_TOOL_CALLS = 100;
 const MAX_TOOL_OUTPUT_BYTES = 2_000_000;
 const MAX_PAID_TOOL_CALLS = 3;
+const MAX_BOT_WEB_TOOL_CALLS = 8;
 
 export async function* stream(
 	config: Config,
@@ -191,7 +193,9 @@ async function* loop(
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
 	session.context.subagents = undefined;
-	session.context.toolsContext = {};
+	session.context.toolsContext = {
+		...(hasPrivateInput(session.messages) ? { hasPrivateContext: true } : {}),
+	};
 
 	yield {
 		type: 'run_started',
@@ -204,6 +208,7 @@ async function* loop(
 	try {
 		let toolOutputBytes = 0;
 		let paidToolCalls = 0;
+		let botWebToolCalls = 0;
 		while (true) {
 			if (signal.aborted) return;
 			session.context.systemPrompt = await buildSystemPrompt(
@@ -219,6 +224,7 @@ async function* loop(
 					: '';
 			const skillContext = origin === 'main' && contextMode === 'workspace' ? buildSkillContext() : '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
+			if (runtimeContext) session.context.toolsContext.hasPrivateContext = true;
 			const messages = session.messages;
 			const turn = yield* runModelTurn(
 				input,
@@ -264,6 +270,18 @@ async function* loop(
 				return;
 			}
 			paidToolCalls += requestedPaidCalls;
+			const requestedBotWebCalls =
+				origin === 'bot'
+					? turn.toolCalls.filter(
+							(call) => call.name === 'web_search' || call.name === 'web_fetch'
+						).length
+					: 0;
+			if (botWebToolCalls + requestedBotWebCalls > MAX_BOT_WEB_TOOL_CALLS) {
+				session.stopReason = 'budget_exhausted';
+				yield { type: 'run_finished', result: toResult(session, 'success') };
+				return;
+			}
+			botWebToolCalls += requestedBotWebCalls;
 
 			if (isExhausted(session)) {
 				session.stopReason = 'max_iterations';

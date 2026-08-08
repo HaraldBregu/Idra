@@ -398,12 +398,7 @@ describe('tool context permissions', () => {
 
 	it('requires a non-persistent approval before private read context reaches an external tool', async () => {
 		const context = createContext().toolsContext;
-		rememberTool(context, {
-			toolName: 'read',
-			fileName: 'private.txt',
-			path: '/workspace/private.txt',
-			folderPath: '/workspace',
-		});
+		context.hasPrivateContext = true;
 		const send = jest.fn().mockResolvedValue('sent');
 		const external = jsonTool({
 			name: 'external_send',
@@ -430,6 +425,51 @@ describe('tool context permissions', () => {
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
 		expect(send).toHaveBeenCalledTimes(1);
 		expect(setToolPermission).not.toHaveBeenCalled();
+	});
+
+	it('marks non-public tool output private before a later external call', async () => {
+		const context = createContext().toolsContext;
+		const knowledge = jsonTool({
+			name: 'knowledge_query',
+			description: 'private knowledge',
+			defaultPermission: 'allow',
+			risk: 'low',
+			effect: 'read',
+			schema: { type: 'object' },
+			execute: () => 'private result',
+		});
+		for await (const event of runToolCall(
+			knowledge,
+			{ id: 'private-source', name: knowledge.name, args: {} },
+			true,
+			undefined,
+			context,
+			'bypass'
+		)) void event;
+		expect(context.hasPrivateContext).toBe(true);
+
+		const external = jsonTool({
+			name: 'external_send',
+			description: 'send externally',
+			defaultPermission: 'allow',
+			risk: 'medium',
+			effect: 'external',
+			schema: { type: 'object' },
+			execute: () => 'sent',
+		});
+		const events = runToolCall(
+			external,
+			{ id: 'private-egress', name: external.name, args: {} },
+			true,
+			undefined,
+			context,
+			'bypass'
+		);
+		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
+		expect((await events.next()).value).toMatchObject({
+			type: 'tool_permission_request',
+			hardApproval: true,
+		});
 	});
 });
 

@@ -16,7 +16,17 @@ function requiresHardApproval(tool: Tool, input: Record<string, unknown>): boole
 it('classifies destructive shell and process operations as hard approvals', () => {
 	expect(requiresHardApproval(execTool, { command: 'rm -rf ./build' })).toBe(true);
 	expect(requiresHardApproval(execTool, { command: 'git reset --hard HEAD~1' })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: "bash -lc 'rm -rf ./build'" })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: 'env rm -rf ./build' })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: 'find ./cache -type f -delete' })).toBe(true);
+	expect(
+		requiresHardApproval(execTool, {
+			command: `python3 -c "from pathlib import Path; Path('secret').unlink()"`,
+		})
+	).toBe(true);
+	expect(requiresHardApproval(execTool, { command: `python3 -c "print('inspect')"` })).toBe(true);
 	expect(requiresHardApproval(execTool, { command: 'npm test' })).toBe(false);
+	expect(requiresHardApproval(execTool, { command: 'rg TODO src' })).toBe(false);
 	expect(requiresHardApproval(processTool, { action: 'kill', sessionId: 'session' })).toBe(true);
 	expect(requiresHardApproval(processTool, { action: 'log', sessionId: 'session' })).toBe(false);
 });

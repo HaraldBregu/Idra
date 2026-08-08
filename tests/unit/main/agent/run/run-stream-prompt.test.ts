@@ -29,6 +29,7 @@ jest.mock('../../../../../src/main/agent/skills', () => ({
 import { stream } from '../../../../../src/main/agent/run/run_stream';
 import { createSessionState } from '../../../../../src/main/agent/session';
 import type { Message } from '../../../../../src/main/agent/types';
+import { jsonTool } from '../../../../../src/main/agent/tools/tool';
 
 describe('run stream system prompt', () => {
 	beforeEach(() => {
@@ -71,9 +72,72 @@ describe('run stream system prompt', () => {
 			});
 			expect(messages[0].content).toEqual(expect.stringContaining('- Private preference'));
 			expect(messages[1]).toEqual({ role: 'user', content: 'Current request' });
+			expect(session.context.toolsContext.hasPrivateContext).toBe(true);
 		} finally {
 			await fs.rm(root, { recursive: true, force: true });
 		}
+	});
+
+	it('caps public web calls only for bot-origin runs', async () => {
+		const calls = Array.from({ length: 9 }, (_, index) => ({
+			id: `web-${index}`,
+			name: 'web_search',
+			args: { query: `query ${index}` },
+		}));
+		const search = jest.fn().mockResolvedValue('public result');
+		const webTool = jsonTool({
+			name: 'web_search',
+			description: 'public web search',
+			defaultPermission: 'allow',
+			risk: 'medium',
+			effect: 'external',
+			schema: { type: 'object' },
+			execute: search,
+		});
+		runModelTurnMock.mockImplementationOnce(async function* () {
+			return { content: '', model: 'test-model', toolCalls: calls };
+		});
+		const botEvents = [];
+		for await (const event of stream(
+			{ location: '/workspace' },
+			createSessionState(),
+			{
+				runId: 'bot-run',
+				task: 'chat',
+				message: 'search',
+				model: 'test-model',
+				origin: 'bot',
+				contextMode: 'minimal',
+			},
+			new AbortController().signal,
+			{ tools: [webTool], interactive: false }
+		)) botEvents.push(event);
+		expect(search).not.toHaveBeenCalled();
+		expect(botEvents.at(-1)).toMatchObject({
+			type: 'run_finished',
+			result: { stopReason: 'budget_exhausted' },
+		});
+
+		runModelTurnMock
+			.mockImplementationOnce(async function* () {
+				return { content: '', model: 'test-model', toolCalls: calls };
+			})
+			.mockImplementationOnce(successfulTurn);
+		for await (const event of stream(
+			{ location: '/workspace' },
+			createSessionState(),
+			{
+				runId: 'main-run',
+				task: 'chat',
+				message: 'search',
+				model: 'test-model',
+				origin: 'main',
+				contextMode: 'minimal',
+			},
+			new AbortController().signal,
+			{ tools: [webTool], interactive: false }
+		)) void event;
+		expect(search).toHaveBeenCalledTimes(9);
 	});
 
 	it('emits exactly one terminal event when cancelled', async () => {
