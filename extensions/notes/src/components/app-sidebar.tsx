@@ -1,5 +1,5 @@
 import { Bot, ChevronRight, File, Folder, FolderOpen } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { WorkspaceTreeEntry } from '@friday/sdk';
 
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,7 @@ function WorkspaceTree({
 	files,
 	loading,
 	error,
+	onCreateRequest,
 	onDeleteRequest,
 	onSelect,
 	onToggle,
@@ -34,6 +35,7 @@ function WorkspaceTree({
 	files: WorkspaceTreeEntry[];
 	loading: boolean;
 	error: string;
+	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
 	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
 	onSelect: (entry: WorkspaceTreeEntry) => void;
 	onToggle: (path: string) => void;
@@ -49,13 +51,14 @@ function WorkspaceTree({
 			) : files.length === 0 && showEmpty ? (
 				<div className="px-3 py-2 text-[12px] text-sidebar-muted">No files</div>
 			) : (
-				<ul>
+				<ul className="space-y-0.5">
 					{files.map((entry) => (
 						<WorkspaceTreeItem
 							key={entry.path}
 							depth={0}
 							entry={entry}
 							expanded={expanded}
+							onCreateRequest={onCreateRequest}
 							onDeleteRequest={onDeleteRequest}
 							onToggle={onToggle}
 							onSelect={onSelect}
@@ -69,6 +72,7 @@ function WorkspaceTree({
 }
 
 interface AppSidebarProps {
+	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
 	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
 	onWorkspaceSelect: (entry: WorkspaceTreeEntry) => void;
 	selectedWorkspacePath: string | null;
@@ -82,6 +86,7 @@ function WorkspaceTreeItem({
 	depth,
 	entry,
 	expanded,
+	onCreateRequest,
 	onDeleteRequest,
 	onToggle,
 	onSelect,
@@ -90,6 +95,7 @@ function WorkspaceTreeItem({
 	depth: number;
 	entry: WorkspaceTreeEntry;
 	expanded: Set<string>;
+	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
 	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
 	onToggle: (path: string) => void;
 	onSelect: (entry: WorkspaceTreeEntry) => void;
@@ -114,15 +120,26 @@ function WorkspaceTreeItem({
 							label: isDirectory ? (isExpanded ? 'Collapse' : 'Expand') : 'Open',
 							enabled: !isDirectory || Boolean(entry.children?.length),
 						},
+						...(isDirectory
+							? ([
+									{ type: 'separator' },
+									{ id: 'new-file', label: 'New File' },
+									{ id: 'new-folder', label: 'New Folder' },
+								] as const)
+							: []),
 						{ type: 'separator' },
 						{ id: 'copy-path', label: 'Copy Path' },
-						...(!isDirectory
-							? ([{ type: 'separator' }, { id: 'delete', label: 'Delete File' }] as const)
-							: []),
+						{ type: 'separator' },
+						{
+							id: 'delete',
+							label: isDirectory ? 'Delete Folder' : 'Delete File',
+						},
 					],
 					{
 						toggle: () => onToggle(entry.path),
 						open: () => onSelect(entry),
+						'new-file': () => onCreateRequest(entry.path, 'file'),
+						'new-folder': () => onCreateRequest(entry.path, 'directory'),
 						'copy-path': () => navigator.clipboard.writeText(entry.path),
 						delete: () => onDeleteRequest(entry),
 					}
@@ -132,17 +149,17 @@ function WorkspaceTreeItem({
 				if (!isDirectory) onSelect(entry);
 			}}
 			onKeyDown={(event) => {
-				if (!isDirectory && (event.key === 'Backspace' || event.key === 'Delete')) {
+			if (event.key === 'Backspace' || event.key === 'Delete') {
 					event.preventDefault();
 					onDeleteRequest(entry);
 				}
 			}}
 			aria-expanded={isDirectory ? isExpanded : undefined}
 			aria-current={selected ? 'page' : undefined}
-			aria-keyshortcuts={!isDirectory ? 'Backspace Delete' : undefined}
+			aria-keyshortcuts="Backspace Delete"
 			title={entry.path}
 			className={cn(
-				'h-7 w-full justify-start gap-1.5 px-0 pr-2 text-left text-[12px] font-medium text-sidebar-muted',
+				'h-7 w-full justify-start gap-1.5 rounded-md px-0 pr-2 text-left text-[12px] font-medium text-sidebar-muted',
 				'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-sidebar-ring focus-visible:ring-offset-0',
 				selected && 'bg-sidebar-accent text-sidebar-foreground'
 			)}
@@ -168,13 +185,14 @@ function WorkspaceTreeItem({
 			<li>
 				<CollapsibleTrigger asChild>{trigger}</CollapsibleTrigger>
 				<CollapsibleContent asChild>
-					<ul>
+					<ul className="space-y-0.5">
 						{entry.children?.map((child) => (
 							<WorkspaceTreeItem
 								key={child.path}
 								depth={depth + 1}
 								entry={child}
 								expanded={expanded}
+								onCreateRequest={onCreateRequest}
 								onDeleteRequest={onDeleteRequest}
 								onToggle={onToggle}
 								onSelect={onSelect}
@@ -189,6 +207,7 @@ function WorkspaceTreeItem({
 }
 
 export function AppSidebar({
+	onCreateRequest,
 	onDeleteRequest,
 	onWorkspaceSelect,
 	selectedWorkspacePath,
@@ -230,6 +249,11 @@ export function AppSidebar({
 		});
 	}
 
+	useEffect(() => {
+		const availablePaths = collectDirectoryPaths(regularFiles);
+		setExpanded((current) => new Set([...current].filter((path) => availablePaths.has(path))));
+	}, [regularFiles]);
+
 	return (
 		<div
 			className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground"
@@ -237,6 +261,9 @@ export function AppSidebar({
 				showNativeContextMenu(
 					event,
 					[
+						{ id: 'new-file', label: 'New File' },
+						{ id: 'new-folder', label: 'New Folder' },
+						{ type: 'separator' },
 						{
 							id: 'expand-all',
 							label: 'Expand All',
@@ -255,6 +282,8 @@ export function AppSidebar({
 						},
 					],
 					{
+						'new-file': () => onCreateRequest('', 'file'),
+						'new-folder': () => onCreateRequest('', 'directory'),
 						'expand-all': () => {
 							setExpanded(collectDirectoryPaths(regularFiles));
 							setAgentExpanded(agentFiles.length > 0);
@@ -279,17 +308,17 @@ export function AppSidebar({
 			</header>
 
 			<nav
-				className="min-h-0 flex-1 overflow-y-auto px-2 pb-3 scrollbar-subtle"
+				className="min-h-0 flex-1 overflow-y-auto px-2 py-2 scrollbar-subtle"
 				aria-label="Workspace files"
 			>
 				{!workspaceLoading && !workspaceError && agentFiles.length > 0 ? (
-					<Collapsible open={agentExpanded} onOpenChange={setAgentExpanded}>
+					<Collapsible open={agentExpanded} onOpenChange={setAgentExpanded} className="mb-0.5">
 						<CollapsibleTrigger asChild>
 							<Button
 								type="button"
 								variant="ghost"
 								size="sm"
-								className="h-7 w-full justify-start gap-1.5 px-2 text-[12px] font-semibold text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-sidebar-ring focus-visible:ring-offset-0"
+								className="h-7 w-full justify-start gap-1.5 rounded-md px-2 text-[12px] font-semibold text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-sidebar-ring focus-visible:ring-offset-0"
 								onContextMenu={(event) => {
 									showNativeContextMenu(
 										event,
@@ -321,13 +350,14 @@ export function AppSidebar({
 							</Button>
 						</CollapsibleTrigger>
 						<CollapsibleContent>
-							<ul>
+							<ul className="space-y-0.5">
 								{agentFiles.map((entry) => (
 									<WorkspaceTreeItem
 										key={entry.path}
 										depth={1}
 										entry={entry}
 										expanded={expanded}
+										onCreateRequest={onCreateRequest}
 										onDeleteRequest={onDeleteRequest}
 										onToggle={toggleDirectory}
 										onSelect={onWorkspaceSelect}
@@ -340,6 +370,7 @@ export function AppSidebar({
 				) : null}
 				<WorkspaceTree
 					expanded={expanded}
+					onCreateRequest={onCreateRequest}
 					files={regularFiles}
 					loading={workspaceLoading}
 					error={workspaceError}
