@@ -107,6 +107,7 @@ beforeEach(() => {
 		databaseId: '',
 		embeddingProviderId: 'openai',
 		embeddingModelId: 'text-embedding-3-small',
+		embeddingConsent: null,
 		folders: [],
 		scheduleEnabled: false,
 		cronExpression: '0 3 * * *',
@@ -146,6 +147,27 @@ it('enables the Knowledge Base from its settings page', async () => {
 	await waitFor(() =>
 		expect(agentApi.ragSaveConfiguration).toHaveBeenCalledWith(
 			expect.objectContaining({ enabled: true })
+		)
+	);
+});
+
+it('records remote embedding consent for the selected provider and model', async () => {
+	const user = userEvent.setup();
+	render(<RagPage />);
+
+	const consent = await screen.findByRole('switch', {
+		name: 'Send document text for embeddings',
+	});
+	await user.click(consent);
+
+	await waitFor(() =>
+		expect(agentApi.ragSaveConfiguration).toHaveBeenCalledWith(
+			expect.objectContaining({
+				embeddingConsent: {
+					providerId: 'openai',
+					modelId: 'text-embedding-3-small',
+				},
+			})
 		)
 	);
 });

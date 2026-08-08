@@ -17,6 +17,7 @@ it('defaults, normalizes, and validates the configured RAG index name', () => {
 			databaseId: '',
 			embeddingProviderId: '',
 			embeddingModelId: '',
+			embeddingConsent: null,
 		})
 	);
 
@@ -28,6 +29,7 @@ it('defaults, normalizes, and validates the configured RAG index name', () => {
 			databaseId: ' pinecone ',
 			embeddingProviderId: ' openai ',
 			embeddingModelId: ' text-embedding-3-small ',
+			embeddingConsent: { providerId: ' openai ', modelId: ' text-embedding-3-small ' },
 			folders: ['/documents'],
 			scheduleEnabled: false,
 			cronExpression: '0 3 * * *',
@@ -40,6 +42,7 @@ it('defaults, normalizes, and validates the configured RAG index name', () => {
 			databaseId: 'pinecone',
 			embeddingProviderId: 'openai',
 			embeddingModelId: 'text-embedding-3-small',
+			embeddingConsent: { providerId: 'openai', modelId: 'text-embedding-3-small' },
 		})
 	);
 
@@ -51,6 +54,7 @@ it('defaults, normalizes, and validates the configured RAG index name', () => {
 			databaseId: '',
 			embeddingProviderId: '',
 			embeddingModelId: '',
+			embeddingConsent: null,
 			folders: [],
 			scheduleEnabled: false,
 			cronExpression: '0 3 * * *',

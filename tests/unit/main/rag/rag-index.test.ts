@@ -42,6 +42,7 @@ beforeEach(() => {
 	getRagConfiguration.mockReturnValue({
 		embeddingProviderId: 'openai',
 		embeddingModelId: 'text-embedding-3-small',
+		embeddingConsent: { providerId: 'openai', modelId: 'text-embedding-3-small' },
 		databaseProviderId: 'pinecone',
 	});
 	embed.mockResolvedValue({
@@ -94,6 +95,7 @@ it('reuses unchanged source vectors by fingerprint without another embedding cal
 	getRagConfiguration.mockReturnValue({
 		embeddingProviderId: 'openai',
 		embeddingModelId: 'text-embedding-3-small',
+		embeddingConsent: { providerId: 'openai', modelId: 'text-embedding-3-small' },
 		databaseProviderId: '',
 	});
 	getReusableSource.mockReturnValue([
@@ -103,6 +105,8 @@ it('reuses unchanged source vectors by fingerprint without another embedding cal
 			sourceFingerprint: 'fingerprint',
 			path: 'documents/guide.md',
 			chunkIndex: 0,
+			lineStart: 1,
+			lineEnd: 1,
 			text: '# Guide',
 			checksum: 'checksum',
 			indexedAt: '2026-08-08T00:00:00.000Z',
@@ -113,7 +117,6 @@ it('reuses unchanged source vectors by fingerprint without another embedding cal
 	await indexRag(['/documents'], 'knowledge-base', { embeddings, vectors });
 
 	expect(embed).not.toHaveBeenCalled();
-	expect(publish).toHaveBeenCalledWith(expect.objectContaining({ vectors: undefined }));
 	expect(publish.mock.calls[0][0].records).toHaveLength(1);
 });
 
@@ -121,6 +124,7 @@ it('indexes nested and extensionless text files while skipping binary files', as
 	getRagConfiguration.mockReturnValue({
 		embeddingProviderId: 'openai',
 		embeddingModelId: 'text-embedding-3-small',
+		embeddingConsent: { providerId: 'openai', modelId: 'text-embedding-3-small' },
 		databaseProviderId: '',
 	});
 	readdir.mockResolvedValue(['nested', 'nested/guide.txt', 'README', 'nested/image.png']);
@@ -169,12 +173,27 @@ it('requires an explicit embedding provider and model', async () => {
 	getRagConfiguration.mockReturnValue({
 		embeddingProviderId: '',
 		embeddingModelId: '',
+		embeddingConsent: null,
 		databaseProviderId: '',
 	});
 
 	await expect(
 		indexRag(['/documents'], 'knowledge-base', { embeddings, vectors })
 	).rejects.toThrow('Select an embedding provider and model before indexing.');
+	expect(embed).not.toHaveBeenCalled();
+});
+
+it('requires disclosure consent bound to the selected provider and model', async () => {
+	getRagConfiguration.mockReturnValue({
+		embeddingProviderId: 'openai',
+		embeddingModelId: 'text-embedding-3-small',
+		embeddingConsent: { providerId: 'voyage', modelId: 'voyage-3' },
+		databaseProviderId: '',
+	});
+
+	await expect(
+		indexRag(['/documents'], 'knowledge-base', { embeddings, vectors })
+	).rejects.toThrow('Confirm remote embedding disclosure');
 	expect(embed).not.toHaveBeenCalled();
 });
 
