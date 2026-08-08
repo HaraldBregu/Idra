@@ -34,7 +34,10 @@ const workspace = await friday.agent.getWorkspaceLocation();
 const files = await friday.agent.listWorkspaceFiles();
 const content = await friday.agent.readWorkspaceFile('USER.md');
 await friday.agent.writeWorkspaceMarkdown('USER.md', '# Updated');
+await friday.agent.createWorkspaceFile('', 'draft.md');
+await friday.agent.createWorkspaceDirectory('notes', 'ideas');
 await friday.agent.deleteWorkspaceFile('old.md');
+await friday.agent.deleteWorkspaceDirectory('archive');
 ```
 
 Streaming callbacks (for `app` events) use the SSE stream opened on first use; call
@@ -55,7 +58,10 @@ const files = await agent.listWorkspaceFiles();
 const content = await agent.readWorkspaceFile('USER.md');
 const image = await agent.readWorkspaceAsset('images/photo.png');
 await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
+await agent.createWorkspaceFile('', 'draft.md');
+await agent.createWorkspaceDirectory('notes', 'ideas');
 await agent.deleteWorkspaceFile('old.md');
+await agent.deleteWorkspaceDirectory('archive');
 const action = await win.showContextMenu([
 	{ type: 'role', role: 'copy' },
 	{ type: 'separator' },

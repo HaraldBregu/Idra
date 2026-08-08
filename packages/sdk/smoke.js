@@ -23,7 +23,10 @@ globalThis.agent = {
 	readWorkspaceFile: async (filePath) => `content:${filePath}`,
 	readWorkspaceAsset: async () => ({ mimeType: 'image/png', data: new Uint8Array([1, 2, 3]) }),
 	writeWorkspaceMarkdown: async () => undefined,
+	createWorkspaceFile: async (parentPath, name) => [parentPath, name].filter(Boolean).join('/'),
+	createWorkspaceDirectory: async (parentPath, name) => [parentPath, name].filter(Boolean).join('/'),
 	deleteWorkspaceFile: async () => undefined,
+	deleteWorkspaceDirectory: async () => undefined,
 };
 globalThis.win = {
 	showContextMenu: async (items) => items[0]?.id ?? null,
@@ -43,7 +46,10 @@ assert.deepEqual(await agent.readWorkspaceAsset('photo.png'), {
 	data: new Uint8Array([1, 2, 3]),
 });
 await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
+assert.equal(await agent.createWorkspaceFile('', 'draft.md'), 'draft.md');
+assert.equal(await agent.createWorkspaceDirectory('notes', 'ideas'), 'notes/ideas');
 await agent.deleteWorkspaceFile('old.md');
+await agent.deleteWorkspaceDirectory('archive');
 assert.equal(await win.showContextMenu([{ id: 'open', label: 'Open' }]), 'open');
 
 // --- remote mode: bound to the app API server --------------------------------
@@ -101,7 +107,10 @@ assert.deepEqual(await friday.agent.readWorkspaceAsset('photo.png'), {
 	data: new Uint8Array([1, 2, 3]),
 });
 await friday.agent.writeWorkspaceMarkdown('USER.md', '# Updated');
+await friday.agent.createWorkspaceFile('', 'draft.md');
+await friday.agent.createWorkspaceDirectory('notes', 'ideas');
 await friday.agent.deleteWorkspaceFile('old.md');
+await friday.agent.deleteWorkspaceDirectory('archive');
 
 assert.deepEqual(calls.map((call) => call.channel), [
 	'app:get-theme-data',
@@ -110,7 +119,10 @@ assert.deepEqual(calls.map((call) => call.channel), [
 	'agent:workspace:file:read',
 	'agent:workspace:asset:read',
 	'agent:workspace:markdown:write',
+	'agent:workspace:file:create',
+	'agent:workspace:directory:create',
 	'agent:workspace:file:delete',
+	'agent:workspace:directory:delete',
 ]);
 
 // events reach subscribers over the stream
