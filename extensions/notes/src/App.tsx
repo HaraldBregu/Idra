@@ -23,7 +23,14 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/sidebar';
+import {
+	Sidebar,
+	SidebarContent,
+	SidebarInset,
+	SidebarProvider,
+	SidebarResizeHandle,
+	SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { showNativeContextMenu } from '@/lib/menu';
 import { removeWorkspaceEntry } from '@/lib/remove';
@@ -461,7 +468,7 @@ export default function App() {
 
 	return (
 		<TooltipProvider delayDuration={400}>
-			<div
+			<SidebarProvider
 				className="flex h-dvh min-h-[520px] overflow-hidden bg-background text-foreground"
 				onContextMenu={(event) => {
 					showNativeContextMenu(
@@ -484,7 +491,7 @@ export default function App() {
 					);
 				}}
 			>
-				<Sidebar width={sidebarWidth}>
+				<Sidebar id="notes-workspace-sidebar" collapsible="offcanvas" width={sidebarWidth}>
 					<SidebarContent>{sidebar}</SidebarContent>
 					<SidebarResizeHandle
 						onPointerDown={startSidebarResize}
@@ -518,7 +525,7 @@ export default function App() {
 					/>
 				</Sidebar>
 
-				<main className="relative min-h-0 min-w-0 flex-1">
+				<SidebarInset>
 					<WorkspaceViewer
 						content={selectedContent}
 						dirty={selectedDirty}
@@ -536,10 +543,11 @@ export default function App() {
 						onSave={() => saveWorkspaceMarkdown(selectedPathRef.current, selectedContent)}
 						path={selectedWorkspacePath}
 						saveError={selectedSaveError}
+						sidebarTrigger={<SidebarTrigger />}
 						saving={selectedSaving}
 					/>
-				</main>
-			</div>
+				</SidebarInset>
+			</SidebarProvider>
 
 			<Dialog
 				open={Boolean(createRequest)}

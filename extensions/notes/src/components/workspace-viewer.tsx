@@ -1,4 +1,5 @@
 import { AlertCircle, Check, FileCode2, FileText, LoaderCircle, Save } from 'lucide-react';
+import type { ReactNode } from 'react';
 import type { WorkspaceFileKind } from '@friday/sdk';
 
 import { FileViewer } from '@/components/viewer';
@@ -19,6 +20,7 @@ interface WorkspaceViewerProps {
 	onSave: () => Promise<boolean>;
 	path: string | null;
 	saveError: string;
+	sidebarTrigger: ReactNode;
 	saving: boolean;
 }
 
@@ -35,6 +37,7 @@ export function WorkspaceViewer({
 	onSave,
 	path,
 	saveError,
+	sidebarTrigger,
 	saving,
 }: WorkspaceViewerProps) {
 	if (!path || !kind) {
@@ -44,6 +47,7 @@ export function WorkspaceViewer({
 				aria-label="Workspace file"
 			>
 				<header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-5">
+					{sidebarTrigger}
 					<div className="min-w-0 flex-1">
 						<h1 className="truncate text-[17px] font-semibold tracking-[-0.025em]">Workspace</h1>
 						<p className="mt-0.5 text-[11px] text-muted-foreground">
@@ -109,6 +113,7 @@ export function WorkspaceViewer({
 				}}
 			>
 				<header className="flex h-14 shrink-0 items-center gap-3 border-b px-3 sm:px-5">
+					{sidebarTrigger}
 					<div className="min-w-0 flex-1">
 						<h1 className="truncate text-[15px] font-semibold tracking-[-0.02em]">
 							{path.split(/[\\/]/).pop()}
