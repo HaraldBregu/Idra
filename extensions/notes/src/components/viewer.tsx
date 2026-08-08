@@ -3,6 +3,8 @@ import { FileQuestion, Music2 } from "lucide-react"
 import type { WorkspaceFileKind } from "@friday/sdk"
 
 import { CodeMirrorEditor } from "@/components/code-mirror-editor"
+import { MarkdownPreview } from "@/components/markdown"
+import { TabsContent } from "@/components/ui/tabs"
 import { copyImage } from "@/lib/image"
 import { showMediaContextMenu } from "@/lib/media"
 import { showNativeContextMenu } from "@/lib/menu"
@@ -11,28 +13,36 @@ interface FileViewerProps {
   canSave: boolean
   content: string
   kind: WorkspaceFileKind
+  markdownMode: "source" | "preview"
   onChange: (content: string) => void
   onSave: () => Promise<boolean>
   path: string
   url: string
 }
 
-export function FileViewer({ canSave, content, kind, onChange, onSave, path, url }: FileViewerProps) {
+export function FileViewer({ canSave, content, kind, markdownMode, onChange, onSave, path, url }: FileViewerProps) {
   const name = path.split(/[\\/]/).pop() ?? path
   const mediaRef = useRef<HTMLMediaElement | null>(null)
 
   if (kind === "markdown") {
     return (
-      <article className="mx-auto flex min-h-full w-full max-w-[920px] flex-col px-5 pb-12 pt-8 sm:px-8 lg:px-12">
-        <CodeMirrorEditor
-          key={path}
-          canSave={canSave}
-          value={content}
-          onChange={onChange}
-          onSave={onSave}
-          className="min-h-[calc(100dvh-8rem)] flex-1"
-        />
-      </article>
+      <>
+        <TabsContent value="source" forceMount className="m-0 min-h-full data-[state=inactive]:hidden">
+          <article className="mx-auto flex min-h-full w-full max-w-[920px] flex-col px-5 pb-12 pt-8 sm:px-8 lg:px-12">
+            <CodeMirrorEditor
+              key={path}
+              canSave={canSave}
+              value={content}
+              onChange={onChange}
+              onSave={onSave}
+              className="min-h-[calc(100dvh-8rem)] flex-1"
+            />
+          </article>
+        </TabsContent>
+        <TabsContent value="preview" forceMount className="m-0 min-h-full data-[state=inactive]:hidden">
+          <MarkdownPreview canSave={canSave} content={content} onSave={onSave} path={path} />
+        </TabsContent>
+      </>
     )
   }
 

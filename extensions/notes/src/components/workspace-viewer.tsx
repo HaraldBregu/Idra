@@ -1,8 +1,9 @@
-import { AlertCircle, Check, FileText, LoaderCircle, Save } from "lucide-react"
+import { AlertCircle, Check, FileCode2, FileText, LoaderCircle, Save } from "lucide-react"
 import type { WorkspaceFileKind } from "@friday/sdk"
 
 import { FileViewer } from "@/components/viewer"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { showNativeContextMenu } from "@/lib/menu"
 
 interface WorkspaceViewerProps {
@@ -11,8 +12,10 @@ interface WorkspaceViewerProps {
   error: string
   kind: WorkspaceFileKind | null
   loading: boolean
+  markdownMode: "source" | "preview"
   mediaUrl: string
   onChange: (content: string) => void
+  onMarkdownModeChange: (mode: "source" | "preview") => void
   onSave: () => Promise<boolean>
   path: string | null
   saveError: string
@@ -25,8 +28,10 @@ export function WorkspaceViewer({
   error,
   kind,
   loading,
+  markdownMode,
   mediaUrl,
   onChange,
+  onMarkdownModeChange,
   onSave,
   path,
   saveError,
@@ -57,6 +62,13 @@ export function WorkspaceViewer({
   }
 
   return (
+    <Tabs
+      value={kind === "markdown" ? markdownMode : undefined}
+      onValueChange={(value) => {
+        if (value === "source" || value === "preview") onMarkdownModeChange(value)
+      }}
+      asChild
+    >
     <section
       className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background"
       aria-label="Workspace file"
@@ -65,12 +77,19 @@ export function WorkspaceViewer({
           event,
           [
             ...(kind === "markdown"
-              ? [{ id: "save", label: "Save", accelerator: "CommandOrControl+S", enabled: dirty && !saving } as const, { type: "separator" } as const]
+              ? [
+                  { id: markdownMode === "source" ? "show-preview" : "show-source", label: markdownMode === "source" ? "Show Preview" : "Show Source" } as const,
+                  { type: "separator" } as const,
+                  { id: "save", label: "Save", accelerator: "CommandOrControl+S", enabled: dirty && !saving } as const,
+                  { type: "separator" } as const,
+                ]
               : []),
             { id: "copy-path", label: "Copy Path" },
           ],
           {
             save: () => onSave(),
+            "show-preview": () => onMarkdownModeChange("preview"),
+            "show-source": () => onMarkdownModeChange("source"),
             "copy-path": () => navigator.clipboard.writeText(path),
           },
         )
@@ -84,6 +103,14 @@ export function WorkspaceViewer({
 
         {kind === "markdown" && !loading ? (
           <div className="flex shrink-0 items-center gap-2">
+            <TabsList className="h-8">
+              <TabsTrigger value="source" className="h-6 gap-1.5 px-2 text-xs">
+                <FileCode2 className="h-3.5 w-3.5" /> Source
+              </TabsTrigger>
+              <TabsTrigger value="preview" className="h-6 gap-1.5 px-2 text-xs">
+                <FileText className="h-3.5 w-3.5" /> Preview
+              </TabsTrigger>
+            </TabsList>
             <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex" title={saveError || undefined}>
               {saveError ? <AlertCircle className="h-3.5 w-3.5 text-destructive" /> : saving ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
               {saveError ? "Save failed" : saving ? "Saving..." : dirty ? "Unsaved" : "Saved"}
@@ -105,9 +132,10 @@ export function WorkspaceViewer({
             <p className="max-w-md text-sm text-destructive">{error}</p>
           </div>
         ) : (
-          <FileViewer canSave={dirty && !saving} content={content} kind={kind} onChange={onChange} onSave={onSave} path={path} url={mediaUrl} />
+          <FileViewer canSave={dirty && !saving} content={content} kind={kind} markdownMode={markdownMode} onChange={onChange} onSave={onSave} path={path} url={mediaUrl} />
         )}
       </div>
     </section>
+    </Tabs>
   )
 }

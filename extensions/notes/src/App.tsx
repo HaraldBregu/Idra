@@ -53,6 +53,7 @@ export default function App() {
 	const [selectedError, setSelectedError] = useState('');
 	const [selectedSaving, setSelectedSaving] = useState(false);
 	const [selectedSaveError, setSelectedSaveError] = useState('');
+	const [markdownMode, setMarkdownMode] = useState<'source' | 'preview'>('source');
 	const [createRequest, setCreateRequest] = useState<{
 		parentPath: string;
 		type: 'file' | 'directory';
@@ -246,6 +247,7 @@ export default function App() {
 		const kind = workspaceFileType(entry.path).kind;
 		selectedPathRef.current = entry.path;
 		setSelectedWorkspacePath(entry.path);
+		setMarkdownMode('source');
 		setSelectedKind(kind);
 		selectedContentRef.current = '';
 		setSelectedContent('');
@@ -483,12 +485,14 @@ export default function App() {
 						error={selectedError}
 						kind={selectedKind}
 						loading={selectedLoading}
+						markdownMode={markdownMode}
 						mediaUrl={selectedMediaUrl}
 						onChange={(content) => {
 							selectedContentRef.current = content;
 							setSelectedContent(content);
 							setSelectedSaveError('');
 						}}
+						onMarkdownModeChange={setMarkdownMode}
 						onSave={() => saveWorkspaceMarkdown(selectedPathRef.current, selectedContent)}
 						path={selectedWorkspacePath}
 						saveError={selectedSaveError}
