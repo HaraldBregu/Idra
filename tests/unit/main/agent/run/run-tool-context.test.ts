@@ -395,6 +395,42 @@ describe('tool context permissions', () => {
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(read).not.toHaveBeenCalled();
 	});
+
+	it('requires a non-persistent approval before private read context reaches an external tool', async () => {
+		const context = createContext().toolsContext;
+		rememberTool(context, {
+			toolName: 'read',
+			fileName: 'private.txt',
+			path: '/workspace/private.txt',
+			folderPath: '/workspace',
+		});
+		const send = jest.fn().mockResolvedValue('sent');
+		const external = jsonTool({
+			name: 'external_send',
+			description: 'send externally',
+			defaultPermission: 'allow',
+			risk: 'medium',
+			effect: 'external',
+			schema: { type: 'object' },
+			execute: send,
+		});
+		const call: ToolCall = { id: 'external-after-read', name: external.name, args: {} };
+		const events = runToolCall(external, call, true, undefined, context, 'bypass');
+
+		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({
+			type: 'tool_permission_request',
+			hardApproval: true,
+			effect: 'external',
+		});
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		const end = events.next();
+		expect(respondToolPermission(request.approvalId, 'approve_always')).toBe(true);
+		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
+		expect(send).toHaveBeenCalledTimes(1);
+		expect(setToolPermission).not.toHaveBeenCalled();
+	});
 });
 
 function fakeTool(name: string, run: jest.Mock): Tool {
