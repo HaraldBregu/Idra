@@ -161,8 +161,10 @@ const messageBody = (args: Record<string, unknown>): string => {
 class SmtpSession {
 	private socket: net.Socket | tls.TLSSocket;
 	private buffer = '';
+	private readonly config: SmtpConfig;
 
-	constructor(private readonly config: SmtpConfig) {
+	constructor(config: SmtpConfig) {
+		this.config = config;
 		this.socket = config.secure
 			? tls.connect({ host: config.host, port: config.port, servername: config.host })
 			: net.connect({ host: config.host, port: config.port });
