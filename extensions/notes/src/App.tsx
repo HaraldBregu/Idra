@@ -13,6 +13,7 @@ import {
 import { AppSidebar } from '@/components/app-sidebar';
 import { WorkspaceViewer } from '@/components/workspace-viewer';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
 	Dialog,
 	DialogClose,
@@ -26,6 +27,7 @@ import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/si
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { showNativeContextMenu } from '@/lib/menu';
 import { removeWorkspaceEntry } from '@/lib/remove';
+import { isWorkspacePathWithin } from '@/lib/within';
 
 const fallbackTheme: AppThemeData = {
 	themeMode: 'light',
@@ -51,6 +53,13 @@ export default function App() {
 	const [selectedError, setSelectedError] = useState('');
 	const [selectedSaving, setSelectedSaving] = useState(false);
 	const [selectedSaveError, setSelectedSaveError] = useState('');
+	const [createRequest, setCreateRequest] = useState<{
+		parentPath: string;
+		type: 'file' | 'directory';
+	} | null>(null);
+	const [createName, setCreateName] = useState('');
+	const [createError, setCreateError] = useState('');
+	const [creating, setCreating] = useState(false);
 	const [deleteTarget, setDeleteTarget] = useState<WorkspaceTreeEntry | null>(null);
 	const [deleteError, setDeleteError] = useState('');
 	const [deleting, setDeleting] = useState(false);
@@ -61,7 +70,7 @@ export default function App() {
 	const saveSnapshotRef = useRef<{ filePath: string; content: string } | null>(null);
 	const closeAfterSaveRef = useRef(false);
 	const allowCloseRef = useRef(false);
-	const deletingPathRef = useRef<string | null>(null);
+	const deletingScopeRef = useRef<string | null>(null);
 	const selectionRequestRef = useRef(0);
 	const selectedDirty = selectedKind === 'markdown' && selectedContent !== selectedSavedContent;
 	useEffect(() => {
@@ -129,7 +138,9 @@ export default function App() {
 				!filePath ||
 				selectedKind !== 'markdown' ||
 				!isFriday() ||
-				deletingPathRef.current === filePath
+				(deletingScopeRef.current
+					? isWorkspacePathWithin(filePath, deletingScopeRef.current)
+					: false)
 			) {
 				return false;
 			}
@@ -270,18 +281,62 @@ export default function App() {
 		}
 	}
 
-	async function confirmDeleteWorkspaceFile() {
+	function startCreateWorkspaceEntry(parentPath: string, type: 'file' | 'directory') {
+		setCreateRequest({ parentPath, type });
+		setCreateName(type === 'file' ? 'Untitled.md' : 'New Folder');
+		setCreateError('');
+	}
+
+	async function confirmCreateWorkspaceEntry() {
+		if (!createRequest || creating || !isFriday()) return;
+		const name = createName.trim();
+		if (!name) {
+			setCreateError('Enter a name.');
+			return;
+		}
+		setCreating(true);
+		setCreateError('');
+		try {
+			const createdPath =
+				createRequest.type === 'directory'
+					? await agent.createWorkspaceDirectory(createRequest.parentPath, name)
+					: await agent.createWorkspaceFile(createRequest.parentPath, name);
+			setWorkspaceFiles(await agent.listWorkspaceFiles());
+			setWorkspaceError('');
+			setCreateRequest(null);
+			if (createRequest.type === 'file') {
+				await selectWorkspaceEntry({ name, path: createdPath, type: 'file' });
+			}
+		} catch (error) {
+			setCreateError(error instanceof Error ? error.message : 'Unable to create the item.');
+		} finally {
+			setCreating(false);
+		}
+	}
+
+	async function confirmDeleteWorkspaceEntry() {
 		if (!deleteTarget || deleting || !isFriday()) return;
-		const filePath = deleteTarget.path;
-		deletingPathRef.current = filePath;
+		const target = deleteTarget;
+		const targetPath = target.path;
+		deletingScopeRef.current = targetPath;
 		setDeleting(true);
 		setDeleteError('');
 		let deletionFailed = false;
 		try {
-			if (saveInFlightRef.current) await saveInFlightRef.current;
-			await agent.deleteWorkspaceFile(filePath);
-			setWorkspaceFiles((current) => removeWorkspaceEntry(current, filePath));
-			if (selectedPathRef.current === filePath) {
+			if (
+				saveInFlightRef.current &&
+				saveSnapshotRef.current &&
+				isWorkspacePathWithin(saveSnapshotRef.current.filePath, targetPath)
+			) {
+				await saveInFlightRef.current;
+			}
+			if (target.type === 'directory') await agent.deleteWorkspaceDirectory(targetPath);
+			else await agent.deleteWorkspaceFile(targetPath);
+			setWorkspaceFiles((current) => removeWorkspaceEntry(current, targetPath));
+			if (
+				selectedPathRef.current &&
+				isWorkspacePathWithin(selectedPathRef.current, targetPath)
+			) {
 				selectionRequestRef.current += 1;
 				selectedPathRef.current = null;
 				selectedContentRef.current = '';
@@ -290,6 +345,7 @@ export default function App() {
 				setSelectedContent('');
 				setSelectedSavedContent('');
 				setSelectedMediaUrl('');
+				setSelectedLoading(false);
 				setSelectedError('');
 				setSelectedSaveError('');
 			}
@@ -299,23 +355,28 @@ export default function App() {
 			} catch (error) {
 				setWorkspaceError(
 					error instanceof Error
-						? `File deleted, but the workspace could not refresh: ${error.message}`
-						: 'File deleted, but the workspace could not refresh.'
+						? `Item deleted, but the workspace could not refresh: ${error.message}`
+						: 'Item deleted, but the workspace could not refresh.'
 				);
 			}
 		} catch (error) {
 			deletionFailed = true;
-			setDeleteError(error instanceof Error ? error.message : 'Unable to delete the file.');
+			setDeleteError(
+				error instanceof Error
+					? error.message
+					: `Unable to delete the ${target.type === 'directory' ? 'folder' : 'file'}.`
+			);
 		} finally {
-			deletingPathRef.current = null;
+			deletingScopeRef.current = null;
 			setDeleting(false);
 		}
 		if (
 			deletionFailed &&
-			selectedPathRef.current === filePath &&
+			selectedPathRef.current &&
+			isWorkspacePathWithin(selectedPathRef.current, targetPath) &&
 			selectedContentRef.current !== selectedSavedContent
 		) {
-			void saveWorkspaceMarkdown(filePath, selectedContentRef.current);
+			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContentRef.current);
 		}
 	}
 
@@ -342,6 +403,7 @@ export default function App() {
 
 	const sidebar = (
 		<AppSidebar
+			onCreateRequest={startCreateWorkspaceEntry}
 			onDeleteRequest={(entry) => {
 				setDeleteError('');
 				setDeleteTarget(entry);
@@ -363,13 +425,20 @@ export default function App() {
 					showNativeContextMenu(
 						event,
 						[
+							{ id: 'new-file', label: 'New File' },
+							{ id: 'new-folder', label: 'New Folder' },
+							{ type: 'separator' },
 							{
 								id: 'copy-workspace-path',
 								label: 'Copy Workspace Path',
 								enabled: Boolean(workspaceLocation),
 							},
 						],
-						{ 'copy-workspace-path': () => navigator.clipboard.writeText(workspaceLocation) }
+						{
+							'new-file': () => startCreateWorkspaceEntry('', 'file'),
+							'new-folder': () => startCreateWorkspaceEntry('', 'directory'),
+							'copy-workspace-path': () => navigator.clipboard.writeText(workspaceLocation),
+						}
 					);
 				}}
 			>
@@ -429,6 +498,95 @@ export default function App() {
 			</div>
 
 			<Dialog
+				open={Boolean(createRequest)}
+				onOpenChange={(open) => {
+					if (!open && !creating) {
+						setCreateRequest(null);
+						setCreateError('');
+					}
+				}}
+			>
+				<DialogContent
+					onContextMenu={(event) => {
+						showNativeContextMenu(
+							event,
+							[
+								{ id: 'cancel', label: 'Cancel', enabled: !creating },
+								{
+									id: 'create',
+									label: createRequest?.type === 'directory' ? 'Create Folder' : 'Create File',
+									enabled: !creating && Boolean(createName.trim()),
+								},
+							],
+							{
+								cancel: () => setCreateRequest(null),
+								create: () => confirmCreateWorkspaceEntry(),
+							}
+						);
+					}}
+				>
+					<form
+						className="space-y-4"
+						onSubmit={(event) => {
+							event.preventDefault();
+							void confirmCreateWorkspaceEntry();
+						}}
+					>
+						<DialogHeader>
+							<DialogTitle>
+								Create {createRequest?.type === 'directory' ? 'Folder' : 'File'}
+							</DialogTitle>
+							<DialogDescription>
+								{createRequest?.parentPath
+									? `Create it inside ${createRequest.parentPath}.`
+									: 'Create it at the workspace root.'}
+							</DialogDescription>
+						</DialogHeader>
+						<div className="space-y-2">
+							<label htmlFor="workspace-entry-name" className="text-sm font-medium">
+								Name
+							</label>
+							<Input
+								id="workspace-entry-name"
+								autoFocus
+								value={createName}
+								disabled={creating}
+								onChange={(event) => {
+									setCreateName(event.target.value);
+									setCreateError('');
+								}}
+								onContextMenu={(event) => {
+									showNativeContextMenu(event, [
+										{ type: 'role', role: 'undo' },
+										{ type: 'role', role: 'redo' },
+										{ type: 'separator' },
+										{ type: 'role', role: 'cut' },
+										{ type: 'role', role: 'copy' },
+										{ type: 'role', role: 'paste' },
+										{ type: 'separator' },
+										{ type: 'role', role: 'selectAll' },
+									]);
+								}}
+							/>
+						</div>
+						{createError ? <p className="text-sm text-destructive">{createError}</p> : null}
+						<DialogFooter>
+							<DialogClose asChild>
+								<Button type="button" variant="outline" disabled={creating}>
+									Cancel
+								</Button>
+							</DialogClose>
+							<Button type="submit" disabled={creating || !createName.trim()}>
+								{creating
+									? 'Creating…'
+									: `Create ${createRequest?.type === 'directory' ? 'Folder' : 'File'}`}
+							</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
+
+			<Dialog
 				open={Boolean(deleteTarget)}
 				onOpenChange={(open) => {
 					if (!open && !deleting) {
@@ -443,11 +601,15 @@ export default function App() {
 							event,
 							[
 								{ id: 'cancel', label: 'Cancel', enabled: !deleting },
-								{ id: 'delete', label: 'Delete File', enabled: !deleting },
+								{
+									id: 'delete',
+									label: deleteTarget?.type === 'directory' ? 'Delete Folder' : 'Delete File',
+									enabled: !deleting,
+								},
 							],
 							{
 								cancel: () => setDeleteTarget(null),
-								delete: () => confirmDeleteWorkspaceFile(),
+								delete: () => confirmDeleteWorkspaceEntry(),
 							}
 						);
 					}}
@@ -455,8 +617,9 @@ export default function App() {
 					<DialogHeader>
 						<DialogTitle>Delete {deleteTarget?.name}?</DialogTitle>
 						<DialogDescription>
-							This permanently deletes the file from the agent workspace. This action cannot be
-							undone.
+							{deleteTarget?.type === 'directory'
+								? 'This permanently deletes the folder and everything inside it. This action cannot be undone.'
+								: 'This permanently deletes the file from the agent workspace. This action cannot be undone.'}
 						</DialogDescription>
 					</DialogHeader>
 					{deleteError ? <p className="text-sm text-destructive">{deleteError}</p> : null}
@@ -470,9 +633,11 @@ export default function App() {
 							type="button"
 							variant="destructive"
 							disabled={deleting}
-							onClick={() => void confirmDeleteWorkspaceFile()}
+							onClick={() => void confirmDeleteWorkspaceEntry()}
 						>
-							{deleting ? 'Deleting…' : 'Delete File'}
+							{deleting
+								? 'Deleting…'
+								: `Delete ${deleteTarget?.type === 'directory' ? 'Folder' : 'File'}`}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
