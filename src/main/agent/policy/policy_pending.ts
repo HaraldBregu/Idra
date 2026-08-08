@@ -25,7 +25,6 @@ export function waitForToolPermission(
 	if (signal?.aborted) return Promise.resolve('reject');
 	return new Promise((resolve) => {
 		const delay = Math.max(0, request.expiresAtMs - Date.now());
-		let timer: NodeJS.Timeout;
 		let settled = false;
 		const abort = (): void => settle('reject');
 		const settle = (decision: AgentToolPermissionDecision): void => {
@@ -36,7 +35,7 @@ export function waitForToolPermission(
 			signal?.removeEventListener('abort', abort);
 			resolve(decision);
 		};
-		timer = setTimeout(() => settle('reject'), delay);
+		const timer = setTimeout(() => settle('reject'), delay);
 		timer.unref?.();
 		pending.get(request.approvalId)?.settle('reject');
 		pending.set(request.approvalId, { request, settle, timer });

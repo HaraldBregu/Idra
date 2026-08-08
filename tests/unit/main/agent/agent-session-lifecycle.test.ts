@@ -69,6 +69,7 @@ jest.mock('../../../../src/main/agent/run/run_stream', () => ({
 			if (signal.aborted) resolve();
 			else signal.addEventListener('abort', () => resolve(), { once: true });
 		});
+		yield* [];
 	},
 }));
 
