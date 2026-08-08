@@ -4,6 +4,7 @@ import {
 	agent,
 	app,
 	isFriday,
+	win,
 	workspaceFileType,
 	type AppThemeData,
 	type WorkspaceFileKind,
@@ -41,7 +42,10 @@ export default function App() {
 	const [selectedSaveError, setSelectedSaveError] = useState('');
 	const [sidebarWidth, setSidebarWidth] = useState(sidebarDefaultWidth);
 	const selectedPathRef = useRef<string | null>(null);
-	const saveInFlightRef = useRef(false);
+	const saveInFlightRef = useRef<Promise<boolean> | null>(null);
+	const saveSnapshotRef = useRef<{ filePath: string; content: string } | null>(null);
+	const closeAfterSaveRef = useRef(false);
+	const allowCloseRef = useRef(false);
 	const selectionRequestRef = useRef(0);
 	const selectedDirty = selectedKind === 'markdown' && selectedContent !== selectedSavedContent;
 	const themeStyle = Object.fromEntries(
@@ -98,27 +102,41 @@ export default function App() {
 		filePath = selectedPathRef.current,
 		content = selectedContent
 	): Promise<boolean> {
-		if (!filePath || selectedKind !== 'markdown' || !isFriday() || saveInFlightRef.current) {
-			return false;
+		if (!filePath || selectedKind !== 'markdown' || !isFriday()) return false;
+		const pendingSave = saveInFlightRef.current;
+		if (pendingSave) {
+			const pendingSnapshot = saveSnapshotRef.current;
+			if (pendingSnapshot?.filePath === filePath && pendingSnapshot.content === content) {
+				return pendingSave;
+			}
+			await pendingSave;
+			return saveWorkspaceMarkdown(filePath, content);
 		}
-		saveInFlightRef.current = true;
+
 		setSelectedSaving(true);
 		setSelectedSaveError('');
-		try {
-			await agent.writeWorkspaceMarkdown(filePath, content);
-			if (selectedPathRef.current === filePath) setSelectedSavedContent(content);
-			return true;
-		} catch (error) {
-			if (selectedPathRef.current === filePath) {
-				setSelectedSaveError(
-					error instanceof Error ? error.message : 'Unable to save the Markdown file.'
-				);
-			}
-			return false;
-		} finally {
-			saveInFlightRef.current = false;
-			if (selectedPathRef.current === filePath) setSelectedSaving(false);
-		}
+		saveSnapshotRef.current = { filePath, content };
+		const operation = Promise.resolve()
+			.then(() => agent.writeWorkspaceMarkdown(filePath, content))
+			.then(() => {
+				if (selectedPathRef.current === filePath) setSelectedSavedContent(content);
+				return true;
+			})
+			.catch((error) => {
+				if (selectedPathRef.current === filePath) {
+					setSelectedSaveError(
+						error instanceof Error ? error.message : 'Unable to save the Markdown file.'
+					);
+				}
+				return false;
+			})
+			.finally(() => {
+				saveInFlightRef.current = null;
+				saveSnapshotRef.current = null;
+				if (selectedPathRef.current === filePath) setSelectedSaving(false);
+			});
+		saveInFlightRef.current = operation;
+		return operation;
 	}, [selectedContent, selectedKind]);
 
 	useEffect(() => {
@@ -130,19 +148,31 @@ export default function App() {
 	}, [saveWorkspaceMarkdown, selectedContent, selectedDirty, selectedSaveError, selectedSaving]);
 
 	useEffect(() => {
-		if (!selectedDirty) return;
+		if (!selectedDirty && !selectedSaving) return;
 		const preventUnsavedClose = (event: BeforeUnloadEvent) => {
+			if (allowCloseRef.current) return;
+			if (selectedSaveError && !selectedSaving) {
+				allowCloseRef.current = true;
+				return;
+			}
 			event.preventDefault();
 			event.returnValue = 'Changes are still being saved.';
-			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContent);
+			if (closeAfterSaveRef.current) return;
+			closeAfterSaveRef.current = true;
+			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContent).then((saved) => {
+				closeAfterSaveRef.current = false;
+				if (!saved) return;
+				allowCloseRef.current = true;
+				win.close();
+			});
 		};
 		window.addEventListener('beforeunload', preventUnsavedClose);
 		return () => window.removeEventListener('beforeunload', preventUnsavedClose);
-	}, [saveWorkspaceMarkdown, selectedContent, selectedDirty]);
+	}, [saveWorkspaceMarkdown, selectedContent, selectedDirty, selectedSaveError, selectedSaving]);
 
 	async function selectWorkspaceEntry(entry: WorkspaceTreeEntry) {
 		if (entry.type !== 'file') return;
-		if (selectedKind === 'markdown' && selectedContent !== selectedSavedContent) {
+		if (selectedKind === 'markdown' && (selectedContent !== selectedSavedContent || selectedSaving)) {
 			const saved = await saveWorkspaceMarkdown(selectedPathRef.current, selectedContent);
 			if (!saved) return;
 		}
