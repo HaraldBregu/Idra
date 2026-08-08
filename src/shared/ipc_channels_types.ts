@@ -88,6 +88,10 @@ export interface AgentInvokeChannelMap {
 		args: [parentPath: string, name: string];
 		result: string;
 	};
+	[AgentChannels.moveWorkspaceEntry]: {
+		args: [sourcePath: string, destinationDirectoryPath: string];
+		result: string;
+	};
 	[AgentChannels.deleteWorkspaceFile]: {
 		args: [filePath: string];
 		result: void;

@@ -126,6 +126,7 @@ export interface AgentApi {
 	writeWorkspaceMarkdown: (filePath: string, content: string) => Promise<void>;
 	createWorkspaceFile: (parentPath: string, name: string) => Promise<string>;
 	createWorkspaceDirectory: (parentPath: string, name: string) => Promise<string>;
+	moveWorkspaceEntry: (sourcePath: string, destinationDirectoryPath: string) => Promise<string>;
 	deleteWorkspaceFile: (filePath: string) => Promise<void>;
 	deleteWorkspaceDirectory: (directoryPath: string) => Promise<void>;
 	getProvider: () => Promise<PublicProvider | undefined>;

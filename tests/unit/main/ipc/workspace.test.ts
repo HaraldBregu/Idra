@@ -7,6 +7,7 @@ import { createWorkspaceEntry } from '../../../../src/main/ipc/create';
 import { deleteWorkspaceFile } from '../../../../src/main/ipc/delete';
 import { deleteWorkspaceDirectory } from '../../../../src/main/ipc/directory';
 import { writeWorkspaceMarkdown } from '../../../../src/main/ipc/markdown';
+import { moveWorkspaceEntry } from '../../../../src/main/ipc/move';
 import { resolveWorkspaceFile } from '../../../../src/main/ipc/workspace';
 import { workspaceFileType } from '../../../../src/shared/workspace';
 
@@ -124,6 +125,35 @@ describe('workspace files', () => {
 		await expect(fs.stat(path.join(root, 'folder'))).rejects.toThrow();
 		await expect(deleteWorkspaceDirectory(root, '.')).rejects.toThrow('root cannot be deleted');
 		await expect(deleteWorkspaceDirectory(root, 'note.md')).rejects.toThrow('not a folder');
+
+		await fs.rm(root, { recursive: true });
+	});
+
+	it('moves files and folders without overwriting or creating directory cycles', async () => {
+		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-workspace-'));
+		await fs.mkdir(path.join(root, 'source'));
+		await fs.mkdir(path.join(root, 'destination'));
+		await fs.writeFile(path.join(root, 'source', 'note.md'), '# Note');
+
+		await expect(moveWorkspaceEntry(root, 'source/note.md', 'destination')).resolves.toBe(
+			'destination/note.md'
+		);
+		await expect(fs.readFile(path.join(root, 'destination', 'note.md'), 'utf8')).resolves.toBe(
+			'# Note'
+		);
+		await expect(moveWorkspaceEntry(root, 'source', 'destination')).resolves.toBe(
+			'destination/source'
+		);
+		await expect(
+			moveWorkspaceEntry(root, 'destination', 'destination/source')
+		).rejects.toThrow('cannot be moved into itself');
+		await fs.writeFile(path.join(root, 'note.md'), '# Existing');
+		await expect(moveWorkspaceEntry(root, 'destination/note.md', '')).rejects.toThrow(
+			'already exists'
+		);
+		await expect(moveWorkspaceEntry(root, '.', 'destination')).rejects.toThrow(
+			'root cannot be moved'
+		);
 
 		await fs.rm(root, { recursive: true });
 	});

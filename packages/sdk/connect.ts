@@ -13,6 +13,7 @@ export type WorkspaceAgentApi = Pick<
 	| 'writeWorkspaceMarkdown'
 	| 'createWorkspaceFile'
 	| 'createWorkspaceDirectory'
+	| 'moveWorkspaceEntry'
 	| 'deleteWorkspaceFile'
 	| 'deleteWorkspaceDirectory'
 >;
@@ -157,6 +158,10 @@ export function connect(options: ConnectOptions): FridayClient {
 			createWorkspaceDirectory: (parentPath, name) =>
 				invoke(AgentChannels.createWorkspaceDirectory, [parentPath, name]) as ReturnType<
 					AgentApi['createWorkspaceDirectory']
+				>,
+			moveWorkspaceEntry: (sourcePath, destinationDirectoryPath) =>
+				invoke(AgentChannels.moveWorkspaceEntry, [sourcePath, destinationDirectoryPath]) as ReturnType<
+					AgentApi['moveWorkspaceEntry']
 				>,
 			deleteWorkspaceFile: (filePath) =>
 				invoke(AgentChannels.deleteWorkspaceFile, [filePath]) as ReturnType<

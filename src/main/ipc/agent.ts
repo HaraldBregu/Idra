@@ -62,6 +62,7 @@ import { createWorkspaceEntry } from './create';
 import { deleteWorkspaceFile } from './delete';
 import { deleteWorkspaceDirectory } from './directory';
 import { writeWorkspaceMarkdown } from './markdown';
+import { moveWorkspaceEntry } from './move';
 import { resolveWorkspaceFile } from './workspace';
 
 export interface AgentIpcDeps {
@@ -389,6 +390,25 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 					'directory'
 				);
 			}, AgentChannels.createWorkspaceDirectory)
+		);
+
+		ipcMain.handle(
+			AgentChannels.moveWorkspaceEntry,
+			wrapSimpleHandler(
+				async (sourcePath: unknown, destinationDirectoryPath: unknown): Promise<string> => {
+					const normalizedSourcePath = optionalTrimmedString(sourcePath);
+					if (!normalizedSourcePath) throw new Error('Invalid workspace source path.');
+					if (typeof destinationDirectoryPath !== 'string') {
+						throw new Error('Invalid workspace destination path.');
+					}
+					return moveWorkspaceEntry(
+						workspacePath(agent.config),
+						normalizedSourcePath,
+						destinationDirectoryPath.trim()
+					);
+				},
+				AgentChannels.moveWorkspaceEntry
+			)
 		);
 
 		ipcMain.handle(
