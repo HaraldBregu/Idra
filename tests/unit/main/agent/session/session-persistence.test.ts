@@ -61,6 +61,34 @@ describe('session persistence', () => {
 		]);
 	});
 
+	it('stores attachment payloads as verified session blobs instead of transcript base64', () => {
+		const location = path.join(temporaryRoot, 'agent');
+		const state = createSessionState();
+		state.id = SESSION_ID;
+		state.folderName = SESSION_ID;
+		state.sessionsPath = sessionsRoot(location);
+		const base64 = Buffer.from('attachment payload').toString('base64');
+		state.messages = [
+			{
+				role: 'user',
+				content: [
+					{ type: 'text', text: 'Read this.' },
+					{ type: 'file', name: 'note.txt', mimeType: 'text/plain', base64 },
+				],
+			},
+		];
+
+		persist(state);
+
+		const stored = fs.readFileSync(messagesFilePath(state), 'utf8');
+		expect(stored).not.toContain(base64);
+		expect(stored).toContain('"attachment"');
+		expect(fs.readdirSync(path.join(path.dirname(messagesFilePath(state)), 'attachments'))).toHaveLength(
+			1
+		);
+		expect(loadMessagesBySessionId(SESSION_ID, location)[0].content).toEqual(state.messages[0].content);
+	});
+
 	it('writes only semantic run events and skips raw deltas', () => {
 		const state = createSessionState();
 		state.id = SESSION_ID;

@@ -1,5 +1,6 @@
 import type { SessionState } from './session_types';
 import { ensureSession } from './session_ensure_session';
+import { externalizeAttachments } from './session_externalize_attachments';
 import { messagesBackupFilePath } from './session_messages_backup_file_path';
 import { messagesFilePath } from './session_messages_file_path';
 import { writeMessagesFile } from './session_write_messages';
@@ -10,6 +11,6 @@ export function persist(state: SessionState): void {
 	writeMessagesFile(
 		messagesFilePath(state),
 		messagesBackupFilePath(state),
-		`${JSON.stringify(state.messages, null, '\t')}\n`
+		`${JSON.stringify(externalizeAttachments(state.messages, state), null, '\t')}\n`
 	);
 }
