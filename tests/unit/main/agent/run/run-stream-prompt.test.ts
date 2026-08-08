@@ -161,6 +161,7 @@ describe('run stream system prompt', () => {
 			execute: search,
 		});
 		runModelTurnMock.mockImplementationOnce(async function* () {
+			yield* [];
 			return {
 				content: '',
 				model: 'test-model',
