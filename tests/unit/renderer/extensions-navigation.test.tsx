@@ -32,7 +32,7 @@ beforeEach(() => {
 			list: jest.fn().mockResolvedValue(extensions),
 			open: jest.fn(),
 			openRoot: jest.fn(),
-			delete: jest.fn(),
+			delete: jest.fn().mockResolvedValue(undefined),
 			import: jest.fn(),
 		},
 	});
