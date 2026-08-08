@@ -17,6 +17,7 @@ import { wikiStateStore } from '../../../../src/main/wiki/wiki_state_store';
 import { wikiSourceStore } from '../../../../src/main/wiki/wiki_source_store';
 import { wikiFailureStore } from '../../../../src/main/wiki/wiki_failure_store';
 import { wikiOperationStore } from '../../../../src/main/wiki/wiki_operation_store';
+import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
 
 describe('runWiki', () => {
 	beforeEach(() => {
@@ -34,6 +35,7 @@ describe('runWiki', () => {
 		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-run-'));
 		const sourcePath = path.join(root, 'raw');
 		const targetPath = path.join(root, 'data');
+		const repository = getWikiRepository(targetPath);
 		await import('node:fs/promises').then(({ mkdir }) => mkdir(sourcePath, { recursive: true }));
 		await writeFile(path.join(sourcePath, 'notes.md'), 'Version one', 'utf8');
 		wikiSettingsStore.store = {
@@ -116,10 +118,10 @@ describe('runWiki', () => {
 		await expect(readFile(path.join(targetPath, 'AGENTS.md'), 'utf8')).rejects.toMatchObject({
 			code: 'ENOENT',
 		});
-		expect(Object.values(wikiOperationStore.store.operations)[0]).toMatchObject({
+		expect(Object.values(repository.operations.store.operations)[0]).toMatchObject({
 			status: 'rolled_back',
 		});
-		expect(wikiFailureStore.store.operations).toHaveLength(1);
+		expect(repository.failures.store.operations).toHaveLength(1);
 	});
 
 	it('returns without model or filesystem work when globally disabled', async () => {
@@ -145,6 +147,7 @@ describe('runWiki', () => {
 		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-cancel-'));
 		const sourcePath = path.join(root, 'raw');
 		const targetPath = path.join(root, 'data');
+		const repository = getWikiRepository(targetPath);
 		await import('node:fs/promises').then(({ mkdir }) => mkdir(sourcePath, { recursive: true }));
 		await writeFile(path.join(sourcePath, 'slow.md'), 'Slow source', 'utf8');
 		wikiSettingsStore.store = {
@@ -184,7 +187,7 @@ describe('runWiki', () => {
 		expect(wikiRuntime.run).toBeUndefined();
 		expect(wikiRuntime.controller).toBeUndefined();
 		expect(wikiRuntime.progress).toBeUndefined();
-		expect(Object.values(wikiOperationStore.store.operations)[0]).toMatchObject({
+		expect(Object.values(repository.operations.store.operations)[0]).toMatchObject({
 			status: 'rolled_back',
 		});
 	});

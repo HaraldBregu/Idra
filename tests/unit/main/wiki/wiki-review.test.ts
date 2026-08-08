@@ -5,8 +5,7 @@ import matter from 'gray-matter';
 import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
 import { reviewWikiChange } from '../../../../src/main/wiki/wiki_review';
 import { saveWikiAnalysis } from '../../../../src/main/wiki/wiki_save_analysis';
-import { wikiReviewStore } from '../../../../src/main/wiki/wiki_review_store';
-import { wikiSourceStore } from '../../../../src/main/wiki/wiki_source_store';
+import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
 import {
 	DEFAULT_WIKI_SETTINGS,
 	wikiSettingsStore,
@@ -229,7 +228,8 @@ describe('incremental wiki knowledge integration', () => {
 			writeFile(archive, 'Evidence A', 'utf8')
 		);
 		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, enabled: true, targetPath: target };
-		wikiSourceStore.store = {
+		const repository = getWikiRepository(target);
+		repository.sources.store = {
 			version: 1,
 			sources: {
 				[sourceA.sourceId!]: {
@@ -282,7 +282,8 @@ describe('incremental wiki knowledge integration', () => {
 			writeFile(archive, 'Evidence B', 'utf8')
 		);
 		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, enabled: true, targetPath: target };
-		wikiSourceStore.store = {
+		const repository = getWikiRepository(target);
+		repository.sources.store = {
 			version: 1,
 			sources: {
 				[sourceB.sourceId!]: {
@@ -327,7 +328,7 @@ describe('incremental wiki knowledge integration', () => {
 			},
 			{ operationId: 'operation-proposed' }
 		);
-		wikiReviewStore.store = { version: 1, items: proposed.reviewItems! };
+		repository.reviews.store = { version: 1, items: proposed.reviewItems! };
 
 		const reviewed = await reviewWikiChange(proposed.reviewItems![0].id, 'approve');
 		const page = matter(await readFile(path.join(target, 'syntheses/reviewed.md'), 'utf8'));

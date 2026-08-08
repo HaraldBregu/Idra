@@ -3,13 +3,12 @@ import os from 'node:os';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { lintWiki } from '../../../../src/main/wiki/wiki_lint';
-import { wikiSourceStore } from '../../../../src/main/wiki/wiki_source_store';
-import { wikiManifestStore } from '../../../../src/main/wiki/wiki_manifest_store';
+import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
 
 describe('wiki lint', () => {
 	it('reports structural and provenance findings and safely rebuilds a drifted index', async () => {
 		const target = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-lint-'));
-		wikiSourceStore.store = { version: 1, sources: {} };
+		const repository = getWikiRepository(target);
 		await import('node:fs/promises').then(({ mkdir }) =>
 			mkdir(path.join(target, 'concepts'), { recursive: true })
 		);
@@ -56,7 +55,7 @@ describe('wiki lint', () => {
 		expect(await readFile(path.join(target, 'log.md'), 'utf8')).toContain(
 			'lint | Wiki integrity check'
 		);
-		expect(wikiManifestStore.store.pages['concept-example']).toMatchObject({
+		expect(repository.manifest.store.pages['concept-example']).toMatchObject({
 			path: 'concepts/example.md',
 			pageType: 'concept',
 		});

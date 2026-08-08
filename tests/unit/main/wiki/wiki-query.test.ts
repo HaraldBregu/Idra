@@ -3,9 +3,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
 import { buildWikiAnswerContext } from '../../../../src/main/wiki/wiki_answer_context';
+import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
 import { readWikiPage } from '../../../../src/main/wiki/wiki_read_page';
 import { searchWiki } from '../../../../src/main/wiki/wiki_search';
-import { wikiSourceStore } from '../../../../src/main/wiki/wiki_source_store';
 import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
 
 const source: WikiSource = {
@@ -21,8 +21,9 @@ describe('wiki-first query retrieval', () => {
 		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-query-'));
 		const target = path.join(root, 'wiki');
 		const archive = path.join(root, 'memory.md');
+		const repository = getWikiRepository(target);
 		await writeFile(archive, source.content, 'utf8');
-		wikiSourceStore.store = {
+		repository.sources.store = {
 			version: 1,
 			sources: {
 				[source.sourceId!]: {
