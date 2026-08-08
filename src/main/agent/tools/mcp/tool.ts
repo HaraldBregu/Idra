@@ -22,6 +22,8 @@ export function mcpTool(
 		description,
 		defaultPermission: approval === 'never' ? 'allow' : 'ask',
 		hardApproval: approval === 'always',
+		risk: 'high',
+		effect: 'external',
 		timeoutMs: MCP_TOOL_TIMEOUT_MS,
 		maxOutputBytes: MCP_MAX_OUTPUT_BYTES,
 		parseInput,

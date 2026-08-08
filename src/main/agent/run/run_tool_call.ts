@@ -77,7 +77,11 @@ export async function* runToolCall(
 						tool.defaultPermission
 					);
 
-		const hardApproval = tool.hardApproval === true || tool.alwaysAsk === true;
+		const carriesPrivateRead =
+			(tool.effect === 'external' || tool.effect === 'paid') &&
+			context?.tools?.some((entry) => entry.toolName === 'read') === true;
+		const hardApproval =
+			tool.hardApproval === true || tool.alwaysAsk === true || carriesPrivateRead;
 		if (hardApproval || (tool.alwaysAsk && permissionMode !== 'bypass')) permission = 'ask';
 		if (permission === 'ask' && !interactive) permission = 'deny';
 
@@ -109,7 +113,6 @@ export async function* runToolCall(
 				expiresAtMs,
 				hardApproval,
 			});
-			if (decision !== 'reject' && toolCall.name === 'read' && state) rememberTool(context, state);
 			if (decision === 'reject' && tool.stopOnReject && context) context.cancelled = true;
 			if (decision === 'approve_always' && !hardApproval) {
 				if (targets.length === 0) {
@@ -141,6 +144,7 @@ export async function* runToolCall(
 						aborted,
 					]);
 					output = limitToolOutput(output, tool.maxOutputBytes);
+					if (toolCall.name === 'read' && state) rememberTool(context, state);
 					if (createsFile && state) rememberTool(context, state);
 				} finally {
 					if (abort) toolSignal.removeEventListener('abort', abort);
