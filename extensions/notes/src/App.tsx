@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 
 import {
 	agent,
@@ -94,7 +94,7 @@ export default function App() {
 		};
 	}, []);
 
-	async function saveWorkspaceMarkdown(
+	const saveWorkspaceMarkdown = useCallback(async function saveWorkspaceMarkdown(
 		filePath = selectedPathRef.current,
 		content = selectedContent
 	): Promise<boolean> {
@@ -119,7 +119,7 @@ export default function App() {
 			saveInFlightRef.current = false;
 			if (selectedPathRef.current === filePath) setSelectedSaving(false);
 		}
-	}
+	}, [selectedContent, selectedKind]);
 
 	useEffect(() => {
 		if (!selectedDirty || selectedSaving || selectedSaveError) return;
@@ -127,7 +127,7 @@ export default function App() {
 			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContent);
 		}, 700);
 		return () => window.clearTimeout(timeout);
-	}, [selectedContent, selectedDirty, selectedSaveError, selectedSaving]);
+	}, [saveWorkspaceMarkdown, selectedDirty, selectedSaveError, selectedSaving]);
 
 	useEffect(() => {
 		if (!selectedDirty) return;
@@ -138,7 +138,7 @@ export default function App() {
 		};
 		window.addEventListener('beforeunload', preventUnsavedClose);
 		return () => window.removeEventListener('beforeunload', preventUnsavedClose);
-	}, [selectedContent, selectedDirty]);
+	}, [saveWorkspaceMarkdown, selectedDirty]);
 
 	async function selectWorkspaceEntry(entry: WorkspaceTreeEntry) {
 		if (entry.type !== 'file') return;
