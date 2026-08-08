@@ -53,7 +53,9 @@ import {
 	type RagMatch,
 } from '../rag';
 import type { RagConfiguration } from '../../shared/rag_types';
-import { workspaceFileType, type WorkspaceAsset } from '../../shared/workspace';
+import type { WorkspaceAsset } from '../../shared/workspace';
+import { readWorkspaceAsset } from './asset';
+import { writeWorkspaceMarkdown } from './markdown';
 import { resolveWorkspaceFile } from './workspace';
 
 export interface AgentIpcDeps {
@@ -301,20 +303,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler(async (filePath: unknown): Promise<WorkspaceAsset> => {
 				const normalizedFilePath = optionalTrimmedString(filePath);
 				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
-				const resolvedPath = await resolveWorkspaceFile(
-					workspacePath(agent.config),
-					normalizedFilePath
-				);
-				const stats = await fs.stat(resolvedPath);
-				if (!stats.isFile()) throw new Error('Workspace path is not a file.');
-				const fileType = workspaceFileType(resolvedPath);
-				if (!fileType.mimeType || !['image', 'audio', 'video', 'pdf'].includes(fileType.kind)) {
-					throw new Error('Workspace file is not a supported asset.');
-				}
-				return {
-					mimeType: fileType.mimeType,
-					data: new Uint8Array(await fs.readFile(resolvedPath)),
-				};
+				return readWorkspaceAsset(workspacePath(agent.config), normalizedFilePath);
 			}, AgentChannels.readWorkspaceAsset)
 		);
 
@@ -324,16 +313,11 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				const normalizedFilePath = optionalTrimmedString(filePath);
 				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
 				if (typeof content !== 'string') throw new Error('Invalid workspace file content.');
-				const resolvedPath = await resolveWorkspaceFile(
+				await writeWorkspaceMarkdown(
 					workspacePath(agent.config),
-					normalizedFilePath
+					normalizedFilePath,
+					content
 				);
-				const stats = await fs.stat(resolvedPath);
-				if (!stats.isFile()) throw new Error('Workspace path is not a file.');
-				if (workspaceFileType(resolvedPath).kind !== 'markdown') {
-					throw new Error('Only Markdown workspace files can be edited.');
-				}
-				await fs.writeFile(resolvedPath, content, 'utf8');
 			}, AgentChannels.writeWorkspaceMarkdown)
 		);
 
