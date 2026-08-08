@@ -56,22 +56,24 @@ export function configureLocalMcpServer(
 	const discovered = listLocalMcpServers(searchRoots).servers.find((entry) => entry.id === serverId);
 	if (!discovered?.path) throw new Error(`No local MCP server "${id}".`);
 	let server = discovered;
+	let serverPath = discovered.path;
 
-	const relativePath = path.relative(localRoot, path.resolve(server.path));
+	const relativePath = path.relative(localRoot, path.resolve(serverPath));
 	const isInstalled = relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
 	if (!isInstalled) {
 		const importResult = importLocalMcpServers([server.path], root);
 		if (importResult.imported.length === 0) {
 			throw new Error(importResult.skipped[0]?.reason ?? `Unable to configure local MCP server "${id}".`);
 		}
-		server = readLocalMcpServer(path.resolve(root, server.id));
+		serverPath = path.resolve(root, server.id);
+		server = readLocalMcpServer(serverPath);
 	}
 	if (server.data.type !== 'stdio')
 		throw new Error('Local MCP servers require stdio configuration.');
 	const serverData = server.data;
 
-	const manifestPath = path.join(server.path, 'mcp.json');
-	const temporaryPath = path.join(server.path, `.mcp-${randomUUID()}.json`);
+	const manifestPath = path.join(serverPath, 'mcp.json');
+	const temporaryPath = path.join(serverPath, `.mcp-${randomUUID()}.json`);
 	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
 	const next = {
 		...manifest,
@@ -92,5 +94,5 @@ export function configureLocalMcpServer(
 		if (existsSync(temporaryPath)) rmSync(temporaryPath);
 	}
 
-	return readLocalMcpServer(server.path);
+	return readLocalMcpServer(serverPath);
 }
