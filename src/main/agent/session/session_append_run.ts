@@ -7,5 +7,6 @@ import { stringifyRunEntry } from './session_stringify_run_entry';
 export function appendRun(state: SessionState, entry: unknown): void {
 	if (!state.sessionsPath) return;
 	ensureSession(state);
-	appendFileSync(runFilePath(state), `${stringifyRunEntry(entry)}\n`, 'utf8');
+	const serialized = stringifyRunEntry(entry);
+	if (serialized) appendFileSync(runFilePath(state), `${serialized}\n`, 'utf8');
 }

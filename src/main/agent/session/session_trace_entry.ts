@@ -1,0 +1,116 @@
+export function semanticRunEntry(entry: unknown): Record<string, unknown> | undefined {
+	if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return { type: 'invalid_event' };
+	const event = entry as Record<string, unknown>;
+	if (typeof event.type !== 'string') return { type: 'invalid_event' };
+	if (
+		event.type === 'model_call_delta' ||
+		event.type === 'model_provider_item' ||
+		event.type === 'model_tool_call_args_delta'
+	) {
+		return undefined;
+	}
+	if (event.type === 'run_started') {
+		return {
+			type: event.type,
+			...(typeof event.sessionId === 'string' ? { sessionId: event.sessionId } : {}),
+			...(typeof event.model === 'string' ? { model: event.model } : {}),
+			...(typeof event.providerId === 'string' ? { providerId: event.providerId } : {}),
+			toolCount: Array.isArray(event.tools) ? event.tools.length : 0,
+		};
+	}
+	if (event.type === 'assistant_message') {
+		return {
+			type: event.type,
+			contentChars: typeof event.content === 'string' ? event.content.length : 0,
+			toolCallCount: Array.isArray(event.toolCalls) ? event.toolCalls.length : 0,
+		};
+	}
+	if (event.type === 'model_call_start' || event.type === 'model_call_end') {
+		const usage =
+			event.usage && typeof event.usage === 'object' && !Array.isArray(event.usage)
+				? (event.usage as Record<string, unknown>)
+				: undefined;
+		return {
+			type: event.type,
+			...(typeof event.model === 'string' ? { model: event.model } : {}),
+			...(typeof event.effort === 'string' ? { effort: event.effort } : {}),
+			...(typeof event.stopReason === 'string' ? { stopReason: event.stopReason } : {}),
+			...(usage
+				? {
+						usage: {
+							...(typeof usage.inputTokens === 'number'
+								? { inputTokens: usage.inputTokens }
+								: {}),
+							...(typeof usage.outputTokens === 'number'
+								? { outputTokens: usage.outputTokens }
+								: {}),
+						},
+					}
+				: {}),
+		};
+	}
+	if (event.type === 'tool_call_start' || event.type === 'model_tool_call_start') {
+		return {
+			type: event.type,
+			...(typeof event.toolCallId === 'string' ? { toolCallId: event.toolCallId } : {}),
+			...(typeof event.id === 'string' ? { id: event.id } : {}),
+			...(typeof event.toolName === 'string' ? { toolName: event.toolName } : {}),
+			...(typeof event.name === 'string' ? { name: event.name } : {}),
+		};
+	}
+	if (event.type === 'tool_call_end') {
+		return {
+			type: event.type,
+			...(typeof event.toolCallId === 'string' ? { toolCallId: event.toolCallId } : {}),
+			...(typeof event.toolName === 'string' ? { toolName: event.toolName } : {}),
+			...(typeof event.isError === 'boolean' ? { isError: event.isError } : {}),
+			...(typeof event.durationMs === 'number' ? { durationMs: event.durationMs } : {}),
+		};
+	}
+	if (event.type === 'tool_permission_request') {
+		return {
+			type: event.type,
+			...(typeof event.approvalId === 'string' ? { approvalId: event.approvalId } : {}),
+			...(typeof event.toolCallId === 'string' ? { toolCallId: event.toolCallId } : {}),
+			...(typeof event.toolName === 'string' ? { toolName: event.toolName } : {}),
+			...(typeof event.risk === 'string' ? { risk: event.risk } : {}),
+			...(typeof event.effect === 'string' ? { effect: event.effect } : {}),
+			...(typeof event.hardApproval === 'boolean' ? { hardApproval: event.hardApproval } : {}),
+			...(typeof event.expiresAt === 'string' ? { expiresAt: event.expiresAt } : {}),
+		};
+	}
+	if (event.type === 'run_finished') {
+		const result =
+			event.result && typeof event.result === 'object' && !Array.isArray(event.result)
+				? (event.result as Record<string, unknown>)
+				: undefined;
+		const usage =
+			result?.usage && typeof result.usage === 'object' && !Array.isArray(result.usage)
+				? (result.usage as Record<string, unknown>)
+				: undefined;
+		return {
+			type: event.type,
+			...(typeof result?.sessionId === 'string' ? { sessionId: result.sessionId } : {}),
+			...(typeof result?.model === 'string' ? { model: result.model } : {}),
+			...(typeof result?.subtype === 'string' ? { subtype: result.subtype } : {}),
+			...(typeof result?.stopReason === 'string' ? { stopReason: result.stopReason } : {}),
+			...(typeof result?.numTurns === 'number' ? { numTurns: result.numTurns } : {}),
+			outputChars: typeof result?.text === 'string' ? result.text.length : 0,
+			toolCallCount: Array.isArray(result?.toolCalls) ? result.toolCalls.length : 0,
+			...(usage
+				? {
+						usage: {
+							...(typeof usage.inputTokens === 'number'
+								? { inputTokens: usage.inputTokens }
+								: {}),
+							...(typeof usage.outputTokens === 'number'
+								? { outputTokens: usage.outputTokens }
+								: {}),
+						},
+					}
+				: {}),
+		};
+	}
+	if (event.type === 'run_error') return { type: event.type };
+	return { type: event.type };
+}

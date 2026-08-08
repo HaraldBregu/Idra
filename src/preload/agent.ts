@@ -38,6 +38,7 @@ function normalizeAgentSendRuntimeOptions(
 	options?: Record<string, unknown>
 ): Record<string, unknown> | undefined {
 	if (!options) return undefined;
+	const files = normalizeAgentInputFiles(options.files);
 	const normalized: Record<string, unknown> = {
 		...(optionalTrimmedString(options.runId)
 			? { runId: optionalTrimmedString(options.runId) }
@@ -66,9 +67,7 @@ function normalizeAgentSendRuntimeOptions(
 		...(optionalStringList(options.toolsDeny)
 			? { toolsDeny: optionalStringList(options.toolsDeny) }
 			: {}),
-		...(normalizeAgentInputFiles(options.files)
-			? { files: normalizeAgentInputFiles(options.files) }
-			: {}),
+		...(files ? { files } : {}),
 	};
 	return Object.keys(normalized).length > 0 ? normalized : undefined;
 }

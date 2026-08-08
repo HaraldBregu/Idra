@@ -51,16 +51,42 @@ describe('toResult', () => {
 	});
 });
 
-describe('stringifyRunEntry', () => {
+	describe('stringifyRunEntry', () => {
 	it('wraps an event with a timestamp', () => {
-		const parsed = JSON.parse(stringifyRunEntry({ type: 'x' }));
+		const parsed = JSON.parse(stringifyRunEntry({ type: 'x' })!);
 		expect(parsed.event).toEqual({ type: 'x' });
 		expect(typeof parsed.timestamp).toBe('string');
 	});
-	it('falls back for unserializable input', () => {
+	it('replaces invalid events without serializing their payload', () => {
 		const circular: Record<string, unknown> = {};
 		circular.self = circular;
-		const parsed = JSON.parse(stringifyRunEntry(circular));
-		expect(parsed.event).toEqual({ type: 'unserializable' });
+		const parsed = JSON.parse(stringifyRunEntry(circular)!);
+		expect(parsed.event).toEqual({ type: 'invalid_event' });
+	});
+	it('omits raw deltas and provider payloads', () => {
+		expect(stringifyRunEntry({ type: 'model_call_delta', delta: 'private answer' })).toBeUndefined();
+		expect(
+			stringifyRunEntry({ type: 'model_provider_item', item: { secret: 'provider payload' } })
+		).toBeUndefined();
+	});
+	it('keeps semantic tool timing without input or output payloads', () => {
+		const serialized = stringifyRunEntry({
+			type: 'tool_call_end',
+			toolCallId: 'call-1',
+			toolName: 'exec',
+			input: { token: 'secret-input' },
+			output: 'secret-output',
+			isError: false,
+			durationMs: 12,
+		});
+		expect(serialized).not.toContain('secret-input');
+		expect(serialized).not.toContain('secret-output');
+		expect(JSON.parse(serialized!).event).toEqual({
+			type: 'tool_call_end',
+			toolCallId: 'call-1',
+			toolName: 'exec',
+			isError: false,
+			durationMs: 12,
+		});
 	});
 });
