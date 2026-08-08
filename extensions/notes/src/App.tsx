@@ -127,7 +127,7 @@ export default function App() {
 			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContent);
 		}, 700);
 		return () => window.clearTimeout(timeout);
-	}, [saveWorkspaceMarkdown, selectedDirty, selectedSaveError, selectedSaving]);
+	}, [saveWorkspaceMarkdown, selectedContent, selectedDirty, selectedSaveError, selectedSaving]);
 
 	useEffect(() => {
 		if (!selectedDirty) return;
@@ -138,7 +138,7 @@ export default function App() {
 		};
 		window.addEventListener('beforeunload', preventUnsavedClose);
 		return () => window.removeEventListener('beforeunload', preventUnsavedClose);
-	}, [saveWorkspaceMarkdown, selectedDirty]);
+	}, [saveWorkspaceMarkdown, selectedContent, selectedDirty]);
 
 	async function selectWorkspaceEntry(entry: WorkspaceTreeEntry) {
 		if (entry.type !== 'file') return;
