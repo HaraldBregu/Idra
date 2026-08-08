@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { AlertTriangle, ListChecks } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
@@ -11,6 +14,7 @@ import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
+	SettingsRow,
 	SettingsSection,
 } from '../../../components';
 
@@ -23,6 +27,8 @@ const TaskDetailsPage: React.FC = () => {
 	const [task, setTask] = useState<Task | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [saving, setSaving] = useState(false);
+	const [toolsAllow, setToolsAllow] = useState('');
 
 	useEffect(() => {
 		let mounted = true;
@@ -30,7 +36,13 @@ const TaskDetailsPage: React.FC = () => {
 		void window.tasks
 			.list()
 			.then((tasks) => {
-				if (mounted) setTask(tasks.find((item) => item.id === decodedTaskId) ?? null);
+				if (mounted) {
+					const selected = tasks.find((item) => item.id === decodedTaskId) ?? null;
+					setTask(selected);
+					setToolsAllow(
+						selected?.action.type === 'agent' ? (selected.action.toolsAllow ?? []).join(', ') : ''
+					);
+				}
 			})
 			.catch((caught: unknown) => {
 				if (mounted) setError(caught instanceof Error ? caught.message : String(caught));
@@ -74,6 +86,24 @@ const TaskDetailsPage: React.FC = () => {
 	const actionType = task.action.type === 'agent'
 		? t('settings.cron.detail.agent')
 		: t('settings.cron.detail.debug');
+	const saveCapabilities = async (): Promise<void> => {
+		if (task.action.type !== 'agent') return;
+		setSaving(true);
+		setError(null);
+		try {
+			setTask(
+				await window.tasks.configureCapabilities(
+					task.id,
+					task.enabled,
+					toolsAllow.split(',').map((name) => name.trim()).filter(Boolean)
+				)
+			);
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setSaving(false);
+		}
+	};
 
 	return (
 		<SettingsPageShell>
@@ -123,6 +153,38 @@ const TaskDetailsPage: React.FC = () => {
 					<pre className="whitespace-pre-wrap break-words font-sans text-xs leading-5 text-foreground">{action}</pre>
 				</Card>
 			</SettingsSection>
+
+			{task.action.type === 'agent' && (
+				<SettingsSection
+					title={t('settings.cron.detail.capabilities')}
+					description={t('settings.cron.detail.capabilitiesDescription')}
+				>
+					<Card size="sm" className="grid gap-3 p-3!">
+						<SettingsRow
+							title={t('settings.cron.detail.enabled')}
+							description={t('settings.cron.detail.enabledDescription')}
+							actions={
+								<Switch
+									checked={task.enabled}
+									disabled={saving}
+									onCheckedChange={(enabled) => setTask({ ...task, enabled })}
+								/>
+							}
+						/>
+						<Input
+							value={toolsAllow}
+							disabled={saving}
+							placeholder={t('settings.cron.detail.toolsPlaceholder')}
+							onChange={(event) => setToolsAllow(event.target.value)}
+						/>
+						<div className="flex justify-end">
+							<Button size="sm" disabled={saving} onClick={() => void saveCapabilities()}>
+								{t('settings.cron.detail.saveCapabilities')}
+							</Button>
+						</div>
+					</Card>
+				</SettingsSection>
+			)}
 		</SettingsPageShell>
 	);
 };

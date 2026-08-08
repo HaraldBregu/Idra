@@ -20,6 +20,7 @@ export { listJobs } from './tasks_list_jobs';
 export { deleteJob } from './tasks_delete_job';
 export { getTaskState, setTaskState } from './tasks_store';
 export { setTaskRunner } from './tasks_module_state';
+export { configureScheduleCapabilities } from './tasks_configure_capabilities';
 export {
 	DEFAULT_TASK_STATE,
 	type TaskAction,

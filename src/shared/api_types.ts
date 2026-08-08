@@ -147,6 +147,11 @@ export interface TaskApi {
 	list: () => Promise<TaskSchedule[]>;
 	getRuntime: () => Promise<TaskRuntime | undefined>;
 	setRuntime: (providerId: string, modelId: string) => Promise<TaskRuntime>;
+	configureCapabilities: (
+		scheduleId: string,
+		enabled: boolean,
+		toolsAllow: string[]
+	) => Promise<TaskSchedule>;
 }
 
 export interface SkillsApi {

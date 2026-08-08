@@ -192,6 +192,10 @@ export interface TaskInvokeChannelMap {
 		args: [providerId: string, modelId: string];
 		result: import('../main/tasks').TaskRuntime;
 	};
+	[TaskChannels.configureCapabilities]: {
+		args: [scheduleId: string, enabled: boolean, toolsAllow: string[]];
+		result: import('../main/tasks').TaskSchedule;
+	};
 }
 
 export interface SkillsInvokeChannelMap {

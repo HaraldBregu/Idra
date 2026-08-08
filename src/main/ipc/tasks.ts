@@ -1,6 +1,6 @@
 import type { EventBus } from '../event_bus';
 import { TaskChannels } from '../../shared/ipc_channels_definitions';
-import { getRuntime, listSchedules, setRuntime } from '../tasks';
+import { configureScheduleCapabilities, getRuntime, listSchedules, setRuntime } from '../tasks';
 import { registerCommand, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 
@@ -13,5 +13,13 @@ export class TaskIpc implements IpcModule {
 		registerCommand(TaskChannels.setRuntime, (providerId: string, modelId: string) => {
 			return setRuntime(providerId, modelId);
 		});
+		registerCommand(
+			TaskChannels.configureCapabilities,
+			(scheduleId: string, enabled: boolean, toolsAllow: string[]) => {
+				if (typeof scheduleId !== 'string' || typeof enabled !== 'boolean' || !Array.isArray(toolsAllow))
+					throw new Error('Invalid schedule capability configuration.');
+				return configureScheduleCapabilities(scheduleId, enabled, toolsAllow);
+			}
+		);
 	}
 }
