@@ -167,6 +167,17 @@ const RagPage: React.FC = () => {
 		void saveRagConfiguration({ ...ragConfiguration, enabled });
 	};
 
+	const handleEmbeddingConsentChange = (enabled: boolean): void => {
+		if (!ragConfiguration) return;
+		void saveRagConfiguration({
+			...ragConfiguration,
+			embeddingConsent:
+				enabled && embeddingProviderId && embeddingModelId
+					? { providerId: embeddingProviderId, modelId: embeddingModelId }
+					: null,
+		});
+	};
+
 	const pickSourceFolder = async (): Promise<void> => {
 		setError(null);
 		try {
@@ -249,6 +260,9 @@ const RagPage: React.FC = () => {
 	const selectedEmbeddingModel = embeddingModels.find(
 		(entry) => entry.provider.id === embeddingProviderId && entry.id === embeddingModelId
 	);
+	const embeddingConsentMatches =
+		ragConfiguration?.embeddingConsent?.providerId === embeddingProviderId &&
+		ragConfiguration.embeddingConsent.modelId === embeddingModelId;
 	const selectedSchedule = SETTINGS_SCHEDULES.find(
 		(schedule) => schedule.cron === ragConfiguration?.cronExpression
 	);
@@ -277,6 +291,24 @@ const RagPage: React.FC = () => {
 								disabled={!ragConfiguration || savingRagConfiguration || indexing}
 								aria-label={t('settings.rag.enabled')}
 								onCheckedChange={handleEnabledChange}
+							/>
+						}
+					/>
+					<SettingsRow
+						title={t('settings.rag.embeddingConsent')}
+						description={t('settings.rag.embeddingConsentDescription')}
+						actions={
+							<Switch
+								checked={embeddingConsentMatches}
+								disabled={
+									!ragConfiguration ||
+									!embeddingProviderId ||
+									!embeddingModelId ||
+									savingRagConfiguration ||
+									indexing
+								}
+								aria-label={t('settings.rag.embeddingConsent')}
+								onCheckedChange={handleEmbeddingConsentChange}
 							/>
 						}
 					/>

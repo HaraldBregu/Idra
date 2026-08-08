@@ -1372,6 +1372,11 @@
 		"rag": {
 			"title": "Base di conoscenza",
 			"description": "Indicizza ricorsivamente i file di testo nelle cartelle selezionate e cercali come vettori.",
+			"behaviorTitle": "Comportamento della base di conoscenza",
+			"enabled": "Abilita la base di conoscenza",
+			"enabledDescription": "Consenti l'indicizzazione dei documenti e la ricerca dell'assistente.",
+			"embeddingConsent": "Invia il testo dei documenti per gli embedding",
+			"embeddingConsentDescription": "Consenti a Friday di inviare parti dei documenti al provider di embedding selezionato. Cambiare provider o modello richiede un nuovo consenso.",
 			"embeddingModelTitle": "Modello di embedding",
 			"embeddingModelDescription": "Modello usato per incorporare i documenti RAG per la ricerca vettoriale.",
 			"configurationTitle": "Configurazione",
