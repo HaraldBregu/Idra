@@ -6,7 +6,7 @@
 	"args": ["--experimental-strip-types", "src/index.ts"],
 	"cwd": ".",
 	"env": {
-		"RESEND_API_BASE_URL": "https://api.resend.com",
+		"RESEND_API_BASE_URL": "",
 		"RESEND_API_KEY": ""
 	},
 	"require_approval": "always",
