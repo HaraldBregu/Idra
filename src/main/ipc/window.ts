@@ -9,7 +9,18 @@ import type { EventBus } from '../event_bus';
 import { wrapIpcHandler } from './core/error_handler';
 import { WindowChannels } from '../../shared/ipc_channels_definitions';
 import type { LoggerService } from '../shared';
-import type { ContextMenuDescriptor } from '../../shared/window_types';
+import type { ContextMenuDescriptor, ContextMenuRole } from '../../shared/window_types';
+
+const contextMenuRoles = new Set<ContextMenuRole>([
+	'undo',
+	'redo',
+	'cut',
+	'copy',
+	'paste',
+	'pasteAndMatchStyle',
+	'delete',
+	'selectAll',
+]);
 
 export interface WindowIpcDeps {
 	logger: LoggerService;
@@ -102,10 +113,13 @@ export class WindowIpc implements IpcModule<WindowIpcDeps> {
 					const template: MenuItemConstructorOptions[] = items.map((item) => {
 						if (item.type === 'separator') return { type: 'separator' };
 						if (item.type === 'role') {
+							if (!contextMenuRoles.has(item.role)) {
+								throw new Error(`Unsupported context menu role: ${item.role}`);
+							}
 							return {
 								role: item.role,
 								label: item.label,
-								enabled: item.enabled ?? true,
+								...(item.enabled === undefined ? {} : { enabled: item.enabled }),
 							};
 						}
 						if (!item.id.trim() || !item.label.trim()) {

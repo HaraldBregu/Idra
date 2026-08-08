@@ -43,5 +43,5 @@ it('shows a native context menu and returns the selected item id', async () => {
 		])
 	).resolves.toEqual({ success: true, data: 'open' });
 	expect(fromWebContents).toHaveBeenCalledTimes(1);
-	expect(builtTemplate[2]).toMatchObject({ role: 'copy', enabled: true });
+	expect(builtTemplate[2]).toEqual({ role: 'copy', label: undefined });
 });
