@@ -92,8 +92,8 @@ describe('MCP details', () => {
 		expect(screen.getByLabelText('Command')).toHaveValue('node');
 		expect(screen.getByLabelText('Working directory (optional)')).toHaveValue('/local');
 		const [envKey, envValue] = [
-			...screen.getAllByLabelText('Key'),
-			...screen.getAllByLabelText('Value'),
+			screen.getAllByLabelText('Key')[0],
+			screen.getAllByLabelText('Value')[0],
 		];
 		await user.clear(envKey);
 		await user.type(envKey, 'DEMO_COMPANY');
