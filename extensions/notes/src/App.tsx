@@ -42,6 +42,7 @@ export default function App() {
 	const [selectedSaveError, setSelectedSaveError] = useState('');
 	const [sidebarWidth, setSidebarWidth] = useState(sidebarDefaultWidth);
 	const selectedPathRef = useRef<string | null>(null);
+	const selectedContentRef = useRef('');
 	const saveInFlightRef = useRef<Promise<boolean> | null>(null);
 	const saveSnapshotRef = useRef<{ filePath: string; content: string } | null>(null);
 	const closeAfterSaveRef = useRef(false);
@@ -139,6 +140,21 @@ export default function App() {
 		return operation;
 	}, [selectedContent, selectedKind]);
 
+	const saveLatestWorkspaceMarkdown = useCallback(async function saveLatestWorkspaceMarkdown(
+		filePath = selectedPathRef.current
+	): Promise<boolean> {
+		if (!filePath) return false;
+		let content = selectedContentRef.current;
+		while (selectedPathRef.current === filePath) {
+			const saved = await saveWorkspaceMarkdown(filePath, content);
+			if (!saved) return false;
+			const latestContent = selectedContentRef.current;
+			if (latestContent === content) return true;
+			content = latestContent;
+		}
+		return false;
+	}, [saveWorkspaceMarkdown]);
+
 	useEffect(() => {
 		if (!selectedDirty || selectedSaving || selectedSaveError) return;
 		const timeout = window.setTimeout(() => {
@@ -159,7 +175,7 @@ export default function App() {
 			event.returnValue = 'Changes are still being saved.';
 			if (closeAfterSaveRef.current) return;
 			closeAfterSaveRef.current = true;
-			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContent).then((saved) => {
+			void saveLatestWorkspaceMarkdown(selectedPathRef.current).then((saved) => {
 				closeAfterSaveRef.current = false;
 				if (!saved) return;
 				allowCloseRef.current = true;
@@ -168,12 +184,12 @@ export default function App() {
 		};
 		window.addEventListener('beforeunload', preventUnsavedClose);
 		return () => window.removeEventListener('beforeunload', preventUnsavedClose);
-	}, [saveWorkspaceMarkdown, selectedContent, selectedDirty, selectedSaveError, selectedSaving]);
+	}, [saveLatestWorkspaceMarkdown, selectedDirty, selectedSaveError, selectedSaving]);
 
 	async function selectWorkspaceEntry(entry: WorkspaceTreeEntry) {
 		if (entry.type !== 'file') return;
 		if (selectedKind === 'markdown' && (selectedContent !== selectedSavedContent || selectedSaving)) {
-			const saved = await saveWorkspaceMarkdown(selectedPathRef.current, selectedContent);
+			const saved = await saveLatestWorkspaceMarkdown(selectedPathRef.current);
 			if (!saved) return;
 		}
 
@@ -183,6 +199,7 @@ export default function App() {
 		selectedPathRef.current = entry.path;
 		setSelectedWorkspacePath(entry.path);
 		setSelectedKind(kind);
+		selectedContentRef.current = '';
 		setSelectedContent('');
 		setSelectedSavedContent('');
 		setSelectedError('');
@@ -203,6 +220,7 @@ export default function App() {
 			} else {
 				const content = await agent.readWorkspaceFile(entry.path);
 				if (selectionRequestRef.current !== requestId) return;
+				selectedContentRef.current = content;
 				setSelectedContent(content);
 				setSelectedSavedContent(content);
 			}
@@ -267,6 +285,7 @@ export default function App() {
 						loading={selectedLoading}
 						mediaUrl={selectedMediaUrl}
 						onChange={(content) => {
+							selectedContentRef.current = content;
 							setSelectedContent(content);
 							setSelectedSaveError('');
 						}}
