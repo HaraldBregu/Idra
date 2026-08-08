@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import type { McpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
@@ -12,25 +12,31 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { McpOAuthButton } from './McpOAuthButton';
 
-function parseEnv(text: string): Record<string, string> | undefined {
-	const env: Record<string, string> = {};
-	for (const line of text.split('\n')) {
-		const trimmed = line.trim();
-		const eq = trimmed.indexOf('=');
-		if (eq <= 0) continue;
-		env[trimmed.slice(0, eq).trim()] = trimmed.slice(eq + 1).trim();
-	}
-	return Object.keys(env).length > 0 ? env : undefined;
+type EnvVariable = {
+	readonly key: string;
+	readonly value: string;
+};
+
+function parseEnvEntries(env?: Readonly<Record<string, string>>): EnvVariable[] {
+	return Object.entries(env ?? {}).map(([key, value]) => ({
+		key,
+		value,
+	}));
 }
 
-function formatEnv(env?: Readonly<Record<string, string>>): string {
-	return Object.entries(env ?? {})
-		.map(([key, value]) => `${key}=${value}`)
-		.join('\n');
+function serializeEnvEntries(entries: readonly EnvVariable[]): Record<string, string> | undefined {
+	const nextEnv: Record<string, string> = {};
+
+	for (const entry of entries) {
+		const key = entry.key.trim();
+		if (!key) continue;
+		nextEnv[key] = entry.value.trim();
+	}
+
+	return Object.keys(nextEnv).length > 0 ? nextEnv : undefined;
 }
 
 const TYPE_LABELS = { http: 'Remote (HTTP)', stdio: 'Local (command)' } as const;
@@ -59,7 +65,9 @@ export function McpServerForm({
 	);
 	const [command, setCommand] = useState(entry?.type === 'stdio' ? entry.command : '');
 	const [args, setArgs] = useState(entry?.type === 'stdio' ? (entry.args?.join(' ') ?? '') : '');
-	const [env, setEnv] = useState(entry?.type === 'stdio' ? formatEnv(entry.env) : '');
+	const [env, setEnv] = useState<EnvVariable[]>(entry?.type === 'stdio' ? parseEnvEntries(entry.env) : []);
+	const [envKey, setEnvKey] = useState('');
+	const [envValue, setEnvValue] = useState('');
 	const [cwd, setCwd] = useState(entry?.type === 'stdio' ? (entry.cwd ?? '') : '');
 	const [approval, setApproval] = useState<'default' | 'always' | 'never'>(
 		entry?.require_approval ?? 'default'
@@ -97,9 +105,29 @@ export function McpServerForm({
 					command: command.trim(),
 					// ponytail: args split on whitespace; quoted arguments not supported
 					args: args.trim() ? args.trim().split(/\s+/) : undefined,
-					env: parseEnv(env),
+					env: serializeEnvEntries(env),
 					cwd: cwd.trim() || undefined,
 				};
+	};
+
+	const addEnvironmentVariable = (): void => {
+		const nextKey = envKey.trim();
+		if (!nextKey) return;
+		setEnv((current) => [...current, { key: nextKey, value: envValue }]);
+		setEnvKey('');
+		setEnvValue('');
+	};
+
+	const removeEnvironmentVariable = (indexToRemove: number): void => {
+		setEnv((current) => current.filter((_, index) => index !== indexToRemove));
+	};
+
+	const updateEnvironmentVariable = (indexToUpdate: number, patch: Partial<EnvVariable>): void => {
+		setEnv((current) =>
+			current.map((entry, index) =>
+				index === indexToUpdate ? { ...entry, ...patch } : entry
+			)
+		);
 	};
 
 	const isValid = Boolean(serverId && (type === 'http' ? url.trim() : command.trim()));
@@ -283,17 +311,90 @@ export function McpServerForm({
 							autoComplete="off"
 						/>
 					</Field>
-					<Field>
-						<Label htmlFor="mcp-env">Environment variables (optional)</Label>
-						<Textarea
-							id="mcp-env"
-							value={env}
-							onChange={(e) => setEnv(e.target.value)}
-							placeholder={'API_KEY=value\nOTHER=value'}
-							rows={3}
-							autoComplete="off"
-						/>
-					</Field>
+									<Field>
+								<Label>Environment variables (optional)</Label>
+								<div className="grid gap-2">
+									{env.map((entry, index) => (
+										<div key={`${entry.key}-${index}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+											<Field className="mb-0">
+												<Label className="text-xs text-muted-foreground">Key</Label>
+												<Input
+													value={entry.key}
+													onChange={(e) => updateEnvironmentVariable(index, { key: e.target.value })}
+													autoComplete="off"
+													placeholder="KEY"
+													spellCheck={false}
+												/>
+											</Field>
+											<Field className="mb-0">
+												<Label className="text-xs text-muted-foreground">Value</Label>
+												<Input
+													value={entry.value}
+													onChange={(e) =>
+														updateEnvironmentVariable(index, { value: e.target.value })
+													}
+													autoComplete="off"
+													placeholder="VALUE"
+													spellCheck={false}
+												/>
+											</Field>
+											<div className="flex items-end">
+												<Button
+													type="button"
+													variant="ghost"
+													size="icon-sm"
+													className="h-8 w-8"
+													aria-label={`Remove ${entry.key || 'environment'} variable`}
+													onClick={() => removeEnvironmentVariable(index)}
+												>
+													<Trash2 className="size-3.5" />
+												</Button>
+											</div>
+										</div>
+									))}
+									<div className="mt-1 grid grid-cols-[1fr_1fr_auto] gap-2">
+										<Field className="mb-0">
+											<Label className="text-xs text-muted-foreground">Key</Label>
+											<Input
+												value={envKey}
+												onChange={(e) => setEnvKey(e.target.value)}
+												placeholder="KEY"
+												autoComplete="off"
+												spellCheck={false}
+											/>
+										</Field>
+										<Field className="mb-0">
+											<Label className="text-xs text-muted-foreground">Value</Label>
+											<Input
+												value={envValue}
+												onChange={(e) => setEnvValue(e.target.value)}
+												placeholder="VALUE"
+												autoComplete="off"
+												spellCheck={false}
+												onKeyDown={(event) => {
+													if (event.key === 'Enter') {
+														event.preventDefault();
+														addEnvironmentVariable();
+													}
+												}}
+											/>
+										</Field>
+										<div className="flex items-end">
+											<Button
+												type="button"
+												size="sm"
+												className="h-9"
+												disabled={!envKey.trim()}
+												onClick={addEnvironmentVariable}
+												aria-label="Add environment variable"
+											>
+												<Plus className="size-3.5" />
+												Add
+											</Button>
+										</div>
+									</div>
+								</div>
+							</Field>
 					<Field>
 						<Label htmlFor="mcp-cwd">Working directory (optional)</Label>
 						<Input
