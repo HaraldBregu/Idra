@@ -6,7 +6,6 @@ import {
 	appendRun,
 	isExhausted,
 	modelMessages,
-	persistSystemPrompt,
 	recordTurn,
 	toResult,
 	type SessionState,
@@ -35,6 +34,7 @@ import { recorderScreenTool } from '../tools/system/recorder_screen';
 import { recorderScreenStatusTool } from '../tools/system/recorder_screen_status';
 import { saveMemoryTool } from '../tools/memory/save';
 import { forgetMemoryTool } from '../tools/memory/forget';
+import { memoryListTool } from '../tools/memory/list';
 import { getKnowledgeSearchTools } from '../tools/memory/search';
 import { updateHealthTool } from '../tools/health_update';
 import { updateHealthSettingsTool } from '../tools/health_settings_update';
@@ -60,6 +60,10 @@ export interface StreamOptions {
 	tools?: Tool[];
 	interactive?: boolean;
 }
+
+const MAX_TOOL_CALLS = 100;
+const MAX_TOOL_OUTPUT_BYTES = 2_000_000;
+const MAX_PAID_TOOL_CALLS = 3;
 
 export async function* stream(
 	config: Config,
@@ -115,12 +119,15 @@ async function* loop(
 	const provider = getResolvedProvider(input.providerId ?? getProviderId());
 	const modelId = input.model ?? getModelId();
 	const modelOptions = getModelOptions();
+	const origin = input.origin ?? session.category ?? 'main';
+	const contextMode = input.contextMode ?? (origin === 'main' ? 'workspace' : 'minimal');
+	const runId = input.runId ?? session.id;
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
 	const permissionMode: AgentPermissionMode =
-		input.origin === 'main' ? getPermissionMode() : 'ask';
+		origin === 'main' ? getPermissionMode() : 'ask';
 	let tools: Tool[] = options.tools
 		? [...options.tools]
 		: [
@@ -144,6 +151,7 @@ async function* loop(
 				recorderScreenStatusTool,
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
+				memoryListTool(config),
 				...getKnowledgeSearchTools(session.category),
 				...getWikiTools(session.category),
 				updateHealthTool(config),
@@ -161,14 +169,14 @@ async function* loop(
 			];
 
 	let closeMcp: (() => Promise<void>) | undefined;
-	if (!options.tools && input.origin === 'main') {
-		const mcp = await loadMcpTools();
+	if (!options.tools && origin === 'main') {
+		const mcp = await loadMcpTools(signal);
 		tools.push(...mcp.tools);
-		tools = selectOriginTools(tools, input.origin, input.toolsAllow, input.toolsDeny);
+		tools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
 		tools.push(subagentTool(config, [...tools], session.context));
 		closeMcp = mcp.close;
 	} else {
-		tools = selectOriginTools(tools, input.origin, input.toolsAllow, input.toolsDeny);
+		tools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
 	}
 
 	session.context.skill = undefined;
@@ -185,6 +193,8 @@ async function* loop(
 	};
 
 	try {
+		let toolOutputBytes = 0;
+		let paidToolCalls = 0;
 		while (true) {
 			if (signal.aborted) return;
 			session.context.systemPrompt = await buildSystemPrompt(
@@ -192,14 +202,13 @@ async function* loop(
 				tools,
 				session.context.loadedSkills,
 				session.context.basePrompt,
-				input.contextMode
+				contextMode
 			);
-			persistSystemPrompt(session, session.context.systemPrompt);
 			const workspaceContext =
-				input.origin === 'main' && input.contextMode === 'workspace' && session.context.basePrompt === undefined
+				origin === 'main' && contextMode === 'workspace' && session.context.basePrompt === undefined
 					? await buildWorkspaceContext(config)
 					: '';
-			const skillContext = input.origin === 'main' && input.contextMode === 'workspace' ? buildSkillContext() : '';
+			const skillContext = origin === 'main' && contextMode === 'workspace' ? buildSkillContext() : '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
 			const messages = modelMessages(session.messages);
 			const turn = yield* runModelTurn(
@@ -231,6 +240,22 @@ async function* loop(
 				return;
 			}
 
+			if (session.toolCalls.length + turn.toolCalls.length > MAX_TOOL_CALLS) {
+				session.stopReason = 'max_tool_calls';
+				yield { type: 'run_finished', result: toResult(session, 'success') };
+				return;
+			}
+			const toolByName = new Map(tools.map((candidate) => [candidate.name, candidate]));
+			const requestedPaidCalls = turn.toolCalls.filter(
+				(call) => toolByName.get(call.name)?.effect === 'paid'
+			).length;
+			if (paidToolCalls + requestedPaidCalls > MAX_PAID_TOOL_CALLS) {
+				session.stopReason = 'budget_exhausted';
+				yield { type: 'run_finished', result: toResult(session, 'success') };
+				return;
+			}
+			paidToolCalls += requestedPaidCalls;
+
 			if (isExhausted(session)) {
 				session.stopReason = 'max_iterations';
 				const result = toResult(session, 'error_max_turns');
@@ -238,6 +263,7 @@ async function* loop(
 				return;
 			}
 
+			let outputBudgetExceeded = false;
 			for await (const event of runToolCalls(
 				tools,
 				turn.toolCalls,
@@ -245,10 +271,15 @@ async function* loop(
 				signal,
 				session.context.toolsContext,
 					permissionMode,
-				{ runId: input.runId, origin: input.origin }
-			)) {
+					{ runId, origin }
+				)) {
 				yield event;
 				if (event.type !== 'tool_call_end') continue;
+				toolOutputBytes += Buffer.byteLength(formatToolOutput(event.output), 'utf8');
+				if (toolOutputBytes > MAX_TOOL_OUTPUT_BYTES) {
+					outputBudgetExceeded = true;
+					break;
+				}
 				if (event.toolName !== loadSkillTool.name) continue;
 				const output = event.output as { skill?: unknown; content?: unknown } | undefined;
 				const skill = output?.skill;
@@ -257,7 +288,17 @@ async function* loop(
 				if (typeof output?.content === 'string')
 					rememberSkill(session.context, skill, output.content);
 			}
+			for (const call of turn.toolCalls) {
+				if (call.name === loadSkillTool.name && call.result) {
+					call.result.content = '[skill instructions loaded for this run]';
+				}
+			}
 			addToolResults(session, turn.toolCalls);
+			if (outputBudgetExceeded) {
+				session.stopReason = 'budget_exhausted';
+				yield { type: 'run_finished', result: toResult(session, 'success') };
+				return;
+			}
 
 			if (session.context.toolsContext.cancelled) {
 				session.stopReason = 'cancelled';

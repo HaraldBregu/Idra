@@ -17,6 +17,7 @@ export type AgentRunStopReason =
 	| 'max_tokens'
 	| 'max_iterations'
 	| 'max_tool_calls'
+	| 'budget_exhausted'
 	| 'timeout'
 	| 'error'
 	| 'cancelled';

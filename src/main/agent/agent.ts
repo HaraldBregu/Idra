@@ -240,6 +240,7 @@ function normalizeStopReason(value: string | undefined): AgentRunStopReason {
 	if (value === 'max_tokens') return 'max_tokens';
 	if (value === 'max_iterations' || value === 'error_max_turns') return 'max_iterations';
 	if (value === 'max_tool_calls') return 'max_tool_calls';
+	if (value === 'budget_exhausted') return 'budget_exhausted';
 	if (value === 'timeout') return 'timeout';
 	if (value === 'cancelled') return 'cancelled';
 	if (value === 'error') return 'error';

@@ -4,7 +4,9 @@ import { MCP_MAX_TOOLS } from './limits';
 import { mcpToolName } from './name';
 import { mcpTool } from './tool';
 
-export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Promise<void> }> {
+export async function loadMcpTools(
+	signal?: AbortSignal
+): Promise<{ tools: Tool[]; close: () => Promise<void> }> {
 	const tools: Tool[] = [];
 	const clients: McpClient[] = [];
 	const usedNames = new Set<string>();
@@ -12,12 +14,13 @@ export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Prom
 	for (const [id, data] of Object.entries(getMcpServers()).sort(([left], [right]) =>
 		left.localeCompare(right)
 	)) {
+		signal?.throwIfAborted();
 		if (tools.length >= MCP_MAX_TOOLS) break;
 		if (data.enabled === false) continue;
 		try {
-			const client = await connect(id, data, 30_000);
+			const client = await connect(id, data, 30_000, signal);
 			clients.push(client);
-			const listed = await listTools(client, 30_000);
+			const listed = await listTools(client, 30_000, signal);
 			for (const listedTool of listed.tools) {
 				if (tools.length >= MCP_MAX_TOOLS) break;
 				try {
@@ -38,7 +41,8 @@ export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Prom
 					continue;
 				}
 			}
-		} catch {
+		} catch (error) {
+			if (signal?.aborted) throw error;
 			continue;
 		}
 	}
