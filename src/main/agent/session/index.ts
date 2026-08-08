@@ -11,6 +11,7 @@ export { modelMessages } from './session_model_messages';
 export { createSessionState } from './session_module_state';
 export { persistSystemPrompt } from './session_persist_system';
 export { recordTurn } from './session_record_turn';
+export { requireUuidSessionId } from './session_require_uuid';
 export { resolveSessionId } from './session_resolve_session_id';
 export { sessionDir } from './session_session_dir';
 export { sessionFolderName } from './session_session_folder_name';

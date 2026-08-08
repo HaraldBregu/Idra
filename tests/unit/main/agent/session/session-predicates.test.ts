@@ -1,4 +1,5 @@
 import { isUuid } from '../../../../../src/main/agent/session/session_is_uuid';
+import { requireUuidSessionId } from '../../../../../src/main/agent/session/session_require_uuid';
 import { safeName } from '../../../../../src/main/agent/session/session_safe_name';
 import { isRecord } from '../../../../../src/main/agent/session/session_is_record';
 import { isContentBlock } from '../../../../../src/main/agent/session/session_is_content_block';
@@ -19,6 +20,18 @@ describe('isUuid', () => {
 		expect(isUuid('home')).toBe(false);
 		expect(isUuid('')).toBe(false);
 		expect(isUuid('123e4567e89b12d3a456426614174000')).toBe(false);
+	});
+});
+
+describe('requireUuidSessionId', () => {
+	it('trims and returns a UUID', () => {
+		expect(requireUuidSessionId(' 123e4567-e89b-12d3-a456-426614174000 ')).toBe(
+			'123e4567-e89b-12d3-a456-426614174000'
+		);
+	});
+
+	it.each([undefined, '', 'home', '.', '..'])('rejects the public session id %j', (sessionId) => {
+		expect(() => requireUuidSessionId(sessionId)).toThrow('Invalid assistant session id.');
 	});
 });
 

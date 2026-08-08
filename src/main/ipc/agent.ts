@@ -16,6 +16,7 @@ import type {
 	WorkspaceTreeEntry,
 } from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
+import { requireUuidSessionId } from '../agent/session';
 import { workspacePath } from '../agent/system';
 import {
 	getPermissions,
@@ -139,12 +140,6 @@ function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
 	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
 }
 
-function normalizeAgentSessionId(value: unknown): string {
-	const sessionId = optionalTrimmedString(value);
-	if (!sessionId) throw new Error('Invalid assistant session id.');
-	return sessionId;
-}
-
 function toPublicProvider(providerId: string): PublicProvider | undefined {
 	const catalogProvider = loadProviders().find((provider) => provider.id === providerId);
 	if (!catalogProvider) return undefined;
@@ -253,21 +248,21 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		ipcMain.handle(
 			AgentChannels.lastMessages,
 			wrapSimpleHandler((sessionId: unknown) => {
-				return agent.getLastMessages(normalizeAgentSessionId(sessionId));
+				return agent.getLastMessages(requireUuidSessionId(sessionId));
 			}, AgentChannels.lastMessages)
 		);
 
 		ipcMain.handle(
 			AgentChannels.clearMessages,
 			wrapSimpleHandler((sessionId: unknown): void => {
-				agent.clearMessages(normalizeAgentSessionId(sessionId));
+				agent.clearMessages(requireUuidSessionId(sessionId));
 			}, AgentChannels.clearMessages)
 		);
 
 		ipcMain.handle(
 			AgentChannels.deleteSession,
 			wrapSimpleHandler((sessionId: unknown): void => {
-				agent.deleteSession(normalizeAgentSessionId(sessionId));
+				agent.deleteSession(requireUuidSessionId(sessionId));
 			}, AgentChannels.deleteSession)
 		);
 

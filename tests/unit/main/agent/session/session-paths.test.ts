@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { sessionsRoot } from '../../../../../src/main/agent/session/session_sessions_root';
 import { sessionPath } from '../../../../../src/main/agent/session/session_session_path';
@@ -9,35 +11,57 @@ import { messagesFile } from '../../../../../src/main/agent/session/session_mess
 import { createSessionState } from '../../../../../src/main/agent/session/session_module_state';
 import type { SessionState } from '../../../../../src/main/agent/session/session_types';
 
+const SESSION_ID = '11111111-1111-4111-8111-111111111111';
+
 function stateWith(sessionsPath: string, folderName: string): SessionState {
 	return { ...createSessionState(), sessionsPath, folderName };
 }
 
 describe('sessionsRoot', () => {
-	it('sits beside the resolved location', () => {
-		expect(sessionsRoot('/tmp/agent')).toBe('/tmp/agent_sessions');
+	it('uses the sessions directory beside the resolved location', () => {
+		expect(sessionsRoot('/tmp/agent')).toBe('/tmp/sessions');
 	});
 	it('resolves relative locations', () => {
-		expect(sessionsRoot('agent')).toBe(`${path.resolve('agent')}_sessions`);
+		expect(sessionsRoot('agent')).toBe(path.join(path.dirname(path.resolve('agent')), 'sessions'));
 	});
 });
 
 describe('sessionPath', () => {
-	it('joins path with folder', () => {
-		expect(sessionPath('/a/b', 'folder')).toBe(path.join('/a/b', 'folder'));
+	it('joins the sessions root with a UUID folder', () => {
+		expect(sessionPath('/a/b', SESSION_ID)).toBe(path.join('/a/b', SESSION_ID));
+	});
+
+	it.each(['.', '..', 'home', 'a/b'])('rejects the unsafe session id %j', (sessionId) => {
+		expect(() => sessionPath('/a/b', sessionId)).toThrow('Invalid assistant session id.');
+	});
+
+	it('rejects a UUID symlink that resolves outside the sessions root', () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-sessions-'));
+		const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-outside-'));
+		try {
+			fs.symlinkSync(outside, path.join(root, SESSION_ID), process.platform === 'win32' ? 'junction' : 'dir');
+			expect(() => sessionPath(root, SESSION_ID)).toThrow(
+				'Session path escapes the sessions directory.'
+			);
+		} finally {
+			fs.rmSync(root, { recursive: true, force: true });
+			fs.rmSync(outside, { recursive: true, force: true });
+		}
 	});
 });
 
 describe('sessionDir / messagesFilePath / runFilePath', () => {
-	const state = stateWith('/root/sessions/main', 'abc');
+	const state = stateWith('/root/sessions/main', SESSION_ID);
 	it('sessionDir joins sessionsPath and folderName', () => {
-		expect(sessionDir(state)).toBe(path.join('/root/sessions/main', 'abc'));
+		expect(sessionDir(state)).toBe(path.join('/root/sessions/main', SESSION_ID));
 	});
 	it('messagesFilePath appends messages.json', () => {
-		expect(messagesFilePath(state)).toBe(path.join('/root/sessions/main', 'abc', 'messages.json'));
+		expect(messagesFilePath(state)).toBe(
+			path.join('/root/sessions/main', SESSION_ID, 'messages.json')
+		);
 	});
 	it('runFilePath appends run.jsonl', () => {
-		expect(runFilePath(state)).toBe(path.join('/root/sessions/main', 'abc', 'run.jsonl'));
+		expect(runFilePath(state)).toBe(path.join('/root/sessions/main', SESSION_ID, 'run.jsonl'));
 	});
 });
 
@@ -48,8 +72,10 @@ describe('legacyFilePath', () => {
 });
 
 describe('messagesFile', () => {
-	it('builds the messages.json path for a raw session id', () => {
-		expect(messagesFile('/root', 'a/b')).toBe(path.join('/root', 'a_b', 'messages.json'));
+	it('builds the messages.json path for a UUID session id', () => {
+		expect(messagesFile('/root', SESSION_ID)).toBe(
+			path.join('/root', SESSION_ID, 'messages.json')
+		);
 	});
 });
 
