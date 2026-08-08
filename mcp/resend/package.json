@@ -1,0 +1,11 @@
+{
+	"name": "friday-resend-mcp-server",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"description": "Local MCP server for sending email through Resend.",
+	"dependencies": {
+		"@modelcontextprotocol/server": "latest",
+		"zod": "^4.4.0"
+	}
+}
