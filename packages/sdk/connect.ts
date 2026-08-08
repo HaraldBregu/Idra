@@ -6,7 +6,11 @@ import type { AppThemeData } from '../../src/shared/app_types';
 
 export type WorkspaceAgentApi = Pick<
 	AgentApi,
-	'getWorkspaceLocation' | 'listWorkspaceFiles' | 'readWorkspaceFile'
+	| 'getWorkspaceLocation'
+	| 'listWorkspaceFiles'
+	| 'readWorkspaceFile'
+	| 'readWorkspaceAsset'
+	| 'writeWorkspaceMarkdown'
 >;
 
 export interface ConnectOptions {
@@ -132,6 +136,10 @@ export function connect(options: ConnectOptions): FridayClient {
 				invoke(AgentChannels.listWorkspaceFiles, []) as ReturnType<AgentApi['listWorkspaceFiles']>,
 			readWorkspaceFile: (filePath) =>
 				invoke(AgentChannels.readWorkspaceFile, [filePath]) as ReturnType<AgentApi['readWorkspaceFile']>,
+			readWorkspaceAsset: (filePath) =>
+				invoke(AgentChannels.readWorkspaceAsset, [filePath]) as ReturnType<AgentApi['readWorkspaceAsset']>,
+			writeWorkspaceMarkdown: (filePath, content) =>
+				invoke(AgentChannels.writeWorkspaceMarkdown, [filePath, content]) as ReturnType<AgentApi['writeWorkspaceMarkdown']>,
 		},
 		ping: async () => {
 			const response = await call(`${base}/health`, { headers });

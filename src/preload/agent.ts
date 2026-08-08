@@ -147,6 +147,21 @@ export const agent: AgentApi = {
 		if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
 		return typedInvokeUnwrap(AgentChannels.readWorkspaceFile, normalizedFilePath);
 	},
+	readWorkspaceAsset: (filePath) => {
+		const normalizedFilePath = optionalTrimmedString(filePath);
+		if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
+		return typedInvokeUnwrap(AgentChannels.readWorkspaceAsset, normalizedFilePath);
+	},
+	writeWorkspaceMarkdown: (filePath, content) => {
+		const normalizedFilePath = optionalTrimmedString(filePath);
+		if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
+		if (typeof content !== 'string') throw new Error('Invalid workspace file content.');
+		return typedInvokeUnwrap(
+			AgentChannels.writeWorkspaceMarkdown,
+			normalizedFilePath,
+			content
+		);
+	},
 	getProvider: (): Promise<PublicProvider | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.getProvider);
 	},

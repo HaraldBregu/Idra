@@ -33,6 +33,7 @@ await friday.app.setTheme('dark');
 const workspace = await friday.agent.getWorkspaceLocation();
 const files = await friday.agent.listWorkspaceFiles();
 const content = await friday.agent.readWorkspaceFile('USER.md');
+await friday.agent.writeWorkspaceMarkdown('USER.md', '# Updated');
 ```
 
 Streaming callbacks (for `app` events) use the SSE stream opened on first use; call
@@ -51,6 +52,8 @@ await app.setTheme(themeData.themeMode === 'dark' ? 'light' : 'dark');
 const workspace = await agent.getWorkspaceLocation();
 const files = await agent.listWorkspaceFiles();
 const content = await agent.readWorkspaceFile('USER.md');
+const image = await agent.readWorkspaceAsset('images/photo.png');
+await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
 const action = await win.showContextMenu([
 	{ id: 'open', label: 'Open' },
 	{ type: 'separator' },
@@ -61,7 +64,7 @@ const action = await win.showContextMenu([
 ## What's available
 
 - `app`: app data + settings APIs exposed by preload (`setTheme`, `getThemeData`, `getLanguage`, etc.)
-- `agent`: agent APIs exposed by preload, including `getWorkspaceLocation`, `listWorkspaceFiles`, and `readWorkspaceFile`.
+- `agent`: workspace APIs exposed by preload, including text reads, typed asset reads, and Markdown writes.
 - `win`: embedded-only window APIs, including native context menus.
 - `connect()`: remote client for the app API and workspace agent APIs.
 - `isFriday()`: host check for in-app mode.

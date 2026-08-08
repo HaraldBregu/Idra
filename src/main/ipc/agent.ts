@@ -53,6 +53,8 @@ import {
 	type RagMatch,
 } from '../rag';
 import type { RagConfiguration } from '../../shared/rag_types';
+import { workspaceFileType, type WorkspaceAsset } from '../../shared/workspace';
+import { resolveWorkspaceFile } from './workspace';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;
@@ -184,15 +186,6 @@ async function readWorkspaceTree(root: string, directory = root): Promise<Worksp
 	});
 }
 
-function resolveWorkspaceFile(root: string, filePath: string): string {
-	const resolvedPath = path.resolve(root, filePath);
-	const relativePath = path.relative(root, resolvedPath);
-	if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
-		throw new Error('Workspace file path resolves outside workspace.');
-	}
-	return resolvedPath;
-}
-
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
 	if (options === undefined || options === null) return {};
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
@@ -296,11 +289,52 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				const normalizedFilePath = optionalTrimmedString(filePath);
 				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
 				const root = workspacePath(agent.config);
-				const resolvedPath = resolveWorkspaceFile(root, normalizedFilePath);
+				const resolvedPath = await resolveWorkspaceFile(root, normalizedFilePath);
 				const stats = await fs.stat(resolvedPath);
 				if (!stats.isFile()) throw new Error('Workspace path is not a file.');
 				return fs.readFile(resolvedPath, 'utf8');
 			}, AgentChannels.readWorkspaceFile)
+		);
+
+		ipcMain.handle(
+			AgentChannels.readWorkspaceAsset,
+			wrapSimpleHandler(async (filePath: unknown): Promise<WorkspaceAsset> => {
+				const normalizedFilePath = optionalTrimmedString(filePath);
+				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
+				const resolvedPath = await resolveWorkspaceFile(
+					workspacePath(agent.config),
+					normalizedFilePath
+				);
+				const stats = await fs.stat(resolvedPath);
+				if (!stats.isFile()) throw new Error('Workspace path is not a file.');
+				const fileType = workspaceFileType(resolvedPath);
+				if (!fileType.mimeType || !['image', 'audio', 'video', 'pdf'].includes(fileType.kind)) {
+					throw new Error('Workspace file is not a supported asset.');
+				}
+				return {
+					mimeType: fileType.mimeType,
+					data: new Uint8Array(await fs.readFile(resolvedPath)),
+				};
+			}, AgentChannels.readWorkspaceAsset)
+		);
+
+		ipcMain.handle(
+			AgentChannels.writeWorkspaceMarkdown,
+			wrapSimpleHandler(async (filePath: unknown, content: unknown): Promise<void> => {
+				const normalizedFilePath = optionalTrimmedString(filePath);
+				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
+				if (typeof content !== 'string') throw new Error('Invalid workspace file content.');
+				const resolvedPath = await resolveWorkspaceFile(
+					workspacePath(agent.config),
+					normalizedFilePath
+				);
+				const stats = await fs.stat(resolvedPath);
+				if (!stats.isFile()) throw new Error('Workspace path is not a file.');
+				if (workspaceFileType(resolvedPath).kind !== 'markdown') {
+					throw new Error('Only Markdown workspace files can be edited.');
+				}
+				await fs.writeFile(resolvedPath, content, 'utf8');
+			}, AgentChannels.writeWorkspaceMarkdown)
 		);
 
 		ipcMain.handle(

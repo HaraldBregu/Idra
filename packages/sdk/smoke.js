@@ -21,6 +21,8 @@ globalThis.agent = {
 	getWorkspaceLocation: async () => '/tmp/friday-workspace',
 	listWorkspaceFiles: async () => [{ name: 'USER.md', path: 'USER.md', type: 'file' }],
 	readWorkspaceFile: async (filePath) => `content:${filePath}`,
+	readWorkspaceAsset: async () => ({ mimeType: 'image/png', data: new Uint8Array([1, 2, 3]) }),
+	writeWorkspaceMarkdown: async () => undefined,
 };
 globalThis.win = {
 	showContextMenu: async (items) => items[0]?.id ?? null,
@@ -35,6 +37,11 @@ assert.deepEqual(await app.getThemeData(), {
 assert.equal(await agent.getWorkspaceLocation(), '/tmp/friday-workspace');
 assert.deepEqual(await agent.listWorkspaceFiles(), [{ name: 'USER.md', path: 'USER.md', type: 'file' }]);
 assert.equal(await agent.readWorkspaceFile('USER.md'), 'content:USER.md');
+assert.deepEqual(await agent.readWorkspaceAsset('photo.png'), {
+	mimeType: 'image/png',
+	data: new Uint8Array([1, 2, 3]),
+});
+await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
 assert.equal(await win.showContextMenu([{ id: 'open', label: 'Open' }]), 'open');
 
 // --- remote mode: bound to the app API server --------------------------------
@@ -70,6 +77,8 @@ const server = createServer(async (req, res) => {
 						? [{ name: 'USER.md', path: 'USER.md', type: 'file' }]
 						: channel === 'agent:workspace:file:read'
 							? `content:${args[0]}`
+							: channel === 'agent:workspace:asset:read'
+								? { mimeType: 'image/png', data: { $bytes: 'AQID' } }
 						: (args[0] ?? null),
 		})
 	);
@@ -85,12 +94,19 @@ assert.deepEqual(await friday.agent.listWorkspaceFiles(), [
 	{ name: 'USER.md', path: 'USER.md', type: 'file' },
 ]);
 assert.equal(await friday.agent.readWorkspaceFile('USER.md'), 'content:USER.md');
+assert.deepEqual(await friday.agent.readWorkspaceAsset('photo.png'), {
+	mimeType: 'image/png',
+	data: new Uint8Array([1, 2, 3]),
+});
+await friday.agent.writeWorkspaceMarkdown('USER.md', '# Updated');
 
 assert.deepEqual(calls.map((call) => call.channel), [
 	'app:get-theme-data',
 	'agent:workspace:location:get',
 	'agent:workspace:files:list',
 	'agent:workspace:file:read',
+	'agent:workspace:asset:read',
+	'agent:workspace:markdown:write',
 ]);
 
 // events reach subscribers over the stream

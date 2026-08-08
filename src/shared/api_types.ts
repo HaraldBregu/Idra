@@ -86,6 +86,7 @@ import type {
 } from './app_types';
 import type { WikiRunResult, WikiSettings, WikiStatus } from './wiki_types';
 import type { ContextMenuDescriptor } from './window_types';
+import type { WorkspaceAsset } from './workspace';
 
 export interface WindowApi {
 	minimize: () => void;
@@ -114,6 +115,8 @@ export interface AgentApi {
 	getWorkspaceLocation: () => Promise<string>;
 	listWorkspaceFiles: () => Promise<WorkspaceTreeEntry[]>;
 	readWorkspaceFile: (filePath: string) => Promise<string>;
+	readWorkspaceAsset: (filePath: string) => Promise<WorkspaceAsset>;
+	writeWorkspaceMarkdown: (filePath: string, content: string) => Promise<void>;
 	getProvider: () => Promise<PublicProvider | undefined>;
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;

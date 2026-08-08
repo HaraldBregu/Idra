@@ -5,6 +5,12 @@ export { connect, type ConnectOptions, type FridayClient, type WorkspaceAgentApi
 export type { AgentApi, AppApi, WindowApi } from '../../src/shared/api_types';
 export type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
 export type { WorkspaceTreeEntry } from '../../src/shared/agent_types';
+export {
+	workspaceFileType,
+	type WorkspaceAsset,
+	type WorkspaceFileKind,
+	type WorkspaceFileType,
+} from '../../src/shared/workspace';
 export type { ContextMenuDescriptor } from '../../src/shared/window_types';
 
 // Typed lazy views over the host preload globals.
