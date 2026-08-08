@@ -1,9 +1,9 @@
-import net from 'node:net';
 import process from 'node:process';
+import net from 'node:net';
 import tls from 'node:tls';
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { McpServer } from '@modelcontextprotocol/server';
+import { serveStdio } from '@modelcontextprotocol/server/stdio';
+import * as z from 'zod/v4';
 
 type ToolResult = {
 	content: Array<{ type: 'text'; text: string }>;
@@ -19,39 +19,18 @@ type SmtpConfig = {
 	password: string;
 };
 
-const tools = [
-	{
-		name: 'send_email',
-		description: 'Send one email through Gmail SMTP.',
-		inputSchema: {
-			type: 'object' as const,
-			properties: {
-				from: { type: 'string', description: 'Sender email address.' },
-				to: {
-					oneOf: [
-						{ type: 'string' },
-						{ type: 'array', items: { type: 'string' }, minItems: 1 },
-					],
-					description: 'Recipient email address or addresses.',
-				},
-				subject: { type: 'string', description: 'Email subject.' },
-				text: { type: 'string', description: 'Plain text body.' },
-				html: { type: 'string', description: 'HTML body.' },
-				cc: {
-					oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' }, minItems: 1 }],
-					description: 'CC recipient address or addresses.',
-				},
-				bcc: {
-					oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' }, minItems: 1 }],
-					description: 'BCC recipient address or addresses.',
-				},
-				reply_to: { type: 'string', description: 'Reply-To address.' },
-			},
-			required: ['from', 'to', 'subject'],
-			additionalProperties: false,
-		},
-	},
-];
+const toolsSchema = z.object({
+	from: z.string().describe('Sender email address.'),
+	to: z.union([z.string(), z.array(z.string()).min(1)]).describe('Recipient email address or addresses.'),
+	subject: z.string().describe('Email subject.'),
+	text: z.string().optional().describe('Plain text body.'),
+	html: z.string().optional().describe('HTML body.'),
+	cc: z.union([z.string(), z.array(z.string()).min(1)]).optional().describe('CC recipient address or addresses.'),
+	bcc: z.union([z.string(), z.array(z.string()).min(1)]).optional().describe('BCC recipient address or addresses.'),
+	reply_to: z.string().optional().describe('Reply-To address.'),
+}).check((value) => {
+	return Boolean(value.text || value.html);
+});
 
 const toolError = (message: string): ToolResult => ({
 	content: [{ type: 'text', text: message }],
@@ -60,15 +39,6 @@ const toolError = (message: string): ToolResult => ({
 
 const objectArgs = (args: unknown): Record<string, unknown> =>
 	args && typeof args === 'object' && !Array.isArray(args) ? (args as Record<string, unknown>) : {};
-
-const stringArray = (value: unknown): value is string[] =>
-	Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === 'string');
-
-const emailList = (value: unknown): value is string | string[] =>
-	typeof value === 'string' || stringArray(value);
-
-const optionalEmailList = (value: unknown): value is string | string[] | undefined =>
-	value === undefined || emailList(value);
 
 const asArray = (value: string | string[] | undefined): string[] =>
 	value === undefined ? [] : Array.isArray(value) ? value : [value];
@@ -86,19 +56,6 @@ const smtpConfig = (): SmtpConfig | string => {
 	return missing.length > 0 ? `Missing or invalid environment variables: ${missing.join(', ')}` : { host, port, secure, user, password };
 };
 
-const validateSendEmailArgs = (args: Record<string, unknown>): string | undefined => {
-	if (typeof args.from !== 'string') return 'from must be a string.';
-	if (!emailList(args.to)) return 'to must be a string or non-empty string array.';
-	if (typeof args.subject !== 'string') return 'subject must be a string.';
-	if (args.text !== undefined && typeof args.text !== 'string') return 'text must be a string.';
-	if (args.html !== undefined && typeof args.html !== 'string') return 'html must be a string.';
-	if (!optionalEmailList(args.cc)) return 'cc must be a string or non-empty string array.';
-	if (!optionalEmailList(args.bcc)) return 'bcc must be a string or non-empty string array.';
-	if (args.reply_to !== undefined && typeof args.reply_to !== 'string') return 'reply_to must be a string.';
-	if (!args.text && !args.html) return 'text or html is required.';
-	return undefined;
-};
-
 const address = (value: string): string => {
 	const match = value.match(/<([^<>]+)>/);
 	return (match?.[1] ?? value).trim();
@@ -112,14 +69,14 @@ const headerValue = (value: string): string => value.replace(/\r?\n/g, ' ').trim
 
 const encodedSubject = (value: string): string => `=?UTF-8?B?${base64(value)}?=`;
 
-const messageBody = (args: Record<string, unknown>): string => {
+const messageBody = (args: z.infer<typeof toolsSchema>): string => {
 	const boundary = `friday-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 	const headers = [
-		`From: ${headerValue(args.from as string)}`,
+		`From: ${headerValue(args.from)}`,
 		`To: ${asArray(args.to as string | string[]).map(headerValue).join(', ')}`,
 		...asArray(args.cc as string | string[] | undefined).map((cc) => `Cc: ${headerValue(cc)}`),
 		typeof args.reply_to === 'string' ? `Reply-To: ${headerValue(args.reply_to)}` : undefined,
-		`Subject: ${encodedSubject(args.subject as string)}`,
+		`Subject: ${encodedSubject(args.subject)}`,
 		'MIME-Version: 1.0',
 	].filter((line): line is string => typeof line === 'string');
 
@@ -238,7 +195,7 @@ class SmtpSession {
 	}
 }
 
-const sendSmtpEmail = async (config: SmtpConfig, args: Record<string, unknown>): Promise<void> => {
+const sendSmtpEmail = async (config: SmtpConfig, args: z.infer<typeof toolsSchema>): Promise<void> => {
 	const session = new SmtpSession(config);
 	try {
 		await session.read(220);
@@ -251,7 +208,7 @@ const sendSmtpEmail = async (config: SmtpConfig, args: Record<string, unknown>):
 		await session.send('AUTH LOGIN', 334);
 		await session.send(base64(config.user), 334);
 		await session.send(base64(config.password), 235);
-		await session.send(`MAIL FROM:<${address(args.from as string)}>`, 250);
+		await session.send(`MAIL FROM:<${address(args.from)}>`, 250);
 		for (const recipient of [
 			...asArray(args.to as string | string[]),
 			...asArray(args.cc as string | string[] | undefined),
@@ -267,13 +224,9 @@ const sendSmtpEmail = async (config: SmtpConfig, args: Record<string, unknown>):
 	}
 };
 
-const sendEmail = async (args: Record<string, unknown>): Promise<ToolResult> => {
+const sendEmail = async (args: z.infer<typeof toolsSchema>): Promise<ToolResult> => {
 	const config = smtpConfig();
 	if (typeof config === 'string') return toolError(config);
-
-	const invalidArgs = validateSendEmailArgs(args);
-	if (invalidArgs) return toolError(invalidArgs);
-
 	try {
 		await sendSmtpEmail(config, args);
 		return {
@@ -285,19 +238,41 @@ const sendEmail = async (args: Record<string, unknown>): Promise<ToolResult> => 
 	}
 };
 
-const server = new Server(
-	{ name: 'gmail-smtp', version: '1.0.0' },
-	{
-		capabilities: { tools: {} },
-		instructions:
-			'Send email through Gmail SMTP. Provide GMAIL_SMTP_USER and GMAIL_SMTP_PASSWORD from the MCP client environment.',
-	}
-);
+function createServer(): McpServer {
+	const server = new McpServer({ name: 'gmail-smtp', version: '1.0.0' });
 
-server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-	if (request.params.name === 'send_email') return sendEmail(objectArgs(request.params.arguments));
-	return toolError(`Unknown tool: ${request.params.name}`);
-});
+	server.registerTool(
+		'send_email',
+		{
+			title: 'Send email through Gmail SMTP',
+			description: 'Send one email through Gmail SMTP.',
+			inputSchema: toolsSchema,
+		},
+		async (args: z.infer<typeof toolsSchema>) => sendEmail(args)
+	);
 
-await server.connect(new StdioServerTransport());
+	server.registerResource(
+		'about',
+		'gmail://about',
+		{
+			title: 'About this server',
+			description: 'Local MCP server to send email through Gmail SMTP.',
+			mimeType: 'text/plain',
+		},
+		async (uri) => ({
+			contents: [
+				{
+					uri: uri.href,
+					text: 'Gmail SMTP MCP server. Tool: send_email(from, to, subject, text?, html?, cc?, bcc?, reply_to?).',
+				},
+			],
+		})
+	);
+
+	return server;
+}
+
+const server = createServer();
+void serveStdio(server);
+
+console.error('Gmail SMTP MCP server running on stdio.');
