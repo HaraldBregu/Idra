@@ -262,7 +262,7 @@ export const VideoChannels = {
 export const ExtensionChannels = {
 	list: 'extensions:list',
 	open: 'extensions:open',
-	openFolder: 'extensions:open-folder',
+	openRoot: 'extensions:open-root',
 	import: 'extensions:import',
 } as const;
 

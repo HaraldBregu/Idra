@@ -31,7 +31,7 @@ beforeEach(() => {
 		value: {
 			list: jest.fn().mockResolvedValue(extensions),
 			open: jest.fn(),
-			openFolder: jest.fn(),
+			openRoot: jest.fn(),
 			import: jest.fn(),
 		},
 	});
@@ -65,7 +65,7 @@ it('opens the extensions folder from the page header', async () => {
 
 	await user.click(screen.getByRole('button', { name: 'settings.extensions.openFolder' }));
 
-	expect(window.extensions.openFolder).toHaveBeenCalledTimes(1);
+	expect(window.extensions.openRoot).toHaveBeenCalledTimes(1);
 });
 
 it('navigates extension clicks to the extension detail subroute', async () => {

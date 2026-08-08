@@ -9,8 +9,8 @@ export const extensions: ExtensionsApi = {
 	open: (extensionId) => {
 		return typedInvokeUnwrap(ExtensionChannels.open, extensionId);
 	},
-	openFolder: () => {
-		return typedInvokeUnwrap(ExtensionChannels.openFolder);
+	openRoot: () => {
+		return typedInvokeUnwrap(ExtensionChannels.openRoot);
 	},
 	import: () => {
 		return typedInvokeUnwrap(ExtensionChannels.import);

@@ -48,6 +48,15 @@ const ExtensionsPage: React.FC = () => {
 		void loadExtensions();
 	}, [loadExtensions]);
 
+	const handleOpenFolder = useCallback(async (): Promise<void> => {
+		setErrorMessage('');
+		try {
+			await window.extensions.openRoot();
+		} catch (error) {
+			setErrorMessage(getErrorMessage(error, t('settings.extensions.openFolderError')));
+		}
+	}, [t]);
+
 	const handleImport = useCallback(async (): Promise<void> => {
 		setImporting(true);
 		setErrorMessage('');
@@ -82,7 +91,12 @@ const ExtensionsPage: React.FC = () => {
 				description={t('settings.extensions.description')}
 				action={
 					<div className="flex flex-wrap items-center gap-2">
-						<Button variant="outline" size="xs" onClick={() => void window.extensions.openFolder()}>
+						<Button
+							variant="outline"
+							size="xs"
+							onClick={() => void handleOpenFolder()}
+							disabled={loading || importing}
+						>
 							<FolderOpen className="size-3" />
 							{t('settings.extensions.openFolder')}
 						</Button>

@@ -4,5 +4,6 @@ export { loadExtension } from './extension_load';
 export { readExtensionManifest } from './extension_read';
 export { readExtensionManifestFromDirectory } from './extension_read';
 export { importExtensions } from './extension_import';
+export { openRoot } from './extension_open_root';
 export { watchExtensions } from './extension_watch';
 export type { Extension, ExtensionManifest, ExtensionMetadata } from './extension_types';
