@@ -19,6 +19,7 @@ import type { AgentOrigin } from '../../../shared/agent_types';
 export interface ToolCallSecurityContext {
 	runId: string;
 	origin: AgentOrigin;
+	windowId?: number;
 }
 
 export async function* runToolCall(
@@ -95,6 +96,7 @@ export async function* runToolCall(
 			const detail = tool.confirmDetail?.(canonicalInput);
 			const targets = tool.targets?.(canonicalInput) ?? toolApprovalTargets(toolCall.name, canonicalInput, agentLocation());
 			const approvalId = crypto.randomUUID();
+			const fingerprint = inputFingerprint(canonicalInput);
 			const expiresAtMs = Date.now() + 120_000;
 			yield {
 				type: 'tool_permission_request',
@@ -108,6 +110,8 @@ export async function* runToolCall(
 				targets,
 				hardApproval,
 				expiresAt: new Date(expiresAtMs).toISOString(),
+				origin: security.origin,
+				inputFingerprint: fingerprint,
 				...(detail ? { detail } : {}),
 			};
 			const decision = await waitForToolPermission({
@@ -115,9 +119,10 @@ export async function* runToolCall(
 				runId: security.runId,
 				origin: security.origin,
 				toolName: toolCall.name,
-				inputFingerprint: inputFingerprint(canonicalInput),
+				inputFingerprint: fingerprint,
 				expiresAtMs,
 				hardApproval,
+				...(security.windowId === undefined ? {} : { windowId: security.windowId }),
 			});
 			permissionOutcome = decision;
 			if (decision === 'reject' && tool.stopOnReject && context) context.cancelled = true;

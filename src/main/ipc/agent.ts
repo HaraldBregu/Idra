@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../event_bus';
-import { wrapSimpleHandler } from './core/error_handler';
+import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
 import { AgentChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import type { LoggerService } from '../shared';
@@ -13,6 +13,7 @@ import type {
 	AgentContextMode,
 	AgentPermissionMode,
 	AgentToolPermissionDecision,
+	AgentToolPermissionScope,
 	ModelReasoningEffort,
 	WorkspaceTreeEntry,
 } from '../../shared/agent_types';
@@ -76,6 +77,29 @@ const TOOL_PERMISSION_DECISIONS: readonly AgentToolPermissionDecision[] = [
 
 function isToolPermissionDecision(value: unknown): value is AgentToolPermissionDecision {
 	return TOOL_PERMISSION_DECISIONS.includes(value as AgentToolPermissionDecision);
+}
+
+function toToolPermissionScope(value: unknown): AgentToolPermissionScope {
+	if (!isRecord(value)) throw new Error('Invalid tool permission scope.');
+	const approvalId = optionalTrimmedString(value.approvalId);
+	const runId = optionalTrimmedString(value.runId);
+	const toolName = optionalTrimmedString(value.toolName);
+	const inputFingerprint = optionalTrimmedString(value.inputFingerprint);
+	if (
+		!approvalId ||
+		!runId ||
+		!toolName ||
+		!inputFingerprint ||
+		!['main', 'bot', 'health', 'task', 'subagent'].includes(String(value.origin))
+	)
+		throw new Error('Invalid tool permission scope.');
+	return {
+		approvalId,
+		runId,
+		toolName,
+		inputFingerprint,
+		origin: value.origin as AgentToolPermissionScope['origin'],
+	};
 }
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
@@ -227,10 +251,14 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 	register({ logger, agent }: AgentIpcDeps, eventBus: EventBus): void {
 		ipcMain.handle(
 			AgentChannels.send,
-			wrapSimpleHandler(async (message: string, options?: unknown): Promise<string> => {
+			wrapIpcHandler(async (event, message: string, options?: unknown): Promise<string> => {
+				const window = BrowserWindow.fromWebContents(event.sender);
+				if (!window) throw new Error('Assistant request requires an originating window.');
 				return agent.send(message, 'main', {
 					...normalizeAgentSendRuntimeOptions(options),
-					streamEvent: (event) => eventBus.broadcast(AgentChannels.response, event),
+					approvalWindowId: window.id,
+					streamEvent: (responseEvent) =>
+						eventBus.sendTo(window.id, AgentChannels.response, responseEvent),
 				});
 			}, AgentChannels.send)
 		);
@@ -244,11 +272,12 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.respondToolPermission,
-			wrapSimpleHandler((toolCallId: unknown, decision: unknown): boolean => {
-				const id = optionalTrimmedString(toolCallId);
-				if (!id) throw new Error('Invalid tool call id.');
+			wrapIpcHandler((event, value: unknown, decision: unknown): boolean => {
+				const window = BrowserWindow.fromWebContents(event.sender);
+				if (!window) return false;
+				const scope = toToolPermissionScope(value);
 				if (!isToolPermissionDecision(decision)) throw new Error('Invalid permission decision.');
-				return respondToolPermission(id, decision);
+				return respondToolPermission(scope, decision, window.id);
 			}, AgentChannels.respondToolPermission)
 		);
 

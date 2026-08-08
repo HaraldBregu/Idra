@@ -26,6 +26,14 @@ export type AgentToolResultStatus = 'ok' | 'error' | 'blocked' | 'rejected';
 
 export type AgentToolPermissionDecision = 'approve' | 'reject' | 'approve_always';
 
+export interface AgentToolPermissionScope {
+	approvalId: string;
+	runId: string;
+	origin: AgentOrigin;
+	toolName: string;
+	inputFingerprint: string;
+}
+
 export type AgentPermissionMode = 'ask' | 'bypass';
 
 export type AgentOrigin = 'main' | 'bot' | 'health' | 'task' | 'subagent';
@@ -235,11 +243,13 @@ export type AgentRunStreamEvent =
 			mode: 'ask';
 			risk: AgentToolRisk;
 			effect: AgentToolEffect;
-			targets: string[];
-			hardApproval: boolean;
-			expiresAt: string;
-			detail?: string;
-	  }
+				targets: string[];
+				hardApproval: boolean;
+				expiresAt: string;
+				origin: AgentOrigin;
+				inputFingerprint: string;
+				detail?: string;
+		  }
 	| ({
 			type: 'tool_call_result';
 			iteration: number;

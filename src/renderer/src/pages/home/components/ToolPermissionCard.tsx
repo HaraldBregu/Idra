@@ -32,7 +32,16 @@ export function ToolPermissionCard({
 		if (responded) return;
 		setResponded(true);
 		void window.agent
-			.respondToolPermission(permission.approvalId, decision)
+			.respondToolPermission(
+				{
+					approvalId: permission.approvalId,
+					runId: permission.runId,
+					origin: permission.origin,
+					toolName: permission.toolName,
+					inputFingerprint: permission.inputFingerprint,
+				},
+				decision
+			)
 			.catch(() => setResponded(false));
 	};
 

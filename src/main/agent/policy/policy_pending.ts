@@ -1,13 +1,12 @@
-import type { AgentToolPermissionDecision } from '../../../shared/agent_types';
+import type {
+	AgentToolPermissionDecision,
+	AgentToolPermissionScope,
+} from '../../../shared/agent_types';
 
-export interface PendingToolApproval {
-	approvalId: string;
-	runId: string;
-	origin: string;
-	toolName: string;
-	inputFingerprint: string;
+export interface PendingToolApproval extends AgentToolPermissionScope {
 	expiresAtMs: number;
 	hardApproval: boolean;
+	windowId?: number;
 }
 
 const pending = new Map<
@@ -34,11 +33,23 @@ export function waitForToolPermission(
 }
 
 export function respondToolPermission(
-	approvalId: string,
-	decision: AgentToolPermissionDecision
+	scope: string | AgentToolPermissionScope,
+	decision: AgentToolPermissionDecision,
+	windowId?: number
 ): boolean {
+	const approvalId = typeof scope === 'string' ? scope : scope.approvalId;
 	const entry = pending.get(approvalId);
 	if (!entry || entry.request.expiresAtMs <= Date.now()) return false;
+	if (
+		entry.request.windowId !== undefined &&
+		(typeof scope === 'string' ||
+			windowId !== entry.request.windowId ||
+			scope.runId !== entry.request.runId ||
+			scope.origin !== entry.request.origin ||
+			scope.toolName !== entry.request.toolName ||
+			scope.inputFingerprint !== entry.request.inputFingerprint)
+	)
+		return false;
 	pending.delete(approvalId);
 	clearTimeout(entry.timer);
 	entry.resolve(entry.request.hardApproval && decision === 'approve_always' ? 'approve' : decision);

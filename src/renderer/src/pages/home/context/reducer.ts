@@ -139,10 +139,13 @@ function applyResponseEvent(
 			(message) => ({
 				...message,
 				runId: event.runId,
-				pendingPermission: {
-					approvalId: event.approvalId,
-					toolCallId: event.toolCallId,
-					toolName: event.toolName,
+					pendingPermission: {
+						approvalId: event.approvalId,
+						runId: event.runId,
+						origin: event.origin,
+						toolCallId: event.toolCallId,
+						toolName: event.toolName,
+						inputFingerprint: event.inputFingerprint,
 					input: event.input,
 					detail: event.detail,
 					hardApproval: event.hardApproval,

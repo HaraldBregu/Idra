@@ -280,7 +280,13 @@ async function* loop(
 				signal,
 				session.context.toolsContext,
 					permissionMode,
-					{ runId, origin }
+					{
+						runId,
+						origin,
+						...(input.approvalWindowId === undefined
+							? {}
+							: { windowId: input.approvalWindowId }),
+					}
 				)) {
 				yield event;
 				if (event.type !== 'tool_call_end') continue;

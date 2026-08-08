@@ -8,6 +8,7 @@ import type {
 	AgentResponseEvent,
 	AgentSessionSummary,
 	AgentToolPermissionDecision,
+	AgentToolPermissionScope,
 	ModelReasoningEffort,
 } from '../shared/agent_types';
 import { normalizeAgentInputFiles } from '../shared/agent_files';
@@ -105,12 +106,10 @@ export const agent: AgentApi = {
 		return typedInvokeUnwrap(AgentChannels.cancel);
 	},
 	respondToolPermission: (
-		toolCallId: string,
+		scope: AgentToolPermissionScope,
 		decision: AgentToolPermissionDecision
 	): Promise<boolean> => {
-		const normalizedToolCallId = optionalTrimmedString(toolCallId);
-		if (!normalizedToolCallId) throw new Error('Invalid tool call id.');
-		return typedInvokeUnwrap(AgentChannels.respondToolPermission, normalizedToolCallId, decision);
+		return typedInvokeUnwrap(AgentChannels.respondToolPermission, scope, decision);
 	},
 	listSessions: (): Promise<AgentSessionSummary[]> => {
 		return typedInvokeUnwrap(AgentChannels.listSessions);

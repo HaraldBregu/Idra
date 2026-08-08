@@ -53,6 +53,13 @@ export interface AgentInvokeChannelMap {
 		result: string;
 	};
 	[AgentChannels.cancel]: { args: []; result: void };
+	[AgentChannels.respondToolPermission]: {
+		args: [
+			scope: import('./agent_types').AgentToolPermissionScope,
+			decision: import('./agent_types').AgentToolPermissionDecision,
+		];
+		result: boolean;
+	};
 	[AgentChannels.lastMessages]: {
 		args: [sessionId: string];
 		result: import('./agent_types').AgentHistoryMessage[];

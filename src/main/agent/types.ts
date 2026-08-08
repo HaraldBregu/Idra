@@ -137,6 +137,7 @@ export interface RuntimeInput extends Pick<
 	contextMode: 'minimal' | 'workspace';
 	toolsAllow?: string[];
 	toolsDeny?: string[];
+	approvalWindowId?: number;
 }
 
 export interface RuntimeModelRoute {
@@ -180,9 +181,11 @@ export type RuntimeEvent =
 			risk: AgentToolRisk;
 			effect: AgentToolEffect;
 			targets: string[];
-			hardApproval: boolean;
-			expiresAt: string;
-	  }
+				hardApproval: boolean;
+				expiresAt: string;
+				origin: AgentOrigin;
+				inputFingerprint: string;
+		  }
 	| {
 			type: 'tool_call_end';
 			toolCallId: string;

@@ -106,7 +106,7 @@ export interface AgentApi {
 	) => Promise<string>;
 	cancel: () => Promise<void>;
 	respondToolPermission: (
-		toolCallId: string,
+		scope: AgentToolPermissionScope,
 		decision: AgentToolPermissionDecision
 	) => Promise<boolean>;
 	listSessions: () => Promise<AgentSessionSummary[]>;

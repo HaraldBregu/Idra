@@ -47,4 +47,21 @@ describe('tool permission pending registry', () => {
 		expect(respondToolPermission('hard', 'approve_always')).toBe(true);
 		await expect(promise).resolves.toBe('approve');
 	});
+
+	it('accepts a response only from the originating window with the exact approval scope', async () => {
+		const request = { ...approval('window-bound'), windowId: 41 };
+		const promise = waitForToolPermission(request);
+		const scope = {
+			approvalId: request.approvalId,
+			runId: request.runId,
+			origin: request.origin,
+			toolName: request.toolName,
+			inputFingerprint: request.inputFingerprint,
+		};
+
+		expect(respondToolPermission(scope, 'approve', 42)).toBe(false);
+		expect(respondToolPermission({ ...scope, runId: 'other-run' }, 'approve', 41)).toBe(false);
+		expect(respondToolPermission(scope, 'approve', 41)).toBe(true);
+		await expect(promise).resolves.toBe('approve');
+	});
 });
