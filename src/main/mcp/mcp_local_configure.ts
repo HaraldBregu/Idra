@@ -5,7 +5,7 @@ import type { McpServerInfo, McpStdioData } from '../../shared/mcp_types';
 import { listLocalMcpServers } from './mcp_local_list';
 import { importLocalMcpServers } from './mcp_local_import';
 import { readLocalMcpServer } from './mcp_local_read';
-import { mcpLocalDiscoveryRoots } from './mcp_local_root';
+import { mcpLocalDiscoveryRoots, mcpLocalRoot } from './mcp_local_root';
 
 export function configureLocalMcpServer(
 	id: string,
@@ -53,13 +53,12 @@ export function configureLocalMcpServer(
 
 	const localRoot = path.resolve(root);
 	const searchRoots = [localRoot, ...mcpLocalDiscoveryRoots()];
-	let server = listLocalMcpServers(searchRoots).servers.find((entry) => entry.id === serverId);
-	if (!server?.path) throw new Error(`No local MCP server "${id}".`);
-	if (server.data.type !== 'stdio')
-		throw new Error('Local MCP servers require stdio configuration.');
+	const discovered = listLocalMcpServers(searchRoots).servers.find((entry) => entry.id === serverId);
+	if (!discovered?.path) throw new Error(`No local MCP server "${id}".`);
+	let server = discovered;
 
-	const serverPath = path.resolve(server.path);
-	const isInstalled = path.relative(localRoot, serverPath) === '' || !path.relative(localRoot, serverPath).startsWith('..');
+	const relativePath = path.relative(localRoot, path.resolve(server.path));
+	const isInstalled = relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
 	if (!isInstalled) {
 		const importResult = importLocalMcpServers([server.path], root);
 		if (importResult.imported.length === 0) {
@@ -67,17 +66,20 @@ export function configureLocalMcpServer(
 		}
 		server = readLocalMcpServer(path.resolve(root, server.id));
 	}
+	if (server.data.type !== 'stdio')
+		throw new Error('Local MCP servers require stdio configuration.');
+	const serverData = server.data;
 
 	const manifestPath = path.join(server.path, 'mcp.json');
 	const temporaryPath = path.join(server.path, `.mcp-${randomUUID()}.json`);
 	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
 	const next = {
 		...manifest,
-		name: input.name?.trim() || undefined,
-		command: input.command.trim(),
-		args: input.args ? [...input.args] : undefined,
-		env: input.env ? { ...input.env } : undefined,
-		cwd: input.cwd === server.data.cwd ? manifest.cwd : input.cwd?.trim() || undefined,
+			name: input.name?.trim() || undefined,
+			command: input.command.trim(),
+			args: input.args ? [...input.args] : undefined,
+			env: input.env ? { ...input.env } : undefined,
+			cwd: input.cwd === serverData.cwd ? manifest.cwd : input.cwd?.trim() || undefined,
 		require_approval: input.require_approval,
 		defer_loading: input.defer_loading,
 		enabled: input.enabled,
