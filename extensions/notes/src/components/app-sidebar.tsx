@@ -1,13 +1,16 @@
 import { Bot, ChevronRight, File, Folder, FolderOpen } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type DragEvent } from 'react';
 import type { WorkspaceTreeEntry } from '@friday/sdk';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
+import { workspaceMoveError } from '@/lib/drop';
 import { showNativeContextMenu } from '@/lib/menu';
+import { rebaseWorkspacePath } from '@/lib/rebase';
 import { collectDirectoryPaths } from '@/lib/tree';
+import { isWorkspacePathWithin } from '@/lib/within';
 
 const agentFilePaths = [
 	'AGENTS.md',
@@ -24,8 +27,17 @@ function WorkspaceTree({
 	files,
 	loading,
 	error,
+	draggedPath,
+	dropError,
+	dropTargetPath,
+	movingPath,
 	onCreateRequest,
 	onDeleteRequest,
+	onDragEnd,
+	onDragLeave,
+	onDragOver,
+	onDragStart,
+	onDrop,
 	onSelect,
 	onToggle,
 	selectedPath,
@@ -35,8 +47,17 @@ function WorkspaceTree({
 	files: WorkspaceTreeEntry[];
 	loading: boolean;
 	error: string;
+	draggedPath: string | null;
+	dropError: string;
+	dropTargetPath: string | null;
+	movingPath: string | null;
 	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
 	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
+	onDragEnd: () => void;
+	onDragLeave: (event: DragEvent<HTMLElement>, path: string) => void;
+	onDragOver: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
+	onDragStart: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
+	onDrop: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
 	onSelect: (entry: WorkspaceTreeEntry) => void;
 	onToggle: (path: string) => void;
 	selectedPath: string | null;
@@ -56,10 +77,19 @@ function WorkspaceTree({
 						<WorkspaceTreeItem
 							key={entry.path}
 							depth={0}
+							draggedPath={draggedPath}
+							dropError={dropError}
+							dropTargetPath={dropTargetPath}
 							entry={entry}
 							expanded={expanded}
+							movingPath={movingPath}
 							onCreateRequest={onCreateRequest}
 							onDeleteRequest={onDeleteRequest}
+							onDragEnd={onDragEnd}
+							onDragLeave={onDragLeave}
+							onDragOver={onDragOver}
+							onDragStart={onDragStart}
+							onDrop={onDrop}
 							onToggle={onToggle}
 							onSelect={onSelect}
 							selectedPath={selectedPath}
@@ -74,6 +104,7 @@ function WorkspaceTree({
 interface AppSidebarProps {
 	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
 	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
+	onMoveRequest: (entry: WorkspaceTreeEntry, destinationPath: string) => Promise<string>;
 	onWorkspaceSelect: (entry: WorkspaceTreeEntry) => void;
 	selectedWorkspacePath: string | null;
 	workspaceError: string;
@@ -84,19 +115,37 @@ interface AppSidebarProps {
 
 function WorkspaceTreeItem({
 	depth,
+	draggedPath,
+	dropError,
+	dropTargetPath,
 	entry,
 	expanded,
+	movingPath,
 	onCreateRequest,
 	onDeleteRequest,
+	onDragEnd,
+	onDragLeave,
+	onDragOver,
+	onDragStart,
+	onDrop,
 	onToggle,
 	onSelect,
 	selectedPath,
 }: {
 	depth: number;
+	draggedPath: string | null;
+	dropError: string;
+	dropTargetPath: string | null;
 	entry: WorkspaceTreeEntry;
 	expanded: Set<string>;
+	movingPath: string | null;
 	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
 	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
+	onDragEnd: () => void;
+	onDragLeave: (event: DragEvent<HTMLElement>, path: string) => void;
+	onDragOver: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
+	onDragStart: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
+	onDrop: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
 	onToggle: (path: string) => void;
 	onSelect: (entry: WorkspaceTreeEntry) => void;
 	selectedPath: string | null;
@@ -104,13 +153,21 @@ function WorkspaceTreeItem({
 	const isDirectory = entry.type === 'directory';
 	const isExpanded = expanded.has(entry.path);
 	const selected = selectedPath === entry.path;
+	const isDropTarget = dropTargetPath === entry.path;
 	const Icon = isDirectory ? (isExpanded ? FolderOpen : Folder) : File;
 
 	const trigger = (
 		<Button
+			data-workspace-entry
 			type="button"
 			variant="ghost"
 			size="sm"
+			draggable={!movingPath}
+			onDragStart={(event) => onDragStart(event, entry)}
+			onDragEnd={onDragEnd}
+			onDragOver={(event) => onDragOver(event, entry)}
+			onDragLeave={(event) => onDragLeave(event, entry.path)}
+			onDrop={(event) => onDrop(event, entry)}
 			onContextMenu={(event) => {
 				showNativeContextMenu(
 					event,
@@ -157,11 +214,16 @@ function WorkspaceTreeItem({
 			aria-expanded={isDirectory ? isExpanded : undefined}
 			aria-current={selected ? 'page' : undefined}
 			aria-keyshortcuts="Backspace Delete"
+			aria-busy={movingPath === entry.path || undefined}
 			title={entry.path}
 			className={cn(
 				'h-7 w-full justify-start gap-1.5 rounded-md px-0 pr-2 text-left text-[12px] font-medium text-sidebar-muted',
 				'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-sidebar-ring focus-visible:ring-offset-0',
-				selected && 'bg-sidebar-accent text-sidebar-foreground'
+				selected && 'bg-sidebar-accent text-sidebar-foreground',
+				draggedPath === entry.path && 'opacity-45',
+				movingPath === entry.path && 'animate-pulse',
+				isDropTarget && !dropError && 'bg-sidebar-accent text-sidebar-foreground ring-1 ring-sidebar-ring',
+				isDropTarget && dropError && 'ring-1 ring-destructive'
 			)}
 			style={{ paddingLeft: `${8 + depth * 14}px` }}
 		>
@@ -190,10 +252,19 @@ function WorkspaceTreeItem({
 							<WorkspaceTreeItem
 								key={child.path}
 								depth={depth + 1}
+								draggedPath={draggedPath}
+								dropError={dropError}
+								dropTargetPath={dropTargetPath}
 								entry={child}
 								expanded={expanded}
+								movingPath={movingPath}
 								onCreateRequest={onCreateRequest}
 								onDeleteRequest={onDeleteRequest}
+								onDragEnd={onDragEnd}
+								onDragLeave={onDragLeave}
+								onDragOver={onDragOver}
+								onDragStart={onDragStart}
+								onDrop={onDrop}
 								onToggle={onToggle}
 								onSelect={onSelect}
 								selectedPath={selectedPath}
@@ -209,6 +280,7 @@ function WorkspaceTreeItem({
 export function AppSidebar({
 	onCreateRequest,
 	onDeleteRequest,
+	onMoveRequest,
 	onWorkspaceSelect,
 	selectedWorkspacePath,
 	workspaceError,
@@ -218,6 +290,11 @@ export function AppSidebar({
 }: AppSidebarProps) {
 	const [expanded, setExpanded] = useState<Set<string>>(new Set());
 	const [agentExpanded, setAgentExpanded] = useState(false);
+	const [draggedEntry, setDraggedEntry] = useState<WorkspaceTreeEntry | null>(null);
+	const [dropTargetPath, setDropTargetPath] = useState<string | null>(null);
+	const [dropError, setDropError] = useState('');
+	const [dragMessage, setDragMessage] = useState('');
+	const [movingPath, setMovingPath] = useState<string | null>(null);
 	const agentFiles = useMemo(
 		() =>
 			agentFilePaths.flatMap((path) => {
@@ -247,9 +324,118 @@ export function AppSidebar({
 		});
 	}
 
+	function startDrag(event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) {
+		event.dataTransfer.effectAllowed = 'move';
+		event.dataTransfer.setData('application/x-friday-workspace-entry', entry.path);
+		event.dataTransfer.setData('text/plain', entry.path);
+		setDraggedEntry(entry);
+		setDropTargetPath(null);
+		setDropError('');
+		setDragMessage(`Moving ${entry.name}. Drop it onto a folder or the workspace root.`);
+	}
+
+	function endDrag() {
+		setDraggedEntry(null);
+		setDropTargetPath(null);
+		setDropError('');
+	}
+
+	function dragOverEntry(event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) {
+		if (!draggedEntry || movingPath) return;
+		event.preventDefault();
+		event.stopPropagation();
+		const error =
+			entry.type === 'directory'
+				? workspaceMoveError(draggedEntry, entry.path, entry.children ?? [])
+				: 'Drop onto a folder or an empty area to move this item.';
+		event.dataTransfer.dropEffect = error ? 'none' : 'move';
+		setDropTargetPath(entry.path);
+		setDropError(error);
+	}
+
+	function dragLeaveTarget(event: DragEvent<HTMLElement>, path: string) {
+		if (
+			event.relatedTarget instanceof Node &&
+			event.currentTarget.contains(event.relatedTarget)
+		) {
+			return;
+		}
+		if (dropTargetPath === path) {
+			setDropTargetPath(null);
+			setDropError('');
+		}
+	}
+
+	async function moveEntry(
+		event: DragEvent<HTMLElement>,
+		destinationPath: string,
+		destinationEntries: WorkspaceTreeEntry[]
+	) {
+		if (!draggedEntry || movingPath) return;
+		event.preventDefault();
+		event.stopPropagation();
+		const error = workspaceMoveError(draggedEntry, destinationPath, destinationEntries);
+		if (error) {
+			setDropError(error);
+			setDragMessage(error);
+			return;
+		}
+
+		const source = draggedEntry;
+		setMovingPath(source.path);
+		setDropError('');
+		try {
+			const movedPath = await onMoveRequest(source, destinationPath);
+			setExpanded((current) => {
+				const next = new Set<string>();
+				for (const path of current) {
+					next.add(
+						isWorkspacePathWithin(path, source.path)
+							? rebaseWorkspacePath(path, source.path, movedPath)
+							: path
+					);
+				}
+				if (destinationPath) next.add(destinationPath);
+				return next;
+			});
+			setDragMessage(
+				`Moved ${source.name} to ${destinationPath ? destinationPath : 'the workspace root'}.`
+			);
+		} catch (error) {
+			setDragMessage(error instanceof Error ? error.message : 'Unable to move the item.');
+		} finally {
+			setMovingPath(null);
+			setDraggedEntry(null);
+			setDropTargetPath(null);
+			setDropError('');
+		}
+	}
+
+	function dragOverRoot(event: DragEvent<HTMLElement>) {
+		if (!draggedEntry || movingPath) return;
+		if ((event.target as Element).closest('[data-workspace-entry]')) return;
+		event.preventDefault();
+		const error = workspaceMoveError(draggedEntry, '', workspaceFiles);
+		event.dataTransfer.dropEffect = error ? 'none' : 'move';
+		setDropTargetPath('');
+		setDropError(error);
+	}
+
+	function dropOnRoot(event: DragEvent<HTMLElement>) {
+		if ((event.target as Element).closest('[data-workspace-entry]')) return;
+		void moveEntry(event, '', workspaceFiles);
+	}
+
 	return (
 		<div
-			className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground"
+			className={cn(
+				'flex h-full w-full flex-col bg-sidebar text-sidebar-foreground',
+				dropTargetPath === '' && !dropError && 'ring-1 ring-inset ring-sidebar-ring',
+				dropTargetPath === '' && dropError && 'ring-1 ring-inset ring-destructive'
+			)}
+			onDragOver={dragOverRoot}
+			onDragLeave={(event) => dragLeaveTarget(event, '')}
+			onDrop={dropOnRoot}
 			onContextMenu={(event) => {
 				showNativeContextMenu(
 					event,
@@ -308,6 +494,7 @@ export function AppSidebar({
 					<Collapsible open={agentExpanded} onOpenChange={setAgentExpanded} className="mb-0.5">
 						<CollapsibleTrigger asChild>
 							<Button
+								data-workspace-entry
 								type="button"
 								variant="ghost"
 								size="sm"
@@ -348,10 +535,23 @@ export function AppSidebar({
 									<WorkspaceTreeItem
 										key={entry.path}
 										depth={1}
+										draggedPath={draggedEntry?.path ?? null}
+										dropError={dropError}
+										dropTargetPath={dropTargetPath}
 										entry={entry}
 										expanded={expanded}
+										movingPath={movingPath}
 										onCreateRequest={onCreateRequest}
 										onDeleteRequest={onDeleteRequest}
+										onDragEnd={endDrag}
+										onDragLeave={dragLeaveTarget}
+										onDragOver={dragOverEntry}
+										onDragStart={startDrag}
+										onDrop={(event, destination) => {
+											if (destination.type === 'directory') {
+												void moveEntry(event, destination.path, destination.children ?? []);
+											}
+										}}
 										onToggle={toggleDirectory}
 										onSelect={onWorkspaceSelect}
 										selectedPath={selectedWorkspacePath}
@@ -362,17 +562,42 @@ export function AppSidebar({
 					</Collapsible>
 				) : null}
 				<WorkspaceTree
+					draggedPath={draggedEntry?.path ?? null}
+					dropError={dropError}
+					dropTargetPath={dropTargetPath}
 					expanded={expanded}
 					onCreateRequest={onCreateRequest}
 					files={regularFiles}
 					loading={workspaceLoading}
+					movingPath={movingPath}
 					error={workspaceError}
 					onDeleteRequest={onDeleteRequest}
+					onDragEnd={endDrag}
+					onDragLeave={dragLeaveTarget}
+					onDragOver={dragOverEntry}
+					onDragStart={startDrag}
+					onDrop={(event, destination) => {
+						if (destination.type === 'directory') {
+							void moveEntry(event, destination.path, destination.children ?? []);
+						}
+					}}
 					onToggle={toggleDirectory}
 					onSelect={onWorkspaceSelect}
 					selectedPath={selectedWorkspacePath}
 					showEmpty={agentFiles.length === 0}
 				/>
+				{draggedEntry || dragMessage ? (
+					<p
+						role="status"
+						aria-live="polite"
+						className={cn(
+							'mx-1 mt-2 rounded-md border border-sidebar-border/70 bg-sidebar-accent px-2 py-1.5 text-[11px] leading-4 text-sidebar-muted',
+							dropError && 'border-destructive text-sidebar-foreground'
+						)}
+					>
+						{dropError || dragMessage}
+					</p>
+				) : null}
 			</nav>
 		</div>
 	);
