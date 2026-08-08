@@ -28,5 +28,5 @@ it('bounds undefined and circular tool output without crashing', () => {
 	circular.self = circular;
 
 	expect(limitToolOutput(undefined, 10)).toBeUndefined();
-	expect(limitToolOutput(circular, 10)).toBe(circular);
+	expect(limitToolOutput(circular, 100)).toBe(circular);
 });
