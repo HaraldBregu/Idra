@@ -1,7 +1,6 @@
-import path from 'node:path';
 import type { SessionState } from './session_types';
-import { sessionDir } from './session_session_dir';
+import { sessionPath } from './session_session_path';
 
 export function messagesFilePath(state: SessionState): string {
-	return path.join(sessionDir(state), 'messages.json');
+	return sessionPath(state.sessionsPath, state.folderName, 'messages.json');
 }

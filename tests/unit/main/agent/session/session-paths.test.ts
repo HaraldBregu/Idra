@@ -48,6 +48,22 @@ describe('sessionPath', () => {
 			fs.rmSync(outside, { recursive: true, force: true });
 		}
 	});
+
+	it('rejects a session file symlink that resolves outside the sessions root', () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-sessions-'));
+		const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-outside-'));
+		try {
+			const folder = path.join(root, SESSION_ID);
+			fs.mkdirSync(folder);
+			fs.symlinkSync(path.join(outside, 'messages.json'), path.join(folder, 'messages.json'));
+			expect(() => messagesFile(root, SESSION_ID)).toThrow(
+				'Session path escapes the sessions directory.'
+			);
+		} finally {
+			fs.rmSync(root, { recursive: true, force: true });
+			fs.rmSync(outside, { recursive: true, force: true });
+		}
+	});
 });
 
 describe('sessionDir / messagesFilePath / runFilePath', () => {

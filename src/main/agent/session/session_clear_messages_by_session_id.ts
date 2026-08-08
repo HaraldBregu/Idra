@@ -1,5 +1,4 @@
 import { existsSync, writeFileSync } from 'node:fs';
-import path from 'node:path';
 import { isUuid } from './session_is_uuid';
 import { legacyFilePath } from './session_legacy_file_path';
 import { messagesFile } from './session_messages_file';
@@ -15,6 +14,6 @@ export function clearMessagesBySessionId(sessionId: string, location: string): v
 	writeFileSync(filePath, '[]\n', 'utf8');
 
 	if (!isUuid(sessionId)) return;
-	const runPath = path.join(sessionPath(root, sessionFolderName(sessionId)), 'run.jsonl');
+	const runPath = sessionPath(root, sessionFolderName(sessionId), 'run.jsonl');
 	if (existsSync(runPath)) writeFileSync(runPath, '', 'utf8');
 }
