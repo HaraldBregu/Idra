@@ -1,6 +1,5 @@
 import type { StoredProvider } from '../../shared/provider_types';
 import type { StorageConfig } from '../../shared/storage_types';
-import type { McpRecord } from '../mcp/mcp_types';
 
 export type StoredStorage = Omit<StorageConfig, 'forcePathStyle'> & {
 	baseUrl: string;
@@ -12,5 +11,4 @@ export type ProvidersStoreState = {
 	databases: StoredProvider[];
 	search_engines: StoredProvider[];
 	storages: StoredStorage[];
-	mcp_servers: McpRecord[];
 };
