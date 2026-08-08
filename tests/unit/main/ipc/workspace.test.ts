@@ -134,6 +134,7 @@ describe('workspace files', () => {
 		await fs.mkdir(path.join(root, 'source'));
 		await fs.mkdir(path.join(root, 'destination'));
 		await fs.writeFile(path.join(root, 'source', 'note.md'), '# Note');
+		await fs.writeFile(path.join(root, 'source', 'inside.txt'), 'Inside');
 
 		await expect(moveWorkspaceEntry(root, 'source/note.md', 'destination')).resolves.toBe(
 			'destination/note.md'
@@ -144,9 +145,15 @@ describe('workspace files', () => {
 		await expect(moveWorkspaceEntry(root, 'source', 'destination')).resolves.toBe(
 			'destination/source'
 		);
+		await expect(
+			fs.readFile(path.join(root, 'destination', 'source', 'inside.txt'), 'utf8')
+		).resolves.toBe('Inside');
 		await expect(moveWorkspaceEntry(root, 'destination', 'destination/source')).rejects.toThrow(
 			'cannot be moved into itself'
 		);
+		await expect(
+			moveWorkspaceEntry(root, 'destination/source', 'destination/note.md')
+		).rejects.toThrow('not a folder');
 		await fs.writeFile(path.join(root, 'note.md'), '# Existing');
 		await expect(moveWorkspaceEntry(root, 'destination/note.md', '')).rejects.toThrow(
 			'already exists'
