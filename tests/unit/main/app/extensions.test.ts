@@ -18,6 +18,11 @@ import type { ExtensionManifest } from '../../../../src/main/extensions/extensio
 function createWindowHarness() {
 	const handlers = new Map<string, () => void>();
 	const win = {
+		focus: jest.fn(),
+		isDestroyed: jest.fn(() => false),
+		isMinimized: jest.fn(() => false),
+		isVisible: jest.fn(() => true),
+		restore: jest.fn(),
 		setMenuBarVisibility: jest.fn(),
 		show: jest.fn(),
 		once: jest.fn((event: string, handler: () => void) => handlers.set(event, handler)),
@@ -184,6 +189,33 @@ describe('extension storage and loading', () => {
 			'Extension entry not found: project'
 		);
 		expect(create).not.toHaveBeenCalled();
+	});
+
+	it('reuses an already-open extension window instead of creating another', () => {
+		const manifest: ExtensionManifest = {
+			...projectManifest,
+			metadata: { ...projectManifest.metadata, entry: 'pages/project.html' },
+		};
+		installExtension(appLocation, 'project', manifest);
+		const extension = { id: 'project', ...manifest };
+		const { create, handlers, win, windowFactory } = createWindowHarness();
+
+		const firstWindow = loadExtension(windowFactory, extension, appLocation);
+		expect(firstWindow).toBe(win);
+		expect(create).toHaveBeenCalledTimes(1);
+
+		handlers.get('ready-to-show')?.();
+		win.show.mockClear();
+		win.focus.mockClear();
+
+		const secondWindow = loadExtension(windowFactory, extension, appLocation);
+		expect(secondWindow).toBe(win);
+		expect(create).toHaveBeenCalledTimes(1);
+		expect(win.focus).toHaveBeenCalledTimes(1);
+		expect(win.show).toHaveBeenCalledTimes(0);
+		expect(win.isDestroyed).toHaveBeenCalledTimes(1);
+		expect(win.isMinimized).toHaveBeenCalledTimes(1);
+		expect(win.isVisible).toHaveBeenCalledTimes(1);
 	});
 
 	it('rejects extension paths outside the extensions folder', () => {
