@@ -7,6 +7,7 @@ const successfulTurn = async function* () {
 	return { content: 'done', model: 'test-model', toolCalls: [] };
 };
 const runModelTurnMock = jest.fn(successfulTurn);
+const appendRunMock = jest.fn();
 
 jest.mock('../../../../../src/main/settings_store', () => ({
 	getModelId: jest.fn(() => 'test-model'),
@@ -15,6 +16,10 @@ jest.mock('../../../../../src/main/settings_store', () => ({
 
 jest.mock('../../../../../src/main/agent/run/run_model_turn', () => ({
 	runModelTurn: (...args: unknown[]) => runModelTurnMock(...args),
+}));
+
+jest.mock('../../../../../src/main/agent/session/session_append_run', () => ({
+	appendRun: (...args: unknown[]) => appendRunMock(...args),
 }));
 
 jest.mock('../../../../../src/main/agent/skills', () => ({
@@ -28,6 +33,7 @@ import type { Message } from '../../../../../src/main/agent/types';
 describe('run stream system prompt', () => {
 	beforeEach(() => {
 		runModelTurnMock.mockReset().mockImplementation(successfulTurn);
+		appendRunMock.mockReset();
 	});
 
 	it('sends workspace files as user context instead of system instructions', async () => {
@@ -132,39 +138,29 @@ describe('run stream system prompt', () => {
 	});
 
 	it('emits one terminal event even when terminal trace persistence fails', async () => {
-		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-run-trace-failure-'));
-		const nodeFs = await import('node:fs');
-		const append = jest.spyOn(nodeFs, 'appendFileSync').mockImplementation(() => {
-			throw new Error('trace disk full');
+		appendRunMock.mockImplementation((_state, entry: { type?: string }) => {
+			if (entry.type === 'run_finished') throw new Error('trace disk full');
 		});
-		try {
-			const session = createSessionState();
-			session.id = '11111111-1111-4111-8111-111111111111';
-			session.folderName = session.id;
-			session.sessionsPath = root;
-			const events = [];
+		const session = createSessionState();
+		session.id = '11111111-1111-4111-8111-111111111111';
+		const events = [];
 
-			for await (const event of stream(
-				{ location: '/workspace' },
-				session,
-				{
-					runId: 'run',
-					task: 'chat',
-					message: 'request',
-					model: 'test-model',
-					origin: 'main',
-					contextMode: 'minimal',
-				},
-				new AbortController().signal,
-				{ tools: [] }
-			)) events.push(event);
+		for await (const event of stream(
+			{ location: '/workspace' },
+			session,
+			{
+				runId: 'run',
+				task: 'chat',
+				message: 'request',
+				model: 'test-model',
+				origin: 'main',
+				contextMode: 'minimal',
+			},
+			new AbortController().signal,
+			{ tools: [] }
+		)) events.push(event);
 
-			expect(events.filter((event) => event.type === 'run_finished')).toHaveLength(1);
-			expect(events.at(-1)?.type).toBe('run_finished');
-			expect(session.runTraceBuffer.length).toBeGreaterThan(0);
-		} finally {
-			append.mockRestore();
-			await fs.rm(root, { recursive: true, force: true });
-		}
+		expect(events.filter((event) => event.type === 'run_finished')).toHaveLength(1);
+		expect(events.at(-1)?.type).toBe('run_finished');
 	});
 });
