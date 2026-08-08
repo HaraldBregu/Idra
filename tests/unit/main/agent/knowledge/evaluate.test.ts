@@ -1,9 +1,9 @@
-import corpus from '../../../../../../tests/fixtures/knowledge-evaluation.json';
+import corpus from '../../../../fixtures/knowledge-evaluation.json';
 import {
 	evaluateKnowledge,
 	type KnowledgeEvaluationCase,
 	type KnowledgeEvaluationObservation,
-} from '../../../../../../src/main/agent/knowledge/evaluate';
+} from '../../../../../src/main/agent/knowledge/evaluate';
 
 it('measures the offline knowledge acceptance metrics', () => {
 	const observations: KnowledgeEvaluationObservation[] = [
