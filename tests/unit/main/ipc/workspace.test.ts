@@ -3,7 +3,9 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { readWorkspaceAsset } from '../../../../src/main/ipc/asset';
+import { createWorkspaceEntry } from '../../../../src/main/ipc/create';
 import { deleteWorkspaceFile } from '../../../../src/main/ipc/delete';
+import { deleteWorkspaceDirectory } from '../../../../src/main/ipc/directory';
 import { writeWorkspaceMarkdown } from '../../../../src/main/ipc/markdown';
 import { resolveWorkspaceFile } from '../../../../src/main/ipc/workspace';
 import { workspaceFileType } from '../../../../src/shared/workspace';
@@ -88,6 +90,41 @@ describe('workspace files', () => {
 		await deleteWorkspaceFile(root, 'notes.txt');
 		await expect(fs.stat(text)).rejects.toThrow();
 		await expect(deleteWorkspaceFile(root, 'folder')).rejects.toThrow('not a file');
+		await fs.rm(root, { recursive: true });
+	});
+
+	it('creates files and folders without overwriting existing entries', async () => {
+		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-workspace-'));
+		await fs.mkdir(path.join(root, 'notes'));
+
+		await expect(createWorkspaceEntry(root, '', 'draft.md', 'file')).resolves.toBe('draft.md');
+		await expect(createWorkspaceEntry(root, 'notes', 'ideas', 'directory')).resolves.toBe(
+			'notes/ideas'
+		);
+		await expect(createWorkspaceEntry(root, '', 'draft.md', 'file')).rejects.toThrow(
+			'already exists'
+		);
+		await expect(createWorkspaceEntry(root, '', '../escape.md', 'file')).rejects.toThrow(
+			'valid name'
+		);
+		await expect(createWorkspaceEntry(root, '', 'nested/name.md', 'file')).rejects.toThrow(
+			'valid name'
+		);
+
+		await fs.rm(root, { recursive: true });
+	});
+
+	it('recursively deletes folders but never the workspace root or a file', async () => {
+		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-workspace-'));
+		await fs.mkdir(path.join(root, 'folder'));
+		await fs.writeFile(path.join(root, 'folder', 'note.md'), '# Note');
+		await fs.writeFile(path.join(root, 'note.md'), '# Note');
+
+		await deleteWorkspaceDirectory(root, 'folder');
+		await expect(fs.stat(path.join(root, 'folder'))).rejects.toThrow();
+		await expect(deleteWorkspaceDirectory(root, '.')).rejects.toThrow('root cannot be deleted');
+		await expect(deleteWorkspaceDirectory(root, 'note.md')).rejects.toThrow('not a folder');
+
 		await fs.rm(root, { recursive: true });
 	});
 });

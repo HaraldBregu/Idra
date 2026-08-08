@@ -156,10 +156,31 @@ export const agent: AgentApi = {
 			content
 		);
 	},
+	createWorkspaceFile: (parentPath, name) => {
+		if (typeof parentPath !== 'string') throw new Error('Invalid workspace parent path.');
+		const normalizedName = optionalTrimmedString(name);
+		if (!normalizedName) throw new Error('Invalid workspace file name.');
+		return typedInvokeUnwrap(AgentChannels.createWorkspaceFile, parentPath.trim(), normalizedName);
+	},
+	createWorkspaceDirectory: (parentPath, name) => {
+		if (typeof parentPath !== 'string') throw new Error('Invalid workspace parent path.');
+		const normalizedName = optionalTrimmedString(name);
+		if (!normalizedName) throw new Error('Invalid workspace folder name.');
+		return typedInvokeUnwrap(
+			AgentChannels.createWorkspaceDirectory,
+			parentPath.trim(),
+			normalizedName
+		);
+	},
 	deleteWorkspaceFile: (filePath) => {
 		const normalizedFilePath = optionalTrimmedString(filePath);
 		if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
 		return typedInvokeUnwrap(AgentChannels.deleteWorkspaceFile, normalizedFilePath);
+	},
+	deleteWorkspaceDirectory: (directoryPath) => {
+		const normalizedDirectoryPath = optionalTrimmedString(directoryPath);
+		if (!normalizedDirectoryPath) throw new Error('Invalid workspace folder path.');
+		return typedInvokeUnwrap(AgentChannels.deleteWorkspaceDirectory, normalizedDirectoryPath);
 	},
 	getProvider: (): Promise<PublicProvider | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.getProvider);

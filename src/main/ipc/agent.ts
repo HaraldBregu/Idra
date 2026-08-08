@@ -57,7 +57,9 @@ import {
 import type { RagConfiguration } from '../../shared/rag_types';
 import type { WorkspaceAsset } from '../../shared/workspace';
 import { readWorkspaceAsset } from './asset';
+import { createWorkspaceEntry } from './create';
 import { deleteWorkspaceFile } from './delete';
+import { deleteWorkspaceDirectory } from './directory';
 import { writeWorkspaceMarkdown } from './markdown';
 import { resolveWorkspaceFile } from './workspace';
 
@@ -327,12 +329,54 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.createWorkspaceFile,
+			wrapSimpleHandler(async (parentPath: unknown, name: unknown): Promise<string> => {
+				if (typeof parentPath !== 'string') throw new Error('Invalid workspace parent path.');
+				const normalizedName = optionalTrimmedString(name);
+				if (!normalizedName) throw new Error('Invalid workspace file name.');
+				return createWorkspaceEntry(
+					workspacePath(agent.config),
+					parentPath.trim(),
+					normalizedName,
+					'file'
+				);
+			}, AgentChannels.createWorkspaceFile)
+		);
+
+		ipcMain.handle(
+			AgentChannels.createWorkspaceDirectory,
+			wrapSimpleHandler(async (parentPath: unknown, name: unknown): Promise<string> => {
+				if (typeof parentPath !== 'string') throw new Error('Invalid workspace parent path.');
+				const normalizedName = optionalTrimmedString(name);
+				if (!normalizedName) throw new Error('Invalid workspace folder name.');
+				return createWorkspaceEntry(
+					workspacePath(agent.config),
+					parentPath.trim(),
+					normalizedName,
+					'directory'
+				);
+			}, AgentChannels.createWorkspaceDirectory)
+		);
+
+		ipcMain.handle(
 			AgentChannels.deleteWorkspaceFile,
 			wrapSimpleHandler(async (filePath: unknown): Promise<void> => {
 				const normalizedFilePath = optionalTrimmedString(filePath);
 				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
 				await deleteWorkspaceFile(workspacePath(agent.config), normalizedFilePath);
 			}, AgentChannels.deleteWorkspaceFile)
+		);
+
+		ipcMain.handle(
+			AgentChannels.deleteWorkspaceDirectory,
+			wrapSimpleHandler(async (directoryPath: unknown): Promise<void> => {
+				const normalizedDirectoryPath = optionalTrimmedString(directoryPath);
+				if (!normalizedDirectoryPath) throw new Error('Invalid workspace folder path.');
+				await deleteWorkspaceDirectory(
+					workspacePath(agent.config),
+					normalizedDirectoryPath
+				);
+			}, AgentChannels.deleteWorkspaceDirectory)
 		);
 
 		ipcMain.handle(

@@ -73,8 +73,20 @@ export interface AgentInvokeChannelMap {
 		args: [filePath: string, content: string];
 		result: void;
 	};
+	[AgentChannels.createWorkspaceFile]: {
+		args: [parentPath: string, name: string];
+		result: string;
+	};
+	[AgentChannels.createWorkspaceDirectory]: {
+		args: [parentPath: string, name: string];
+		result: string;
+	};
 	[AgentChannels.deleteWorkspaceFile]: {
 		args: [filePath: string];
+		result: void;
+	};
+	[AgentChannels.deleteWorkspaceDirectory]: {
+		args: [directoryPath: string];
 		result: void;
 	};
 	[AgentChannels.getProvider]: {

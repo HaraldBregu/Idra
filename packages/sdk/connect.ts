@@ -11,7 +11,10 @@ export type WorkspaceAgentApi = Pick<
 	| 'readWorkspaceFile'
 	| 'readWorkspaceAsset'
 	| 'writeWorkspaceMarkdown'
+	| 'createWorkspaceFile'
+	| 'createWorkspaceDirectory'
 	| 'deleteWorkspaceFile'
+	| 'deleteWorkspaceDirectory'
 >;
 
 export interface ConnectOptions {
@@ -141,8 +144,14 @@ export function connect(options: ConnectOptions): FridayClient {
 				invoke(AgentChannels.readWorkspaceAsset, [filePath]) as ReturnType<AgentApi['readWorkspaceAsset']>,
 			writeWorkspaceMarkdown: (filePath, content) =>
 				invoke(AgentChannels.writeWorkspaceMarkdown, [filePath, content]) as ReturnType<AgentApi['writeWorkspaceMarkdown']>,
+			createWorkspaceFile: (parentPath, name) =>
+				invoke(AgentChannels.createWorkspaceFile, [parentPath, name]) as ReturnType<AgentApi['createWorkspaceFile']>,
+			createWorkspaceDirectory: (parentPath, name) =>
+				invoke(AgentChannels.createWorkspaceDirectory, [parentPath, name]) as ReturnType<AgentApi['createWorkspaceDirectory']>,
 			deleteWorkspaceFile: (filePath) =>
 				invoke(AgentChannels.deleteWorkspaceFile, [filePath]) as ReturnType<AgentApi['deleteWorkspaceFile']>,
+			deleteWorkspaceDirectory: (directoryPath) =>
+				invoke(AgentChannels.deleteWorkspaceDirectory, [directoryPath]) as ReturnType<AgentApi['deleteWorkspaceDirectory']>,
 		},
 		ping: async () => {
 			const response = await call(`${base}/health`, { headers });
