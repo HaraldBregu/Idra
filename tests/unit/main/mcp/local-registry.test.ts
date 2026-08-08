@@ -5,7 +5,7 @@ import { configureLocalMcpServer } from '../../../../src/main/mcp/mcp_local_conf
 import { importLocalMcpServers } from '../../../../src/main/mcp/mcp_local_import';
 import { listLocalMcpServers } from '../../../../src/main/mcp/mcp_local_list';
 import { readLocalMcpServer } from '../../../../src/main/mcp/mcp_local_read';
-import { mcpLocalRoot } from '../../../../src/main/mcp/mcp_local_root';
+import { mcpLocalDiscoveryRoots, mcpLocalRoot } from '../../../../src/main/mcp/mcp_local_root';
 
 let temp: string;
 
@@ -20,6 +20,51 @@ afterEach(() => {
 describe('local MCP registry', () => {
 	it('uses the expected local server root', () => {
 		expect(mcpLocalRoot('/app-data')).toBe(path.resolve('/app-data', 'mcp', 'servers'));
+	});
+
+	it('derives local and workspace discovery roots', () => {
+		expect(mcpLocalDiscoveryRoots('/app-data')).toEqual([
+			path.resolve('/app-data', 'mcp', 'servers'),
+			path.resolve(process.cwd(), 'mcp'),
+		]);
+	});
+
+	it('supports scanning the configured local root and workspace root together', () => {
+		const localRoot = path.join(temp, 'servers');
+		const workspaceRoot = path.join(temp, 'mcp');
+
+		const localServer = path.join(localRoot, 'from-user');
+		fs.mkdirSync(localServer, { recursive: true });
+		fs.writeFileSync(path.join(localServer, 'mcp.json'), JSON.stringify({ id: 'first', command: 'user' }));
+
+		const workspaceServer = path.join(workspaceRoot, 'from-workspace');
+		fs.mkdirSync(workspaceServer, { recursive: true });
+		fs.writeFileSync(
+			path.join(workspaceServer, 'mcp.json'),
+			JSON.stringify({ id: 'second', command: 'workspace' })
+		);
+
+		const result = listLocalMcpServers([localRoot, workspaceRoot]);
+		expect(result.servers.map((server) => server.id)).toEqual(['first', 'second']);
+		expect(result.diagnostics).toEqual([]);
+	});
+
+	it('keeps the first discovered root when duplicate IDs are present', () => {
+		const localRoot = path.join(temp, 'servers');
+		const workspaceRoot = path.join(temp, 'mcp');
+
+		const localServer = path.join(localRoot, 'duplicate');
+		fs.mkdirSync(localServer, { recursive: true });
+		fs.writeFileSync(path.join(localServer, 'mcp.json'), JSON.stringify({ command: 'user' }));
+
+		const workspaceServer = path.join(workspaceRoot, 'duplicate');
+		fs.mkdirSync(workspaceServer, { recursive: true });
+		fs.writeFileSync(path.join(workspaceServer, 'mcp.json'), JSON.stringify({ command: 'workspace' }));
+
+		const result = listLocalMcpServers([localRoot, workspaceRoot]);
+		expect(result.servers).toHaveLength(1);
+		expect(result.servers[0]?.data.command).toBe('user');
+		expect(result.diagnostics).toEqual([]);
 	});
 
 	it('reads a portable stdio manifest and resolves its working directory', () => {
@@ -116,6 +161,46 @@ describe('local MCP registry', () => {
 			package_value: 'preserved',
 		});
 		expect(fs.readdirSync(directory).filter((entry) => entry.startsWith('.mcp-'))).toEqual([]);
+	});
+
+	it('imports a workspace MCP server before writing a local configuration', () => {
+		const originalCwd = process.cwd();
+		process.chdir(temp);
+		try {
+			const workspaceServerRoot = path.join(temp, 'mcp');
+			const packageServer = path.join(workspaceServerRoot, 'gmail-smtp');
+			const localRoot = path.join(temp, 'app-data', 'mcp', 'servers');
+
+			fs.mkdirSync(packageServer, { recursive: true });
+			fs.writeFileSync(
+				path.join(packageServer, 'mcp.json'),
+				JSON.stringify({
+					id: 'gmail-smtp',
+					type: 'stdio',
+					command: 'node',
+					args: ['--experimental-strip-types', 'src/index.ts'],
+					cwd: '.',
+					env: { GMAIL_SMTP_HOST: 'smtp.gmail.com' },
+				})
+			);
+
+			const result = configureLocalMcpServer('gmail-smtp', {
+				type: 'stdio',
+				command: 'node',
+				args: ['--experimental-strip-types', 'src/index.ts'],
+			}, localRoot);
+
+			const installed = path.join(localRoot, 'gmail-smtp');
+			expect(result.path).toBe(installed);
+			expect(JSON.parse(fs.readFileSync(path.join(installed, 'mcp.json'), 'utf8'))).toMatchObject({
+				id: 'gmail-smtp',
+				args: ['--experimental-strip-types', 'src/index.ts'],
+				env: { GMAIL_SMTP_HOST: 'smtp.gmail.com' },
+			});
+			expect(fs.existsSync(installed)).toBe(true);
+		} finally {
+			process.chdir(originalCwd);
+		}
 	});
 
 	it('returns diagnostics for malformed and duplicate manifests', () => {
