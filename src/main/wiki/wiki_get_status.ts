@@ -8,7 +8,7 @@ export function getWikiStatus(): WikiStatus {
 	const nextRun = wikiRuntime.task?.getNextRun();
 	return {
 		running: Boolean(wikiRuntime.run),
-		enabled: wikiSettingsStore.store.enabled !== false,
+		enabled: wikiSettingsStore.store.enabled === true,
 		lastRun: wikiRuntime.lastRun ?? getWikiState().lastRun,
 		nextRunAt: nextRun?.toISOString(),
 		settingsPath: wikiSettingsStore.path,

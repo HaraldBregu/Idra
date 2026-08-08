@@ -6,7 +6,7 @@ import { userDataLocation } from '../shared/user_data_location';
 import { wikiLocation } from './wiki_location';
 
 export const DEFAULT_WIKI_SETTINGS: WikiSettings = {
-	enabled: true,
+	enabled: false,
 	providerId: '',
 	modelId: '',
 	sourcePath: path.resolve(wikiLocation(), 'raw'),

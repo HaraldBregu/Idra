@@ -7,7 +7,7 @@ export function startWiki(logger?: typeof wikiRuntime.logger): void {
 	wikiRuntime.logger = logger;
 	rescheduleWiki();
 	const settings = getWikiSettings();
-	if (settings.enabled !== false && settings.lintOnStartup === true) {
+	if (settings.enabled === true && settings.lintOnStartup === true) {
 		void lintWiki(false).catch((error) => logger?.error('Wiki', 'Startup lint failed', error));
 	}
 }

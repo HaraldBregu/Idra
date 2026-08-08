@@ -12,7 +12,7 @@ import { wikiReviewTool } from './review';
 import { wikiSaveTool } from './save';
 
 export function getWikiTools(category: SessionCategory): Tool[] {
-	if (category !== 'main' || getWikiSettings().enabled === false) return [];
+	if (category !== 'main' || getWikiSettings().enabled !== true) return [];
 	return [
 		wikiIngestTool,
 		wikiSearchTool,

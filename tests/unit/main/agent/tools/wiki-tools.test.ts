@@ -6,6 +6,10 @@ import {
 } from '../../../../../src/main/wiki/wiki_settings_store';
 
 describe('wiki tools', () => {
+	it('is disabled by default', () => {
+		expect(DEFAULT_WIKI_SETTINGS.enabled).toBe(false);
+	});
+
 	beforeEach(() => {
 		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, enabled: true };
 	});

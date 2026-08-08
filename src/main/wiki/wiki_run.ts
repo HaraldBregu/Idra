@@ -29,7 +29,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 
 	wikiRuntime.run = (async () => {
 		const settings = getWikiSettings();
-		if (settings.enabled === false) {
+		if (settings.enabled !== true) {
 			return {
 				processedSources: 0,
 				skippedSources: 0,

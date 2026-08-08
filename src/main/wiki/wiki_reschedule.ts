@@ -10,7 +10,7 @@ export function rescheduleWiki(): void {
 		wikiRuntime.task = undefined;
 	}
 	const settings = getWikiSettings();
-	if (settings.enabled === false || !settings.schedule.enabled) return;
+	if (settings.enabled !== true || !settings.schedule.enabled) return;
 	wikiRuntime.task = cron.schedule(
 		settings.schedule.cronExpression,
 		() => {
