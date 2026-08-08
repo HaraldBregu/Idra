@@ -20,7 +20,7 @@ describe('resend MCP server', () => {
 		await close(client);
 	});
 
-	it('is configured without storing an API key', () => {
+	it('is configured with an empty API key placeholder', () => {
 		expect(resend).toMatchObject({
 			id: 'resend',
 			data: {
@@ -28,10 +28,13 @@ describe('resend MCP server', () => {
 				command: 'node',
 				args: ['--experimental-strip-types', 'src/index.ts'],
 				cwd: directory,
-				env: { RESEND_API_BASE_URL: 'https://api.resend.com' },
+				env: {
+					RESEND_API_BASE_URL: 'https://api.resend.com',
+					RESEND_API_KEY: '',
+				},
 			},
 		});
-		expect(resend.data.type === 'stdio' ? resend.data.env?.RESEND_API_KEY : undefined).toBeUndefined();
+		expect(resend.data.type === 'stdio' ? resend.data.env?.RESEND_API_KEY : undefined).toBe('');
 	});
 
 	it('publishes the send email tool', async () => {
