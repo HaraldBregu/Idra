@@ -20,7 +20,7 @@ describe('gmail smtp MCP server', () => {
 		await close(client);
 	});
 
-	it('is configured without storing SMTP credentials', () => {
+	it('is configured with empty SMTP credential placeholders', () => {
 		expect(gmail).toMatchObject({
 			id: 'gmail-smtp',
 			data: {
@@ -32,11 +32,13 @@ describe('gmail smtp MCP server', () => {
 					GMAIL_SMTP_HOST: 'smtp.gmail.com',
 					GMAIL_SMTP_PORT: '587',
 					GMAIL_SMTP_SECURE: 'false',
+					GMAIL_SMTP_USER: '',
+					GMAIL_SMTP_PASSWORD: '',
 				},
 			},
 		});
-		expect(gmail.data.type === 'stdio' ? gmail.data.env?.GMAIL_SMTP_USER : undefined).toBeUndefined();
-		expect(gmail.data.type === 'stdio' ? gmail.data.env?.GMAIL_SMTP_PASSWORD : undefined).toBeUndefined();
+		expect(gmail.data.type === 'stdio' ? gmail.data.env?.GMAIL_SMTP_USER : undefined).toBe('');
+		expect(gmail.data.type === 'stdio' ? gmail.data.env?.GMAIL_SMTP_PASSWORD : undefined).toBe('');
 	});
 
 	it('publishes the send email tool over MCP', async () => {
