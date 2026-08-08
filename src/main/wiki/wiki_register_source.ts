@@ -40,36 +40,12 @@ export async function registerWikiSource(
 		.sort((left, right) => right.ingestedAt.localeCompare(left.ingestedAt))[0];
 	const previousVersion = previous?.lineage?.[source.relativePath]?.version ?? (previous ? 1 : 0);
 	if (existing) {
-		if (!existing.relativePaths.includes(source.relativePath) || previous) {
-			const sources = { ...registry.sources };
-			if (previous) {
-				sources[previous.sourceId] = {
-					...previous,
-					lineage: {
-						...previous.lineage,
-						[source.relativePath]: {
-							version: previousVersion,
-							...previous.lineage?.[source.relativePath],
-							replacedBySourceId: sourceId,
-						},
-					},
-				};
-			}
-			sources[sourceId] = {
+		if (!existing.relativePaths.includes(source.relativePath)) {
+			registry.sources[sourceId] = {
 				...existing,
 				relativePaths: [...new Set([...existing.relativePaths, source.relativePath])].sort(),
-				lineage: {
-					...existing.lineage,
-					[source.relativePath]: {
-						version: previousVersion + 1,
-						...(previous ? { previousSourceId: previous.sourceId } : {}),
-					},
-				},
 			};
-			registry.sources[sourceId] = {
-				...sources[sourceId],
-			};
-			repository.sources.store = { ...registry, sources };
+			repository.sources.store = registry;
 		}
 			return {
 				source: {
@@ -81,6 +57,15 @@ export async function registerWikiSource(
 			},
 			record: repository.sources.store.sources[sourceId],
 			isNew: false,
+			...(previous
+				? {
+						pendingLineage: {
+							relativePath: source.relativePath,
+							version: previousVersion + 1,
+							previousSourceId: previous.sourceId,
+						},
+					}
+				: {}),
 		};
 	}
 
@@ -110,34 +95,23 @@ export async function registerWikiSource(
 		archivePath,
 		status: 'pending' as const,
 		operationId,
-		lineage: {
-			[source.relativePath]: {
-				version: previousVersion + 1,
-				...(previous ? { previousSourceId: previous.sourceId } : {}),
-			},
-		},
 	};
-	const sources = { ...registry.sources, [sourceId]: record };
-	if (previous) {
-		sources[previous.sourceId] = {
-			...previous,
-			lineage: {
-				...previous.lineage,
-				[source.relativePath]: {
-					version: previousVersion,
-					...previous.lineage?.[source.relativePath],
-					replacedBySourceId: sourceId,
-				},
-			},
-		};
-	}
 	repository.sources.store = {
 		version: 1,
-		sources,
+		sources: { ...registry.sources, [sourceId]: record },
 	};
 	return {
 		source: { ...verifiedSource, sourceId, archivePath },
 		record,
 		isNew: true,
+		...(previous
+			? {
+					pendingLineage: {
+						relativePath: source.relativePath,
+						version: previousVersion + 1,
+						previousSourceId: previous.sourceId,
+					},
+				}
+			: {}),
 	};
 }

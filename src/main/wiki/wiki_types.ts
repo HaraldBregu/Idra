@@ -141,6 +141,11 @@ export interface WikiRegisteredSource {
 	source: WikiSource;
 	record: WikiSourceRecord;
 	isNew: boolean;
+	pendingLineage?: {
+		relativePath: string;
+		version: number;
+		previousSourceId: string;
+	};
 }
 
 export interface WikiPageManifestEntry {
