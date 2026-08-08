@@ -81,6 +81,10 @@ const embeddingApi = {
 
 beforeEach(() => {
 	jest.clearAllMocks();
+	Object.defineProperty(window, 'PointerEvent', {
+		configurable: true,
+		value: MouseEvent,
+	});
 	Object.defineProperty(window, 'app', {
 		configurable: true,
 		value: { databases: jest.fn().mockResolvedValue([]) },
@@ -138,8 +142,7 @@ it('enables the Knowledge Base from its settings page', async () => {
 
 	const toggle = await screen.findByRole('switch', { name: 'Enable Knowledge Base' });
 	expect(toggle).not.toBeChecked();
-	toggle.focus();
-	await user.keyboard(' ');
+	await user.click(toggle);
 	await waitFor(() =>
 		expect(agentApi.ragSaveConfiguration).toHaveBeenCalledWith(
 			expect.objectContaining({ enabled: true })
