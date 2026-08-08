@@ -66,8 +66,8 @@ it('measures the offline knowledge acceptance metrics', () => {
 	expect(evaluateKnowledge(corpus as KnowledgeEvaluationCase[], observations, 2)).toEqual({
 		cases: 5,
 		routeAccuracy: 1,
-		recallAtK: 0.6,
-		meanReciprocalRank: 0.5,
+		recallAtK: 1,
+		meanReciprocalRank: 5 / 6,
 		citationPrecision: 1,
 		citationRecall: 1,
 		groundedAnswerFaithfulness: 1,

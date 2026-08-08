@@ -47,6 +47,7 @@ export function evaluateKnowledge(
 	if (!Number.isInteger(k) || k < 1) throw new Error('Knowledge evaluation k must be positive.');
 	const byId = new Map(observations.map((observation) => [observation.id, observation]));
 	let correctRoutes = 0;
+	let retrievalCases = 0;
 	let recalled = 0;
 	let reciprocalRank = 0;
 	let relevantCitations = 0;
@@ -67,10 +68,13 @@ export function evaluateKnowledge(
 		if (!observation) throw new Error(`Missing knowledge evaluation observation: ${item.id}`);
 		if (observation.route === item.expectedRoute) correctRoutes += 1;
 		const relevant = new Set(item.relevantSourceIds);
-		const rank = observation.retrievedSourceIds.findIndex((sourceId) => relevant.has(sourceId));
-		if (rank >= 0) reciprocalRank += 1 / (rank + 1);
-		if (observation.retrievedSourceIds.slice(0, k).some((sourceId) => relevant.has(sourceId))) {
-			recalled += 1;
+		if (relevant.size > 0) {
+			retrievalCases += 1;
+			const rank = observation.retrievedSourceIds.findIndex((sourceId) => relevant.has(sourceId));
+			if (rank >= 0) reciprocalRank += 1 / (rank + 1);
+			if (observation.retrievedSourceIds.slice(0, k).some((sourceId) => relevant.has(sourceId))) {
+				recalled += 1;
+			}
 		}
 		totalCitations += observation.citedSourceIds.length;
 		relevantCitations += observation.citedSourceIds.filter((sourceId) => relevant.has(sourceId)).length;
@@ -95,8 +99,8 @@ export function evaluateKnowledge(
 	return {
 		cases: corpus.length,
 		routeAccuracy: correctRoutes / corpus.length,
-		recallAtK: recalled / corpus.length,
-		meanReciprocalRank: reciprocalRank / corpus.length,
+		recallAtK: retrievalCases === 0 ? 1 : recalled / retrievalCases,
+		meanReciprocalRank: retrievalCases === 0 ? 1 : reciprocalRank / retrievalCases,
 		citationPrecision: totalCitations === 0 ? 1 : relevantCitations / totalCitations,
 		citationRecall: expectedCitations === 0 ? 1 : relevantCitations / expectedCitations,
 		groundedAnswerFaithfulness: totalClaims === 0 ? 1 : groundedClaims / totalClaims,
