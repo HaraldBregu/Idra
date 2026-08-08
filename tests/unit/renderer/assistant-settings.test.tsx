@@ -58,8 +58,12 @@ jest.mock('react-i18next', () => {
 		'settings.dataControls.memoryDescription': 'Saved facts',
 		'settings.dataControls.sessions': 'Assistant sessions',
 		'settings.dataControls.sessionsDescription': 'Listed sessions',
-		'settings.dataControls.rag': 'Local knowledge index',
-		'settings.dataControls.ragDescription': 'Local chunks',
+		'settings.dataControls.ragIndex': 'Full local knowledge index',
+		'settings.dataControls.ragIndexDescription': 'All local chunks',
+		'settings.dataControls.ragNamespace': 'Active local namespace',
+		'settings.dataControls.ragNamespaceDescription': 'Active local chunks',
+		'settings.dataControls.remoteNamespace': 'Pinecone namespace',
+		'settings.dataControls.remoteNamespaceDescription': 'Exact remote namespace',
 		'settings.dataControls.wiki': 'Managed wiki',
 		'settings.dataControls.wikiDescription': 'Compiled pages',
 	};
@@ -88,6 +92,27 @@ const mediaApi = (providerId: string, modelId: string) => ({
 });
 
 const dataControls = {
+	listScopes: jest.fn().mockResolvedValue([
+		{ kind: 'memory' },
+		{
+			kind: 'sessions',
+			sessionIds: ['11111111-1111-4111-8111-111111111111'],
+		},
+		{ kind: 'rag', mode: 'local_index', indexName: 'knowledge-base' },
+		{
+			kind: 'rag',
+			mode: 'local_namespace',
+			indexName: 'knowledge-base',
+			generation: 'friday-11111111-1111-4111-8111-111111111111',
+		},
+		{
+			kind: 'rag',
+			mode: 'remote_namespace',
+			indexName: 'knowledge-base',
+			generation: 'friday-11111111-1111-4111-8111-111111111111',
+		},
+		{ kind: 'wiki', targetPath: '/wiki' },
+	]),
 	export: jest.fn().mockResolvedValue(undefined),
 	previewPurge: jest.fn().mockResolvedValue({ confirmationId: 'confirmation-id' }),
 	purge: jest.fn().mockResolvedValue(undefined),
