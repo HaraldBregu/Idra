@@ -1,6 +1,6 @@
 import { ChevronRight, File, Folder, FolderOpen } from "lucide-react"
 import { useMemo, useState } from "react"
-import { isFriday, win, type WorkspaceTreeEntry } from "@friday/sdk"
+import type { WorkspaceTreeEntry } from "@friday/sdk"
 
 import { cn } from "@/lib/utils"
 import { showNativeContextMenu } from "@/lib/menu"
