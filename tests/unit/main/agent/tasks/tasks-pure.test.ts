@@ -46,7 +46,7 @@ describe('buildTask', () => {
 });
 
 describe('taskActionSchema', () => {
-	it('allows scheduled tasks to override the stored permission mode', () => {
+	it('strips model-supplied permission overrides from scheduled tasks', () => {
 		expect(taskActionSchema.parse({ type: 'agent', prompt: 'do it', effort: 'low' })).not.toHaveProperty(
 			'permissionMode'
 		);
@@ -57,6 +57,6 @@ describe('taskActionSchema', () => {
 				effort: 'low',
 				permissionMode: 'bypass',
 			})
-		).toMatchObject({ permissionMode: 'bypass' });
+		).not.toHaveProperty('permissionMode');
 	});
 });

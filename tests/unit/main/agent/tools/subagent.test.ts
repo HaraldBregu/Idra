@@ -13,7 +13,7 @@ describe('subagentTool', () => {
 		mockStream.mockReset();
 	});
 
-	it('keeps mandatory rules when additional system instructions are supplied', async () => {
+	it('ignores model-supplied system instructions', async () => {
 		mockStream.mockReturnValue(
 			(async function* () {
 				yield { type: 'assistant_message', content: 'done', toolCalls: [] };
@@ -26,16 +26,18 @@ describe('subagentTool', () => {
 
 		const session = mockStream.mock.calls[0][1] as SessionState;
 		expect(session.messages).toEqual([{ role: 'user', content: 'inspect context' }]);
-		expect(session.context.basePrompt).toContain('Act as a test reviewer.');
+		expect(session.context.basePrompt).not.toContain('Act as a test reviewer.');
 		expect(session.context.basePrompt).toContain('- Stay focused:');
-		expect(session.context.basePrompt?.indexOf('Act as a test reviewer.')).toBeLessThan(
-			session.context.basePrompt?.indexOf('- Stay focused:') ?? -1
-		);
 		expect(parent.subagents).toEqual([session.context]);
 		expect(mockStream.mock.calls[0][4]).toEqual({ tools: [], interactive: false });
+		expect(mockStream.mock.calls[0][2]).toMatchObject({
+			origin: 'subagent',
+			contextMode: 'minimal',
+			toolsAllow: [],
+		});
 	});
 
-	it('forwards an explicit permission bypass to the background run', async () => {
+	it('does not forward a model-supplied permission bypass', async () => {
 		mockStream.mockReturnValue(
 			(async function* () {
 				yield { type: 'assistant_message', content: 'done', toolCalls: [] };
@@ -45,9 +47,9 @@ describe('subagentTool', () => {
 
 		await tool.run({ task: 'apply the change', permissionMode: 'bypass' });
 
-		expect(mockStream.mock.calls[0][4]).toMatchObject({
+		expect(mockStream.mock.calls[0][4]).toEqual({
+			tools: [],
 			interactive: false,
-			permissionMode: 'bypass',
 		});
 	});
 });

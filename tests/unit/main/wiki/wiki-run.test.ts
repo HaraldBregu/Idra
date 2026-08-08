@@ -37,6 +37,7 @@ describe('runWiki', () => {
 		await import('node:fs/promises').then(({ mkdir }) => mkdir(sourcePath, { recursive: true }));
 		await writeFile(path.join(sourcePath, 'notes.md'), 'Version one', 'utf8');
 		wikiSettingsStore.store = {
+			enabled: true,
 			providerId: 'openai',
 			modelId: 'gpt-5',
 			sourcePath,
@@ -90,6 +91,7 @@ describe('runWiki', () => {
 		await writeFile(path.join(sourcePath, 'invalid.md'), 'Invalid generated link', 'utf8');
 		await writeFile(path.join(targetPath, 'index.md'), '# Original index\n', 'utf8');
 		wikiSettingsStore.store = {
+			enabled: true,
 			providerId: 'openai',
 			modelId: 'gpt-5',
 			sourcePath,
@@ -146,6 +148,7 @@ describe('runWiki', () => {
 		await import('node:fs/promises').then(({ mkdir }) => mkdir(sourcePath, { recursive: true }));
 		await writeFile(path.join(sourcePath, 'slow.md'), 'Slow source', 'utf8');
 		wikiSettingsStore.store = {
+			enabled: true,
 			providerId: 'openai',
 			modelId: 'gpt-5',
 			sourcePath,

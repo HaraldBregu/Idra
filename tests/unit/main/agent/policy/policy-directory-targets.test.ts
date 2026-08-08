@@ -3,6 +3,7 @@ import { directoryPermissionTargets } from '../../../../../src/main/agent/policy
 import { taskStorePath } from '../../../../../src/main/tasks/tasks_store';
 import { healthStorePath } from '../../../../../src/main/agent/health/health_store';
 import { registry, type ProcessSession } from '../../../../../src/main/agent/tools/run_process';
+import { skillsRoot } from '../../../../../src/main/skills/skills_paths';
 
 const agentDir = path.resolve('/appdata/agent');
 
@@ -65,18 +66,9 @@ describe('directoryPermissionTargets', () => {
 			path.join(agentDir, 'clips'),
 		]);
 		expect(directoryPermissionTargets('load_skill', { name: 'example' }, agentDir)).toEqual([
-			path.join(agentDir, 'skills', 'example'),
+			path.join(skillsRoot, 'example'),
 		]);
 	});
-
-	it.each(['create_note', 'read_note', 'update_note', 'delete_note', 'search_notes'])(
-		'maps %s to the agent notes directory',
-		(toolName) => {
-			expect(directoryPermissionTargets(toolName, {}, agentDir)).toEqual([
-				path.join(agentDir, 'notes'),
-			]);
-		}
-	);
 
 	it('uses the originating exec workdir for process calls', () => {
 		const session = {

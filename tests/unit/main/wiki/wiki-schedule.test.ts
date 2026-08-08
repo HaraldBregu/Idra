@@ -25,6 +25,7 @@ describe('wiki scheduling', () => {
 		schedule.mockClear();
 		wikiRuntime.task = undefined;
 		getWikiSettings.mockReturnValue({
+			enabled: true,
 			providerId: 'openai',
 			modelId: 'gpt-5',
 			sourcePath: '/tmp/raw',

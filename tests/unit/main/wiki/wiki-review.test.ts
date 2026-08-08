@@ -228,7 +228,7 @@ describe('incremental wiki knowledge integration', () => {
 		await import('node:fs/promises').then(({ writeFile }) =>
 			writeFile(archive, 'Evidence A', 'utf8')
 		);
-		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, targetPath: target };
+		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, enabled: true, targetPath: target };
 		wikiSourceStore.store = {
 			version: 1,
 			sources: {
@@ -281,7 +281,7 @@ describe('incremental wiki knowledge integration', () => {
 		await import('node:fs/promises').then(({ writeFile }) =>
 			writeFile(archive, 'Evidence B', 'utf8')
 		);
-		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, targetPath: target };
+		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, enabled: true, targetPath: target };
 		wikiSourceStore.store = {
 			version: 1,
 			sources: {

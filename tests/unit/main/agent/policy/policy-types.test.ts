@@ -5,16 +5,19 @@ import {
 
 describe('DEFAULT_PERMISSIONS', () => {
 	it('uses a complete top-level tool policy schema', () => {
-		expect(Object.keys(DEFAULT_PERMISSIONS)).toEqual(['dir', ...POLICY_TOOLS]);
+		expect(Object.keys(DEFAULT_PERMISSIONS).sort()).toEqual(
+			['dir', 'mode', ...POLICY_TOOLS].sort()
+		);
 		expect(DEFAULT_PERMISSIONS.dir).toEqual({});
+		expect(DEFAULT_PERMISSIONS.mode).toBe('ask');
 		expect(DEFAULT_PERMISSIONS.read).toEqual({
-			default: 'allow',
+			default: 'ask',
 			allow: [],
 			deny: [],
 			ask: [],
 		});
 		expect(DEFAULT_PERMISSIONS.write).toEqual({
-			default: 'allow',
+			default: 'ask',
 			allow: [],
 			deny: [],
 			ask: [],
