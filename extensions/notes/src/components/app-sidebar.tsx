@@ -213,6 +213,7 @@ function WorkspaceTreeItem({
 			}}
 			aria-expanded={isDirectory ? isExpanded : undefined}
 			aria-current={selected ? 'page' : undefined}
+			aria-describedby="workspace-drag-instructions"
 			aria-keyshortcuts="Backspace Delete"
 			aria-busy={movingPath === entry.path || undefined}
 			title={entry.path}
@@ -337,6 +338,7 @@ export function AppSidebar({
 	}
 
 	function endDrag() {
+		if (draggedEntry && !movingPath) setDragMessage(dropError || 'Move canceled.');
 		setDraggedEntry(null);
 		setDropTargetPath(null);
 		setDropError('');
@@ -489,6 +491,9 @@ export function AppSidebar({
 				className="min-h-0 flex-1 overflow-y-auto px-2 py-2 scrollbar-subtle"
 				aria-label="Workspace files"
 			>
+				<p id="workspace-drag-instructions" className="sr-only">
+					Drag files and folders onto a folder or an empty sidebar area to move them.
+				</p>
 				{!workspaceLoading && !workspaceError && agentFiles.length > 0 ? (
 					<Collapsible open={agentExpanded} onOpenChange={setAgentExpanded} className="mb-0.5">
 						<CollapsibleTrigger asChild>
