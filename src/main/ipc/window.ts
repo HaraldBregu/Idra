@@ -21,6 +21,8 @@ const contextMenuRoles = new Set<ContextMenuRole>([
 	'delete',
 	'selectAll',
 ]);
+const maxContextMenuItems = 50;
+const maxContextMenuTextLength = 120;
 
 export interface WindowIpcDeps {
 	logger: LoggerService;
@@ -107,14 +109,31 @@ export class WindowIpc implements IpcModule<WindowIpcDeps> {
 				if (!Array.isArray(items) || items.length === 0) {
 					throw new Error('Context menu requires at least one item.');
 				}
+				if (items.length > maxContextMenuItems) {
+					throw new Error(`Context menu supports at most ${maxContextMenuItems} items.`);
+				}
 
 				return new Promise<string | null>((resolve) => {
 					let selectedId: string | null = null;
 					const template: MenuItemConstructorOptions[] = items.map((item) => {
+						if (typeof item !== 'object' || item === null) {
+							throw new Error('Context menu items must be objects.');
+						}
 						if (item.type === 'separator') return { type: 'separator' };
 						if (item.type === 'role') {
 							if (!contextMenuRoles.has(item.role)) {
 								throw new Error(`Unsupported context menu role: ${item.role}`);
+							}
+							if (
+								item.label !== undefined &&
+								(typeof item.label !== 'string' ||
+									!item.label.trim() ||
+									item.label.length > maxContextMenuTextLength)
+							) {
+								throw new Error('Context menu role labels must be non-empty strings.');
+							}
+							if (item.enabled !== undefined && typeof item.enabled !== 'boolean') {
+								throw new Error('Context menu enabled values must be boolean.');
 							}
 							return {
 								role: item.role,
@@ -122,8 +141,32 @@ export class WindowIpc implements IpcModule<WindowIpcDeps> {
 								...(item.enabled === undefined ? {} : { enabled: item.enabled }),
 							};
 						}
-						if (!item.id.trim() || !item.label.trim()) {
+						if (
+							item.type !== undefined &&
+							item.type !== 'item'
+						) {
+							throw new Error(`Unsupported context menu item type: ${item.type}`);
+						}
+						if (
+							typeof item.id !== 'string' ||
+							typeof item.label !== 'string' ||
+							!item.id.trim() ||
+							!item.label.trim() ||
+							item.id.length > maxContextMenuTextLength ||
+							item.label.length > maxContextMenuTextLength
+						) {
 							throw new Error('Context menu items require an id and label.');
+						}
+						if (
+							item.accelerator !== undefined &&
+							(typeof item.accelerator !== 'string' ||
+								!item.accelerator.trim() ||
+								item.accelerator.length > maxContextMenuTextLength)
+						) {
+							throw new Error('Context menu accelerators must be non-empty strings.');
+						}
+						if (item.enabled !== undefined && typeof item.enabled !== 'boolean') {
+							throw new Error('Context menu enabled values must be boolean.');
 						}
 						return {
 							id: item.id,
