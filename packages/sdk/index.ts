@@ -1,9 +1,19 @@
 import type { AgentApi, AppApi, WindowApi } from '../../src/shared/api_types';
-import type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
+import type {
+	AppLanguage,
+	AppTheme,
+	AppThemeColors,
+	AppThemeData,
+} from '../../src/shared/app_types';
 
 export { connect, type ConnectOptions, type FridayClient, type WorkspaceAgentApi } from './connect';
 export type { AgentApi, AppApi, WindowApi } from '../../src/shared/api_types';
-export type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
+export type {
+	AppLanguage,
+	AppTheme,
+	AppThemeColors,
+	AppThemeData,
+} from '../../src/shared/app_types';
 export type { WorkspaceTreeEntry } from '../../src/shared/agent_types';
 export type { ContextMenuDescriptor } from '../../src/shared/window_types';
 

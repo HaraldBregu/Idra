@@ -10,7 +10,11 @@ assert.throws(() => agent.getWorkspaceLocation, /unavailable/);
 assert.throws(() => win.showContextMenu, /unavailable/);
 
 globalThis.app = {
-	getThemeData: async () => ({ themeMode: 'system', isDark: false, colors: { background: '#fff' } }),
+	getThemeData: async () => ({
+		themeMode: 'system',
+		isDark: false,
+		colors: { background: '#fff' },
+	}),
 	getTheme: async () => 'system',
 	setTheme: async () => undefined,
 	getLanguage: async () => 'en',
@@ -33,7 +37,9 @@ assert.deepEqual(await app.getThemeData(), {
 	colors: { background: '#fff' },
 });
 assert.equal(await agent.getWorkspaceLocation(), '/tmp/friday-workspace');
-assert.deepEqual(await agent.listWorkspaceFiles(), [{ name: 'USER.md', path: 'USER.md', type: 'file' }]);
+assert.deepEqual(await agent.listWorkspaceFiles(), [
+	{ name: 'USER.md', path: 'USER.md', type: 'file' },
+]);
 assert.equal(await agent.readWorkspaceFile('USER.md'), 'content:USER.md');
 assert.equal(await win.showContextMenu([{ id: 'open', label: 'Open' }]), 'open');
 
@@ -70,7 +76,7 @@ const server = createServer(async (req, res) => {
 						? [{ name: 'USER.md', path: 'USER.md', type: 'file' }]
 						: channel === 'agent:workspace:file:read'
 							? `content:${args[0]}`
-						: (args[0] ?? null),
+							: (args[0] ?? null),
 		})
 	);
 });
@@ -86,12 +92,15 @@ assert.deepEqual(await friday.agent.listWorkspaceFiles(), [
 ]);
 assert.equal(await friday.agent.readWorkspaceFile('USER.md'), 'content:USER.md');
 
-assert.deepEqual(calls.map((call) => call.channel), [
-	'app:get-theme-data',
-	'agent:workspace:location:get',
-	'agent:workspace:files:list',
-	'agent:workspace:file:read',
-]);
+assert.deepEqual(
+	calls.map((call) => call.channel),
+	[
+		'app:get-theme-data',
+		'agent:workspace:location:get',
+		'agent:workspace:files:list',
+		'agent:workspace:file:read',
+	]
+);
 
 // events reach subscribers over the stream
 const seen = [];
