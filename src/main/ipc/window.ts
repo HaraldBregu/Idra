@@ -27,7 +27,7 @@ export interface WindowIpcDeps {
  * Channels (invoke/handle):
  *  - window:is-maximized  (query) -- Check if window is maximized
  *  - window:is-fullscreen (query) -- Check if window is in fullscreen
- *  - window:context-menu:show (command) -- Show a native context menu
+	 *  - window:context-menu:show (command) -- Show a native context menu
  * Event channels (push):
  *  - window:maximize-change  -- Window maximize state changed
  *  - window:fullscreen-change -- Window fullscreen state changed
