@@ -112,6 +112,7 @@ it('abstains when exact evidence cannot be verified', async () => {
 	const output = JSON.parse((await knowledgeQueryTool.run({ query: 'quote', exact: true })) as string);
 
 	expect(output.abstain).toBe(true);
+	expect(output.route).toBe('abstain');
 	expect(output.limitations).toContain(
 		'The local knowledge index is disabled, so no RAG fallback was available.'
 	);

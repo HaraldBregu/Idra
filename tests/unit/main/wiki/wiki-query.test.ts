@@ -1,4 +1,5 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
@@ -12,7 +13,9 @@ const source: WikiSource = {
 	absolutePath: '/tmp/raw/memory.md',
 	relativePath: 'memory.md',
 	content: 'Compiled knowledge should be searched before raw evidence.',
-	hash: 'c'.repeat(64),
+	hash: createHash('sha256')
+		.update('Compiled knowledge should be searched before raw evidence.')
+		.digest('hex'),
 	sourceId: 'source-cccccccccccccccc',
 };
 
@@ -89,5 +92,46 @@ describe('wiki-first query retrieval', () => {
 			sourceId: source.sourceId,
 			locator: 'memory.md',
 		});
+	});
+
+	it('returns only active compiled pages with usable review state', async () => {
+		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-query-filter-'));
+		const target = path.join(root, 'wiki');
+		await applyWikiUpdate(target, source, {
+			pages: [
+				{
+					path: 'visible.md',
+					title: 'Visible marker',
+					summary: 'Filter marker visible.',
+					content: 'Filter marker visible.',
+					sources: ['memory.md'],
+				},
+				{
+					path: 'draft.md',
+					title: 'Draft marker',
+					summary: 'Filter marker draft.',
+					content: 'Filter marker draft.',
+					sources: ['memory.md'],
+					status: 'draft',
+				},
+				{
+					path: 'pending.md',
+					title: 'Pending marker',
+					summary: 'Filter marker pending.',
+					content: 'Filter marker pending.',
+					sources: ['memory.md'],
+				},
+			],
+		});
+		const pendingPath = path.join(target, 'pending.md');
+		const pending = matter(await readFile(pendingPath, 'utf8'));
+		await writeFile(
+			pendingPath,
+			matter.stringify(pending.content, { ...pending.data, review_status: 'pending' }),
+			'utf8'
+		);
+
+		const results = await searchWiki('filter marker', 10, target);
+		expect(results.map((result) => result.title)).toEqual(['Visible marker']);
 	});
 });
