@@ -12,14 +12,21 @@ type ToolResult = {
 const apiBaseUrl = (process.env.RESEND_API_BASE_URL?.trim() || 'https://api.resend.com').replace(/\/$/, '');
 
 const sendEmailToolSchema = z.object({
-	from: z.email().describe('Sender email address, optionally formatted as "Name <sender@example.com>".'),
-	to: z.union([z.email(), z.array(z.email()).min(1)]).describe('Recipient email address or addresses.'),
+	from: z
+		.string()
+		.describe('Sender email address, optionally formatted as "Name <sender@example.com>".'),
+	to: z
+		.union([z.string(), z.array(z.string()).min(1)])
+		.describe('Recipient email address or addresses.'),
 	subject: z.string().describe('Email subject.'),
 	html: z.string().optional().describe('HTML body.'),
 	text: z.string().optional().describe('Plain text body.'),
-	cc: z.union([z.email(), z.array(z.email()).min(1)]).optional().describe('CC recipient address or addresses.'),
-	bcc: z.union([z.email(), z.array(z.email()).min(1)]).optional().describe('BCC recipient address or addresses.'),
-	reply_to: z.union([z.email(), z.array(z.email()).min(1)]).optional().describe('Reply-To address or addresses.'),
+	cc: z.union([z.string(), z.array(z.string()).min(1)]).optional().describe('CC recipient address or addresses.'),
+	bcc: z.union([z.string(), z.array(z.string()).min(1)]).optional().describe('BCC recipient address or addresses.'),
+	reply_to: z
+		.union([z.string(), z.array(z.string()).min(1)])
+		.optional()
+		.describe('Reply-To address or addresses.'),
 	headers: z.record(z.unknown()).optional().describe('Custom email headers.'),
 	attachments: z.array(z.unknown()).optional().describe('Resend attachment objects.'),
 	tags: z.array(z.unknown()).optional().describe('Resend tag objects.'),
@@ -146,7 +153,6 @@ function createServer(): McpServer {
 }
 
 const server = createServer();
-void serveStdio(server, { capabilities: { tools: { listChanged: false } });
 void serveStdio(server);
 
 console.error('Resend MCP server running on stdio.');
