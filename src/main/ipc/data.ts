@@ -38,18 +38,19 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 		});
 		registerCommand(DataChannels.purge, async (input, confirmationId) => {
 			const scope = normalizeDataScope(input);
+			const remoteNamespace = scope.kind === 'rag' && scope.mode === 'remote_namespace';
 			if (typeof confirmationId !== 'string' || !confirmationId.trim()) {
 				throw new Error('A purge confirmation ID is required.');
 			}
 			const options = {
 				type: 'warning' as const,
-				buttons: ['Cancel', 'Purge local data'],
+				buttons: ['Cancel', remoteNamespace ? 'Purge remote namespace' : 'Purge local data'],
 				cancelId: 0,
 				defaultId: 0,
 				noLink: true,
 				message: 'Permanently purge the selected local data?',
 				detail: `${this.scopeDescription(scope)}\n\n${
-					scope.kind === 'rag' && scope.mode === 'remote_namespace'
+					remoteNamespace
 						? 'Only this exact remote namespace will be deleted. The Pinecone index will remain.'
 						: 'Remote provider data will not be deleted.'
 				}`,
