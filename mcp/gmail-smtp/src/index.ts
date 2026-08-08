@@ -37,9 +37,6 @@ const toolError = (message: string): ToolResult => ({
 	isError: true,
 });
 
-const objectArgs = (args: unknown): Record<string, unknown> =>
-	args && typeof args === 'object' && !Array.isArray(args) ? (args as Record<string, unknown>) : {};
-
 const asArray = (value: string | string[] | undefined): string[] =>
 	value === undefined ? [] : Array.isArray(value) ? value : [value];
 
