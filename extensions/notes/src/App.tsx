@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 
 import {
 	agent,
@@ -14,7 +14,6 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { WorkspaceViewer } from '@/components/workspace-viewer';
 import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
 import { showNativeContextMenu } from '@/lib/menu';
 
 const fallbackTheme: AppThemeData = {
@@ -50,10 +49,6 @@ export default function App() {
 	const allowCloseRef = useRef(false);
 	const selectionRequestRef = useRef(0);
 	const selectedDirty = selectedKind === 'markdown' && selectedContent !== selectedSavedContent;
-	const themeStyle = Object.fromEntries(
-		Object.entries(theme.colors).map(([name, value]) => [`--${name}`, value]),
-	) as CSSProperties;
-
 	useEffect(() => {
 		if (!isFriday()) return;
 
@@ -74,6 +69,14 @@ export default function App() {
 			unsubscribe();
 		};
 	}, []);
+
+	useEffect(() => {
+		const root = document.documentElement;
+		root.classList.toggle('dark', theme.isDark);
+		for (const [name, value] of Object.entries(theme.colors)) {
+			root.style.setProperty(`--${name}`, value);
+		}
+	}, [theme]);
 
 	useEffect(() => {
 		if (!isFriday()) return;
@@ -269,8 +272,7 @@ export default function App() {
 	return (
 		<TooltipProvider delayDuration={400}>
 			<div
-				className={cn('flex h-dvh min-h-[520px] overflow-hidden bg-background text-foreground', theme.isDark && 'dark')}
-				style={themeStyle}
+				className="flex h-dvh min-h-[520px] overflow-hidden bg-background text-foreground"
 				onContextMenu={(event) => {
 					showNativeContextMenu(
 						event,
@@ -281,7 +283,24 @@ export default function App() {
 			>
 				<Sidebar width={sidebarWidth}>
 					<SidebarContent>{sidebar}</SidebarContent>
-					<SidebarResizeHandle onPointerDown={startSidebarResize} />
+					<SidebarResizeHandle
+						onPointerDown={startSidebarResize}
+						onContextMenu={(event) => {
+							showNativeContextMenu(
+								event,
+								[
+									{ id: 'minimum', label: 'Minimum Width', enabled: sidebarWidth !== sidebarMinWidth },
+									{ id: 'reset', label: 'Reset Width', enabled: sidebarWidth !== sidebarDefaultWidth },
+									{ id: 'maximum', label: 'Maximum Width', enabled: sidebarWidth !== sidebarMaxWidth },
+								],
+								{
+									minimum: () => setSidebarWidth(sidebarMinWidth),
+									reset: () => setSidebarWidth(sidebarDefaultWidth),
+									maximum: () => setSidebarWidth(sidebarMaxWidth),
+								}
+							);
+						}}
+					/>
 				</Sidebar>
 
 				<main className="relative min-h-0 min-w-0 flex-1">
