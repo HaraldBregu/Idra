@@ -4,6 +4,7 @@ import type { AgentApi } from './index.d';
 import type { PublicProvider } from '../shared';
 import type {
 	AgentHistoryMessage,
+	AgentPermissionMode,
 	AgentResponseEvent,
 	AgentSessionSummary,
 	AgentToolPermissionDecision,

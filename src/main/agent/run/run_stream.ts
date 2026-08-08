@@ -139,7 +139,7 @@ async function* loop(
 
 	let closeMcp: (() => Promise<void>) | undefined;
 	if (!options.tools && input.origin === 'main') {
-		const mcp = await loadMcpTools(signal);
+		const mcp = await loadMcpTools();
 		tools.push(...mcp.tools);
 		tools = selectOriginTools(tools, input.origin, input.toolsAllow, input.toolsDeny);
 		tools.push(subagentTool(config, [...tools], session.context));

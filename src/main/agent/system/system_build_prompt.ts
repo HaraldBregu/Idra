@@ -7,7 +7,7 @@ import { addWorkspacePrompt } from './system_add_workspace_prompt';
 
 export async function buildSystemPrompt(
 	config: Config,
-	tools: Tool[] = [],
+	_tools: Tool[] = [],
 	loadedSkills: LoadedSkill[] = [],
 	basePrompt?: string,
 	contextMode: 'minimal' | 'workspace' = 'workspace',

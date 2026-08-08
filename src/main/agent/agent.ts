@@ -31,10 +31,8 @@ import type {
 	AgentRunOptions,
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
-	AgentInputFile,
 	AgentResponseEvent,
 	AgentRunStopReason,
-	AgentPermissionMode,
 	AgentSessionSummary,
 } from '../../shared/agent_types';
 import { toError } from '../ipc/core/error';

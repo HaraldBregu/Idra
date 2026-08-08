@@ -11,6 +11,7 @@ import type { PublicProvider } from '../../shared/provider_types';
 import { loadProviders } from '../models';
 import type {
 	AgentContextMode,
+	AgentPermissionMode,
 	AgentToolPermissionDecision,
 	ModelReasoningEffort,
 	WorkspaceTreeEntry,
@@ -82,6 +83,12 @@ const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'high',
 	'xhigh',
 ];
+
+const AGENT_PERMISSION_MODES: readonly AgentPermissionMode[] = ['ask', 'bypass'];
+
+function isAgentPermissionMode(value: unknown): value is AgentPermissionMode {
+	return AGENT_PERMISSION_MODES.includes(value as AgentPermissionMode);
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
