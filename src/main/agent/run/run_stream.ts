@@ -55,6 +55,7 @@ import { runToolCalls } from './run_tool_calls';
 import { getPermissionMode } from '../policy';
 import { getWikiTools } from '../tools/wiki';
 import { selectOriginTools } from './run_origin_tools';
+import { formatToolOutput } from './run_common';
 
 export interface StreamOptions {
 	tools?: Tool[];
