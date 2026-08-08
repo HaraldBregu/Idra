@@ -100,9 +100,19 @@ function paginateLines(
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
 	signal?.throwIfAborted();
 	return new Promise((resolve, reject) => {
-		const timer = setTimeout(resolve, ms);
+		let settled = false;
+		const finish = (): void => {
+			if (settled) return;
+			settled = true;
+			signal?.removeEventListener('abort', abort);
+			resolve();
+		};
+		const timer = setTimeout(finish, ms);
 		const abort = (): void => {
+			if (settled) return;
+			settled = true;
 			clearTimeout(timer);
+			signal?.removeEventListener('abort', abort);
 			reject(signal?.reason ?? new Error('Process wait cancelled.'));
 		};
 		signal?.addEventListener('abort', abort, { once: true });

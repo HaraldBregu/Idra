@@ -133,23 +133,33 @@ async function runExec(
 			timeoutTimer.unref();
 		}
 		return await new Promise<ExecResult>((resolve, reject) => {
+			let settled = false;
+			const cleanup = (): void => {
+				if (timeoutTimer) clearTimeout(timeoutTimer);
+				abortSignal?.removeEventListener('abort', abort);
+			};
 			const abort = (): void => {
 				child.kill('SIGTERM');
+				if (settled) return;
+				settled = true;
+				cleanup();
+				reject(abortSignal?.reason ?? new Error('Exec cancelled.'));
 			};
 			abortSignal?.addEventListener('abort', abort, { once: true });
 			if (abortSignal?.aborted) abort();
 			child.once('error', (error) => {
-				if (timeoutTimer) clearTimeout(timeoutTimer);
-				abortSignal?.removeEventListener('abort', abort);
+				if (settled) return;
+				settled = true;
+				cleanup();
 				reject(error);
 			});
 			child.once('exit', () => {
-				if (timeoutTimer) clearTimeout(timeoutTimer);
-				abortSignal?.removeEventListener('abort', abort);
+				cleanup();
 			});
 			child.once('spawn', () => {
-				if (abortSignal?.aborted) return;
-				abortSignal?.removeEventListener('abort', abort);
+				if (settled || abortSignal?.aborted) return;
+				settled = true;
+				cleanup();
 				child.unref();
 				resolve({
 					command,
