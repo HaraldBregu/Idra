@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { readWorkspaceAsset } from '../../../../src/main/ipc/asset';
+import { deleteWorkspaceFile } from '../../../../src/main/ipc/delete';
 import { writeWorkspaceMarkdown } from '../../../../src/main/ipc/markdown';
 import { resolveWorkspaceFile } from '../../../../src/main/ipc/workspace';
 import { workspaceFileType } from '../../../../src/shared/workspace';
@@ -84,6 +85,9 @@ describe('workspace files', () => {
 			data: new Uint8Array([1, 2, 3]),
 		});
 		await expect(readWorkspaceAsset(root, 'notes.txt')).rejects.toThrow('supported asset');
+		await deleteWorkspaceFile(root, 'notes.txt');
+		await expect(fs.stat(text)).rejects.toThrow();
+		await expect(deleteWorkspaceFile(root, 'notes')).rejects.toThrow();
 		await fs.rm(root, { recursive: true });
 	});
 });

@@ -117,6 +117,7 @@ export interface AgentApi {
 	readWorkspaceFile: (filePath: string) => Promise<string>;
 	readWorkspaceAsset: (filePath: string) => Promise<WorkspaceAsset>;
 	writeWorkspaceMarkdown: (filePath: string, content: string) => Promise<void>;
+	deleteWorkspaceFile: (filePath: string) => Promise<void>;
 	getProvider: () => Promise<PublicProvider | undefined>;
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;

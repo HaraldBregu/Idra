@@ -12,6 +12,7 @@ export const AgentChannels = {
 	readWorkspaceFile: 'agent:workspace:file:read',
 	readWorkspaceAsset: 'agent:workspace:asset:read',
 	writeWorkspaceMarkdown: 'agent:workspace:markdown:write',
+	deleteWorkspaceFile: 'agent:workspace:file:delete',
 	getProvider: 'agent:get-provider',
 	setProvider: 'agent:set-provider',
 	getModelId: 'agent:get-model-id',

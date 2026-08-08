@@ -57,6 +57,7 @@ import {
 import type { RagConfiguration } from '../../shared/rag_types';
 import type { WorkspaceAsset } from '../../shared/workspace';
 import { readWorkspaceAsset } from './asset';
+import { deleteWorkspaceFile } from './delete';
 import { writeWorkspaceMarkdown } from './markdown';
 import { resolveWorkspaceFile } from './workspace';
 
@@ -323,6 +324,15 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 					content
 				);
 			}, AgentChannels.writeWorkspaceMarkdown)
+		);
+
+		ipcMain.handle(
+			AgentChannels.deleteWorkspaceFile,
+			wrapSimpleHandler(async (filePath: unknown): Promise<void> => {
+				const normalizedFilePath = optionalTrimmedString(filePath);
+				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
+				await deleteWorkspaceFile(workspacePath(agent.config), normalizedFilePath);
+			}, AgentChannels.deleteWorkspaceFile)
 		);
 
 		ipcMain.handle(

@@ -156,6 +156,11 @@ export const agent: AgentApi = {
 			content
 		);
 	},
+	deleteWorkspaceFile: (filePath) => {
+		const normalizedFilePath = optionalTrimmedString(filePath);
+		if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
+		return typedInvokeUnwrap(AgentChannels.deleteWorkspaceFile, normalizedFilePath);
+	},
 	getProvider: (): Promise<PublicProvider | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.getProvider);
 	},

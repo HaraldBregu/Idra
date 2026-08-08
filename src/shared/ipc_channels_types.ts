@@ -72,6 +72,10 @@ export interface AgentInvokeChannelMap {
 		args: [filePath: string, content: string];
 		result: void;
 	};
+	[AgentChannels.deleteWorkspaceFile]: {
+		args: [filePath: string];
+		result: void;
+	};
 	[AgentChannels.getProvider]: {
 		args: [];
 		result: import('./provider_types').PublicProvider | undefined;

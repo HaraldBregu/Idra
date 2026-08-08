@@ -23,6 +23,7 @@ globalThis.agent = {
 	readWorkspaceFile: async (filePath) => `content:${filePath}`,
 	readWorkspaceAsset: async () => ({ mimeType: 'image/png', data: new Uint8Array([1, 2, 3]) }),
 	writeWorkspaceMarkdown: async () => undefined,
+	deleteWorkspaceFile: async () => undefined,
 };
 globalThis.win = {
 	showContextMenu: async (items) => items[0]?.id ?? null,
@@ -42,6 +43,7 @@ assert.deepEqual(await agent.readWorkspaceAsset('photo.png'), {
 	data: new Uint8Array([1, 2, 3]),
 });
 await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
+await agent.deleteWorkspaceFile('old.md');
 assert.equal(await win.showContextMenu([{ id: 'open', label: 'Open' }]), 'open');
 
 // --- remote mode: bound to the app API server --------------------------------
@@ -99,6 +101,7 @@ assert.deepEqual(await friday.agent.readWorkspaceAsset('photo.png'), {
 	data: new Uint8Array([1, 2, 3]),
 });
 await friday.agent.writeWorkspaceMarkdown('USER.md', '# Updated');
+await friday.agent.deleteWorkspaceFile('old.md');
 
 assert.deepEqual(calls.map((call) => call.channel), [
 	'app:get-theme-data',
@@ -107,6 +110,7 @@ assert.deepEqual(calls.map((call) => call.channel), [
 	'agent:workspace:file:read',
 	'agent:workspace:asset:read',
 	'agent:workspace:markdown:write',
+	'agent:workspace:file:delete',
 ]);
 
 // events reach subscribers over the stream
