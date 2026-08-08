@@ -26,7 +26,7 @@ describe('resend MCP server', () => {
 			data: {
 				type: 'stdio',
 				command: 'node',
-				args: ['--experimental-strip-types', 'server.ts'],
+				args: ['--experimental-strip-types', 'src/index.ts'],
 				cwd: directory,
 				env: { RESEND_API_BASE_URL: 'https://api.resend.com' },
 			},
