@@ -12,5 +12,5 @@ export function loadExtension(
 ): BrowserWindow {
 	const entry = extensionEntryPath(extension.id, extension.metadata.entry, appLocation);
 	if (!existsSync(entry)) throw new Error(`Extension entry not found: ${extension.id}`);
-	return render(windowFactory, entry, extension.title);
+	return render(windowFactory, entry, extension.title, extension.id);
 }
