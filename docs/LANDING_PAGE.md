@@ -239,13 +239,13 @@ For the visual, show source files flowing into interlinked Markdown pages with s
 
 Preserve this distinction in both copy and visuals:
 
-| | Knowledge Base | LLM Wiki |
-| --- | --- | --- |
-| Best for | Finding relevant source excerpts | Maintaining reusable synthesis and relationships |
-| Input | Readable text across selected folders | Markdown, text, JSON, CSV, and logs |
-| Processing | Remote embeddings and Pinecone vector search | Selected text model and validated Markdown generation |
-| Result | Ranked excerpts with paths and scores | Interlinked pages with source-aware claims |
-| Refresh model | Manual or scheduled full rebuild | Incremental source-aware compilation |
+|               | Knowledge Base                               | LLM Wiki                                              |
+| ------------- | -------------------------------------------- | ----------------------------------------------------- |
+| Best for      | Finding relevant source excerpts             | Maintaining reusable synthesis and relationships      |
+| Input         | Readable text across selected folders        | Markdown, text, JSON, CSV, and logs                   |
+| Processing    | Remote embeddings and Pinecone vector search | Selected text model and validated Markdown generation |
+| Result        | Ranked excerpts with paths and scores        | Interlinked pages with source-aware claims            |
+| Refresh model | Manual or scheduled full rebuild             | Incremental source-aware compilation                  |
 
 ### 6. Extensions
 
@@ -436,4 +436,3 @@ Use these repository sources to validate final copy and product visuals:
 - [Extension window](../src/main/extensions/extension_render.ts)
 - [Friday SDK](../packages/sdk/README.md)
 - [Brand icon](../resources/icons/icon-rounded.png)
-
