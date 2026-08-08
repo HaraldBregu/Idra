@@ -5,12 +5,11 @@ import { Layout } from '../../../src/renderer/src/pages/settings/Layout';
 import ExtensionsPage from '../../../src/renderer/src/pages/settings/pages/extensions/Page';
 import type { Extension } from '../../../src/shared/extension_types';
 
-jest.mock('react-i18next', () => ({
-	useTranslation: () => ({
-		t: (key: string, values?: Record<string, string>): string =>
-			values ? `${key} ${JSON.stringify(values)}` : key,
-	}),
-}));
+jest.mock('react-i18next', () => {
+	const t = (key: string, values?: Record<string, string>): string =>
+		values ? `${key} ${JSON.stringify(values)}` : key;
+	return { useTranslation: () => ({ t }) };
+});
 
 const extensions: Extension[] = [
 	{
