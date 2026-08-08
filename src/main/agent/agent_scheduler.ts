@@ -19,9 +19,10 @@ export class AgentRunScheduler {
 			});
 		const tail = run.then(() => undefined, () => undefined);
 		this.tails.set(key, tail);
-		void tail.finally(() => {
+		const cleanup = () => {
 			if (this.tails.get(key) === tail) this.tails.delete(key);
-		});
+		};
+		void tail.then(cleanup, cleanup);
 		return run;
 	}
 

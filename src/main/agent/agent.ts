@@ -89,6 +89,7 @@ export class Agent {
 	}
 
 	destroy(): void {
+		this.cancel();
 		stopHealth();
 		setTaskRunner(undefined);
 		destroyTask();
@@ -109,9 +110,10 @@ export class Agent {
 		const run = this.scheduler.run(sessionKey, () => this.process(command, controller));
 		active.promise = run;
 		this.activeRuns.set(command.id, active);
-		void run.finally(() => {
+		const cleanup = () => {
 			if (this.activeRuns.get(command.id) === active) this.activeRuns.delete(command.id);
-		});
+		};
+		void run.then(cleanup, cleanup);
 		return run;
 	}
 

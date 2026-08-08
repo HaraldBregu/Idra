@@ -21,12 +21,6 @@ export function resolveToolPermission(
 	const configuredEntry = policy[toolName];
 	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
 	const directories = policy.dir ?? {};
-	const { permission, contextCanAllow } = resolveStoredToolPolicy(
-		toolName,
-		targets,
-		configured,
-		fallback
-	);
 	const stored = resolveStoredToolPolicy(toolName, targets, configured, fallback);
 	if (stored.explicit === 'deny' || stored.explicit === 'ask') return stored.explicit;
 	if (stored.explicit === 'allow') return 'allow';
@@ -34,11 +28,11 @@ export function resolveToolPermission(
 	if (systemPolicyAllows(toolName, directoryTargets, AGENT_DIRECTORY)) return 'allow';
 
 	if (
-		permission === 'ask' &&
+		stored.permission === 'ask' &&
 		reuseContext &&
-		contextCanAllow &&
+		stored.contextCanAllow &&
 		contextAllowsTool(context, toolName, args, AGENT_DIRECTORY)
 	)
 		return 'allow';
-	return permission;
+	return stored.permission;
 }
