@@ -7,6 +7,8 @@ jest.mock('../../../../src/main/rag/rag_client', () => ({ ragClient }));
 
 import { DataController } from '../../../../src/main/data/data_controller';
 
+beforeEach(() => jest.clearAllMocks());
+
 it('purges only an explicitly scoped remote namespace and never the Pinecone index', async () => {
 	const controller = new DataController({
 		config: { location: '/workspace' },

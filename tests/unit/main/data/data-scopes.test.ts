@@ -46,6 +46,11 @@ it('discovers full local, active local, and remote Friday namespace scopes separ
 			indexName: 'knowledge-base',
 			generation: 'friday-11111111-1111-4111-8111-111111111111',
 		},
+		{
+			kind: 'rag',
+			mode: 'remote_all_namespaces',
+			indexName: 'knowledge-base',
+		},
 	]);
 	expect(close).toHaveBeenCalled();
 });
