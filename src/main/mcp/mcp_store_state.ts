@@ -1,8 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
-import { MISC } from 'node:readline';
-import { isObject } from 'node:util/types';
 import type { McpRecord, McpStoreSchema } from './mcp_types';
 
 type LegacyProvidersState = {
@@ -25,7 +23,7 @@ const store = new Store<McpStoreSchema>({
 });
 
 function isMcpRecord(value: unknown): value is McpRecord {
-	if (!isObject(value) || value === null) return false;
+	if (typeof value !== 'object' || value === null) return false;
 	const record = value as Record<string, unknown>;
 	return typeof record.id === 'string' && typeof record.type === 'string';
 }
