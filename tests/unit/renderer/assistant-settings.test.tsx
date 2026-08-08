@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import AssistantPage from '../../../src/renderer/src/pages/settings/pages/assistant/Page';
 
@@ -50,6 +51,17 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.musicModelDescription': 'Audio defaults',
 		'settings.modelServices.videoModelDescription': 'Video defaults',
 		'settings.modelServices.history': 'History',
+		'settings.dataControls.title': 'Data management',
+		'settings.dataControls.export': 'Export',
+		'settings.dataControls.purge': 'Purge',
+		'settings.dataControls.memory': 'Persistent memory',
+		'settings.dataControls.memoryDescription': 'Saved facts',
+		'settings.dataControls.sessions': 'Assistant sessions',
+		'settings.dataControls.sessionsDescription': 'Listed sessions',
+		'settings.dataControls.rag': 'Local knowledge index',
+		'settings.dataControls.ragDescription': 'Local chunks',
+		'settings.dataControls.wiki': 'Managed wiki',
+		'settings.dataControls.wikiDescription': 'Compiled pages',
 	};
 	const t = (key: string): string => translations[key] ?? key;
 	return { useTranslation: () => ({ t }) };
@@ -75,6 +87,12 @@ const mediaApi = (providerId: string, modelId: string) => ({
 	setOptions: jest.fn().mockImplementation(async (options) => options),
 });
 
+const dataControls = {
+	export: jest.fn().mockResolvedValue(undefined),
+	previewPurge: jest.fn().mockResolvedValue({ confirmationId: 'confirmation-id' }),
+	purge: jest.fn().mockResolvedValue(undefined),
+};
+
 beforeEach(() => {
 	Object.defineProperty(window, 'agent', {
 		configurable: true,
@@ -85,6 +103,14 @@ beforeEach(() => {
 			setModelId: jest.fn().mockResolvedValue(true),
 			getModelOptions: jest.fn().mockResolvedValue({}),
 			setModelOptions: jest.fn().mockResolvedValue({}),
+			ragGetConfiguration: jest.fn().mockResolvedValue({ indexName: 'knowledge-base' }),
+			listSessions: jest.fn().mockResolvedValue([
+				{
+					id: '11111111-1111-4111-8111-111111111111',
+					title: 'Session',
+					createdAtMs: 1,
+				},
+			]),
 		},
 	});
 	Object.defineProperty(window, 'models', {
@@ -108,6 +134,15 @@ beforeEach(() => {
 			})),
 		},
 	});
+	Object.defineProperty(window, 'wiki', {
+		configurable: true,
+		value: { getSettings: jest.fn().mockResolvedValue({ targetPath: '/wiki' }) },
+	});
+	Object.defineProperty(window, 'dataControls', {
+		configurable: true,
+		value: dataControls,
+	});
+	jest.clearAllMocks();
 });
 
 it('shows image, audio, and video defaults on the Agent settings page', async () => {
@@ -120,4 +155,22 @@ it('shows image, audio, and video defaults on the Agent settings page', async ()
 	expect(await screen.findByRole('button', { name: /Image.*Gemini Image/ })).toBeInTheDocument();
 	expect(await screen.findByRole('button', { name: /Audio.*Eleven Music/ })).toBeInTheDocument();
 	expect(await screen.findByRole('button', { name: /Video.*Veo/ })).toBeInTheDocument();
+});
+
+it('exports and previews a purge for the exact selected data scope', async () => {
+	const user = userEvent.setup();
+	render(
+		<MemoryRouter>
+			<AssistantPage />
+		</MemoryRouter>
+	);
+
+	const memoryTitle = await screen.findByText('Persistent memory');
+	const row = memoryTitle.closest('[class*="grid"]') as HTMLElement;
+	await user.click(within(row).getByRole('button', { name: 'Export' }));
+	await waitFor(() => expect(dataControls.export).toHaveBeenCalledWith({ kind: 'memory' }));
+	await user.click(within(row).getByRole('button', { name: 'Purge' }));
+	await waitFor(() =>
+		expect(dataControls.purge).toHaveBeenCalledWith({ kind: 'memory' }, 'confirmation-id')
+	);
 });
