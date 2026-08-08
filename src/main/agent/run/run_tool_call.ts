@@ -11,6 +11,7 @@ import {
 	waitForToolPermission,
 } from '../policy';
 import { inputFingerprint } from '../policy/policy_fingerprint';
+import { redactApprovalInput } from '../policy/policy_redact_input';
 import { formatToolOutput } from './run_common';
 import { limitToolOutput } from './run_limit_output';
 import type { AgentOrigin } from '../../../shared/agent_types';
@@ -95,7 +96,7 @@ export async function* runToolCall(
 				approvalId,
 				toolCallId: toolCall.id,
 				toolName: toolCall.name,
-				input: canonicalInput,
+				input: redactApprovalInput(canonicalInput),
 				mode: 'ask',
 				risk: tool.risk,
 				effect: tool.effect,
