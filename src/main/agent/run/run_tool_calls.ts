@@ -1,7 +1,7 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import type { ToolsContext } from '../context';
 import type { AgentPermissionMode } from '../../../shared/agent_types';
-import { runToolCall } from './run_tool_call';
+import { runToolCall, type ToolCallSecurityContext } from './run_tool_call';
 
 export async function* runToolCalls(
 	tools: Tool[],
@@ -9,7 +9,8 @@ export async function* runToolCalls(
 	interactive = true,
 	signal?: AbortSignal,
 	context?: ToolsContext,
-	permissionMode: AgentPermissionMode = 'ask'
+	permissionMode: AgentPermissionMode = 'ask',
+	security?: ToolCallSecurityContext
 ): AsyncGenerator<RuntimeEvent, void> {
 	const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 
@@ -20,7 +21,8 @@ export async function* runToolCalls(
 			interactive,
 			signal,
 			context,
-			permissionMode
+			permissionMode,
+			security
 		);
 	}
 }

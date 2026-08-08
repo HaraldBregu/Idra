@@ -140,10 +140,12 @@ function applyResponseEvent(
 				...message,
 				runId: event.runId,
 				pendingPermission: {
+					approvalId: event.approvalId,
 					toolCallId: event.toolCallId,
 					toolName: event.toolName,
 					input: event.input,
 					detail: event.detail,
+					hardApproval: event.hardApproval,
 				},
 				startedAtMs: message.startedAtMs ?? receivedAtMs,
 			})

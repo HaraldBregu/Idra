@@ -4,6 +4,7 @@ import type { PermissionMode, ToolPermission } from './policy_types';
 export interface ToolPolicyResolution {
 	permission: PermissionMode;
 	contextCanAllow: boolean;
+	explicit?: PermissionMode;
 }
 
 export function resolveStoredToolPolicy(
@@ -12,17 +13,20 @@ export function resolveStoredToolPolicy(
 	configured: ToolPermission | undefined,
 	fallback: PermissionMode
 ): ToolPolicyResolution {
-	if (targets.length === 0)
-		return { permission: configured?.default ?? fallback, contextCanAllow: true };
-	let contextCanAllow = true;
-	const decisions = targets.map((target) => {
-		const explicit = configured ? toolPermissionFor(toolName, target, configured) : undefined;
-		if (!explicit) return configured?.default ?? fallback;
-		if (explicit === 'ask') contextCanAllow = false;
-		return explicit;
-	});
+	if (targets.length === 0) return { permission: configured?.default ?? fallback, contextCanAllow: true };
+	const decisions = targets.map((target) =>
+		configured ? toolPermissionFor(toolName, target, configured) : undefined
+	);
+	const explicit = decisions.includes('deny')
+		? 'deny'
+		: decisions.includes('ask')
+			? 'ask'
+			: decisions.every((decision) => decision === 'allow')
+				? 'allow'
+				: undefined;
 	return {
-		permission: decisions.includes('deny') ? 'deny' : decisions.includes('ask') ? 'ask' : 'allow',
-		contextCanAllow,
+		permission: explicit ?? configured?.default ?? fallback,
+		contextCanAllow: explicit !== 'ask',
+		...(explicit ? { explicit } : {}),
 	};
 }

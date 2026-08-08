@@ -1,16 +1,15 @@
-import path from 'node:path';
 import { realPath } from '../../shared/real_path';
-import { taskStorePath } from '../../tasks/tasks_store';
-import { healthStorePath } from '../health/health_store';
-import { skillsRoot } from '../skills/skills_root';
 import { isPathWithin } from './policy_path';
 
-const SYSTEM_STORE_ROOTS = [path.dirname(taskStorePath), path.dirname(healthStorePath), skillsRoot];
-
-export function systemPolicyAllows(targets: string[], agentDirectory: string): boolean {
-	const roots = [agentDirectory, ...SYSTEM_STORE_ROOTS].map(realPath);
+export function systemPolicyAllows(
+	toolName: string,
+	targets: string[],
+	agentDirectory: string
+): boolean {
+	if (toolName !== 'read') return false;
+	const root = realPath(agentDirectory);
 	return (
 		targets.length > 0 &&
-		targets.every((target) => roots.some((root) => isPathWithin(root, target)))
+		targets.every((target) => isPathWithin(root, target))
 	);
 }

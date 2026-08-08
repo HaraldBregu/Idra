@@ -390,10 +390,16 @@ function runtimeEventToAgentEvents(
 		return [
 			{
 				type: 'tool_permission_request',
+				approvalId: event.approvalId,
 				toolCallId: event.toolCallId,
 				toolName: event.toolName,
 				input: event.input,
 				mode: 'ask',
+				risk: event.risk,
+				effect: event.effect,
+				targets: event.targets,
+				hardApproval: event.hardApproval,
+				expiresAt: event.expiresAt,
 				agentId,
 				runId,
 			},

@@ -32,7 +32,7 @@ export function ToolPermissionCard({
 		if (responded) return;
 		setResponded(true);
 		void window.agent
-			.respondToolPermission(permission.toolCallId, decision)
+			.respondToolPermission(permission.approvalId, decision)
 			.catch(() => setResponded(false));
 	};
 
@@ -48,7 +48,7 @@ export function ToolPermissionCard({
 				</p>
 			)}
 			<div className="mt-3 flex flex-wrap justify-end gap-2">
-				<Button
+				{!permission.hardApproval && <Button
 					type="button"
 					variant="ghost"
 					size="sm"
@@ -65,7 +65,7 @@ export function ToolPermissionCard({
 					onClick={() => respond('approve_always')}
 				>
 					Always allow
-				</Button>
+				</Button>}
 				<Button
 					type="button"
 					variant="default"

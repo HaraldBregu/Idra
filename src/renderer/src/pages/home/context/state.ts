@@ -11,10 +11,12 @@ export interface UserMessage {
 }
 
 export interface PendingToolPermission {
+	readonly approvalId: string;
 	readonly toolCallId: string;
 	readonly toolName: string;
 	readonly input: unknown;
 	readonly detail?: string;
+	readonly hardApproval: boolean;
 }
 
 export interface AgentMessage {
@@ -57,4 +59,3 @@ export const welcomeMessage: AgentMessage = {
 export const initialAgentChatState: AgentChatState = {
 	messages: [welcomeMessage],
 };
-

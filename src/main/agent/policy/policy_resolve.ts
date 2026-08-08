@@ -21,14 +21,17 @@ export function resolveToolPermission(
 	const configuredEntry = policy[toolName];
 	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
 	const directories = policy.dir ?? {};
-	if (systemPolicyAllows(directoryTargets, AGENT_DIRECTORY)) return 'allow';
-	if (directoryPolicyAllows(directories, toolName, directoryTargets)) return 'allow';
 	const { permission, contextCanAllow } = resolveStoredToolPolicy(
 		toolName,
 		targets,
 		configured,
 		fallback
 	);
+	const stored = resolveStoredToolPolicy(toolName, targets, configured, fallback);
+	if (stored.explicit === 'deny' || stored.explicit === 'ask') return stored.explicit;
+	if (stored.explicit === 'allow') return 'allow';
+	if (directoryPolicyAllows(directories, toolName, directoryTargets)) return 'allow';
+	if (systemPolicyAllows(toolName, directoryTargets, AGENT_DIRECTORY)) return 'allow';
 
 	if (
 		permission === 'ask' &&

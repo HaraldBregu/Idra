@@ -10,7 +10,15 @@ import {
 	toolApprovalTargets,
 	waitForToolPermission,
 } from '../policy';
+import { inputFingerprint } from '../policy/policy_fingerprint';
 import { formatToolOutput } from './run_common';
+import { limitToolOutput } from './run_limit_output';
+import type { AgentOrigin } from '../../../shared/agent_types';
+
+export interface ToolCallSecurityContext {
+	runId: string;
+	origin: AgentOrigin;
+}
 
 export async function* runToolCall(
 	tool: Tool | undefined,
@@ -18,17 +26,28 @@ export async function* runToolCall(
 	interactive = true,
 	signal?: AbortSignal,
 	context?: ToolsContext,
-	permissionMode: AgentPermissionMode = 'ask'
+	permissionMode: AgentPermissionMode = 'ask',
+	security: ToolCallSecurityContext = { runId: 'internal', origin: 'main' }
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
-	const state = fileToolState(toolCall.name, toolCall.args, agentLocation());
+	let canonicalInput = toolCall.args;
+	let parseError: unknown;
+	if (tool) {
+		try {
+			canonicalInput = tool.parseInput(toolCall.args);
+			toolCall.args = canonicalInput;
+		} catch (error) {
+			parseError = error;
+		}
+	}
+	const state = fileToolState(toolCall.name, canonicalInput, agentLocation());
 	const createsFile = state ? isFileCreation(state) : false;
 
 	yield {
 		type: 'tool_call_start',
 		toolCallId: toolCall.id,
 		toolName: toolCall.name,
-		input: toolCall.args,
+		input: canonicalInput,
 	};
 
 	let output: unknown;
@@ -40,6 +59,9 @@ export async function* runToolCall(
 	} else if ('__unparsed' in toolCall.args) {
 		output = `Error: tool '${toolCall.name}' arguments were not valid JSON (likely truncated by the output token limit). Retry with smaller arguments, e.g. write large files in multiple steps.`;
 		isError = true;
+	} else if (parseError) {
+		output = `Error: invalid input for '${toolCall.name}': ${parseError instanceof Error ? parseError.message : String(parseError)}`;
+		isError = true;
 	} else if (context?.cancelled) {
 		output = `Error: cancelled by user`;
 		isError = true;
@@ -49,30 +71,47 @@ export async function* runToolCall(
 				? 'allow'
 				: resolveToolPermission(
 						toolCall.name,
-						toolCall.args,
+						canonicalInput,
 						context,
 						interactive,
 						tool.defaultPermission
 					);
 
-		if (tool.alwaysAsk && permissionMode !== 'bypass') permission = 'ask';
+		const hardApproval = tool.hardApproval === true || tool.alwaysAsk === true;
+		if (hardApproval || (tool.alwaysAsk && permissionMode !== 'bypass')) permission = 'ask';
 		if (permission === 'ask' && !interactive) permission = 'deny';
 
 		if (permission === 'ask') {
-			const detail = tool.confirmDetail?.(toolCall.args);
+			const detail = tool.confirmDetail?.(canonicalInput);
+			const targets = tool.targets?.(canonicalInput) ?? toolApprovalTargets(toolCall.name, canonicalInput, agentLocation());
+			const approvalId = crypto.randomUUID();
+			const expiresAtMs = Date.now() + 120_000;
 			yield {
 				type: 'tool_permission_request',
+				approvalId,
 				toolCallId: toolCall.id,
 				toolName: toolCall.name,
-				input: toolCall.args,
+				input: canonicalInput,
 				mode: 'ask',
+				risk: tool.risk,
+				effect: tool.effect,
+				targets,
+				hardApproval,
+				expiresAt: new Date(expiresAtMs).toISOString(),
 				...(detail ? { detail } : {}),
 			};
-			const decision = await waitForToolPermission(toolCall.id);
+			const decision = await waitForToolPermission({
+				approvalId,
+				runId: security.runId,
+				origin: security.origin,
+				toolName: toolCall.name,
+				inputFingerprint: inputFingerprint(canonicalInput),
+				expiresAtMs,
+				hardApproval,
+			});
 			if (decision !== 'reject' && toolCall.name === 'read' && state) rememberTool(context, state);
 			if (decision === 'reject' && tool.stopOnReject && context) context.cancelled = true;
-			if (decision === 'approve_always' && !tool.alwaysAsk) {
-				const targets = toolApprovalTargets(toolCall.name, toolCall.args, agentLocation());
+			if (decision === 'approve_always' && !hardApproval) {
 				if (targets.length === 0) {
 					const configured = getToolPermission(toolCall.name);
 					setToolPermission(toolCall.name, { ...configured, default: 'allow' });
@@ -89,18 +128,22 @@ export async function* runToolCall(
 		} else {
 			try {
 				if (signal?.aborted) throw signal.reason;
+				const timeoutSignal = AbortSignal.timeout(tool.timeoutMs);
+				const toolSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
 				let abort: ((reason?: unknown) => void) | undefined;
 				const aborted = new Promise<never>((_, reject) => {
-					abort = () => reject(signal?.reason ?? new Error('Tool call aborted.'));
-					signal?.addEventListener('abort', abort, { once: true });
+					abort = () => reject(toolSignal.reason ?? new Error('Tool call aborted.'));
+					toolSignal.addEventListener('abort', abort, { once: true });
 				});
 				try {
-					output = await (signal
-						? Promise.race([Promise.resolve(tool.run(toolCall.args, signal)), aborted])
-						: tool.run(toolCall.args));
+					output = await Promise.race([
+						Promise.resolve(tool.run(canonicalInput, toolSignal)),
+						aborted,
+					]);
+					output = limitToolOutput(output, tool.maxOutputBytes);
 					if (createsFile && state) rememberTool(context, state);
 				} finally {
-					if (abort) signal?.removeEventListener('abort', abort);
+					if (abort) toolSignal.removeEventListener('abort', abort);
 				}
 			} catch (error) {
 				if (signal?.aborted) throw error;
@@ -115,7 +158,7 @@ export async function* runToolCall(
 		type: 'tool_call_end',
 		toolCallId: toolCall.id,
 		toolName: toolCall.name,
-		input: toolCall.args,
+		input: canonicalInput,
 		output,
 		isError,
 		durationMs: Date.now() - startedAtMs,
