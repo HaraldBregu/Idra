@@ -30,13 +30,46 @@ export async function registerWikiSource(
 	const sourceId = `source-${checksum.slice(0, 16)}`;
 	const registry = repository.sources.store;
 	const existing = registry.sources[sourceId];
+	const previous = Object.values(registry.sources)
+		.filter(
+			(record) =>
+				record.sourceId !== sourceId &&
+				record.relativePaths.includes(source.relativePath) &&
+				!record.lineage?.[source.relativePath]?.replacedBySourceId
+		)
+		.sort((left, right) => right.ingestedAt.localeCompare(left.ingestedAt))[0];
+	const previousVersion = previous?.lineage?.[source.relativePath]?.version ?? (previous ? 1 : 0);
 	if (existing) {
-		if (!existing.relativePaths.includes(source.relativePath)) {
-			registry.sources[sourceId] = {
+		if (!existing.relativePaths.includes(source.relativePath) || previous) {
+			const sources = { ...registry.sources };
+			if (previous) {
+				sources[previous.sourceId] = {
+					...previous,
+					lineage: {
+						...previous.lineage,
+						[source.relativePath]: {
+							version: previousVersion,
+							...previous.lineage?.[source.relativePath],
+							replacedBySourceId: sourceId,
+						},
+					},
+				};
+			}
+			sources[sourceId] = {
 				...existing,
-				relativePaths: [...existing.relativePaths, source.relativePath].sort(),
+				relativePaths: [...new Set([...existing.relativePaths, source.relativePath])].sort(),
+				lineage: {
+					...existing.lineage,
+					[source.relativePath]: {
+						version: previousVersion + 1,
+						...(previous ? { previousSourceId: previous.sourceId } : {}),
+					},
+				},
 			};
-			repository.sources.store = registry;
+			registry.sources[sourceId] = {
+				...sources[sourceId],
+			};
+			repository.sources.store = { ...registry, sources };
 		}
 			return {
 				source: {
@@ -46,7 +79,7 @@ export async function registerWikiSource(
 				createdAt: existing.createdAt,
 				archivePath: existing.archivePath,
 			},
-			record: registry.sources[sourceId],
+			record: repository.sources.store.sources[sourceId],
 			isNew: false,
 		};
 	}
@@ -77,10 +110,30 @@ export async function registerWikiSource(
 		archivePath,
 		status: 'pending' as const,
 		operationId,
+		lineage: {
+			[source.relativePath]: {
+				version: previousVersion + 1,
+				...(previous ? { previousSourceId: previous.sourceId } : {}),
+			},
+		},
 	};
+	const sources = { ...registry.sources, [sourceId]: record };
+	if (previous) {
+		sources[previous.sourceId] = {
+			...previous,
+			lineage: {
+				...previous.lineage,
+				[source.relativePath]: {
+					version: previousVersion,
+					...previous.lineage?.[source.relativePath],
+					replacedBySourceId: sourceId,
+				},
+			},
+		};
+	}
 	repository.sources.store = {
 		version: 1,
-		sources: { ...registry.sources, [sourceId]: record },
+		sources,
 	};
 	return {
 		source: { ...verifiedSource, sourceId, archivePath },

@@ -36,6 +36,7 @@ export interface WikiEvidence {
 	sourceId: string;
 	locator: string;
 	evidenceType: 'direct' | 'indirect';
+	excerptHash?: string;
 }
 
 export interface WikiClaim {
@@ -106,6 +107,8 @@ export interface WikiApplyOptions {
 	operationId?: string;
 	requireReviewForMajorChanges?: boolean;
 	allowContradictionResolution?: boolean;
+	repository?: import('./wiki_repository').WikiRepository;
+	signal?: AbortSignal;
 }
 
 export interface WikiState {
@@ -124,6 +127,14 @@ export interface WikiSourceRecord {
 	archivePath: string;
 	status: 'pending' | 'integrated' | 'failed';
 	operationId?: string;
+	lineage?: Record<
+		string,
+		{
+			version: number;
+			previousSourceId?: string;
+			replacedBySourceId?: string;
+		}
+	>;
 }
 
 export interface WikiRegisteredSource {
