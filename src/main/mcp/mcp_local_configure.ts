@@ -52,9 +52,8 @@ export function configureLocalMcpServer(
 	}
 
 	const localRoot = path.resolve(root);
-	let server = listLocalMcpServers(
-		mcpLocalDiscoveryRoots(path.resolve(root, '..', '..'))
-	).servers.find((entry) => entry.id === serverId);
+	const searchRoots = [localRoot, ...mcpLocalDiscoveryRoots()];
+	let server = listLocalMcpServers(searchRoots).servers.find((entry) => entry.id === serverId);
 	if (!server?.path) throw new Error(`No local MCP server "${id}".`);
 	if (server.data.type !== 'stdio')
 		throw new Error('Local MCP servers require stdio configuration.');
