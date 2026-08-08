@@ -178,8 +178,9 @@ const AssistantPage: React.FC = () => {
 		}
 	};
 
-	const handleSearchEngineChange = (value: string): void => {
-		const engineId = value as SearchEngineId;
+	const handleSearchEngineChange = (value: SearchEngineId | null): void => {
+		if (!value) return;
+		const engineId = value;
 		setSearchSavingEngineId(engineId);
 		setSearchEngineError(null);
 		void window.search.selectEngine(engineId).then(
