@@ -8,7 +8,7 @@ const Sidebar = React.forwardRef<
 >(({ className, style, width, ...props }, ref) => (
   <aside
     ref={ref}
-    className={cn("relative h-full shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground", className)}
+    className={cn("relative h-full shrink-0 border-r border-sidebar-border/70 bg-sidebar text-sidebar-foreground", className)}
     style={{ width, ...style }}
     {...props}
   />
@@ -30,8 +30,8 @@ const SidebarResizeHandle = React.forwardRef<HTMLButtonElement, React.ButtonHTML
       aria-label="Resize sidebar"
       className={cn(
         "absolute inset-y-0 right-[-4px] z-10 w-2 cursor-col-resize touch-none",
-        "after:absolute after:inset-y-3 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-sidebar-border",
-        "hover:after:bg-sidebar-foreground/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-foreground/50",
+        "after:absolute after:inset-y-3 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-sidebar-foreground/45 after:opacity-0 after:transition-opacity",
+        "hover:after:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-foreground/50 focus-visible:after:opacity-100",
         className,
       )}
       {...props}
