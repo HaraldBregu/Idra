@@ -27,6 +27,7 @@ import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/si
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { showNativeContextMenu } from '@/lib/menu';
 import { removeWorkspaceEntry } from '@/lib/remove';
+import { rebaseWorkspacePath } from '@/lib/rebase';
 import { isWorkspacePathWithin } from '@/lib/within';
 
 const fallbackTheme: AppThemeData = {
@@ -379,6 +380,51 @@ export default function App() {
 		}
 	}
 
+	async function moveWorkspaceEntry(
+		entry: WorkspaceTreeEntry,
+		destinationPath: string
+	): Promise<string> {
+		if (!isFriday()) throw new Error('Workspace moves are only available inside Friday.');
+		const currentSelectedPath = selectedPathRef.current;
+		const movesSelection = Boolean(
+			currentSelectedPath && isWorkspacePathWithin(currentSelectedPath, entry.path)
+		);
+		if (
+			movesSelection &&
+			selectedKind === 'markdown' &&
+			(selectedContentRef.current !== selectedSavedContent || selectedSaving)
+		) {
+			const saved = await saveLatestWorkspaceMarkdown(currentSelectedPath);
+			if (!saved) throw new Error('Save the selected Markdown file before moving it.');
+		}
+
+		const movedPath = await agent.moveWorkspaceEntry(entry.path, destinationPath);
+		const refresh = agent.listWorkspaceFiles();
+		if (movesSelection && currentSelectedPath) {
+			const movedSelectedPath = rebaseWorkspacePath(
+				currentSelectedPath,
+				entry.path,
+				movedPath
+			);
+			await selectWorkspaceEntry({
+				name: movedSelectedPath.split('/').pop() ?? movedSelectedPath,
+				path: movedSelectedPath,
+				type: 'file',
+			});
+		}
+		try {
+			setWorkspaceFiles(await refresh);
+			setWorkspaceError('');
+		} catch (error) {
+			throw new Error(
+				error instanceof Error
+					? `Item moved, but the workspace could not refresh: ${error.message}`
+					: 'Item moved, but the workspace could not refresh.'
+			);
+		}
+		return movedPath;
+	}
+
 	function startSidebarResize(event: PointerEvent<HTMLButtonElement>) {
 		event.preventDefault();
 		const startX = event.clientX;
@@ -407,6 +453,7 @@ export default function App() {
 				setDeleteError('');
 				setDeleteTarget(entry);
 			}}
+			onMoveRequest={moveWorkspaceEntry}
 			onWorkspaceSelect={selectWorkspaceEntry}
 			selectedWorkspacePath={selectedWorkspacePath}
 			workspaceError={workspaceError}
