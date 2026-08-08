@@ -96,6 +96,7 @@ describe('run stream system prompt', () => {
 			execute: search,
 		});
 		runModelTurnMock.mockImplementationOnce(async function* () {
+			yield* [];
 			return { content: '', model: 'test-model', toolCalls: calls };
 		});
 		const botEvents = [];
@@ -124,6 +125,7 @@ describe('run stream system prompt', () => {
 
 		runModelTurnMock
 			.mockImplementationOnce(async function* () {
+				yield* [];
 				return { content: '', model: 'test-model', toolCalls: calls };
 			})
 			.mockImplementationOnce(successfulTurn);
@@ -223,6 +225,7 @@ describe('run stream system prompt', () => {
 
 	it('emits exactly one terminal event before propagating a model failure', async () => {
 		runModelTurnMock.mockImplementationOnce(async function* () {
+			yield* [];
 			throw new Error('provider failed');
 		});
 		const session = createSessionState();
