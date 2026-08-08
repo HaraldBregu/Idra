@@ -3,10 +3,8 @@ import { applyWikiUpdate } from './wiki_apply_update';
 import { getWikiSettings } from './wiki_get_settings';
 import { rebuildWikiIndex } from './wiki_index';
 import { appendWikiLog } from './wiki_log';
-import { wikiOperationStore } from './wiki_operation_store';
 import { readWikiPage } from './wiki_read_page';
-import { wikiReviewStore } from './wiki_review_store';
-import { wikiSourceStore } from './wiki_source_store';
+import { getWikiRepository } from './wiki_repository';
 import { transactWiki } from './wiki_transaction';
 import type {
 	WikiOperationRecord,
@@ -20,6 +18,7 @@ export async function saveWikiAnalysis(
 	input: WikiSaveAnalysisInput
 ): Promise<WikiSaveAnalysisResult> {
 	const settings = getWikiSettings();
+	const repository = getWikiRepository(settings.targetPath);
 	if (settings.enabled === false) throw new Error('Wiki is disabled.');
 	const title = input.title.trim();
 	const summary = input.summary.trim();
@@ -35,7 +34,7 @@ export async function saveWikiAnalysis(
 	}
 	const sourceIds = [...new Set(input.sourceIds)];
 	if (sourceIds.length === 0) throw new Error('Saved analysis requires at least one source ID.');
-	const records = sourceIds.map((sourceId) => wikiSourceStore.store.sources[sourceId]);
+	const records = sourceIds.map((sourceId) => repository.sources.store.sources[sourceId]);
 	if (records.some((record) => !record || record.status !== 'integrated')) {
 		throw new Error('Saved analysis references an unknown or unintegrated source.');
 	}
@@ -84,9 +83,9 @@ export async function saveWikiAnalysis(
 		validationErrors: [],
 		reviewStatus: 'not_required',
 	};
-	wikiOperationStore.store = {
-		...wikiOperationStore.store,
-		operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
+	repository.operations.store = {
+		...repository.operations.store,
+		operations: { ...repository.operations.store.operations, [operationId]: operation },
 	};
 	const update: WikiUpdate = {
 		pages: [
@@ -109,6 +108,7 @@ export async function saveWikiAnalysis(
 	const applied = await transactWiki({
 		targetPath: settings.targetPath,
 		operationId,
+		repository,
 		apply: async (stagedPath) => {
 			const result = await applyWikiUpdate(stagedPath, source, update, {
 				operationId,
@@ -121,10 +121,10 @@ export async function saveWikiAnalysis(
 	});
 	if (applied.reviewItems?.length) {
 		const ids = new Set(applied.reviewItems.map((item) => item.id));
-		wikiReviewStore.store = {
+		repository.reviews.store = {
 			version: 1,
 			items: [
-				...wikiReviewStore.store.items.filter((item) => !ids.has(item.id)),
+				...repository.reviews.store.items.filter((item) => !ids.has(item.id)),
 				...applied.reviewItems,
 			],
 		};
@@ -139,9 +139,9 @@ export async function saveWikiAnalysis(
 		contradictionsDetected: applied.contradictionsDetected ?? 0,
 		reviewStatus: applied.pendingReviews ? 'required' : 'not_required',
 	};
-	wikiOperationStore.store = {
-		...wikiOperationStore.store,
-		operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
+	repository.operations.store = {
+		...repository.operations.store,
+		operations: { ...repository.operations.store.operations, [operationId]: operation },
 	};
 	return {
 		operationId,

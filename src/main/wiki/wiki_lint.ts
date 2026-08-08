@@ -4,10 +4,8 @@ import matter from 'gray-matter';
 import { getWikiSettings } from './wiki_get_settings';
 import { rebuildWikiIndex } from './wiki_index';
 import { appendWikiLog } from './wiki_log';
-import { wikiOperationStore } from './wiki_operation_store';
-import { wikiSourceStore } from './wiki_source_store';
+import { getWikiRepository } from './wiki_repository';
 import { transactWiki } from './wiki_transaction';
-import { wikiManifestStore } from './wiki_manifest_store';
 import { incrementWikiMetric } from './wiki_metrics';
 import type {
 	WikiClaim,
@@ -32,6 +30,7 @@ export async function lintWiki(
 	autoFix = false,
 	targetPath = getWikiSettings().targetPath
 ): Promise<WikiLintResult> {
+	const repository = getWikiRepository(targetPath);
 	const result: WikiLintResult = {
 		critical: [],
 		warnings: [],
@@ -132,7 +131,7 @@ export async function lintWiki(
 				continue;
 			}
 			for (const evidence of claim.evidence) {
-				if (!wikiSourceStore.store.sources[evidence.sourceId]) {
+				if (!repository.sources.store.sources[evidence.sourceId]) {
 					result.critical.push({
 						code: 'invalid_source_reference',
 						message: `Unknown source '${evidence.sourceId}'.`,
@@ -241,7 +240,7 @@ export async function lintWiki(
 			Array.isArray(page.data.source_ids) ? page.data.source_ids.map(String) : []
 		)
 	);
-	for (const record of Object.values(wikiSourceStore.store.sources)) {
+	for (const record of Object.values(repository.sources.store.sources)) {
 		if (record.status === 'integrated' && !coveredSources.has(record.sourceId)) {
 			result.warnings.push({
 				code: 'source_not_integrated',
@@ -249,7 +248,7 @@ export async function lintWiki(
 			});
 		}
 	}
-	wikiManifestStore.store = {
+	repository.manifest.store = {
 		version: 1,
 		pages: Object.fromEntries(
 			pages
@@ -277,6 +276,7 @@ export async function lintWiki(
 	await transactWiki({
 		targetPath,
 		operationId,
+		repository,
 		apply: async (stagedPath) => {
 			if (autoFix) await rebuildWikiIndex(stagedPath);
 			await appendWikiLog(
@@ -309,9 +309,9 @@ export async function lintWiki(
 		validationErrors: result.critical.map((finding) => finding.message),
 		reviewStatus: result.requiresReview.length > 0 ? 'required' : 'not_required',
 	};
-	wikiOperationStore.store = {
-		...wikiOperationStore.store,
-		operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
+	repository.operations.store = {
+		...repository.operations.store,
+		operations: { ...repository.operations.store.operations, [operationId]: operation },
 	};
 	incrementWikiMetric(
 		'wiki_lint_findings_total',

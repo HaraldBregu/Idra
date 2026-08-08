@@ -4,9 +4,7 @@ import { applyWikiUpdate } from './wiki_apply_update';
 import { getWikiSettings } from './wiki_get_settings';
 import { rebuildWikiIndex } from './wiki_index';
 import { appendWikiLog } from './wiki_log';
-import { wikiOperationStore } from './wiki_operation_store';
-import { wikiReviewStore } from './wiki_review_store';
-import { wikiSourceStore } from './wiki_source_store';
+import { getWikiRepository } from './wiki_repository';
 import { transactWiki } from './wiki_transaction';
 import type { WikiOperationRecord, WikiReviewItem, WikiSource } from './wiki_types';
 
@@ -15,11 +13,12 @@ export async function reviewWikiChange(
 	action: 'approve' | 'reject'
 ): Promise<WikiReviewItem> {
 	const settings = getWikiSettings();
-	const item = wikiReviewStore.store.items.find((candidate) => candidate.id === reviewId);
+	const repository = getWikiRepository(settings.targetPath);
+	const item = repository.reviews.store.items.find((candidate) => candidate.id === reviewId);
 	if (!item) throw new Error(`Wiki review item not found: ${reviewId}`);
 	if (item.status !== 'pending') throw new Error(`Wiki review item is already ${item.status}.`);
 	const record = item.evidenceSourceIds
-		.map((id) => wikiSourceStore.store.sources[id])
+		.map((id) => repository.sources.store.sources[id])
 		.find(Boolean);
 	const operationId = `operation-review-${reviewId.replace(/^review-/, '')}-${action}`;
 	const source: WikiSource = record
@@ -35,6 +34,7 @@ export async function reviewWikiChange(
 	const applied = await transactWiki({
 		targetPath: settings.targetPath,
 		operationId,
+		repository,
 		apply: async (stagedPath) => {
 			const result =
 				action === 'approve'
@@ -71,18 +71,18 @@ export async function reviewWikiChange(
 		...item,
 		status: action === 'approve' ? ('approved' as const) : ('rejected' as const),
 	};
-	wikiReviewStore.store = {
+	repository.reviews.store = {
 		version: 1,
-		items: wikiReviewStore.store.items.map((candidate) =>
+		items: repository.reviews.store.items.map((candidate) =>
 			candidate.id === reviewId ? reviewed : candidate
 		),
 	};
-	const original = wikiOperationStore.store.operations[item.operationId];
+	const original = repository.operations.store.operations[item.operationId];
 	if (original) {
-		wikiOperationStore.store = {
-			...wikiOperationStore.store,
+		repository.operations.store = {
+			...repository.operations.store,
 			operations: {
-				...wikiOperationStore.store.operations,
+				...repository.operations.store.operations,
 				[item.operationId]: {
 					...original,
 					status: 'completed',
@@ -107,9 +107,9 @@ export async function reviewWikiChange(
 		validationErrors: [],
 		reviewStatus: action === 'approve' ? 'approved' : 'rejected',
 	};
-	wikiOperationStore.store = {
-		...wikiOperationStore.store,
-		operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
+	repository.operations.store = {
+		...repository.operations.store,
+		operations: { ...repository.operations.store.operations, [operationId]: operation },
 	};
 	return reviewed;
 }
