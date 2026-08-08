@@ -29,9 +29,9 @@ describe('gmail smtp MCP server', () => {
 				args: ['--experimental-strip-types', 'src/index.ts'],
 				cwd: directory,
 				env: {
-					GMAIL_SMTP_HOST: 'smtp.gmail.com',
-					GMAIL_SMTP_PORT: '587',
-					GMAIL_SMTP_SECURE: 'false',
+					GMAIL_SMTP_HOST: '',
+					GMAIL_SMTP_PORT: '',
+					GMAIL_SMTP_SECURE: '',
 					GMAIL_SMTP_USER: '',
 					GMAIL_SMTP_PASSWORD: '',
 				},
