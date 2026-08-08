@@ -23,6 +23,19 @@ it('normalizes exact local RAG and session scopes', () => {
 	});
 	expect(
 		normalizeDataScope({
+			kind: 'rag',
+			mode: 'remote_namespace',
+			indexName: 'knowledge-base',
+			generation: 'friday-11111111-1111-4111-8111-111111111111',
+		})
+	).toEqual({
+		kind: 'rag',
+		mode: 'remote_namespace',
+		indexName: 'knowledge-base',
+		generation: 'friday-11111111-1111-4111-8111-111111111111',
+	});
+	expect(
+		normalizeDataScope({
 			kind: 'sessions',
 			sessionIds: [
 				'11111111-1111-4111-8111-111111111111',
