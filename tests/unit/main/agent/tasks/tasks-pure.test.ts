@@ -58,5 +58,13 @@ describe('taskActionSchema', () => {
 				permissionMode: 'bypass',
 			})
 		).not.toHaveProperty('permissionMode');
+		expect(
+			taskActionSchema.parse({
+				type: 'agent',
+				prompt: 'do it',
+				effort: 'low',
+				toolsAllow: ['exec'],
+			})
+		).not.toHaveProperty('toolsAllow');
 	});
 });
