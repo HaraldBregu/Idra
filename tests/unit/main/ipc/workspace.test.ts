@@ -37,7 +37,9 @@ describe('workspace files', () => {
 		await fs.mkdir(directory);
 		await fs.writeFile(file, '# Idea');
 
-		await expect(resolveWorkspaceFile(root, 'notes/idea.md')).resolves.toBe(file);
+		await expect(resolveWorkspaceFile(root, 'notes/idea.md')).resolves.toBe(
+			await fs.realpath(file)
+		);
 		await fs.rm(root, { recursive: true });
 	});
 
