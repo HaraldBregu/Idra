@@ -8,6 +8,8 @@ function deferred(): { promise: Promise<void>; resolve: () => void } {
 	return { promise, resolve };
 }
 
+const flush = (): Promise<void> => new Promise((resolve) => setImmediate(resolve));
+
 it('serializes runs for the same session', async () => {
 	const scheduler = new AgentRunScheduler(3);
 	const gate = deferred();
@@ -21,8 +23,7 @@ it('serializes runs for the same session', async () => {
 		order.push('second:start');
 	});
 
-	await Promise.resolve();
-	await Promise.resolve();
+	await flush();
 	expect(order).toEqual(['first:start']);
 	gate.resolve();
 	await Promise.all([first, second]);
@@ -45,12 +46,11 @@ it('allows three sessions concurrently and queues the fourth', async () => {
 		})
 	);
 
-	await Promise.resolve();
-	await Promise.resolve();
+	await flush();
 	expect(started).toEqual([0, 1, 2]);
 	gates[0].resolve();
 	await runs[0];
-	await Promise.resolve();
+	await flush();
 	expect(started).toEqual([0, 1, 2, 3]);
 	for (const gate of gates.slice(1)) gate.resolve();
 	await Promise.all(runs);
