@@ -186,7 +186,8 @@ describe('run stream system prompt', () => {
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		const request = (await events.next()).value;
 		expect(request).toMatchObject({ type: 'tool_permission_request', hardApproval: true });
-		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		if (!request || request.type !== 'tool_permission_request')
+			throw new Error('Expected approval');
 		const end = events.next();
 		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });

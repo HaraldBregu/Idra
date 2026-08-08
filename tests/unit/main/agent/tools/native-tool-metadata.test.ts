@@ -19,9 +19,12 @@ it.each([
 	[wikiSaveTool, 'high', 'persistence', ['main']],
 	[wikiReviewTool, 'critical', 'persistence', ['main']],
 	[wikiRebuildTool, 'high', 'persistence', ['main']],
-] as const)('%s cannot mutate persistently through trusted-main bypass', (tool, risk, effect, origins) => {
-	expect(tool).toMatchObject({ risk, effect, hardApproval: true, allowedOrigins: origins });
-});
+] as const)(
+	'%s cannot mutate persistently through trusted-main bypass',
+	(tool, risk, effect, origins) => {
+		expect(tool).toMatchObject({ risk, effect, hardApproval: true, allowedOrigins: origins });
+	}
+);
 
 it('hard-approves wiki lint only when deterministic auto-fix is requested', () => {
 	expect(wikiLintTool).toMatchObject({

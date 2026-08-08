@@ -15,10 +15,7 @@ export const updateHealthSettingsTool = tool({
 			.enum(['0m', '1m', '30m', '1h'])
 			.optional()
 			.describe("Run interval; '0m' disables the health check."),
-		target: z
-			.string()
-			.optional()
-			.describe("Target session: 'none', 'last', or a session id."),
+		target: z.string().optional().describe("Target session: 'none', 'last', or a session id."),
 		directPolicy: z.enum(['allow', 'block']).optional(),
 		lightContext: z.boolean().optional(),
 		isolatedSession: z.boolean().optional(),

@@ -55,7 +55,8 @@ describe('tool context permissions', () => {
 			undefined,
 			createContext().toolsContext,
 			'bypass'
-		)) events.push(event);
+		))
+			events.push(event);
 		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
 		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
 	});
@@ -72,7 +73,8 @@ describe('tool context permissions', () => {
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		const request = (await events.next()).value;
 		expect(request).toMatchObject({ type: 'tool_permission_request', hardApproval: true });
-		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		if (!request || request.type !== 'tool_permission_request')
+			throw new Error('Expected approval');
 		const end = events.next();
 		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
@@ -153,7 +155,8 @@ describe('tool context permissions', () => {
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		const request = (await events.next()).value;
 		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		if (!request || request.type !== 'tool_permission_request')
+			throw new Error('Expected approval');
 		const end = events.next();
 		expect(respondToolPermission(request.approvalId, 'approve_always')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
@@ -179,7 +182,8 @@ describe('tool context permissions', () => {
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		const request = (await events.next()).value;
 		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		if (!request || request.type !== 'tool_permission_request')
+			throw new Error('Expected approval');
 		const end = events.next();
 		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
@@ -198,7 +202,8 @@ describe('tool context permissions', () => {
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		const request = (await events.next()).value;
 		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		if (!request || request.type !== 'tool_permission_request')
+			throw new Error('Expected approval');
 		const end = events.next();
 		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
@@ -365,7 +370,8 @@ describe('tool context permissions', () => {
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		const request = (await events.next()).value;
 		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		if (!request || request.type !== 'tool_permission_request')
+			throw new Error('Expected approval');
 		const end = events.next();
 		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
@@ -382,7 +388,8 @@ describe('tool context permissions', () => {
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		const request = (await events.next()).value;
 		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		if (!request || request.type !== 'tool_permission_request')
+			throw new Error('Expected approval');
 		const end = events.next();
 		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
@@ -426,7 +433,8 @@ describe('tool context permissions', () => {
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
 		const request = (await events.next()).value;
 		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		if (!request || request.type !== 'tool_permission_request')
+			throw new Error('Expected approval');
 		const end = events.next();
 		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
@@ -456,7 +464,8 @@ describe('tool context permissions', () => {
 			hardApproval: true,
 			effect: 'external',
 		});
-		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		if (!request || request.type !== 'tool_permission_request')
+			throw new Error('Expected approval');
 		const end = events.next();
 		expect(respondToolPermission(request.approvalId, 'approve_always')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
@@ -482,7 +491,8 @@ describe('tool context permissions', () => {
 			undefined,
 			context,
 			'bypass'
-		)) void event;
+		))
+			void event;
 		expect(context.hasPrivateContext).toBe(true);
 
 		const external = jsonTool({
