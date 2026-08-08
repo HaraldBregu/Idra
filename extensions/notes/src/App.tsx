@@ -69,6 +69,10 @@ export default function App() {
 	const [createName, setCreateName] = useState('');
 	const [createError, setCreateError] = useState('');
 	const [creating, setCreating] = useState(false);
+	const [renameTarget, setRenameTarget] = useState<WorkspaceTreeEntry | null>(null);
+	const [renameName, setRenameName] = useState('');
+	const [renameError, setRenameError] = useState('');
+	const [renaming, setRenaming] = useState(false);
 	const [deleteTarget, setDeleteTarget] = useState<WorkspaceTreeEntry | null>(null);
 	const [deleteError, setDeleteError] = useState('');
 	const [deleting, setDeleting] = useState(false);
@@ -324,6 +328,72 @@ export default function App() {
 		}
 	}
 
+	function startRenameWorkspaceEntry(entry: WorkspaceTreeEntry) {
+		setRenameTarget(entry);
+		setRenameName(entry.name);
+		setRenameError('');
+	}
+
+	async function confirmRenameWorkspaceEntry() {
+		if (!renameTarget || renaming || !isFriday()) return;
+		const name = renameName.trim();
+		if (!name) {
+			setRenameError('Enter a name.');
+			return;
+		}
+
+		const target = renameTarget;
+		const selectedPath = selectedPathRef.current;
+		const renamesSelection = Boolean(
+			selectedPath && isWorkspacePathWithin(selectedPath, target.path)
+		);
+		setRenaming(true);
+		setRenameError('');
+		if (
+			renamesSelection &&
+			selectedKind === 'markdown' &&
+			(selectedContentRef.current !== selectedSavedContent || selectedSaving)
+		) {
+			const saved = await saveLatestWorkspaceMarkdown(selectedPath);
+			if (!saved) {
+				setRenameError('Save the selected Markdown file before renaming it.');
+				setRenaming(false);
+				return;
+			}
+		}
+
+		let renamedPath: string;
+		try {
+			renamedPath = await agent.renameWorkspaceEntry(target.path, name);
+		} catch (error) {
+			setRenameError(error instanceof Error ? error.message : 'Unable to rename the item.');
+			setRenaming(false);
+			return;
+		}
+
+		setRenameTarget(null);
+		if (renamesSelection && selectedPath) {
+			const renamedSelectedPath = rebaseWorkspacePath(selectedPath, target.path, renamedPath);
+			await selectWorkspaceEntry({
+				name: renamedSelectedPath.split('/').pop() ?? renamedSelectedPath,
+				path: renamedSelectedPath,
+				type: 'file',
+			});
+		}
+		try {
+			setWorkspaceFiles(await agent.listWorkspaceFiles());
+			setWorkspaceError('');
+		} catch (error) {
+			setWorkspaceError(
+				error instanceof Error
+					? `Item renamed, but the workspace could not refresh: ${error.message}`
+					: 'Item renamed, but the workspace could not refresh.'
+			);
+		} finally {
+			setRenaming(false);
+		}
+	}
+
 	async function confirmDeleteWorkspaceEntry() {
 		if (!deleteTarget || deleting || !isFriday()) return;
 		const target = deleteTarget;
@@ -457,6 +527,7 @@ export default function App() {
 				setDeleteTarget(entry);
 			}}
 			onMoveRequest={moveWorkspaceEntry}
+			onRenameRequest={startRenameWorkspaceEntry}
 			onWorkspaceSelect={selectWorkspaceEntry}
 			selectedWorkspacePath={selectedWorkspacePath}
 			workspaceError={workspaceError}
@@ -540,6 +611,14 @@ export default function App() {
 							setSelectedSaveError('');
 						}}
 						onMarkdownModeChange={setMarkdownMode}
+						onRename={() => {
+							if (!selectedWorkspacePath) return;
+							startRenameWorkspaceEntry({
+								name: selectedWorkspacePath.split(/[\\/]/).pop() ?? selectedWorkspacePath,
+								path: selectedWorkspacePath,
+								type: 'file',
+							});
+						}}
 						onSave={() => saveWorkspaceMarkdown(selectedPathRef.current, selectedContent)}
 						path={selectedWorkspacePath}
 						saveError={selectedSaveError}
