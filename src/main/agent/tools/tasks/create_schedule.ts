@@ -9,5 +9,8 @@ export const createScheduleTool = tool({
 	inputSchema: z.object({
 		request: createScheduleRequestSchema.describe('Schedule definition to create.'),
 	}),
-	execute: ({ request }) => createSchedule(request),
+	risk: 'high',
+	effect: 'persistence',
+	hardApproval: true,
+	execute: ({ request }) => createSchedule({ ...request, enabled: false }),
 });

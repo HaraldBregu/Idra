@@ -54,11 +54,11 @@ import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 import { getPermissionMode } from '../policy';
 import { getWikiTools } from '../tools/wiki';
+import { selectOriginTools } from './run_origin_tools';
 
 export interface StreamOptions {
 	tools?: Tool[];
 	interactive?: boolean;
-	permissionMode?: AgentPermissionMode;
 }
 
 export async function* stream(
@@ -96,8 +96,9 @@ async function* loop(
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
-	const permissionMode = options.permissionMode ?? getPermissionMode();
-	const tools: Tool[] = options.tools
+	const permissionMode: AgentPermissionMode =
+		input.origin === 'main' ? getPermissionMode() : 'ask';
+	let tools: Tool[] = options.tools
 		? [...options.tools]
 		: [
 				readTool,
@@ -137,11 +138,14 @@ async function* loop(
 			];
 
 	let closeMcp: (() => Promise<void>) | undefined;
-	if (!options.tools) {
-		const mcp = await loadMcpTools();
+	if (!options.tools && input.origin === 'main') {
+		const mcp = await loadMcpTools(signal);
 		tools.push(...mcp.tools);
+		tools = selectOriginTools(tools, input.origin, input.toolsAllow, input.toolsDeny);
 		tools.push(subagentTool(config, [...tools], session.context));
 		closeMcp = mcp.close;
+	} else {
+		tools = selectOriginTools(tools, input.origin, input.toolsAllow, input.toolsDeny);
 	}
 
 	session.context.skill = undefined;
@@ -164,12 +168,15 @@ async function* loop(
 				config,
 				tools,
 				session.context.loadedSkills,
-				session.context.basePrompt
+				session.context.basePrompt,
+				input.contextMode
 			);
 			persistSystemPrompt(session, session.context.systemPrompt);
 			const workspaceContext =
-				session.context.basePrompt === undefined ? await buildWorkspaceContext(config) : '';
-			const skillContext = buildSkillContext();
+				input.origin === 'main' && input.contextMode === 'workspace' && session.context.basePrompt === undefined
+					? await buildWorkspaceContext(config)
+					: '';
+			const skillContext = input.origin === 'main' && input.contextMode === 'workspace' ? buildSkillContext() : '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
 			const messages = modelMessages(session.messages);
 			const turn = yield* runModelTurn(
@@ -215,6 +222,8 @@ async function* loop(
 				signal,
 				session.context.toolsContext,
 				permissionMode
+				,
+				{ runId: input.runId, origin: input.origin }
 			)) {
 				yield event;
 				if (event.type !== 'tool_call_end') continue;

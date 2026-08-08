@@ -28,6 +28,7 @@ import {
 } from './context';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
+	AgentRunOptions,
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
 	AgentInputFile,
@@ -38,15 +39,10 @@ import type {
 } from '../../shared/agent_types';
 import { toError } from '../ipc/core/error';
 
-export interface AgentSendOptions {
-	runId?: string;
+export interface AgentSendOptions extends AgentRunOptions {
 	interactive?: boolean;
-	permissionMode?: AgentPermissionMode;
-	sessionId?: string;
 	category?: SessionCategory;
-	providerId?: string;
 	modelId?: string;
-	files?: AgentInputFile[];
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
@@ -78,9 +74,9 @@ export class Agent {
 			return this.send(schedule.action.prompt, 'tasks', {
 				category: 'task',
 				interactive: false,
-				...(schedule.action.permissionMode
-					? { permissionMode: schedule.action.permissionMode }
-					: {}),
+				contextMode: 'minimal',
+				toolsAllow: schedule.action.toolsAllow,
+				effort: schedule.action.effort,
 				...(runtime ? { providerId: runtime.providerId, modelId: runtime.modelId } : {}),
 			});
 		});
@@ -115,6 +111,7 @@ export class Agent {
 		beginCommand(this.state, command);
 		const view = agentView(this.state);
 		const { options } = command;
+		const origin = options.category ?? 'main';
 
 		let response = '';
 		let controller: AbortController | undefined;
@@ -122,19 +119,25 @@ export class Agent {
 			controller = new AbortController();
 
 			const input = {
+				runId: view.id,
 				task: 'chat',
 				message: resolveSkillCommand(view.message),
+				origin,
+				contextMode:
+					options.contextMode ?? (options.lightContext === true || origin !== 'main' ? 'minimal' : 'workspace'),
+				...(options.effort ? { effort: options.effort } : {}),
+				...(options.toolsAllow ? { toolsAllow: options.toolsAllow } : {}),
+				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
 				...(options.files?.length ? { files: options.files } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.providerId ? { providerId: options.providerId } : {}),
-				...(options.modelId ? { model: options.modelId } : {}),
+				...(options.model ?? options.modelId ? { model: options.model ?? options.modelId } : {}),
 			} satisfies RuntimeInput;
 
 			init(this.session, this.config, input, options.category);
 
 			const events = stream(this.config, this.session, input, controller.signal, {
 				interactive: options.interactive ?? true,
-				permissionMode: options.permissionMode,
 			});
 
 			this.activeRuns.set(view.agentId, controller);

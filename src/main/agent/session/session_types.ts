@@ -1,10 +1,10 @@
-import type { AgentInputFile, ModelReasoningEffort } from '../../../shared/agent_types';
+import type { AgentInputFile, AgentOrigin, ModelReasoningEffort } from '../../../shared/agent_types';
 import type { AgentContext } from '../context';
 import type { Message, MessageContentBlock, ToolCall } from '../types';
 
 export const DEFAULT_CATEGORY: SessionCategory = 'main';
 
-export type SessionCategory = 'main' | 'task' | 'health' | 'bot';
+export type SessionCategory = AgentOrigin;
 
 export type SessionResultSubtype = 'success' | 'error_max_turns';
 

@@ -9,7 +9,6 @@ export const taskActionSchema = z.discriminatedUnion('type', [
 		type: z.literal('agent'),
 		prompt: z.string(),
 		effort: z.enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh']),
-		permissionMode: z.enum(['ask', 'bypass']).optional(),
 	}),
 ]);
 

@@ -1,9 +1,9 @@
 import { z } from 'zod';
+import { randomUUID } from 'node:crypto';
 import { tool } from './tool';
 import { createSessionState } from '../session';
 import { adoptSubagent, type AgentContext } from '../context';
 import { stream } from '../run/run_stream';
-import type { AgentPermissionMode } from '../../../shared/agent_types';
 import type { Config, RuntimeInput, Tool } from '../types';
 
 const instructions = `You are a subagent spawned by the main agent to complete one specific task.
@@ -22,32 +22,28 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 			'Spawn a subagent to complete a task in its own isolated context and return a summary. It has the same tools as you, except spawning subagents. Use it for work that takes many steps, produces large intermediate output, or is independent of the conversation. Give it a clear objective and the expected output.',
 		inputSchema: z.object({
 			task: z.string().describe('The task for the subagent to complete'),
-			permissionMode: z
-				.enum(['ask', 'bypass'])
-				.optional()
-				.describe('Overrides the stored policy mode for this background subagent.'),
-			systemPrompt: z
-				.string()
-				.optional()
-				.describe(
-					'Additional system instructions for the subagent. Mandatory subagent rules are always retained.'
-				),
 		}),
-		execute: async ({ task, permissionMode, systemPrompt }) => {
-			const input: RuntimeInput = { task: 'subagent', message: task };
+		allowedOrigins: ['main'],
+		execute: async ({ task }, signal) => {
+			const childTools = tools.filter((candidate) => candidate.name !== 'subagent');
+			const input: RuntimeInput = {
+				runId: randomUUID(),
+				task: 'subagent',
+				message: task,
+				origin: 'subagent',
+				contextMode: 'minimal',
+				toolsAllow: childTools.map((candidate) => candidate.name),
+			};
 			// Fresh context: the subagent never sees the main agent's conversation.
 			const session = createSessionState();
 			session.messages = [{ role: 'user', content: task }];
-			session.context.basePrompt = systemPrompt?.trim()
-				? `${systemPrompt.trim()}\n\n${instructions}`
-				: instructions;
+			session.context.basePrompt = instructions;
 			adoptSubagent(parent, session.context);
 
 			let text = '';
-			const events = stream(config, session, input, new AbortController().signal, {
-				tools,
+			const events = stream(config, session, input, signal ?? new AbortController().signal, {
+				tools: childTools,
 				interactive: false,
-				...(permissionMode ? { permissionMode: permissionMode as AgentPermissionMode } : {}),
 			});
 			for await (const event of events) {
 				if (event.type === 'assistant_message') text = event.content;

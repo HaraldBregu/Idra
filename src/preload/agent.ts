@@ -7,7 +7,6 @@ import type {
 	AgentResponseEvent,
 	AgentSessionSummary,
 	AgentToolPermissionDecision,
-	AgentPermissionMode,
 	ModelReasoningEffort,
 } from '../shared/agent_types';
 import { normalizeAgentInputFiles } from '../shared/agent_files';
@@ -29,12 +28,6 @@ const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'high',
 	'xhigh',
 ];
-
-const AGENT_PERMISSION_MODES: readonly AgentPermissionMode[] = ['ask', 'bypass'];
-
-function isAgentPermissionMode(value: unknown): value is AgentPermissionMode {
-	return AGENT_PERMISSION_MODES.includes(value as AgentPermissionMode);
-}
 
 function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
 	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
@@ -61,10 +54,11 @@ function normalizeAgentSendRuntimeOptions(
 			? { model: optionalTrimmedString(options.model) }
 			: {}),
 		...(isModelReasoningEffort(options.effort) ? { effort: options.effort } : {}),
-		...(isAgentPermissionMode(options.permissionMode)
-			? { permissionMode: options.permissionMode }
-			: {}),
-		...(typeof options.lightContext === 'boolean' ? { lightContext: options.lightContext } : {}),
+		...(options.contextMode === 'minimal' || options.contextMode === 'workspace'
+			? { contextMode: options.contextMode }
+			: typeof options.lightContext === 'boolean'
+				? { contextMode: options.lightContext ? 'minimal' : 'workspace' }
+				: {}),
 		...(optionalStringList(options.toolsAllow)
 			? { toolsAllow: optionalStringList(options.toolsAllow) }
 			: {}),

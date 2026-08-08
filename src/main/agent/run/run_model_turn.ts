@@ -12,7 +12,7 @@ export interface ModelTurnStream {
 const llmModel = new LlmModel();
 
 export async function* runModelTurn(
-	_input: RuntimeInput,
+	input: RuntimeInput,
 	provider: ResolvedProvider,
 	modelId: string,
 	systemPrompt: string | undefined,
@@ -37,6 +37,7 @@ export async function* runModelTurn(
 			for await (const event of llm.stream({
 				provider,
 				model,
+				effort: input.effort,
 				systemPrompt,
 				messages,
 				tools,
