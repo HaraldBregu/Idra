@@ -311,93 +311,111 @@ export function McpServerForm({
 							autoComplete="off"
 						/>
 					</Field>
-									<Field>
-								<Label htmlFor="mcp-env-key">Environment variables (optional)</Label>
-								<div className="grid gap-2">
-									{env.map((entry, index) => (
-										<div key={`${entry.key}-${index}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
-											<Field className="mb-0">
-												<Label className="text-xs text-muted-foreground">Key</Label>
-												<Input
-													id={`mcp-env-key-${index}`}
-													value={entry.key}
-													onChange={(e) => updateEnvironmentVariable(index, { key: e.target.value })}
-													autoComplete="off"
-													placeholder="KEY"
-													spellCheck={false}
-												/>
-											</Field>
-											<Field className="mb-0">
-												<Label className="text-xs text-muted-foreground">Value</Label>
-												<Input
-													id={`mcp-env-value-${index}`}
-													value={entry.value}
-													onChange={(e) =>
-														updateEnvironmentVariable(index, { value: e.target.value })
-													}
-													autoComplete="off"
-													placeholder="VALUE"
-													spellCheck={false}
-												/>
-											</Field>
-											<div className="flex items-end">
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon-sm"
-													className="h-8 w-8"
-													aria-label={`Remove ${entry.key || 'environment'} variable`}
-													onClick={() => removeEnvironmentVariable(index)}
-												>
-													<Trash2 className="size-3.5" />
-												</Button>
-											</div>
-										</div>
-									))}
-									<div className="mt-1 grid grid-cols-[1fr_1fr_auto] gap-2">
-										<Field className="mb-0">
-											<Label className="text-xs text-muted-foreground">Key</Label>
-											<Input
-												id="mcp-env-key"
-												value={envKey}
-												onChange={(e) => setEnvKey(e.target.value)}
-												placeholder="KEY"
-												autoComplete="off"
-												spellCheck={false}
-											/>
-										</Field>
-										<Field className="mb-0">
-											<Label className="text-xs text-muted-foreground">Value</Label>
-											<Input
-												value={envValue}
-												onChange={(e) => setEnvValue(e.target.value)}
-												placeholder="VALUE"
-												autoComplete="off"
-												spellCheck={false}
-												onKeyDown={(event) => {
-													if (event.key === 'Enter') {
-														event.preventDefault();
-														addEnvironmentVariable();
-													}
-												}}
-											/>
-										</Field>
-										<div className="flex items-end">
-											<Button
-												type="button"
-												size="sm"
-												className="h-9"
-												disabled={!envKey.trim()}
-												onClick={addEnvironmentVariable}
-												aria-label="Add environment variable"
-											>
-												<Plus className="size-3.5" />
-												Add
-											</Button>
-										</div>
+					<Field>
+						<Label htmlFor="mcp-env-key">Environment variables (optional)</Label>
+						<div className="grid gap-2">
+							{env.map((entry, index) => (
+								<div
+									key={`${entry.key}-${index}`}
+									className="grid grid-cols-[1fr_1fr_auto] gap-2"
+								>
+									<Field className="mb-0">
+										<Label
+											htmlFor={`mcp-env-key-${index}`}
+											className="text-xs text-muted-foreground"
+										>
+											Key
+										</Label>
+										<Input
+											id={`mcp-env-key-${index}`}
+											value={entry.key}
+											onChange={(e) => updateEnvironmentVariable(index, { key: e.target.value })}
+											autoComplete="off"
+											placeholder="KEY"
+											spellCheck={false}
+										/>
+									</Field>
+									<Field className="mb-0">
+										<Label
+											htmlFor={`mcp-env-value-${index}`}
+											className="text-xs text-muted-foreground"
+										>
+											Value
+										</Label>
+										<Input
+											id={`mcp-env-value-${index}`}
+											value={entry.value}
+											onChange={(e) =>
+												updateEnvironmentVariable(index, { value: e.target.value })
+											}
+											autoComplete="off"
+											placeholder="VALUE"
+											spellCheck={false}
+										/>
+									</Field>
+									<div className="flex items-end">
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon-sm"
+											className="h-8 w-8"
+											aria-label={`Remove ${entry.key || 'environment'} variable`}
+											onClick={() => removeEnvironmentVariable(index)}
+										>
+											<Trash2 className="size-3.5" />
+										</Button>
 									</div>
 								</div>
-							</Field>
+							))}
+							<div className="mt-1 grid grid-cols-[1fr_1fr_auto] gap-2">
+								<Field className="mb-0">
+									<Label htmlFor="mcp-env-key" className="text-xs text-muted-foreground">
+										Key
+									</Label>
+									<Input
+										id="mcp-env-key"
+										value={envKey}
+										onChange={(e) => setEnvKey(e.target.value)}
+										placeholder="KEY"
+										autoComplete="off"
+										spellCheck={false}
+									/>
+								</Field>
+								<Field className="mb-0">
+									<Label htmlFor="mcp-env-value" className="text-xs text-muted-foreground">
+										Value
+									</Label>
+									<Input
+										id="mcp-env-value"
+										value={envValue}
+										onChange={(e) => setEnvValue(e.target.value)}
+										placeholder="VALUE"
+										autoComplete="off"
+										spellCheck={false}
+										onKeyDown={(event) => {
+											if (event.key === 'Enter') {
+												event.preventDefault();
+												addEnvironmentVariable();
+											}
+										}}
+									/>
+								</Field>
+								<div className="flex items-end">
+									<Button
+										type="button"
+										size="sm"
+										className="h-9"
+										disabled={!envKey.trim()}
+										onClick={addEnvironmentVariable}
+										aria-label="Add environment variable"
+									>
+										<Plus className="size-3.5" />
+										Add
+									</Button>
+								</div>
+							</div>
+						</div>
+					</Field>
 					<Field>
 						<Label htmlFor="mcp-cwd">Working directory (optional)</Label>
 						<Input
