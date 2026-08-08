@@ -106,10 +106,6 @@ const TaskDetailsPage: React.FC = () => {
 							<ItemContent><ItemTitle>{t('settings.cron.detail.effort')}</ItemTitle></ItemContent>
 							<ItemActions className="ml-auto justify-end"><span className="text-xs">{task.action.effort}</span></ItemActions>
 						</Item>
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemContent><ItemTitle>{t('settings.cron.detail.permissionMode')}</ItemTitle></ItemContent>
-							<ItemActions className="ml-auto justify-end"><span className="text-xs">{task.action.permissionMode ?? t('settings.cron.detail.notSet')}</span></ItemActions>
-						</Item>
 					</>}
 					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemContent><ItemTitle>{t('settings.cron.detail.createdAt')}</ItemTitle></ItemContent>
