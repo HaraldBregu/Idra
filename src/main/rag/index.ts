@@ -8,5 +8,6 @@ export { searchRag } from './rag_search';
 export type { RagMatch } from './rag_search';
 export { SqliteVectorStore } from './sqlite';
 export type { VectorIndex, VectorMatch, VectorRecord, VectorStore } from './vector_store';
+export { purgeRagManifest } from './rag_manifest_purge';
 export { rescheduleRagIndexing, startRagSchedule, stopRagSchedule } from './rag_schedule';
 export type { RagScheduleLogger } from './rag_schedule';

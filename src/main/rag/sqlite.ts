@@ -213,6 +213,37 @@ export class SqliteVectorStore implements VectorStore {
 			.slice(0, count);
 	}
 
+	exportIndex(indexName: string, generation?: string): VectorPublication | undefined {
+		const index = this.getIndex(indexName);
+		if (!index || (generation && generation !== index.generation)) return undefined;
+		const rows = this.activeRecordsStatement.all(indexName) as unknown as RecordRow[];
+		return { ...index, records: rows.map(mapRecord) };
+	}
+
+	purge(indexName: string, generation?: string): { records: number; indexRemoved: boolean } {
+		const index = this.getIndex(indexName);
+		if (!index || (generation && generation !== index.generation)) {
+			return { records: 0, indexRemoved: false };
+		}
+		this.database.exec('BEGIN IMMEDIATE');
+		try {
+			const records = generation
+				? this.database
+						.prepare('DELETE FROM rag_chunks WHERE index_name = ? AND generation = ?')
+						.run(indexName, generation).changes
+				: this.database.prepare('DELETE FROM rag_chunks WHERE index_name = ?').run(indexName)
+						.changes;
+			const indexRemoved =
+				this.database.prepare('DELETE FROM rag_indexes WHERE index_name = ?').run(indexName)
+					.changes > 0;
+			this.database.exec('COMMIT');
+			return { records: Number(records), indexRemoved };
+		} catch (error) {
+			this.database.exec('ROLLBACK');
+			throw error;
+		}
+	}
+
 	close(): void {
 		this.database.close();
 	}

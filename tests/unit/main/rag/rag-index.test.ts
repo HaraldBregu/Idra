@@ -30,6 +30,8 @@ const vectors: VectorStore = {
 	getReusableSource,
 	publish,
 	search: jest.fn(),
+	exportIndex: jest.fn(),
+	purge: jest.fn(),
 	close: jest.fn(),
 };
 

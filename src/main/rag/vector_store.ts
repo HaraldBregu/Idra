@@ -40,5 +40,7 @@ export interface VectorStore {
 	): VectorRecord[] | undefined;
 	publish(publication: VectorPublication): void;
 	search(indexName: string, vector: readonly number[], topK: number): VectorMatch[];
+	exportIndex(indexName: string, generation?: string): VectorPublication | undefined;
+	purge(indexName: string, generation?: string): { records: number; indexRemoved: boolean };
 	close(): void;
 }

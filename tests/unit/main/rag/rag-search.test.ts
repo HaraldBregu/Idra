@@ -11,6 +11,8 @@ const vectors: VectorStore = {
 	getReusableSource: jest.fn(),
 	publish: jest.fn(),
 	search,
+	exportIndex: jest.fn(),
+	purge: jest.fn(),
 	close: jest.fn(),
 };
 

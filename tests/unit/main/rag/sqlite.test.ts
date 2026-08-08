@@ -95,3 +95,24 @@ it('keeps the previous generation active when publication fails', () => {
 		store.close();
 	}
 });
+
+it('exports and purges only the exact active namespace or local index', () => {
+	const store = new SqliteVectorStore(':memory:');
+	try {
+		store.publish(publication);
+		expect(store.exportIndex('knowledge-base', 'another-generation')).toBeUndefined();
+		expect(store.exportIndex('knowledge-base', 'friday-first')).toEqual(publication);
+		expect(store.purge('knowledge-base', 'another-generation')).toEqual({
+			records: 0,
+			indexRemoved: false,
+		});
+		expect(store.getIndex('knowledge-base')).toBeDefined();
+		expect(store.purge('knowledge-base', 'friday-first')).toEqual({
+			records: 2,
+			indexRemoved: true,
+		});
+		expect(store.getIndex('knowledge-base')).toBeUndefined();
+	} finally {
+		store.close();
+	}
+});
