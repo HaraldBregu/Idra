@@ -1,0 +1,15 @@
+{
+	"id": "gmail-smtp",
+	"name": "Gmail SMTP Email",
+	"type": "stdio",
+	"command": "node",
+	"args": ["--experimental-strip-types", "server.ts"],
+	"cwd": ".",
+	"env": {
+		"GMAIL_SMTP_HOST": "smtp.gmail.com",
+		"GMAIL_SMTP_PORT": "587",
+		"GMAIL_SMTP_SECURE": "false"
+	},
+	"require_approval": "always",
+	"enabled": true
+}
