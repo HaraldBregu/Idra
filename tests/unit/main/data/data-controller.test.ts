@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { DataController } from '../../../../../src/main/data/data_controller';
+import { DataController } from '../../../../src/main/data/data_controller';
 
 const sessionId = '11111111-1111-4111-8111-111111111111';
 

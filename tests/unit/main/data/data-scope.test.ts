@@ -1,8 +1,8 @@
 const getWikiSettings = jest.fn(() => ({ targetPath: '/wiki/current' }));
 
-jest.mock('../../../../../src/main/wiki', () => ({ getWikiSettings }));
+jest.mock('../../../../src/main/wiki', () => ({ getWikiSettings }));
 
-import { normalizeDataScope } from '../../../../../src/main/data/data_scope';
+import { normalizeDataScope } from '../../../../src/main/data/data_scope';
 
 it('normalizes exact local RAG and session scopes', () => {
 	expect(

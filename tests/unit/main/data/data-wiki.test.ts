@@ -4,9 +4,9 @@ import path from 'node:path';
 
 const getWikiRepository = jest.fn();
 
-jest.mock('../../../../../src/main/wiki', () => ({ getWikiRepository }));
+jest.mock('../../../../src/main/wiki', () => ({ getWikiRepository }));
 
-import { DataController } from '../../../../../src/main/data/data_controller';
+import { DataController } from '../../../../src/main/data/data_controller';
 
 it('exports and purges only manifest-owned pages and target-scoped wiki state', async () => {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-data-wiki-'));
