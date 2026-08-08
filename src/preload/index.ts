@@ -13,6 +13,7 @@ import { database } from './database';
 import { extensions } from './extensions';
 import { wiki } from './wiki';
 import { win } from './win';
+import { data } from './data';
 
 export { agent } from './agent';
 export { app } from './app';
@@ -27,6 +28,7 @@ export { storage } from './storage';
 export { database } from './database';
 export { extensions } from './extensions';
 export { wiki } from './wiki';
+export { data } from './data';
 
 if (process.contextIsolated) {
 	try {
@@ -44,6 +46,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('search', search);
 		contextBridge.exposeInMainWorld('extensions', extensions);
 		contextBridge.exposeInMainWorld('wiki', wiki);
+		contextBridge.exposeInMainWorld('dataControls', data);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -76,4 +79,6 @@ if (process.contextIsolated) {
 	globalThis.extensions = extensions;
 	// @ts-ignore (define in dts)
 	globalThis.wiki = wiki;
+	// @ts-ignore (define in dts)
+	globalThis.dataControls = data;
 }

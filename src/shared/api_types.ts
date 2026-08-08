@@ -87,6 +87,7 @@ import type {
 import type { WikiRunResult, WikiSettings, WikiStatus } from './wiki_types';
 import type { ContextMenuDescriptor } from './window_types';
 import type { WorkspaceAsset } from './workspace';
+export type { DataApi } from './data_types';
 
 export interface WindowApi {
 	minimize: () => void;

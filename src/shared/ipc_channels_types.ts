@@ -42,6 +42,7 @@ import {
 	VideoChannels,
 	ExtensionChannels,
 	WikiChannels,
+	DataChannels,
 	WindowChannels,
 } from './ipc_channels_definitions';
 type ProviderStoreRecord = StoredProvider | StoredBotProvider;
@@ -466,6 +467,21 @@ export interface WikiInvokeChannelMap {
 	};
 }
 
+export interface DataInvokeChannelMap {
+	[DataChannels.export]: {
+		args: [scope: import('./data_types').DataScope];
+		result: import('./data_types').DataExportResult | undefined;
+	};
+	[DataChannels.previewPurge]: {
+		args: [scope: import('./data_types').DataScope];
+		result: import('./data_types').DataPurgePreview;
+	};
+	[DataChannels.purge]: {
+		args: [scope: import('./data_types').DataScope, confirmationId: string];
+		result: import('./data_types').DataPurgeResult | undefined;
+	};
+}
+
 export interface StorageInvokeChannelMap {
 	[StorageChannels.getStorages]: {
 		args: [];
@@ -799,6 +815,7 @@ export interface InvokeChannelMap
 		ProviderStoreInvokeChannelMap,
 		SearchInvokeChannelMap,
 		WikiInvokeChannelMap,
+		DataInvokeChannelMap,
 		StorageInvokeChannelMap,
 		DatabaseInvokeChannelMap,
 		WindowInvokeChannelMap,

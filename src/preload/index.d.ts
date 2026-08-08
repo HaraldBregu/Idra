@@ -15,6 +15,7 @@ import type {
 	ExtensionsApi,
 	WikiApi,
 	WindowApi,
+	DataApi,
 } from '../shared/api_types';
 
 declare global {
@@ -33,5 +34,6 @@ declare global {
 		search: SearchApi;
 		extensions: ExtensionsApi;
 		wiki: WikiApi;
+		dataControls: DataApi;
 	}
 }

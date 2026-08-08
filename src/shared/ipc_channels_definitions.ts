@@ -219,6 +219,12 @@ export const WikiChannels = {
 	openDirectory: 'wiki:directory:open',
 } as const;
 
+export const DataChannels = {
+	export: 'data:export',
+	previewPurge: 'data:purge:preview',
+	purge: 'data:purge',
+} as const;
+
 export const SpeechChannels = {
 	getModelId: 'speech:get-model-id',
 	getProviderId: 'speech:get-provider-id',
