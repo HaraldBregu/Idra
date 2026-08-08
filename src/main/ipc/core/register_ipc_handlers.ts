@@ -12,6 +12,7 @@ import { DatabaseIpc } from '../database';
 import { ExtensionsIpc } from '../extensions';
 import { WikiIpc } from '../wiki';
 import { WindowIpc } from '../window';
+import { DataIpc } from '../data';
 import type { EventBus } from '../../event_bus';
 import type { MainServices } from '../../bootstrap';
 
@@ -39,6 +40,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('database', () => new DatabaseIpc().register(undefined, eventBus));
 	safeRegister('extensions', () => new ExtensionsIpc().register({ windowFactory }, eventBus));
 	safeRegister('wiki', () => new WikiIpc().register(undefined, eventBus));
+	safeRegister('data', () => new DataIpc().register({ agent: agentService }, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
 	logger.info('Bootstrap', 'Registered IPC modules');
