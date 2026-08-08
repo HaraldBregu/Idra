@@ -3,8 +3,9 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import type { McpServerInfo, McpStdioData } from '../../shared/mcp_types';
 import { listLocalMcpServers } from './mcp_local_list';
+import { importLocalMcpServers } from './mcp_local_import';
 import { readLocalMcpServer } from './mcp_local_read';
-import { mcpLocalRoot } from './mcp_local_root';
+import { mcpLocalDiscoveryRoots, mcpLocalRoot } from './mcp_local_root';
 
 export function configureLocalMcpServer(
 	id: string,
@@ -50,10 +51,22 @@ export function configureLocalMcpServer(
 		throw new Error('enabled must be a boolean.');
 	}
 
-	const server = listLocalMcpServers(root).servers.find((entry) => entry.id === serverId);
+	const localRoot = mcpLocalRoot();
+	const localRootLocation = path.resolve(root, '..', '..');
+	const searchRoots = localRootLocation === localRoot ? undefined : localRootLocation;
+	let server = listLocalMcpServers(mcpLocalDiscoveryRoots(searchRoots)).servers.find(
+		(entry) => entry.id === serverId
+	);
 	if (!server?.path) throw new Error(`No local MCP server "${id}".`);
 	if (server.data.type !== 'stdio')
 		throw new Error('Local MCP servers require stdio configuration.');
+	if (!server.path.startsWith(root)) {
+		const importResult = importLocalMcpServers([server.path], root);
+		if (importResult.imported.length === 0) {
+			throw new Error(importResult.skipped[0]?.reason ?? `Unable to configure local MCP server "${id}".`);
+		}
+		server = readLocalMcpServer(path.resolve(root, server.id));
+	}
 
 	const manifestPath = path.join(server.path, 'mcp.json');
 	const temporaryPath = path.join(server.path, `.mcp-${randomUUID()}.json`);
