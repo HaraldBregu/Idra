@@ -32,6 +32,9 @@ export async function indexRag(
 	const temporaryOutputFile = `${outputFile}.tmp`;
 	const pinecone = ragClient();
 	let index: ReturnType<Pinecone['index']> | undefined;
+	let embeddingIdentity:
+		| { providerId: string; modelId: string; dimensions: number }
+		| undefined;
 	let vectors = 0;
 	let indexedFiles = 0;
 
@@ -45,55 +48,54 @@ export async function indexRag(
 					texts: batch,
 					inputType: 'document',
 					requireRemote: true,
-					});
-					if (!index) {
-						index = (
-							await ensureIndex(pinecone, selectedIndexName, embedded.dimensions)
-						).namespace(activeNamespace);
-						await mkdir(outputDirectory, { recursive: true });
-						const metadata = JSON.stringify({
-							indexName: selectedIndexName,
-							activeNamespace,
-							providerId: embedded.providerId,
+				});
+				if (!index) {
+					embeddingIdentity = {
+						providerId: embedded.providerId,
 						modelId: embedded.modelId,
 						dimensions: embedded.dimensions,
+					};
+					index = (
+						await ensureIndex(pinecone, selectedIndexName, embedded.dimensions)
+					).namespace(activeNamespace);
+					await mkdir(outputDirectory, { recursive: true });
+					const metadata = JSON.stringify({
+						indexName: selectedIndexName,
+						activeNamespace,
+						...embeddingIdentity,
 					});
 					await writeFile(temporaryOutputFile, `${metadata.slice(0, -1)},"records":[`, 'utf8');
 				}
-					const remoteRecords = batch.map((_text, offset) => ({
-						id: `${sourceIndex}:${file}#${start + offset}`,
-						values: embedded.embeddings[offset],
-					}));
-					const localRecords = batch.map((text, offset) => ({
-						...remoteRecords[offset],
-						metadata: { path: path.join(path.basename(source), file), text },
-					}));
-					await index.upsert({ records: remoteRecords });
-					await appendFile(
-						temporaryOutputFile,
-						`${vectors > 0 ? ',' : ''}${localRecords.map((record) => JSON.stringify(record)).join(',')}`,
+				const remoteRecords = batch.map((_text, offset) => ({
+					id: `${sourceIndex}:${file}#${start + offset}`,
+					values: embedded.embeddings[offset],
+				}));
+				const localRecords = batch.map((text, offset) => ({
+					...remoteRecords[offset],
+					metadata: { path: path.join(path.basename(source), file), text },
+				}));
+				await index.upsert({ records: remoteRecords });
+				await appendFile(
+					temporaryOutputFile,
+					`${vectors > 0 ? ',' : ''}${localRecords.map((record) => JSON.stringify(record)).join(',')}`,
 					'utf8'
 				);
 				vectors += batch.length;
 			}
 		}
-			if (!index) throw new Error('No indexable text content found in the selected source folders.');
-			await appendFile(temporaryOutputFile, ']}\n', 'utf8');
-			await rename(temporaryOutputFile, outputFile);
-			writeRagManifest({
-				indexName: selectedIndexName,
-				activeNamespace,
-				artifactFile,
-				providerId: JSON.parse(await import('node:fs/promises').then(({ readFile }) => readFile(outputFile, 'utf8')))
-					.providerId,
-				modelId: JSON.parse(await import('node:fs/promises').then(({ readFile }) => readFile(outputFile, 'utf8')))
-					.modelId,
-				dimensions: JSON.parse(
-					await import('node:fs/promises').then(({ readFile }) => readFile(outputFile, 'utf8'))
-				).dimensions,
-				completedAt: new Date().toISOString(),
-			});
-			return { files: indexedFiles, vectors };
+		if (!index || !embeddingIdentity) {
+			throw new Error('No indexable text content found in the selected source folders.');
+		}
+		await appendFile(temporaryOutputFile, ']}\n', 'utf8');
+		await rename(temporaryOutputFile, outputFile);
+		writeRagManifest({
+			indexName: selectedIndexName,
+			activeNamespace,
+			artifactFile,
+			...embeddingIdentity,
+			completedAt: new Date().toISOString(),
+		});
+		return { files: indexedFiles, vectors };
 	} finally {
 		await rm(temporaryOutputFile, { force: true }).catch(() => undefined);
 	}
