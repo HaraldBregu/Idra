@@ -1,24 +1,16 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ExtensionTitleBar } from './components/app/titlebar/ExtensionTitleBar';
-import { useAppTheme } from './components/app/titlebar/hooks/useAppTheme';
+import { ExtensionShell } from './components/app/titlebar/ExtensionShell';
 import './index.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Impossible to find the extension root element');
 
-let title = 'Extension';
-try {
-	title = decodeURIComponent(window.location.hash.replace(/^#\/?extension\//, '')) || title;
-} catch {}
-
-function ExtensionShell(): React.JSX.Element {
-	useAppTheme();
-	return <ExtensionTitleBar title={title} />;
-}
+const encodedTitle = window.location.hash.replace(/^#\/?extension\//, '');
+const title = encodedTitle ? decodeURIComponent(encodedTitle) : 'Extension';
 
 createRoot(rootElement).render(
 	<StrictMode>
-		<ExtensionShell />
+		<ExtensionShell title={title} />
 	</StrictMode>
 );
