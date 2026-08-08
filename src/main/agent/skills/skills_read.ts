@@ -11,10 +11,16 @@ const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
 
 export function readSkill(folder: string, id: string): SkillInfo | undefined {
 	if (!validateSkill(folder).valid) return undefined;
-	const skillPath = path.join(folder, SKILL_FILE);
-	const canonicalSkillPath = fs.realpathSync(skillPath);
-	const source = fs.readFileSync(canonicalSkillPath, 'utf8');
-	const fm = matter(source).data as Partial<SkillManifest>;
+	let canonicalSkillPath: string;
+	let source: string;
+	let fm: Partial<SkillManifest>;
+	try {
+		canonicalSkillPath = fs.realpathSync(path.join(folder, SKILL_FILE));
+		source = fs.readFileSync(canonicalSkillPath, 'utf8');
+		fm = matter(source).data as Partial<SkillManifest>;
+	} catch {
+		return undefined;
+	}
 	const name = typeof fm.name === 'string' && fm.name.trim() ? fm.name : id;
 	const description = typeof fm.description === 'string' ? fm.description : '';
 	const manifest: SkillManifest = {

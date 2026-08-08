@@ -15,9 +15,11 @@ export function validateSkill(folder: string): SkillValidationResult {
 	}
 	let canonicalFolder: string;
 	let canonicalSkillPath: string;
+	let skillSize: number;
 	try {
 		canonicalFolder = fs.realpathSync(folder);
 		canonicalSkillPath = fs.realpathSync(skillPath);
+		skillSize = fs.statSync(canonicalSkillPath).size;
 	} catch {
 		return {
 			valid: false,
@@ -36,7 +38,7 @@ export function validateSkill(folder: string): SkillValidationResult {
 			],
 		};
 	}
-	if (fs.statSync(canonicalSkillPath).size > SKILL_MAX_BYTES) {
+	if (skillSize > SKILL_MAX_BYTES) {
 		return {
 			valid: false,
 			issues: [
