@@ -37,6 +37,9 @@ export type LlmEvent =
 			model: string;
 			stopReason?: string;
 			usage?: LlmResponse['usage'];
+			durationMs?: number;
+			firstTokenLatencyMs?: number;
+			retryCount?: number;
 	  };
 
 export interface LlmProviderSpec {

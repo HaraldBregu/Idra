@@ -27,6 +27,8 @@ export async function* runModelTurn(
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	const maxRetries = 1;
 	for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+		const attemptStartedAt = Date.now();
+		let firstTokenAt: number | undefined;
 		let visibleOutput = false;
 		let content = '';
 		let model = modelId;
@@ -52,7 +54,10 @@ export async function* runModelTurn(
 					event.type === 'model_call_delta' ||
 					event.type === 'model_tool_call_start' ||
 					event.type === 'model_tool_call_args_delta'
-				) visibleOutput = true;
+				) {
+					visibleOutput = true;
+					firstTokenAt ??= Date.now();
+				}
 				if (event.type === 'model_call_delta') content += event.delta;
 				if (event.type === 'model_provider_item') {
 					providerItems.push({
@@ -72,6 +77,13 @@ export async function* runModelTurn(
 					model = event.model;
 					stopReason = event.stopReason;
 					usage = event.usage;
+					yield {
+						...event,
+						durationMs: Date.now() - attemptStartedAt,
+						...(firstTokenAt ? { firstTokenLatencyMs: firstTokenAt - attemptStartedAt } : {}),
+						retryCount: attempt,
+					};
+					continue;
 				}
 				yield event;
 			}

@@ -35,6 +35,11 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 			...(typeof event.model === 'string' ? { model: event.model } : {}),
 			...(typeof event.effort === 'string' ? { effort: event.effort } : {}),
 			...(typeof event.stopReason === 'string' ? { stopReason: event.stopReason } : {}),
+			...(typeof event.durationMs === 'number' ? { durationMs: event.durationMs } : {}),
+			...(typeof event.firstTokenLatencyMs === 'number'
+				? { firstTokenLatencyMs: event.firstTokenLatencyMs }
+				: {}),
+			...(typeof event.retryCount === 'number' ? { retryCount: event.retryCount } : {}),
 			...(usage
 				? {
 						usage: {
@@ -65,6 +70,15 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 			...(typeof event.toolName === 'string' ? { toolName: event.toolName } : {}),
 			...(typeof event.isError === 'boolean' ? { isError: event.isError } : {}),
 			...(typeof event.durationMs === 'number' ? { durationMs: event.durationMs } : {}),
+			...(typeof event.permissionOutcome === 'string'
+				? { permissionOutcome: event.permissionOutcome }
+				: {}),
+		};
+	}
+	if (event.type === 'run_queue_metrics') {
+		return {
+			type: event.type,
+			...(typeof event.queueDelayMs === 'number' ? { queueDelayMs: event.queueDelayMs } : {}),
 		};
 	}
 	if (event.type === 'tool_permission_request') {

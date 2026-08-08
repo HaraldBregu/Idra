@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import {
 	clearMessages as clearSessionMessages,
+	appendRun,
 	deleteSession as deleteStoredSession,
 	createSessionState,
 	init,
@@ -150,6 +151,7 @@ export class Agent {
 			} satisfies RuntimeInput;
 
 			init(session, this.config, input, options.category);
+			appendRun(session, { type: 'run_queue_metrics', queueDelayMs: Date.now() - command.queuedAt });
 
 			const timeoutSignal = AbortSignal.timeout(10 * 60_000);
 			const runSignal = AbortSignal.any([controller.signal, timeoutSignal]);

@@ -190,5 +190,6 @@ export type RuntimeEvent =
 			output: unknown;
 			isError?: boolean;
 			durationMs: number;
+			permissionOutcome?: 'allow' | 'deny' | 'approve' | 'approve_always' | 'reject';
 	  }
 	| { type: 'run_finished'; result: RuntimeOutput };

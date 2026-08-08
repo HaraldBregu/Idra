@@ -53,6 +53,7 @@ export async function* runToolCall(
 
 	let output: unknown;
 	let isError: boolean | undefined;
+	let permissionOutcome: 'allow' | 'deny' | 'approve' | 'approve_always' | 'reject' | undefined;
 
 	if (!tool) {
 		output = `Error: unknown tool '${toolCall.name}'`;
@@ -114,6 +115,7 @@ export async function* runToolCall(
 				expiresAtMs,
 				hardApproval,
 			});
+			permissionOutcome = decision;
 			if (decision === 'reject' && tool.stopOnReject && context) context.cancelled = true;
 			if (decision === 'approve_always' && !hardApproval) {
 				if (targets.length === 0) {
@@ -125,6 +127,7 @@ export async function* runToolCall(
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}
+		permissionOutcome ??= permission;
 
 		if (permission === 'deny') {
 			output = `Error: permission denied for '${toolCall.name}'`;
@@ -167,6 +170,7 @@ export async function* runToolCall(
 		output,
 		isError,
 		durationMs: Date.now() - startedAtMs,
+		...(permissionOutcome ? { permissionOutcome } : {}),
 	};
 
 	toolCall.result = {
