@@ -33,6 +33,7 @@ function WorkspaceTree({
 	movingPath,
 	onCreateRequest,
 	onDeleteRequest,
+	onRenameRequest,
 	onDragEnd,
 	onDragLeave,
 	onDragOver,
@@ -53,6 +54,7 @@ function WorkspaceTree({
 	movingPath: string | null;
 	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
 	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
+	onRenameRequest: (entry: WorkspaceTreeEntry) => void;
 	onDragEnd: () => void;
 	onDragLeave: (event: DragEvent<HTMLElement>, path: string) => void;
 	onDragOver: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
@@ -85,6 +87,7 @@ function WorkspaceTree({
 							movingPath={movingPath}
 							onCreateRequest={onCreateRequest}
 							onDeleteRequest={onDeleteRequest}
+							onRenameRequest={onRenameRequest}
 							onDragEnd={onDragEnd}
 							onDragLeave={onDragLeave}
 							onDragOver={onDragOver}
@@ -105,6 +108,7 @@ interface AppSidebarProps {
 	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
 	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
 	onMoveRequest: (entry: WorkspaceTreeEntry, destinationPath: string) => Promise<string>;
+	onRenameRequest: (entry: WorkspaceTreeEntry) => void;
 	onWorkspaceSelect: (entry: WorkspaceTreeEntry) => void;
 	selectedWorkspacePath: string | null;
 	workspaceError: string;
@@ -123,6 +127,7 @@ function WorkspaceTreeItem({
 	movingPath,
 	onCreateRequest,
 	onDeleteRequest,
+	onRenameRequest,
 	onDragEnd,
 	onDragLeave,
 	onDragOver,
@@ -141,6 +146,7 @@ function WorkspaceTreeItem({
 	movingPath: string | null;
 	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
 	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
+	onRenameRequest: (entry: WorkspaceTreeEntry) => void;
 	onDragEnd: () => void;
 	onDragLeave: (event: DragEvent<HTMLElement>, path: string) => void;
 	onDragOver: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
@@ -185,6 +191,8 @@ function WorkspaceTreeItem({
 								] as const)
 							: []),
 						{ type: 'separator' },
+						{ id: 'rename', label: isDirectory ? 'Rename Folder' : 'Rename File' },
+						{ type: 'separator' },
 						{ id: 'copy-path', label: 'Copy Path' },
 						{ type: 'separator' },
 						{
@@ -197,10 +205,16 @@ function WorkspaceTreeItem({
 						open: () => onSelect(entry),
 						'new-file': () => onCreateRequest(entry.path, 'file'),
 						'new-folder': () => onCreateRequest(entry.path, 'directory'),
+						rename: () => onRenameRequest(entry),
 						'copy-path': () => navigator.clipboard.writeText(entry.path),
 						delete: () => onDeleteRequest(entry),
 					}
 				);
+			}}
+			onDoubleClick={(event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				onRenameRequest(entry);
 			}}
 			onClick={() => {
 				if (!isDirectory) onSelect(entry);
@@ -263,6 +277,7 @@ function WorkspaceTreeItem({
 								movingPath={movingPath}
 								onCreateRequest={onCreateRequest}
 								onDeleteRequest={onDeleteRequest}
+								onRenameRequest={onRenameRequest}
 								onDragEnd={onDragEnd}
 								onDragLeave={onDragLeave}
 								onDragOver={onDragOver}
@@ -284,6 +299,7 @@ export function AppSidebar({
 	onCreateRequest,
 	onDeleteRequest,
 	onMoveRequest,
+	onRenameRequest,
 	onWorkspaceSelect,
 	selectedWorkspacePath,
 	workspaceError,
@@ -547,6 +563,7 @@ export function AppSidebar({
 										movingPath={movingPath}
 										onCreateRequest={onCreateRequest}
 										onDeleteRequest={onDeleteRequest}
+										onRenameRequest={onRenameRequest}
 										onDragEnd={endDrag}
 										onDragLeave={dragLeaveTarget}
 										onDragOver={dragOverEntry}
@@ -576,6 +593,7 @@ export function AppSidebar({
 					movingPath={movingPath}
 					error={workspaceError}
 					onDeleteRequest={onDeleteRequest}
+					onRenameRequest={onRenameRequest}
 					onDragEnd={endDrag}
 					onDragLeave={dragLeaveTarget}
 					onDragOver={dragOverEntry}
