@@ -130,4 +130,41 @@ describe('run stream system prompt', () => {
 			result: { stopReason: 'error' },
 		});
 	});
+
+	it('emits one terminal event even when terminal trace persistence fails', async () => {
+		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-run-trace-failure-'));
+		const nodeFs = await import('node:fs');
+		const append = jest.spyOn(nodeFs, 'appendFileSync').mockImplementation(() => {
+			throw new Error('trace disk full');
+		});
+		try {
+			const session = createSessionState();
+			session.id = '11111111-1111-4111-8111-111111111111';
+			session.folderName = session.id;
+			session.sessionsPath = root;
+			const events = [];
+
+			for await (const event of stream(
+				{ location: '/workspace' },
+				session,
+				{
+					runId: 'run',
+					task: 'chat',
+					message: 'request',
+					model: 'test-model',
+					origin: 'main',
+					contextMode: 'minimal',
+				},
+				new AbortController().signal,
+				{ tools: [] }
+			)) events.push(event);
+
+			expect(events.filter((event) => event.type === 'run_finished')).toHaveLength(1);
+			expect(events.at(-1)?.type).toBe('run_finished');
+			expect(session.runTraceBuffer.length).toBeGreaterThan(0);
+		} finally {
+			append.mockRestore();
+			await fs.rm(root, { recursive: true, force: true });
+		}
+	});
 });

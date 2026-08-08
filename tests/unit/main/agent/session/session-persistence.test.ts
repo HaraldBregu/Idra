@@ -103,12 +103,19 @@ describe('session persistence', () => {
 			output: 'private contents',
 			durationMs: 4,
 		});
+		expect(fs.existsSync(runFilePath(state))).toBe(false);
+		appendRun(state, {
+			type: 'run_finished',
+			result: { sessionId: SESSION_ID, text: 'private final answer' },
+		});
 
 		const trace = fs.readFileSync(runFilePath(state), 'utf8');
-		expect(trace.trim().split('\n')).toHaveLength(1);
+		expect(trace.trim().split('\n')).toHaveLength(2);
 		expect(trace).toContain('"durationMs":4');
 		expect(trace).not.toContain('private answer');
+		expect(trace).not.toContain('private final answer');
 		expect(trace).not.toContain('/private/file');
 		expect(trace).not.toContain('private contents');
+		expect(state.runTraceBuffer).toEqual([]);
 	});
 });
