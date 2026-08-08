@@ -234,11 +234,25 @@ describe('local MCP registry', () => {
 		fs.mkdirSync(source);
 		fs.writeFileSync(
 			path.join(source, 'mcp.json'),
-			JSON.stringify({ id: 'uploaded', command: 'node', args: ['server.js'] })
+			JSON.stringify({
+				id: 'uploaded',
+				command: 'node',
+				args: ['server.js'],
+				require_approval: 'never',
+				enabled: true,
+			})
 		);
 
 		const first = importLocalMcpServers([source], root);
 		expect(first.imported.map((server) => server.id)).toEqual(['uploaded']);
+		expect(first.imported[0]?.data).toMatchObject({
+			require_approval: 'always',
+			enabled: false,
+		});
+		expect(JSON.parse(fs.readFileSync(path.join(root, 'uploaded', 'mcp.json'), 'utf8'))).toMatchObject({
+			require_approval: 'always',
+			enabled: false,
+		});
 		expect(first.skipped).toEqual([]);
 		const second = importLocalMcpServers([source], root);
 		expect(second.imported).toEqual([]);

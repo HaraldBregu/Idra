@@ -82,9 +82,9 @@ export function configureLocalMcpServer(
 		args: input.args ? [...input.args] : undefined,
 		env: input.env ? { ...input.env } : undefined,
 		cwd: input.cwd === serverData.cwd ? manifest.cwd : input.cwd?.trim() || undefined,
-		require_approval: input.require_approval,
+		require_approval: input.require_approval ?? serverData.require_approval,
 		defer_loading: input.defer_loading,
-		enabled: input.enabled,
+		enabled: input.enabled ?? serverData.enabled,
 	};
 
 	try {

@@ -2,21 +2,10 @@ import { callTool, type McpCallResult, type McpClient } from '../../../mcp';
 import { jsonTool } from '../tool';
 import type { JSONSchema } from '../../types';
 import type { McpApprovalPolicy } from '../../../../shared/mcp_types';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null;
-}
-
-function extractText(result: McpCallResult): string {
-	const content = result.content;
-	if (!Array.isArray(content)) return content === undefined ? '' : JSON.stringify(content);
-	const texts = content
-		.filter(
-			(b): b is { text: string } => isRecord(b) && b.type === 'text' && typeof b.text === 'string'
-		)
-		.map((b) => b.text);
-	return texts.length > 0 ? texts.join('\n') : JSON.stringify(content);
-}
+import { MCP_MAX_OUTPUT_BYTES, MCP_TOOL_TIMEOUT_MS } from './limits';
+import { mcpToolName } from './name';
+import { mcpOutputText } from './output';
+import { mcpInputParser } from './schema';
 
 export function mcpTool(
 	client: McpClient,
@@ -24,16 +13,28 @@ export function mcpTool(
 	description: string,
 	schema: JSONSchema,
 	serverId: string,
-	approval?: McpApprovalPolicy
+	approval?: McpApprovalPolicy,
+	runtimeName = mcpToolName(serverId, toolName, new Set())
 ) {
+	const parseInput = mcpInputParser(schema);
 	return jsonTool({
-		name: `mcp__${serverId}__${toolName}`,
+		name: runtimeName,
 		description,
 		defaultPermission: approval === 'never' ? 'allow' : 'ask',
+		hardApproval: approval === 'always',
+		timeoutMs: MCP_TOOL_TIMEOUT_MS,
+		maxOutputBytes: MCP_MAX_OUTPUT_BYTES,
+		parseInput,
 		schema,
-		execute: async (input) => {
-			const result = (await callTool(client, toolName, input)) as McpCallResult;
-			const text = extractText(result);
+		execute: async (input, signal) => {
+			const result = (await callTool(
+				client,
+				toolName,
+				input,
+				MCP_TOOL_TIMEOUT_MS,
+				signal
+			)) as McpCallResult;
+			const text = mcpOutputText(result);
 			if (result.isError) throw new Error(text || `MCP tool ${toolName} failed.`);
 			return text;
 		},

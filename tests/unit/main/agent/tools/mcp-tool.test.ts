@@ -1,26 +1,60 @@
-jest.mock('electron-store', () =>
-	jest.fn().mockImplementation((options: { defaults?: unknown }) => {
-		let backing = structuredClone(options.defaults ?? {});
-		return {
-			get store() {
-				return backing;
-			},
-			set store(value: unknown) {
-				backing = value;
-			},
-		};
-	})
-);
+const callToolMock = jest.fn();
+
+jest.mock('../../../../../src/main/mcp', () => ({
+	callTool: (...args: unknown[]) => callToolMock(...args),
+}));
 
 import { mcpTool } from '../../../../../src/main/agent/tools/mcp/tool';
-import type { McpClient } from '../../../../../src/main/agent/mcp';
+import { MCP_MAX_OUTPUT_BYTES } from '../../../../../src/main/agent/tools/mcp/limits';
+import type { McpClient } from '../../../../../src/main/mcp';
 
 const client = {} as McpClient;
+const schema = {
+	type: 'object',
+	properties: { query: { type: 'string' } },
+	required: ['query'],
+} as const;
 
 describe('mcpTool', () => {
+	beforeEach(() => {
+		callToolMock.mockReset();
+	});
+
 	it('maps server approval settings to a fail-safe tool fallback', () => {
-		expect(mcpTool(client, 'lookup', '', {}, 'safe', 'never').defaultPermission).toBe('allow');
-		expect(mcpTool(client, 'delete', '', {}, 'safe', 'always').defaultPermission).toBe('ask');
-		expect(mcpTool(client, 'unknown', '', {}, 'safe').defaultPermission).toBe('ask');
+		expect(mcpTool(client, 'lookup', '', schema, 'safe', 'never')).toMatchObject({
+			defaultPermission: 'allow',
+			hardApproval: false,
+		});
+		expect(mcpTool(client, 'delete', '', schema, 'safe', 'always')).toMatchObject({
+			defaultPermission: 'ask',
+			hardApproval: true,
+		});
+		expect(mcpTool(client, 'unknown', '', schema, 'safe')).toMatchObject({
+			defaultPermission: 'ask',
+			hardApproval: false,
+		});
+	});
+
+	it('validates inputs and forwards timeout plus cancellation to the SDK', async () => {
+		callToolMock.mockResolvedValue({ content: [{ type: 'text', text: 'ok' }] });
+		const signal = new AbortController().signal;
+		const tool = mcpTool(client, 'lookup', '', schema, 'safe', 'never');
+
+		expect(() => tool.parseInput({ query: 1 })).toThrow();
+		const input = tool.parseInput({ query: 'Friday' });
+		await expect(tool.run(input, signal)).resolves.toBe('ok');
+		expect(callToolMock).toHaveBeenCalledWith(client, 'lookup', input, 30_000, signal);
+	});
+
+	it('caps successful and error output before returning it', async () => {
+		const text = 'x'.repeat(MCP_MAX_OUTPUT_BYTES * 2);
+		const tool = mcpTool(client, 'lookup', '', schema, 'safe', 'never');
+		callToolMock.mockResolvedValueOnce({ content: [{ type: 'text', text }] });
+		const output = await tool.run({ query: 'Friday' });
+		expect(Buffer.byteLength(String(output), 'utf8')).toBeLessThanOrEqual(MCP_MAX_OUTPUT_BYTES);
+		expect(output).toContain('[truncated:');
+
+		callToolMock.mockResolvedValueOnce({ isError: true, content: [{ type: 'text', text }] });
+		await expect(tool.run({ query: 'Friday' })).rejects.toThrow('[truncated:');
 	});
 });

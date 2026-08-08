@@ -1,4 +1,13 @@
-import { cpSync, existsSync, mkdirSync, mkdtempSync, renameSync, rmSync } from 'node:fs';
+import {
+	cpSync,
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	renameSync,
+	rmSync,
+	writeFileSync,
+} from 'node:fs';
 import path from 'node:path';
 import type { McpLocalImportResult } from '../../shared/mcp_types';
 import { readLocalMcpServer } from './mcp_local_read';
@@ -21,6 +30,13 @@ export function importLocalMcpServers(
 			}
 			temporary = mkdtempSync(path.join(root, '.import-'));
 			cpSync(source, temporary, { recursive: true, force: false, errorOnExist: true });
+			const manifestPath = path.join(temporary, 'mcp.json');
+			const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+			writeFileSync(
+				manifestPath,
+				`${JSON.stringify({ ...manifest, require_approval: 'always', enabled: false }, null, '\t')}\n`,
+				'utf8'
+			);
 			renameSync(temporary, destination);
 			temporary = undefined;
 			imported.push(readLocalMcpServer(destination));
