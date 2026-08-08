@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import Store from 'electron-store';
 import { realPath } from '../shared/real_path';
 import { wikiFailureStore, type WikiFailureRegistry } from './wiki_failure_store';
