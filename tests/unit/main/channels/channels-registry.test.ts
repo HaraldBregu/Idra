@@ -7,10 +7,6 @@ const mockAdapterOnMessage = jest.fn();
 const mockAdapterOnStatus = jest.fn();
 let mockInboundHandler: ((message: ChannelInboundMessage) => void) | undefined;
 
-jest.mock('uuid', () => ({
-	v5: jest.fn(() => '4c15bc8c-273f-5dfa-8331-c6a1c82d1ae3'),
-}));
-
 jest.mock('../../../../src/main/channels/channels_store', () => ({
 	getChannelProvider: (...args: unknown[]) => mockGetChannelProvider(...args),
 	getChannelModelSelection: (...args: unknown[]) => mockGetChannelModelSelection(...args),
