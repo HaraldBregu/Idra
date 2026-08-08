@@ -1,6 +1,7 @@
 export { addAssistantMessage } from './session_add_assistant_message';
 export { addToolResults } from './session_add_tool_results';
 export { appendRun } from './session_append_run';
+export { tryAppendRun } from './session_try_append_run';
 export { clearMessages } from './session_clear_messages';
 export { deleteSession } from './session_delete_session';
 export { init } from './session_init';
@@ -12,6 +13,7 @@ export { persistSystemPrompt } from './session_persist_system';
 export { recordTurn } from './session_record_turn';
 export { requireUuidSessionId } from './session_require_uuid';
 export { resolveSessionId } from './session_resolve_session_id';
+export { resolveStoredSessionId } from './session_resolve_stored_session_id';
 export { sessionDir } from './session_session_dir';
 export { sessionFolderName } from './session_session_folder_name';
 export { sessionPath } from './session_session_path';

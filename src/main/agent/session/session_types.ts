@@ -29,6 +29,7 @@ export interface SessionInput {
 	message: string;
 	files?: AgentInputFile[];
 	sessionId?: string;
+	legacySessionId?: string;
 	messages?: Message[];
 	model?: string;
 	effort?: ModelReasoningEffort;
@@ -61,5 +62,6 @@ export interface SessionState {
 	stopReason?: string;
 	sessionsPath: string;
 	folderName: string;
+	runTraceBuffer: string[];
 	context: AgentContext;
 }

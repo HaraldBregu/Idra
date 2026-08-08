@@ -20,9 +20,10 @@ export function init(
 	state.folderName = sessionFolderName(state.id);
 	state.sessionsPath = sessionsRoot(config.location);
 	const storedMessages = loadMessagesBySessionId(state.id, config.location);
+	const legacySessionId = input.legacySessionId ?? input.sessionId;
 	const legacyMessages =
-		input.sessionId && input.sessionId !== state.id && storedMessages.length === 0
-			? loadMessagesBySessionId(input.sessionId, config.location)
+		legacySessionId && legacySessionId !== state.id && storedMessages.length === 0
+			? loadMessagesBySessionId(legacySessionId, config.location)
 			: [];
 	state.messages = sanitizeMessages([
 		...(storedMessages.length > 0 ? storedMessages : legacyMessages),
@@ -38,6 +39,7 @@ export function init(
 	state.numTurns = 0;
 	state.finalText = '';
 	state.stopReason = undefined;
+	state.runTraceBuffer = [];
 	persist(state);
 }
 

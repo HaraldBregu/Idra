@@ -3,9 +3,9 @@ import { getModelId, getModelOptions, getProviderId } from '../agent_store';
 import {
 	addAssistantMessage,
 	addToolResults,
-	appendRun,
 	isExhausted,
 	recordTurn,
+	tryAppendRun,
 	toResult,
 	type SessionState,
 } from '../session';
@@ -79,12 +79,12 @@ export async function* stream(
 	let terminal = false;
 	try {
 		for await (const event of loop(config, session, input, signal, options)) {
-			if (event.type === 'run_finished') terminal = true;
-			appendRun(session, event);
+			tryAppendRun(session, event);
 			yield event;
+			if (event.type === 'run_finished') terminal = true;
 		}
 	} catch (error) {
-		appendRun(session, {
+		tryAppendRun(session, {
 			type: 'run_error',
 			message: error instanceof Error ? error.message : String(error),
 		});
@@ -95,8 +95,9 @@ export async function* stream(
 					: 'cancelled'
 				: 'error';
 			const event = { type: 'run_finished', result: toResult(session, 'success') } as const;
-			appendRun(session, event);
+			tryAppendRun(session, event);
 			yield event;
+			terminal = true;
 		}
 		if (!signal.aborted) throw error;
 		return;
@@ -108,8 +109,9 @@ export async function* stream(
 				: 'cancelled'
 			: 'error';
 		const event = { type: 'run_finished', result: toResult(session, 'success') } as const;
-		appendRun(session, event);
+		tryAppendRun(session, event);
 		yield event;
+		terminal = true;
 	}
 }
 

@@ -14,6 +14,7 @@ export function createSessionState(): SessionState {
 		finalText: '',
 		sessionsPath: '',
 		folderName: '',
+		runTraceBuffer: [],
 		context: createContext(),
 	};
 }

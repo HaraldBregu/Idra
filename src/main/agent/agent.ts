@@ -2,12 +2,14 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import {
 	clearMessages as clearSessionMessages,
-	appendRun,
 	deleteSession as deleteStoredSession,
 	createSessionState,
 	init,
 	listSessions,
 	loadMessages,
+	resolveSessionId,
+	resolveStoredSessionId,
+	tryAppendRun,
 	type SessionCategory,
 	type SessionState,
 } from './session';
@@ -48,6 +50,10 @@ export interface AgentSendOptions extends AgentRunOptions {
 	category?: SessionCategory;
 	modelId?: string;
 	streamEvent?: (event: AgentResponseEvent) => void;
+}
+
+interface InternalAgentSendOptions extends AgentSendOptions {
+	legacySessionId?: string;
 }
 
 export class Agent {
@@ -97,15 +103,24 @@ export class Agent {
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
-		const command: AgentCommand<AgentSendOptions> = {
+		const category = options.category ?? 'main';
+		const sessionId = resolveSessionId(options.sessionId, this.config.location, category);
+		const commandOptions: InternalAgentSendOptions = {
+			...options,
+			sessionId,
+			...(options.sessionId && options.sessionId !== sessionId
+				? { legacySessionId: options.sessionId }
+				: {}),
+		};
+		const command: AgentCommand<InternalAgentSendOptions> = {
 			id: options.runId ?? randomUUID(),
 			agentId: agentId.trim(),
 			message,
-			options,
+			options: commandOptions,
 			queuedAt: Date.now(),
 		};
 		enqueueCommand(this.state, command);
-		const sessionKey = options.sessionId ?? `${options.category ?? 'main'}:${command.agentId}`;
+		const sessionKey = sessionId;
 		const controller = new AbortController();
 		const active: ActiveAgentRun = { agentId: command.agentId, sessionKey, controller };
 		const run = this.scheduler.run(sessionKey, () => this.process(command, controller));
@@ -119,7 +134,7 @@ export class Agent {
 	}
 
 	private async process(
-		command: AgentCommand<AgentSendOptions>,
+		command: AgentCommand<InternalAgentSendOptions>,
 		controller: AbortController
 	): Promise<string> {
 		if (!this.state.pending.includes(command)) return '';
@@ -146,12 +161,16 @@ export class Agent {
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
 				...(options.files?.length ? { files: options.files } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
+				...(options.legacySessionId ? { legacySessionId: options.legacySessionId } : {}),
 				...(options.providerId ? { providerId: options.providerId } : {}),
 				...(options.model ?? options.modelId ? { model: options.model ?? options.modelId } : {}),
 			} satisfies RuntimeInput;
 
 			init(session, this.config, input, options.category);
-			appendRun(session, { type: 'run_queue_metrics', queueDelayMs: Date.now() - command.queuedAt });
+			tryAppendRun(session, {
+				type: 'run_queue_metrics',
+				queueDelayMs: Date.now() - command.queuedAt,
+			});
 
 			const timeoutSignal = AbortSignal.timeout(10 * 60_000);
 			const runSignal = AbortSignal.any([controller.signal, timeoutSignal]);
@@ -194,16 +213,18 @@ export class Agent {
 	}
 
 	async clearMessages(sessionId: string): Promise<void> {
-		await this.cancelSession(sessionId);
-		await this.scheduler.run(sessionId, async () => {
-			clearSessionMessages(createSessionState(), this.config, sessionId);
+		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
+		await this.cancelSession(resolvedSessionId);
+		await this.scheduler.run(resolvedSessionId, async () => {
+			clearSessionMessages(createSessionState(), this.config, resolvedSessionId);
 		});
 	}
 
 	async deleteSession(sessionId: string): Promise<void> {
-		await this.cancelSession(sessionId);
-		await this.scheduler.run(sessionId, async () => {
-			deleteStoredSession(createSessionState(), this.config, sessionId);
+		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
+		await this.cancelSession(resolvedSessionId);
+		await this.scheduler.run(resolvedSessionId, async () => {
+			deleteStoredSession(createSessionState(), this.config, resolvedSessionId);
 		});
 	}
 
@@ -228,7 +249,7 @@ export class Agent {
 
 	private async cancelSession(sessionId: string): Promise<void> {
 		this.state.pending = this.state.pending.filter(
-			(command) => (command.options as AgentSendOptions).sessionId !== sessionId
+			(command) => (command.options as InternalAgentSendOptions).sessionId !== sessionId
 		);
 		const matching = [...this.activeRuns.values()].filter(
 			(active) => active.sessionKey === sessionId

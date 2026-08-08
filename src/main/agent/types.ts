@@ -128,6 +128,7 @@ export interface RuntimeInput extends Pick<
 	SessionInput,
 	'sessionId' | 'messages' | 'model' | 'effort' | 'maxTurns' | 'maxIterations' | 'files'
 > {
+	legacySessionId?: string;
 	runId: string;
 	task: string;
 	message: string;
