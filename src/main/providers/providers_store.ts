@@ -2,7 +2,6 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
 import type { StoredProvider } from '../../shared/provider_types';
-import type { McpRecord } from '../mcp/mcp_types';
 import type { ProvidersStoreState } from './providers_types';
 
 const defaults: ProvidersStoreState = {
@@ -10,7 +9,6 @@ const defaults: ProvidersStoreState = {
 	databases: [],
 	search_engines: [],
 	storages: [],
-	mcp_servers: [],
 };
 
 const store = new Store<ProvidersStoreState>({
@@ -52,14 +50,6 @@ export function getStorageProvidersState(): ProvidersStoreState['storages'] {
 
 export function setStorageProvidersState(value: ProvidersStoreState['storages']): void {
 	store.set('storages', value);
-}
-
-export function getMcpServersState(): McpRecord[] {
-	return store.get('mcp_servers');
-}
-
-export function setMcpServersState(value: McpRecord[]): void {
-	store.set('mcp_servers', value);
 }
 
 function isStoredProvider(value: unknown): value is StoredProvider {
