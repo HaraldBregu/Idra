@@ -1,0 +1,1 @@
+export const MAX_WIKI_SOURCE_BYTES = 120_000;

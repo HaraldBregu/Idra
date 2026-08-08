@@ -8,8 +8,10 @@ jest.mock('../../../../../src/main/agent/memory/memory_path', () => ({
 	memoryPath: jest.fn(() => '/mem/MEMORY.md'),
 }));
 
-import { saveMemory } from '../../../../../src/main/agent/memory/memory_save';
 import { forgetMemory } from '../../../../../src/main/agent/memory/memory_forget';
+import { listMemories } from '../../../../../src/main/agent/memory/memory_list';
+import { saveMemory } from '../../../../../src/main/agent/memory/memory_save';
+import { MAX_MEMORY_FACT_LENGTH } from '../../../../../src/main/agent/memory/memory_types';
 import type { Config } from '../../../../../src/main/agent/types';
 
 const readFile = fs.readFile as jest.Mock;
@@ -22,44 +24,70 @@ beforeEach(() => {
 });
 
 describe('saveMemory', () => {
-	it('appends a new fact', async () => {
-		readFile.mockResolvedValue('- existing\n');
-		const result = await saveMemory(config, 'a new fact');
-		expect(result).toEqual({ saved: true });
-		expect(writeFile).toHaveBeenCalledWith('/mem/MEMORY.md', '- existing\n- a new fact\n', 'utf8');
+	it('normalizes one line and appends a stable ID', async () => {
+		readFile.mockResolvedValue('# Memory\n');
+		const result = await saveMemory(config, '  prefers\n  concise\tanswers  ');
+
+		expect(result).toMatchObject({
+			saved: true,
+			memory: { id: expect.stringMatching(/^memory-[a-f0-9]{16}$/), fact: 'prefers concise answers' },
+		});
+		expect(writeFile).toHaveBeenCalledWith(
+			'/mem/MEMORY.md',
+			`# Memory\n- [${result.memory.id}] prefers concise answers\n`,
+			'utf8'
+		);
 	});
-	it('adds a newline separator when the file does not end with one', async () => {
-		readFile.mockResolvedValue('- existing');
-		await saveMemory(config, 'x');
-		expect(writeFile).toHaveBeenCalledWith('/mem/MEMORY.md', '- existing\n- x\n', 'utf8');
+
+	it('deduplicates a legacy fact by its derived stable ID', async () => {
+		readFile.mockResolvedValue('- prefers concise answers\n');
+		expect(await saveMemory(config, 'prefers   concise answers')).toMatchObject({ saved: false });
+		expect(writeFile).not.toHaveBeenCalled();
 	});
-	it('does not duplicate an existing fact', async () => {
-		readFile.mockResolvedValue('- dup\n');
-		const result = await saveMemory(config, 'dup');
-		expect(result).toEqual({ saved: false });
+
+	it('rejects oversized facts and likely secrets', async () => {
+		readFile.mockResolvedValue('');
+		await expect(saveMemory(config, 'x'.repeat(MAX_MEMORY_FACT_LENGTH + 1))).rejects.toThrow(
+			'characters or fewer'
+		);
+		await expect(
+			saveMemory(config, 'api_key=abcdefghijklmnopqrstuvwxyz123456')
+		).rejects.toThrow('credential-like content');
 		expect(writeFile).not.toHaveBeenCalled();
 	});
 });
 
+describe('listMemories', () => {
+	it('lists structured and legacy facts with stable IDs', async () => {
+		readFile.mockResolvedValue('- legacy fact\n- [memory-0000000000000000] structured fact\n');
+		const memories = await listMemories(config);
+
+		expect(memories).toEqual([
+			{ id: expect.stringMatching(/^memory-[a-f0-9]{16}$/), fact: 'legacy fact' },
+			{ id: expect.stringMatching(/^memory-[a-f0-9]{16}$/), fact: 'structured fact' },
+		]);
+		expect(memories[1].id).not.toBe('memory-0000000000000000');
+	});
+});
+
 describe('forgetMemory', () => {
-	it('removes matching lines and reports the count', async () => {
-		readFile.mockResolvedValue('- keep this\n- drop the target\n- target again drop');
-		const result = await forgetMemory(config, 'target');
-		expect(result).toEqual({ removed: 2 });
-		expect(writeFile).toHaveBeenCalledWith('/mem/MEMORY.md', '- keep this', 'utf8');
+	it('deletes only the exact stable ID and preserves overlapping facts', async () => {
+		readFile.mockResolvedValue('- target\n- target details\n');
+		const [target, detail] = await listMemories(config);
+		readFile.mockResolvedValue('- target\n- target details\n');
+
+		expect(await forgetMemory(config, target.id)).toEqual({ removed: true, id: target.id });
+		expect(writeFile).toHaveBeenCalledWith('/mem/MEMORY.md', '- target details\n', 'utf8');
+		expect(detail.id).not.toBe(target.id);
 	});
-	it('is case-insensitive', async () => {
-		readFile.mockResolvedValue('- Contains TARGET word');
-		expect(await forgetMemory(config, 'target')).toEqual({ removed: 1 });
-	});
-	it('returns 0 for a blank query without writing', async () => {
-		readFile.mockResolvedValue('- anything');
-		expect(await forgetMemory(config, '   ')).toEqual({ removed: 0 });
-		expect(writeFile).not.toHaveBeenCalled();
-	});
-	it('does not write when nothing matches', async () => {
-		readFile.mockResolvedValue('- keep\n- keep two');
-		expect(await forgetMemory(config, 'zzz')).toEqual({ removed: 0 });
+
+	it('does not write for a missing ID and rejects malformed IDs', async () => {
+		readFile.mockResolvedValue('- existing\n');
+		expect(await forgetMemory(config, 'memory-0000000000000000')).toEqual({
+			removed: false,
+			id: 'memory-0000000000000000',
+		});
+		await expect(forgetMemory(config, 'existing')).rejects.toThrow('valid memory ID');
 		expect(writeFile).not.toHaveBeenCalled();
 	});
 });

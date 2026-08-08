@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -49,6 +50,27 @@ describe('immutable wiki source registration', () => {
 		await expect(
 			registerWikiSource(source, 'operation-secret', path.join(root, 'evidence'))
 		).rejects.toThrow('credential-like file');
+		expect(wikiSourceStore.store.sources).toEqual({});
+	});
+
+	it('scans the complete bytes that are eligible for immutable archival', async () => {
+		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-full-scan-'));
+		const sourcePath = path.join(root, 'notes.md');
+		const bytes = Buffer.from(`Safe prefix\n${'x'.repeat(4_000)}\npassword=abcdefghijklmnopqrstuvwxyz123456`);
+		await writeFile(sourcePath, bytes);
+
+		await expect(
+			registerWikiSource(
+				{
+					absolutePath: sourcePath,
+					relativePath: 'notes.md',
+					content: 'Safe prefix',
+					hash: createHash('sha256').update(bytes).digest('hex'),
+				},
+				'operation-full-scan',
+				path.join(root, 'evidence')
+			)
+		).rejects.toThrow('credential-like content');
 		expect(wikiSourceStore.store.sources).toEqual({});
 	});
 });

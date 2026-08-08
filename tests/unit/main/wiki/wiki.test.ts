@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import matter from 'gray-matter';
@@ -11,6 +11,7 @@ import { parseWikiUpdate } from '../../../../src/main/wiki/wiki_parse_update';
 import { ensureWikiSchema } from '../../../../src/main/wiki/wiki_schema';
 import { wikiSourcePage } from '../../../../src/main/wiki/wiki_source_page';
 import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
+import { MAX_WIKI_SOURCE_BYTES } from '../../../../src/main/wiki/wiki_source_limits';
 import { wikiSettingsStore } from '../../../../src/main/wiki/wiki_settings_store';
 
 describe('wiki settings', () => {
@@ -59,6 +60,26 @@ describe('wiki source ingestion', () => {
 		const firstPage = wikiSourcePage(sources[0]);
 		const changed = { ...sources[0], content: 'changed', hash: 'different' };
 		expect(wikiSourcePage(changed)).toBe(firstPage);
+	});
+
+	it('rejects source symlinks that escape the configured folder', async () => {
+		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-symlink-'));
+		const inbox = path.join(root, 'inbox');
+		const outside = path.join(root, 'outside.md');
+		await mkdir(inbox);
+		await writeFile(outside, 'outside', 'utf8');
+		await symlink(outside, path.join(inbox, 'linked.md'));
+
+		await expect(collectWikiSources(inbox)).rejects.toThrow(
+			'symlink outside the configured wiki folder'
+		);
+	});
+
+	it('rejects oversized sources instead of truncating them', async () => {
+		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-oversized-'));
+		await writeFile(path.join(root, 'large.md'), Buffer.alloc(MAX_WIKI_SOURCE_BYTES + 1, 97));
+
+		await expect(collectWikiSources(root)).rejects.toThrow('Refusing to ingest oversized source');
 	});
 
 	it('validates model updates and rejects traversal or missing source summaries', () => {

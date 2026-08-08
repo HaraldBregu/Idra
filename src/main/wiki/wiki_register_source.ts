@@ -4,6 +4,7 @@ import path from 'node:path';
 import type { WikiRegisteredSource, WikiSource } from './wiki_types';
 import { wikiPaths } from './wiki_paths';
 import { wikiSourceStore } from './wiki_source_store';
+import { MAX_WIKI_SOURCE_BYTES } from './wiki_source_limits';
 import { assertWikiSourceSafe } from './wiki_source_safety';
 
 export async function registerWikiSource(
@@ -11,8 +12,19 @@ export async function registerWikiSource(
 	operationId: string,
 	evidenceRoot = wikiPaths().evidence
 ): Promise<WikiRegisteredSource> {
-	assertWikiSourceSafe(source);
-	const sourceId = `source-${source.hash.slice(0, 16)}`;
+	const bytes = await readFile(source.absolutePath);
+	if (bytes.length > MAX_WIKI_SOURCE_BYTES) {
+		throw new Error(
+			`Refusing to ingest oversized source (${bytes.length} bytes; maximum ${MAX_WIKI_SOURCE_BYTES}): ${source.relativePath}`
+		);
+	}
+	const content = bytes.toString('utf8');
+	assertWikiSourceSafe({ relativePath: source.relativePath, content });
+	const checksum = createHash('sha256').update(bytes).digest('hex');
+	if (checksum !== source.hash)
+		throw new Error(`Source changed while it was being registered: ${source.relativePath}`);
+	const verifiedSource = { ...source, content };
+	const sourceId = `source-${checksum.slice(0, 16)}`;
 	const registry = wikiSourceStore.store;
 	const existing = registry.sources[sourceId];
 	if (existing) {
@@ -23,9 +35,9 @@ export async function registerWikiSource(
 			};
 			wikiSourceStore.store = registry;
 		}
-		return {
-			source: {
-				...source,
+			return {
+				source: {
+					...verifiedSource,
 				sourceId,
 				mediaType: existing.mediaType,
 				createdAt: existing.createdAt,
@@ -36,10 +48,6 @@ export async function registerWikiSource(
 		};
 	}
 
-	const bytes = await readFile(source.absolutePath);
-	const checksum = createHash('sha256').update(bytes).digest('hex');
-	if (checksum !== source.hash)
-		throw new Error(`Source changed while it was being registered: ${source.relativePath}`);
 	const originalName = path.basename(source.relativePath).replace(/[^a-zA-Z0-9._-]+/g, '-');
 	const archiveDirectory = path.resolve(evidenceRoot, sourceId);
 	const archivePath = path.resolve(archiveDirectory, originalName || 'source.txt');
@@ -71,7 +79,7 @@ export async function registerWikiSource(
 		sources: { ...registry.sources, [sourceId]: record },
 	};
 	return {
-		source: { ...source, sourceId, archivePath },
+		source: { ...verifiedSource, sourceId, archivePath },
 		record,
 		isNew: true,
 	};
