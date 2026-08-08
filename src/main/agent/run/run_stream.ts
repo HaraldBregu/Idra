@@ -28,10 +28,13 @@ import { createVideoTool } from '../tools/media/video_create';
 import { createSoundTool } from '../tools/media/sound_create';
 import { recorderMicrophoneTool } from '../tools/system/recorder_microphone';
 import { recorderMicrophoneStatusTool } from '../tools/system/recorder_microphone_status';
+import { recorderMicrophoneStopTool } from '../tools/system/recorder_microphone_stop';
 import { recorderCameraTool } from '../tools/system/recorder_camera';
 import { recorderCameraStatusTool } from '../tools/system/recorder_camera_status';
+import { recorderCameraStopTool } from '../tools/system/recorder_camera_stop';
 import { recorderScreenTool } from '../tools/system/recorder_screen';
 import { recorderScreenStatusTool } from '../tools/system/recorder_screen_status';
+import { recorderScreenStopTool } from '../tools/system/recorder_screen_stop';
 import { saveMemoryTool } from '../tools/memory/save';
 import { forgetMemoryTool } from '../tools/memory/forget';
 import { memoryListTool } from '../tools/memory/list';
@@ -146,10 +149,13 @@ async function* loop(
 				createSoundTool(),
 				recorderMicrophoneTool(),
 				recorderMicrophoneStatusTool,
+				recorderMicrophoneStopTool,
 				recorderCameraTool(),
 				recorderCameraStatusTool,
+				recorderCameraStopTool,
 				recorderScreenTool(),
 				recorderScreenStatusTool,
+				recorderScreenStopTool,
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
 				memoryListTool(config),

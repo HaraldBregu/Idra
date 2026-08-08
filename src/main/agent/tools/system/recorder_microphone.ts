@@ -31,10 +31,11 @@ export function recorderMicrophoneTool(): Tool {
 					'Optional file name for the recording, including the .webm extension (recordings are always WebM). Any directory part is ignored; use directory instead. Defaults to microphone-<timestamp>.webm.'
 				),
 		}),
-		execute: async ({ duration, directory, filename }) => {
+		execute: async ({ duration, directory, filename }, signal) => {
 			const targetDir = resolveUserPath(directory ?? '.', agentLocation());
 			const url = path.join(targetDir, path.basename(filename ?? `microphone-${Date.now()}.webm`));
 			const recording = microphone.start({ url, duration: duration * 1000 });
+			signal?.addEventListener('abort', () => microphone.cancel(recording.id), { once: true });
 			return {
 				id: recording.id,
 				path: recording.url,
