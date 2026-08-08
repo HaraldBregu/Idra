@@ -1,4 +1,5 @@
 import { formatToolOutput } from '../../../../../src/main/agent/run/run_common';
+import { limitToolOutput } from '../../../../../src/main/agent/run/run_limit_output';
 
 describe('formatToolOutput', () => {
 	it('returns strings unchanged', () => {
@@ -20,4 +21,12 @@ describe('formatToolOutput', () => {
 		circular.self = circular;
 		expect(formatToolOutput(circular)).toBe('[object Object]');
 	});
+});
+
+it('bounds undefined and circular tool output without crashing', () => {
+	const circular: { self?: unknown } = {};
+	circular.self = circular;
+
+	expect(limitToolOutput(undefined, 10)).toBeUndefined();
+	expect(limitToolOutput(circular, 10)).toBe(circular);
 });
