@@ -70,13 +70,15 @@ const action = await win.showContextMenu([
 	{ id: 'open', label: 'Open' },
 	{ id: 'copy-path', label: 'Copy Path' },
 ]);
+win.maximize();
+const maximized = await win.isMaximized();
 ```
 
 ## What's available
 
 - `app`: app data + settings APIs exposed by preload (`setTheme`, `getThemeData`, `getLanguage`, etc.)
 - `agent`: workspace APIs exposed by preload, including text reads, typed asset reads, and Markdown writes.
-- `win`: embedded-only window APIs, including native context menus.
+- `win`: embedded-only window APIs, including native context menus and window controls.
 - `connect()`: remote client for the app API and workspace agent APIs.
 - `isFriday()`: host check for in-app mode.
 - `ping()`: validate API reachability in remote mode.

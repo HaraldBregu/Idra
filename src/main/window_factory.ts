@@ -1,4 +1,9 @@
-import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
+import {
+	BrowserWindow,
+	BrowserWindowConstructorOptions,
+	WebContentsView,
+	type WebContents,
+} from 'electron';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from './shared';
@@ -48,6 +53,17 @@ export class WindowFactory {
 		};
 	}
 
+	private secureNavigation(webContents: WebContents): void {
+		webContents.on('will-navigate', (event, url) => {
+			const appUrl = process.env['ELECTRON_RENDERER_URL'] || 'file://';
+			if (is.dev) {
+				if (!url.startsWith(appUrl) && !url.startsWith('file://')) event.preventDefault();
+				return;
+			}
+			if (!url.startsWith('file://')) event.preventDefault();
+		});
+	}
+
 	/**
 	 * Create a BrowserWindow with base security defaults merged with overrides.
 	 */
@@ -86,24 +102,17 @@ export class WindowFactory {
 		// 	return { action: 'deny' };
 		// });
 
-		// Prevent navigation to external URLs
-		win.webContents.on('will-navigate', (event, url) => {
-			const appUrl = process.env['ELECTRON_RENDERER_URL'] || 'file://';
-			if (is.dev) {
-				// In dev mode, only allow navigation within the dev server
-				if (!url.startsWith(appUrl) && !url.startsWith('file://')) {
-					event.preventDefault();
-				}
-			} else {
-				// In production, only allow file:// URLs (local files)
-				if (!url.startsWith('file://')) {
-					event.preventDefault();
-				}
-			}
-		});
+		this.secureNavigation(win.webContents);
 
 		this.loadContent(win, content);
 		return win;
+	}
+
+	createView(file: string): WebContentsView {
+		const view = new WebContentsView({ webPreferences: this.getBaseWebPreferences() });
+		this.secureNavigation(view.webContents);
+		void view.webContents.loadFile(file);
+		return view;
 	}
 
 	/**

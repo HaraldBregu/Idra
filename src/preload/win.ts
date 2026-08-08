@@ -6,6 +6,9 @@ export const win: WindowApi = {
 	minimize: (): void => {
 		typedSend(WindowChannels.minimize);
 	},
+	maximize: (): void => {
+		typedSend(WindowChannels.maximize);
+	},
 	close: (): void => {
 		typedSend(WindowChannels.close);
 	},
@@ -14,6 +17,12 @@ export const win: WindowApi = {
 	},
 	showContextMenu: (items) => {
 		return typedInvokeUnwrap(WindowChannels.showContextMenu, items);
+	},
+	isMaximized: (): Promise<boolean> => {
+		return typedInvokeUnwrap(WindowChannels.isMaximized);
+	},
+	onMaximizeChange: (callback: (isMaximized: boolean) => void): (() => void) => {
+		return typedOn(WindowChannels.maximizeChange, callback);
 	},
 	isFullScreen: (): Promise<boolean> => {
 		return typedInvokeUnwrap(WindowChannels.isFullScreen);

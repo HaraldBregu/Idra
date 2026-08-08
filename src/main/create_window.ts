@@ -2,6 +2,7 @@ import type { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import type { AppState } from './app_state';
 import type { RendererContentOptions, WindowFactory } from './window_factory';
 import type { WindowContextManager } from './window_context';
+import { attachWindowHandlers } from './window_events';
 
 const DEFAULT_WINDOW_WIDTH = 440;
 const DEFAULT_WINDOW_HEIGHT = 600;
@@ -33,37 +34,6 @@ export class Main {
 		// Constructor is now minimal
 		// All services are managed by ServiceContainer in bootstrap
 		// All IPC handlers are registered in IPC modules via bootstrap
-	}
-
-	/**
-	 * Attach common window event handlers shared by all window types.
-	 *
-	 * Handlers include:
-	 *   - update-target-url: Suppresses native Chromium URL bubble on link hover
-	 *   - maximize/unmaximize: Notifies renderer of window state changes
-	 *   - enter/leave fullscreen: Notifies renderer of fullscreen state changes
-	 */
-	private attachCommonWindowHandlers(win: BrowserWindow): void {
-		// Suppress native Chromium URL bubble on link hover
-		win.webContents.on('update-target-url', () => {});
-
-		// Notify renderer when window is maximized/unmaximized
-		win.on('maximize', () => {
-			win.webContents.send('window:maximize-change', true);
-		});
-
-		win.on('unmaximize', () => {
-			win.webContents.send('window:maximize-change', false);
-		});
-
-		// Notify renderer when entering/leaving fullscreen
-		win.on('enter-full-screen', () => {
-			win.webContents.send('window:fullscreen-change', true);
-		});
-
-		win.on('leave-full-screen', () => {
-			win.webContents.send('window:fullscreen-change', false);
-		});
 	}
 
 	private createWindowOptions(trafficLightPosition = { x: 16, y: 17 }) {
@@ -128,7 +98,7 @@ export class Main {
 		// Create window context for isolated services
 		this.windowContextManager.create(win);
 
-		this.attachCommonWindowHandlers(win);
+		attachWindowHandlers(win);
 		this.trackWindowVisibility(win);
 
 		win.once('ready-to-show', () => {
@@ -229,7 +199,7 @@ export class Main {
 		this.appWindows.add(win);
 
 		this.windowContextManager.create(win);
-		this.attachCommonWindowHandlers(win);
+		attachWindowHandlers(win);
 		this.trackWindowVisibility(win);
 
 		win.once('ready-to-show', () => {

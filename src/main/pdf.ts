@@ -1,7 +1,10 @@
-import { BrowserWindow, clipboard, Menu } from 'electron';
+import { BrowserWindow, clipboard, Menu, type WebContents } from 'electron';
 
-export function setupPdfContextMenu(window: BrowserWindow): void {
-	window.webContents.on('context-menu', (_event, params) => {
+export function setupPdfContextMenu(
+	window: BrowserWindow,
+	webContents: WebContents = window.webContents
+): void {
+	webContents.on('context-menu', (_event, params) => {
 		try {
 			const url = new URL(params.frameURL);
 			if (

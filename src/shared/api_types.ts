@@ -97,9 +97,12 @@ export type { DataApi } from './data_types';
 
 export interface WindowApi {
 	minimize: () => void;
+	maximize: () => void;
 	close: () => void;
 	popupMenu: () => void;
 	showContextMenu: (items: ContextMenuDescriptor[]) => Promise<string | null>;
+	isMaximized: () => Promise<boolean>;
+	onMaximizeChange: (callback: (isMaximized: boolean) => void) => () => void;
 	isFullScreen: () => Promise<boolean>;
 	onFullScreenChange: (callback: (isFullScreen: boolean) => void) => () => void;
 }

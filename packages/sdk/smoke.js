@@ -36,7 +36,15 @@ globalThis.agent = {
 	deleteWorkspaceDirectory: async () => undefined,
 };
 globalThis.win = {
+	minimize: () => undefined,
+	maximize: () => undefined,
+	close: () => undefined,
+	popupMenu: () => undefined,
 	showContextMenu: async (items) => items[0]?.id ?? null,
+	isMaximized: async () => true,
+	onMaximizeChange: () => () => undefined,
+	isFullScreen: async () => false,
+	onFullScreenChange: () => () => undefined,
 };
 
 assert.equal(isFriday(), true);
@@ -61,6 +69,7 @@ assert.equal(await agent.moveWorkspaceEntry('draft.md', 'notes'), 'notes/draft.m
 await agent.deleteWorkspaceFile('old.md');
 await agent.deleteWorkspaceDirectory('archive');
 assert.equal(await win.showContextMenu([{ id: 'open', label: 'Open' }]), 'open');
+assert.equal(await win.isMaximized(), true);
 
 // --- remote mode: bound to the app API server --------------------------------
 
