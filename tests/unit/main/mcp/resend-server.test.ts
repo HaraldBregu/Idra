@@ -21,7 +21,7 @@ describe('resend MCP server', () => {
 	});
 
 	it('is configured with an empty API key placeholder', () => {
-			expect(resend).toMatchObject({
+		expect(resend).toMatchObject({
 			id: 'resend',
 			data: {
 				type: 'stdio',

@@ -9,45 +9,56 @@ type ToolResult = {
 	structuredContent?: Record<string, unknown>;
 };
 
-const apiBaseUrl = (process.env.RESEND_API_BASE_URL?.trim() || 'https://api.resend.com').replace(/\/$/, '');
+const apiBaseUrl = (process.env.RESEND_API_BASE_URL?.trim() || 'https://api.resend.com').replace(
+	/\/$/,
+	''
+);
 
-const sendEmailToolSchema = z.object({
-	from: z
-		.string()
-		.describe('Sender email address, optionally formatted as "Name <sender@example.com>".'),
-	to: z
-		.union([z.string(), z.array(z.string()).min(1)])
-		.describe('Recipient email address or addresses.'),
-	subject: z.string().describe('Email subject.'),
-	html: z.string().optional().describe('HTML body.'),
-	text: z.string().optional().describe('Plain text body.'),
-	cc: z.union([z.string(), z.array(z.string()).min(1)]).optional().describe('CC recipient address or addresses.'),
-	bcc: z.union([z.string(), z.array(z.string()).min(1)]).optional().describe('BCC recipient address or addresses.'),
-	reply_to: z
-		.union([z.string(), z.array(z.string()).min(1)])
-		.optional()
-		.describe('Reply-To address or addresses.'),
-	headers: z.record(z.unknown()).optional().describe('Custom email headers.'),
-	attachments: z.array(z.unknown()).optional().describe('Resend attachment objects.'),
-	tags: z.array(z.unknown()).optional().describe('Resend tag objects.'),
-	template: z.record(z.unknown()).optional().describe('Published Resend template object.'),
-	scheduled_at: z.string().optional().describe('Scheduled send time.'),
-	idempotency_key: z.string().optional().describe('Optional Resend idempotency key for this request.'),
-}).check((value) => {
-	if (!value.html && !value.text && !value.template) {
-		return false;
-	}
-	if (value.template && (value.html || value.text)) {
-		return false;
-	}
-	if (
-		Array.isArray(value.to) &&
-		value.to.length > 50
-	) {
-		return false;
-	}
-	return true;
-});
+const sendEmailToolSchema = z
+	.object({
+		from: z
+			.string()
+			.describe('Sender email address, optionally formatted as "Name <sender@example.com>".'),
+		to: z
+			.union([z.string(), z.array(z.string()).min(1)])
+			.describe('Recipient email address or addresses.'),
+		subject: z.string().describe('Email subject.'),
+		html: z.string().optional().describe('HTML body.'),
+		text: z.string().optional().describe('Plain text body.'),
+		cc: z
+			.union([z.string(), z.array(z.string()).min(1)])
+			.optional()
+			.describe('CC recipient address or addresses.'),
+		bcc: z
+			.union([z.string(), z.array(z.string()).min(1)])
+			.optional()
+			.describe('BCC recipient address or addresses.'),
+		reply_to: z
+			.union([z.string(), z.array(z.string()).min(1)])
+			.optional()
+			.describe('Reply-To address or addresses.'),
+		headers: z.record(z.unknown()).optional().describe('Custom email headers.'),
+		attachments: z.array(z.unknown()).optional().describe('Resend attachment objects.'),
+		tags: z.array(z.unknown()).optional().describe('Resend tag objects.'),
+		template: z.record(z.unknown()).optional().describe('Published Resend template object.'),
+		scheduled_at: z.string().optional().describe('Scheduled send time.'),
+		idempotency_key: z
+			.string()
+			.optional()
+			.describe('Optional Resend idempotency key for this request.'),
+	})
+	.check((value) => {
+		if (!value.html && !value.text && !value.template) {
+			return false;
+		}
+		if (value.template && (value.html || value.text)) {
+			return false;
+		}
+		if (Array.isArray(value.to) && value.to.length > 50) {
+			return false;
+		}
+		return true;
+	});
 
 const toolError = (message: string): ToolResult => ({
 	content: [{ type: 'text', text: message }],

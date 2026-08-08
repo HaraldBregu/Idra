@@ -19,18 +19,28 @@ type SmtpConfig = {
 	password: string;
 };
 
-const toolsSchema = z.object({
-	from: z.string().describe('Sender email address.'),
-	to: z.union([z.string(), z.array(z.string()).min(1)]).describe('Recipient email address or addresses.'),
-	subject: z.string().describe('Email subject.'),
-	text: z.string().optional().describe('Plain text body.'),
-	html: z.string().optional().describe('HTML body.'),
-	cc: z.union([z.string(), z.array(z.string()).min(1)]).optional().describe('CC recipient address or addresses.'),
-	bcc: z.union([z.string(), z.array(z.string()).min(1)]).optional().describe('BCC recipient address or addresses.'),
-	reply_to: z.string().optional().describe('Reply-To address.'),
-}).check((value) => {
-	return Boolean(value.text || value.html);
-});
+const toolsSchema = z
+	.object({
+		from: z.string().describe('Sender email address.'),
+		to: z
+			.union([z.string(), z.array(z.string()).min(1)])
+			.describe('Recipient email address or addresses.'),
+		subject: z.string().describe('Email subject.'),
+		text: z.string().optional().describe('Plain text body.'),
+		html: z.string().optional().describe('HTML body.'),
+		cc: z
+			.union([z.string(), z.array(z.string()).min(1)])
+			.optional()
+			.describe('CC recipient address or addresses.'),
+		bcc: z
+			.union([z.string(), z.array(z.string()).min(1)])
+			.optional()
+			.describe('BCC recipient address or addresses.'),
+		reply_to: z.string().optional().describe('Reply-To address.'),
+	})
+	.check((value) => {
+		return Boolean(value.text || value.html);
+	});
 
 const toolError = (message: string): ToolResult => ({
 	content: [{ type: 'text', text: message }],
@@ -50,7 +60,9 @@ const smtpConfig = (): SmtpConfig | string => {
 	if (!user) missing.push('GMAIL_SMTP_USER');
 	if (!password) missing.push('GMAIL_SMTP_PASSWORD');
 	if (!Number.isInteger(port) || port <= 0) missing.push('GMAIL_SMTP_PORT');
-	return missing.length > 0 ? `Missing or invalid environment variables: ${missing.join(', ')}` : { host, port, secure, user, password };
+	return missing.length > 0
+		? `Missing or invalid environment variables: ${missing.join(', ')}`
+		: { host, port, secure, user, password };
 };
 
 const address = (value: string): string => {
@@ -70,7 +82,9 @@ const messageBody = (args: z.infer<typeof toolsSchema>): string => {
 	const boundary = `friday-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 	const headers = [
 		`From: ${headerValue(args.from)}`,
-		`To: ${asArray(args.to as string | string[]).map(headerValue).join(', ')}`,
+		`To: ${asArray(args.to as string | string[])
+			.map(headerValue)
+			.join(', ')}`,
 		...asArray(args.cc as string | string[] | undefined).map((cc) => `Cc: ${headerValue(cc)}`),
 		typeof args.reply_to === 'string' ? `Reply-To: ${headerValue(args.reply_to)}` : undefined,
 		`Subject: ${encodedSubject(args.subject)}`,
@@ -192,7 +206,10 @@ class SmtpSession {
 	}
 }
 
-const sendSmtpEmail = async (config: SmtpConfig, args: z.infer<typeof toolsSchema>): Promise<void> => {
+const sendSmtpEmail = async (
+	config: SmtpConfig,
+	args: z.infer<typeof toolsSchema>
+): Promise<void> => {
 	const session = new SmtpSession(config);
 	try {
 		await session.read(220);
@@ -231,7 +248,9 @@ const sendEmail = async (args: z.infer<typeof toolsSchema>): Promise<ToolResult>
 			structuredContent: { host: config.host, port: config.port, secure: config.secure },
 		};
 	} catch (error) {
-		return toolError(error instanceof Error ? error.message : 'Unable to send email through Gmail SMTP.');
+		return toolError(
+			error instanceof Error ? error.message : 'Unable to send email through Gmail SMTP.'
+		);
 	}
 };
 
