@@ -17,9 +17,6 @@ describe('wiki tools', () => {
 	it('registers wiki capabilities only for enabled main sessions', () => {
 		expect(getWikiTools('main').map((tool) => tool.name)).toEqual([
 			'wiki_ingest_source',
-			'wiki_search',
-			'wiki_read_page',
-			'wiki_query',
 			'wiki_save_analysis',
 			'wiki_lint',
 			'wiki_review_changes',
@@ -32,11 +29,8 @@ describe('wiki tools', () => {
 		expect(getWikiTools('main')).toEqual([]);
 	});
 
-	it('keeps reads automatic and source ingest approval-gated', () => {
+	it('keeps status reads automatic and mutations approval-gated', () => {
 		expect(DEFAULT_PERMISSIONS.wiki_ingest_source).toMatchObject({ default: 'ask' });
-		expect(DEFAULT_PERMISSIONS.wiki_search).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.wiki_read_page).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.wiki_query).toMatchObject({ default: 'allow' });
 		expect(DEFAULT_PERMISSIONS.wiki_save_analysis).toMatchObject({ default: 'ask' });
 		expect(DEFAULT_PERMISSIONS.wiki_lint).toMatchObject({ default: 'ask' });
 		expect(DEFAULT_PERMISSIONS.wiki_review_changes).toMatchObject({ default: 'ask' });
