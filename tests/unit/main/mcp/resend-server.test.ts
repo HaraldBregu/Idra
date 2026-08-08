@@ -21,7 +21,7 @@ describe('resend MCP server', () => {
 	});
 
 	it('is configured with an empty API key placeholder', () => {
-		expect(resend).toMatchObject({
+			expect(resend).toMatchObject({
 			id: 'resend',
 			data: {
 				type: 'stdio',
@@ -29,7 +29,7 @@ describe('resend MCP server', () => {
 				args: ['--experimental-strip-types', 'src/index.ts'],
 				cwd: directory,
 				env: {
-					RESEND_API_BASE_URL: 'https://api.resend.com',
+					RESEND_API_BASE_URL: '',
 					RESEND_API_KEY: '',
 				},
 			},
