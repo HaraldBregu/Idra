@@ -9,6 +9,10 @@ jest.mock('../../../../src/main/rag/rag_location', () => ({
 
 import { readRagArtifact } from '../../../../src/main/rag/rag_artifact';
 
+beforeEach(() => {
+	readFileSync.mockReset();
+});
+
 it('reads a Friday-owned versioned artifact from the local RAG directory', () => {
 	const artifact = {
 		indexName: 'knowledge-base',
