@@ -5,7 +5,6 @@ import {
 	addToolResults,
 	appendRun,
 	isExhausted,
-	modelMessages,
 	recordTurn,
 	toResult,
 	type SessionState,
@@ -218,7 +217,7 @@ async function* loop(
 					: '';
 			const skillContext = origin === 'main' && contextMode === 'workspace' ? buildSkillContext() : '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
-			const messages = modelMessages(session.messages);
+			const messages = session.messages;
 			const turn = yield* runModelTurn(
 				input,
 				provider,

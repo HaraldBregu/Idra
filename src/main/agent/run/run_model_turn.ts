@@ -7,6 +7,8 @@ import type { ModelTurn } from './run_loop_types';
 import { setTimeout as wait } from 'node:timers/promises';
 import { isTransientModelError } from './run_is_transient_model_error';
 import { modelOutputLimit } from './run_model_output_limit';
+import { modelInputLimit } from './run_model_input_limit';
+import { fitModelContext } from './run_model_context_budget';
 
 export interface ModelTurnStream {
 	stream(request: LlmRequest): AsyncIterable<LlmEvent>;
@@ -26,6 +28,13 @@ export async function* runModelTurn(
 	llm: ModelTurnStream = llmModel
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	const maxRetries = 1;
+	const maxTokens = modelOutputLimit(provider.id, modelId, modelOptions);
+	const context = fitModelContext({
+		systemPrompt,
+		messages,
+		tools,
+		maxInputTokens: modelInputLimit(provider.id, modelId, maxTokens),
+	});
 	for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
 		const attemptStartedAt = Date.now();
 		let firstTokenAt: number | undefined;
@@ -37,15 +46,14 @@ export async function* runModelTurn(
 		const providerItems: MessageContentBlock[] = [];
 		const pending = new Map<string, { name: string; argsText: string }>();
 
-		const maxTokens = modelOutputLimit(provider.id, modelId, modelOptions);
 		try {
 			for await (const event of llm.stream({
 				provider,
 				model,
 				effort: input.effort,
-				systemPrompt,
-				messages,
-				tools,
+				systemPrompt: context.systemPrompt,
+				messages: context.messages,
+				tools: context.tools,
 				maxTokens,
 				options: modelOptions,
 				signal,
