@@ -40,6 +40,7 @@ function serializeEnvEntries(entries: readonly EnvVariable[]): Record<string, st
 }
 
 const TYPE_LABELS = { http: 'Remote (HTTP)', stdio: 'Local (command)' } as const;
+const SMALL_INPUT_CLASS = 'h-8 text-sm';
 
 export function McpServerForm({
 	initial,
@@ -182,6 +183,7 @@ export function McpServerForm({
 					disabled={isEdit}
 					onChange={(e) => setId(e.target.value)}
 					placeholder="my-server"
+					className={SMALL_INPUT_CLASS}
 				/>
 			</Field>
 			<Field>
@@ -191,6 +193,7 @@ export function McpServerForm({
 					value={name}
 					onChange={(e) => setName(e.target.value)}
 					placeholder="My Server"
+					className={SMALL_INPUT_CLASS}
 				/>
 			</Field>
 			<Field>
@@ -227,13 +230,14 @@ export function McpServerForm({
 				<>
 					<Field>
 						<Label htmlFor="mcp-url">Server URL</Label>
-						<Input
-							id="mcp-url"
-							value={url}
-							onChange={(e) => setUrl(e.target.value)}
-							placeholder="https://example.com/mcp"
-						/>
-					</Field>
+							<Input
+								id="mcp-url"
+								value={url}
+								onChange={(e) => setUrl(e.target.value)}
+								placeholder="https://example.com/mcp"
+								className={SMALL_INPUT_CLASS}
+							/>
+						</Field>
 					{isEdit && isValid ? (
 						<McpOAuthButton id={serverId} beforeStart={persist} />
 					) : (
@@ -252,6 +256,7 @@ export function McpServerForm({
 									value={token}
 									onChange={(e) => setToken(e.target.value)}
 									autoComplete="off"
+									className={SMALL_INPUT_CLASS}
 								/>
 							</Field>
 							<Field>
@@ -261,6 +266,7 @@ export function McpServerForm({
 									value={clientId}
 									onChange={(e) => setClientId(e.target.value)}
 									autoComplete="off"
+									className={SMALL_INPUT_CLASS}
 								/>
 							</Field>
 							<Field>
@@ -271,6 +277,7 @@ export function McpServerForm({
 									value={clientSecret}
 									onChange={(e) => setClientSecret(e.target.value)}
 									autoComplete="off"
+									className={SMALL_INPUT_CLASS}
 								/>
 							</Field>
 							{onRemove && (
@@ -299,6 +306,7 @@ export function McpServerForm({
 							onChange={(e) => setCommand(e.target.value)}
 							placeholder="npx"
 							autoComplete="off"
+							className={SMALL_INPUT_CLASS}
 						/>
 					</Field>
 					<Field>
@@ -309,6 +317,7 @@ export function McpServerForm({
 							onChange={(e) => setArgs(e.target.value)}
 							placeholder="-y @modelcontextprotocol/server-filesystem /tmp"
 							autoComplete="off"
+							className={SMALL_INPUT_CLASS}
 						/>
 					</Field>
 					<Field>
@@ -333,6 +342,7 @@ export function McpServerForm({
 											autoComplete="off"
 											placeholder="KEY"
 											spellCheck={false}
+											className={SMALL_INPUT_CLASS}
 										/>
 									</Field>
 									<Field className="mb-0">
@@ -351,6 +361,7 @@ export function McpServerForm({
 											autoComplete="off"
 											placeholder="VALUE"
 											spellCheck={false}
+											className={SMALL_INPUT_CLASS}
 										/>
 									</Field>
 									<div className="flex items-end">
@@ -379,6 +390,7 @@ export function McpServerForm({
 										placeholder="KEY"
 										autoComplete="off"
 										spellCheck={false}
+										className={SMALL_INPUT_CLASS}
 									/>
 								</Field>
 								<Field className="mb-0">
@@ -392,6 +404,7 @@ export function McpServerForm({
 										placeholder="VALUE"
 										autoComplete="off"
 										spellCheck={false}
+										className={SMALL_INPUT_CLASS}
 										onKeyDown={(event) => {
 											if (event.key === 'Enter') {
 												event.preventDefault();
@@ -424,6 +437,7 @@ export function McpServerForm({
 							onChange={(e) => setCwd(e.target.value)}
 							placeholder="/path/to/server"
 							autoComplete="off"
+							className={SMALL_INPUT_CLASS}
 						/>
 					</Field>
 					{onRemove && (
