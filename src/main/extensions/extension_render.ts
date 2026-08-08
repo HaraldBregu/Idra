@@ -12,11 +12,7 @@ export function render(
 	const existingWindow = windows.get(extensionId);
 	if (existingWindow && !existingWindow.isDestroyed()) {
 		if (existingWindow.isMinimized()) existingWindow.restore();
-		if (!existingWindow.isVisible()) {
-			existingWindow.show();
-		} else {
-			existingWindow.focus();
-		}
+		if (!existingWindow.isVisible()) existingWindow.show();
 		existingWindow.focus();
 		return existingWindow;
 	}
