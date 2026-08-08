@@ -417,7 +417,7 @@ export function McpServerForm({
 									<Button
 										type="button"
 										size="sm"
-										className="h-9"
+										className="h-8"
 										disabled={!envKey.trim()}
 										onClick={addEnvironmentVariable}
 										aria-label="Add environment variable"
