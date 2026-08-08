@@ -72,7 +72,7 @@ function WorkspaceTree({
 			) : files.length === 0 && showEmpty ? (
 				<div className="px-3 py-2 text-[12px] text-sidebar-muted">No files</div>
 			) : (
-				<ul className="space-y-0.5">
+				<ul className="space-y-1">
 					{files.map((entry) => (
 						<WorkspaceTreeItem
 							key={entry.path}
@@ -250,7 +250,7 @@ function WorkspaceTreeItem({
 			<li>
 				<CollapsibleTrigger asChild>{trigger}</CollapsibleTrigger>
 				<CollapsibleContent asChild>
-					<ul className="space-y-0.5">
+					<ul className="space-y-1">
 						{entry.children?.map((child) => (
 							<WorkspaceTreeItem
 								key={child.path}
@@ -495,7 +495,7 @@ export function AppSidebar({
 					Drag files and folders onto a folder or an empty sidebar area to move them.
 				</p>
 				{!workspaceLoading && !workspaceError && agentFiles.length > 0 ? (
-					<Collapsible open={agentExpanded} onOpenChange={setAgentExpanded} className="mb-0.5">
+					<Collapsible open={agentExpanded} onOpenChange={setAgentExpanded} className="mb-1">
 						<CollapsibleTrigger asChild>
 							<Button
 								data-workspace-entry
@@ -534,7 +534,7 @@ export function AppSidebar({
 							</Button>
 						</CollapsibleTrigger>
 						<CollapsibleContent>
-							<ul className="space-y-0.5">
+							<ul className="space-y-1">
 								{agentFiles.map((entry) => (
 									<WorkspaceTreeItem
 										key={entry.path}
