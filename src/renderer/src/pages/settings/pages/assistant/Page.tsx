@@ -51,7 +51,8 @@ type DataControlKind =
 	| 'wiki'
 	| 'local_index'
 	| 'local_namespace'
-	| 'remote_namespace';
+	| 'remote_namespace'
+	| 'remote_all_namespaces';
 
 function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
 	return providers().find((provider) => provider.id === providerId);
@@ -436,6 +437,11 @@ const AssistantPage: React.FC = () => {
 						title={t('settings.dataControls.remoteNamespace')}
 						description={t('settings.dataControls.remoteNamespaceDescription')}
 						actions={dataActions('remote_namespace', false)}
+					/>
+					<SettingsRow
+						title={t('settings.dataControls.remoteAllNamespaces')}
+						description={t('settings.dataControls.remoteAllNamespacesDescription')}
+						actions={dataActions('remote_all_namespaces', false)}
 					/>
 					<SettingsRow
 						title={t('settings.dataControls.wiki')}

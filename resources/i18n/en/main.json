@@ -1434,6 +1434,8 @@
 			"ragNamespaceDescription": "Only the currently published local Friday namespace.",
 			"remoteNamespace": "Pinecone namespace",
 			"remoteNamespaceDescription": "Only the matching Friday-owned remote namespace; the Pinecone index is never deleted.",
+			"remoteAllNamespaces": "All Friday Pinecone namespaces",
+			"remoteAllNamespacesDescription": "Every Friday-owned namespace in the configured Pinecone index; unrelated namespaces and the index remain.",
 			"wiki": "Managed wiki",
 			"wikiDescription": "Compiled pages and app-owned state for the configured target.",
 			"loadError": "Unable to load data-management scopes.",

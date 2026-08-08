@@ -38,7 +38,9 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 		});
 		registerCommand(DataChannels.purge, async (input, confirmationId) => {
 			const scope = normalizeDataScope(input);
-			const remoteNamespace = scope.kind === 'rag' && scope.mode === 'remote_namespace';
+			const remoteNamespace =
+				scope.kind === 'rag' &&
+				(scope.mode === 'remote_namespace' || scope.mode === 'remote_all_namespaces');
 			if (typeof confirmationId !== 'string' || !confirmationId.trim()) {
 				throw new Error('A purge confirmation ID is required.');
 			}
@@ -48,10 +50,14 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 				cancelId: 0,
 				defaultId: 0,
 				noLink: true,
-				message: 'Permanently purge the selected local data?',
+				message: remoteNamespace
+					? 'Permanently purge the selected remote data?'
+					: 'Permanently purge the selected local data?',
 				detail: `${this.scopeDescription(scope)}\n\n${
 					remoteNamespace
-						? 'Only this exact remote namespace will be deleted. The Pinecone index will remain.'
+						? scope.kind === 'rag' && scope.mode === 'remote_all_namespaces'
+							? 'Every Friday-owned namespace in this Pinecone index will be deleted. The index and unrelated namespaces will remain.'
+							: 'Only this exact remote namespace will be deleted. The Pinecone index will remain.'
 						: 'Remote provider data will not be deleted.'
 				}`,
 			};
@@ -80,6 +86,9 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 		}
 		if (scope.mode === 'remote_namespace') {
 			return `Remote Pinecone namespace: ${scope.indexName} / ${scope.generation}`;
+		}
+		if (scope.mode === 'remote_all_namespaces') {
+			return `All Friday-owned remote Pinecone namespaces in ${scope.indexName}`;
 		}
 		return `Local RAG index: ${scope.indexName} (all local namespaces)`;
 	}

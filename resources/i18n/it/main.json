@@ -1433,6 +1433,8 @@
 			"ragNamespaceDescription": "Solo il namespace Friday locale attualmente pubblicato.",
 			"remoteNamespace": "Namespace Pinecone",
 			"remoteNamespaceDescription": "Solo il namespace remoto di Friday corrispondente; l'indice Pinecone non viene mai eliminato.",
+			"remoteAllNamespaces": "Tutti i namespace Pinecone di Friday",
+			"remoteAllNamespacesDescription": "Tutti i namespace di Friday nell'indice Pinecone configurato; gli altri namespace e l'indice restano intatti.",
 			"wiki": "Wiki gestita",
 			"wikiDescription": "Pagine compilate e stato dell'app per la destinazione configurata.",
 			"loadError": "Impossibile caricare gli ambiti di gestione dati.",
