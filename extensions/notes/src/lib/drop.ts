@@ -8,7 +8,8 @@ export function workspaceMoveError(
 	const normalizedSourcePath = source.path.replaceAll('\\', '/');
 	const normalizedDestinationPath = destinationPath.replaceAll('\\', '/');
 	const separatorIndex = normalizedSourcePath.lastIndexOf('/');
-	const sourceParentPath = separatorIndex === -1 ? '' : normalizedSourcePath.slice(0, separatorIndex);
+	const sourceParentPath =
+		separatorIndex === -1 ? '' : normalizedSourcePath.slice(0, separatorIndex);
 	if (sourceParentPath === normalizedDestinationPath) return 'The item is already in this folder.';
 	if (
 		source.type === 'directory' &&
@@ -17,7 +18,9 @@ export function workspaceMoveError(
 	) {
 		return 'A folder cannot be moved into itself.';
 	}
-	if (destinationEntries.some((entry) => entry.name === source.name && entry.path !== source.path)) {
+	if (
+		destinationEntries.some((entry) => entry.name === source.name && entry.path !== source.path)
+	) {
 		return `An item named "${source.name}" already exists here.`;
 	}
 	return '';

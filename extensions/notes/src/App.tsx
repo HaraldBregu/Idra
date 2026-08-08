@@ -401,11 +401,7 @@ export default function App() {
 		const movedPath = await agent.moveWorkspaceEntry(entry.path, destinationPath);
 		const refresh = agent.listWorkspaceFiles();
 		if (movesSelection && currentSelectedPath) {
-			const movedSelectedPath = rebaseWorkspacePath(
-				currentSelectedPath,
-				entry.path,
-				movedPath
-			);
+			const movedSelectedPath = rebaseWorkspacePath(currentSelectedPath, entry.path, movedPath);
 			await selectWorkspaceEntry({
 				name: movedSelectedPath.split('/').pop() ?? movedSelectedPath,
 				path: movedSelectedPath,

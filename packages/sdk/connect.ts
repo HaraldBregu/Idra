@@ -160,9 +160,10 @@ export function connect(options: ConnectOptions): FridayClient {
 					AgentApi['createWorkspaceDirectory']
 				>,
 			moveWorkspaceEntry: (sourcePath, destinationDirectoryPath) =>
-				invoke(AgentChannels.moveWorkspaceEntry, [sourcePath, destinationDirectoryPath]) as ReturnType<
-					AgentApi['moveWorkspaceEntry']
-				>,
+				invoke(AgentChannels.moveWorkspaceEntry, [
+					sourcePath,
+					destinationDirectoryPath,
+				]) as ReturnType<AgentApi['moveWorkspaceEntry']>,
 			deleteWorkspaceFile: (filePath) =>
 				invoke(AgentChannels.deleteWorkspaceFile, [filePath]) as ReturnType<
 					AgentApi['deleteWorkspaceFile']

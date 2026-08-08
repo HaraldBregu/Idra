@@ -222,7 +222,9 @@ function WorkspaceTreeItem({
 				selected && 'bg-sidebar-accent text-sidebar-foreground',
 				draggedPath === entry.path && 'opacity-45',
 				movingPath === entry.path && 'animate-pulse',
-				isDropTarget && !dropError && 'bg-sidebar-accent text-sidebar-foreground ring-1 ring-sidebar-ring',
+				isDropTarget &&
+					!dropError &&
+					'bg-sidebar-accent text-sidebar-foreground ring-1 ring-sidebar-ring',
 				isDropTarget && dropError && 'ring-1 ring-destructive'
 			)}
 			style={{ paddingLeft: `${8 + depth * 14}px` }}
@@ -354,10 +356,7 @@ export function AppSidebar({
 	}
 
 	function dragLeaveTarget(event: DragEvent<HTMLElement>, path: string) {
-		if (
-			event.relatedTarget instanceof Node &&
-			event.currentTarget.contains(event.relatedTarget)
-		) {
+		if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) {
 			return;
 		}
 		if (dropTargetPath === path) {

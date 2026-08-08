@@ -144,9 +144,9 @@ describe('workspace files', () => {
 		await expect(moveWorkspaceEntry(root, 'source', 'destination')).resolves.toBe(
 			'destination/source'
 		);
-		await expect(
-			moveWorkspaceEntry(root, 'destination', 'destination/source')
-		).rejects.toThrow('cannot be moved into itself');
+		await expect(moveWorkspaceEntry(root, 'destination', 'destination/source')).rejects.toThrow(
+			'cannot be moved into itself'
+		);
 		await fs.writeFile(path.join(root, 'note.md'), '# Existing');
 		await expect(moveWorkspaceEntry(root, 'destination/note.md', '')).rejects.toThrow(
 			'already exists'
