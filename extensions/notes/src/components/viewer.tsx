@@ -13,7 +13,6 @@ interface FileViewerProps {
 	canSave: boolean;
 	content: string;
 	kind: WorkspaceFileKind;
-	markdownMode: 'source' | 'preview';
 	onChange: (content: string) => void;
 	onSave: () => Promise<boolean>;
 	path: string;
@@ -24,7 +23,6 @@ export function FileViewer({
 	canSave,
 	content,
 	kind,
-	markdownMode,
 	onChange,
 	onSave,
 	path,

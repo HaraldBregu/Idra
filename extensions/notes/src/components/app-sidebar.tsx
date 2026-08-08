@@ -1,5 +1,5 @@
 import { Bot, ChevronRight, File, Folder, FolderOpen } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { WorkspaceTreeEntry } from '@friday/sdk';
 
 import { Badge } from '@/components/ui/badge';
@@ -246,11 +246,6 @@ export function AppSidebar({
 			return next;
 		});
 	}
-
-	useEffect(() => {
-		const availablePaths = collectDirectoryPaths(regularFiles);
-		setExpanded((current) => new Set([...current].filter((path) => availablePaths.has(path))));
-	}, [regularFiles]);
 
 	return (
 		<div

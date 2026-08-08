@@ -165,7 +165,6 @@ export function WorkspaceViewer({
 							canSave={dirty && !saving}
 							content={content}
 							kind={kind}
-							markdownMode={markdownMode}
 							onChange={onChange}
 							onSave={onSave}
 							path={path}
