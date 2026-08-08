@@ -163,7 +163,10 @@ const sendEmail = async (args: Record<string, unknown>): Promise<ToolResult> => 
 		method: 'POST',
 		headers,
 		body: JSON.stringify(resendPayload(args)),
-	});
+	}).catch((error: unknown) => error);
+	if (!(response instanceof Response)) {
+		return toolError(errorMessage(response));
+	}
 	const responseBody = (await response.json().catch(() => ({}))) as Record<string, unknown>;
 
 	if (!response.ok) {
