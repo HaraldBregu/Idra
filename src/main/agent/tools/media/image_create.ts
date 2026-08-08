@@ -7,6 +7,10 @@ import { tool } from '../tool';
 export function createImageTool(): Tool {
 	return tool({
 		name: 'create_image',
+		risk: 'critical',
+		effect: 'paid',
+		hardApproval: true,
+		allowedOrigins: ['main'],
 		description:
 			'Generate an image from a text prompt using the configured text-to-image provider. Saves the image in your agent workspace directory and returns its absolute path. The image is shown to the user automatically; if you reference it in markdown, use the returned path.',
 		inputSchema: z.object({

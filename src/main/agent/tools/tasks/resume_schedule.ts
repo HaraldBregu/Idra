@@ -4,6 +4,9 @@ import { scheduleIdSchema } from './schema';
 
 export const resumeScheduleTool = tool({
 	name: 'resume_schedule',
+	risk: 'high',
+	effect: 'persistence',
+	hardApproval: true,
 	description: 'Resume a paused tasks schedule by id.',
 	inputSchema: scheduleIdSchema,
 	execute: ({ scheduleId }) => {

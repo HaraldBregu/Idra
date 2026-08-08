@@ -4,6 +4,9 @@ import { scheduleIdSchema } from './schema';
 
 export const runScheduleNowTool = tool({
 	name: 'run_schedule_now',
+	risk: 'high',
+	effect: 'execute',
+	hardApproval: true,
 	description: 'Trigger a tasks schedule to run immediately by id.',
 	inputSchema: scheduleIdSchema,
 	execute: ({ scheduleId }) => runScheduleNow(scheduleId),

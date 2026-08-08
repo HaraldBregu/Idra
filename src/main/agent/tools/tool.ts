@@ -43,7 +43,7 @@ export function tool<T extends z.ZodType>({
 			return inputSchema.parse(input) as Record<string, unknown>;
 		},
 		async run(input: Record<string, unknown>, signal?: AbortSignal) {
-			return execute(input as z.infer<T>, signal);
+			return execute(inputSchema.parse(input), signal);
 		},
 	};
 }
@@ -83,7 +83,7 @@ export function jsonTool({
 			return input as Record<string, unknown>;
 		},
 		async run(input: Record<string, unknown>, signal?: AbortSignal) {
-			return execute(input, signal);
+			return execute(parseInput ? parseInput(input) : input, signal);
 		},
 	};
 }

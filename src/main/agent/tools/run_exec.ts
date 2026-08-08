@@ -276,6 +276,9 @@ async function runExec(
 
 export const execTool = tool({
 	name: 'exec',
+	risk: 'high',
+	effect: 'execute',
+	allowedOrigins: ['main', 'task', 'subagent'],
 	description:
 		'Run a shell command from the workspace or a chosen working directory. ' +
 		'Use it for builds, tests, searches, and other command-line checks; set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
