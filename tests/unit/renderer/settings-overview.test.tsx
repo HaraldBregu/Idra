@@ -118,3 +118,39 @@ it('updates the wiki module from the overview', async () => {
 	await user.click(toggle);
 	await waitFor(() => expect(saveSettings).toHaveBeenCalledWith({ ...settings, enabled: true }));
 });
+
+it('updates the Knowledge Base module from the overview', async () => {
+	const user = userEvent.setup();
+	const configuration = {
+		enabled: false,
+		indexName: 'friday',
+		databaseProviderId: '',
+		databaseId: '',
+		embeddingProviderId: '',
+		embeddingModelId: '',
+		folders: [],
+		scheduleEnabled: false,
+		cronExpression: '0 3 * * *',
+	};
+	const ragSaveConfiguration = jest.fn().mockResolvedValue({ ...configuration, enabled: true });
+	Object.defineProperty(window, 'agent', {
+		configurable: true,
+		value: {
+			ragGetConfiguration: jest.fn().mockResolvedValue(configuration),
+			ragSaveConfiguration,
+		},
+	});
+
+	render(
+		<MemoryRouter initialEntries={['/settings']}>
+			<OverviewPage />
+		</MemoryRouter>
+	);
+
+	const toggle = await screen.findByRole('switch', { name: 'settings.rag.enabled' });
+	expect(toggle).not.toBeChecked();
+	await user.click(toggle);
+	await waitFor(() =>
+		expect(ragSaveConfiguration).toHaveBeenCalledWith({ ...configuration, enabled: true })
+	);
+});

@@ -11,6 +11,7 @@ it('defaults, normalizes, and validates the configured RAG index name', () => {
 	validate.mockReturnValue(true);
 	expect(getRagConfiguration()).toEqual(
 		expect.objectContaining({
+			enabled: false,
 			indexName: 'friday',
 			databaseProviderId: '',
 			databaseId: '',
@@ -21,6 +22,7 @@ it('defaults, normalizes, and validates the configured RAG index name', () => {
 
 	expect(
 		saveRagConfiguration({
+			enabled: true,
 			indexName: ' knowledge-base ',
 			databaseProviderId: ' pinecone ',
 			databaseId: ' pinecone ',
@@ -32,6 +34,7 @@ it('defaults, normalizes, and validates the configured RAG index name', () => {
 		})
 	).toEqual(
 		expect.objectContaining({
+			enabled: true,
 			indexName: 'knowledge-base',
 			databaseProviderId: 'pinecone',
 			databaseId: 'pinecone',
@@ -42,6 +45,7 @@ it('defaults, normalizes, and validates the configured RAG index name', () => {
 
 	expect(() =>
 		saveRagConfiguration({
+			enabled: false,
 			indexName: 'Invalid_Name',
 			databaseProviderId: '',
 			databaseId: '',

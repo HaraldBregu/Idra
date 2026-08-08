@@ -439,6 +439,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			AgentChannels.ragIndex,
 			wrapSimpleHandler((): Promise<RagIndexResult> => {
 				const configuration = getRagConfiguration();
+				if (configuration.enabled !== true) throw new Error('Knowledge Base is disabled.');
 				return indexRag(configuration.folders, configuration.indexName);
 			}, AgentChannels.ragIndex)
 		);
@@ -472,9 +473,11 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler((query: unknown, topK: unknown): Promise<RagMatch[]> => {
 				const text = optionalTrimmedString(query);
 				if (!text) throw new Error('Invalid search query.');
+				const configuration = getRagConfiguration();
+				if (configuration.enabled !== true) throw new Error('Knowledge Base is disabled.');
 				return searchRag(
 					text,
-					getRagConfiguration().indexName,
+					configuration.indexName,
 					typeof topK === 'number' ? topK : undefined
 				);
 			}, AgentChannels.ragSearch)

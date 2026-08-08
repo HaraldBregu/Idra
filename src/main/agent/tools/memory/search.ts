@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { getRagConfiguration, searchRag } from '../../../rag';
+import type { SessionCategory } from '../../session';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
@@ -19,7 +20,13 @@ export const knowledgeSearchTool: Tool = tool({
 	}),
 	execute: async ({ query, count }) => {
 		const configuration = getRagConfiguration();
+		if (configuration.enabled !== true) throw new Error('Knowledge Base is disabled.');
 		const results = await searchRag(query, configuration.indexName, count);
 		return JSON.stringify({ query, results }, null, 2);
 	},
 });
+
+export function getKnowledgeSearchTools(category: SessionCategory): Tool[] {
+	if (category !== 'main' || getRagConfiguration().enabled !== true) return [];
+	return [knowledgeSearchTool];
+}

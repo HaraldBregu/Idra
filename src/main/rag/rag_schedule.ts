@@ -30,7 +30,13 @@ function schedule(): void {
 	task = undefined;
 	const logger = scheduleLogger;
 	const configuration = getRagConfiguration();
-	if (!logger || !configuration.scheduleEnabled || configuration.folders.length === 0) return;
+	if (
+		!logger ||
+		configuration.enabled !== true ||
+		!configuration.scheduleEnabled ||
+		configuration.folders.length === 0
+	)
+		return;
 	if (!cron.validate(configuration.cronExpression)) {
 		logger.error('RAG', `Invalid indexing schedule: ${configuration.cronExpression}`);
 		return;

@@ -5,6 +5,7 @@ import { BrainCircuit, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
+import type { RagConfiguration } from '../../../../../shared/rag_types';
 import type { WikiSettings } from '../../../../../shared/wiki_types';
 import {
 	SettingsPageHeader,
@@ -71,17 +72,24 @@ function SettingsOverviewCard({
 	wikiSettings,
 	wikiSaving = false,
 	onWikiEnabledChange,
+	ragConfiguration,
+	ragSaving = false,
+	onRagEnabledChange,
 }: {
 	readonly item: SettingsNavigationItem | SettingsModelServiceItem;
 	readonly disabled?: boolean;
 	readonly wikiSettings?: WikiSettings;
 	readonly wikiSaving?: boolean;
 	readonly onWikiEnabledChange?: (enabled: boolean) => void;
+	readonly ragConfiguration?: RagConfiguration;
+	readonly ragSaving?: boolean;
+	readonly onRagEnabledChange?: (enabled: boolean) => void;
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const unavailable = disabled || ('comingSoon' in item && item.comingSoon === true);
 	const isWiki = item.path === '/settings/llm-wiki';
+	const isRag = item.path === '/settings/knowledge-base';
 	const labelKey = item.labelKey;
 	const handleActivate = (): void => {
 		if (unavailable) return;
@@ -103,7 +111,12 @@ function SettingsOverviewCard({
 		</>
 	);
 
-	if (isWiki) {
+	if (isWiki || isRag) {
+		const enabled = isWiki ? wikiSettings?.enabled === true : ragConfiguration?.enabled === true;
+		const saving = isWiki ? wikiSaving : ragSaving;
+		const loaded = isWiki ? Boolean(wikiSettings) : Boolean(ragConfiguration);
+		const label = isWiki ? t('settings.wiki.enabled') : t('settings.rag.enabled');
+		const onEnabledChange = isWiki ? onWikiEnabledChange : onRagEnabledChange;
 		return (
 			<Item
 				variant="outline"
@@ -115,10 +128,10 @@ function SettingsOverviewCard({
 				</button>
 				<ItemActions className="ml-0 flex-none justify-end">
 					<Switch
-						checked={wikiSettings?.enabled === true}
-						disabled={!wikiSettings || wikiSaving}
-						aria-label={t('settings.wiki.enabled')}
-						onCheckedChange={onWikiEnabledChange}
+						checked={enabled}
+						disabled={!loaded || saving}
+						aria-label={label}
+						onCheckedChange={onEnabledChange}
 					/>
 				</ItemActions>
 			</Item>
@@ -154,10 +167,17 @@ const OverviewPage: React.FC = () => {
 	const disabledOverviewPaths = new Set<string>([]);
 	const [wikiSettings, setWikiSettings] = React.useState<WikiSettings>();
 	const [wikiSaving, setWikiSaving] = React.useState(false);
+	const [ragConfiguration, setRagConfiguration] = React.useState<RagConfiguration>();
+	const [ragSaving, setRagSaving] = React.useState(false);
 
 	React.useEffect(() => {
 		if (!window.wiki) return;
 		void window.wiki.getSettings().then(setWikiSettings);
+	}, []);
+
+	React.useEffect(() => {
+		if (!window.agent) return;
+		void window.agent.ragGetConfiguration().then(setRagConfiguration);
 	}, []);
 
 	const handleWikiEnabledChange = (enabled: boolean): void => {
@@ -167,6 +187,15 @@ const OverviewPage: React.FC = () => {
 			.saveSettings({ ...wikiSettings, enabled })
 			.then(setWikiSettings)
 			.finally(() => setWikiSaving(false));
+	};
+
+	const handleRagEnabledChange = (enabled: boolean): void => {
+		if (!ragConfiguration) return;
+		setRagSaving(true);
+		void window.agent
+			.ragSaveConfiguration({ ...ragConfiguration, enabled })
+			.then(setRagConfiguration)
+			.finally(() => setRagSaving(false));
 	};
 
 	return (
@@ -186,6 +215,11 @@ const OverviewPage: React.FC = () => {
 								wikiSaving={path === '/settings/llm-wiki' && wikiSaving}
 								onWikiEnabledChange={
 									path === '/settings/llm-wiki' ? handleWikiEnabledChange : undefined
+								}
+								ragConfiguration={path === '/settings/knowledge-base' ? ragConfiguration : undefined}
+								ragSaving={path === '/settings/knowledge-base' && ragSaving}
+								onRagEnabledChange={
+									path === '/settings/knowledge-base' ? handleRagEnabledChange : undefined
 								}
 							/>
 							);

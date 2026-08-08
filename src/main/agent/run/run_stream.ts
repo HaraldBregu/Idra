@@ -35,7 +35,7 @@ import { recorderScreenTool } from '../tools/system/recorder_screen';
 import { recorderScreenStatusTool } from '../tools/system/recorder_screen_status';
 import { saveMemoryTool } from '../tools/memory/save';
 import { forgetMemoryTool } from '../tools/memory/forget';
-import { knowledgeSearchTool } from '../tools/memory/search';
+import { getKnowledgeSearchTools } from '../tools/memory/search';
 import { updateHealthTool } from '../tools/health_update';
 import { updateHealthSettingsTool } from '../tools/health_settings_update';
 import { loadSkillTool } from '../tools/skill_load';
@@ -120,7 +120,7 @@ async function* loop(
 				recorderScreenStatusTool,
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
-				...(session.category === 'main' ? [knowledgeSearchTool] : []),
+				...getKnowledgeSearchTools(session.category),
 				...getWikiTools(session.category),
 				updateHealthTool(config),
 				updateHealthSettingsTool,

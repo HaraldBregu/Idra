@@ -11,7 +11,7 @@ import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/policy/policy
 
 beforeEach(() => {
 	jest.clearAllMocks();
-	getRagConfiguration.mockReturnValue({ indexName: 'company-knowledge' });
+	getRagConfiguration.mockReturnValue({ enabled: true, indexName: 'company-knowledge' });
 });
 
 it('searches the configured RAG index and returns its matches', async () => {
@@ -34,6 +34,15 @@ it('searches the configured RAG index and returns its matches', async () => {
 
 it('rejects an empty search query before calling RAG', async () => {
 	await expect(knowledgeSearchTool.run({ query: '   ' })).rejects.toThrow();
+	expect(searchRag).not.toHaveBeenCalled();
+});
+
+it('does not search while the Knowledge Base is disabled', async () => {
+	getRagConfiguration.mockReturnValue({ enabled: false, indexName: 'company-knowledge' });
+
+	await expect(knowledgeSearchTool.run({ query: 'policy' })).rejects.toThrow(
+		'Knowledge Base is disabled.'
+	);
 	expect(searchRag).not.toHaveBeenCalled();
 });
 

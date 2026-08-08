@@ -6,6 +6,7 @@ import { userDataLocation } from '../shared/user_data_location';
 import { normalizeRagIndexName } from './rag_index_name';
 
 const DEFAULT_RAG_CONFIGURATION: RagConfiguration = {
+	enabled: false,
 	indexName: DEFAULT_RAG_INDEX_NAME,
 	databaseProviderId: '',
 	databaseId: '',
@@ -39,6 +40,7 @@ export function saveRagConfiguration(configuration: RagConfiguration): RagConfig
 		throw new Error('RAG indexing schedule must be a valid cron expression.');
 	}
 	const saved = {
+		enabled: configuration.enabled === true,
 		indexName,
 		databaseProviderId: configuration.databaseProviderId?.trim() ?? '',
 		databaseId: configuration.databaseId?.trim() ?? '',

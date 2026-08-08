@@ -21,6 +21,7 @@ import {
 describe('RAG indexing schedule', () => {
 	const logger = { info: jest.fn(), error: jest.fn() };
 	const configuration = {
+		enabled: true,
 		indexName: 'knowledge-base',
 		databaseProviderId: 'pinecone',
 		databaseId: 'pinecone',
@@ -65,5 +66,12 @@ describe('RAG indexing schedule', () => {
 
 		expect(schedule).not.toHaveBeenCalled();
 		expect(logger.error).toHaveBeenCalledWith('RAG', 'Invalid indexing schedule: 0 3 * * *');
+	});
+
+	it('does not schedule while the Knowledge Base is disabled', () => {
+		getRagConfiguration.mockReturnValue({ ...configuration, enabled: false });
+		startRagSchedule(logger);
+
+		expect(schedule).not.toHaveBeenCalled();
 	});
 });
