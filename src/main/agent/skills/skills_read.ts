@@ -3,7 +3,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import matter from 'gray-matter';
 import type { SkillInfo, SkillManifest } from '../../../shared/skills_types';
-import { SKILL_FILE } from './skills_limits';
+import { SKILL_FILE, SKILL_MAX_BYTES } from './skills_limits';
 import { validateSkill } from './skills_validate';
 
 export { SKILL_FILE } from './skills_limits';
@@ -17,6 +17,7 @@ export function readSkill(folder: string, id: string): SkillInfo | undefined {
 	try {
 		canonicalSkillPath = fs.realpathSync(path.join(folder, SKILL_FILE));
 		source = fs.readFileSync(canonicalSkillPath, 'utf8');
+		if (Buffer.byteLength(source, 'utf8') > SKILL_MAX_BYTES) return undefined;
 		fm = matter(source).data as Partial<SkillManifest>;
 	} catch {
 		return undefined;

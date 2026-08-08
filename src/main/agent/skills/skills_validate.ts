@@ -51,7 +51,19 @@ export function validateSkill(folder: string): SkillValidationResult {
 	}
 	let data: Record<string, unknown>;
 	try {
-		data = matter(fs.readFileSync(canonicalSkillPath, 'utf8')).data as Record<string, unknown>;
+		const source = fs.readFileSync(canonicalSkillPath, 'utf8');
+		if (Buffer.byteLength(source, 'utf8') > SKILL_MAX_BYTES) {
+			return {
+				valid: false,
+				issues: [
+					{
+						code: 'skill-too-large',
+						message: `${SKILL_FILE} exceeds the ${SKILL_MAX_BYTES}-byte limit.`,
+					},
+				],
+			};
+		}
+		data = matter(source).data as Record<string, unknown>;
 	} catch {
 		return {
 			valid: false,

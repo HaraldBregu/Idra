@@ -65,6 +65,11 @@ describe('validateSkill', () => {
 		expect(validateSkill('/skills/x').issues[0].code).toBe('skill-too-large');
 	});
 
+	it('rejects oversized bytes even when the prior stat was stale', () => {
+		readMock.mockReturnValue('x'.repeat(256 * 1024 + 1));
+		expect(validateSkill('/skills/x').issues[0].code).toBe('skill-too-large');
+	});
+
 	it('rejects malformed allowedTools capabilities', () => {
 		readMock.mockReturnValue(
 			withFrontmatter({ name: 'my-skill', description: 'does things', allowedTools: 'write' })
