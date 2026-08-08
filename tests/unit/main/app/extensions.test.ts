@@ -47,7 +47,7 @@ function createWindowHarness() {
 		webContents,
 	} as unknown as BrowserWindow;
 	const create = jest.fn(() => win);
-	const createView = jest.fn(() => view);
+	const createView = jest.fn(() => ({ view, loaded: Promise.resolve() }));
 	const windowFactory = { create, createView } as unknown as WindowFactory;
 	return { create, createView, handlers, view, win, windowFactory };
 }

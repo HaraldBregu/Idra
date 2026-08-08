@@ -5,6 +5,7 @@ import {
 	type WebContents,
 } from 'electron';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from './shared';
 import { setupPdfContextMenu } from './pdf';
@@ -18,6 +19,11 @@ export interface RendererContentOptions {
 	html?: string;
 	hash?: string;
 	file?: string;
+}
+
+export interface LoadedView {
+	view: WebContentsView;
+	loaded: Promise<void>;
 }
 
 export class WindowFactory {
@@ -53,14 +59,19 @@ export class WindowFactory {
 		};
 	}
 
-	private secureNavigation(webContents: WebContents): void {
+	private secureNavigation(webContents: WebContents, fileRoot?: string): void {
+		webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 		webContents.on('will-navigate', (event, url) => {
-			const appUrl = process.env['ELECTRON_RENDERER_URL'] || 'file://';
-			if (is.dev) {
-				if (!url.startsWith(appUrl) && !url.startsWith('file://')) event.preventDefault();
+			const target = new URL(url);
+			if (target.protocol === 'file:') {
+				if (!fileRoot) return;
+				const relative = path.relative(fileRoot, fileURLToPath(target));
+				if (relative.startsWith('..') || path.isAbsolute(relative)) event.preventDefault();
 				return;
 			}
-			if (!url.startsWith('file://')) event.preventDefault();
+			const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
+			if (is.dev && rendererUrl && target.origin === new URL(rendererUrl).origin) return;
+			event.preventDefault();
 		});
 	}
 
@@ -108,11 +119,10 @@ export class WindowFactory {
 		return win;
 	}
 
-	createView(file: string): WebContentsView {
+	createView(file: string): LoadedView {
 		const view = new WebContentsView({ webPreferences: this.getBaseWebPreferences() });
-		this.secureNavigation(view.webContents);
-		void view.webContents.loadFile(file);
-		return view;
+		this.secureNavigation(view.webContents, path.dirname(file));
+		return { view, loaded: view.webContents.loadFile(file) };
 	}
 
 	/**

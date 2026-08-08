@@ -10,8 +10,14 @@ export function useAppTheme(): void {
 			for (const [name, value] of Object.entries(theme.colors)) {
 				document.documentElement.style.setProperty(`--${name}`, value);
 			}
+			document.documentElement.style.visibility = 'visible';
 		};
-		void window.app.getThemeData().then(apply).catch(() => undefined);
+		void window.app
+			.getThemeData()
+			.then(apply)
+			.catch(() => {
+				document.documentElement.style.visibility = 'visible';
+			});
 		const unsubscribe = window.app.onThemeModeChanged(apply);
 		return () => {
 			active = false;

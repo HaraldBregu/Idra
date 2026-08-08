@@ -29,17 +29,18 @@ export function render(
 			minHeight: 480,
 			resizable: true,
 			frame: false,
+			transparent: true,
 			...(isMac && {
 				titleBarStyle: 'hidden',
 				trafficLightPosition: { x: 16, y: 17 },
 			}),
 			title,
 			autoHideMenuBar: true,
-			backgroundColor: '#f5f5f2',
+			backgroundColor: '#00000000',
 		},
 		{ html: 'extension.html', hash: `extension/${encodeURIComponent(title)}` }
 	);
-	const view = windowFactory.createView(file);
+	const { view, loaded } = windowFactory.createView(file);
 	const resizeView = (): void => {
 		const { width, height } = win.getContentBounds();
 		view.setBounds({ x: 0, y: titleBarHeight, width, height: Math.max(0, height - titleBarHeight) });
@@ -52,8 +53,41 @@ export function render(
 
 	windows.set(extensionId, win);
 	win.setMenuBarVisibility(false);
-	win.once('ready-to-show', () => win.show());
+	let shellReady = false;
+	let extensionReady = false;
+	let childClosing = false;
+	let hostCloseAllowed = false;
+	const showWhenReady = (): void => {
+		if (shellReady && extensionReady && !win.isDestroyed()) win.show();
+	};
+	win.once('ready-to-show', () => {
+		shellReady = true;
+		showWhenReady();
+	});
+	void loaded
+		.catch(() => undefined)
+		.finally(() => {
+			extensionReady = true;
+			showWhenReady();
+		});
 	win.on('resize', resizeView);
+	view.webContents.on('will-prevent-unload', () => {
+		childClosing = false;
+	});
+	view.webContents.once('destroyed', () => {
+		childClosing = false;
+		if (!win.isDestroyed()) {
+			hostCloseAllowed = true;
+			win.close();
+		}
+	});
+	win.on('close', (event) => {
+		if (hostCloseAllowed || view.webContents.isDestroyed()) return;
+		event.preventDefault();
+		if (childClosing) return;
+		childClosing = true;
+		view.webContents.close({ waitForBeforeUnload: true });
+	});
 	win.on('closed', () => {
 		windows.delete(extensionId);
 		if (!view.webContents.isDestroyed()) view.webContents.close();

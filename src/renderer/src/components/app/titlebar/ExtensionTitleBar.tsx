@@ -36,7 +36,11 @@ export function ExtensionTitleBar({ title }: ExtensionTitleBarProps): React.JSX.
 				) : null}
 			</TitleBarLeftContainer>
 			<TitleBarCenterContainer>
-				<TitleBarCenterContainerTitle>{title}</TitleBarCenterContainerTitle>
+				<TitleBarCenterContainerTitle
+					className={isMac ? 'max-w-[calc(100%-180px)] truncate' : 'max-w-[calc(100%-380px)] truncate'}
+				>
+					{title}
+				</TitleBarCenterContainerTitle>
 			</TitleBarCenterContainer>
 			<div className="flex-1" />
 			{!isMac ? <ExtensionWindowControls isMaximized={isMaximized} /> : null}
