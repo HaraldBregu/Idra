@@ -5,7 +5,9 @@ import {
 	AlertTriangle,
 	ChevronDown,
 	ChevronRight,
+	Download,
 	Search,
+	Trash2,
 } from 'lucide-react';
 import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
@@ -39,6 +41,8 @@ import type { ProviderModelGroup } from '../../../start/types';
 import { AgentMediaModelConfiguration } from './media';
 import { SEARCH_ENGINES } from '../search/catalog';
 import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
+import type { DataScope } from '../../../../../../shared/data_types';
+import { Button } from '@/components/ui/button';
 
 type CatalogProvider = PublicProvider;
 
@@ -89,6 +93,13 @@ const AssistantPage: React.FC = () => {
 	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
 	const [searchEngineError, setSearchEngineError] = useState<string | null>(null);
 	const [searchSavingEngineId, setSearchSavingEngineId] = useState<SearchEngineId | null>(null);
+	const [dataScopes, setDataScopes] = useState<{
+		ragIndexName: string;
+		wikiTargetPath: string;
+		sessionIds: string[];
+	} | null>(null);
+	const [dataAction, setDataAction] = useState<string | null>(null);
+	const [dataError, setDataError] = useState<string | null>(null);
 	const model = modelsFor('llm').find(
 		(item) => item.provider.id === state.providerId && item.id === state.modelId
 	);
@@ -113,6 +124,30 @@ const AssistantPage: React.FC = () => {
 					error: firstErrorMessage(error, t('settings.modelServices.loadError')),
 				});
 			});
+		return () => {
+			mounted = false;
+		};
+	}, [t]);
+	useEffect(() => {
+		let mounted = true;
+		void Promise.all([
+			window.agent.ragGetConfiguration(),
+			window.wiki.getSettings(),
+			window.agent.listSessions(),
+		]).then(
+			([rag, wiki, sessions]) => {
+				if (!mounted) return;
+				setDataScopes({
+					ragIndexName: rag.indexName,
+					wikiTargetPath: wiki.targetPath,
+					sessionIds: sessions.map((session) => session.id),
+				});
+				setDataError(null);
+			},
+			(error) => {
+				if (mounted) setDataError(firstErrorMessage(error, t('settings.dataControls.loadError')));
+			}
+		);
 		return () => {
 			mounted = false;
 		};
@@ -194,6 +229,62 @@ const AssistantPage: React.FC = () => {
 			setSearchSavingEngineId(null);
 		});
 	};
+
+	const dataScope = (kind: 'rag' | 'wiki' | 'memory' | 'sessions'): DataScope | undefined => {
+		if (kind === 'memory') return { kind: 'memory' };
+		if (!dataScopes) return undefined;
+		if (kind === 'rag') {
+			return { kind: 'rag', mode: 'local_index', indexName: dataScopes.ragIndexName };
+		}
+		if (kind === 'wiki') return { kind: 'wiki', targetPath: dataScopes.wikiTargetPath };
+		return dataScopes.sessionIds.length > 0
+			? { kind: 'sessions', sessionIds: dataScopes.sessionIds }
+			: undefined;
+	};
+
+	const handleDataAction = async (
+		kind: 'rag' | 'wiki' | 'memory' | 'sessions',
+		action: 'export' | 'purge'
+	): Promise<void> => {
+		const scope = dataScope(kind);
+		if (!scope) return;
+		setDataAction(`${kind}:${action}`);
+		setDataError(null);
+		try {
+			if (action === 'export') await window.dataControls.export(scope);
+			else {
+				const preview = await window.dataControls.previewPurge(scope);
+				await window.dataControls.purge(scope, preview.confirmationId);
+			}
+		} catch (error) {
+			setDataError(firstErrorMessage(error, t('settings.dataControls.actionError')));
+		} finally {
+			setDataAction(null);
+		}
+	};
+
+	const dataActions = (kind: 'rag' | 'wiki' | 'memory' | 'sessions') => (
+		<>
+			<Button
+				variant="outline"
+				size="sm"
+				disabled={!dataScope(kind) || dataAction !== null}
+				onClick={() => void handleDataAction(kind, 'export')}
+			>
+				<Download className="size-3" />
+				{t('settings.dataControls.export')}
+			</Button>
+			<Button
+				variant="destructive"
+				size="sm"
+				disabled={!dataScope(kind) || dataAction !== null}
+				onClick={() => void handleDataAction(kind, 'purge')}
+			>
+				<Trash2 className="size-3" />
+				{t('settings.dataControls.purge')}
+			</Button>
+		</>
+	);
 
 	return (
 		<SettingsPageShell>
@@ -312,6 +403,38 @@ const AssistantPage: React.FC = () => {
 							actions={<ChevronRight className="size-4 text-muted-foreground" />}
 						/>
 					</div>
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.dataControls.title')}>
+				{dataError && (
+					<SettingsNotice variant="destructive" icon={AlertTriangle}>
+						{dataError}
+					</SettingsNotice>
+				)}
+				<SettingsPanel>
+					<SettingsRow
+						title={t('settings.dataControls.memory')}
+						description={t('settings.dataControls.memoryDescription')}
+						actions={dataActions('memory')}
+					/>
+					<SettingsRow
+						title={t('settings.dataControls.sessions')}
+						description={t('settings.dataControls.sessionsDescription', {
+							count: dataScopes?.sessionIds.length ?? 0,
+						})}
+						actions={dataActions('sessions')}
+					/>
+					<SettingsRow
+						title={t('settings.dataControls.rag')}
+						description={t('settings.dataControls.ragDescription')}
+						actions={dataActions('rag')}
+					/>
+					<SettingsRow
+						title={t('settings.dataControls.wiki')}
+						description={t('settings.dataControls.wikiDescription')}
+						actions={dataActions('wiki')}
+					/>
 				</SettingsPanel>
 			</SettingsSection>
 

@@ -1420,6 +1420,21 @@
 			"searchError": "Unable to search the index.",
 			"noResults": "No matches found."
 		},
+		"dataControls": {
+			"title": "Data management",
+			"export": "Export",
+			"purge": "Purge",
+			"memory": "Persistent memory",
+			"memoryDescription": "Saved facts in MEMORY.md.",
+			"sessions": "Assistant sessions",
+			"sessionsDescription": "{{count}} currently listed session(s).",
+			"rag": "Local knowledge index",
+			"ragDescription": "Local chunks and vectors. Remote Pinecone data is excluded.",
+			"wiki": "Managed wiki",
+			"wikiDescription": "Compiled pages and app-owned state for the configured target.",
+			"loadError": "Unable to load data-management scopes.",
+			"actionError": "Unable to complete the data-management action."
+		},
 		"wiki": {
 			"title": "LLM Wiki",
 			"description": "Turn source documents into a persistent Markdown wiki.",
