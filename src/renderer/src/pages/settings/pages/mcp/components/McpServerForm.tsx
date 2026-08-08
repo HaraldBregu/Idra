@@ -312,13 +312,14 @@ export function McpServerForm({
 						/>
 					</Field>
 									<Field>
-								<Label>Environment variables (optional)</Label>
+								<Label htmlFor="mcp-env-key">Environment variables (optional)</Label>
 								<div className="grid gap-2">
 									{env.map((entry, index) => (
 										<div key={`${entry.key}-${index}`} className="grid grid-cols-[1fr_1fr_auto] gap-2">
 											<Field className="mb-0">
 												<Label className="text-xs text-muted-foreground">Key</Label>
 												<Input
+													id={`mcp-env-key-${index}`}
 													value={entry.key}
 													onChange={(e) => updateEnvironmentVariable(index, { key: e.target.value })}
 													autoComplete="off"
@@ -329,6 +330,7 @@ export function McpServerForm({
 											<Field className="mb-0">
 												<Label className="text-xs text-muted-foreground">Value</Label>
 												<Input
+													id={`mcp-env-value-${index}`}
 													value={entry.value}
 													onChange={(e) =>
 														updateEnvironmentVariable(index, { value: e.target.value })
@@ -356,6 +358,7 @@ export function McpServerForm({
 										<Field className="mb-0">
 											<Label className="text-xs text-muted-foreground">Key</Label>
 											<Input
+												id="mcp-env-key"
 												value={envKey}
 												onChange={(e) => setEnvKey(e.target.value)}
 												placeholder="KEY"
