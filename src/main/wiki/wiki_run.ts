@@ -90,7 +90,11 @@ export async function runWiki(
 				runSignal
 			);
 			const source = registered.source;
-			if (!registered.isNew && registered.record.status === 'integrated') {
+			if (
+				!registered.isNew &&
+				registered.record.status === 'integrated' &&
+				!registered.pendingLineage
+			) {
 				state.sources[source.relativePath] = source.hash;
 				skippedSources += 1;
 				continue;

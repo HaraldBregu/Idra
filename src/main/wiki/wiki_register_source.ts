@@ -6,6 +6,7 @@ import { getWikiRepository, type WikiRepository } from './wiki_repository';
 import type { WikiRegisteredSource, WikiSource } from './wiki_types';
 import { MAX_WIKI_SOURCE_BYTES } from './wiki_source_limits';
 import { assertWikiSourceSafe } from './wiki_source_safety';
+import { readWikiArchive } from './wiki_read_archive';
 
 export async function registerWikiSource(
 	source: WikiSource,
@@ -34,12 +35,14 @@ export async function registerWikiSource(
 		.filter(
 			(record) =>
 				record.sourceId !== sourceId &&
+				record.status === 'integrated' &&
 				record.relativePaths.includes(source.relativePath) &&
 				!record.lineage?.[source.relativePath]?.replacedBySourceId
 		)
 		.sort((left, right) => right.ingestedAt.localeCompare(left.ingestedAt))[0];
 	const previousVersion = previous?.lineage?.[source.relativePath]?.version ?? (previous ? 1 : 0);
 	if (existing) {
+		await readWikiArchive(existing, signal);
 		if (!existing.relativePaths.includes(source.relativePath)) {
 			registry.sources[sourceId] = {
 				...existing,
