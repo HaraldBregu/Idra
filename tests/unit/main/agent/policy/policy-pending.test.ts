@@ -80,6 +80,24 @@ describe('tool permission pending registry', () => {
 		await expect(other).resolves.toBe('approve');
 	});
 
+	it('settles when cancellation occurs while the abort listener is being registered', async () => {
+		let aborted = false;
+		const signal = {
+			get aborted() {
+				return aborted;
+			},
+			addEventListener: jest.fn(() => {
+				aborted = true;
+			}),
+			removeEventListener: jest.fn(),
+		} as unknown as AbortSignal;
+
+		await expect(waitForToolPermission(approval('registration-race'), signal)).resolves.toBe(
+			'reject'
+		);
+		expect(respondToolPermission('registration-race', 'approve')).toBe(false);
+	});
+
 	it('rejects pending approvals for only the requested run', async () => {
 		const selected = waitForToolPermission(approval('selected'));
 		const other = waitForToolPermission({ ...approval('other-run'), runId: 'run-2' });

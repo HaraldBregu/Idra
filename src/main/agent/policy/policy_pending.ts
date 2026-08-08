@@ -26,8 +26,11 @@ export function waitForToolPermission(
 	return new Promise((resolve) => {
 		const delay = Math.max(0, request.expiresAtMs - Date.now());
 		let timer: NodeJS.Timeout;
+		let settled = false;
 		const abort = (): void => settle('reject');
 		const settle = (decision: AgentToolPermissionDecision): void => {
+			if (settled) return;
+			settled = true;
 			pending.delete(request.approvalId);
 			clearTimeout(timer);
 			signal?.removeEventListener('abort', abort);
@@ -38,6 +41,7 @@ export function waitForToolPermission(
 		pending.get(request.approvalId)?.settle('reject');
 		pending.set(request.approvalId, { request, settle, timer });
 		signal?.addEventListener('abort', abort, { once: true });
+		if (signal?.aborted) abort();
 	});
 }
 
