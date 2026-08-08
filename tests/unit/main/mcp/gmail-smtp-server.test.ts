@@ -26,7 +26,7 @@ describe('gmail smtp MCP server', () => {
 			data: {
 				type: 'stdio',
 				command: 'node',
-				args: ['--experimental-strip-types', 'server.ts'],
+				args: ['--experimental-strip-types', 'src/index.ts'],
 				cwd: directory,
 				env: {
 					GMAIL_SMTP_HOST: 'smtp.gmail.com',
