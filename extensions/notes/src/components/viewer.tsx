@@ -1,4 +1,4 @@
-import { FileQuestion, ImageIcon, Music2, Video } from "lucide-react"
+import { FileQuestion, Music2 } from "lucide-react"
 import type { WorkspaceFileKind } from "@friday/sdk"
 
 import { CodeMirrorEditor } from "@/components/code-mirror-editor"

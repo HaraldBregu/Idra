@@ -36,11 +36,16 @@ describe('workspace files', () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-workspace-'));
 		const directory = path.join(root, 'notes');
 		const file = path.join(directory, 'idea.md');
+		const dottedFile = path.join(root, '..notes.md');
 		await fs.mkdir(directory);
 		await fs.writeFile(file, '# Idea');
+		await fs.writeFile(dottedFile, '# Dotted');
 
 		await expect(resolveWorkspaceFile(root, 'notes/idea.md')).resolves.toBe(
 			await fs.realpath(file)
+		);
+		await expect(resolveWorkspaceFile(root, '..notes.md')).resolves.toBe(
+			await fs.realpath(dottedFile)
 		);
 		await fs.rm(root, { recursive: true });
 	});
