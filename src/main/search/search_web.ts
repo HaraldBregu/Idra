@@ -10,7 +10,10 @@ const searchers: Record<SearchEngineId, SearchAdapter> = {
 	tavily: searchTavily,
 };
 
-export async function searchWeb(request: SearchRequest): Promise<SearchResponse> {
+export async function searchWeb(
+	request: SearchRequest,
+	signal?: AbortSignal
+): Promise<SearchResponse> {
 	const { engineId } = getSearchSettings();
 	const apiKey = getSearchKey(engineId);
 	if (!apiKey) {
@@ -19,5 +22,5 @@ export async function searchWeb(request: SearchRequest): Promise<SearchResponse>
 		);
 	}
 
-	return searchers[engineId]({ query: request.query, count: request.count ?? 5 }, apiKey);
+	return searchers[engineId]({ query: request.query, count: request.count ?? 5 }, apiKey, signal);
 }

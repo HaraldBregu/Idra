@@ -2,13 +2,15 @@ import type { SearchRequest, SearchResponse } from '../../../shared/search_types
 
 export async function searchBrave(
 	request: Required<SearchRequest>,
-	apiKey: string
+	apiKey: string,
+	signal?: AbortSignal
 ): Promise<SearchResponse> {
 	const url = new URL('https://api.search.brave.com/res/v1/web/search');
 	url.searchParams.set('q', request.query);
 	url.searchParams.set('count', String(request.count));
 
 	const response = await fetch(url, {
+		signal,
 		headers: { Accept: 'application/json', 'X-Subscription-Token': apiKey },
 	});
 	if (!response.ok) {

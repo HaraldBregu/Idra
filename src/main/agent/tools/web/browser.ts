@@ -4,6 +4,7 @@ import { chromium, type BrowserContext, type Page } from 'playwright-core';
 import { z } from 'zod';
 import { userDataLocation } from '../../../shared/user_data_location';
 import { tool } from '../tool';
+import { runBrowserPageOperation } from './browser_abort';
 
 const ACTIONS = [
 	'status',
@@ -59,14 +60,20 @@ function trackPage(page: Page): string {
 	return id;
 }
 
-async function ensureStarted(): Promise<BrowserContext> {
+async function ensureStarted(signal?: AbortSignal): Promise<BrowserContext> {
+	signal?.throwIfAborted();
 	if (context) return context;
 	const userDataDir = path.join(userDataLocation(), 'agent-browser');
-	context = await chromium.launchPersistentContext(userDataDir, {
+	const launched = await chromium.launchPersistentContext(userDataDir, {
 		channel: 'chrome',
 		headless: false,
 		viewport: null,
 	});
+	if (signal?.aborted) {
+		await launched.close();
+		signal.throwIfAborted();
+	}
+	context = launched;
 	context.setDefaultTimeout(DEFAULT_TIMEOUT_MS);
 	context.on('page', (page) => {
 		if (![...pages.values()].includes(page)) trackPage(page);
@@ -134,9 +141,10 @@ const SNAPSHOT_SCRIPT = `(() => {
 	return { title: document.title, text: (document.body?.innerText || '').trim(), elements };
 })()`;
 
-async function tabList(): Promise<{ targetId: string; url: string; title: string }[]> {
+async function tabList(signal?: AbortSignal): Promise<{ targetId: string; url: string; title: string }[]> {
 	const list: { targetId: string; url: string; title: string }[] = [];
 	for (const [targetId, page] of pages) {
+		signal?.throwIfAborted();
 		list.push({ targetId, url: page.url(), title: await page.title().catch(() => '') });
 	}
 	return list;
@@ -164,16 +172,17 @@ async function runAct(params: {
 	selector?: string;
 	loadState?: 'load' | 'domcontentloaded' | 'networkidle';
 	timeoutMs?: number;
-}): Promise<string> {
+}, signal?: AbortSignal): Promise<string> {
 	const { page } = getPage(params.targetId);
-	const timeout = params.timeoutMs;
-	const locator = (ref: string) => page.locator(refSelector(ref));
-	const requireRef = (): string => {
-		if (!params.ref) throw new Error(`act "${params.kind}" requires a ref from snapshot output.`);
-		return params.ref;
-	};
+	return runBrowserPageOperation(page, signal, async () => {
+		const timeout = params.timeoutMs;
+		const locator = (ref: string) => page.locator(refSelector(ref));
+		const requireRef = (): string => {
+			if (!params.ref) throw new Error(`act "${params.kind}" requires a ref from snapshot output.`);
+			return params.ref;
+		};
 
-	switch (params.kind) {
+		switch (params.kind) {
 		case 'click':
 			await locator(requireRef()).click({
 				button: params.button,
@@ -221,7 +230,7 @@ async function runAct(params: {
 			const result = await page.evaluate(params.fn);
 			return JSON.stringify(result) ?? 'undefined';
 		}
-	}
+	});
 }
 
 export const webBrowserTool = tool({
@@ -264,50 +273,58 @@ export const webBrowserTool = tool({
 			.describe('act wait: page load state to wait for.'),
 		timeoutMs: z.number().int().min(1).optional().describe('act: per-action timeout override.'),
 	}),
-	execute: async (params) => {
+	execute: async (params, signal) => {
+		signal?.throwIfAborted();
 		switch (params.action) {
 			case 'status':
-				return JSON.stringify({ running: context !== null, tabs: await tabList() });
+				return JSON.stringify({ running: context !== null, tabs: await tabList(signal) });
 			case 'start': {
-				await ensureStarted();
-				return JSON.stringify({ running: true, tabs: await tabList() });
+				await ensureStarted(signal);
+				return JSON.stringify({ running: true, tabs: await tabList(signal) });
 			}
 			case 'stop': {
 				if (context) await context.close();
 				return JSON.stringify({ running: false });
 			}
 			case 'tabs':
-				return JSON.stringify({ tabs: await tabList() });
+				return JSON.stringify({ tabs: await tabList(signal) });
 			case 'open': {
 				if (!params.url) throw new Error('open requires a url.');
 				const url = assertHttpUrl(params.url);
-				const ctx = await ensureStarted();
+				const ctx = await ensureStarted(signal);
 				const page = await ctx.newPage();
 				const targetId = [...pages.entries()].find(([, p]) => p === page)?.[0] ?? trackPage(page);
-				await page.goto(url, { waitUntil: 'domcontentloaded' });
+				await runBrowserPageOperation(page, signal, () =>
+					page.goto(url, { waitUntil: 'domcontentloaded' })
+				);
 				return JSON.stringify({ targetId, url: page.url(), title: await page.title() });
 			}
 			case 'focus': {
 				const { id, page } = getPage(params.targetId);
-				await page.bringToFront();
+				await runBrowserPageOperation(page, signal, () => page.bringToFront());
 				return JSON.stringify({ targetId: id, url: page.url() });
 			}
 			case 'close': {
 				const { id, page } = getPage(params.targetId);
 				await page.close();
-				return JSON.stringify({ closed: id, tabs: await tabList() });
+				return JSON.stringify({ closed: id, tabs: await tabList(signal) });
 			}
 			case 'navigate': {
 				const { id, page } = getPage(params.targetId);
-				if (params.back) await page.goBack({ waitUntil: 'domcontentloaded' });
-				else if (params.forward) await page.goForward({ waitUntil: 'domcontentloaded' });
-				else if (params.url) await page.goto(assertHttpUrl(params.url), { waitUntil: 'domcontentloaded' });
-				else throw new Error('navigate requires url, back, or forward.');
+				await runBrowserPageOperation(page, signal, async () => {
+					if (params.back) await page.goBack({ waitUntil: 'domcontentloaded' });
+					else if (params.forward) await page.goForward({ waitUntil: 'domcontentloaded' });
+					else if (params.url)
+						await page.goto(assertHttpUrl(params.url), { waitUntil: 'domcontentloaded' });
+					else throw new Error('navigate requires url, back, or forward.');
+				});
 				return JSON.stringify({ targetId: id, url: page.url(), title: await page.title() });
 			}
 			case 'snapshot': {
 				const { id, page } = getPage(params.targetId);
-				const snapshot = (await page.evaluate(SNAPSHOT_SCRIPT)) as {
+				const snapshot = (await runBrowserPageOperation(page, signal, () =>
+					page.evaluate(SNAPSHOT_SCRIPT)
+				)) as {
 					title: string;
 					text: string;
 					elements: unknown[];
@@ -329,14 +346,16 @@ export const webBrowserTool = tool({
 			case 'screenshot': {
 				const { id, page } = getPage(params.targetId);
 				const file = tempFile('png');
-				if (params.ref) await page.locator(refSelector(params.ref)).screenshot({ path: file });
-				else await page.screenshot({ path: file, fullPage: params.fullPage });
+				await runBrowserPageOperation(page, signal, async () => {
+					if (params.ref) await page.locator(refSelector(params.ref)).screenshot({ path: file });
+					else await page.screenshot({ path: file, fullPage: params.fullPage });
+				});
 				return JSON.stringify({ targetId: id, path: file });
 			}
 			case 'pdf': {
 				const { id, page } = getPage(params.targetId);
 				const file = tempFile('pdf');
-				await page.pdf({ path: file });
+				await runBrowserPageOperation(page, signal, () => page.pdf({ path: file }));
 				return JSON.stringify({ targetId: id, path: file });
 			}
 			case 'console': {
@@ -346,7 +365,7 @@ export const webBrowserTool = tool({
 			}
 			case 'act': {
 				if (!params.kind) throw new Error('act requires a kind (click, type, press, ...).');
-				const result = await runAct({ ...params, kind: params.kind });
+				const result = await runAct({ ...params, kind: params.kind }, signal);
 				return JSON.stringify({ result });
 			}
 		}

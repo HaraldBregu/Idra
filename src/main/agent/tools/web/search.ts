@@ -19,8 +19,8 @@ const webSearchTool = tool({
 			.optional()
 			.describe('Number of results to return (default 5).'),
 	}),
-	execute: async ({ query, count }) => {
-		return JSON.stringify(await searchWeb({ query, count }), null, 2);
+	execute: async ({ query, count }, signal) => {
+		return JSON.stringify(await searchWeb({ query, count }, signal), null, 2);
 	},
 });
 

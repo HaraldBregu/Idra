@@ -2,9 +2,11 @@ import type { SearchRequest, SearchResponse } from '../../../shared/search_types
 
 export async function searchTavily(
 	request: Required<SearchRequest>,
-	apiKey: string
+	apiKey: string,
+	signal?: AbortSignal
 ): Promise<SearchResponse> {
 	const response = await fetch('https://api.tavily.com/search', {
+		signal,
 		method: 'POST',
 		headers: {
 			Accept: 'application/json',

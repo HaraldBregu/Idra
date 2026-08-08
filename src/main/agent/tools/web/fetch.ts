@@ -21,11 +21,13 @@ BLOCKED.addSubnet('fe80::', 10, 'ipv6');
 
 // ponytail: validates then fetches by hostname (DNS rebinding TOCTOU remains);
 // pin the resolved IP via a custom agent if that matters
-async function assertPublicHost(hostname: string): Promise<void> {
+async function assertPublicHost(hostname: string, signal?: AbortSignal): Promise<void> {
+	signal?.throwIfAborted();
 	const host = hostname.toLowerCase().replace(/\.$/, '');
 	if (host === 'localhost' || host.endsWith('.localhost'))
 		throw new Error(`web_fetch blocked: ${hostname} is not a public host`);
 	const addresses = await dns.lookup(host, { all: true });
+	signal?.throwIfAborted();
 	for (const { address } of addresses) {
 		const v4 = address.replace(/^::ffff:/i, '');
 		const blocked = net.isIPv4(v4)
@@ -70,16 +72,17 @@ export const webFetchTool = tool({
 			.optional()
 			.describe(`Max characters returned (default ${MAX_CHARS_DEFAULT}); longer content is truncated.`),
 	}),
-	execute: async ({ url, maxChars }) => {
+	execute: async ({ url, maxChars }, signal) => {
 		let current = new URL(url);
 		let res: Response;
 		for (let hop = 0; ; hop++) {
 			if (current.protocol !== 'http:' && current.protocol !== 'https:')
 				throw new Error('Invalid URL: must be http or https');
-			await assertPublicHost(current.hostname);
+			await assertPublicHost(current.hostname, signal);
+			const timeoutSignal = AbortSignal.timeout(TIMEOUT_MS);
 			res = await fetch(current, {
 				redirect: 'manual',
-				signal: AbortSignal.timeout(TIMEOUT_MS),
+				signal: signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal,
 				headers: {
 					Accept: 'text/html, application/json;q=0.9, */*;q=0.1',
 					'Accept-Language': 'en-US,en;q=0.9',
