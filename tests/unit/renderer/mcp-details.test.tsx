@@ -91,8 +91,10 @@ describe('MCP details', () => {
 		expect(await screen.findByRole('heading', { name: 'Local files' })).toBeInTheDocument();
 		expect(screen.getByLabelText('Command')).toHaveValue('node');
 		expect(screen.getByLabelText('Working directory (optional)')).toHaveValue('/local');
-		const envKey = screen.getByDisplayValue('MODE');
-		const envValue = screen.getByDisplayValue('dev');
+		const [envKey, envValue] = [
+			screen.getAllByRole('textbox', { name: 'Key' })[0],
+			screen.getAllByRole('textbox', { name: 'Value' })[0],
+		];
 		await user.clear(envKey);
 		await user.type(envKey, 'DEMO_COMPANY');
 		await user.clear(envValue);
