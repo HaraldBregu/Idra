@@ -246,7 +246,8 @@ const AssistantPage: React.FC = () => {
 			if (action === 'export') await window.dataControls.export(scope);
 			else {
 				const preview = await window.dataControls.previewPurge(scope);
-				await window.dataControls.purge(scope, preview.confirmationId);
+				const purged = await window.dataControls.purge(scope, preview.confirmationId);
+				if (purged) setDataScopes(await window.dataControls.listScopes());
 			}
 		} catch (error) {
 			setDataError(firstErrorMessage(error, t('settings.dataControls.actionError')));
