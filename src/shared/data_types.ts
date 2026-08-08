@@ -2,6 +2,7 @@ export type DataScope =
 	| { kind: 'rag'; mode: 'local_index'; indexName: string }
 	| { kind: 'rag'; mode: 'local_namespace'; indexName: string; generation: string }
 	| { kind: 'rag'; mode: 'remote_namespace'; indexName: string; generation: string }
+	| { kind: 'rag'; mode: 'remote_all_namespaces'; indexName: string }
 	| { kind: 'wiki'; targetPath: string }
 	| { kind: 'memory' }
 	| { kind: 'sessions'; sessionIds: string[] };
@@ -28,6 +29,7 @@ export interface DataPurgeResult {
 	files: number;
 	bytes: number;
 	remoteDataDeleted: boolean;
+	remoteNamespacesDeleted?: number;
 }
 
 export interface DataApi {

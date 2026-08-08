@@ -13,11 +13,11 @@ import { memoryPath } from '../agent/memory';
 import { MEMORY_FILE, resolveTemplatePath } from '../agent/system';
 import { sessionPath, sessionsRoot } from '../agent/session';
 import { purgeRagManifest } from '../rag';
-import { ragClient } from '../rag/rag_client';
 import { getRagConfiguration } from '../rag/rag_store';
 import { ragVectorStore } from '../rag/vector';
 import { getWikiRepository, getWikiSettings } from '../wiki';
 import { DataArchive } from './data_archive';
+import { purgeRemoteRagNamespaces } from './data_purge_remote';
 
 interface AgentDataPort {
 	config: Config;
@@ -62,6 +62,13 @@ export class DataController {
 					});
 				}
 			}
+			if (rag.databaseProviderId === 'pinecone') {
+				scopes.push({
+					kind: 'rag',
+					mode: 'remote_all_namespaces',
+					indexName: rag.indexName,
+				});
+			}
 		} finally {
 			store.close();
 		}
@@ -69,7 +76,10 @@ export class DataController {
 	}
 
 	async export(scope: DataScope, filePath: string): Promise<DataExportResult> {
-		if (scope.kind === 'rag' && scope.mode === 'remote_namespace') {
+		if (
+			scope.kind === 'rag' &&
+			(scope.mode === 'remote_namespace' || scope.mode === 'remote_all_namespaces')
+		) {
 			throw new Error('Remote namespaces cannot be exported through the local data archive.');
 		}
 		const archive = await this.collect(scope);
@@ -92,7 +102,8 @@ export class DataController {
 
 	async previewPurge(scope: DataScope): Promise<DataPurgePreview> {
 		const archive =
-			scope.kind === 'rag' && scope.mode === 'remote_namespace'
+			scope.kind === 'rag' &&
+			(scope.mode === 'remote_namespace' || scope.mode === 'remote_all_namespaces')
 				? new DataArchive()
 				: await this.collect(scope);
 		const confirmationId = randomUUID();
@@ -103,7 +114,9 @@ export class DataController {
 			files: archive.files().length,
 			bytes: archive.bytes(),
 			expiresAt: new Date(Date.now() + 5 * 60_000).toISOString(),
-			remoteDataIncluded: scope.kind === 'rag' && scope.mode === 'remote_namespace',
+			remoteDataIncluded:
+				scope.kind === 'rag' &&
+				(scope.mode === 'remote_namespace' || scope.mode === 'remote_all_namespaces'),
 		};
 		this.pendingPurges.set(confirmationId, { scopeHash: scopeHash(scope), preview });
 		return preview;
@@ -120,9 +133,13 @@ export class DataController {
 			throw new Error('Purge confirmation is missing, expired, or does not match the scope.');
 		}
 
+		let remoteNamespacesDeleted = 0;
 		if (scope.kind === 'rag') {
-			if (scope.mode === 'remote_namespace') {
-				await ragClient().index(scope.indexName).deleteNamespace(scope.generation);
+			if (scope.mode === 'remote_namespace' || scope.mode === 'remote_all_namespaces') {
+				remoteNamespacesDeleted = await purgeRemoteRagNamespaces(
+					scope.indexName,
+					scope.mode === 'remote_namespace' ? scope.generation : undefined
+				);
 			} else {
 				const store = ragVectorStore();
 				try {
@@ -163,14 +180,19 @@ export class DataController {
 			scope,
 			files: pending.preview.files,
 			bytes: pending.preview.bytes,
-			remoteDataDeleted: scope.kind === 'rag' && scope.mode === 'remote_namespace',
+			remoteDataDeleted:
+				scope.kind === 'rag' &&
+				(scope.mode === 'remote_namespace' || scope.mode === 'remote_all_namespaces'),
+			...(remoteNamespacesDeleted > 0 ? { remoteNamespacesDeleted } : {}),
 		};
 	}
 
 	private async collect(scope: DataScope): Promise<DataArchive> {
 		const archive = new DataArchive();
 		if (scope.kind === 'rag') {
-			if (scope.mode === 'remote_namespace') return archive;
+			if (scope.mode === 'remote_namespace' || scope.mode === 'remote_all_namespaces') {
+				return archive;
+			}
 			const store = ragVectorStore();
 			try {
 				const publication = store.exportIndex(
@@ -231,6 +253,9 @@ function describeScope(scope: DataScope): string {
 	}
 	if (scope.mode === 'remote_namespace') {
 		return `remote Pinecone namespace ${scope.generation} in ${scope.indexName}`;
+	}
+	if (scope.mode === 'remote_all_namespaces') {
+		return `all Friday-owned remote Pinecone namespaces in ${scope.indexName}`;
 	}
 	return `all local RAG data in ${scope.indexName}`;
 }

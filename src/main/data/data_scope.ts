@@ -34,6 +34,9 @@ export function normalizeDataScope(value: unknown): DataScope {
 		if (typeof input.indexName !== 'string') throw new Error('A RAG index name is required.');
 		const indexName = normalizeRagIndexName(input.indexName);
 		if (input.mode === 'local_index') return { kind: 'rag', mode: 'local_index', indexName };
+		if (input.mode === 'remote_all_namespaces') {
+			return { kind: 'rag', mode: 'remote_all_namespaces', indexName };
+		}
 		if (
 			(input.mode === 'local_namespace' || input.mode === 'remote_namespace') &&
 			typeof input.generation === 'string' &&
