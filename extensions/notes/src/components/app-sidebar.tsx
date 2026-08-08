@@ -210,7 +210,10 @@ export function AppSidebar({
 		[workspaceFiles]
 	);
 	const regularFiles = useMemo(
-		() => workspaceFiles.filter((entry) => !agentFilePathSet.has(entry.path)),
+		() =>
+			workspaceFiles.filter(
+				(entry) => entry.type !== 'file' || !agentFilePathSet.has(entry.path)
+			),
 		[workspaceFiles]
 	);
 	const workspaceName = useMemo(() => {

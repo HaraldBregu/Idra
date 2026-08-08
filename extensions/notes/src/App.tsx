@@ -25,6 +25,7 @@ import {
 import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { showNativeContextMenu } from '@/lib/menu';
+import { removeWorkspaceEntry } from '@/lib/remove';
 
 const fallbackTheme: AppThemeData = {
 	themeMode: 'light',
@@ -275,10 +276,11 @@ export default function App() {
 		deletingPathRef.current = filePath;
 		setDeleting(true);
 		setDeleteError('');
+		let deletionFailed = false;
 		try {
 			if (saveInFlightRef.current) await saveInFlightRef.current;
 			await agent.deleteWorkspaceFile(filePath);
-			setWorkspaceFiles(await agent.listWorkspaceFiles());
+			setWorkspaceFiles((current) => removeWorkspaceEntry(current, filePath));
 			if (selectedPathRef.current === filePath) {
 				selectionRequestRef.current += 1;
 				selectedPathRef.current = null;
@@ -292,11 +294,28 @@ export default function App() {
 				setSelectedSaveError('');
 			}
 			setDeleteTarget(null);
+			try {
+				setWorkspaceFiles(await agent.listWorkspaceFiles());
+			} catch (error) {
+				setWorkspaceError(
+					error instanceof Error
+						? `File deleted, but the workspace could not refresh: ${error.message}`
+						: 'File deleted, but the workspace could not refresh.'
+				);
+			}
 		} catch (error) {
+			deletionFailed = true;
 			setDeleteError(error instanceof Error ? error.message : 'Unable to delete the file.');
 		} finally {
 			deletingPathRef.current = null;
 			setDeleting(false);
+		}
+		if (
+			deletionFailed &&
+			selectedPathRef.current === filePath &&
+			selectedContentRef.current !== selectedSavedContent
+		) {
+			void saveWorkspaceMarkdown(filePath, selectedContentRef.current);
 		}
 	}
 
