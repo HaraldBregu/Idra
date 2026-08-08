@@ -3,6 +3,7 @@ import { useMemo, useState } from "react"
 import { isFriday, win, type WorkspaceTreeEntry } from "@friday/sdk"
 
 import { cn } from "@/lib/utils"
+import { showNativeContextMenu } from "@/lib/menu"
 
 function WorkspaceTree({
   expanded,
@@ -82,21 +83,23 @@ function WorkspaceTreeItem({
       <button
         type="button"
         onContextMenu={(event) => {
-          event.preventDefault()
-          if (!isFriday()) return
-          void win.showContextMenu([
+          showNativeContextMenu(
+            event,
+            [
+              {
+                id: isDirectory ? "toggle" : "open",
+                label: isDirectory ? (isExpanded ? "Collapse" : "Expand") : "Open",
+                enabled: !isDirectory || Boolean(entry.children?.length),
+              },
+              { type: "separator" },
+              { id: "copy-path", label: "Copy Path" },
+            ],
             {
-              id: isDirectory ? "toggle" : "open",
-              label: isDirectory ? (isExpanded ? "Collapse" : "Expand") : "Open",
-              enabled: !isDirectory || Boolean(entry.children?.length),
+              toggle: () => onToggle(entry.path),
+              open: () => onSelect(entry),
+              "copy-path": () => navigator.clipboard.writeText(entry.path),
             },
-            { type: "separator" },
-            { id: "copy-path", label: "Copy Path" },
-          ]).then((action) => {
-            if (action === "toggle") onToggle(entry.path)
-            if (action === "open") onSelect(entry)
-            if (action === "copy-path") void navigator.clipboard.writeText(entry.path)
-          })
+          )
         }}
         onClick={() => {
           if (isDirectory) onToggle(entry.path)
@@ -166,7 +169,22 @@ export function AppSidebar({
   }
 
   return (
-    <div className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground">
+    <div
+      className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground"
+      onContextMenu={(event) => {
+        showNativeContextMenu(
+          event,
+          [
+            { id: "copy-workspace-path", label: "Copy Workspace Path", enabled: Boolean(workspaceLocation) },
+            { id: "collapse-all", label: "Collapse All", enabled: expanded.size > 0 },
+          ],
+          {
+            "copy-workspace-path": () => navigator.clipboard.writeText(workspaceLocation),
+            "collapse-all": () => setExpanded(new Set()),
+          },
+        )
+      }}
+    >
       <header
         className="flex h-14 shrink-0 items-center gap-2 px-4"
         title={workspaceLocation || workspaceName}

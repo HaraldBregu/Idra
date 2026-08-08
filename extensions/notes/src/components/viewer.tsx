@@ -1,7 +1,9 @@
+import { useRef } from "react"
 import { FileQuestion, Music2 } from "lucide-react"
 import type { WorkspaceFileKind } from "@friday/sdk"
 
 import { CodeMirrorEditor } from "@/components/code-mirror-editor"
+import { showNativeContextMenu } from "@/lib/menu"
 
 interface FileViewerProps {
   content: string
@@ -14,6 +16,7 @@ interface FileViewerProps {
 
 export function FileViewer({ content, kind, onChange, onSave, path, url }: FileViewerProps) {
   const name = path.split(/[\\/]/).pop() ?? path
+  const mediaRef = useRef<HTMLMediaElement | null>(null)
 
   if (kind === "markdown") {
     return (
@@ -32,7 +35,23 @@ export function FileViewer({ content, kind, onChange, onSave, path, url }: FileV
   if (kind === "text") {
     return (
       <article className="mx-auto min-h-full w-full max-w-[1000px] px-5 py-8 sm:px-8 lg:px-12">
-        <pre className="whitespace-pre-wrap break-words font-mono text-[13px] leading-6 text-foreground">{content}</pre>
+        <pre
+          className="whitespace-pre-wrap break-words font-mono text-[13px] leading-6 text-foreground"
+          onContextMenu={(event) => {
+            showNativeContextMenu(
+              event,
+              [
+                { type: "role", role: "copy" },
+                { type: "role", role: "selectAll" },
+                { type: "separator" },
+                { id: "copy-path", label: "Copy Path" },
+              ],
+              { "copy-path": () => navigator.clipboard.writeText(path) },
+            )
+          }}
+        >
+          {content}
+        </pre>
       </article>
     )
   }
@@ -55,7 +74,34 @@ export function FileViewer({ content, kind, onChange, onSave, path, url }: FileV
             </div>
             <p className="min-w-0 flex-1 truncate text-sm font-medium">{name}</p>
           </div>
-          <audio src={url} controls preload="metadata" className="w-full" />
+          <audio
+            ref={(element) => {
+              mediaRef.current = element
+            }}
+            src={url}
+            controls
+            preload="metadata"
+            className="w-full"
+            onContextMenu={(event) => {
+              const media = mediaRef.current
+              showNativeContextMenu(
+                event,
+                [
+                  { id: "play-pause", label: media?.paused ? "Play" : "Pause" },
+                  { id: "mute", label: media?.muted ? "Unmute" : "Mute" },
+                  { type: "separator" },
+                  { id: "copy-path", label: "Copy Path" },
+                ],
+                {
+                  "play-pause": () => (media?.paused ? media.play() : media?.pause()),
+                  mute: () => {
+                    if (media) media.muted = !media.muted
+                  },
+                  "copy-path": () => navigator.clipboard.writeText(path),
+                },
+              )
+            }}
+          />
         </div>
       </div>
     )
@@ -64,7 +110,34 @@ export function FileViewer({ content, kind, onChange, onSave, path, url }: FileV
   if (kind === "video") {
     return (
       <div className="flex min-h-full items-center justify-center bg-black/95 p-4 sm:p-8">
-        <video src={url} controls preload="metadata" className="max-h-[calc(100dvh-8rem)] max-w-full" />
+        <video
+          ref={(element) => {
+            mediaRef.current = element
+          }}
+          src={url}
+          controls
+          preload="metadata"
+          className="max-h-[calc(100dvh-8rem)] max-w-full"
+          onContextMenu={(event) => {
+            const media = mediaRef.current
+            showNativeContextMenu(
+              event,
+              [
+                { id: "play-pause", label: media?.paused ? "Play" : "Pause" },
+                { id: "mute", label: media?.muted ? "Unmute" : "Mute" },
+                { type: "separator" },
+                { id: "copy-path", label: "Copy Path" },
+              ],
+              {
+                "play-pause": () => (media?.paused ? media.play() : media?.pause()),
+                mute: () => {
+                  if (media) media.muted = !media.muted
+                },
+                "copy-path": () => navigator.clipboard.writeText(path),
+              },
+            )
+          }}
+        />
       </div>
     )
   }

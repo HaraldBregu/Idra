@@ -15,6 +15,7 @@ import { WorkspaceViewer } from '@/components/workspace-viewer';
 import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { showNativeContextMenu } from '@/lib/menu';
 
 const fallbackTheme: AppThemeData = {
 	themeMode: 'light',
@@ -270,6 +271,13 @@ export default function App() {
 			<div
 				className={cn('flex h-dvh min-h-[520px] overflow-hidden bg-background text-foreground', theme.isDark && 'dark')}
 				style={themeStyle}
+				onContextMenu={(event) => {
+					showNativeContextMenu(
+						event,
+						[{ id: 'copy-workspace-path', label: 'Copy Workspace Path', enabled: Boolean(workspaceLocation) }],
+						{ 'copy-workspace-path': () => navigator.clipboard.writeText(workspaceLocation) }
+					);
+				}}
 			>
 				<Sidebar width={sidebarWidth}>
 					<SidebarContent>{sidebar}</SidebarContent>

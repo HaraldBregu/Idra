@@ -3,6 +3,7 @@ import type { WorkspaceFileKind } from "@friday/sdk"
 
 import { FileViewer } from "@/components/viewer"
 import { Button } from "@/components/ui/button"
+import { showNativeContextMenu } from "@/lib/menu"
 
 interface WorkspaceViewerProps {
   content: string
@@ -56,7 +57,28 @@ export function WorkspaceViewer({
   }
 
   return (
-    <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background" aria-label="Workspace file">
+    <section
+      className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background"
+      aria-label="Workspace file"
+      onContextMenu={(event) => {
+        showNativeContextMenu(
+          event,
+          [
+            ...(kind === "markdown"
+              ? [{ id: "save", label: "Save", accelerator: "CommandOrControl+S", enabled: dirty && !saving } as const, { type: "separator" } as const]
+              : []),
+            { type: "role", role: "copy" },
+            { type: "role", role: "selectAll" },
+            { type: "separator" },
+            { id: "copy-path", label: "Copy Path" },
+          ],
+          {
+            save: () => onSave(),
+            "copy-path": () => navigator.clipboard.writeText(path),
+          },
+        )
+      }}
+    >
       <header className="flex h-14 shrink-0 items-center gap-3 border-b px-3 sm:px-5">
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-[15px] font-semibold tracking-[-0.02em]">{path.split(/[\\/]/).pop()}</h1>

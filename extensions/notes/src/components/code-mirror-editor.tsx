@@ -6,6 +6,7 @@ import { Compartment, EditorState, Transaction } from "@codemirror/state"
 import { EditorView, keymap, placeholder } from "@codemirror/view"
 import { tags } from "@lezer/highlight"
 
+import { showNativeContextMenu } from "@/lib/menu"
 import { cn } from "@/lib/utils"
 
 const markdownHighlight = HighlightStyle.define([
@@ -196,5 +197,36 @@ export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
     })
   }, [readOnly])
 
-  return <div ref={mountRef} className={cn("min-h-[360px]", className)} />
+  return (
+    <div
+      ref={mountRef}
+      className={cn("min-h-[360px]", className)}
+      onContextMenu={(event) => {
+        viewRef.current?.focus()
+        showNativeContextMenu(
+          event,
+          readOnly
+            ? [
+                { type: "role", role: "copy" },
+                { type: "role", role: "selectAll" },
+              ]
+            : [
+                { type: "role", role: "undo" },
+                { type: "role", role: "redo" },
+                { type: "separator" },
+                { type: "role", role: "cut" },
+                { type: "role", role: "copy" },
+                { type: "role", role: "paste" },
+                { type: "role", role: "pasteAndMatchStyle" },
+                { type: "role", role: "delete" },
+                { type: "separator" },
+                { type: "role", role: "selectAll" },
+                { type: "separator" },
+                { id: "save", label: "Save", accelerator: "CommandOrControl+S" },
+              ],
+          { save: () => onSaveRef.current?.() },
+        )
+      }}
+    />
+  )
 })
