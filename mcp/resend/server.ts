@@ -1,15 +1,7 @@
 import process from 'node:process';
-
-type JsonRpcRequest = {
-	jsonrpc?: unknown;
-	id?: unknown;
-	method?: unknown;
-	params?: {
-		protocolVersion?: string;
-		name?: unknown;
-		arguments?: unknown;
-	};
-};
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
 type ToolResult = {
 	content: Array<{ type: 'text'; text: string }>;
@@ -27,7 +19,7 @@ const tools = [
 		name: 'send_email',
 		description: 'Send one email through the Resend API.',
 		inputSchema: {
-			type: 'object',
+			type: 'object' as const,
 			properties: {
 				from: {
 					type: 'string',
@@ -70,10 +62,6 @@ const tools = [
 		},
 	},
 ];
-
-const send = (message: Record<string, unknown>) => {
-	process.stdout.write(`${JSON.stringify(message)}\n`);
-};
 
 const toolError = (message: string): ToolResult => ({
 	content: [{ type: 'text', text: message }],
@@ -167,11 +155,9 @@ const sendEmail = async (args: Record<string, unknown>): Promise<ToolResult> => 
 		headers,
 		body: JSON.stringify(resendPayload(args)),
 	}).catch((error: unknown) => error);
-	if (!(response instanceof Response)) {
-		return toolError(errorMessage(response));
-	}
-	const responseBody = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+	if (!(response instanceof Response)) return toolError(errorMessage(response));
 
+	const responseBody = (await response.json().catch(() => ({}))) as Record<string, unknown>;
 	if (!response.ok) {
 		const detail =
 			typeof responseBody.message === 'string'
@@ -191,76 +177,18 @@ const sendEmail = async (args: Record<string, unknown>): Promise<ToolResult> => 
 	};
 };
 
-const callTool = async (name: string, args: Record<string, unknown>): Promise<ToolResult> => {
-	if (name === 'send_email') return sendEmail(args);
-	return toolError(`Unknown tool: ${name}`);
-};
-
-const handle = async (message: JsonRpcRequest | null) => {
-	if (!message || message.jsonrpc !== '2.0' || typeof message.method !== 'string') {
-		if (message?.id !== undefined) {
-			send({ jsonrpc: '2.0', id: message.id, error: { code: -32600, message: 'Invalid request.' } });
-		}
-		return;
+const server = new Server(
+	{ name: 'resend', version: '1.0.0' },
+	{
+		capabilities: { tools: {} },
+		instructions: 'Send email through Resend. Provide RESEND_API_KEY from the MCP client environment.',
 	}
-	if (message.id === undefined) return;
+);
 
-	if (message.method === 'initialize') {
-		send({
-			jsonrpc: '2.0',
-			id: message.id,
-			result: {
-				protocolVersion: message.params?.protocolVersion ?? '2025-06-18',
-				capabilities: { tools: { listChanged: false } },
-				serverInfo: { name: 'resend', version: '1.0.0' },
-				instructions: 'Send email through Resend. Provide RESEND_API_KEY from the MCP client environment.',
-			},
-		});
-		return;
-	}
-
-	if (message.method === 'ping') {
-		send({ jsonrpc: '2.0', id: message.id, result: {} });
-		return;
-	}
-
-	if (message.method === 'tools/list') {
-		send({ jsonrpc: '2.0', id: message.id, result: { tools } });
-		return;
-	}
-
-	if (message.method === 'tools/call') {
-		const name = message.params?.name;
-		send({
-			jsonrpc: '2.0',
-			id: message.id,
-			result: await callTool(typeof name === 'string' ? name : '', objectArgs(message.params?.arguments)),
-		});
-		return;
-	}
-
-	send({
-		jsonrpc: '2.0',
-		id: message.id,
-		error: { code: -32601, message: `Method not found: ${message.method}` },
-	});
-};
-
-let buffer = '';
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', (chunk: string) => {
-	buffer += chunk;
-	let newline = buffer.indexOf('\n');
-	while (newline >= 0) {
-		const line = buffer.slice(0, newline).replace(/\r$/, '');
-		buffer = buffer.slice(newline + 1);
-		if (line.trim()) {
-			try {
-				void handle(JSON.parse(line));
-			} catch {
-				send({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error.' } });
-			}
-		}
-		newline = buffer.indexOf('\n');
-	}
+server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+	if (request.params.name === 'send_email') return sendEmail(objectArgs(request.params.arguments));
+	return toolError(`Unknown tool: ${request.params.name}`);
 });
+
+await server.connect(new StdioServerTransport());
