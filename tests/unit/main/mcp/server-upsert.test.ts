@@ -1,7 +1,7 @@
 const getMcpServersState = jest.fn();
 const setMcpServersState = jest.fn();
 
-jest.mock('../../../../src/main/providers/providers_index', () => ({
+jest.mock('../../../../src/main/mcp/mcp_store_state', () => ({
 	getMcpServersState,
 	setMcpServersState,
 }));
