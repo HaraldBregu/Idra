@@ -27,7 +27,7 @@ describe('runToolCalls capability changes', () => {
 		];
 		const outputs: unknown[] = [];
 
-		for await (const event of runToolCalls(tools, calls, false)) {
+		for await (const event of runToolCalls(tools, calls, false, undefined, undefined, 'bypass')) {
 			if (event.type !== 'tool_call_end') continue;
 			outputs.push(event.output);
 			if (event.toolName === 'load_skill') tools.splice(0, tools.length, load);
