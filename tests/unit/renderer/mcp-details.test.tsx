@@ -96,8 +96,6 @@ describe('MCP details', () => {
 		await user.type(envKey, 'DEMO_COMPANY');
 		await user.type(envValue, 'Friday Studio');
 		await user.click(screen.getByRole('button', { name: 'Add' }));
-		await user.clear(envKey);
-		await user.type(envKey, 'DEMO_COMPANY');
 		await user.click(screen.getByRole('button', { name: 'Save' }));
 
 		await waitFor(() =>
