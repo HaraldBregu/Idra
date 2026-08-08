@@ -72,14 +72,18 @@ it('confirms before deleting an extension', async () => {
 	});
 	await user.click(deleteButton);
 
-	let dialog = screen.getByRole('alertdialog', { name: 'settings.extensions.deleteTitle' });
+	let dialog = await screen.findByRole('alertdialog', {
+		name: 'settings.extensions.deleteTitle',
+	});
 	expect(window.extensions.delete).not.toHaveBeenCalled();
 	await user.click(within(dialog).getByRole('button', { name: 'common.cancel' }));
 	expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 	expect(screen.getByText('Demo Extension')).toBeInTheDocument();
 
 	await user.click(deleteButton);
-	dialog = screen.getByRole('alertdialog', { name: 'settings.extensions.deleteTitle' });
+	dialog = await screen.findByRole('alertdialog', {
+		name: 'settings.extensions.deleteTitle',
+	});
 	await user.click(within(dialog).getByRole('button', { name: 'common.delete' }));
 
 	await waitFor(() => expect(window.extensions.delete).toHaveBeenCalledWith('demo-extension'));
@@ -121,7 +125,9 @@ it('navigates extension clicks to the extension detail subroute', async () => {
 		</MemoryRouter>
 	);
 
-	await user.click(await screen.findByRole('button', { name: /Demo Extension/ }));
+	await user.click(
+		await screen.findByRole('button', { name: 'Demo Extension A demo extension. Demo' })
+	);
 
 	expect(await screen.findByText('Extension detail')).toBeInTheDocument();
 });
