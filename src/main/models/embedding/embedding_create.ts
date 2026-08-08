@@ -5,7 +5,10 @@ import { getProvider } from '../../settings_store';
 import { getModelId, getProviderId } from '../models_store';
 import { EMBEDDING_PROVIDERS } from './embedding_providers';
 
-export async function createEmbedding(request: EmbeddingRequest): Promise<EmbeddingResult> {
+export async function createEmbedding(
+	request: EmbeddingRequest,
+	signal?: AbortSignal
+): Promise<EmbeddingResult> {
 	const texts = (request.texts ?? []).map((text) => text?.trim()).filter(Boolean);
 	if (texts.length === 0) throw new Error('Text to embed is required.');
 
@@ -30,6 +33,7 @@ export async function createEmbedding(request: EmbeddingRequest): Promise<Embedd
 		baseURL: (provider.local && process.env.BGE_BASE_URL?.trim()) || provider.url,
 		texts,
 		inputType: request.inputType,
+		signal,
 	});
 	const dimensions = embeddings[0]?.length ?? 0;
 	if (embeddings.length !== texts.length || embeddings.some((v) => v?.length !== dimensions)) {

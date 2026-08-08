@@ -7,11 +7,14 @@ export async function saveMedia(
 	prefix: string,
 	extension: string,
 	base64: string,
-	directory?: string
+	directory?: string,
+	signal?: AbortSignal
 ): Promise<string> {
+	signal?.throwIfAborted();
 	const targetDir = resolveUserPath(directory ?? '.', agentLocation());
 	await fs.mkdir(targetDir, { recursive: true });
+	signal?.throwIfAborted();
 	const filePath = path.join(targetDir, `${prefix}-${Date.now()}.${extension}`);
-	await fs.writeFile(filePath, Buffer.from(base64, 'base64'));
+	await fs.writeFile(filePath, Buffer.from(base64, 'base64'), { signal });
 	return filePath;
 }

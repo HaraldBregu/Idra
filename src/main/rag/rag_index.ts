@@ -21,6 +21,7 @@ export interface RagIndexResult {
 export interface RagIndexDependencies {
 	embeddings?: EmbeddingProvider;
 	vectors?: VectorStore;
+	signal?: AbortSignal;
 }
 
 export async function indexRag(
@@ -56,6 +57,7 @@ export async function indexRag(
 
 	try {
 		for await (const { source, file, content } of collectRagSources(sources)) {
+			dependencies.signal?.throwIfAborted();
 			const chunks = chunkSpans(content);
 			if (chunks.length === 0) continue;
 			indexedFiles += 1;
@@ -79,13 +81,18 @@ export async function indexRag(
 			}
 
 			for (let start = 0; start < chunks.length; start += BATCH_SIZE) {
+				dependencies.signal?.throwIfAborted();
 				const batch = chunks.slice(start, start + BATCH_SIZE);
-				const embedded = await embeddingProvider.embed({
-					texts: batch.map((chunk) => chunk.text),
-					inputType: 'document',
-					providerId,
-					modelId,
-				});
+				const embedded = await embeddingProvider.embed(
+					{
+						texts: batch.map((chunk) => chunk.text),
+						inputType: 'document',
+						providerId,
+						modelId,
+					},
+					dependencies.signal
+				);
+				dependencies.signal?.throwIfAborted();
 				if (embedded.providerId !== providerId || embedded.modelId !== modelId) {
 					throw new Error('Embedding provider did not use the selected provider and model.');
 				}
@@ -115,10 +122,18 @@ export async function indexRag(
 		if (!dimensions || records.length === 0) {
 			throw new Error('No indexable text content found in the selected source folders.');
 		}
+		dependencies.signal?.throwIfAborted();
 
 		if (configuration.databaseProviderId === 'pinecone') {
-			await mirrorToPinecone(selectedIndexName, generation, dimensions, records);
+			await mirrorToPinecone(
+				selectedIndexName,
+				generation,
+				dimensions,
+				records,
+				dependencies.signal
+			);
 		}
+		dependencies.signal?.throwIfAborted();
 
 		const completedAt = new Date().toISOString();
 		vectorStore.publish({
@@ -148,17 +163,21 @@ async function mirrorToPinecone(
 	indexName: string,
 	generation: string,
 	dimensions: number,
-	records: readonly VectorRecord[]
+	records: readonly VectorRecord[],
+	signal?: AbortSignal
 ): Promise<void> {
+	signal?.throwIfAborted();
 	const pinecone = ragClient();
 	const index = (await ensureIndex(pinecone, indexName, dimensions)).namespace(generation);
 	for (let start = 0; start < records.length; start += BATCH_SIZE) {
+		signal?.throwIfAborted();
 		await index.upsert({
 			records: records.slice(start, start + BATCH_SIZE).map((record) => ({
 				id: record.id,
 				values: record.vector,
 			})),
 		});
+		signal?.throwIfAborted();
 	}
 }
 

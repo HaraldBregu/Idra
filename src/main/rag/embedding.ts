@@ -9,14 +9,14 @@ export interface EmbeddingInput {
 }
 
 export interface EmbeddingProvider {
-	embed(input: EmbeddingInput): Promise<EmbeddingResult>;
+	embed(input: EmbeddingInput, signal?: AbortSignal): Promise<EmbeddingResult>;
 }
 
 export class SelectedEmbeddingProvider implements EmbeddingProvider {
-	async embed(input: EmbeddingInput): Promise<EmbeddingResult> {
+	async embed(input: EmbeddingInput, signal?: AbortSignal): Promise<EmbeddingResult> {
 		if (!input.providerId.trim() || !input.modelId.trim()) {
 			throw new Error('Select an embedding provider and model before indexing.');
 		}
-		return createEmbedding({ ...input, requireRemote: true });
+		return createEmbedding({ ...input, requireRemote: true }, signal);
 	}
 }

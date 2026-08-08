@@ -22,10 +22,10 @@ export function createVideoTool(): Tool {
 					'Optional directory to save the video in, relative to the agent workspace. ~ expands to the user home. Defaults to the agent workspace directory; only set it when the user asks for a specific location.'
 				),
 		}),
-		execute: async ({ prompt, directory }) => {
-			const { base64, mimeType } = await createVideo({ prompt });
+		execute: async ({ prompt, directory }, signal) => {
+			const { base64, mimeType } = await createVideo({ prompt }, signal);
 			const ext = mimeType.split('/')[1]?.split('+')[0] || 'mp4';
-			const filePath = await saveMedia('video', ext, base64, directory);
+			const filePath = await saveMedia('video', ext, base64, directory, signal);
 			return { path: filePath, mimeType };
 		},
 	});

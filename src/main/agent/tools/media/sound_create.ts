@@ -22,10 +22,10 @@ export function createSoundTool(): Tool {
 					'Optional directory to save the audio in, relative to the agent workspace. ~ expands to the user home. Defaults to the agent workspace directory; only set it when the user asks for a specific location.'
 				),
 		}),
-		execute: async ({ prompt, directory }) => {
-			const { base64, mimeType } = await createSound({ prompt });
+		execute: async ({ prompt, directory }, signal) => {
+			const { base64, mimeType } = await createSound({ prompt }, signal);
 			const ext = mimeType.includes('mpeg') ? 'mp3' : mimeType.split('/')[1]?.split('+')[0] || 'mp3';
-			const filePath = await saveMedia('sound', ext, base64, directory);
+			const filePath = await saveMedia('sound', ext, base64, directory, signal);
 			return { path: filePath, mimeType };
 		},
 	});

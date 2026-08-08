@@ -14,11 +14,11 @@ export const knowledgeQueryTool = tool({
 		exact: z.boolean().optional().describe('Require primary evidence for exact facts or quotations.'),
 		count: z.number().int().min(1).max(20).optional(),
 	}),
-	execute: async ({ query, exact, count }) => {
+	execute: async ({ query, exact, count }, signal) => {
 		const wikiEnabled = getWikiSettings().enabled === true;
 		const ragConfiguration = getRagConfiguration();
 		const wiki = wikiEnabled
-			? await buildWikiAnswerContext(query, exact === true)
+			? await buildWikiAnswerContext(query, exact === true, undefined, signal)
 			: {
 					query,
 					compiledWiki: [],
@@ -34,7 +34,7 @@ export const knowledgeQueryTool = tool({
 			(exact === true && wiki.primaryEvidence.length === 0);
 		const rag =
 			needsFallback && ragConfiguration.enabled === true
-				? await searchRag(query, ragConfiguration.indexName, count)
+				? await searchRag(query, ragConfiguration.indexName, count, { signal })
 				: [];
 		const results = [
 			...wiki.compiledWiki.map((page) => ({

@@ -12,7 +12,10 @@ import { getModelId, getProviderId, resolveOptions } from '../models_store';
 
 const DEFAULT_SOUND_PROVIDER_ID = 'elevenlabs';
 
-export async function createSound(request: SoundRequest): Promise<SoundResult> {
+export async function createSound(
+	request: SoundRequest,
+	signal?: AbortSignal
+): Promise<SoundResult> {
 	const prompt = request.prompt?.trim();
 	if (!prompt) throw new MusicProviderRequestError('Prompt is required.');
 
@@ -27,6 +30,7 @@ export async function createSound(request: SoundRequest): Promise<SoundResult> {
 		modelId,
 		prompt,
 		options: resolveOptions('sound', providerId, modelId, request.options),
+		signal,
 	});
 }
 

@@ -12,7 +12,10 @@ import { getModelId, getProviderId, resolveOptions } from '../models_store';
 
 const DEFAULT_VIDEO_PROVIDER_ID = 'google';
 
-export async function createVideo(request: VideoRequest): Promise<VideoResult> {
+export async function createVideo(
+	request: VideoRequest,
+	signal?: AbortSignal
+): Promise<VideoResult> {
 	const prompt = request.prompt?.trim();
 	if (!prompt) throw new VideoProviderRequestError('Prompt is required.');
 
@@ -27,6 +30,7 @@ export async function createVideo(request: VideoRequest): Promise<VideoResult> {
 		modelId,
 		prompt,
 		options: resolveOptions('video', providerId, modelId, request.options),
+		signal,
 	});
 }
 

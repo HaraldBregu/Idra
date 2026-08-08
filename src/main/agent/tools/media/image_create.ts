@@ -22,10 +22,10 @@ export function createImageTool(): Tool {
 					'Optional directory to save the image in, relative to the agent workspace. ~ expands to the user home. Defaults to the agent workspace directory; only set it when the user asks for a specific location.'
 				),
 		}),
-		execute: async ({ prompt, directory }) => {
-			const { base64, mimeType } = await createImage({ prompt });
+		execute: async ({ prompt, directory }, signal) => {
+			const { base64, mimeType } = await createImage({ prompt }, signal);
 			const ext = mimeType.split('/')[1]?.split('+')[0] || 'png';
-			const filePath = await saveMedia('image', ext, base64, directory);
+			const filePath = await saveMedia('image', ext, base64, directory, signal);
 			return { path: filePath, mimeType };
 		},
 	});

@@ -12,7 +12,10 @@ import { getModelId, getProviderId, resolveOptions } from '../models_store';
 
 const DEFAULT_IMAGE_PROVIDER_ID = 'google';
 
-export async function createImage(request: ImageRequest): Promise<ImageResult> {
+export async function createImage(
+	request: ImageRequest,
+	signal?: AbortSignal
+): Promise<ImageResult> {
 	const prompt = request.prompt?.trim();
 	if (!prompt) throw new ImageProviderRequestError('Prompt is required.');
 
@@ -27,6 +30,7 @@ export async function createImage(request: ImageRequest): Promise<ImageResult> {
 		modelId,
 		prompt,
 		options: resolveOptions('image', providerId, modelId, request.options),
+		signal,
 	});
 }
 
