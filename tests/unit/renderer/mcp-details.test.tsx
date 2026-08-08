@@ -95,7 +95,7 @@ describe('MCP details', () => {
 		const envValue = screen.getByLabelText('Value', { selector: '#mcp-env-value' });
 		await user.type(envKey, 'DEMO_COMPANY');
 		await user.type(envValue, 'Friday Studio');
-		await user.click(screen.getByRole('button', { name: 'Add' }));
+		await user.click(screen.getByRole('button', { name: 'Add environment variable' }));
 		await user.click(screen.getByRole('button', { name: 'Save' }));
 
 		await waitFor(() =>
