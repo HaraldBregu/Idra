@@ -194,5 +194,4 @@ export {
   SidebarProvider,
   SidebarResizeHandle,
   SidebarTrigger,
-  useSidebar,
 }
