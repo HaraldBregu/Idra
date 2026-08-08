@@ -2,6 +2,7 @@ import { BrowserWindow, dialog } from 'electron';
 import type { EventBus } from '../event_bus';
 import type { WindowFactory } from '../window_factory';
 import {
+	deleteExtension,
 	importExtensions,
 	listExtensions,
 	loadExtension,
@@ -27,6 +28,7 @@ export class ExtensionsIpc implements IpcModule<ExtensionsIpcDeps> {
 			loadExtension(windowFactory, extension);
 		});
 		registerCommand(ExtensionChannels.openRoot, openRoot);
+		registerCommand(ExtensionChannels.delete, deleteExtension);
 		registerCommandWithEvent(
 			ExtensionChannels.import,
 			async (event): Promise<ExtensionImportResult | undefined> => {

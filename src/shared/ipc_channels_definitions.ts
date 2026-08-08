@@ -263,6 +263,7 @@ export const ExtensionChannels = {
 	list: 'extensions:list',
 	open: 'extensions:open',
 	openRoot: 'extensions:open-root',
+	delete: 'extensions:delete',
 	import: 'extensions:import',
 } as const;
 

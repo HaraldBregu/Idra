@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { deleteExtension } from '../../../../src/main/extensions/extension_delete';
+
+it('deletes only a validated extension directory', () => {
+	const appLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-extension-delete-'));
+	const extension = path.join(appLocation, 'extensions', 'demo-extension');
+	const outside = path.join(appLocation, 'outside');
+	fs.mkdirSync(extension, { recursive: true });
+	fs.mkdirSync(outside);
+
+	try {
+		deleteExtension('demo-extension', appLocation);
+		expect(fs.existsSync(extension)).toBe(false);
+		expect(() => deleteExtension('../outside', appLocation)).toThrow('Invalid extension ID.');
+		expect(fs.existsSync(outside)).toBe(true);
+	} finally {
+		fs.rmSync(appLocation, { recursive: true, force: true });
+	}
+});

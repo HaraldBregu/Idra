@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Layout } from '../../../src/renderer/src/pages/settings/Layout';
@@ -32,6 +32,7 @@ beforeEach(() => {
 			list: jest.fn().mockResolvedValue(extensions),
 			open: jest.fn(),
 			openRoot: jest.fn(),
+			delete: jest.fn(),
 			import: jest.fn(),
 		},
 	});
@@ -48,6 +49,42 @@ beforeEach(() => {
 			dispatchEvent: jest.fn(),
 		})),
 	});
+});
+
+it('confirms before deleting an extension', async () => {
+	const user = userEvent.setup();
+
+	render(
+		<MemoryRouter initialEntries={['/settings/extensions']}>
+			<Routes>
+				<Route path="/settings" element={<Layout />}>
+					<Route path="extensions">
+						<Route index element={<ExtensionsPage />} />
+						<Route path=":extensionId" element={<p>Extension detail</p>} />
+					</Route>
+				</Route>
+			</Routes>
+		</MemoryRouter>
+	);
+
+	const deleteButton = await screen.findByRole('button', {
+		name: /settings.extensions.deleteAction/,
+	});
+	await user.click(deleteButton);
+
+	let dialog = screen.getByRole('alertdialog', { name: 'settings.extensions.deleteTitle' });
+	expect(window.extensions.delete).not.toHaveBeenCalled();
+	await user.click(within(dialog).getByRole('button', { name: 'common.cancel' }));
+	expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+	expect(screen.getByText('Demo Extension')).toBeInTheDocument();
+
+	await user.click(deleteButton);
+	dialog = screen.getByRole('alertdialog', { name: 'settings.extensions.deleteTitle' });
+	await user.click(within(dialog).getByRole('button', { name: 'common.delete' }));
+
+	await waitFor(() => expect(window.extensions.delete).toHaveBeenCalledWith('demo-extension'));
+	expect(screen.queryByText('Demo Extension')).not.toBeInTheDocument();
+	expect(screen.queryByText('Extension detail')).not.toBeInTheDocument();
 });
 
 it('opens the extensions folder from the page header', async () => {

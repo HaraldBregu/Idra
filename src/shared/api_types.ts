@@ -205,6 +205,7 @@ export interface ExtensionsApi {
 	list: () => Promise<Extension[]>;
 	open: (extensionId: string) => Promise<void>;
 	openRoot: () => Promise<void>;
+	delete: (extensionId: string) => Promise<void>;
 	import: () => Promise<ExtensionImportResult | undefined>;
 }
 

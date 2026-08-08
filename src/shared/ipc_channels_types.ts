@@ -748,6 +748,7 @@ export interface ExtensionsInvokeChannelMap {
 	[ExtensionChannels.list]: { args: []; result: import('./extension_types').Extension[] };
 	[ExtensionChannels.open]: { args: [extensionId: string]; result: void };
 	[ExtensionChannels.openRoot]: { args: []; result: void };
+	[ExtensionChannels.delete]: { args: [extensionId: string]; result: void };
 	[ExtensionChannels.import]: {
 		args: [];
 		result: import('./extension_types').ExtensionImportResult | undefined;

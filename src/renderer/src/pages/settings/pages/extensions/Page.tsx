@@ -1,11 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Blocks, ChevronRight, FolderOpen, RefreshCw, Upload } from 'lucide-react';
+import {
+	AlertTriangle,
+	Blocks,
+	ChevronRight,
+	FolderOpen,
+	RefreshCw,
+	Trash2,
+	Upload,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { Extension } from '../../../../../../shared/extension_types';
+import Delete from './Delete';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -29,6 +38,8 @@ const ExtensionsPage: React.FC = () => {
 	const [extensions, setExtensions] = useState<Extension[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [importing, setImporting] = useState(false);
+	const [deleting, setDeleting] = useState(false);
+	const [deleteTarget, setDeleteTarget] = useState<Extension | null>(null);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
 
@@ -78,6 +89,22 @@ const ExtensionsPage: React.FC = () => {
 			setImporting(false);
 		}
 	}, [loadExtensions, t]);
+
+	const handleDelete = useCallback(async (): Promise<void> => {
+		if (!deleteTarget) return;
+		setDeleting(true);
+		setErrorMessage('');
+		setSuccessMessage('');
+		try {
+			await window.extensions.delete(deleteTarget.id);
+			setExtensions((current) => current.filter(({ id }) => id !== deleteTarget.id));
+		} catch (error) {
+			setErrorMessage(getErrorMessage(error, t('settings.extensions.deleteError')));
+		} finally {
+			setDeleting(false);
+			setDeleteTarget(null);
+		}
+	}, [deleteTarget, t]);
 
 	const extensionPath = useCallback(
 		(extensionId: string): string => `/settings/extensions/${encodeURIComponent(extensionId)}`,
@@ -138,38 +165,55 @@ const ExtensionsPage: React.FC = () => {
 						/>
 					) : (
 						extensions.map((extension) => (
-							<Item
+							<div
 								key={extension.id}
-								role="button"
-								tabIndex={0}
-								variant="outline"
-								size="md"
-								className="cursor-pointer border-b border-border/60 hover:bg-muted/40 last:border-b-0"
-								onClick={() => navigate(extensionPath(extension.id))}
-								onKeyDown={(event) => {
-									if (event.key === 'Enter' || event.key === ' ') {
-										event.preventDefault();
-										navigate(extensionPath(extension.id));
-									}
-								}}
+								className="flex items-center border-b border-border/60 hover:bg-muted/40 last:border-b-0"
 							>
-								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
-									<ItemTitle className="max-w-full truncate">{extension.title}</ItemTitle>
-									<p className="line-clamp-2 max-w-full text-[11px] leading-4 text-muted-foreground">
-										{extension.description}
-									</p>
-								</ItemContent>
-								<ItemActions className="ml-auto flex-none items-center justify-end gap-2">
-									<Badge variant="secondary" className="text-[10px] leading-none">
-										{extension.metadata.category}
-									</Badge>
-									<ChevronRight className="size-3.5 text-muted-foreground" strokeWidth={1.8} />
-								</ItemActions>
-							</Item>
+								<Item
+									as="button"
+									type="button"
+									variant="outline"
+									size="md"
+									className="min-w-0 flex-1 cursor-pointer pr-2 text-left"
+									onClick={() => navigate(extensionPath(extension.id))}
+								>
+									<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
+										<ItemTitle className="max-w-full truncate">{extension.title}</ItemTitle>
+										<p className="line-clamp-2 max-w-full text-[11px] leading-4 text-muted-foreground">
+											{extension.description}
+										</p>
+									</ItemContent>
+									<ItemActions className="ml-auto flex-none items-center justify-end gap-2">
+										<Badge variant="secondary" className="text-[10px] leading-none">
+											{extension.metadata.category}
+										</Badge>
+										<ChevronRight className="size-3.5 text-muted-foreground" strokeWidth={1.8} />
+									</ItemActions>
+								</Item>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon-sm"
+									className="mr-3 flex-none text-muted-foreground hover:text-destructive"
+									aria-label={t('settings.extensions.deleteAction', { name: extension.title })}
+									title={t('settings.extensions.deleteAction', { name: extension.title })}
+									onClick={() => setDeleteTarget(extension)}
+									disabled={deleting}
+								>
+									<Trash2 className="size-3" />
+								</Button>
+							</div>
 						))
 					)}
 				</SettingsPanel>
 			</SettingsSection>
+
+			<Delete
+				extension={deleteTarget}
+				deleting={deleting}
+				onCancel={() => setDeleteTarget(null)}
+				onConfirm={handleDelete}
+			/>
 		</SettingsPageShell>
 	);
 };

@@ -12,6 +12,9 @@ export const extensions: ExtensionsApi = {
 	openRoot: () => {
 		return typedInvokeUnwrap(ExtensionChannels.openRoot);
 	},
+	delete: (extensionId) => {
+		return typedInvokeUnwrap(ExtensionChannels.delete, extensionId);
+	},
 	import: () => {
 		return typedInvokeUnwrap(ExtensionChannels.import);
 	},

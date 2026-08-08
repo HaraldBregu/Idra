@@ -2,12 +2,14 @@ const listExtensions = jest.fn(() => []);
 const loadExtension = jest.fn();
 const importExtensions = jest.fn();
 const openRoot = jest.fn();
+const deleteExtension = jest.fn();
 
 jest.mock('../../../../src/main/extensions/extension_index', () => ({
 	listExtensions,
 	loadExtension,
 	importExtensions,
 	openRoot,
+	deleteExtension,
 }));
 jest.mock('../../../../src/main/ipc/core/gateway', () => ({
 	registerQuery: jest.fn(),
@@ -30,4 +32,11 @@ it('opens the extensions directory in the system file explorer', async () => {
 	await handler();
 
 	expect(openRoot).toHaveBeenCalledTimes(1);
+
+	const deleteHandler = (registerCommand as jest.Mock).mock.calls.find(
+		([channel]) => channel === ExtensionChannels.delete
+	)?.[1];
+	await deleteHandler('demo-extension');
+
+	expect(deleteExtension).toHaveBeenCalledWith('demo-extension');
 });

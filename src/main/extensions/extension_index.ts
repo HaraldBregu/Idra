@@ -1,4 +1,5 @@
 export { ensureExtensions } from './extension_ensure';
+export { deleteExtension } from './extension_delete';
 export { listExtensions } from './extension_list';
 export { loadExtension } from './extension_load';
 export { readExtensionManifest } from './extension_read';
