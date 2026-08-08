@@ -154,6 +154,11 @@ describe('workspace files', () => {
 		await expect(moveWorkspaceEntry(root, '.', 'destination')).rejects.toThrow(
 			'root cannot be moved'
 		);
+		await fs.symlink(path.join(root, 'destination'), path.join(root, 'destination-link'));
+		await expect(moveWorkspaceEntry(root, 'destination-link', '')).rejects.toThrow('symlinks');
+		await expect(moveWorkspaceEntry(root, 'note.md', 'destination-link')).rejects.toThrow(
+			'symlinks'
+		);
 
 		await fs.rm(root, { recursive: true });
 	});

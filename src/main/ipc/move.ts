@@ -10,6 +10,9 @@ export async function moveWorkspaceEntry(
 ): Promise<string> {
 	const resolvedRoot = await fs.realpath(root);
 	const resolvedSource = await resolveWorkspaceFile(root, sourcePath);
+	if (path.resolve(resolvedRoot, sourcePath) !== resolvedSource) {
+		throw new Error('Workspace symlinks cannot be moved.');
+	}
 	if (resolvedSource === resolvedRoot) throw new Error('The workspace root cannot be moved.');
 
 	const sourceStats = await fs.stat(resolvedSource);
@@ -18,6 +21,9 @@ export async function moveWorkspaceEntry(
 	}
 
 	const resolvedDestination = await resolveWorkspaceFile(root, destinationDirectoryPath || '.');
+	if (path.resolve(resolvedRoot, destinationDirectoryPath || '.') !== resolvedDestination) {
+		throw new Error('Workspace symlinks cannot be used as move destinations.');
+	}
 	const destinationStats = await fs.stat(resolvedDestination);
 	if (!destinationStats.isDirectory()) throw new Error('Move destination is not a folder.');
 

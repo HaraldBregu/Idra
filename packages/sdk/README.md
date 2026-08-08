@@ -36,6 +36,7 @@ const content = await friday.agent.readWorkspaceFile('USER.md');
 await friday.agent.writeWorkspaceMarkdown('USER.md', '# Updated');
 await friday.agent.createWorkspaceFile('', 'draft.md');
 await friday.agent.createWorkspaceDirectory('notes', 'ideas');
+await friday.agent.moveWorkspaceEntry('draft.md', 'notes');
 await friday.agent.deleteWorkspaceFile('old.md');
 await friday.agent.deleteWorkspaceDirectory('archive');
 ```
@@ -60,6 +61,7 @@ const image = await agent.readWorkspaceAsset('images/photo.png');
 await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
 await agent.createWorkspaceFile('', 'draft.md');
 await agent.createWorkspaceDirectory('notes', 'ideas');
+await agent.moveWorkspaceEntry('draft.md', 'notes');
 await agent.deleteWorkspaceFile('old.md');
 await agent.deleteWorkspaceDirectory('archive');
 const action = await win.showContextMenu([

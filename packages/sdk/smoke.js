@@ -30,6 +30,8 @@ globalThis.agent = {
 	createWorkspaceFile: async (parentPath, name) => [parentPath, name].filter(Boolean).join('/'),
 	createWorkspaceDirectory: async (parentPath, name) =>
 		[parentPath, name].filter(Boolean).join('/'),
+	moveWorkspaceEntry: async (sourcePath, destinationDirectoryPath) =>
+		[destinationDirectoryPath, sourcePath.split('/').pop()].filter(Boolean).join('/'),
 	deleteWorkspaceFile: async () => undefined,
 	deleteWorkspaceDirectory: async () => undefined,
 };
@@ -55,6 +57,7 @@ assert.deepEqual(await agent.readWorkspaceAsset('photo.png'), {
 await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
 assert.equal(await agent.createWorkspaceFile('', 'draft.md'), 'draft.md');
 assert.equal(await agent.createWorkspaceDirectory('notes', 'ideas'), 'notes/ideas');
+assert.equal(await agent.moveWorkspaceEntry('draft.md', 'notes'), 'notes/draft.md');
 await agent.deleteWorkspaceFile('old.md');
 await agent.deleteWorkspaceDirectory('archive');
 assert.equal(await win.showContextMenu([{ id: 'open', label: 'Open' }]), 'open');
@@ -116,6 +119,7 @@ assert.deepEqual(await friday.agent.readWorkspaceAsset('photo.png'), {
 await friday.agent.writeWorkspaceMarkdown('USER.md', '# Updated');
 await friday.agent.createWorkspaceFile('', 'draft.md');
 await friday.agent.createWorkspaceDirectory('notes', 'ideas');
+await friday.agent.moveWorkspaceEntry('draft.md', 'notes');
 await friday.agent.deleteWorkspaceFile('old.md');
 await friday.agent.deleteWorkspaceDirectory('archive');
 
@@ -130,6 +134,7 @@ assert.deepEqual(
 		'agent:workspace:markdown:write',
 		'agent:workspace:file:create',
 		'agent:workspace:directory:create',
+		'agent:workspace:entry:move',
 		'agent:workspace:file:delete',
 		'agent:workspace:directory:delete',
 	]
