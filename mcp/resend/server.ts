@@ -80,6 +80,9 @@ const toolError = (message: string): ToolResult => ({
 	isError: true,
 });
 
+const errorMessage = (error: unknown): string =>
+	error instanceof Error ? error.message : 'Unable to reach the Resend API.';
+
 const objectArgs = (args: unknown): Record<string, unknown> =>
 	args && typeof args === 'object' && !Array.isArray(args) ? (args as Record<string, unknown>) : {};
 
