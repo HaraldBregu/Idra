@@ -97,17 +97,31 @@ function paginateLines(
 	};
 }
 
-function sleep(ms: number): Promise<void> {
-	return new Promise((res) => setTimeout(res, ms));
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+	signal?.throwIfAborted();
+	return new Promise((resolve, reject) => {
+		const timer = setTimeout(resolve, ms);
+		const abort = (): void => {
+			clearTimeout(timer);
+			reject(signal?.reason ?? new Error('Process wait cancelled.'));
+		};
+		signal?.addEventListener('abort', abort, { once: true });
+		if (signal?.aborted) abort();
+	});
 }
 
-async function pollUntil(session: ProcessSession, timeoutMs: number): Promise<void> {
+async function pollUntil(
+	session: ProcessSession,
+	timeoutMs: number,
+	signal?: AbortSignal
+): Promise<void> {
 	const before = session.stdout.length + session.stderr.length;
 	const deadline = Date.now() + timeoutMs;
 	while (Date.now() < deadline) {
+		signal?.throwIfAborted();
 		if (session.exited) return;
 		if (session.stdout.length + session.stderr.length !== before) return;
-		await sleep(50);
+		await sleep(50, signal);
 	}
 }
 
@@ -128,7 +142,11 @@ const processInputSchema = z.object({
 	signal: z.string().optional().describe('kill: signal name (default SIGTERM).'),
 });
 
-async function runProcess(input: z.infer<typeof processInputSchema>): Promise<unknown> {
+async function runProcess(
+	input: z.infer<typeof processInputSchema>,
+	signal?: AbortSignal
+): Promise<unknown> {
+	signal?.throwIfAborted();
 	const { action } = input;
 
 	if (action === 'list') {
@@ -143,7 +161,7 @@ async function runProcess(input: z.infer<typeof processInputSchema>): Promise<un
 	switch (action) {
 		case 'poll': {
 			const timeoutMs = Math.min(input.timeout ?? 5000, 30000);
-			await pollUntil(session, timeoutMs);
+			await pollUntil(session, timeoutMs, signal);
 			return {
 				...sessionSummary(session),
 				stdout: session.stdout,

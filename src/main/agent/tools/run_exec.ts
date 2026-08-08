@@ -76,6 +76,7 @@ async function runExec(
 	input: z.infer<typeof execInputSchema>,
 	abortSignal?: AbortSignal
 ): Promise<ExecResult> {
+	abortSignal?.throwIfAborted();
 	const {
 		command,
 		workdir,
@@ -132,14 +133,23 @@ async function runExec(
 			timeoutTimer.unref();
 		}
 		return await new Promise<ExecResult>((resolve, reject) => {
+			const abort = (): void => {
+				child.kill('SIGTERM');
+			};
+			abortSignal?.addEventListener('abort', abort, { once: true });
+			if (abortSignal?.aborted) abort();
 			child.once('error', (error) => {
 				if (timeoutTimer) clearTimeout(timeoutTimer);
+				abortSignal?.removeEventListener('abort', abort);
 				reject(error);
 			});
 			child.once('exit', () => {
 				if (timeoutTimer) clearTimeout(timeoutTimer);
+				abortSignal?.removeEventListener('abort', abort);
 			});
 			child.once('spawn', () => {
+				if (abortSignal?.aborted) return;
+				abortSignal?.removeEventListener('abort', abort);
 				child.unref();
 				resolve({
 					command,
@@ -184,10 +194,12 @@ async function runExec(
 
 	return await new Promise<ExecResult>((resolve, reject) => {
 		let settled = false;
+		let aborted = false;
 		let timeoutTimer: NodeJS.Timeout | undefined;
 		const yieldTimer = setTimeout(() => {
-			if (settled) return;
+			if (settled || aborted) return;
 			settled = true;
+			abortSignal?.removeEventListener('abort', abort);
 
 			const sessionId = randomUUID();
 			const session = registry.register({
@@ -232,8 +244,12 @@ async function runExec(
 				stderrTruncated: stderrTruncated || undefined,
 			});
 		}, yieldMs);
-		const abort = () => child.kill('SIGTERM');
+		const abort = (): void => {
+			aborted = true;
+			child.kill('SIGTERM');
+		};
 		abortSignal?.addEventListener('abort', abort, { once: true });
+		if (abortSignal?.aborted) abort();
 
 		if (timeoutMs !== undefined) {
 			timeoutTimer = setTimeout(() => {
@@ -256,6 +272,10 @@ async function runExec(
 			if (settled) return;
 			settled = true;
 			clearTimeout(yieldTimer);
+			if (aborted) {
+				reject(abortSignal?.reason ?? new Error('Exec cancelled.'));
+				return;
+			}
 			resolve({
 				command,
 				workdir: cwd,
