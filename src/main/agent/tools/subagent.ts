@@ -34,7 +34,6 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 				contextMode: 'minimal',
 				toolsAllow: childTools.map((candidate) => candidate.name),
 			};
-			// Fresh context: the subagent never sees the main agent's conversation.
 			const session = createSessionState();
 			session.messages = [{ role: 'user', content: task }];
 			session.context.basePrompt = instructions;
