@@ -33,14 +33,13 @@ function renderDetails(id: string): ReturnType<typeof render> {
 	);
 }
 
-beforeEach(() => {
-	jest.clearAllMocks();
-	Object.defineProperty(window, 'PointerEvent', { configurable: true, value: MouseEvent });
-	Object.defineProperty(window, 'mcp', { configurable: true, value: mcpApi });
-	Object.defineProperty(window, 'confirm', { configurable: true, value: jest.fn(() => true) });
-	mcpApi.registry.mockImplementation(async () => ({ servers: [server], diagnostics: [] }));
-	mcpApi.configureLocal.mockImplementation(async (_id: string, data: McpData) => {
-		server = { ...server, data };
+	beforeEach(() => {
+		jest.clearAllMocks();
+		Object.defineProperty(window, 'PointerEvent', { configurable: true, value: MouseEvent });
+		Object.defineProperty(window, 'mcp', { configurable: true, value: mcpApi });
+		mcpApi.registry.mockImplementation(async () => ({ servers: [server], diagnostics: [] }));
+		mcpApi.configureLocal.mockImplementation(async (_id: string, data: McpData) => {
+			server = { ...server, data };
 		return server;
 	});
 	mcpApi.upsert.mockImplementation(async (_id: string, data: McpData) => {
@@ -139,6 +138,7 @@ describe('MCP details', () => {
 
 		await user.click(screen.getByText('Advanced'));
 		await user.click(screen.getByRole('button', { name: 'Remove MCP server' }));
+		await user.click(screen.getByRole('button', { name: 'Delete' }));
 		await waitFor(() => expect(mcpApi.delete).toHaveBeenCalledWith('remote'));
 		expect(await screen.findByText('MCP list')).toBeInTheDocument();
 	});
