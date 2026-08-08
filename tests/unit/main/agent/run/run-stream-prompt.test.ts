@@ -30,6 +30,7 @@ import { stream } from '../../../../../src/main/agent/run/run_stream';
 import { createSessionState } from '../../../../../src/main/agent/session';
 import type { Message } from '../../../../../src/main/agent/types';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
+import { respondToolPermission } from '../../../../../src/main/agent/policy';
 
 describe('run stream system prompt', () => {
 	beforeEach(() => {
@@ -98,9 +99,11 @@ describe('run stream system prompt', () => {
 			return { content: '', model: 'test-model', toolCalls: calls };
 		});
 		const botEvents = [];
+		const botSession = createSessionState();
+		botSession.messages = [{ role: 'user', content: 'public current-events question' }];
 		for await (const event of stream(
 			{ location: '/workspace' },
-			createSessionState(),
+			botSession,
 			{
 				runId: 'bot-run',
 				task: 'chat',
@@ -140,6 +143,52 @@ describe('run stream system prompt', () => {
 		))
 			void event;
 		expect(search).toHaveBeenCalledTimes(9);
+	});
+
+	it('hard-gates public web egress after main minimal-context user text', async () => {
+		const session = createSessionState();
+		session.messages = [{ role: 'user', content: 'my pasted access code is private' }];
+		const search = jest.fn().mockResolvedValue('public result');
+		const webTool = jsonTool({
+			name: 'web_search',
+			description: 'public web search',
+			defaultPermission: 'allow',
+			risk: 'medium',
+			effect: 'external',
+			schema: { type: 'object' },
+			execute: search,
+		});
+		runModelTurnMock.mockImplementationOnce(async function* () {
+			return {
+				content: '',
+				model: 'test-model',
+				toolCalls: [{ id: 'egress', name: 'web_search', args: { query: 'private code' } }],
+			};
+		});
+		const events = stream(
+			{ location: '/workspace' },
+			session,
+			{
+				runId: 'private-main',
+				task: 'chat',
+				message: 'private',
+				model: 'test-model',
+				origin: 'main',
+				contextMode: 'minimal',
+			},
+			new AbortController().signal,
+			{ tools: [webTool], interactive: true }
+		);
+		expect((await events.next()).value).toMatchObject({ type: 'run_started' });
+		expect((await events.next()).value).toMatchObject({ type: 'assistant_message' });
+		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({ type: 'tool_permission_request', hardApproval: true });
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		const end = events.next();
+		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
+		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
+		expect(search).not.toHaveBeenCalled();
 	});
 
 	it('emits exactly one terminal event when cancelled', async () => {

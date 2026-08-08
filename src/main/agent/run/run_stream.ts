@@ -193,7 +193,10 @@ async function* loop(
 	session.context.loadedSkills = undefined;
 	session.context.subagents = undefined;
 	session.context.toolsContext = {
-		...(hasPrivateInput(session.messages) ? { hasPrivateContext: true } : {}),
+		...(hasPrivateInput(session.messages) ||
+		(origin === 'main' && session.messages.some((message) => message.role === 'user'))
+			? { hasPrivateContext: true }
+			: {}),
 	};
 
 	yield {

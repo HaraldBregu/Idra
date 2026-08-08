@@ -19,6 +19,8 @@ it('classifies destructive shell and process operations as hard approvals', () =
 	expect(requiresHardApproval(execTool, { command: "bash -lc 'rm -rf ./build'" })).toBe(true);
 	expect(requiresHardApproval(execTool, { command: 'env rm -rf ./build' })).toBe(true);
 	expect(requiresHardApproval(execTool, { command: 'find ./cache -type f -delete' })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: 'dd if=/dev/zero of=./disk.img' })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: 'truncate -s 0 ./data.db' })).toBe(true);
 	expect(
 		requiresHardApproval(execTool, {
 			command: `python3 -c "from pathlib import Path; Path('secret').unlink()"`,
