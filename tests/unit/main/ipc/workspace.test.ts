@@ -183,11 +183,14 @@ describe('workspace files', () => {
 		await expect(fs.readFile(path.join(root, 'folder', 'idea.md'), 'utf8')).resolves.toBe(
 			'# Note'
 		);
+		await expect(renameWorkspaceEntry(root, 'folder/idea.md', 'Idea.md')).resolves.toBe(
+			'folder/Idea.md'
+		);
 		await expect(renameWorkspaceEntry(root, 'folder', 'archive')).resolves.toBe('archive');
-		await expect(renameWorkspaceEntry(root, 'archive/idea.md', '../escape.md')).rejects.toThrow(
+		await expect(renameWorkspaceEntry(root, 'archive/Idea.md', '../escape.md')).rejects.toThrow(
 			'valid name'
 		);
-		await expect(renameWorkspaceEntry(root, 'archive/idea.md', 'existing.md')).resolves.toBe(
+		await expect(renameWorkspaceEntry(root, 'archive/Idea.md', 'existing.md')).resolves.toBe(
 			'archive/existing.md'
 		);
 		await expect(renameWorkspaceEntry(root, 'archive/existing.md', 'existing.md')).resolves.toBe(
