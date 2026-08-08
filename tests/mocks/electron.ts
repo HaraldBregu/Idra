@@ -15,6 +15,10 @@ export const shell = {
 	openPath: jest.fn(async () => ''),
 };
 
+export const clipboard = {
+	writeText: jest.fn(),
+};
+
 export const systemPreferences = {
 	askForMediaAccess: jest.fn(async () => true),
 	getMediaAccessStatus: jest.fn(() => 'unknown'),
