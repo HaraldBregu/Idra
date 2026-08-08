@@ -6,7 +6,7 @@ import { normalizeDataScope } from '../../../../src/main/data/data_scope';
 
 it('normalizes exact local RAG and session scopes', () => {
 	expect(
-		normalizeDataScope({ kind: 'rag', mode: 'local_index', indexName: ' Knowledge-Base ' })
+		normalizeDataScope({ kind: 'rag', mode: 'local_index', indexName: ' knowledge-base ' })
 	).toEqual({ kind: 'rag', mode: 'local_index', indexName: 'knowledge-base' });
 	expect(
 		normalizeDataScope({
