@@ -472,6 +472,10 @@ export interface WikiInvokeChannelMap {
 }
 
 export interface DataInvokeChannelMap {
+	[DataChannels.listScopes]: {
+		args: [];
+		result: import('./data_types').DataScope[];
+	};
 	[DataChannels.export]: {
 		args: [scope: import('./data_types').DataScope];
 		result: import('./data_types').DataExportResult | undefined;

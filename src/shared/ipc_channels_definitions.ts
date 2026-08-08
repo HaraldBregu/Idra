@@ -221,6 +221,7 @@ export const WikiChannels = {
 } as const;
 
 export const DataChannels = {
+	listScopes: 'data:scopes:list',
 	export: 'data:export',
 	previewPurge: 'data:purge:preview',
 	purge: 'data:purge',

@@ -18,6 +18,7 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 
 	register({ agent }: DataIpcDeps, _eventBus: EventBus): void {
 		const controller = new DataController(agent);
+		registerQuery(DataChannels.listScopes, () => controller.listScopes());
 		registerCommand(DataChannels.export, async (input) => {
 			const scope = normalizeDataScope(input);
 			const options = {

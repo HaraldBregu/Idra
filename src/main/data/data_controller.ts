@@ -14,8 +14,9 @@ import { MEMORY_FILE, resolveTemplatePath } from '../agent/system';
 import { sessionPath, sessionsRoot } from '../agent/session';
 import { purgeRagManifest } from '../rag';
 import { ragClient } from '../rag/rag_client';
+import { getRagConfiguration } from '../rag/rag_store';
 import { ragVectorStore } from '../rag/vector';
-import { getWikiRepository } from '../wiki';
+import { getWikiRepository, getWikiSettings } from '../wiki';
 import { DataArchive } from './data_archive';
 
 interface AgentDataPort {
@@ -33,6 +34,39 @@ export class DataController {
 	private readonly pendingPurges = new Map<string, PendingPurge>();
 
 	constructor(private readonly agent: AgentDataPort) {}
+
+	listScopes(): DataScope[] {
+		const scopes: DataScope[] = [{ kind: 'memory' }];
+		const sessionIds = this.agent.listSessions().map((session) => session.id);
+		if (sessionIds.length > 0) scopes.push({ kind: 'sessions', sessionIds });
+		const wikiTarget = getWikiSettings().targetPath;
+		if (wikiTarget) scopes.push({ kind: 'wiki', targetPath: wikiTarget });
+		const rag = getRagConfiguration();
+		const store = ragVectorStore();
+		try {
+			const index = store.getIndex(rag.indexName);
+			if (index) {
+				scopes.push({ kind: 'rag', mode: 'local_index', indexName: index.indexName });
+				scopes.push({
+					kind: 'rag',
+					mode: 'local_namespace',
+					indexName: index.indexName,
+					generation: index.generation,
+				});
+				if (rag.databaseProviderId === 'pinecone') {
+					scopes.push({
+						kind: 'rag',
+						mode: 'remote_namespace',
+						indexName: index.indexName,
+						generation: index.generation,
+					});
+				}
+			}
+		} finally {
+			store.close();
+		}
+		return scopes;
+	}
 
 	async export(scope: DataScope, filePath: string): Promise<DataExportResult> {
 		if (scope.kind === 'rag' && scope.mode === 'remote_namespace') {

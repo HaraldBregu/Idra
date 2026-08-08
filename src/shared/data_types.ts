@@ -31,6 +31,7 @@ export interface DataPurgeResult {
 }
 
 export interface DataApi {
+	listScopes: () => Promise<DataScope[]>;
 	export: (scope: DataScope) => Promise<DataExportResult | undefined>;
 	previewPurge: (scope: DataScope) => Promise<DataPurgePreview>;
 	purge: (scope: DataScope, confirmationId: string) => Promise<DataPurgeResult | undefined>;
