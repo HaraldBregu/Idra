@@ -105,7 +105,7 @@ describe('createChannelRegistry', () => {
 		expect(send).toHaveBeenCalledWith('hello', 'channels', {
 			category: 'bot',
 			interactive: false,
-			sessionId: '4c15bc8c-273f-5dfa-8331-c6a1c82d1ae3',
+			sessionId: 'f3d5954e-564f-51e0-be2f-5058fe95561e',
 		});
 	});
 });

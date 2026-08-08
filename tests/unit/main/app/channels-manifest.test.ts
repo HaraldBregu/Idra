@@ -1,4 +1,4 @@
-import { loadChannels } from '../../../../src/main/channels';
+import { loadChannels } from '../../../../src/main/channels/catalog';
 
 describe('channel manifests', () => {
 	it('loads channel services and icons from resources/channels', () => {
