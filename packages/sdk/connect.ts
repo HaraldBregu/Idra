@@ -14,6 +14,7 @@ export type WorkspaceAgentApi = Pick<
 	| 'createWorkspaceFile'
 	| 'createWorkspaceDirectory'
 	| 'moveWorkspaceEntry'
+	| 'renameWorkspaceEntry'
 	| 'deleteWorkspaceFile'
 	| 'deleteWorkspaceDirectory'
 >;
@@ -164,6 +165,10 @@ export function connect(options: ConnectOptions): FridayClient {
 					sourcePath,
 					destinationDirectoryPath,
 				]) as ReturnType<AgentApi['moveWorkspaceEntry']>,
+			renameWorkspaceEntry: (sourcePath, name) =>
+				invoke(AgentChannels.renameWorkspaceEntry, [sourcePath, name]) as ReturnType<
+					AgentApi['renameWorkspaceEntry']
+				>,
 			deleteWorkspaceFile: (filePath) =>
 				invoke(AgentChannels.deleteWorkspaceFile, [filePath]) as ReturnType<
 					AgentApi['deleteWorkspaceFile']

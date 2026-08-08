@@ -179,6 +179,17 @@ export const agent: AgentApi = {
 			destinationDirectoryPath.trim()
 		);
 	},
+	renameWorkspaceEntry: (sourcePath, name) => {
+		const normalizedSourcePath = optionalTrimmedString(sourcePath);
+		if (!normalizedSourcePath) throw new Error('Invalid workspace source path.');
+		const normalizedName = optionalTrimmedString(name);
+		if (!normalizedName) throw new Error('Invalid workspace entry name.');
+		return typedInvokeUnwrap(
+			AgentChannels.renameWorkspaceEntry,
+			normalizedSourcePath,
+			normalizedName
+		);
+	},
 	deleteWorkspaceFile: (filePath) => {
 		const normalizedFilePath = optionalTrimmedString(filePath);
 		if (!normalizedFilePath) throw new Error('Invalid workspace file path.');

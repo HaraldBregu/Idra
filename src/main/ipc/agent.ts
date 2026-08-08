@@ -63,6 +63,7 @@ import { deleteWorkspaceFile } from './delete';
 import { deleteWorkspaceDirectory } from './directory';
 import { writeWorkspaceMarkdown } from './markdown';
 import { moveWorkspaceEntry } from './move';
+import { renameWorkspaceEntry } from './rename';
 import { resolveWorkspaceFile } from './workspace';
 
 export interface AgentIpcDeps {
@@ -418,6 +419,21 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
 				await deleteWorkspaceFile(workspacePath(agent.config), normalizedFilePath);
 			}, AgentChannels.deleteWorkspaceFile)
+		);
+
+		ipcMain.handle(
+			AgentChannels.renameWorkspaceEntry,
+			wrapSimpleHandler(async (sourcePath: unknown, name: unknown): Promise<string> => {
+				const normalizedSourcePath = optionalTrimmedString(sourcePath);
+				if (!normalizedSourcePath) throw new Error('Invalid workspace source path.');
+				const normalizedName = optionalTrimmedString(name);
+				if (!normalizedName) throw new Error('Invalid workspace entry name.');
+				return renameWorkspaceEntry(
+					workspacePath(agent.config),
+					normalizedSourcePath,
+					normalizedName
+				);
+			}, AgentChannels.renameWorkspaceEntry)
 		);
 
 		ipcMain.handle(

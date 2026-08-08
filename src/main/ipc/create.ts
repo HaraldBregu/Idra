@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { resolveWorkspaceFile } from './workspace';
+import { workspaceEntryName } from './workspace_name';
 
 export async function createWorkspaceEntry(
 	root: string,
@@ -9,15 +10,7 @@ export async function createWorkspaceEntry(
 	name: string,
 	type: 'file' | 'directory'
 ): Promise<string> {
-	const normalizedName = name.trim();
-	if (
-		!normalizedName ||
-		normalizedName === '.' ||
-		normalizedName === '..' ||
-		/[\\/\0]/.test(normalizedName)
-	) {
-		throw new Error('Enter a valid name without path separators.');
-	}
+	const normalizedName = workspaceEntryName(name);
 
 	const resolvedRoot = await fs.realpath(root);
 	const resolvedParent = await resolveWorkspaceFile(root, parentPath || '.');

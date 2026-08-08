@@ -8,6 +8,7 @@ import { deleteWorkspaceFile } from '../../../../src/main/ipc/delete';
 import { deleteWorkspaceDirectory } from '../../../../src/main/ipc/directory';
 import { writeWorkspaceMarkdown } from '../../../../src/main/ipc/markdown';
 import { moveWorkspaceEntry } from '../../../../src/main/ipc/move';
+import { renameWorkspaceEntry } from '../../../../src/main/ipc/rename';
 import { resolveWorkspaceFile } from '../../../../src/main/ipc/workspace';
 import { workspaceFileType } from '../../../../src/shared/workspace';
 
@@ -164,6 +165,43 @@ describe('workspace files', () => {
 		await fs.symlink(path.join(root, 'destination'), path.join(root, 'destination-link'));
 		await expect(moveWorkspaceEntry(root, 'destination-link', '')).rejects.toThrow('symlinks');
 		await expect(moveWorkspaceEntry(root, 'note.md', 'destination-link')).rejects.toThrow(
+			'symlinks'
+		);
+
+		await fs.rm(root, { recursive: true });
+	});
+
+	it('renames files and folders without overwriting or escaping the workspace', async () => {
+		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-workspace-'));
+		await fs.mkdir(path.join(root, 'folder'));
+		await fs.writeFile(path.join(root, 'folder', 'note.md'), '# Note');
+		await fs.writeFile(path.join(root, 'existing.md'), '# Existing');
+
+		await expect(renameWorkspaceEntry(root, 'folder/note.md', 'idea.md')).resolves.toBe(
+			'folder/idea.md'
+		);
+		await expect(fs.readFile(path.join(root, 'folder', 'idea.md'), 'utf8')).resolves.toBe(
+			'# Note'
+		);
+		await expect(renameWorkspaceEntry(root, 'folder', 'archive')).resolves.toBe('archive');
+		await expect(renameWorkspaceEntry(root, 'archive/idea.md', '../escape.md')).rejects.toThrow(
+			'valid name'
+		);
+		await expect(renameWorkspaceEntry(root, 'archive/idea.md', 'existing.md')).resolves.toBe(
+			'archive/existing.md'
+		);
+		await expect(renameWorkspaceEntry(root, 'archive/existing.md', 'existing.md')).resolves.toBe(
+			'archive/existing.md'
+		);
+		await fs.writeFile(path.join(root, 'archive', 'taken.md'), '# Taken');
+		await expect(renameWorkspaceEntry(root, 'archive/existing.md', 'taken.md')).rejects.toThrow(
+			'already exists'
+		);
+		await expect(renameWorkspaceEntry(root, '.', 'workspace')).rejects.toThrow(
+			'root cannot be renamed'
+		);
+		await fs.symlink(path.join(root, 'archive'), path.join(root, 'archive-link'));
+		await expect(renameWorkspaceEntry(root, 'archive-link', 'renamed-link')).rejects.toThrow(
 			'symlinks'
 		);
 
