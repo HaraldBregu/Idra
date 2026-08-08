@@ -25,6 +25,11 @@ it('classifies destructive shell and process operations as hard approvals', () =
 		})
 	).toBe(true);
 	expect(requiresHardApproval(execTool, { command: `python3 -c "print('inspect')"` })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: 'cat .env' })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: 'cat ~/.ssh/id_rsa' })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: 'cat ~/.aws/credentials' })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: 'cat ./credentials.json' })).toBe(true);
+	expect(requiresHardApproval(execTool, { command: 'openssl x509 -in private.pem' })).toBe(true);
 	expect(requiresHardApproval(execTool, { command: 'npm test' })).toBe(false);
 	expect(requiresHardApproval(execTool, { command: 'rg TODO src' })).toBe(false);
 	expect(requiresHardApproval(processTool, { action: 'kill', sessionId: 'session' })).toBe(true);

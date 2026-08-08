@@ -4,6 +4,10 @@ import { tool } from '../tool';
 
 export const wikiRebuildTool = tool({
 	name: 'wiki_rebuild_index',
+	risk: 'high',
+	effect: 'persistence',
+	hardApproval: true,
+	allowedOrigins: ['main'],
 	description:
 		'Transactionally rebuild index.md from current wiki page metadata and record the maintenance run.',
 	defaultPermission: 'ask',

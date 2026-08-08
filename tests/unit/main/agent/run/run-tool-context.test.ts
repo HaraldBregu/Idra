@@ -21,6 +21,7 @@ import { respondToolPermission } from '../../../../../src/main/agent/policy';
 import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import { runToolCalls } from '../../../../../src/main/agent/run/run_tool_calls';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
+import { readTool } from '../../../../../src/main/agent/tools/file/read';
 import type { RuntimeEvent, Tool, ToolCall } from '../../../../../src/main/agent/types';
 
 const asking = { default: 'ask' as const, allow: [], deny: [], ask: [] };
@@ -41,6 +42,42 @@ beforeEach(() => {
 });
 
 describe('tool context permissions', () => {
+	it('keeps an explicit credential-path deny ahead of trusted-main bypass', async () => {
+		getPermissions.mockReturnValue({
+			...askingPermissions,
+			read: { ...asking, deny: ['/appdata/agent/.env'] },
+		});
+		const events: RuntimeEvent[] = [];
+		for await (const event of runToolCall(
+			readTool,
+			{ id: 'credential-deny', name: 'read', args: { path: '/appdata/agent/.env' } },
+			true,
+			undefined,
+			createContext().toolsContext,
+			'bypass'
+		)) events.push(event);
+		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+	});
+
+	it('requires hard approval for a credential read even when workspace policy and bypass allow it', async () => {
+		const events = runToolCall(
+			readTool,
+			{ id: 'credential-ask', name: 'read', args: { path: '/appdata/agent/.env' } },
+			true,
+			undefined,
+			createContext().toolsContext,
+			'bypass'
+		);
+		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({ type: 'tool_permission_request', hardApproval: true });
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		const end = events.next();
+		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
+		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
+	});
+
 	it('allows a new-file write and the following exact-file edit without approval', async () => {
 		getPermissions.mockReturnValue({
 			...askingPermissions,
