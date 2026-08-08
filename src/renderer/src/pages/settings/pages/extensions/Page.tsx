@@ -7,7 +7,6 @@ import {
 	ChevronRight,
 	FolderOpen,
 	RefreshCw,
-	Trash2,
 	Upload,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -38,8 +37,6 @@ const ExtensionsPage: React.FC = () => {
 	const [extensions, setExtensions] = useState<Extension[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [importing, setImporting] = useState(false);
-	const [deleting, setDeleting] = useState(false);
-	const [deleteTarget, setDeleteTarget] = useState<Extension | null>(null);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
 
@@ -89,22 +86,6 @@ const ExtensionsPage: React.FC = () => {
 			setImporting(false);
 		}
 	}, [loadExtensions, t]);
-
-	const handleDelete = useCallback(async (): Promise<void> => {
-		if (!deleteTarget) return;
-		setDeleting(true);
-		setErrorMessage('');
-		setSuccessMessage('');
-		try {
-			await window.extensions.delete(deleteTarget.id);
-			setExtensions((current) => current.filter(({ id }) => id !== deleteTarget.id));
-		} catch (error) {
-			setErrorMessage(getErrorMessage(error, t('settings.extensions.deleteError')));
-		} finally {
-			setDeleting(false);
-			setDeleteTarget(null);
-		}
-	}, [deleteTarget, t]);
 
 	const extensionPath = useCallback(
 		(extensionId: string): string => `/settings/extensions/${encodeURIComponent(extensionId)}`,
@@ -190,30 +171,20 @@ const ExtensionsPage: React.FC = () => {
 										<ChevronRight className="size-3.5 text-muted-foreground" strokeWidth={1.8} />
 									</ItemActions>
 								</Item>
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon-sm"
-									className="mr-3 flex-none text-muted-foreground hover:text-destructive"
-									aria-label={t('settings.extensions.deleteAction', { name: extension.title })}
-									title={t('settings.extensions.deleteAction', { name: extension.title })}
-									onClick={() => setDeleteTarget(extension)}
-									disabled={deleting}
-								>
-									<Trash2 className="size-3" />
-								</Button>
+								<Delete
+									extension={extension}
+									disabled={loading || importing}
+									onDeleted={(extensionId) => {
+										setExtensions((current) =>
+											current.filter(({ id }) => id !== extensionId)
+										);
+									}}
+								/>
 							</div>
 						))
 					)}
 				</SettingsPanel>
 			</SettingsSection>
-
-			<Delete
-				extension={deleteTarget}
-				deleting={deleting}
-				onCancel={() => setDeleteTarget(null)}
-				onConfirm={handleDelete}
-			/>
 		</SettingsPageShell>
 	);
 };
