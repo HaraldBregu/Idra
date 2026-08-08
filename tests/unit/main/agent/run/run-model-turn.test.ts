@@ -4,6 +4,41 @@ import type { ModelTurnStream } from '../../../../../src/main/agent/run/run_mode
 import type { ResolvedProvider } from '../../../../../src/shared/provider_types';
 
 describe('runModelTurn', () => {
+	it('adds privacy-safe timing and retry counters to the terminal model event', async () => {
+		const stream = jest.fn(() =>
+			(async function* () {
+				yield { type: 'model_call_start' as const, model: 'model' };
+				yield { type: 'model_call_delta' as const, delta: 'answer' };
+				yield {
+					type: 'model_call_end' as const,
+					model: 'model',
+					stopReason: 'end_turn',
+					usage: { inputTokens: 2, outputTokens: 1 },
+				};
+			})()
+		);
+		const events = runModelTurn(
+			{ task: 'chat', message: 'hello' },
+			{ id: 'test', apiKey: 'key' } as ResolvedProvider,
+			'model',
+			'system',
+			[{ role: 'user', content: 'hello' }],
+			[],
+			new AbortController().signal,
+			{},
+			{ stream } as ModelTurnStream
+		);
+		const emitted = [];
+		for await (const event of events) emitted.push(event);
+
+		expect(emitted.at(-1)).toMatchObject({
+			type: 'model_call_end',
+			retryCount: 0,
+			durationMs: expect.any(Number),
+			firstTokenLatencyMs: expect.any(Number),
+		});
+	});
+
 	it('does not retry an unchanged request after context overflow', async () => {
 		const error = new LlmContextOverflowError('context too long');
 		const stream = jest.fn(() => ({

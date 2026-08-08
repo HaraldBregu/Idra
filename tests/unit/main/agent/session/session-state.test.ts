@@ -89,4 +89,29 @@ describe('toResult', () => {
 			durationMs: 12,
 		});
 	});
+	it('keeps queue, model, retry, and permission metrics without content', () => {
+		expect(JSON.parse(stringifyRunEntry({ type: 'run_queue_metrics', queueDelayMs: 7 })!).event)
+			.toEqual({ type: 'run_queue_metrics', queueDelayMs: 7 });
+		expect(
+			JSON.parse(
+				stringifyRunEntry({
+					type: 'model_call_end',
+					model: 'model',
+					durationMs: 42,
+					firstTokenLatencyMs: 8,
+					retryCount: 1,
+				})!
+			).event
+		).toMatchObject({ durationMs: 42, firstTokenLatencyMs: 8, retryCount: 1 });
+		expect(
+			JSON.parse(
+				stringifyRunEntry({
+					type: 'tool_call_end',
+					toolName: 'web_fetch',
+					permissionOutcome: 'approve',
+					input: { token: 'private' },
+				})!
+			).event
+		).toEqual({ type: 'tool_call_end', toolName: 'web_fetch', permissionOutcome: 'approve' });
+	});
 });
