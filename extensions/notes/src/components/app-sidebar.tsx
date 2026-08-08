@@ -132,6 +132,7 @@ function WorkspaceTreeItem({
         }}
         aria-expanded={isDirectory ? isExpanded : undefined}
         aria-current={selected ? "page" : undefined}
+        aria-keyshortcuts={!isDirectory ? "Backspace Delete" : undefined}
         title={entry.path}
         className={cn(
           "h-7 w-full justify-start gap-1.5 px-0 pr-2 text-left text-[12px] font-medium text-sidebar-muted",

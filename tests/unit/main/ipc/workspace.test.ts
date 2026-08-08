@@ -71,9 +71,11 @@ describe('workspace files', () => {
 		const markdown = path.join(root, 'notes.md');
 		const text = path.join(root, 'notes.txt');
 		const image = path.join(root, 'photo.png');
+		const directory = path.join(root, 'folder');
 		await fs.writeFile(markdown, '# Before');
 		await fs.writeFile(text, 'Before');
 		await fs.writeFile(image, new Uint8Array([1, 2, 3]));
+		await fs.mkdir(directory);
 
 		await writeWorkspaceMarkdown(root, 'notes.md', '# After');
 		await expect(fs.readFile(markdown, 'utf8')).resolves.toBe('# After');
@@ -87,7 +89,7 @@ describe('workspace files', () => {
 		await expect(readWorkspaceAsset(root, 'notes.txt')).rejects.toThrow('supported asset');
 		await deleteWorkspaceFile(root, 'notes.txt');
 		await expect(fs.stat(text)).rejects.toThrow();
-		await expect(deleteWorkspaceFile(root, 'notes')).rejects.toThrow();
+		await expect(deleteWorkspaceFile(root, 'folder')).rejects.toThrow('not a file');
 		await fs.rm(root, { recursive: true });
 	});
 });
