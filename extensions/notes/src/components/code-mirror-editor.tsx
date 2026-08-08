@@ -62,7 +62,7 @@ const noteEditorTheme = EditorView.theme({
 })
 
 export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
-  { className, onChange, onSave, readOnly = false, value },
+  { canSave = true, className, onChange, onSave, readOnly = false, value },
   ref,
 ) {
   const mountRef = useRef(null)
@@ -222,7 +222,7 @@ export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
                 { type: "separator" },
                 { type: "role", role: "selectAll" },
                 { type: "separator" },
-                { id: "save", label: "Save", accelerator: "CommandOrControl+S" },
+                { id: "save", label: "Save", accelerator: "CommandOrControl+S", enabled: canSave },
               ],
           { save: () => onSaveRef.current?.() },
         )

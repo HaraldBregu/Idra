@@ -2,6 +2,7 @@ import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from './shared';
+import { setupPdfContextMenu } from './pdf';
 
 export interface WindowPreset {
 	name: string;
@@ -69,6 +70,7 @@ export class WindowFactory {
 		};
 
 		const win = new BrowserWindow(options);
+		setupPdfContextMenu(win);
 
 		// Prevent arbitrary window.open() calls from creating unrestricted windows
 		// win.webContents.setWindowOpenHandler(({ url }) => {

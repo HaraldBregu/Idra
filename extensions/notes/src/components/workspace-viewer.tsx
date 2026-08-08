@@ -67,9 +67,6 @@ export function WorkspaceViewer({
             ...(kind === "markdown"
               ? [{ id: "save", label: "Save", accelerator: "CommandOrControl+S", enabled: dirty && !saving } as const, { type: "separator" } as const]
               : []),
-            { type: "role", role: "copy" },
-            { type: "role", role: "selectAll" },
-            { type: "separator" },
             { id: "copy-path", label: "Copy Path" },
           ],
           {
@@ -108,7 +105,7 @@ export function WorkspaceViewer({
             <p className="max-w-md text-sm text-destructive">{error}</p>
           </div>
         ) : (
-          <FileViewer content={content} kind={kind} onChange={onChange} onSave={onSave} path={path} url={mediaUrl} />
+          <FileViewer canSave={dirty && !saving} content={content} kind={kind} onChange={onChange} onSave={onSave} path={path} url={mediaUrl} />
         )}
       </div>
     </section>

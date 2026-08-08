@@ -3,9 +3,12 @@ import { FileQuestion, Music2 } from "lucide-react"
 import type { WorkspaceFileKind } from "@friday/sdk"
 
 import { CodeMirrorEditor } from "@/components/code-mirror-editor"
+import { copyImage } from "@/lib/image"
+import { showMediaContextMenu } from "@/lib/media"
 import { showNativeContextMenu } from "@/lib/menu"
 
 interface FileViewerProps {
+  canSave: boolean
   content: string
   kind: WorkspaceFileKind
   onChange: (content: string) => void
@@ -14,7 +17,7 @@ interface FileViewerProps {
   url: string
 }
 
-export function FileViewer({ content, kind, onChange, onSave, path, url }: FileViewerProps) {
+export function FileViewer({ canSave, content, kind, onChange, onSave, path, url }: FileViewerProps) {
   const name = path.split(/[\\/]/).pop() ?? path
   const mediaRef = useRef<HTMLMediaElement | null>(null)
 
@@ -23,6 +26,7 @@ export function FileViewer({ content, kind, onChange, onSave, path, url }: FileV
       <article className="mx-auto flex min-h-full w-full max-w-[920px] flex-col px-5 pb-12 pt-8 sm:px-8 lg:px-12">
         <CodeMirrorEditor
           key={path}
+          canSave={canSave}
           value={content}
           onChange={onChange}
           onSave={onSave}
@@ -58,7 +62,23 @@ export function FileViewer({ content, kind, onChange, onSave, path, url }: FileV
 
   if (kind === "image") {
     return (
-      <div className="flex min-h-full items-center justify-center bg-muted/25 p-6 sm:p-10">
+      <div
+        className="flex min-h-full items-center justify-center bg-muted/25 p-6 sm:p-10"
+        onContextMenu={(event) => {
+          showNativeContextMenu(
+            event,
+            [
+              { id: "copy-image", label: "Copy Image" },
+              { type: "separator" },
+              { id: "copy-path", label: "Copy Path" },
+            ],
+            {
+              "copy-image": () => copyImage(url),
+              "copy-path": () => navigator.clipboard.writeText(path),
+            },
+          )
+        }}
+      >
         <img src={url} alt={name} className="max-h-[calc(100dvh-8rem)] max-w-full rounded-md object-contain shadow-sm" />
       </div>
     )
@@ -66,7 +86,10 @@ export function FileViewer({ content, kind, onChange, onSave, path, url }: FileV
 
   if (kind === "audio") {
     return (
-      <div className="flex min-h-full items-center justify-center px-6 py-10">
+      <div
+        className="flex min-h-full items-center justify-center px-6 py-10"
+        onContextMenu={(event) => showMediaContextMenu(event, mediaRef.current, path)}
+      >
         <div className="w-full max-w-xl rounded-lg border bg-card p-5 shadow-sm">
           <div className="mb-5 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-muted-foreground">
@@ -82,25 +105,6 @@ export function FileViewer({ content, kind, onChange, onSave, path, url }: FileV
             controls
             preload="metadata"
             className="w-full"
-            onContextMenu={(event) => {
-              const media = mediaRef.current
-              showNativeContextMenu(
-                event,
-                [
-                  { id: "play-pause", label: media?.paused ? "Play" : "Pause" },
-                  { id: "mute", label: media?.muted ? "Unmute" : "Mute" },
-                  { type: "separator" },
-                  { id: "copy-path", label: "Copy Path" },
-                ],
-                {
-                  "play-pause": () => (media?.paused ? media.play() : media?.pause()),
-                  mute: () => {
-                    if (media) media.muted = !media.muted
-                  },
-                  "copy-path": () => navigator.clipboard.writeText(path),
-                },
-              )
-            }}
           />
         </div>
       </div>
@@ -109,7 +113,10 @@ export function FileViewer({ content, kind, onChange, onSave, path, url }: FileV
 
   if (kind === "video") {
     return (
-      <div className="flex min-h-full items-center justify-center bg-black/95 p-4 sm:p-8">
+      <div
+        className="flex min-h-full items-center justify-center bg-black/95 p-4 sm:p-8"
+        onContextMenu={(event) => showMediaContextMenu(event, mediaRef.current, path)}
+      >
         <video
           ref={(element) => {
             mediaRef.current = element
@@ -118,25 +125,6 @@ export function FileViewer({ content, kind, onChange, onSave, path, url }: FileV
           controls
           preload="metadata"
           className="max-h-[calc(100dvh-8rem)] max-w-full"
-          onContextMenu={(event) => {
-            const media = mediaRef.current
-            showNativeContextMenu(
-              event,
-              [
-                { id: "play-pause", label: media?.paused ? "Play" : "Pause" },
-                { id: "mute", label: media?.muted ? "Unmute" : "Mute" },
-                { type: "separator" },
-                { id: "copy-path", label: "Copy Path" },
-              ],
-              {
-                "play-pause": () => (media?.paused ? media.play() : media?.pause()),
-                mute: () => {
-                  if (media) media.muted = !media.muted
-                },
-                "copy-path": () => navigator.clipboard.writeText(path),
-              },
-            )
-          }}
         />
       </div>
     )
