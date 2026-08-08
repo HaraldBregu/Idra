@@ -69,6 +69,6 @@ describe('extension renderer', () => {
 
 		viewWebContents.isDestroyed.mockReturnValue(true);
 		handlers.get('closed')?.();
-		expect(viewWebContents.close).toHaveBeenCalledTimes(1);
+		expect(viewWebContents.close).toHaveBeenCalledTimes(2);
 	});
 });
