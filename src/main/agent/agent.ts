@@ -233,10 +233,13 @@ export class Agent {
 	}
 
 	cancel(agentId?: string): void {
-		rejectPendingToolPermissions();
+		if (!agentId) rejectPendingToolPermissions();
 		interruptCommands(this.state, agentId);
-		for (const active of this.activeRuns.values()) {
-			if (!agentId || active.agentId === agentId) active.controller.abort();
+		for (const [runId, active] of this.activeRuns) {
+			if (!agentId || active.agentId === agentId) {
+				if (agentId) rejectPendingToolPermissions(runId);
+				active.controller.abort();
+			}
 		}
 	}
 
@@ -255,12 +258,15 @@ export class Agent {
 		this.state.pending = this.state.pending.filter(
 			(command) => (command.options as InternalAgentSendOptions).sessionId !== sessionId
 		);
-		const matching = [...this.activeRuns.values()].filter(
-			(active) => active.sessionKey === sessionId
+		const matching = [...this.activeRuns.entries()].filter(
+			([, active]) => active.sessionKey === sessionId
 		);
-		for (const active of matching) active.controller.abort();
+		for (const [runId, active] of matching) {
+			rejectPendingToolPermissions(runId);
+			active.controller.abort();
+		}
 		await Promise.allSettled(
-			matching.map((active) => active.promise).filter((run): run is Promise<string> => !!run)
+			matching.map(([, active]) => active.promise).filter((run): run is Promise<string> => !!run)
 		);
 	}
 }

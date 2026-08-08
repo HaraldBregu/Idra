@@ -114,16 +114,19 @@ export async function* runToolCall(
 				inputFingerprint: fingerprint,
 				...(detail ? { detail } : {}),
 			};
-			const decision = await waitForToolPermission({
-				approvalId,
-				runId: security.runId,
-				origin: security.origin,
-				toolName: toolCall.name,
-				inputFingerprint: fingerprint,
-				expiresAtMs,
-				hardApproval,
-				...(security.windowId === undefined ? {} : { windowId: security.windowId }),
-			});
+			const decision = await waitForToolPermission(
+				{
+					approvalId,
+					runId: security.runId,
+					origin: security.origin,
+					toolName: toolCall.name,
+					inputFingerprint: fingerprint,
+					expiresAtMs,
+					hardApproval,
+					...(security.windowId === undefined ? {} : { windowId: security.windowId }),
+				},
+				signal
+			);
 			permissionOutcome = decision;
 			if (decision === 'reject' && tool.stopOnReject && context) context.cancelled = true;
 			if (decision === 'approve_always' && !hardApproval) {

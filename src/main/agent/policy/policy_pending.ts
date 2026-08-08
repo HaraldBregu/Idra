@@ -13,22 +13,31 @@ const pending = new Map<
 	string,
 	{
 		request: PendingToolApproval;
-		resolve: (decision: AgentToolPermissionDecision) => void;
+		settle: (decision: AgentToolPermissionDecision) => void;
 		timer: NodeJS.Timeout;
 	}
 >();
 
 export function waitForToolPermission(
-	request: PendingToolApproval
+	request: PendingToolApproval,
+	signal?: AbortSignal
 ): Promise<AgentToolPermissionDecision> {
+	if (signal?.aborted) return Promise.resolve('reject');
 	return new Promise((resolve) => {
 		const delay = Math.max(0, request.expiresAtMs - Date.now());
-		const timer = setTimeout(() => {
+		let timer: NodeJS.Timeout;
+		const abort = (): void => settle('reject');
+		const settle = (decision: AgentToolPermissionDecision): void => {
 			pending.delete(request.approvalId);
-			resolve('reject');
-		}, delay);
+			clearTimeout(timer);
+			signal?.removeEventListener('abort', abort);
+			resolve(decision);
+		};
+		timer = setTimeout(() => settle('reject'), delay);
 		timer.unref?.();
-		pending.set(request.approvalId, { request, resolve, timer });
+		pending.get(request.approvalId)?.settle('reject');
+		pending.set(request.approvalId, { request, settle, timer });
+		signal?.addEventListener('abort', abort, { once: true });
 	});
 }
 
@@ -50,16 +59,13 @@ export function respondToolPermission(
 			scope.inputFingerprint !== entry.request.inputFingerprint)
 	)
 		return false;
-	pending.delete(approvalId);
-	clearTimeout(entry.timer);
-	entry.resolve(entry.request.hardApproval && decision === 'approve_always' ? 'approve' : decision);
+	entry.settle(entry.request.hardApproval && decision === 'approve_always' ? 'approve' : decision);
 	return true;
 }
 
-export function rejectPendingToolPermissions(): void {
+export function rejectPendingToolPermissions(runId?: string): void {
 	for (const entry of pending.values()) {
-		clearTimeout(entry.timer);
-		entry.resolve('reject');
+		if (runId && entry.request.runId !== runId) continue;
+		entry.settle('reject');
 	}
-	pending.clear();
 }

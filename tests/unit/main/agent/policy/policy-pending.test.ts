@@ -16,6 +16,8 @@ const approval = (approvalId: string, hardApproval = false): PendingToolApproval
 });
 
 describe('tool permission pending registry', () => {
+	afterEach(() => rejectPendingToolPermissions());
+
 	it('resolves a waiter with the delivered decision', async () => {
 		const promise = waitForToolPermission(approval('call-1'));
 		expect(respondToolPermission('call-1', 'approve')).toBe(true);
@@ -63,5 +65,28 @@ describe('tool permission pending registry', () => {
 		expect(respondToolPermission({ ...scope, runId: 'other-run' }, 'approve', 41)).toBe(false);
 		expect(respondToolPermission(scope, 'approve', 41)).toBe(true);
 		await expect(promise).resolves.toBe('approve');
+	});
+
+	it('removes only the waiter whose run signal is aborted', async () => {
+		const controller = new AbortController();
+		const cancelled = waitForToolPermission(approval('cancelled'), controller.signal);
+		const otherRequest = { ...approval('other'), runId: 'run-2' };
+		const other = waitForToolPermission(otherRequest);
+		controller.abort();
+
+		await expect(cancelled).resolves.toBe('reject');
+		expect(respondToolPermission('cancelled', 'approve')).toBe(false);
+		expect(respondToolPermission('other', 'approve')).toBe(true);
+		await expect(other).resolves.toBe('approve');
+	});
+
+	it('rejects pending approvals for only the requested run', async () => {
+		const selected = waitForToolPermission(approval('selected'));
+		const other = waitForToolPermission({ ...approval('other-run'), runId: 'run-2' });
+		rejectPendingToolPermissions('run-1');
+
+		await expect(selected).resolves.toBe('reject');
+		expect(respondToolPermission('other-run', 'approve')).toBe(true);
+		await expect(other).resolves.toBe('approve');
 	});
 });
