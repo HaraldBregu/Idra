@@ -7,8 +7,7 @@ export type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../
 export type { WorkspaceTreeEntry } from '../../src/shared/agent_types';
 export type { ContextMenuDescriptor } from '../../src/shared/window_types';
 
-// The SDK is scoped to app-level data only.
-// This is a typed lazy view over the host preload globals.
+// Typed lazy views over the host preload globals.
 function bridge<T extends object>(name: string): T {
 	return new Proxy({} as T, {
 		get(_target, key) {
