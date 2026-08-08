@@ -55,3 +55,9 @@ export const net = {
 export const crashReporter = {
 	start: jest.fn(),
 };
+
+export const safeStorage = {
+	isEncryptionAvailable: jest.fn(() => true),
+	encryptString: jest.fn((value: string) => Buffer.from(value, 'utf8')),
+	decryptString: jest.fn((value: Buffer) => value.toString('utf8')),
+};

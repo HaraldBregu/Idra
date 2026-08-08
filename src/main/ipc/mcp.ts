@@ -8,6 +8,7 @@ import {
 	configureLocalMcpServer,
 	deleteMcpServer,
 	getMcpOauth,
+	getMcpServers,
 	importLocalMcpServers,
 	listConfiguredMcpServers,
 	listMcpRegistry,
@@ -116,13 +117,14 @@ function getHttpMcpServer(id: string): {
 	clientSecret?: string;
 } {
 	const connectorId = resolveMcpId(id);
-	const entry = listMcp()[connectorId];
+	const entry = getMcpServers()[connectorId];
 	if (!entry || entry.type !== 'http') throw new Error(`No http MCP server "${id}".`);
+	const oauth = getMcpOauth(connectorId);
 	return {
 		id: connectorId,
 		url: entry.url,
-		clientId: entry.client_id,
-		clientSecret: entry.client_secret,
+		clientId: oauth.client_id ?? entry.client_id,
+		clientSecret: oauth.client_secret,
 	};
 }
 
@@ -141,7 +143,7 @@ export class McpIpc implements IpcModule {
 		registerCommand(McpChannels.save, (input: McpSettings) => {
 			const next = normalizeMcpSettings(input);
 			setMcpServers(next);
-			return next;
+			return listMcp();
 		});
 
 		registerCommand(McpChannels.upsert, (id: string, input: McpData) => {

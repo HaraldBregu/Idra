@@ -9,9 +9,9 @@ export function upsertMcpServer(id: string, data: McpData): void {
 		existing?.type === 'http' &&
 		data.type === 'http' &&
 		existing.url === data.url &&
-		existing.token === data.token &&
-		existing.client_id === data.client_id &&
-		existing.client_secret === data.client_secret;
+		(data.token === undefined || existing.token === data.token) &&
+		(data.client_id === undefined || existing.client_id === data.client_id) &&
+		(data.client_secret === undefined || existing.client_secret === data.client_secret);
 	const next = { ...(preserveAuth ? existing : undefined), id, ...data } as McpRecord;
 	setMcpServersState([...current.filter((server) => server.id !== id), next]);
 }
