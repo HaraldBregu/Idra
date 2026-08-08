@@ -5,7 +5,7 @@
 	"type": "module",
 	"description": "Local MCP server for sending email through Gmail SMTP.",
 	"dependencies": {
-		"@modelcontextprotocol/server": "latest",
+		"@modelcontextprotocol/sdk": "^1.29.0",
 		"zod": "^4.4.0"
 	}
 }

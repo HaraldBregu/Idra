@@ -1,8 +1,8 @@
 import process from 'node:process';
 import net from 'node:net';
 import tls from 'node:tls';
-import { McpServer } from '@modelcontextprotocol/server';
-import { serveStdio } from '@modelcontextprotocol/server/stdio';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as z from 'zod/v4';
 
 type ToolResult = {
@@ -273,6 +273,6 @@ function createServer(): McpServer {
 }
 
 const server = createServer();
-void serveStdio(server);
+void server.connect(new StdioServerTransport());
 
 console.error('Gmail SMTP MCP server running on stdio.');

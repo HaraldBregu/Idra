@@ -1,6 +1,6 @@
 import process from 'node:process';
-import { McpServer } from '@modelcontextprotocol/server';
-import { serveStdio } from '@modelcontextprotocol/server/stdio';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as z from 'zod/v4';
 
 type ToolResult = {
@@ -153,6 +153,6 @@ function createServer(): McpServer {
 }
 
 const server = createServer();
-void serveStdio(server);
+void server.connect(new StdioServerTransport());
 
 console.error('Resend MCP server running on stdio.');
