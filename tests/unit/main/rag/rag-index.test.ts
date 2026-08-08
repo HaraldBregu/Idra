@@ -180,9 +180,14 @@ it('does not publish an index when its embedding run is cancelled', async () => 
 	});
 	const controller = new AbortController();
 	const reason = new Error('cancel indexing');
+	let embeddingStarted: (() => void) | undefined;
+	const started = new Promise<void>((resolve) => {
+		embeddingStarted = resolve;
+	});
 	embed.mockImplementationOnce(
 		(_input, signal: AbortSignal) =>
 			new Promise((_resolve, reject) => {
+				embeddingStarted?.();
 				signal.addEventListener('abort', () => reject(signal.reason), { once: true });
 			})
 	);
@@ -191,7 +196,7 @@ it('does not publish an index when its embedding run is cancelled', async () => 
 		vectors,
 		signal: controller.signal,
 	});
-	await Promise.resolve();
+	await started;
 	controller.abort(reason);
 
 	await expect(result).rejects.toBe(reason);
