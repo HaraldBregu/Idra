@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import matter from 'gray-matter';
 import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
 import { buildWikiAnswerContext } from '../../../../src/main/wiki/wiki_answer_context';
 import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
