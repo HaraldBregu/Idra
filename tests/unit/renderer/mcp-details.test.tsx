@@ -91,9 +91,14 @@ describe('MCP details', () => {
 		expect(await screen.findByRole('heading', { name: 'Local files' })).toBeInTheDocument();
 		expect(screen.getByLabelText('Command')).toHaveValue('node');
 		expect(screen.getByLabelText('Working directory (optional)')).toHaveValue('/local');
-		const environment = screen.getByLabelText('Environment variables (optional)');
-		await user.clear(environment);
-		await user.type(environment, 'DEMO_COMPANY=Friday Studio');
+		const [envKey, envValue] = [
+			...screen.getAllByLabelText('Key'),
+			...screen.getAllByLabelText('Value'),
+		];
+		await user.clear(envKey);
+		await user.type(envKey, 'DEMO_COMPANY');
+		await user.clear(envValue);
+		await user.type(envValue, 'Friday Studio');
 		await user.click(screen.getByRole('button', { name: 'Save' }));
 
 		await waitFor(() =>
