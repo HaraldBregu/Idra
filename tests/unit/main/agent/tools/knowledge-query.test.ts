@@ -60,14 +60,30 @@ it('falls back to the configured local index when wiki confidence is low', async
 		limitations: ['No compiled wiki page matched the query.'],
 	});
 	searchRag.mockResolvedValue([
-		{ path: 'handbook/leave.md', text: 'Twenty days.', score: 0.91 },
+		{
+			sourceId: 'source-1',
+			chunkId: 'source-1#0',
+			path: 'handbook/leave.md',
+			lineStart: 4,
+			lineEnd: 4,
+			checksum: 'checksum-1',
+			indexedAt: '2026-08-08T00:00:00.000Z',
+			text: 'Twenty days.',
+			score: 0.91,
+		},
 	]);
 
 	const output = JSON.parse((await knowledgeQueryTool.run({ query: 'leave', count: 3 })) as string);
 
 	expect(searchRag).toHaveBeenCalledWith('leave', 'company-knowledge', 3);
 	expect(output.route).toBe('wiki_then_local_rag');
-	expect(output.results[0]).toMatchObject({ kind: 'local_rag', status: 'indexed' });
+	expect(output.results[0]).toMatchObject({
+		kind: 'local_rag',
+		sourceId: 'source-1',
+		chunkId: 'source-1#0',
+		range: { lineStart: 4, lineEnd: 4 },
+		status: 'indexed',
+	});
 });
 
 it('abstains when exact evidence cannot be verified', async () => {
