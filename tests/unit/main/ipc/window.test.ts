@@ -44,4 +44,15 @@ it('shows a native context menu and returns the selected item id', async () => {
 	).resolves.toEqual({ success: true, data: 'open' });
 	expect(fromWebContents).toHaveBeenCalledTimes(1);
 	expect(builtTemplate[2]).toEqual({ role: 'copy', label: undefined });
+
+	const errorLog = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+	await expect(
+		handler({ sender: {} } as IpcMainInvokeEvent, [
+			{ type: 'role', role: 'reload' },
+		] as never)
+	).resolves.toMatchObject({
+		success: false,
+		error: { message: 'Unsupported context menu role: reload' },
+	});
+	errorLog.mockRestore();
 });
