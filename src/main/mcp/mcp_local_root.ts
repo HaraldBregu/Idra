@@ -4,3 +4,9 @@ import { userDataLocation } from '../shared/user_data_location';
 export function mcpLocalRoot(location = userDataLocation()): string {
 	return path.resolve(location, 'mcp', 'servers');
 }
+
+export function mcpLocalDiscoveryRoots(location = userDataLocation()): readonly string[] {
+	const localRoot = mcpLocalRoot(location);
+	const workspaceRoot = path.resolve(process.cwd(), 'mcp');
+	return localRoot === workspaceRoot ? [localRoot] : [localRoot, workspaceRoot];
+}
