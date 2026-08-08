@@ -29,7 +29,7 @@ describe('normalizeAgentInputFiles', () => {
 		const oversized = Buffer.alloc(AGENT_MAX_ATTACHMENT_BYTES + 1).toString('base64');
 		expect(() =>
 			normalizeAgentInputFiles([{ name: 'large', mimeType: 'application/octet-stream', data: oversized }])
-		).toThrow('base64');
+		).toThrow('at most');
 	});
 
 	it('uses decoded bytes rather than encoded character count', () => {
