@@ -77,11 +77,11 @@ export function configureLocalMcpServer(
 	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
 	const next = {
 		...manifest,
-			name: input.name?.trim() || undefined,
-			command: input.command.trim(),
-			args: input.args ? [...input.args] : undefined,
-			env: input.env ? { ...input.env } : undefined,
-			cwd: input.cwd === serverData.cwd ? manifest.cwd : input.cwd?.trim() || undefined,
+		name: input.name?.trim() || undefined,
+		command: input.command.trim(),
+		args: input.args ? [...input.args] : undefined,
+		env: input.env ? { ...input.env } : undefined,
+		cwd: input.cwd === serverData.cwd ? manifest.cwd : input.cwd?.trim() || undefined,
 		require_approval: input.require_approval,
 		defer_loading: input.defer_loading,
 		enabled: input.enabled,
