@@ -2,8 +2,8 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { getWikiSettings } from './wiki_get_settings';
+import { getWikiRepository } from './wiki_repository';
 import { searchWiki } from './wiki_search';
-import { wikiSourceStore } from './wiki_source_store';
 import type { WikiAnswerContext, WikiContradiction, WikiRawEvidenceResult } from './wiki_types';
 import { incrementWikiMetric } from './wiki_metrics';
 
@@ -12,6 +12,7 @@ export async function buildWikiAnswerContext(
 	includeRaw = false,
 	targetPath = getWikiSettings().targetPath
 ): Promise<WikiAnswerContext> {
+	const repository = getWikiRepository(targetPath);
 	incrementWikiMetric('wiki_queries_total');
 	const compiledWiki = await searchWiki(query, 5, targetPath);
 	const contradictions: WikiContradiction[] = [];
@@ -33,12 +34,12 @@ export async function buildWikiAnswerContext(
 			...new Set(
 				compiledWiki.length > 0
 					? compiledWiki.flatMap((page) => page.sourceIds)
-					: Object.keys(wikiSourceStore.store.sources)
+					: Object.keys(repository.sources.store.sources)
 			),
 		].slice(0, 4);
 		const term = query.toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}-]{2,}/u)?.[0] ?? '';
 		for (const sourceId of sourceIds) {
-			const record = wikiSourceStore.store.sources[sourceId];
+			const record = repository.sources.store.sources[sourceId];
 			if (!record || record.status !== 'integrated') continue;
 			const content = await readFile(record.archivePath, 'utf8').catch(() => '');
 			if (!content) continue;

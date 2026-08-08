@@ -1,7 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { wikiSourceStore } from './wiki_source_store';
+import { getWikiRepository, type WikiRepository } from './wiki_repository';
 import type { WikiClaim, WikiContradiction } from './wiki_types';
 
 const PAGE_TYPES = new Set([
@@ -15,7 +15,10 @@ const PAGE_TYPES = new Set([
 	'question',
 ]);
 
-export async function validateWiki(targetPath: string): Promise<string[]> {
+export async function validateWiki(
+	targetPath: string,
+	repository: WikiRepository = getWikiRepository(targetPath)
+): Promise<string[]> {
 	const errors: string[] = [];
 	const ids = new Map<string, string>();
 	const entries = await readdir(targetPath, { recursive: true }).catch(() => []);
@@ -77,7 +80,7 @@ export async function validateWiki(targetPath: string): Promise<string[]> {
 					continue;
 				}
 				for (const evidence of claim.evidence) {
-					if (!evidence.locator || !wikiSourceStore.store.sources[evidence.sourceId]) {
+					if (!evidence.locator || !repository.sources.store.sources[evidence.sourceId]) {
 						errors.push(`Invalid evidence for claim '${claim.id}' in ${relativePath}`);
 					}
 				}

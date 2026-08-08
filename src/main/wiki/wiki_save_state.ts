@@ -1,6 +1,7 @@
+import { getWikiSettings } from './wiki_get_settings';
+import { getWikiRepository } from './wiki_repository';
 import type { WikiState } from './wiki_types';
-import { wikiStateStore } from './wiki_state_store';
 
-export function saveWikiState(state: WikiState): void {
-	wikiStateStore.store = structuredClone(state);
+export function saveWikiState(state: WikiState, targetPath = getWikiSettings().targetPath): void {
+	getWikiRepository(targetPath).state.store = structuredClone(state);
 }

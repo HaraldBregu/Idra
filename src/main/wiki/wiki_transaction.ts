@@ -1,10 +1,12 @@
 import { cp, mkdir, mkdtemp, rename, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { getWikiRepository, type WikiRepository } from './wiki_repository';
 import { validateWiki } from './wiki_validate';
 
 export interface WikiTransactionInput<T> {
 	targetPath: string;
 	operationId: string;
+	repository?: WikiRepository;
 	apply(stagedPath: string): Promise<T>;
 	validate?(stagedPath: string): Promise<string[]>;
 }
@@ -22,7 +24,9 @@ export async function transactWiki<T>(input: WikiTransactionInput<T>): Promise<T
 		if (targetExists) await cp(input.targetPath, stagedPath, { recursive: true, force: false });
 		else await mkdir(stagedPath, { recursive: true });
 		const result = await input.apply(stagedPath);
-		const errors = await (input.validate ?? validateWiki)(stagedPath);
+		const errors = await (input.validate
+			? input.validate(stagedPath)
+			: validateWiki(stagedPath, input.repository ?? getWikiRepository(input.targetPath)));
 		if (errors.length > 0) throw new Error(`Wiki validation failed: ${errors.join('; ')}`);
 		if (targetExists) await rename(input.targetPath, backupPath);
 		try {

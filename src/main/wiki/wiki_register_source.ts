@@ -1,17 +1,18 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { getWikiSettings } from './wiki_get_settings';
+import { getWikiRepository, type WikiRepository } from './wiki_repository';
 import type { WikiRegisteredSource, WikiSource } from './wiki_types';
-import { wikiPaths } from './wiki_paths';
-import { wikiSourceStore } from './wiki_source_store';
 import { MAX_WIKI_SOURCE_BYTES } from './wiki_source_limits';
 import { assertWikiSourceSafe } from './wiki_source_safety';
 
 export async function registerWikiSource(
 	source: WikiSource,
 	operationId: string,
-	evidenceRoot = wikiPaths().evidence
+	repository: WikiRepository = getWikiRepository(getWikiSettings().targetPath)
 ): Promise<WikiRegisteredSource> {
+	const evidenceRoot = repository.paths.evidence;
 	const bytes = await readFile(source.absolutePath);
 	if (bytes.length > MAX_WIKI_SOURCE_BYTES) {
 		throw new Error(
@@ -25,7 +26,7 @@ export async function registerWikiSource(
 		throw new Error(`Source changed while it was being registered: ${source.relativePath}`);
 	const verifiedSource = { ...source, content };
 	const sourceId = `source-${checksum.slice(0, 16)}`;
-	const registry = wikiSourceStore.store;
+	const registry = repository.sources.store;
 	const existing = registry.sources[sourceId];
 	if (existing) {
 		if (!existing.relativePaths.includes(source.relativePath)) {
@@ -33,7 +34,7 @@ export async function registerWikiSource(
 				...existing,
 				relativePaths: [...existing.relativePaths, source.relativePath].sort(),
 			};
-			wikiSourceStore.store = registry;
+			repository.sources.store = registry;
 		}
 			return {
 				source: {
@@ -74,7 +75,7 @@ export async function registerWikiSource(
 		status: 'pending' as const,
 		operationId,
 	};
-	wikiSourceStore.store = {
+	repository.sources.store = {
 		version: 1,
 		sources: { ...registry.sources, [sourceId]: record },
 	};
