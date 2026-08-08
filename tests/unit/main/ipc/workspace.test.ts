@@ -58,9 +58,7 @@ describe('workspace files', () => {
 		await fs.writeFile(outsideFile, '# Private');
 		await fs.symlink(outsideFile, path.join(root, 'linked.md'));
 
-		await expect(resolveWorkspaceFile(root, '../private.md')).rejects.toThrow(
-			'outside workspace'
-		);
+		await expect(resolveWorkspaceFile(root, '../private.md')).rejects.toThrow('outside workspace');
 		await expect(resolveWorkspaceFile(root, 'linked.md')).rejects.toThrow('outside workspace');
 		await fs.rm(root, { recursive: true });
 		await fs.rm(outside, { recursive: true });

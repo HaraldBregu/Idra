@@ -68,7 +68,8 @@ export default function App() {
 
 		let active = true;
 
-		app.getThemeData()
+		app
+			.getThemeData()
 			.then((themeData) => {
 				if (active) setTheme(themeData);
 			})
@@ -106,7 +107,8 @@ export default function App() {
 				setWorkspaceFiles(files);
 			})
 			.catch((error) => {
-				if (active) setWorkspaceError(error instanceof Error ? error.message : 'Unable to load workspace.');
+				if (active)
+					setWorkspaceError(error instanceof Error ? error.message : 'Unable to load workspace.');
 			})
 			.finally(() => {
 				if (active) setWorkspaceLoading(false);
@@ -117,63 +119,74 @@ export default function App() {
 		};
 	}, []);
 
-	const saveWorkspaceMarkdown = useCallback(async function saveWorkspaceMarkdown(
-		filePath = selectedPathRef.current,
-		content = selectedContent
-	): Promise<boolean> {
-		if (!filePath || selectedKind !== 'markdown' || !isFriday() || deletingPathRef.current === filePath) {
-			return false;
-		}
-		const pendingSave = saveInFlightRef.current;
-		if (pendingSave) {
-			const pendingSnapshot = saveSnapshotRef.current;
-			if (pendingSnapshot?.filePath === filePath && pendingSnapshot.content === content) {
-				return pendingSave;
-			}
-			await pendingSave;
-			return saveWorkspaceMarkdown(filePath, content);
-		}
-
-		setSelectedSaving(true);
-		setSelectedSaveError('');
-		saveSnapshotRef.current = { filePath, content };
-		const operation = Promise.resolve()
-			.then(() => agent.writeWorkspaceMarkdown(filePath, content))
-			.then(() => {
-				if (selectedPathRef.current === filePath) setSelectedSavedContent(content);
-				return true;
-			})
-			.catch((error) => {
-				if (selectedPathRef.current === filePath) {
-					setSelectedSaveError(
-						error instanceof Error ? error.message : 'Unable to save the Markdown file.'
-					);
-				}
+	const saveWorkspaceMarkdown = useCallback(
+		async function saveWorkspaceMarkdown(
+			filePath = selectedPathRef.current,
+			content = selectedContent
+		): Promise<boolean> {
+			if (
+				!filePath ||
+				selectedKind !== 'markdown' ||
+				!isFriday() ||
+				deletingPathRef.current === filePath
+			) {
 				return false;
-			})
-			.finally(() => {
-				saveInFlightRef.current = null;
-				saveSnapshotRef.current = null;
-				if (selectedPathRef.current === filePath) setSelectedSaving(false);
-			});
-		saveInFlightRef.current = operation;
-		return operation;
-	}, [selectedContent, selectedKind]);
+			}
+			const pendingSave = saveInFlightRef.current;
+			if (pendingSave) {
+				const pendingSnapshot = saveSnapshotRef.current;
+				if (pendingSnapshot?.filePath === filePath && pendingSnapshot.content === content) {
+					return pendingSave;
+				}
+				await pendingSave;
+				return saveWorkspaceMarkdown(filePath, content);
+			}
 
-	const saveLatestWorkspaceMarkdown = useCallback(async function saveLatestWorkspaceMarkdown(
-		filePath = selectedPathRef.current
-	): Promise<boolean> {
-		if (!filePath) return false;
-		let content = selectedContentRef.current;
-		while (selectedPathRef.current === filePath) {
-			const saved = await saveWorkspaceMarkdown(filePath, content);
-			if (!saved) return false;
-			const latestContent = selectedContentRef.current;
-			if (latestContent === content) return true;
-			content = latestContent;
-		}
-		return false;
-	}, [saveWorkspaceMarkdown]);
+			setSelectedSaving(true);
+			setSelectedSaveError('');
+			saveSnapshotRef.current = { filePath, content };
+			const operation = Promise.resolve()
+				.then(() => agent.writeWorkspaceMarkdown(filePath, content))
+				.then(() => {
+					if (selectedPathRef.current === filePath) setSelectedSavedContent(content);
+					return true;
+				})
+				.catch((error) => {
+					if (selectedPathRef.current === filePath) {
+						setSelectedSaveError(
+							error instanceof Error ? error.message : 'Unable to save the Markdown file.'
+						);
+					}
+					return false;
+				})
+				.finally(() => {
+					saveInFlightRef.current = null;
+					saveSnapshotRef.current = null;
+					if (selectedPathRef.current === filePath) setSelectedSaving(false);
+				});
+			saveInFlightRef.current = operation;
+			return operation;
+		},
+		[selectedContent, selectedKind]
+	);
+
+	const saveLatestWorkspaceMarkdown = useCallback(
+		async function saveLatestWorkspaceMarkdown(
+			filePath = selectedPathRef.current
+		): Promise<boolean> {
+			if (!filePath) return false;
+			let content = selectedContentRef.current;
+			while (selectedPathRef.current === filePath) {
+				const saved = await saveWorkspaceMarkdown(filePath, content);
+				if (!saved) return false;
+				const latestContent = selectedContentRef.current;
+				if (latestContent === content) return true;
+				content = latestContent;
+			}
+			return false;
+		},
+		[saveWorkspaceMarkdown]
+	);
 
 	useEffect(() => {
 		if (!selectedDirty || selectedSaving || selectedSaveError) return;
@@ -208,7 +221,10 @@ export default function App() {
 
 	async function selectWorkspaceEntry(entry: WorkspaceTreeEntry) {
 		if (entry.type !== 'file') return;
-		if (selectedKind === 'markdown' && (selectedContent !== selectedSavedContent || selectedSaving)) {
+		if (
+			selectedKind === 'markdown' &&
+			(selectedContent !== selectedSavedContent || selectedSaving)
+		) {
 			const saved = await saveLatestWorkspaceMarkdown(selectedPathRef.current);
 			if (!saved) return;
 		}
@@ -292,7 +308,7 @@ export default function App() {
 		const resize = (moveEvent: globalThis.PointerEvent) => {
 			const nextWidth = Math.min(
 				sidebarMaxWidth,
-				Math.max(sidebarMinWidth, startWidth + moveEvent.clientX - startX),
+				Math.max(sidebarMinWidth, startWidth + moveEvent.clientX - startX)
 			);
 			setSidebarWidth(nextWidth);
 		};
@@ -327,7 +343,13 @@ export default function App() {
 				onContextMenu={(event) => {
 					showNativeContextMenu(
 						event,
-						[{ id: 'copy-workspace-path', label: 'Copy Workspace Path', enabled: Boolean(workspaceLocation) }],
+						[
+							{
+								id: 'copy-workspace-path',
+								label: 'Copy Workspace Path',
+								enabled: Boolean(workspaceLocation),
+							},
+						],
 						{ 'copy-workspace-path': () => navigator.clipboard.writeText(workspaceLocation) }
 					);
 				}}
@@ -340,9 +362,21 @@ export default function App() {
 							showNativeContextMenu(
 								event,
 								[
-									{ id: 'minimum', label: 'Minimum Width', enabled: sidebarWidth !== sidebarMinWidth },
-									{ id: 'reset', label: 'Reset Width', enabled: sidebarWidth !== sidebarDefaultWidth },
-									{ id: 'maximum', label: 'Maximum Width', enabled: sidebarWidth !== sidebarMaxWidth },
+									{
+										id: 'minimum',
+										label: 'Minimum Width',
+										enabled: sidebarWidth !== sidebarMinWidth,
+									},
+									{
+										id: 'reset',
+										label: 'Reset Width',
+										enabled: sidebarWidth !== sidebarDefaultWidth,
+									},
+									{
+										id: 'maximum',
+										label: 'Maximum Width',
+										enabled: sidebarWidth !== sidebarMaxWidth,
+									},
 								],
 								{
 									minimum: () => setSidebarWidth(sidebarMinWidth),
@@ -402,13 +436,16 @@ export default function App() {
 					<DialogHeader>
 						<DialogTitle>Delete {deleteTarget?.name}?</DialogTitle>
 						<DialogDescription>
-							This permanently deletes the file from the agent workspace. This action cannot be undone.
+							This permanently deletes the file from the agent workspace. This action cannot be
+							undone.
 						</DialogDescription>
 					</DialogHeader>
 					{deleteError ? <p className="text-sm text-destructive">{deleteError}</p> : null}
 					<DialogFooter>
 						<DialogClose asChild>
-							<Button type="button" variant="outline" disabled={deleting}>Cancel</Button>
+							<Button type="button" variant="outline" disabled={deleting}>
+								Cancel
+							</Button>
 						</DialogClose>
 						<Button
 							type="button"

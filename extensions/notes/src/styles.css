@@ -39,7 +39,14 @@
 }
 
 :root {
-	font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	font-family:
+		Inter,
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		sans-serif;
 	color-scheme: light;
 	--background: hsl(42 24% 97%);
 	--foreground: hsl(32 15% 12%);
