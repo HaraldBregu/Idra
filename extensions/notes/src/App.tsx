@@ -718,6 +718,110 @@ export default function App() {
 			</Dialog>
 
 			<Dialog
+				open={Boolean(renameTarget)}
+				onOpenChange={(open) => {
+					if (!open && !renaming) {
+						setRenameTarget(null);
+						setRenameError('');
+					}
+				}}
+			>
+				<DialogContent
+					onContextMenu={(event) => {
+						showNativeContextMenu(
+							event,
+							[
+								{ id: 'cancel', label: 'Cancel', enabled: !renaming },
+								{
+									id: 'rename',
+									label: renameTarget?.type === 'directory' ? 'Rename Folder' : 'Rename File',
+									enabled:
+										!renaming &&
+										Boolean(renameName.trim()) &&
+										renameName.trim() !== renameTarget?.name,
+								},
+							],
+							{
+								cancel: () => setRenameTarget(null),
+								rename: () => confirmRenameWorkspaceEntry(),
+							}
+						);
+					}}
+				>
+					<form
+						className="space-y-4"
+						onSubmit={(event) => {
+							event.preventDefault();
+							void confirmRenameWorkspaceEntry();
+						}}
+					>
+						<DialogHeader>
+							<DialogTitle>
+								Rename {renameTarget?.type === 'directory' ? 'Folder' : 'File'}
+							</DialogTitle>
+							<DialogDescription>Enter a new name for {renameTarget?.name}.</DialogDescription>
+						</DialogHeader>
+						<div className="space-y-2">
+							<label htmlFor="workspace-entry-rename" className="text-sm font-medium">
+								Name
+							</label>
+							<Input
+								id="workspace-entry-rename"
+								autoFocus
+								value={renameName}
+								disabled={renaming}
+								onFocus={(event) => {
+									const extensionStart = renameName.lastIndexOf('.');
+									event.currentTarget.setSelectionRange(
+										0,
+										renameTarget?.type === 'file' && extensionStart > 0
+											? extensionStart
+											: renameName.length
+									);
+								}}
+								onChange={(event) => {
+									setRenameName(event.target.value);
+									setRenameError('');
+								}}
+								onContextMenu={(event) => {
+									showNativeContextMenu(event, [
+										{ type: 'role', role: 'undo' },
+										{ type: 'role', role: 'redo' },
+										{ type: 'separator' },
+										{ type: 'role', role: 'cut' },
+										{ type: 'role', role: 'copy' },
+										{ type: 'role', role: 'paste' },
+										{ type: 'separator' },
+										{ type: 'role', role: 'selectAll' },
+									]);
+								}}
+							/>
+						</div>
+						{renameError ? <p className="text-sm text-destructive">{renameError}</p> : null}
+						<DialogFooter>
+							<DialogClose asChild>
+								<Button type="button" variant="outline" disabled={renaming}>
+									Cancel
+								</Button>
+							</DialogClose>
+							<Button
+								type="submit"
+								disabled={
+									renaming ||
+									!renameName.trim() ||
+									renameName.trim() === renameTarget?.name
+								}
+							>
+								{renaming
+									? 'Renaming…'
+									: `Rename ${renameTarget?.type === 'directory' ? 'Folder' : 'File'}`}
+							</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
+
+			<Dialog
 				open={Boolean(deleteTarget)}
 				onOpenChange={(open) => {
 					if (!open && !deleting) {
