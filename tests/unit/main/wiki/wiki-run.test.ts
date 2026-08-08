@@ -4,6 +4,10 @@ import path from 'node:path';
 
 const generateWikiUpdate = jest.fn();
 
+jest.mock('../../../../src/main/wiki/wiki_location', () => ({
+	wikiLocation: () => '/tmp/friday-wiki-test-data',
+}));
+
 jest.mock('../../../../src/main/wiki/wiki_generate', () => ({
 	generateWikiUpdate,
 }));
@@ -13,18 +17,11 @@ import { cancelWiki } from '../../../../src/main/wiki/wiki_cancel';
 import { wikiRuntime } from '../../../../src/main/wiki/wiki_runtime';
 import { wikiSettingsStore } from '../../../../src/main/wiki/wiki_settings_store';
 import { wikiSourcePage } from '../../../../src/main/wiki/wiki_source_page';
-import { wikiStateStore } from '../../../../src/main/wiki/wiki_state_store';
-import { wikiSourceStore } from '../../../../src/main/wiki/wiki_source_store';
-import { wikiFailureStore } from '../../../../src/main/wiki/wiki_failure_store';
-import { wikiOperationStore } from '../../../../src/main/wiki/wiki_operation_store';
 import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
 
 describe('runWiki', () => {
 	beforeEach(() => {
 		generateWikiUpdate.mockReset();
-		wikiSourceStore.store = { version: 1, sources: {} };
-		wikiFailureStore.store = { version: 1, operations: [] };
-		wikiOperationStore.store = { version: 1, operations: {} };
 		wikiRuntime.run = undefined;
 		wikiRuntime.lastRun = undefined;
 		wikiRuntime.controller = undefined;
@@ -35,7 +32,6 @@ describe('runWiki', () => {
 		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-run-'));
 		const sourcePath = path.join(root, 'raw');
 		const targetPath = path.join(root, 'data');
-		const repository = getWikiRepository(targetPath);
 		await import('node:fs/promises').then(({ mkdir }) => mkdir(sourcePath, { recursive: true }));
 		await writeFile(path.join(sourcePath, 'notes.md'), 'Version one', 'utf8');
 		wikiSettingsStore.store = {
@@ -46,7 +42,6 @@ describe('runWiki', () => {
 			targetPath,
 			schedule: { enabled: false, cronExpression: '0 3 * * *' },
 		};
-		wikiStateStore.store = { sources: {} };
 		wikiRuntime.run = undefined;
 		wikiRuntime.lastRun = undefined;
 		generateWikiUpdate.mockImplementation(async (_settings, source) => ({
@@ -87,6 +82,7 @@ describe('runWiki', () => {
 		const root = await mkdtemp(path.join(os.tmpdir(), 'friday-wiki-failure-'));
 		const sourcePath = path.join(root, 'raw');
 		const targetPath = path.join(root, 'data');
+		const repository = getWikiRepository(targetPath);
 		await import('node:fs/promises').then(({ mkdir }) =>
 			Promise.all([mkdir(sourcePath, { recursive: true }), mkdir(targetPath, { recursive: true })])
 		);
@@ -100,7 +96,6 @@ describe('runWiki', () => {
 			targetPath,
 			schedule: { enabled: false, cronExpression: '0 3 * * *' },
 		} as never;
-		wikiStateStore.store = { sources: {} };
 		generateWikiUpdate.mockImplementation(async (_settings, source) => ({
 			pages: [
 				{
@@ -158,7 +153,6 @@ describe('runWiki', () => {
 			targetPath,
 			schedule: { enabled: false, cronExpression: '0 3 * * *' },
 		} as never;
-		wikiStateStore.store = { sources: {} };
 		let generationStarted: (() => void) | undefined;
 		const started = new Promise<void>((resolve) => {
 			generationStarted = resolve;

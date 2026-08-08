@@ -2,6 +2,11 @@ import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+
+jest.mock('../../../../src/main/wiki/wiki_location', () => ({
+	wikiLocation: () => '/tmp/friday-wiki-test-data',
+}));
+
 import { collectWikiSources } from '../../../../src/main/wiki/wiki_collect_sources';
 import { registerWikiSource } from '../../../../src/main/wiki/wiki_register_source';
 import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
