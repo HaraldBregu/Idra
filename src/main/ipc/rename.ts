@@ -29,7 +29,9 @@ export async function renameWorkspaceEntry(
 
 	try {
 		await fs.lstat(targetPath);
-		throw new Error(`An item named "${normalizedName}" already exists.`);
+		if ((await fs.realpath(targetPath)) !== resolvedSource) {
+			throw new Error(`An item named "${normalizedName}" already exists.`);
+		}
 	} catch (error) {
 		if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
 	}
