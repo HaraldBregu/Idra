@@ -1366,6 +1366,9 @@
 		"rag": {
 			"title": "Knowledge Base",
 			"description": "Index text files recursively from selected folders and search them as vectors.",
+			"behaviorTitle": "Knowledge Base behavior",
+			"enabled": "Enable Knowledge Base",
+			"enabledDescription": "Allow document indexing and assistant search.",
 			"enabled": "Enable Knowledge Base",
 			"embeddingModelTitle": "Embedding model",
 			"embeddingModelDescription": "Model used to embed RAG documents for vector search.",

@@ -4,9 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { BrainCircuit, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
-import { Switch } from '@/components/ui/switch';
-import type { RagConfiguration } from '../../../../../shared/rag_types';
-import type { WikiSettings } from '../../../../../shared/wiki_types';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -69,27 +66,14 @@ function getSettingsOverviewItem(path: string): SettingsNavigationItem | Setting
 function SettingsOverviewCard({
 	item,
 	disabled = false,
-	wikiSettings,
-	wikiSaving = false,
-	onWikiEnabledChange,
-	ragConfiguration,
-	ragSaving = false,
-	onRagEnabledChange,
 }: {
 	readonly item: SettingsNavigationItem | SettingsModelServiceItem;
 	readonly disabled?: boolean;
-	readonly wikiSettings?: WikiSettings;
-	readonly wikiSaving?: boolean;
-	readonly onWikiEnabledChange?: (enabled: boolean) => void;
-	readonly ragConfiguration?: RagConfiguration;
-	readonly ragSaving?: boolean;
-	readonly onRagEnabledChange?: (enabled: boolean) => void;
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const unavailable = disabled || ('comingSoon' in item && item.comingSoon === true);
 	const isWiki = item.path === '/settings/llm-wiki';
-	const isRag = item.path === '/settings/knowledge-base';
 	const labelKey = item.labelKey;
 	const handleActivate = (): void => {
 		if (unavailable) return;
@@ -110,33 +94,6 @@ function SettingsOverviewCard({
 			</ItemContent>
 		</>
 	);
-
-	if (isWiki || isRag) {
-		const enabled = isWiki ? wikiSettings?.enabled === true : ragConfiguration?.enabled === true;
-		const saving = isWiki ? wikiSaving : ragSaving;
-		const loaded = isWiki ? Boolean(wikiSettings) : Boolean(ragConfiguration);
-		const label = isWiki ? t('settings.wiki.enabled') : t('settings.rag.enabled');
-		const onEnabledChange = isWiki ? onWikiEnabledChange : onRagEnabledChange;
-		return (
-			<Item
-				variant="outline"
-				size="md"
-				className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left last:border-b-0"
-			>
-				<button type="button" onClick={handleActivate} className="contents">
-					{content}
-				</button>
-				<ItemActions className="ml-0 flex-none justify-end">
-					<Switch
-						checked={enabled}
-						disabled={!loaded || saving}
-						aria-label={label}
-						onCheckedChange={onEnabledChange}
-					/>
-				</ItemActions>
-			</Item>
-		);
-	}
 
 	return (
 		<Item
@@ -165,38 +122,6 @@ function SettingsOverviewCard({
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
 	const disabledOverviewPaths = new Set<string>([]);
-	const [wikiSettings, setWikiSettings] = React.useState<WikiSettings>();
-	const [wikiSaving, setWikiSaving] = React.useState(false);
-	const [ragConfiguration, setRagConfiguration] = React.useState<RagConfiguration>();
-	const [ragSaving, setRagSaving] = React.useState(false);
-
-	React.useEffect(() => {
-		if (!window.wiki) return;
-		void window.wiki.getSettings().then(setWikiSettings);
-	}, []);
-
-	React.useEffect(() => {
-		if (!window.agent) return;
-		void window.agent.ragGetConfiguration().then(setRagConfiguration);
-	}, []);
-
-	const handleWikiEnabledChange = (enabled: boolean): void => {
-		if (!wikiSettings) return;
-		setWikiSaving(true);
-		void window.wiki
-			.saveSettings({ ...wikiSettings, enabled })
-			.then(setWikiSettings)
-			.finally(() => setWikiSaving(false));
-	};
-
-	const handleRagEnabledChange = (enabled: boolean): void => {
-		if (!ragConfiguration) return;
-		setRagSaving(true);
-		void window.agent
-			.ragSaveConfiguration({ ...ragConfiguration, enabled })
-			.then(setRagConfiguration)
-			.finally(() => setRagSaving(false));
-	};
 
 	return (
 		<SettingsPageShell>
@@ -211,16 +136,6 @@ const OverviewPage: React.FC = () => {
 								key={path}
 								item={item}
 								disabled={disabledOverviewPaths.has(path)}
-								wikiSettings={path === '/settings/llm-wiki' ? wikiSettings : undefined}
-								wikiSaving={path === '/settings/llm-wiki' && wikiSaving}
-								onWikiEnabledChange={
-									path === '/settings/llm-wiki' ? handleWikiEnabledChange : undefined
-								}
-								ragConfiguration={path === '/settings/knowledge-base' ? ragConfiguration : undefined}
-								ragSaving={path === '/settings/knowledge-base' && ragSaving}
-								onRagEnabledChange={
-									path === '/settings/knowledge-base' ? handleRagEnabledChange : undefined
-								}
 							/>
 							);
 						})}

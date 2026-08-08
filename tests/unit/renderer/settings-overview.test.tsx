@@ -1,5 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import OverviewPage from '../../../src/renderer/src/pages/settings/pages/overview/Page';
 
@@ -84,73 +83,5 @@ it('uses the Background tasks label on the overview', () => {
 
 	expect(screen.getByRole('button', { name: /settings\.tabs\.taskScheduler/ })).toHaveTextContent(
 		'settings.tabs.taskScheduler'
-	);
-});
-
-it('updates the wiki module from the overview', async () => {
-	const user = userEvent.setup();
-	const settings = {
-		enabled: false,
-		providerId: '',
-		modelId: '',
-		sourcePath: '/wiki/raw',
-		targetPath: '/wiki/data',
-		autoFileAnswers: false,
-		requireReviewForMajorChanges: true,
-		retrievalPriority: 'wiki_first' as const,
-		lintOnStartup: false,
-		schedule: { enabled: false, cronExpression: '0 3 * * *' },
-	};
-	const saveSettings = jest.fn().mockResolvedValue({ ...settings, enabled: true });
-	Object.defineProperty(window, 'wiki', {
-		configurable: true,
-		value: { getSettings: jest.fn().mockResolvedValue(settings), saveSettings },
-	});
-
-	render(
-		<MemoryRouter initialEntries={['/settings']}>
-			<OverviewPage />
-		</MemoryRouter>
-	);
-
-	const toggle = await screen.findByRole('switch', { name: 'settings.wiki.enabled' });
-	expect(toggle).not.toBeChecked();
-	await user.click(toggle);
-	await waitFor(() => expect(saveSettings).toHaveBeenCalledWith({ ...settings, enabled: true }));
-});
-
-it('updates the Knowledge Base module from the overview', async () => {
-	const user = userEvent.setup();
-	const configuration = {
-		enabled: false,
-		indexName: 'friday',
-		databaseProviderId: '',
-		databaseId: '',
-		embeddingProviderId: '',
-		embeddingModelId: '',
-		folders: [],
-		scheduleEnabled: false,
-		cronExpression: '0 3 * * *',
-	};
-	const ragSaveConfiguration = jest.fn().mockResolvedValue({ ...configuration, enabled: true });
-	Object.defineProperty(window, 'agent', {
-		configurable: true,
-		value: {
-			ragGetConfiguration: jest.fn().mockResolvedValue(configuration),
-			ragSaveConfiguration,
-		},
-	});
-
-	render(
-		<MemoryRouter initialEntries={['/settings']}>
-			<OverviewPage />
-		</MemoryRouter>
-	);
-
-	const toggle = await screen.findByRole('switch', { name: 'settings.rag.enabled' });
-	expect(toggle).not.toBeChecked();
-	await user.click(toggle);
-	await waitFor(() =>
-		expect(ragSaveConfiguration).toHaveBeenCalledWith({ ...configuration, enabled: true })
 	);
 });

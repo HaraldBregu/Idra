@@ -6,6 +6,9 @@ jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
 		'settings.rag.title': 'Knowledge Base',
 		'settings.rag.description': 'Configure retrieval-augmented generation.',
+		'settings.rag.behaviorTitle': 'Knowledge Base behavior',
+		'settings.rag.enabled': 'Enable Knowledge Base',
+		'settings.rag.enabledDescription': 'Allow document indexing and assistant search.',
 		'settings.rag.embeddingModelTitle': 'Embedding model',
 		'settings.rag.embeddingModelDescription':
 			'Model used to embed RAG documents for vector search.',
@@ -94,6 +97,7 @@ beforeEach(() => {
 		providers: [],
 	});
 	agentApi.ragGetConfiguration.mockResolvedValue({
+		enabled: false,
 		indexName: 'friday',
 		databaseProviderId: '',
 		databaseId: '',
@@ -126,6 +130,20 @@ it('loads and saves the embedding model used by RAG', async () => {
 		expect(embeddingApi.setProviderId).toHaveBeenCalledWith('voyage');
 		expect(embeddingApi.setModelId).toHaveBeenCalledWith('voyage-3');
 	});
+});
+
+it('enables the Knowledge Base from its settings page', async () => {
+	const user = userEvent.setup();
+	render(<RagPage />);
+
+	const toggle = await screen.findByRole('switch', { name: 'Enable Knowledge Base' });
+	expect(toggle).not.toBeChecked();
+	await user.click(toggle);
+	await waitFor(() =>
+		expect(agentApi.ragSaveConfiguration).toHaveBeenCalledWith(
+			expect.objectContaining({ enabled: true })
+		)
+	);
 });
 
 it('groups providers, model, index, and folder paths in one configuration card', async () => {

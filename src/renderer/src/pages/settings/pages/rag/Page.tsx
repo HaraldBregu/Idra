@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FolderOpen, LoaderCircle, Search, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import {
 	Select,
 	SelectContent,
@@ -161,6 +162,11 @@ const RagPage: React.FC = () => {
 		}
 	};
 
+	const handleEnabledChange = (enabled: boolean): void => {
+		if (!ragConfiguration) return;
+		void saveRagConfiguration({ ...ragConfiguration, enabled });
+	};
+
 	const pickSourceFolder = async (): Promise<void> => {
 		setError(null);
 		try {
@@ -259,6 +265,23 @@ const RagPage: React.FC = () => {
 				title={t('settings.rag.title')}
 				description={t('settings.rag.description')}
 			/>
+
+			<SettingsSection title={t('settings.rag.behaviorTitle')}>
+				<SettingsPanel>
+					<SettingsRow
+						title={t('settings.rag.enabled')}
+						description={t('settings.rag.enabledDescription')}
+						actions={
+							<Switch
+								checked={ragConfiguration?.enabled === true}
+								disabled={!ragConfiguration || savingRagConfiguration || indexing}
+								aria-label={t('settings.rag.enabled')}
+								onCheckedChange={handleEnabledChange}
+							/>
+						}
+					/>
+				</SettingsPanel>
+			</SettingsSection>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
