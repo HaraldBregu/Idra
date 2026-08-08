@@ -1,41 +1,37 @@
 import path from 'node:path';
+import type { EmbeddingProvider } from '../../../../src/main/rag/embedding';
+import type { VectorStore } from '../../../../src/main/rag/vector_store';
 
-const appendFile = jest.fn();
 const lstat = jest.fn();
-const mkdir = jest.fn();
 const readFile = jest.fn();
 const readdir = jest.fn();
-const rename = jest.fn();
-const rm = jest.fn();
 const stat = jest.fn();
-const writeFile = jest.fn();
-const createEmbedding = jest.fn();
+const createIndex = jest.fn();
 const upsert = jest.fn();
 const namespace = jest.fn(() => ({ upsert }));
 const index = jest.fn(() => ({ namespace }));
-const createIndex = jest.fn();
 const ragClient = jest.fn(() => ({ createIndex, index }));
 const writeRagManifest = jest.fn();
+const getRagConfiguration = jest.fn();
 
-jest.mock('node:fs/promises', () => ({
-	appendFile,
-	lstat,
-	mkdir,
-	readFile,
-	readdir,
-	rename,
-	rm,
-	stat,
-	writeFile,
-}));
-jest.mock('../../../../src/main/models/embedding', () => ({ createEmbedding }));
+jest.mock('node:fs/promises', () => ({ lstat, readFile, readdir, stat }));
 jest.mock('../../../../src/main/rag/rag_client', () => ({ ragClient }));
-jest.mock('../../../../src/main/rag/rag_location', () => ({
-	ragLocation: () => path.join('/user/data', 'rag'),
-}));
 jest.mock('../../../../src/main/rag/rag_manifest', () => ({ writeRagManifest }));
+jest.mock('../../../../src/main/rag/rag_store', () => ({ getRagConfiguration }));
 
 import { indexRag } from '../../../../src/main/rag/rag_index';
+
+const embed = jest.fn();
+const embeddings: EmbeddingProvider = { embed };
+const getReusableSource = jest.fn();
+const publish = jest.fn();
+const vectors: VectorStore = {
+	getIndex: jest.fn(),
+	getReusableSource,
+	publish,
+	search: jest.fn(),
+	close: jest.fn(),
+};
 
 beforeEach(() => {
 	jest.clearAllMocks();
@@ -43,78 +39,90 @@ beforeEach(() => {
 	lstat.mockResolvedValue({ isFile: () => true });
 	readdir.mockResolvedValue(['guide.md']);
 	readFile.mockResolvedValue(Buffer.from('# Guide'));
-	createEmbedding.mockResolvedValue({
+	getRagConfiguration.mockReturnValue({
+		embeddingProviderId: 'openai',
+		embeddingModelId: 'text-embedding-3-small',
+		databaseProviderId: 'pinecone',
+	});
+	embed.mockResolvedValue({
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,
 		embeddings: [[0.1, 0.2]],
 	});
+	getReusableSource.mockReturnValue(undefined);
 	createIndex.mockResolvedValue(undefined);
 	upsert.mockResolvedValue(undefined);
-	appendFile.mockResolvedValue(undefined);
-	mkdir.mockResolvedValue(undefined);
-	rename.mockResolvedValue(undefined);
-	rm.mockResolvedValue(undefined);
-	writeFile.mockResolvedValue(undefined);
 });
 
-it('saves the completed embedding index directly under the RAG directory', async () => {
-	const result = await indexRag(['/documents'], 'knowledge-base');
-	const directory = path.join('/user/data', 'rag');
-	const temporaryOutputFile = writeFile.mock.calls[0][0] as string;
-	const outputFile = temporaryOutputFile.slice(0, -4);
-	const activeNamespace = namespace.mock.calls[0][0] as string;
-	const artifactFile = path.basename(outputFile);
-	const initialContent = writeFile.mock.calls[0][1] as string;
-	const appendedContent = appendFile.mock.calls
-		.filter(([file]) => file === temporaryOutputFile)
-		.map(([, content]) => content)
-		.join('');
-	const saved = JSON.parse(`${initialContent}${appendedContent}`) as {
-		indexName: string;
-		providerId: string;
-		modelId: string;
-		dimensions: number;
-		activeNamespace: string;
-		records: Array<{ id: string; values: number[]; metadata: { path: string; text: string } }>;
-	};
+it('publishes SQLite as the local source of truth and mirrors opaque vectors to Pinecone', async () => {
+	const result = await indexRag(['/documents'], 'knowledge-base', { embeddings, vectors });
+	const publication = publish.mock.calls[0][0];
 
 	expect(result).toEqual({ files: 1, vectors: 1 });
-	expect(mkdir).toHaveBeenCalledWith(directory, { recursive: true });
-	expect(saved).toEqual({
+	expect(publication).toEqual({
 		indexName: 'knowledge-base',
-		providerId: 'openai',
-		modelId: 'text-embedding-3-small',
-		dimensions: 2,
-		activeNamespace,
-		records: [
-			{
-				id: '0:guide.md#0',
-				values: [0.1, 0.2],
-				metadata: { path: path.join('documents', 'guide.md'), text: '# Guide' },
-			},
-		],
-	});
-	expect(rename).toHaveBeenCalledWith(temporaryOutputFile, outputFile);
-	expect(activeNamespace).toMatch(/^friday-[a-f0-9-]+$/);
-	expect(writeRagManifest).toHaveBeenCalledWith({
-		indexName: 'knowledge-base',
-		activeNamespace,
-		artifactFile,
+		generation: expect.stringMatching(/^friday-[a-f0-9-]+$/),
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,
 		completedAt: expect.any(String),
+		records: [
+			expect.objectContaining({
+				id: expect.stringMatching(/^[a-f0-9]{64}#0$/),
+				path: path.join('documents', 'guide.md'),
+				text: '# Guide',
+				vector: [0.1, 0.2],
+			}),
+		],
 	});
-	expect(writeRagManifest.mock.invocationCallOrder[0]).toBeGreaterThan(
-		rename.mock.invocationCallOrder[0]
-	);
+	expect(writeRagManifest).toHaveBeenCalledWith({
+		indexName: 'knowledge-base',
+		activeNamespace: publication.generation,
+		providerId: 'openai',
+		modelId: 'text-embedding-3-small',
+		dimensions: 2,
+		completedAt: publication.completedAt,
+	});
 	expect(upsert).toHaveBeenCalledWith({
-		records: [{ id: '0:guide.md#0', values: [0.1, 0.2] }],
+		records: [{ id: publication.records[0].id, values: [0.1, 0.2] }],
 	});
+	expect(upsert.mock.calls[0][0].records[0]).not.toHaveProperty('metadata');
+});
+
+it('reuses unchanged source vectors by fingerprint without another embedding call', async () => {
+	getRagConfiguration.mockReturnValue({
+		embeddingProviderId: 'openai',
+		embeddingModelId: 'text-embedding-3-small',
+		databaseProviderId: '',
+	});
+	getReusableSource.mockReturnValue([
+		{
+			id: 'source#0',
+			sourceId: 'source',
+			sourceFingerprint: 'fingerprint',
+			path: 'documents/guide.md',
+			chunkIndex: 0,
+			text: '# Guide',
+			checksum: 'checksum',
+			indexedAt: '2026-08-08T00:00:00.000Z',
+			vector: [0.1, 0.2],
+		},
+	]);
+
+	await indexRag(['/documents'], 'knowledge-base', { embeddings, vectors });
+
+	expect(embed).not.toHaveBeenCalled();
+	expect(publish).toHaveBeenCalledWith(expect.objectContaining({ vectors: undefined }));
+	expect(publish.mock.calls[0][0].records).toHaveLength(1);
 });
 
 it('indexes nested and extensionless text files while skipping binary files', async () => {
+	getRagConfiguration.mockReturnValue({
+		embeddingProviderId: 'openai',
+		embeddingModelId: 'text-embedding-3-small',
+		databaseProviderId: '',
+	});
 	readdir.mockResolvedValue(['nested', 'nested/guide.txt', 'README', 'nested/image.png']);
 	lstat.mockImplementation(async (filePath: string) => ({
 		isFile: () => filePath !== path.join('/documents', 'nested'),
@@ -124,39 +132,58 @@ it('indexes nested and extensionless text files while skipping binary files', as
 		if (filePath.endsWith('README')) return Buffer.from('Extensionless notes');
 		return Buffer.from('Nested guide');
 	});
+	embed
+		.mockResolvedValueOnce({
+			providerId: 'openai',
+			modelId: 'text-embedding-3-small',
+			dimensions: 2,
+			embeddings: [[1, 0]],
+		})
+		.mockResolvedValueOnce({
+			providerId: 'openai',
+			modelId: 'text-embedding-3-small',
+			dimensions: 2,
+			embeddings: [[0, 1]],
+		});
 
-	const result = await indexRag(['/documents'], 'knowledge-base');
-	const records = upsert.mock.calls.flatMap(([request]) => request.records);
+	const result = await indexRag(['/documents'], 'knowledge-base', { embeddings, vectors });
 
 	expect(result).toEqual({ files: 2, vectors: 2 });
-	expect(records).toEqual([
-		expect.objectContaining({
-			id: '0:README#0',
-		}),
-		expect.objectContaining({
-			id: '0:nested/guide.txt#0',
-		}),
-	]);
-	expect(createEmbedding.mock.calls.map(([request]) => request.texts[0])).toEqual([
+	expect(embed.mock.calls.map(([request]) => request.texts[0])).toEqual([
 		'Extensionless notes',
 		'Nested guide',
 	]);
 });
 
-it('does not publish a failed namespace build over the prior manifest', async () => {
+it('does not publish locally when the optional Pinecone mirror fails', async () => {
 	upsert.mockRejectedValueOnce(new Error('remote failure'));
 
-	await expect(indexRag(['/documents'], 'knowledge-base')).rejects.toThrow('remote failure');
+	await expect(
+		indexRag(['/documents'], 'knowledge-base', { embeddings, vectors })
+	).rejects.toThrow('remote failure');
+	expect(publish).not.toHaveBeenCalled();
 	expect(writeRagManifest).not.toHaveBeenCalled();
-	expect(rename).not.toHaveBeenCalled();
+});
+
+it('requires an explicit embedding provider and model', async () => {
+	getRagConfiguration.mockReturnValue({
+		embeddingProviderId: '',
+		embeddingModelId: '',
+		databaseProviderId: '',
+	});
+
+	await expect(
+		indexRag(['/documents'], 'knowledge-base', { embeddings, vectors })
+	).rejects.toThrow('Select an embedding provider and model before indexing.');
+	expect(embed).not.toHaveBeenCalled();
 });
 
 it('refuses to upload credential-like text files', async () => {
 	readdir.mockResolvedValue(['.env']);
 	readFile.mockResolvedValue(Buffer.from('API_KEY=abcdefghijklmnopqrstuvwxyz123456'));
 
-	await expect(indexRag(['/documents'], 'knowledge-base')).rejects.toThrow(
-		'Refusing to ingest credential-like file: .env'
-	);
-	expect(createEmbedding).not.toHaveBeenCalled();
+	await expect(
+		indexRag(['/documents'], 'knowledge-base', { embeddings, vectors })
+	).rejects.toThrow('Refusing to ingest credential-like file: .env');
+	expect(embed).not.toHaveBeenCalled();
 });

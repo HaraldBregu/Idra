@@ -1,69 +1,77 @@
-const createEmbedding = jest.fn();
-const query = jest.fn();
-const namespace = jest.fn(() => ({ query }));
-const index = jest.fn(() => ({ namespace }));
-const ragClient = jest.fn(() => ({ index }));
-const readRagManifest = jest.fn();
-const readRagArtifact = jest.fn();
-
-jest.mock('../../../../src/main/models/embedding', () => ({ createEmbedding }));
-jest.mock('../../../../src/main/rag/rag_client', () => ({ ragClient }));
-jest.mock('../../../../src/main/rag/rag_manifest', () => ({ readRagManifest }));
-jest.mock('../../../../src/main/rag/rag_artifact', () => ({ readRagArtifact }));
-
+import type { EmbeddingProvider } from '../../../../src/main/rag/embedding';
+import type { VectorStore } from '../../../../src/main/rag/vector_store';
 import { searchRag } from '../../../../src/main/rag/rag_search';
+
+const embed = jest.fn();
+const embeddings: EmbeddingProvider = { embed };
+const getIndex = jest.fn();
+const search = jest.fn();
+const vectors: VectorStore = {
+	getIndex,
+	getReusableSource: jest.fn(),
+	publish: jest.fn(),
+	search,
+	close: jest.fn(),
+};
 
 beforeEach(() => {
 	jest.clearAllMocks();
-	index.mockReturnValue({ namespace });
-	namespace.mockReturnValue({ query });
-	ragClient.mockReturnValue({ index });
-	readRagManifest.mockReturnValue({
+	getIndex.mockReturnValue({
 		indexName: 'knowledge-base',
-		activeNamespace: 'friday-a1b2c3d4',
-		artifactFile: 'embeddings-friday-a1b2c3d4.json',
+		generation: 'friday-a1b2c3d4',
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,
 		completedAt: '2026-08-08T00:00:00.000Z',
 	});
-	readRagArtifact.mockReturnValue({
-		indexName: 'knowledge-base',
-		activeNamespace: 'friday-a1b2c3d4',
+	embed.mockResolvedValue({
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,
-		records: [
-			{
-				id: 'record-one',
-				values: [0.1, 0.2],
-				metadata: { path: 'documents/guide.md', text: 'Local guide text' },
-			},
-		],
+		embeddings: [[0.1, 0.2]],
 	});
-	createEmbedding.mockResolvedValue({ embeddings: [[0.1, 0.2]] });
-	query.mockResolvedValue({ matches: [] });
-});
-
-it('queries the active namespace and joins opaque matches to local text', async () => {
-	query.mockResolvedValue({ matches: [{ id: 'record-one', score: 0.91 }] });
-
-	await expect(searchRag('query', 'knowledge-base')).resolves.toEqual([
-		{ path: 'documents/guide.md', text: 'Local guide text', score: 0.91 },
+	search.mockReturnValue([
+		{
+			id: 'record-one',
+			sourceId: 'source-one',
+			sourceFingerprint: 'fingerprint',
+			path: 'documents/guide.md',
+			chunkIndex: 0,
+			text: 'Local guide text',
+			checksum: 'checksum',
+			indexedAt: '2026-08-08T00:00:00.000Z',
+			vector: [0.1, 0.2],
+			score: 0.91,
+		},
 	]);
-
-	expect(index).toHaveBeenCalledWith('knowledge-base');
-	expect(namespace).toHaveBeenCalledWith('friday-a1b2c3d4');
-	expect(query).toHaveBeenCalledWith({
-		vector: [0.1, 0.2],
-		topK: 5,
-		includeMetadata: false,
-	});
 });
 
-it('requires reindexing after the selected index changes', async () => {
-	await expect(searchRag('query', 'another-index')).rejects.toThrow(
-		'Generate the selected RAG index before searching.'
-	);
-	expect(createEmbedding).not.toHaveBeenCalled();
+it('searches SQLite with the exact embedding identity used to build the index', async () => {
+	await expect(searchRag('query', 'knowledge-base', 5, { embeddings, vectors })).resolves.toEqual([
+		{
+			sourceId: 'source-one',
+			chunkId: 'record-one',
+			path: 'documents/guide.md',
+			checksum: 'checksum',
+			indexedAt: '2026-08-08T00:00:00.000Z',
+			text: 'Local guide text',
+			score: 0.91,
+		},
+	]);
+	expect(embed).toHaveBeenCalledWith({
+		texts: ['query'],
+		inputType: 'query',
+		providerId: 'openai',
+		modelId: 'text-embedding-3-small',
+	});
+	expect(search).toHaveBeenCalledWith('knowledge-base', [0.1, 0.2], 5);
+});
+
+it('requires the selected local index to exist', async () => {
+	getIndex.mockReturnValue(undefined);
+
+	await expect(
+		searchRag('query', 'another-index', 5, { embeddings, vectors })
+	).rejects.toThrow('Index the rag folder before searching.');
+	expect(embed).not.toHaveBeenCalled();
 });

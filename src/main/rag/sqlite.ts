@@ -227,8 +227,8 @@ function encodeVector(values: readonly number[]): Uint8Array {
 }
 
 function decodeVector(value: Uint8Array): number[] {
-	const bytes = Buffer.from(value);
-	return [...new Float32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / Float32Array.BYTES_PER_ELEMENT)];
+	const bytes = Uint8Array.from(value);
+	return [...new Float32Array(bytes.buffer)];
 }
 
 function cosine(left: readonly number[], right: readonly number[]): number {
