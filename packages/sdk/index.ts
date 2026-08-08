@@ -1,10 +1,11 @@
-import type { AgentApi, AppApi } from '../../src/shared/api_types';
+import type { AgentApi, AppApi, WindowApi } from '../../src/shared/api_types';
 import type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
 
 export { connect, type ConnectOptions, type FridayClient, type WorkspaceAgentApi } from './connect';
-export type { AgentApi, AppApi } from '../../src/shared/api_types';
+export type { AgentApi, AppApi, WindowApi } from '../../src/shared/api_types';
 export type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
 export type { WorkspaceTreeEntry } from '../../src/shared/agent_types';
+export type { ContextMenuDescriptor } from '../../src/shared/window_types';
 
 // The SDK is scoped to app-level data only.
 // This is a typed lazy view over the host preload globals.
@@ -26,6 +27,7 @@ function bridge<T extends object>(name: string): T {
 
 export const app = bridge<AppApi>('app');
 export const agent = bridge<AgentApi>('agent');
+export const win = bridge<WindowApi>('win');
 
 const requiredMethods = [
 	'getThemeData',

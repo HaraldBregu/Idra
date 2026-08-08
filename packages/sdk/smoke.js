@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { agent, app, connect, isFriday } from './dist/packages/sdk/index.js';
+import { agent, app, connect, isFriday, win } from './dist/packages/sdk/index.js';
 
 // --- embedded mode: bound to the app's preload globals ----------------------
 
 assert.equal(isFriday(), false);
 assert.throws(() => app.getTheme, /unavailable/);
 assert.throws(() => agent.getWorkspaceLocation, /unavailable/);
+assert.throws(() => win.showContextMenu, /unavailable/);
 
 globalThis.app = {
 	getThemeData: async () => ({ themeMode: 'system', isDark: false, colors: { background: '#fff' } }),
@@ -21,6 +22,9 @@ globalThis.agent = {
 	listWorkspaceFiles: async () => [{ name: 'USER.md', path: 'USER.md', type: 'file' }],
 	readWorkspaceFile: async (filePath) => `content:${filePath}`,
 };
+globalThis.win = {
+	showContextMenu: async (items) => items[0]?.id ?? null,
+};
 
 assert.equal(isFriday(), true);
 assert.deepEqual(await app.getThemeData(), {
@@ -31,6 +35,7 @@ assert.deepEqual(await app.getThemeData(), {
 assert.equal(await agent.getWorkspaceLocation(), '/tmp/friday-workspace');
 assert.deepEqual(await agent.listWorkspaceFiles(), [{ name: 'USER.md', path: 'USER.md', type: 'file' }]);
 assert.equal(await agent.readWorkspaceFile('USER.md'), 'content:USER.md');
+assert.equal(await win.showContextMenu([{ id: 'open', label: 'Open' }]), 'open');
 
 // --- remote mode: bound to the app API server --------------------------------
 

@@ -85,11 +85,13 @@ import type {
 	AppTheme,
 } from './app_types';
 import type { WikiRunResult, WikiSettings, WikiStatus } from './wiki_types';
+import type { ContextMenuDescriptor } from './window_types';
 
 export interface WindowApi {
 	minimize: () => void;
 	close: () => void;
 	popupMenu: () => void;
+	showContextMenu: (items: ContextMenuDescriptor[]) => Promise<string | null>;
 	isFullScreen: () => Promise<boolean>;
 	onFullScreenChange: (callback: (isFullScreen: boolean) => void) => () => void;
 }

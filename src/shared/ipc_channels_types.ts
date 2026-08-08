@@ -758,6 +758,10 @@ export interface ExtensionsInvokeChannelMap {
 export interface WindowInvokeChannelMap {
 	[WindowChannels.isMaximized]: { args: []; result: boolean };
 	[WindowChannels.isFullScreen]: { args: []; result: boolean };
+	[WindowChannels.showContextMenu]: {
+		args: [items: import('./window_types').ContextMenuDescriptor[]];
+		result: string | null;
+	};
 }
 
 export interface WindowSendChannelMap {

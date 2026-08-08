@@ -276,4 +276,5 @@ export const WindowChannels = {
 	maximizeChange: 'window:maximize-change',
 	fullScreenChange: 'window:fullscreen-change',
 	popupMenu: 'window:popup-menu',
+	showContextMenu: 'window:context-menu:show',
 } as const;

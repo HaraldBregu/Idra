@@ -41,7 +41,7 @@ Streaming callbacks (for `app` events) use the SSE stream opened on first use; c
 ## Usage inside Friday
 
 ```ts
-import { agent, app, isFriday, type AppThemeData } from '@friday/sdk';
+import { agent, app, isFriday, win, type AppThemeData } from '@friday/sdk';
 
 if (!isFriday()) throw new Error('Not running inside Friday');
 
@@ -51,12 +51,18 @@ await app.setTheme(themeData.themeMode === 'dark' ? 'light' : 'dark');
 const workspace = await agent.getWorkspaceLocation();
 const files = await agent.listWorkspaceFiles();
 const content = await agent.readWorkspaceFile('USER.md');
+const action = await win.showContextMenu([
+	{ id: 'open', label: 'Open' },
+	{ type: 'separator' },
+	{ id: 'copy-path', label: 'Copy Path' },
+]);
 ```
 
 ## What's available
 
 - `app`: app data + settings APIs exposed by preload (`setTheme`, `getThemeData`, `getLanguage`, etc.)
 - `agent`: agent APIs exposed by preload, including `getWorkspaceLocation`, `listWorkspaceFiles`, and `readWorkspaceFile`.
+- `win`: embedded-only window APIs, including native context menus.
 - `connect()`: remote client for the app API and workspace agent APIs.
 - `isFriday()`: host check for in-app mode.
 - `ping()`: validate API reachability in remote mode.

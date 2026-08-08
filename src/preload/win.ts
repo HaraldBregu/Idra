@@ -12,6 +12,9 @@ export const win: WindowApi = {
 	popupMenu: (): void => {
 		typedSend(WindowChannels.popupMenu);
 	},
+	showContextMenu: (items) => {
+		return typedInvokeUnwrap(WindowChannels.showContextMenu, items);
+	},
 	isFullScreen: (): Promise<boolean> => {
 		return typedInvokeUnwrap(WindowChannels.isFullScreen);
 	},

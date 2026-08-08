@@ -1,6 +1,6 @@
 import { ChevronRight, File, Folder, FolderOpen } from "lucide-react"
 import { useMemo, useState } from "react"
-import type { WorkspaceTreeEntry } from "@friday/sdk"
+import { isFriday, win, type WorkspaceTreeEntry } from "@friday/sdk"
 
 import { cn } from "@/lib/utils"
 
@@ -81,6 +81,23 @@ function WorkspaceTreeItem({
     <li>
       <button
         type="button"
+        onContextMenu={(event) => {
+          event.preventDefault()
+          if (!isFriday()) return
+          void win.showContextMenu([
+            {
+              id: isDirectory ? "toggle" : "open",
+              label: isDirectory ? (isExpanded ? "Collapse" : "Expand") : "Open",
+              enabled: !isDirectory || Boolean(entry.children?.length),
+            },
+            { type: "separator" },
+            { id: "copy-path", label: "Copy Path" },
+          ]).then((action) => {
+            if (action === "toggle") onToggle(entry.path)
+            if (action === "open") onSelect(entry)
+            if (action === "copy-path") void navigator.clipboard.writeText(entry.path)
+          })
+        }}
         onClick={() => {
           if (isDirectory) onToggle(entry.path)
           else onSelect(entry)
