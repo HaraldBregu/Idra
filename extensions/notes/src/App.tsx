@@ -12,6 +12,16 @@ import {
 } from '@friday/sdk';
 import { AppSidebar } from '@/components/app-sidebar';
 import { WorkspaceViewer } from '@/components/workspace-viewer';
+import { Button } from '@/components/ui/button';
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { showNativeContextMenu } from '@/lib/menu';
@@ -40,6 +50,9 @@ export default function App() {
 	const [selectedError, setSelectedError] = useState('');
 	const [selectedSaving, setSelectedSaving] = useState(false);
 	const [selectedSaveError, setSelectedSaveError] = useState('');
+	const [deleteTarget, setDeleteTarget] = useState<WorkspaceTreeEntry | null>(null);
+	const [deleteError, setDeleteError] = useState('');
+	const [deleting, setDeleting] = useState(false);
 	const [sidebarWidth, setSidebarWidth] = useState(sidebarDefaultWidth);
 	const selectedPathRef = useRef<string | null>(null);
 	const selectedContentRef = useRef('');
@@ -47,6 +60,7 @@ export default function App() {
 	const saveSnapshotRef = useRef<{ filePath: string; content: string } | null>(null);
 	const closeAfterSaveRef = useRef(false);
 	const allowCloseRef = useRef(false);
+	const deletingPathRef = useRef<string | null>(null);
 	const selectionRequestRef = useRef(0);
 	const selectedDirty = selectedKind === 'markdown' && selectedContent !== selectedSavedContent;
 	useEffect(() => {
@@ -107,7 +121,9 @@ export default function App() {
 		filePath = selectedPathRef.current,
 		content = selectedContent
 	): Promise<boolean> {
-		if (!filePath || selectedKind !== 'markdown' || !isFriday()) return false;
+		if (!filePath || selectedKind !== 'markdown' || !isFriday() || deletingPathRef.current === filePath) {
+			return false;
+		}
 		const pendingSave = saveInFlightRef.current;
 		if (pendingSave) {
 			const pendingSnapshot = saveSnapshotRef.current;
@@ -237,6 +253,37 @@ export default function App() {
 		}
 	}
 
+	async function confirmDeleteWorkspaceFile() {
+		if (!deleteTarget || deleting || !isFriday()) return;
+		const filePath = deleteTarget.path;
+		deletingPathRef.current = filePath;
+		setDeleting(true);
+		setDeleteError('');
+		try {
+			if (saveInFlightRef.current) await saveInFlightRef.current;
+			await agent.deleteWorkspaceFile(filePath);
+			setWorkspaceFiles(await agent.listWorkspaceFiles());
+			if (selectedPathRef.current === filePath) {
+				selectionRequestRef.current += 1;
+				selectedPathRef.current = null;
+				selectedContentRef.current = '';
+				setSelectedWorkspacePath(null);
+				setSelectedKind(null);
+				setSelectedContent('');
+				setSelectedSavedContent('');
+				setSelectedMediaUrl('');
+				setSelectedError('');
+				setSelectedSaveError('');
+			}
+			setDeleteTarget(null);
+		} catch (error) {
+			setDeleteError(error instanceof Error ? error.message : 'Unable to delete the file.');
+		} finally {
+			deletingPathRef.current = null;
+			setDeleting(false);
+		}
+	}
+
 	function startSidebarResize(event: PointerEvent<HTMLButtonElement>) {
 		event.preventDefault();
 		const startX = event.clientX;
@@ -260,6 +307,10 @@ export default function App() {
 
 	const sidebar = (
 		<AppSidebar
+			onDeleteRequest={(entry) => {
+				setDeleteError('');
+				setDeleteTarget(entry);
+			}}
 			onWorkspaceSelect={selectWorkspaceEntry}
 			selectedWorkspacePath={selectedWorkspacePath}
 			workspaceError={workspaceError}
@@ -323,6 +374,53 @@ export default function App() {
 					/>
 				</main>
 			</div>
+
+			<Dialog
+				open={Boolean(deleteTarget)}
+				onOpenChange={(open) => {
+					if (!open && !deleting) {
+						setDeleteTarget(null);
+						setDeleteError('');
+					}
+				}}
+			>
+				<DialogContent
+					onContextMenu={(event) => {
+						showNativeContextMenu(
+							event,
+							[
+								{ id: 'cancel', label: 'Cancel', enabled: !deleting },
+								{ id: 'delete', label: 'Delete File', enabled: !deleting },
+							],
+							{
+								cancel: () => setDeleteTarget(null),
+								delete: () => confirmDeleteWorkspaceFile(),
+							}
+						);
+					}}
+				>
+					<DialogHeader>
+						<DialogTitle>Delete {deleteTarget?.name}?</DialogTitle>
+						<DialogDescription>
+							This permanently deletes the file from the agent workspace. This action cannot be undone.
+						</DialogDescription>
+					</DialogHeader>
+					{deleteError ? <p className="text-sm text-destructive">{deleteError}</p> : null}
+					<DialogFooter>
+						<DialogClose asChild>
+							<Button type="button" variant="outline" disabled={deleting}>Cancel</Button>
+						</DialogClose>
+						<Button
+							type="button"
+							variant="destructive"
+							disabled={deleting}
+							onClick={() => void confirmDeleteWorkspaceFile()}
+						>
+							{deleting ? 'Deleting…' : 'Delete File'}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</TooltipProvider>
 	);
 }
