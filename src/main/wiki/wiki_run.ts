@@ -11,13 +11,9 @@ import { appendWikiLog } from './wiki_log';
 import { wikiRuntime } from './wiki_runtime';
 import { ensureWikiSchema } from './wiki_schema';
 import { saveWikiState } from './wiki_save_state';
-import { wikiPaths } from './wiki_paths';
 import { registerWikiSource } from './wiki_register_source';
+import { getWikiRepository } from './wiki_repository';
 import { transactWiki } from './wiki_transaction';
-import { wikiSourceStore } from './wiki_source_store';
-import { wikiOperationStore } from './wiki_operation_store';
-import { wikiFailureStore } from './wiki_failure_store';
-import { wikiReviewStore } from './wiki_review_store';
 import type { WikiOperationRecord } from './wiki_types';
 import { incrementWikiMetric } from './wiki_metrics';
 
@@ -43,7 +39,8 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 		}
 		wikiRuntime.logger?.info('Wiki', 'Wiki ingest started');
 		await mkdir(settings.sourcePath, { recursive: true });
-		const paths = wikiPaths(settings.targetPath);
+		const repository = getWikiRepository(settings.targetPath);
+		const paths = repository.paths;
 		await ensureWikiSchema(settings.targetPath, paths.config, false);
 		const discoveredSources = await collectWikiSources(settings.sourcePath);
 		const selectedPath = relativePath?.trim().replaceAll('\\', '/').replace(/^\.\//, '');
@@ -58,7 +55,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 			);
 		}
 
-		const state = getWikiState();
+		const state = getWikiState(settings.targetPath);
 		let createdPages = 0;
 		let updatedPages = 0;
 		const operationIds: string[] = [];
@@ -78,7 +75,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 				startedAt: runStartedAt,
 			};
 			const operationId = `operation-ingest-${discovered.hash.slice(0, 16)}`;
-			const registered = await registerWikiSource(discovered, operationId, paths.evidence);
+			const registered = await registerWikiSource(discovered, operationId, repository);
 			const source = registered.source;
 			if (!registered.isNew && registered.record.status === 'integrated') {
 				state.sources[source.relativePath] = source.hash;
@@ -86,12 +83,12 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 				continue;
 			}
 			if (registered.isNew && state.sources[source.relativePath] === source.hash) {
-				const registry = wikiSourceStore.store;
+				const registry = repository.sources.store;
 				registry.sources[registered.record.sourceId] = {
 					...registered.record,
 					status: 'integrated',
 				};
-				wikiSourceStore.store = registry;
+				repository.sources.store = registry;
 				skippedSources += 1;
 				continue;
 			}
@@ -112,17 +109,17 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 				validationErrors: [],
 				reviewStatus: 'not_required',
 			};
-			wikiOperationStore.store = {
-				...wikiOperationStore.store,
-				operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
+			repository.operations.store = {
+				...repository.operations.store,
+				operations: { ...repository.operations.store.operations, [operationId]: operation },
 			};
 
 			try {
 				const context = await buildWikiContext(settings.targetPath, source);
 				operation = { ...operation, status: 'executing', updatedAt: new Date().toISOString() };
-				wikiOperationStore.store = {
-					...wikiOperationStore.store,
-					operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
+				repository.operations.store = {
+					...repository.operations.store,
+					operations: { ...repository.operations.store.operations, [operationId]: operation },
 				};
 				wikiRuntime.progress = { ...wikiRuntime.progress, phase: 'generating' };
 				const update = await generateWikiUpdate(settings, source, context, controller.signal);
@@ -130,6 +127,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 				const applied = await transactWiki({
 					targetPath: settings.targetPath,
 					operationId,
+					repository,
 					apply: async (stagedPath) => {
 						await ensureWikiSchema(stagedPath, paths.config);
 						const result = await applyWikiUpdate(stagedPath, source, update, {
@@ -141,13 +139,13 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 						return result;
 					},
 				});
-				const registry = wikiSourceStore.store;
+				const registry = repository.sources.store;
 				registry.sources[registered.record.sourceId] = {
 					...registry.sources[registered.record.sourceId],
 					status: 'integrated',
 					operationId,
 				};
-				wikiSourceStore.store = registry;
+				repository.sources.store = registry;
 				state.sources[source.relativePath] = source.hash;
 				createdPages += applied.createdPages;
 				updatedPages += applied.updatedPages;
@@ -155,9 +153,9 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 				contradictionsDetected += applied.contradictionsDetected ?? 0;
 				pendingReviews += applied.pendingReviews ?? 0;
 				if (applied.reviewItems?.length) {
-					const current = wikiReviewStore.store.items;
+					const current = repository.reviews.store.items;
 					const ids = new Set(applied.reviewItems.map((item) => item.id));
-					wikiReviewStore.store = {
+					repository.reviews.store = {
 						version: 1,
 						items: [...current.filter((item) => !ids.has(item.id)), ...applied.reviewItems],
 					};
@@ -175,11 +173,11 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 					reviewStatus: applied.pendingReviews ? 'required' : 'not_required',
 					modelUsage: update.modelUsage,
 				};
-				wikiOperationStore.store = {
-					...wikiOperationStore.store,
-					operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
+				repository.operations.store = {
+					...repository.operations.store,
+					operations: { ...repository.operations.store.operations, [operationId]: operation },
 				};
-				saveWikiState(state);
+				saveWikiState(state, settings.targetPath);
 				incrementWikiMetric('wiki_ingest_total');
 				incrementWikiMetric('wiki_pages_created_total', applied.createdPages);
 				incrementWikiMetric('wiki_pages_updated_total', applied.updatedPages);
@@ -197,21 +195,21 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 					updatedAt: new Date().toISOString(),
 					error: message,
 				};
-				wikiOperationStore.store = {
-					...wikiOperationStore.store,
-					operations: { ...wikiOperationStore.store.operations, [operationId]: operation },
+				repository.operations.store = {
+					...repository.operations.store,
+					operations: { ...repository.operations.store.operations, [operationId]: operation },
 				};
-				const failures = wikiFailureStore.store.operations.filter(
+				const failures = repository.failures.store.operations.filter(
 					(item) => item.id !== operationId
 				);
-				wikiFailureStore.store = { version: 1, operations: [...failures, operation] };
-				const registry = wikiSourceStore.store;
+				repository.failures.store = { version: 1, operations: [...failures, operation] };
+				const registry = repository.sources.store;
 				registry.sources[registered.record.sourceId] = {
 					...registry.sources[registered.record.sourceId],
 					status: 'failed',
 					operationId,
 				};
-				wikiSourceStore.store = registry;
+				repository.sources.store = registry;
 				incrementWikiMetric('wiki_ingest_failed_total');
 				incrementWikiMetric('wiki_rollback_total');
 				wikiRuntime.logger?.error('Wiki', 'Wiki ingest rolled back', {
@@ -236,7 +234,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 			pendingReviews,
 		};
 		state.lastRun = result;
-		saveWikiState(state);
+		saveWikiState(state, settings.targetPath);
 		wikiRuntime.lastRun = result;
 		wikiRuntime.logger?.info('Wiki', 'Wiki ingest completed', {
 			processedSources,
