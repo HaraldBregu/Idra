@@ -1,8 +1,10 @@
-import { existsSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 
 jest.mock('node:fs', () => ({
 	existsSync: jest.fn(),
+	lstatSync: jest.fn(() => ({ isSymbolicLink: () => false })),
 	readdirSync: jest.fn(),
+	readlinkSync: jest.fn(),
 	realpathSync: jest.fn((value: string) => value),
 	statSync: jest.fn(),
 }));
@@ -16,7 +18,9 @@ import { resolveSessionId } from '../../../../../src/main/agent/session/session_
 import { resolveStoredSessionId } from '../../../../../src/main/agent/session/session_resolve_stored_session_id';
 
 const existsMock = existsSync as jest.Mock;
+const lstatMock = lstatSync as jest.Mock;
 const readdirMock = readdirSync as jest.Mock;
+const readlinkMock = readlinkSync as jest.Mock;
 const realpathMock = realpathSync as jest.Mock;
 const statMock = statSync as jest.Mock;
 
@@ -29,7 +33,9 @@ function dirEntry(name: string): { name: string; isDirectory: () => boolean } {
 
 beforeEach(() => {
 	existsMock.mockReset();
+	lstatMock.mockReset().mockReturnValue({ isSymbolicLink: () => false });
 	readdirMock.mockReset();
+	readlinkMock.mockReset();
 	realpathMock.mockReset().mockImplementation((value: string) => value);
 	statMock.mockReset();
 });
