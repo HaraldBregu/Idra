@@ -17,11 +17,8 @@ import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './policy';
 import { resolveSkillCommand } from './skills';
 import {
-	agentView,
-	beginCommand,
 	createContextState,
 	enqueueCommand,
-	finishCommand,
 	interruptCommands,
 	type AgentCommand,
 	type AgentContextState,
@@ -36,6 +33,14 @@ import type {
 	AgentSessionSummary,
 } from '../../shared/agent_types';
 import { toError } from '../ipc/core/error';
+import { AgentRunScheduler } from './agent_scheduler';
+
+interface ActiveAgentRun {
+	agentId: string;
+	sessionKey: string;
+	controller: AbortController;
+	promise?: Promise<string>;
+}
 
 export interface AgentSendOptions extends AgentRunOptions {
 	interactive?: boolean;
@@ -45,19 +50,18 @@ export interface AgentSendOptions extends AgentRunOptions {
 }
 
 export class Agent {
-	private readonly activeRuns = new Map<string, AbortController>();
+	private readonly activeRuns = new Map<string, ActiveAgentRun>();
+	private readonly activeSessions = new Map<string, SessionState>();
+	private readonly scheduler = new AgentRunScheduler(3);
 	private readonly lastMessagesLimit = 50;
 	private isStarted = false;
-	private queue: Promise<unknown> = Promise.resolve();
 	readonly config: Config;
-	readonly session: SessionState;
 	readonly state: AgentContextState;
 
 	constructor() {
 		this.config = { location: path.resolve(agentLocation()) };
 		initTask();
-		this.session = createSessionState();
-		this.state = createContextState(this.session.context);
+		this.state = createContextState(createSessionState().context);
 	}
 
 	start(logger: {
@@ -99,22 +103,33 @@ export class Agent {
 			queuedAt: Date.now(),
 		};
 		enqueueCommand(this.state, command);
-		const run = this.queue.then(() => this.process(command));
-		this.queue = run.catch(() => undefined);
+		const sessionKey = options.sessionId ?? `${options.category ?? 'main'}:${command.agentId}`;
+		const controller = new AbortController();
+		const active: ActiveAgentRun = { agentId: command.agentId, sessionKey, controller };
+		const run = this.scheduler.run(sessionKey, () => this.process(command, controller));
+		active.promise = run;
+		this.activeRuns.set(command.id, active);
+		void run.finally(() => {
+			if (this.activeRuns.get(command.id) === active) this.activeRuns.delete(command.id);
+		});
 		return run;
 	}
 
-	private async process(command: AgentCommand<AgentSendOptions>): Promise<string> {
+	private async process(
+		command: AgentCommand<AgentSendOptions>,
+		controller: AbortController
+	): Promise<string> {
 		if (!this.state.pending.includes(command)) return '';
-		beginCommand(this.state, command);
-		const view = agentView(this.state);
+		this.state.pending = this.state.pending.filter((candidate) => candidate !== command);
+		const view = { id: command.id, agentId: command.agentId, message: command.message };
 		const { options } = command;
 		const origin = options.category ?? 'main';
+		const session = createSessionState();
+		this.activeSessions.set(command.id, session);
 
 		let response = '';
-		let controller: AbortController | undefined;
 		try {
-			controller = new AbortController();
+			if (controller.signal.aborted) return '';
 
 			const input = {
 				runId: view.id,
@@ -132,13 +147,13 @@ export class Agent {
 				...(options.model ?? options.modelId ? { model: options.model ?? options.modelId } : {}),
 			} satisfies RuntimeInput;
 
-			init(this.session, this.config, input, options.category);
+			init(session, this.config, input, options.category);
 
-			const events = stream(this.config, this.session, input, controller.signal, {
+			const timeoutSignal = AbortSignal.timeout(10 * 60_000);
+			const runSignal = AbortSignal.any([controller.signal, timeoutSignal]);
+			const events = stream(this.config, session, input, runSignal, {
 				interactive: options.interactive ?? true,
 			});
-
-			this.activeRuns.set(view.agentId, controller);
 
 			const streamingToolArgs = new Map<string, { name: string; argsText: string }>();
 			for await (const event of events) {
@@ -154,28 +169,13 @@ export class Agent {
 					options.streamEvent?.(responseEvent);
 				}
 			}
-			finishCommand(this.state, command);
 			return response;
 		} catch (error) {
-			// A cancelled run ends quietly instead of surfacing an error.
-			if (controller?.signal.aborted) {
-				finishCommand(this.state, command);
-				return response;
-			}
+			if (controller.signal.aborted) return response;
 			const cause = toError(error, 'Agent request failed.');
-			finishCommand(this.state, command);
-			const responseEvent = {
-				type: 'run_state',
-				state: 'error',
-				label: cause.message,
-				agentId: view.agentId,
-				runId: view.id,
-			} satisfies AgentResponseEvent;
-			options.streamEvent?.(responseEvent);
 			throw cause;
 		} finally {
-			if (controller && this.activeRuns.get(view.agentId) === controller)
-				this.activeRuns.delete(view.agentId);
+			this.activeSessions.delete(command.id);
 		}
 	}
 
@@ -189,35 +189,50 @@ export class Agent {
 			.flatMap(toHistoryMessages);
 	}
 
-	clearMessages(sessionId: string): void {
-		clearSessionMessages(this.session, this.config, sessionId);
+	async clearMessages(sessionId: string): Promise<void> {
+		await this.cancelSession(sessionId);
+		await this.scheduler.run(sessionId, async () => {
+			clearSessionMessages(createSessionState(), this.config, sessionId);
+		});
 	}
 
-	deleteSession(sessionId: string): void {
-		deleteStoredSession(this.session, this.config, sessionId);
+	async deleteSession(sessionId: string): Promise<void> {
+		await this.cancelSession(sessionId);
+		await this.scheduler.run(sessionId, async () => {
+			deleteStoredSession(createSessionState(), this.config, sessionId);
+		});
 	}
 
 	cancel(agentId?: string): void {
 		rejectPendingToolPermissions();
 		interruptCommands(this.state, agentId);
-		if (agentId) {
-			this.activeRuns.get(agentId)?.abort();
-			this.activeRuns.delete(agentId);
-			return;
+		for (const active of this.activeRuns.values()) {
+			if (!agentId || active.agentId === agentId) active.controller.abort();
 		}
-		for (const controller of this.activeRuns.values()) controller.abort();
-		this.activeRuns.clear();
 	}
 
 	isBusy(agentId: string): boolean {
 		return (
-			this.activeRuns.has(agentId) ||
+			[...this.activeRuns.values()].some((active) => active.agentId === agentId) ||
 			this.state.pending.some((command) => command.agentId === agentId)
 		);
 	}
 
 	runningSkill(): string | undefined {
-		return this.session.context.skill;
+		return [...this.activeSessions.values()].find((session) => session.context.skill)?.context.skill;
+	}
+
+	private async cancelSession(sessionId: string): Promise<void> {
+		this.state.pending = this.state.pending.filter(
+			(command) => (command.options as AgentSendOptions).sessionId !== sessionId
+		);
+		const matching = [...this.activeRuns.values()].filter(
+			(active) => active.sessionKey === sessionId
+		);
+		for (const active of matching) active.controller.abort();
+		await Promise.allSettled(
+			matching.map((active) => active.promise).filter((run): run is Promise<string> => !!run)
+		);
 	}
 }
 
@@ -435,12 +450,6 @@ function runtimeEventToAgentEvents(
 				stopReason,
 				outputChars: event.result.text.length,
 				usage: event.result.usage,
-				agentId,
-				runId,
-			},
-			{
-				type: 'run_state',
-				state: stopReason === 'cancelled' ? 'cancelled' : 'completed',
 				agentId,
 				runId,
 			},

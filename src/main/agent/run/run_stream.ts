@@ -68,8 +68,10 @@ export async function* stream(
 	signal: AbortSignal,
 	options: StreamOptions = {}
 ): AsyncGenerator<RuntimeEvent> {
+	let terminal = false;
 	try {
 		for await (const event of loop(config, session, input, signal, options)) {
+			if (event.type === 'run_finished') terminal = true;
 			appendRun(session, event);
 			yield event;
 		}
@@ -78,7 +80,28 @@ export async function* stream(
 			type: 'run_error',
 			message: error instanceof Error ? error.message : String(error),
 		});
-		throw error;
+		if (!terminal) {
+			session.stopReason = signal.aborted
+				? signal.reason instanceof DOMException && signal.reason.name === 'TimeoutError'
+					? 'timeout'
+					: 'cancelled'
+				: 'error';
+			const event = { type: 'run_finished', result: toResult(session, 'success') } as const;
+			appendRun(session, event);
+			yield event;
+		}
+		if (!signal.aborted) throw error;
+		return;
+	}
+	if (!terminal) {
+		session.stopReason = signal.aborted
+			? signal.reason instanceof DOMException && signal.reason.name === 'TimeoutError'
+				? 'timeout'
+				: 'cancelled'
+			: 'error';
+		const event = { type: 'run_finished', result: toResult(session, 'success') } as const;
+		appendRun(session, event);
+		yield event;
 	}
 }
 
@@ -221,8 +244,7 @@ async function* loop(
 				interactive,
 				signal,
 				session.context.toolsContext,
-				permissionMode
-				,
+					permissionMode,
 				{ runId: input.runId, origin: input.origin }
 			)) {
 				yield event;

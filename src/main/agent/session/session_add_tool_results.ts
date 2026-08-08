@@ -4,6 +4,5 @@ import type { SessionState } from './session_types';
 
 export function addToolResults(state: SessionState, calls: ToolCall[]): void {
 	state.toolCalls.push(...calls);
-	state.numTurns += 1;
 	persist(state);
 }

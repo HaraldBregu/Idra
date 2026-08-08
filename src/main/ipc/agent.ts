@@ -263,15 +263,15 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.clearMessages,
-			wrapSimpleHandler((sessionId: unknown): void => {
-				agent.clearMessages(requireUuidSessionId(sessionId));
+			wrapSimpleHandler((sessionId: unknown): Promise<void> => {
+				return agent.clearMessages(requireUuidSessionId(sessionId));
 			}, AgentChannels.clearMessages)
 		);
 
 		ipcMain.handle(
 			AgentChannels.deleteSession,
-			wrapSimpleHandler((sessionId: unknown): void => {
-				agent.deleteSession(requireUuidSessionId(sessionId));
+			wrapSimpleHandler((sessionId: unknown): Promise<void> => {
+				return agent.deleteSession(requireUuidSessionId(sessionId));
 			}, AgentChannels.deleteSession)
 		);
 
