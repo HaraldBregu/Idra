@@ -700,7 +700,13 @@
 				"noDescription": "Nessuna descrizione",
 				"debug": "Messaggio di debug",
 				"agent": "Prompt agente",
-				"notSet": "Non impostata"
+				"notSet": "Non impostata",
+				"capabilities": "Capacità di esecuzione",
+				"capabilitiesDescription": "Le attività iniziano disabilitate e senza strumenti. Abilita l'attività e inserisci solo i nomi degli strumenti consentiti. Le policy e le approvazioni obbligatorie restano valide.",
+				"enabled": "Abilita attività",
+				"enabledDescription": "Consenti l'esecuzione dell'attività all'orario configurato.",
+				"toolsPlaceholder": "Strumenti consentiti, separati da virgole",
+				"saveCapabilities": "Salva capacità"
 			},
 			"notFoundTitle": "Attivita programmata non trovata",
 			"notFoundDescription": "L'attivita programmata potrebbe essere stata rimossa.",
