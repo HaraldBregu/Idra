@@ -1,5 +1,6 @@
 const deleteNamespace = jest.fn();
-const index = jest.fn(() => ({ deleteNamespace }));
+const listNamespaces = jest.fn();
+const index = jest.fn(() => ({ deleteNamespace, listNamespaces }));
 const ragClient = jest.fn(() => ({ index }));
 
 jest.mock('../../../../src/main/rag/rag_client', () => ({ ragClient }));
@@ -30,4 +31,43 @@ it('purges only an explicitly scoped remote namespace and never the Pinecone ind
 	expect(index).toHaveBeenCalledWith('knowledge-base');
 	expect(deleteNamespace).toHaveBeenCalledWith(scope.generation);
 	expect(index.mock.results[0].value).not.toHaveProperty('deleteIndex');
+});
+
+it('purges all Friday namespaces without deleting unrelated namespaces or the index', async () => {
+	listNamespaces
+		.mockResolvedValueOnce({
+			namespaces: [
+				{ name: 'friday-11111111-1111-4111-8111-111111111111' },
+				{ name: 'another-application' },
+			],
+			pagination: { next: 'page-2' },
+		})
+		.mockResolvedValueOnce({
+			namespaces: [{ name: 'friday-22222222-2222-4222-8222-222222222222' }],
+		});
+	const controller = new DataController({
+		config: { location: '/workspace' },
+		listSessions: () => [],
+		deleteSession: jest.fn(),
+	});
+	const scope = {
+		kind: 'rag' as const,
+		mode: 'remote_all_namespaces' as const,
+		indexName: 'knowledge-base',
+	};
+	const preview = await controller.previewPurge(scope);
+	const result = await controller.purge(scope, preview.confirmationId);
+
+	expect(result).toMatchObject({ remoteDataDeleted: true, remoteNamespacesDeleted: 2 });
+	expect(listNamespaces).toHaveBeenNthCalledWith(1, { prefix: 'friday-', limit: 100 });
+	expect(listNamespaces).toHaveBeenNthCalledWith(2, {
+		prefix: 'friday-',
+		limit: 100,
+		paginationToken: 'page-2',
+	});
+	expect(deleteNamespace.mock.calls.map(([namespace]) => namespace)).toEqual([
+		'friday-11111111-1111-4111-8111-111111111111',
+		'friday-22222222-2222-4222-8222-222222222222',
+	]);
+	expect(index.mock.results.at(-1)?.value).not.toHaveProperty('deleteIndex');
 });
