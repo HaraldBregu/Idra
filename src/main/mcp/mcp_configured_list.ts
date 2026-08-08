@@ -1,5 +1,5 @@
 import type { McpData, McpSettings } from '../../shared/mcp_types';
-import { getMcpServersState } from '../providers/providers_index';
+import { getMcpServersState } from './mcp_store_state';
 
 export function listConfiguredMcpServers(): McpSettings {
 	const servers: McpSettings = {};

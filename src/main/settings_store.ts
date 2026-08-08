@@ -6,6 +6,7 @@ import type { StorageConfig, StorageConfiguration } from '../shared/storage_type
 import { userDataLocation } from './shared/user_data_location';
 import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
 import { loadStorages } from './models';
+import { migrateMcpStoreFromProviders } from './mcp/mcp_store_state';
 import type { PersistedTaskState } from './tasks/tasks_types';
 import type { AppLanguage, AppTheme } from '../shared/app_types';
 import { getModelProvidersState, setModelProvidersState, getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from './providers/providers_index';
@@ -126,6 +127,7 @@ if (legacyDatabase || legacyEmbedding) {
 				: '',
 	});
 }
+migrateMcpStoreFromProviders();
 delete persistedSettings.databaseConfiguration;
 delete persistedModelSelections.embedding;
 delete persistedModelSelections.text;

@@ -1,5 +1,5 @@
 import type { McpData } from '../../shared/mcp_types';
-import { getMcpServersState, setMcpServersState } from '../providers/providers_index';
+import { getMcpServersState, setMcpServersState } from './mcp_store_state';
 import type { McpRecord } from './mcp_types';
 
 export function upsertMcpServer(id: string, data: McpData): void {
