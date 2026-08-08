@@ -1,38 +1,39 @@
-import { useEffect, useRef } from "react"
-import { FileText } from "lucide-react"
+import { AlertCircle, Check, FileText, LoaderCircle, Save } from "lucide-react"
+import type { WorkspaceFileKind } from "@friday/sdk"
 
-import { CodeMirrorEditor } from "@/components/code-mirror-editor"
-import { Separator } from "@/components/ui/separator"
+import { FileViewer } from "@/components/viewer"
+import { Button } from "@/components/ui/button"
 
 interface WorkspaceViewerProps {
   content: string
+  dirty: boolean
   error: string
+  kind: WorkspaceFileKind | null
   loading: boolean
+  mediaUrl: string
+  onChange: (content: string) => void
+  onSave: () => Promise<boolean>
   path: string | null
+  saveError: string
+  saving: boolean
 }
 
-export function WorkspaceViewer({ content, error, loading, path }: WorkspaceViewerProps) {
-  const sectionRef = useRef<HTMLElement | null>(null)
-
-  useEffect(() => {
-    const section = sectionRef.current
-    if (!section || !path) return undefined
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if ((!event.metaKey && !event.ctrlKey) || event.key.toLowerCase() !== "c") return
-      const selection = window.getSelection()?.toString()
-      if (selection) return
-      event.preventDefault()
-      void navigator.clipboard?.writeText(content)
-    }
-
-    section.addEventListener("keydown", onKeyDown)
-    return () => section.removeEventListener("keydown", onKeyDown)
-  }, [content, path])
-
-  if (!path) {
+export function WorkspaceViewer({
+  content,
+  dirty,
+  error,
+  kind,
+  loading,
+  mediaUrl,
+  onChange,
+  onSave,
+  path,
+  saveError,
+  saving,
+}: WorkspaceViewerProps) {
+  if (!path || !kind) {
     return (
-      <section ref={sectionRef} className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background" aria-label="Workspace file">
+      <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background" aria-label="Workspace file">
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-5">
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-[17px] font-semibold tracking-[-0.025em]">Workspace</h1>
@@ -46,7 +47,7 @@ export function WorkspaceViewer({ content, error, loading, path }: WorkspaceView
             </div>
             <h2 className="text-sm font-semibold">No file selected</h2>
             <p className="mx-auto mt-1.5 max-w-64 text-xs leading-5 text-muted-foreground">
-              Choose a workspace file to read its content here.
+              Choose a workspace file to view or edit it here.
             </p>
           </div>
         </div>
@@ -55,27 +56,38 @@ export function WorkspaceViewer({ content, error, loading, path }: WorkspaceView
   }
 
   return (
-    <section ref={sectionRef} className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background" aria-label="Workspace file" tabIndex={0}>
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-5">
+    <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background" aria-label="Workspace file">
+      <header className="flex h-14 shrink-0 items-center gap-3 border-b px-3 sm:px-5">
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-[17px] font-semibold tracking-[-0.025em]">{path.split(/[\\/]/).pop()}</h1>
+          <h1 className="truncate text-[15px] font-semibold tracking-[-0.02em]">{path.split(/[\\/]/).pop()}</h1>
           <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{path}</p>
         </div>
+
+        {kind === "markdown" && !loading ? (
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex" title={saveError || undefined}>
+              {saveError ? <AlertCircle className="h-3.5 w-3.5 text-destructive" /> : saving ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+              {saveError ? "Save failed" : saving ? "Saving..." : dirty ? "Unsaved" : "Saved"}
+            </span>
+            <Button variant="outline" size="sm" disabled={!dirty || saving} onClick={() => void onSave()}>
+              <Save className="h-3.5 w-3.5" /> Save
+            </Button>
+          </div>
+        ) : null}
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto scrollbar-subtle">
-        <article className="mx-auto flex min-h-full w-full max-w-[900px] flex-col px-5 pb-10 pt-7 sm:px-8 lg:px-10">
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading file...</p>
-          ) : error ? (
-            <p className="text-sm text-destructive">{error}</p>
-          ) : (
-            <>
-              <Separator className="mb-5" />
-              <CodeMirrorEditor value={content} onChange={() => undefined} readOnly className="min-h-[420px] flex-1" />
-            </>
-          )}
-        </article>
+        {loading ? (
+          <div className="flex min-h-full items-center justify-center gap-2 text-sm text-muted-foreground">
+            <LoaderCircle className="h-4 w-4 animate-spin" /> Loading file...
+          </div>
+        ) : error ? (
+          <div className="flex min-h-full items-center justify-center px-6 text-center">
+            <p className="max-w-md text-sm text-destructive">{error}</p>
+          </div>
+        ) : (
+          <FileViewer content={content} kind={kind} onChange={onChange} onSave={onSave} path={path} url={mediaUrl} />
+        )}
       </div>
     </section>
   )

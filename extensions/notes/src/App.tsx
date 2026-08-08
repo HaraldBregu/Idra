@@ -1,6 +1,14 @@
-import { useEffect, useState, type CSSProperties, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 
-import { agent, app, isFriday, type AppThemeData, type WorkspaceTreeEntry } from '@friday/sdk';
+import {
+	agent,
+	app,
+	isFriday,
+	workspaceFileType,
+	type AppThemeData,
+	type WorkspaceFileKind,
+	type WorkspaceTreeEntry,
+} from '@friday/sdk';
 import { AppSidebar } from '@/components/app-sidebar';
 import { WorkspaceViewer } from '@/components/workspace-viewer';
 import { Sidebar, SidebarContent, SidebarResizeHandle } from '@/components/ui/sidebar';
@@ -12,9 +20,9 @@ const fallbackTheme: AppThemeData = {
 	isDark: false,
 	colors: {},
 };
-const sidebarMinWidth = 260;
-const sidebarMaxWidth = 520;
-const sidebarDefaultWidth = 340;
+const sidebarMinWidth = 200;
+const sidebarMaxWidth = 360;
+const sidebarDefaultWidth = 240;
 
 export default function App() {
 	const [theme, setTheme] = useState<AppThemeData>(fallbackTheme);
@@ -23,10 +31,18 @@ export default function App() {
 	const [workspaceLoading, setWorkspaceLoading] = useState(false);
 	const [workspaceError, setWorkspaceError] = useState('');
 	const [selectedWorkspacePath, setSelectedWorkspacePath] = useState<string | null>(null);
+	const [selectedKind, setSelectedKind] = useState<WorkspaceFileKind | null>(null);
 	const [selectedContent, setSelectedContent] = useState('');
+	const [selectedSavedContent, setSelectedSavedContent] = useState('');
+	const [selectedMediaUrl, setSelectedMediaUrl] = useState('');
 	const [selectedLoading, setSelectedLoading] = useState(false);
 	const [selectedError, setSelectedError] = useState('');
+	const [selectedSaving, setSelectedSaving] = useState(false);
+	const [selectedSaveError, setSelectedSaveError] = useState('');
 	const [sidebarWidth, setSidebarWidth] = useState(sidebarDefaultWidth);
+	const selectedPathRef = useRef<string | null>(null);
+	const mediaUrlRef = useRef('');
+	const selectionRequestRef = useRef(0);
 	const themeStyle = Object.fromEntries(
 		Object.entries(theme.colors).map(([name, value]) => [`--${name}`, value]),
 	) as CSSProperties;
@@ -77,19 +93,89 @@ export default function App() {
 		};
 	}, []);
 
+	useEffect(() => {
+		return () => {
+			if (mediaUrlRef.current) URL.revokeObjectURL(mediaUrlRef.current);
+		};
+	}, []);
+
+	function replaceMediaUrl(nextUrl = '') {
+		if (mediaUrlRef.current && mediaUrlRef.current !== nextUrl) {
+			URL.revokeObjectURL(mediaUrlRef.current);
+		}
+		mediaUrlRef.current = nextUrl;
+		setSelectedMediaUrl(nextUrl);
+	}
+
+	async function saveWorkspaceMarkdown(
+		filePath = selectedPathRef.current,
+		content = selectedContent
+	): Promise<boolean> {
+		if (!filePath || selectedKind !== 'markdown' || !isFriday()) return false;
+		setSelectedSaving(true);
+		setSelectedSaveError('');
+		try {
+			await agent.writeWorkspaceMarkdown(filePath, content);
+			if (selectedPathRef.current === filePath) setSelectedSavedContent(content);
+			return true;
+		} catch (error) {
+			if (selectedPathRef.current === filePath) {
+				setSelectedSaveError(
+					error instanceof Error ? error.message : 'Unable to save the Markdown file.'
+				);
+			}
+			return false;
+		} finally {
+			if (selectedPathRef.current === filePath) setSelectedSaving(false);
+		}
+	}
+
 	async function selectWorkspaceEntry(entry: WorkspaceTreeEntry) {
-		setSelectedWorkspacePath(entry.path);
-		setSelectedContent('');
-		setSelectedError('');
 		if (entry.type !== 'file') return;
+		if (selectedKind === 'markdown' && selectedContent !== selectedSavedContent) {
+			const saved = await saveWorkspaceMarkdown(selectedPathRef.current, selectedContent);
+			if (!saved) return;
+		}
+
+		const requestId = selectionRequestRef.current + 1;
+		selectionRequestRef.current = requestId;
+		const kind = workspaceFileType(entry.path).kind;
+		selectedPathRef.current = entry.path;
+		setSelectedWorkspacePath(entry.path);
+		setSelectedKind(kind);
+		setSelectedContent('');
+		setSelectedSavedContent('');
+		setSelectedError('');
+		setSelectedSaveError('');
+		replaceMediaUrl();
+
+		if (kind === 'unsupported') {
+			setSelectedLoading(false);
+			return;
+		}
 
 		setSelectedLoading(true);
 		try {
-			setSelectedContent(await agent.readWorkspaceFile(entry.path));
+			if (['image', 'audio', 'video', 'pdf'].includes(kind)) {
+				const asset = await agent.readWorkspaceAsset(entry.path);
+				const url = URL.createObjectURL(new Blob([asset.data], { type: asset.mimeType }));
+				if (selectionRequestRef.current !== requestId) {
+					URL.revokeObjectURL(url);
+					return;
+				}
+				replaceMediaUrl(url);
+			} else {
+				const content = await agent.readWorkspaceFile(entry.path);
+				if (selectionRequestRef.current !== requestId) return;
+				setSelectedContent(content);
+				setSelectedSavedContent(content);
+			}
 		} catch (error) {
-			setSelectedError(error instanceof Error ? error.message : 'Unable to read file.');
+			if (selectionRequestRef.current === requestId) {
+				setSelectedError(error instanceof Error ? error.message : 'Unable to read file.');
+			}
 		} finally {
-			setSelectedLoading(false);
+			if (selectionRequestRef.current === requestId) setSelectedLoading(false);
 		}
 	}
 
@@ -139,9 +225,16 @@ export default function App() {
 				<main className="relative min-h-0 min-w-0 flex-1">
 					<WorkspaceViewer
 						content={selectedContent}
+						dirty={selectedKind === 'markdown' && selectedContent !== selectedSavedContent}
 						error={selectedError}
+						kind={selectedKind}
 						loading={selectedLoading}
+						mediaUrl={selectedMediaUrl}
+						onChange={setSelectedContent}
+						onSave={() => saveWorkspaceMarkdown(selectedPathRef.current, selectedContent)}
 						path={selectedWorkspacePath}
+						saveError={selectedSaveError}
+						saving={selectedSaving}
 					/>
 				</main>
 			</div>

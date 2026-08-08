@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from "react"
 import { defaultKeymap, history, historyKeymap, isolateHistory, redo, undo } from "@codemirror/commands"
 import { markdown } from "@codemirror/lang-markdown"
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language"
-import { EditorState } from "@codemirror/state"
+import { Compartment, EditorState, Transaction } from "@codemirror/state"
 import { EditorView, keymap, placeholder } from "@codemirror/view"
 import { tags } from "@lezer/highlight"
 
@@ -61,15 +61,18 @@ const noteEditorTheme = EditorView.theme({
 })
 
 export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
-  { className, onChange, readOnly = false, value },
+  { className, onChange, onSave, readOnly = false, value },
   ref,
 ) {
   const mountRef = useRef(null)
   const viewRef = useRef(null)
   const onChangeRef = useRef(onChange)
+  const onSaveRef = useRef(onSave)
   const initialValueRef = useRef(value)
   const initialReadOnlyRef = useRef(readOnly)
+  const editabilityRef = useRef(new Compartment())
   onChangeRef.current = onChange
+  onSaveRef.current = onSave
 
   useImperativeHandle(
     ref,
@@ -131,14 +134,27 @@ export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
       doc: initialValueRef.current,
       extensions: [
         history(),
-        keymap.of([...defaultKeymap, ...historyKeymap]),
+        keymap.of([
+          {
+            key: "Mod-s",
+            run: () => {
+              if (!onSaveRef.current) return false
+              void onSaveRef.current()
+              return true
+            },
+          },
+          ...defaultKeymap,
+          ...historyKeymap,
+        ]),
         markdown(),
         syntaxHighlighting(markdownHighlight, { fallback: true }),
         EditorView.lineWrapping,
         noteEditorTheme,
         placeholder("Start writing..."),
-        EditorState.readOnly.of(initialReadOnlyRef.current),
-        EditorView.editable.of(!initialReadOnlyRef.current),
+        editabilityRef.current.of([
+          EditorState.readOnly.of(initialReadOnlyRef.current),
+          EditorView.editable.of(!initialReadOnlyRef.current),
+        ]),
         EditorView.contentAttributes.of({
           "aria-label": "Note content",
           "aria-multiline": "true",
@@ -159,6 +175,26 @@ export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
       viewRef.current = null
     }
   }, [])
+
+  useEffect(() => {
+    const view = viewRef.current
+    if (!view || view.state.doc.toString() === value) return
+    view.dispatch({
+      changes: { from: 0, to: view.state.doc.length, insert: value },
+      annotations: Transaction.addToHistory.of(false),
+    })
+  }, [value])
+
+  useEffect(() => {
+    const view = viewRef.current
+    if (!view) return
+    view.dispatch({
+      effects: editabilityRef.current.reconfigure([
+        EditorState.readOnly.of(readOnly),
+        EditorView.editable.of(!readOnly),
+      ]),
+    })
+  }, [readOnly])
 
   return <div ref={mountRef} className={cn("min-h-[360px]", className)} />
 })
