@@ -227,8 +227,9 @@ async function runAct(params: {
 			return 'waited';
 		case 'evaluate': {
 			if (!params.fn) throw new Error('act "evaluate" requires fn (a JS expression or function).');
-			const result = await page.evaluate(params.fn);
-			return JSON.stringify(result) ?? 'undefined';
+				const result = await page.evaluate(params.fn);
+				return JSON.stringify(result) ?? 'undefined';
+			}
 		}
 	});
 }
