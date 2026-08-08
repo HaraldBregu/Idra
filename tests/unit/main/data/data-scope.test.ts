@@ -44,10 +44,7 @@ it('normalizes exact local RAG and session scopes', () => {
 	expect(
 		normalizeDataScope({
 			kind: 'sessions',
-			sessionIds: [
-				'11111111-1111-4111-8111-111111111111',
-				'11111111-1111-4111-8111-111111111111',
-			],
+			sessionIds: ['11111111-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111'],
 		})
 	).toEqual({ kind: 'sessions', sessionIds: ['11111111-1111-4111-8111-111111111111'] });
 });
@@ -62,9 +59,9 @@ it('rejects broad, malformed, and unconfigured scopes', () => {
 			sessionIds: ['..'],
 		})
 	).toThrow('Invalid assistant session id.');
-	expect(() =>
-		normalizeDataScope({ kind: 'wiki', targetPath: '/wiki/another' })
-	).toThrow('must match the configured target');
+	expect(() => normalizeDataScope({ kind: 'wiki', targetPath: '/wiki/another' })).toThrow(
+		'must match the configured target'
+	);
 	expect(() =>
 		normalizeDataScope({
 			kind: 'rag',

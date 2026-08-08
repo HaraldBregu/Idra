@@ -21,7 +21,11 @@ export async function purgeRemoteRagNamespaces(
 		});
 		for (const namespace of page.namespaces ?? []) {
 			const name = namespace.name ?? '';
-			if (!/^friday-[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(name)) {
+			if (
+				!/^friday-[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+					name
+				)
+			) {
 				continue;
 			}
 			await index.deleteNamespace(name);

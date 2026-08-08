@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import {
-	AlertTriangle,
-	ChevronDown,
-	ChevronRight,
-	Download,
-	Search,
-	Trash2,
-} from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronRight, Download, Search, Trash2 } from 'lucide-react';
 import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
 import { ModelOptions } from '@/components/model-options';
@@ -108,7 +101,9 @@ const AssistantPage: React.FC = () => {
 		(item) => item.provider.id === state.providerId && item.id === state.modelId
 	);
 	const inputs = model?.metadata?.documentationStatus === 'verified' ? model.metadata.inputs : {};
-	const selectedSearchEngine = SEARCH_ENGINES.find((engine) => engine.id === searchSettings?.engineId);
+	const selectedSearchEngine = SEARCH_ENGINES.find(
+		(engine) => engine.id === searchSettings?.engineId
+	);
 	const selectedSearchEngineDescription = selectedSearchEngine
 		? t(selectedSearchEngine.descriptionKey)
 		: t('settings.searchEngine.defaultDescription');
@@ -214,16 +209,19 @@ const AssistantPage: React.FC = () => {
 		const engineId = value;
 		setSearchSavingEngineId(engineId);
 		setSearchEngineError(null);
-		void window.search.selectEngine(engineId).then(
-			(next) => {
-				setSearchSettings(next);
-			},
-			(error) => {
-				setSearchEngineError(firstErrorMessage(error, t('settings.searchEngine.errors.select')));
-			}
-		).finally(() => {
-			setSearchSavingEngineId(null);
-		});
+		void window.search
+			.selectEngine(engineId)
+			.then(
+				(next) => {
+					setSearchSettings(next);
+				},
+				(error) => {
+					setSearchEngineError(firstErrorMessage(error, t('settings.searchEngine.errors.select')));
+				}
+			)
+			.finally(() => {
+				setSearchSavingEngineId(null);
+			});
 	};
 
 	const dataScope = (kind: DataControlKind): DataScope | undefined => {
@@ -282,7 +280,8 @@ const AssistantPage: React.FC = () => {
 		</>
 	);
 	const sessionDataScope = dataScope('sessions');
-	const sessionCount = sessionDataScope?.kind === 'sessions' ? sessionDataScope.sessionIds.length : 0;
+	const sessionCount =
+		sessionDataScope?.kind === 'sessions' ? sessionDataScope.sessionIds.length : 0;
 
 	return (
 		<SettingsPageShell>
