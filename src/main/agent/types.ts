@@ -1,5 +1,10 @@
 import type { z } from 'zod';
 import type { LlmEvent } from '../models/adapters/llm';
+import type {
+	AgentOrigin,
+	AgentToolEffect,
+	AgentToolRisk,
+} from '../../shared/agent_types';
 
 export interface Config {
 	location: string;
@@ -36,8 +41,16 @@ export interface Tool {
 	readonly schema: JSONSchema;
 	readonly defaultPermission?: 'allow' | 'ask' | 'deny';
 	readonly alwaysAsk?: boolean;
+	readonly hardApproval?: boolean;
 	readonly stopOnReject?: boolean;
+	readonly risk: AgentToolRisk;
+	readonly effect: AgentToolEffect;
+	readonly allowedOrigins?: readonly AgentOrigin[];
+	readonly timeoutMs: number;
+	readonly maxOutputBytes: number;
 	readonly confirmDetail?: (args: Record<string, unknown>) => string | undefined;
+	readonly targets?: (args: Record<string, unknown>) => string[];
+	parseInput(input: unknown): Record<string, unknown>;
 	run(input: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> | unknown;
 }
 
@@ -46,8 +59,15 @@ export type ToolConfig<T extends z.ZodType> = {
 	description: string;
 	defaultPermission?: 'allow' | 'ask' | 'deny';
 	alwaysAsk?: boolean;
+	hardApproval?: boolean;
 	stopOnReject?: boolean;
+	risk?: AgentToolRisk;
+	effect?: AgentToolEffect;
+	allowedOrigins?: readonly AgentOrigin[];
+	timeoutMs?: number;
+	maxOutputBytes?: number;
 	confirmDetail?: (args: Record<string, unknown>) => string | undefined;
+	targets?: (args: Record<string, unknown>) => string[];
 	inputSchema: T;
 	execute: (input: z.infer<T>, signal?: AbortSignal) => Promise<unknown> | unknown;
 };
@@ -56,6 +76,14 @@ export type JsonToolConfig = {
 	name: string;
 	description: string;
 	defaultPermission?: 'allow' | 'ask' | 'deny';
+	hardApproval?: boolean;
+	risk?: AgentToolRisk;
+	effect?: AgentToolEffect;
+	allowedOrigins?: readonly AgentOrigin[];
+	timeoutMs?: number;
+	maxOutputBytes?: number;
+	targets?: (args: Record<string, unknown>) => string[];
+	parseInput?: (input: unknown) => Record<string, unknown>;
 	schema: JSONSchema;
 	execute: (input: Record<string, unknown>, signal?: AbortSignal) => Promise<unknown> | unknown;
 };
@@ -100,9 +128,14 @@ export interface RuntimeInput extends Pick<
 	SessionInput,
 	'sessionId' | 'messages' | 'model' | 'effort' | 'maxTurns' | 'maxIterations' | 'files'
 > {
+	runId: string;
 	task: string;
 	message: string;
 	providerId?: string;
+	origin: AgentOrigin;
+	contextMode: 'minimal' | 'workspace';
+	toolsAllow?: string[];
+	toolsDeny?: string[];
 }
 
 export interface RuntimeModelRoute {
@@ -138,10 +171,16 @@ export type RuntimeEvent =
 	  }
 	| {
 			type: 'tool_permission_request';
+			approvalId: string;
 			toolCallId: string;
 			toolName: string;
 			input: Record<string, unknown>;
 			mode: 'ask';
+			risk: AgentToolRisk;
+			effect: AgentToolEffect;
+			targets: string[];
+			hardApproval: boolean;
+			expiresAt: string;
 	  }
 	| {
 			type: 'tool_call_end';

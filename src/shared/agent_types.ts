@@ -27,6 +27,21 @@ export type AgentToolPermissionDecision = 'approve' | 'reject' | 'approve_always
 
 export type AgentPermissionMode = 'ask' | 'bypass';
 
+export type AgentOrigin = 'main' | 'bot' | 'health' | 'task' | 'subagent';
+
+export type AgentContextMode = 'minimal' | 'workspace';
+
+export type AgentToolRisk = 'low' | 'medium' | 'high' | 'critical';
+
+export type AgentToolEffect =
+	| 'read'
+	| 'write'
+	| 'execute'
+	| 'external'
+	| 'sensor'
+	| 'paid'
+	| 'persistence';
+
 export type AgentMediaModelKind = 'image' | 'audio' | 'video';
 
 export interface AgentMediaModelSettings {
@@ -39,6 +54,20 @@ export interface AgentInputFile {
 	name: string;
 	mimeType: string;
 	data: string;
+}
+
+export interface AgentRunOptions {
+	runId?: string;
+	sessionId?: string;
+	providerId?: string;
+	model?: string;
+	effort?: ModelReasoningEffort;
+	contextMode?: AgentContextMode;
+	toolsAllow?: string[];
+	toolsDeny?: string[];
+	files?: AgentInputFile[];
+	/** @deprecated Use contextMode. */
+	lightContext?: boolean;
 }
 
 export interface WorkspaceTreeEntry {
@@ -198,10 +227,16 @@ export type AgentRunStreamEvent =
 	  } & Partial<AgentToolCapabilitySummary>)
 	| {
 			type: 'tool_permission_request';
+			approvalId: string;
 			toolCallId: string;
 			toolName: string;
 			input: unknown;
 			mode: 'ask';
+			risk: AgentToolRisk;
+			effect: AgentToolEffect;
+			targets: string[];
+			hardApproval: boolean;
+			expiresAt: string;
 			detail?: string;
 	  }
 	| ({
