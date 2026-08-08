@@ -143,12 +143,12 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				replyToMessageId: message.messageId,
 				chatType: message.chatType,
 			});
-				const response = await agentService.send(text, 'channels', {
-					category: 'bot',
-					interactive: false,
-					sessionId: channelSessionId(message),
-					...channelModelSelection('llm'),
-				});
+			const response = await agentService.send(text, 'channels', {
+				category: 'bot',
+				interactive: false,
+				sessionId: channelSessionId(message),
+				...channelModelSelection('llm'),
+			});
 			if (message.content.type === 'voice') {
 				try {
 					const voice = await synthesizeVoice(response, {

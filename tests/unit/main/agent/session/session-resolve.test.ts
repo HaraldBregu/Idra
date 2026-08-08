@@ -1,8 +1,9 @@
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, realpathSync, statSync } from 'node:fs';
 
 jest.mock('node:fs', () => ({
 	existsSync: jest.fn(),
 	readdirSync: jest.fn(),
+	realpathSync: jest.fn((value: string) => value),
 	statSync: jest.fn(),
 }));
 
@@ -16,6 +17,7 @@ import { resolveStoredSessionId } from '../../../../../src/main/agent/session/se
 
 const existsMock = existsSync as jest.Mock;
 const readdirMock = readdirSync as jest.Mock;
+const realpathMock = realpathSync as jest.Mock;
 const statMock = statSync as jest.Mock;
 
 const UUID_A = '11111111-1111-4111-8111-111111111111';
@@ -28,6 +30,7 @@ function dirEntry(name: string): { name: string; isDirectory: () => boolean } {
 beforeEach(() => {
 	existsMock.mockReset();
 	readdirMock.mockReset();
+	realpathMock.mockReset().mockImplementation((value: string) => value);
 	statMock.mockReset();
 });
 

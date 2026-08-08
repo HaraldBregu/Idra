@@ -1,4 +1,10 @@
-const mockUuidV5 = jest.fn(() => '4c15bc8c-273f-5dfa-8331-c6a1c82d1ae3');
+const mockUuidV5 = jest.fn((name: string) => {
+	const suffix = [...name]
+		.reduce((hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0, 0)
+		.toString(16)
+		.padStart(12, '0');
+	return `00000000-0000-5000-8000-${suffix}`;
+});
 
 jest.mock('uuid', () => ({
 	v5: (...args: unknown[]) => mockUuidV5(...args),
@@ -16,7 +22,10 @@ const identity: Pick<ChannelInboundMessage, 'channel' | 'accountId' | 'chatId' |
 
 describe('channelSessionId', () => {
 	it('derives a UUIDv5 from the complete channel route without exposing it in the result', () => {
-		expect(channelSessionId(identity)).toBe('4c15bc8c-273f-5dfa-8331-c6a1c82d1ae3');
+		const sessionId = channelSessionId(identity);
+		expect(sessionId).toMatch(/^00000000-0000-5000-8000-[0-9a-f]{12}$/);
+		expect(sessionId).not.toContain(identity.accountId);
+		expect(channelSessionId(identity)).toBe(sessionId);
 		expect(mockUuidV5).toHaveBeenCalledWith(
 			JSON.stringify(['telegram', 'account-1', 'chat-1', 'thread-1']),
 			expect.stringMatching(/^[0-9a-f-]{36}$/)
@@ -30,7 +39,6 @@ describe('channelSessionId', () => {
 		['thread', { threadId: 'thread-2' }],
 		['missing thread', { threadId: undefined }],
 	] as const)('uses %s as part of the UUIDv5 name', (_label, patch) => {
-		channelSessionId({ ...identity, ...patch });
-		expect(mockUuidV5.mock.calls[0][0]).not.toBe(JSON.stringify(Object.values(identity)));
+		expect(channelSessionId({ ...identity, ...patch })).not.toBe(channelSessionId(identity));
 	});
 });
