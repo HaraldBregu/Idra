@@ -2,10 +2,11 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-const runModelTurnMock = jest.fn(async function* () {
+const successfulTurn = async function* () {
 	yield* [];
 	return { content: 'done', model: 'test-model', toolCalls: [] };
-});
+};
+const runModelTurnMock = jest.fn(successfulTurn);
 
 jest.mock('../../../../../src/main/settings_store', () => ({
 	getModelId: jest.fn(() => 'test-model'),
@@ -25,6 +26,10 @@ import { createSessionState } from '../../../../../src/main/agent/session';
 import type { Message } from '../../../../../src/main/agent/types';
 
 describe('run stream system prompt', () => {
+	beforeEach(() => {
+		runModelTurnMock.mockReset().mockImplementation(successfulTurn);
+	});
+
 	it('sends workspace files as user context instead of system instructions', async () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-run-prompt-'));
 		try {
@@ -63,5 +68,66 @@ describe('run stream system prompt', () => {
 		} finally {
 			await fs.rm(root, { recursive: true, force: true });
 		}
+	});
+
+	it('emits exactly one terminal event when cancelled', async () => {
+		const session = createSessionState();
+		session.id = 'session';
+		const controller = new AbortController();
+		controller.abort(new Error('cancelled'));
+		const events = [];
+
+		for await (const event of stream(
+			{ location: '/workspace' },
+			session,
+			{
+				runId: 'run',
+				task: 'chat',
+				message: 'request',
+				model: 'test-model',
+				origin: 'main',
+				contextMode: 'minimal',
+			},
+			controller.signal,
+			{ tools: [] }
+		)) events.push(event);
+
+		expect(events.filter((event) => event.type === 'run_finished')).toHaveLength(1);
+		expect(events.at(-1)).toMatchObject({
+			type: 'run_finished',
+			result: { stopReason: 'cancelled' },
+		});
+	});
+
+	it('emits exactly one terminal event before propagating a model failure', async () => {
+		runModelTurnMock.mockImplementationOnce(async function* () {
+			throw new Error('provider failed');
+		});
+		const session = createSessionState();
+		session.id = 'session';
+		const events = [];
+
+		await expect(async () => {
+			for await (const event of stream(
+				{ location: '/workspace' },
+				session,
+				{
+					runId: 'run',
+					task: 'chat',
+					message: 'request',
+					model: 'test-model',
+					origin: 'main',
+					contextMode: 'minimal',
+				},
+				new AbortController().signal,
+				{ tools: [] }
+			)) events.push(event);
+		}).rejects.toThrow('provider failed');
+
+		expect(events.filter((event) => event.type === 'run_finished')).toHaveLength(1);
+		expect(events.at(-1)).toMatchObject({
+			type: 'run_finished',
+			result: { stopReason: 'error' },
+		});
 	});
 });
