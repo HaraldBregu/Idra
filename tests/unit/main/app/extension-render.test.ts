@@ -49,7 +49,7 @@ describe('extension renderer', () => {
 		expect(view.setBounds).toHaveBeenCalledWith({ x: 0, y: 48, width: 820, height: 592 });
 
 		handlers.get('ready-to-show')?.();
-		await Promise.resolve();
+		await new Promise((resolve) => setImmediate(resolve));
 		expect(win.show).toHaveBeenCalledTimes(1);
 
 		const closeEvent = { preventDefault: jest.fn() };
