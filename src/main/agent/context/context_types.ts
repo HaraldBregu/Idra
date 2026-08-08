@@ -1,6 +1,10 @@
 export interface LoadedSkill {
 	name: string;
 	content: string;
+	source?: 'local-filesystem';
+	trust?: 'user-controlled';
+	hash?: string;
+	allowedTools?: string[];
 }
 
 export interface ToolContextState {

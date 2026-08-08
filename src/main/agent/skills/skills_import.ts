@@ -29,7 +29,14 @@ export async function importSkills(): Promise<SkillImportResult | undefined> {
 		}
 		const id = readSkill(source, path.basename(source))?.name ?? path.basename(source);
 		const destination = path.join(skillsRoot, id);
-		fs.rmSync(destination, { recursive: true, force: true });
+		if (fs.existsSync(destination)) {
+			skipped.push({
+				name: id,
+				sourcePath: source,
+				reason: 'A skill with this name already exists. Delete it before importing a replacement.',
+			});
+			continue;
+		}
 		fs.cpSync(source, destination, { recursive: true });
 		const info = readSkill(destination, id);
 		if (info) imported.push(info);

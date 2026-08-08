@@ -6,6 +6,10 @@ export type SkillVisibility = 'public' | 'private' | 'internal' | 'unlisted';
 
 export type SkillSafetyLevel = 'low' | 'medium' | 'high' | 'restricted';
 
+export type SkillSource = 'local-filesystem';
+
+export type SkillTrust = 'user-controlled';
+
 export interface SkillExampleManifest {
 	description?: string;
 	input?: unknown;
@@ -55,6 +59,9 @@ export interface SkillInfo {
 	folderPath: string;
 	skillPath?: string;
 	manifest: SkillManifest;
+	source: SkillSource;
+	trust: SkillTrust;
+	hash: string;
 	diagnostics?: SkillDiagnostic[];
 	structure?: SkillStructureInfo;
 }
@@ -70,6 +77,10 @@ export interface SkillLoadResult {
 	name: string;
 	directory: string;
 	content: string;
+	source: SkillSource;
+	trust: SkillTrust;
+	hash: string;
+	allowedTools?: string[];
 }
 
 export interface SkillFrontmatter {

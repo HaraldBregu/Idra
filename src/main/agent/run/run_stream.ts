@@ -59,6 +59,7 @@ import { getPermissionMode } from '../policy';
 import { getWikiTools } from '../tools/wiki';
 import { selectOriginTools } from './run_origin_tools';
 import { formatToolOutput } from './run_common';
+import { selectSkillTools } from './run_skill_tools';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -288,12 +289,32 @@ async function* loop(
 					break;
 				}
 				if (event.toolName !== loadSkillTool.name) continue;
-				const output = event.output as { skill?: unknown; content?: unknown } | undefined;
+				const output = event.output as
+					| {
+							skill?: unknown;
+							content?: unknown;
+							source?: unknown;
+							trust?: unknown;
+							hash?: unknown;
+							allowedTools?: unknown;
+						}
+					| undefined;
 				const skill = output?.skill;
 				if (typeof skill !== 'string') continue;
 				session.context.skill = skill;
-				if (typeof output?.content === 'string')
-					rememberSkill(session.context, skill, output.content);
+				const allowedTools = Array.isArray(output?.allowedTools)
+					? output.allowedTools.filter((name): name is string => typeof name === 'string')
+					: undefined;
+				const narrowedTools = selectSkillTools(tools, allowedTools);
+				tools.splice(0, tools.length, ...narrowedTools);
+				if (typeof output?.content === 'string') {
+					rememberSkill(session.context, skill, output.content, {
+						...(output.source === 'local-filesystem' ? { source: output.source } : {}),
+						...(output.trust === 'user-controlled' ? { trust: output.trust } : {}),
+						...(typeof output.hash === 'string' ? { hash: output.hash } : {}),
+						...(allowedTools ? { allowedTools } : {}),
+					});
+				}
 			}
 			for (const call of turn.toolCalls) {
 				if (call.name === loadSkillTool.name && call.result) {

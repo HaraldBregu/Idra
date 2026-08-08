@@ -12,11 +12,9 @@ export async function* runToolCalls(
 	permissionMode: AgentPermissionMode = 'ask',
 	security?: ToolCallSecurityContext
 ): AsyncGenerator<RuntimeEvent, void> {
-	const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
-
 	for (const toolCall of toolCalls) {
 		yield* runToolCall(
-			toolMap.get(toolCall.name),
+			tools.find((tool) => tool.name === toolCall.name),
 			toolCall,
 			interactive,
 			signal,

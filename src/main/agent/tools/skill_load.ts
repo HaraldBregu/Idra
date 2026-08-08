@@ -17,6 +17,14 @@ export const loadSkillTool = tool({
 				available: listSkills().map((entry) => entry.title),
 			};
 		}
-		return { skill: skill.name, skillDirectory: skill.directory, content: skill.content };
+		return {
+			skill: skill.name,
+			skillDirectory: skill.directory,
+			content: skill.content,
+			source: skill.source,
+			trust: skill.trust,
+			hash: skill.hash,
+			allowedTools: skill.allowedTools,
+		};
 	},
 });
