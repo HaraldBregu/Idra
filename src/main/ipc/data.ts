@@ -47,7 +47,11 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 				defaultId: 0,
 				noLink: true,
 				message: 'Permanently purge the selected local data?',
-				detail: `${this.scopeDescription(scope)}\n\nRemote provider data will not be deleted.`,
+				detail: `${this.scopeDescription(scope)}\n\n${
+					scope.kind === 'rag' && scope.mode === 'remote_namespace'
+						? 'Only this exact remote namespace will be deleted. The Pinecone index will remain.'
+						: 'Remote provider data will not be deleted.'
+				}`,
 			};
 			const window = BrowserWindow.getFocusedWindow();
 			const result = await (window
@@ -71,6 +75,9 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 		if (scope.kind === 'memory') return 'Persistent memory: all saved facts';
 		if (scope.mode === 'local_namespace') {
 			return `Local RAG namespace: ${scope.indexName} / ${scope.generation}`;
+		}
+		if (scope.mode === 'remote_namespace') {
+			return `Remote Pinecone namespace: ${scope.indexName} / ${scope.generation}`;
 		}
 		return `Local RAG index: ${scope.indexName} (all local namespaces)`;
 	}

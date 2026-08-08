@@ -35,13 +35,13 @@ export function normalizeDataScope(value: unknown): DataScope {
 		const indexName = normalizeRagIndexName(input.indexName);
 		if (input.mode === 'local_index') return { kind: 'rag', mode: 'local_index', indexName };
 		if (
-			input.mode === 'local_namespace' &&
+			(input.mode === 'local_namespace' || input.mode === 'remote_namespace') &&
 			typeof input.generation === 'string' &&
 			/^friday-[0-9a-f-]{36}$/i.test(input.generation)
 		) {
 			return {
 				kind: 'rag',
-				mode: 'local_namespace',
+				mode: input.mode,
 				indexName,
 				generation: input.generation.toLowerCase(),
 			};

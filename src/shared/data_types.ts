@@ -1,6 +1,7 @@
 export type DataScope =
 	| { kind: 'rag'; mode: 'local_index'; indexName: string }
 	| { kind: 'rag'; mode: 'local_namespace'; indexName: string; generation: string }
+	| { kind: 'rag'; mode: 'remote_namespace'; indexName: string; generation: string }
 	| { kind: 'wiki'; targetPath: string }
 	| { kind: 'memory' }
 	| { kind: 'sessions'; sessionIds: string[] };
@@ -19,14 +20,14 @@ export interface DataPurgePreview {
 	files: number;
 	bytes: number;
 	expiresAt: string;
-	remoteDataIncluded: false;
+	remoteDataIncluded: boolean;
 }
 
 export interface DataPurgeResult {
 	scope: DataScope;
 	files: number;
 	bytes: number;
-	remoteDataDeleted: false;
+	remoteDataDeleted: boolean;
 }
 
 export interface DataApi {

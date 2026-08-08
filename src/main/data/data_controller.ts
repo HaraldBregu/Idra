@@ -13,6 +13,7 @@ import { memoryPath } from '../agent/memory';
 import { MEMORY_FILE, resolveTemplatePath } from '../agent/system';
 import { sessionPath, sessionsRoot } from '../agent/session';
 import { purgeRagManifest } from '../rag';
+import { ragClient } from '../rag/rag_client';
 import { ragVectorStore } from '../rag/vector';
 import { getWikiRepository } from '../wiki';
 import { DataArchive } from './data_archive';
@@ -34,6 +35,9 @@ export class DataController {
 	constructor(private readonly agent: AgentDataPort) {}
 
 	async export(scope: DataScope, filePath: string): Promise<DataExportResult> {
+		if (scope.kind === 'rag' && scope.mode === 'remote_namespace') {
+			throw new Error('Remote namespaces cannot be exported through the local data archive.');
+		}
 		const archive = await this.collect(scope);
 		const document = {
 			version: 1,
@@ -53,7 +57,10 @@ export class DataController {
 	}
 
 	async previewPurge(scope: DataScope): Promise<DataPurgePreview> {
-		const archive = await this.collect(scope);
+		const archive =
+			scope.kind === 'rag' && scope.mode === 'remote_namespace'
+				? new DataArchive()
+				: await this.collect(scope);
 		const confirmationId = randomUUID();
 		const preview: DataPurgePreview = {
 			confirmationId,
@@ -62,7 +69,7 @@ export class DataController {
 			files: archive.files().length,
 			bytes: archive.bytes(),
 			expiresAt: new Date(Date.now() + 5 * 60_000).toISOString(),
-			remoteDataIncluded: false,
+			remoteDataIncluded: scope.kind === 'rag' && scope.mode === 'remote_namespace',
 		};
 		this.pendingPurges.set(confirmationId, { scopeHash: scopeHash(scope), preview });
 		return preview;
@@ -80,19 +87,23 @@ export class DataController {
 		}
 
 		if (scope.kind === 'rag') {
-			const store = ragVectorStore();
-			try {
-				store.purge(
+			if (scope.mode === 'remote_namespace') {
+				await ragClient().index(scope.indexName).deleteNamespace(scope.generation);
+			} else {
+				const store = ragVectorStore();
+				try {
+					store.purge(
+						scope.indexName,
+						scope.mode === 'local_namespace' ? scope.generation : undefined
+					);
+				} finally {
+					store.close();
+				}
+				purgeRagManifest(
 					scope.indexName,
 					scope.mode === 'local_namespace' ? scope.generation : undefined
 				);
-			} finally {
-				store.close();
 			}
-			purgeRagManifest(
-				scope.indexName,
-				scope.mode === 'local_namespace' ? scope.generation : undefined
-			);
 		} else if (scope.kind === 'wiki') {
 			const repository = getWikiRepository(scope.targetPath);
 			for (const page of Object.values(repository.manifest.store.pages)) {
@@ -118,13 +129,14 @@ export class DataController {
 			scope,
 			files: pending.preview.files,
 			bytes: pending.preview.bytes,
-			remoteDataDeleted: false,
+			remoteDataDeleted: scope.kind === 'rag' && scope.mode === 'remote_namespace',
 		};
 	}
 
 	private async collect(scope: DataScope): Promise<DataArchive> {
 		const archive = new DataArchive();
 		if (scope.kind === 'rag') {
+			if (scope.mode === 'remote_namespace') return archive;
 			const store = ragVectorStore();
 			try {
 				const publication = store.exportIndex(
@@ -182,6 +194,9 @@ function describeScope(scope: DataScope): string {
 	if (scope.kind === 'wiki') return `managed wiki data for ${scope.targetPath}`;
 	if (scope.mode === 'local_namespace') {
 		return `local RAG namespace ${scope.generation} in ${scope.indexName}`;
+	}
+	if (scope.mode === 'remote_namespace') {
+		return `remote Pinecone namespace ${scope.generation} in ${scope.indexName}`;
 	}
 	return `all local RAG data in ${scope.indexName}`;
 }
