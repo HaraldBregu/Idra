@@ -1,9 +1,26 @@
 import type { BrowserWindow } from 'electron';
 import type { WindowFactory } from '../window_factory';
 
-const windows = new Set<BrowserWindow>();
+const windows = new Map<string, BrowserWindow>();
 
-export function render(windowFactory: WindowFactory, file: string, title: string): BrowserWindow {
+export function render(
+	windowFactory: WindowFactory,
+	file: string,
+	title: string,
+	extensionId: string
+): BrowserWindow {
+	const existingWindow = windows.get(extensionId);
+	if (existingWindow && !existingWindow.isDestroyed()) {
+		if (existingWindow.isMinimized()) existingWindow.restore();
+		if (!existingWindow.isVisible()) {
+			existingWindow.show();
+		} else {
+			existingWindow.focus();
+		}
+		existingWindow.focus();
+		return existingWindow;
+	}
+
 	const win = windowFactory.create(
 		{
 			width: 820,
@@ -18,9 +35,9 @@ export function render(windowFactory: WindowFactory, file: string, title: string
 		{ file }
 	);
 
-	windows.add(win);
+	windows.set(extensionId, win);
 	win.setMenuBarVisibility(false);
 	win.once('ready-to-show', () => win.show());
-	win.on('closed', () => windows.delete(win));
+	win.on('closed', () => windows.delete(extensionId));
 	return win;
 }
