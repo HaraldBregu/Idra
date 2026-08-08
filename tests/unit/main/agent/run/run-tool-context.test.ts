@@ -434,5 +434,11 @@ describe('tool context permissions', () => {
 });
 
 function fakeTool(name: string, run: jest.Mock): Tool {
-	return jsonTool({ name, description: name, schema: { type: 'object' }, execute: run });
+	return jsonTool({
+		name,
+		description: name,
+		effect: 'read',
+		schema: { type: 'object' },
+		execute: run,
+	});
 }

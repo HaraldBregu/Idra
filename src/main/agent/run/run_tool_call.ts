@@ -66,23 +66,23 @@ export async function* runToolCall(
 		output = `Error: cancelled by user`;
 		isError = true;
 	} else {
+		const policyPermission = resolveToolPermission(
+			toolCall.name,
+			canonicalInput,
+			context,
+			interactive,
+			tool.defaultPermission
+		);
 		let permission =
-			permissionMode === 'bypass'
-				? 'allow'
-				: resolveToolPermission(
-						toolCall.name,
-						canonicalInput,
-						context,
-						interactive,
-						tool.defaultPermission
-					);
+			permissionMode === 'bypass' && policyPermission !== 'deny' ? 'allow' : policyPermission;
 
 		const carriesPrivateRead =
 			(tool.effect === 'external' || tool.effect === 'paid') &&
 			context?.tools?.some((entry) => entry.toolName === 'read') === true;
 		const hardApproval =
 			tool.hardApproval === true || tool.alwaysAsk === true || carriesPrivateRead;
-		if (hardApproval || (tool.alwaysAsk && permissionMode !== 'bypass')) permission = 'ask';
+		if (permission !== 'deny' && (hardApproval || (tool.alwaysAsk && permissionMode !== 'bypass')))
+			permission = 'ask';
 		if (permission === 'ask' && !interactive) permission = 'deny';
 
 		if (permission === 'ask') {
