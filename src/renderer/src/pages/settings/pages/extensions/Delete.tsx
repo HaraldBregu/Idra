@@ -24,10 +24,11 @@ export default function Delete({
 	onConfirm,
 }: DeleteProps): React.JSX.Element {
 	const { t } = useTranslation();
+	if (!extension) return <></>;
 
 	return (
 		<Dialog
-			open={extension !== null}
+			defaultOpen
 			disablePointerDismissal
 			onOpenChange={(open) => {
 				if (!open && !deleting) onCancel();
@@ -37,7 +38,7 @@ export default function Delete({
 				<DialogHeader>
 					<DialogTitle>{t('settings.extensions.deleteTitle')}</DialogTitle>
 					<DialogDescription>
-						{t('settings.extensions.deleteDescription', { name: extension?.title ?? '' })}
+						{t('settings.extensions.deleteDescription', { name: extension.title })}
 					</DialogDescription>
 				</DialogHeader>
 				<DialogFooter>
