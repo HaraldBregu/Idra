@@ -17,6 +17,7 @@ interface WorkspaceViewerProps {
 	mediaUrl: string;
 	onChange: (content: string) => void;
 	onMarkdownModeChange: (mode: 'source' | 'preview') => void;
+	onRename: () => void;
 	onSave: () => Promise<boolean>;
 	path: string | null;
 	saveError: string;
@@ -34,6 +35,7 @@ export function WorkspaceViewer({
 	mediaUrl,
 	onChange,
 	onMarkdownModeChange,
+	onRename,
 	onSave,
 	path,
 	saveError,
@@ -101,12 +103,15 @@ export function WorkspaceViewer({
 										{ type: 'separator' } as const,
 									]
 								: []),
+							{ id: 'rename', label: 'Rename File' },
+							{ type: 'separator' },
 							{ id: 'copy-path', label: 'Copy Path' },
 						],
 						{
 							save: () => onSave(),
 							'show-preview': () => onMarkdownModeChange('preview'),
 							'show-source': () => onMarkdownModeChange('source'),
+							rename: onRename,
 							'copy-path': () => navigator.clipboard.writeText(path),
 						}
 					);
@@ -114,7 +119,11 @@ export function WorkspaceViewer({
 			>
 				<header className="flex h-14 shrink-0 items-center gap-3 border-b px-3 sm:px-5">
 					{sidebarTrigger}
-					<div className="min-w-0 flex-1">
+					<div
+						className="min-w-0 flex-1 cursor-default"
+						onDoubleClick={onRename}
+						title="Double-click to rename"
+					>
 						<h1 className="truncate text-[15px] font-semibold tracking-[-0.02em]">
 							{path.split(/[\\/]/).pop()}
 						</h1>
