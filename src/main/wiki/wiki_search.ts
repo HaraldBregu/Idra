@@ -2,7 +2,10 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { getWikiSettings } from './wiki_get_settings';
+import { getWikiRepository } from './wiki_repository';
 import type { WikiSearchResult } from './wiki_types';
+import type { WikiClaim } from './wiki_types';
+import { verifyWikiEvidence } from './wiki_verify_evidence';
 
 export async function searchWiki(
 	query: string,
@@ -14,6 +17,7 @@ export async function searchWiki(
 	const normalizedQuery = query.trim().toLowerCase();
 	if (!normalizedQuery) throw new Error('Wiki search query is required.');
 	const limit = Math.max(1, Math.min(20, Math.trunc(count)));
+	const repository = getWikiRepository(targetPath);
 	const terms = [...new Set(normalizedQuery.match(/[\p{L}\p{N}][\p{L}\p{N}-]{1,}/gu) ?? [])];
 	const index = await readFile(path.resolve(targetPath, 'index.md'), {
 		encoding: 'utf8',
@@ -31,6 +35,15 @@ export async function searchWiki(
 		const parsed = matter(
 			await readFile(path.resolve(targetPath, entry), { encoding: 'utf8', signal })
 		);
+		if (String(parsed.data.status ?? '') !== 'active') continue;
+		if (!['auto_generated', 'approved'].includes(String(parsed.data.review_status ?? ''))) continue;
+		const claims = (Array.isArray(parsed.data.claims) ? parsed.data.claims : []) as WikiClaim[];
+		const verified = await Promise.all(
+			claims.flatMap((claim) => claim.evidence)
+				.filter((evidence) => Boolean(evidence.excerptHash))
+				.map((evidence) => verifyWikiEvidence(evidence, repository, signal).then(() => true).catch(() => false))
+		);
+		if (verified.some((value) => !value)) continue;
 		const title = String(parsed.data.title ?? path.posix.basename(relativePath, '.md')).trim();
 		const summary = String(parsed.data.summary ?? '').trim();
 		const aliases = Array.isArray(parsed.data.aliases) ? parsed.data.aliases.map(String) : [];

@@ -113,6 +113,7 @@ export async function saveWikiAnalysis(
 			const result = await applyWikiUpdate(stagedPath, source, update, {
 				operationId,
 				requireReviewForMajorChanges: settings.requireReviewForMajorChanges,
+				repository,
 			});
 			await rebuildWikiIndex(stagedPath);
 			await appendWikiLog(stagedPath, source, result, operationId, 'saved_query', title);

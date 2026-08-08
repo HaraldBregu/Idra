@@ -6,6 +6,7 @@ import { getWikiRepository } from './wiki_repository';
 import { searchWiki } from './wiki_search';
 import type { WikiAnswerContext, WikiContradiction, WikiRawEvidenceResult } from './wiki_types';
 import { incrementWikiMetric } from './wiki_metrics';
+import { readWikiArchive } from './wiki_read_archive';
 
 export async function buildWikiAnswerContext(
 	query: string,
@@ -47,9 +48,7 @@ export async function buildWikiAnswerContext(
 			signal?.throwIfAborted();
 			const record = repository.sources.store.sources[sourceId];
 			if (!record || record.status !== 'integrated') continue;
-			const content = await readFile(record.archivePath, { encoding: 'utf8', signal }).catch(
-				() => ''
-			);
+			const content = await readWikiArchive(record, signal).catch(() => '');
 			signal?.throwIfAborted();
 			if (!content) continue;
 			const match = term ? content.toLowerCase().indexOf(term) : -1;

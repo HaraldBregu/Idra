@@ -16,6 +16,8 @@ import { getWikiRepository } from './wiki_repository';
 import { transactWiki } from './wiki_transaction';
 import type { WikiOperationRecord } from './wiki_types';
 import { incrementWikiMetric } from './wiki_metrics';
+import { commitWikiSourceLineage } from './wiki_commit_lineage';
+import { markStaleWikiClaims } from './wiki_mark_stale_claims';
 
 export async function runWiki(
 	relativePath?: string,
@@ -146,9 +148,17 @@ export async function runWiki(
 						runSignal.throwIfAborted();
 						await ensureWikiSchema(stagedPath, paths.config);
 						runSignal.throwIfAborted();
+						await markStaleWikiClaims(
+							stagedPath,
+							registered.pendingLineage ? [registered.pendingLineage.previousSourceId] : [],
+							runSignal
+						);
+						runSignal.throwIfAborted();
 						const result = await applyWikiUpdate(stagedPath, source, update, {
 							operationId,
 							requireReviewForMajorChanges: settings.requireReviewForMajorChanges,
+							repository,
+							signal: runSignal,
 						});
 						runSignal.throwIfAborted();
 						await rebuildWikiIndex(stagedPath);
@@ -157,6 +167,7 @@ export async function runWiki(
 						return result;
 					},
 				});
+				commitWikiSourceLineage(registered, repository);
 				const registry = repository.sources.store;
 				registry.sources[registered.record.sourceId] = {
 					...registry.sources[registered.record.sourceId],

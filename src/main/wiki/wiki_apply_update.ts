@@ -11,6 +11,7 @@ import type {
 	WikiSource,
 	WikiUpdate,
 } from './wiki_types';
+import { verifyWikiEvidence } from './wiki_verify_evidence';
 
 export async function applyWikiUpdate(
 	targetPath: string,
@@ -23,10 +24,24 @@ export async function applyWikiUpdate(
 	let claimsAdded = 0;
 	let contradictionsDetected = 0;
 	const reviewItems: WikiReviewItem[] = [];
-	const pages = update.pages.map((page) => ({
-		...page,
-		related: [...new Set(page.related ?? [])],
-	}));
+	const pages = await Promise.all(
+		update.pages.map(async (page) => ({
+			...page,
+			related: [...new Set(page.related ?? [])],
+			claims: await Promise.all(
+				(page.claims ?? []).map(async (claim) => ({
+					...claim,
+					evidence: options.repository
+						? await Promise.all(
+								claim.evidence.map((item) =>
+									verifyWikiEvidence(item, options.repository!, options.signal)
+								)
+							)
+						: claim.evidence,
+				}))
+			),
+		}))
+	);
 	const titleIndex = new Map(pages.map((page, index) => [page.title.toLowerCase(), index]));
 	for (const page of pages) {
 		const links = [
@@ -45,8 +60,11 @@ export async function applyWikiUpdate(
 	}
 
 	for (const page of pages) {
+		options.signal?.throwIfAborted();
 		const pagePath = path.resolve(targetPath, page.path);
-		const existing = await readFile(pagePath, 'utf8').catch(() => undefined);
+		const existing = await readFile(pagePath, { encoding: 'utf8', signal: options.signal }).catch(
+			() => undefined
+		);
 		const previous = existing ? matter(existing) : undefined;
 		const pageType =
 			page.pageType ??
@@ -242,7 +260,7 @@ export async function applyWikiUpdate(
 			change_history: changeHistory,
 		});
 		await mkdir(path.dirname(pagePath), { recursive: true });
-		await writeFile(pagePath, markdown, 'utf8');
+		await writeFile(pagePath, markdown, { encoding: 'utf8', signal: options.signal });
 		if (existing === undefined) createdPages += 1;
 		else updatedPages += 1;
 	}

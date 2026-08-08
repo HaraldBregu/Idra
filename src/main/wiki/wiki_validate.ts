@@ -3,6 +3,7 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { getWikiRepository, type WikiRepository } from './wiki_repository';
 import type { WikiClaim, WikiContradiction } from './wiki_types';
+import { verifyWikiEvidence } from './wiki_verify_evidence';
 
 const PAGE_TYPES = new Set([
 	'source',
@@ -17,7 +18,8 @@ const PAGE_TYPES = new Set([
 
 export async function validateWiki(
 	targetPath: string,
-	repository: WikiRepository = getWikiRepository(targetPath)
+	repository: WikiRepository = getWikiRepository(targetPath),
+	signal?: AbortSignal
 ): Promise<string[]> {
 	const errors: string[] = [];
 	const ids = new Map<string, string>();
@@ -30,6 +32,7 @@ export async function validateWiki(
 		data: Record<string, unknown>;
 	}> = [];
 	for (const entry of entries) {
+		signal?.throwIfAborted();
 		const relativePath = entry.split(path.sep).join('/');
 		if (path.posix.extname(relativePath).toLowerCase() !== '.md') continue;
 		if (['index.md', 'log.md', 'AGENTS.md'].includes(relativePath)) continue;
@@ -82,6 +85,10 @@ export async function validateWiki(
 				for (const evidence of claim.evidence) {
 					if (!evidence.locator || !repository.sources.store.sources[evidence.sourceId]) {
 						errors.push(`Invalid evidence for claim '${claim.id}' in ${relativePath}`);
+					} else if (evidence.excerptHash) {
+						await verifyWikiEvidence(evidence, repository, signal).catch(() => {
+							errors.push(`Invalid evidence for claim '${claim.id}' in ${relativePath}`);
+						});
 					}
 				}
 			}

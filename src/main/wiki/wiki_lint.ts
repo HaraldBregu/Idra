@@ -14,6 +14,7 @@ import type {
 	WikiOperationRecord,
 	WikiSource,
 } from './wiki_types';
+import { verifyWikiEvidence } from './wiki_verify_evidence';
 
 const PAGE_TYPES = new Set([
 	'source',
@@ -137,6 +138,15 @@ export async function lintWiki(
 						message: `Unknown source '${evidence.sourceId}'.`,
 						path: relativePath,
 						claimId: claim.id,
+					});
+				} else if (evidence.excerptHash) {
+					await verifyWikiEvidence(evidence, repository).catch((error) => {
+						result.critical.push({
+							code: 'invalid_evidence',
+							message: error instanceof Error ? error.message : String(error),
+							path: relativePath,
+							claimId: claim.id,
+						});
 					});
 				}
 			}

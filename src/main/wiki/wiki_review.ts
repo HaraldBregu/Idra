@@ -42,6 +42,7 @@ export async function reviewWikiChange(
 							operationId,
 							requireReviewForMajorChanges: false,
 							allowContradictionResolution: true,
+							repository,
 						})
 					: { createdPages: 0, updatedPages: 0 };
 			if (action === 'approve') {

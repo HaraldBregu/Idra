@@ -84,14 +84,23 @@ export const knowledgeQueryTool = tool({
 			limitations.push('The local knowledge index returned no matching evidence.');
 		}
 		if (unresolved) limitations.push('Conflicting claims remain unresolved; do not present them as fact.');
+		const abstain =
+			results.length === 0 ||
+			(exact === true && wiki.primaryEvidence.length === 0 && rag.length === 0);
 		return JSON.stringify(
 			{
 				query,
-				route: rag.length > 0 ? 'wiki_then_local_rag' : wikiEnabled ? 'compiled_wiki' : 'local_rag',
+				route: abstain
+					? 'abstain'
+					: rag.length > 0
+						? 'wiki_then_local_rag'
+						: wikiEnabled
+							? 'compiled_wiki'
+							: 'local_rag',
 				results,
 				contradictions: wiki.contradictions,
 				limitations: [...new Set(limitations)],
-				abstain: results.length === 0 || (exact === true && wiki.primaryEvidence.length === 0 && rag.length === 0),
+				abstain,
 			},
 			null,
 			2

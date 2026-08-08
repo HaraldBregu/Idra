@@ -49,7 +49,7 @@ Keep summaries, page content, claims, and evidence concise. Do not repeat source
 Do not include YAML frontmatter or an H1 in content; the application adds those.
 Use sections such as Evidence, Connections, Contradictions and open questions when relevant.
 Every page must list all raw source paths used in its sources field.
-Represent every material factual claim in the claims array. Each claim needs a stable claim ID, statement, confidence, status, and evidence with source_id "${source.sourceId ?? 'legacy-source'}" plus a section, heading, row, or paragraph locator.
+Represent every material factual claim in the claims array. Each claim needs a stable claim ID, statement, confidence, status, and evidence with source_id "${source.sourceId ?? 'legacy-source'}" plus an exact one-based line locator such as "lines 4-7". Count lines directly from the raw source. The application verifies every locator against the immutable archive and computes the evidence hash.
 Represent disagreements in contradictions with status "unresolved". Never mark a contradiction resolved during ingest.
 
 <wiki-context>
@@ -125,7 +125,10 @@ ${source.content}
 															required: ['sourceId', 'locator', 'evidenceType'],
 															properties: {
 																sourceId: { type: 'string' },
-																locator: { type: 'string' },
+																locator: {
+																	type: 'string',
+																	pattern: '^lines?\\s+[1-9][0-9]*(?:-[1-9][0-9]*)?$',
+																},
 																evidenceType: { type: 'string', enum: ['direct', 'indirect'] },
 															},
 														},

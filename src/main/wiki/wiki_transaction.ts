@@ -30,7 +30,11 @@ export async function transactWiki<T>(input: WikiTransactionInput<T>): Promise<T
 		input.signal?.throwIfAborted();
 		const errors = await (input.validate
 			? input.validate(stagedPath)
-			: validateWiki(stagedPath, input.repository ?? getWikiRepository(input.targetPath)));
+			: validateWiki(
+					stagedPath,
+					input.repository ?? getWikiRepository(input.targetPath),
+					input.signal
+				));
 		if (errors.length > 0) throw new Error(`Wiki validation failed: ${errors.join('; ')}`);
 		input.signal?.throwIfAborted();
 		if (targetExists) await rename(input.targetPath, backupPath);
