@@ -228,6 +228,11 @@ async function runProcess(input: z.infer<typeof processInputSchema>): Promise<un
 
 export const processTool: Tool = tool({
 	name: 'process',
+	defaultPermission: 'ask',
+	risk: 'high',
+	effect: 'execute',
+	allowedOrigins: ['main', 'task', 'subagent'],
+	hardApproval: ({ action }) => action === 'kill' || action === 'remove',
 	description:
 		'Manage running exec sessions for commands already started: list, poll, log, write, send-keys, submit, paste, kill. ' +
 		'Use poll/log when you need status, logs, quiet-success confirmation, or completion confirmation. ' +

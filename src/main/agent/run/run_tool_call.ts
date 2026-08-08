@@ -82,7 +82,11 @@ export async function* runToolCall(
 			(tool.effect === 'external' || tool.effect === 'paid') &&
 			context?.tools?.some((entry) => entry.toolName === 'read') === true;
 		const hardApproval =
-			tool.hardApproval === true || tool.alwaysAsk === true || carriesPrivateRead;
+			(typeof tool.hardApproval === 'function'
+				? tool.hardApproval(canonicalInput)
+				: tool.hardApproval === true) ||
+			tool.alwaysAsk === true ||
+			carriesPrivateRead;
 		if (permission !== 'deny' && (hardApproval || (tool.alwaysAsk && permissionMode !== 'bypass')))
 			permission = 'ask';
 		if (permission === 'ask' && !interactive) permission = 'deny';

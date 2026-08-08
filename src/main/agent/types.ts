@@ -41,7 +41,7 @@ export interface Tool {
 	readonly schema: JSONSchema;
 	readonly defaultPermission?: 'allow' | 'ask' | 'deny';
 	readonly alwaysAsk?: boolean;
-	readonly hardApproval?: boolean;
+	readonly hardApproval?: boolean | ((args: Record<string, unknown>) => boolean);
 	readonly stopOnReject?: boolean;
 	readonly risk: AgentToolRisk;
 	readonly effect: AgentToolEffect;
@@ -59,7 +59,7 @@ export type ToolConfig<T extends z.ZodType> = {
 	description: string;
 	defaultPermission?: 'allow' | 'ask' | 'deny';
 	alwaysAsk?: boolean;
-	hardApproval?: boolean;
+	hardApproval?: boolean | ((args: z.infer<T>) => boolean);
 	stopOnReject?: boolean;
 	risk?: AgentToolRisk;
 	effect?: AgentToolEffect;
@@ -76,7 +76,7 @@ export type JsonToolConfig = {
 	name: string;
 	description: string;
 	defaultPermission?: 'allow' | 'ask' | 'deny';
-	hardApproval?: boolean;
+	hardApproval?: boolean | ((args: Record<string, unknown>) => boolean);
 	risk?: AgentToolRisk;
 	effect?: AgentToolEffect;
 	allowedOrigins?: readonly AgentOrigin[];

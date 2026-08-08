@@ -29,7 +29,10 @@ export function tool<T extends z.ZodType>({
 		description,
 		defaultPermission,
 		alwaysAsk,
-		hardApproval,
+		hardApproval:
+			typeof hardApproval === 'function'
+				? (args) => hardApproval(inputSchema.parse(args))
+				: hardApproval,
 		stopOnReject,
 		risk,
 		effect,

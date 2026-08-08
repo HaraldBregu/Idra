@@ -279,6 +279,10 @@ export const execTool = tool({
 	risk: 'high',
 	effect: 'execute',
 	allowedOrigins: ['main', 'task', 'subagent'],
+	hardApproval: ({ command }) =>
+		/(?:^|[;&|]\s*)(?:rm\b|git\s+(?:reset\s+--hard|clean\b)|drop\s+(?:table|database)\b|truncate\s+table\b|dd\b|mkfs\b|shutdown\b|reboot\b)/i.test(
+			command
+		),
 	description:
 		'Run a shell command from the workspace or a chosen working directory. ' +
 		'Use it for builds, tests, searches, and other command-line checks; set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
