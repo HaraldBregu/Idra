@@ -8,13 +8,15 @@ export function modelInputLimit(
 	modelId: string,
 	maxOutputTokens: number
 ): number {
-	const inputs = findModel(providerId, 'llm', modelId)?.metadata?.inputs;
+	const metadata = findModel(providerId, 'llm', modelId)?.metadata;
+	const inputs = metadata?.inputs;
 	const inputContract =
 		inputs?.max_input_tokens ?? inputs?.input_token_limit ?? inputs?.maximum_input_tokens;
 	const contextContract =
 		inputs?.context_window ?? inputs?.context_length ?? inputs?.max_context_tokens;
 	const configuredInput = inputContract?.maximum ?? inputContract?.default;
-	const configuredContext = contextContract?.maximum ?? contextContract?.default;
+	const configuredContext =
+		metadata?.contextWindow ?? contextContract?.maximum ?? contextContract?.default;
 	// 32K is the conservative fallback when the local catalog has no verified context metadata.
 	const available =
 		typeof configuredInput === 'number'

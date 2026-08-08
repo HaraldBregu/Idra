@@ -14,6 +14,8 @@
       "metadata": {
         "documentationUrl": "https://api-docs.deepseek.com/guides/thinking_mode",
         "documentationStatus": "verified",
+        "contextWindow": 1048576,
+        "defaultOutputTokens": 32768,
         "inputs": {
           "thinking": {
             "type": "object",
@@ -85,6 +87,8 @@
       "metadata": {
         "documentationUrl": "https://api-docs.deepseek.com/guides/thinking_mode",
         "documentationStatus": "verified",
+        "contextWindow": 1048576,
+        "defaultOutputTokens": 32768,
         "inputs": {
           "thinking": {
             "type": "object",

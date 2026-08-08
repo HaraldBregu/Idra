@@ -37,6 +37,10 @@ export interface ModelMetadata {
 	readonly documentationUrl: string;
 	/** Whether the catalog model has an externally documented request contract. */
 	readonly documentationStatus?: 'verified' | 'unverified';
+	/** Provider-documented total input plus output context window. */
+	readonly contextWindow?: number;
+	/** Provider-recommended output limit when the user has not configured one. */
+	readonly defaultOutputTokens?: number;
 	/** API request fields supported by this exact service or model. */
 	readonly inputs: Readonly<Record<string, ModelInputSchema>>;
 }

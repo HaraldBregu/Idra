@@ -122,18 +122,24 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 	let mandatoryTokens =
 		Math.ceil(
 			Buffer.byteLength(
-				JSON.stringify({ systemPrompt: minimumSystem, messages: selectedMessages, tools: [] }),
+				JSON.stringify({
+					systemPrompt: minimumSystem,
+					messages: selectedMessages,
+					tools: toolView,
+				}),
 				'utf8'
 			) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
 	if (mandatoryTokens > maxInputTokens) {
-		throw new Error('The current user turn exceeds the model context budget.');
+		throw new Error(
+			'The current user turn and available tool schemas exceed the model context budget.'
+		);
 	}
 
 	mandatoryTokens =
 		Math.ceil(
 			Buffer.byteLength(
-				JSON.stringify({ systemPrompt, messages: selectedMessages, tools: [] }),
+				JSON.stringify({ systemPrompt, messages: selectedMessages, tools: toolView }),
 				'utf8'
 			) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
@@ -144,7 +150,7 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		while (
 			Math.ceil(
 				Buffer.byteLength(
-					JSON.stringify({ systemPrompt, messages: selectedMessages, tools: [] }),
+					JSON.stringify({ systemPrompt, messages: selectedMessages, tools: toolView }),
 					'utf8'
 				) / CONTEXT_BYTES_PER_TOKEN
 			) +
@@ -159,23 +165,7 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		}
 	}
 
-	const selectedTools: Tool[] = [];
-	for (const [index, tool] of input.tools.entries()) {
-		const candidateTools = [...selectedTools, tool];
-		const candidateView = candidateTools.map((candidate) => ({
-			name: candidate.name,
-			description: candidate.description,
-			schema: candidate.schema,
-		}));
-		const candidateTokens =
-			Math.ceil(
-				Buffer.byteLength(
-					JSON.stringify({ systemPrompt, messages: selectedMessages, tools: candidateView }),
-					'utf8'
-				) / CONTEXT_BYTES_PER_TOKEN
-			) + 32;
-		if (candidateTokens <= maxInputTokens) selectedTools.push(input.tools[index]);
-	}
+	const selectedTools = input.tools;
 
 	let cursor = latestUserIndex;
 	let omittedPrior = false;
@@ -185,15 +175,10 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 			previousUserIndex -= 1;
 		}
 		const candidateMessages = [...messages.slice(previousUserIndex, cursor), ...selectedMessages];
-		const selectedToolView = selectedTools.map((tool) => ({
-			name: tool.name,
-			description: tool.description,
-			schema: tool.schema,
-		}));
 		const candidateTokens =
 			Math.ceil(
 				Buffer.byteLength(
-					JSON.stringify({ systemPrompt, messages: candidateMessages, tools: selectedToolView }),
+					JSON.stringify({ systemPrompt, messages: candidateMessages, tools: toolView }),
 					'utf8'
 				) / CONTEXT_BYTES_PER_TOKEN
 			) + 32;
@@ -211,30 +196,20 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 			content: '[Earlier conversation omitted to fit the model context budget.]',
 		};
 		const candidateMessages = [marker, ...selectedMessages];
-		const selectedToolView = selectedTools.map((tool) => ({
-			name: tool.name,
-			description: tool.description,
-			schema: tool.schema,
-		}));
 		const markerTokens =
 			Math.ceil(
 				Buffer.byteLength(
-					JSON.stringify({ systemPrompt, messages: candidateMessages, tools: selectedToolView }),
+					JSON.stringify({ systemPrompt, messages: candidateMessages, tools: toolView }),
 					'utf8'
 				) / CONTEXT_BYTES_PER_TOKEN
 			) + 32;
 		if (markerTokens <= maxInputTokens) selectedMessages = candidateMessages;
 	}
 
-	const selectedToolView = selectedTools.map((tool) => ({
-		name: tool.name,
-		description: tool.description,
-		schema: tool.schema,
-	}));
 	const estimatedTokens =
 		Math.ceil(
 			Buffer.byteLength(
-				JSON.stringify({ systemPrompt, messages: selectedMessages, tools: selectedToolView }),
+				JSON.stringify({ systemPrompt, messages: selectedMessages, tools: toolView }),
 				'utf8'
 			) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
