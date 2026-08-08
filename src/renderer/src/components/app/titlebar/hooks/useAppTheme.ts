@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { AppThemeData } from '../../../../../shared/app_types';
+import type { AppThemeData } from '@shared/app_types';
 
 export function useAppTheme(): void {
 	useEffect(() => {
