@@ -16,6 +16,8 @@ export function execRequiresHardApproval(command: string): boolean {
 		DESTRUCTIVE_GIT.test(canonical) ||
 		DESTRUCTIVE_FIND.test(canonical) ||
 		DESTRUCTIVE_DATABASE.test(canonical) ||
-		IN_PLACE_OR_OVERWRITE.test(canonical)
+		IN_PLACE_OR_OVERWRITE.test(canonical) ||
+		isCredentialReference(canonical)
 	);
 }
+import { isCredentialReference } from '../policy/policy_credential_reference';

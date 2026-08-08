@@ -7,6 +7,10 @@ import { tool } from './tool';
 
 export const completeBootstrapTool = tool({
 	name: 'complete_bootstrap',
+	risk: 'critical',
+	effect: 'persistence',
+	hardApproval: true,
+	allowedOrigins: ['main'],
 	description:
 		'Complete the one-time bootstrap by deleting BOOTSTRAP.md from the workspace. Call this only after IDENTITY.md, USER.md, and SOUL.md have been updated.',
 	inputSchema: z.object({}),

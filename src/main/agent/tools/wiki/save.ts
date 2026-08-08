@@ -10,6 +10,10 @@ const evidence = z.object({
 
 export const wikiSaveTool = tool({
 	name: 'wiki_save_analysis',
+	risk: 'high',
+	effect: 'persistence',
+	hardApproval: true,
+	allowedOrigins: ['main'],
 	description:
 		'Save a durable, reusable comparison, synthesis, project analysis, or resolved research question. Search first and provide integrated source IDs. Do not save casual conversation, secrets, temporary status, or speculation. Unless automatic filing is enabled, call only when the user asks to persist the analysis.',
 	defaultPermission: 'ask',

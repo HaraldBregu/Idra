@@ -4,6 +4,10 @@ import { scheduleIdSchema } from './schema';
 
 export const pauseScheduleTool = tool({
 	name: 'pause_schedule',
+	risk: 'high',
+	effect: 'persistence',
+	hardApproval: true,
+	allowedOrigins: ['main'],
 	description: 'Pause an active tasks schedule by id.',
 	inputSchema: scheduleIdSchema,
 	execute: ({ scheduleId }) => {

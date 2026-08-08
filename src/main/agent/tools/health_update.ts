@@ -6,6 +6,10 @@ import { tool } from './tool';
 export function updateHealthTool(config: Config): Tool {
 	return tool({
 		name: 'health_update',
+		risk: 'high',
+		effect: 'persistence',
+		hardApproval: true,
+		allowedOrigins: ['main'],
 		description:
 			'Overwrite HEALTH.md, the checklist executed by the automated background health check. Provide the full new markdown content; non-heading lines are treated as checklist items, and an empty checklist disables the check.',
 		inputSchema: z.object({

@@ -2,10 +2,19 @@ import fs from 'node:fs/promises';
 import { z } from 'zod';
 import { agentLocation } from '../../../shared/agent_location';
 import { resolveUserPath } from '../../../shared/user_path';
+import { realPath } from '../../../shared/real_path';
+import { isCredentialReference } from '../../policy/policy_credential_reference';
 import { tool } from '../tool';
 
 export const readTool = tool({
 	name: 'read',
+	risk: 'high',
+	effect: 'read',
+	allowedOrigins: ['main', 'task', 'subagent'],
+	hardApproval: ({ path: filePath }) => {
+		const resolved = resolveUserPath(filePath, agentLocation());
+		return isCredentialReference(filePath) || isCredentialReference(realPath(resolved));
+	},
 	description:
 		'Read the full UTF-8 contents of a single text file. Use this before editing when you need the current file contents.',
 	inputSchema: z.object({
