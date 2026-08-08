@@ -15,5 +15,5 @@ export const wikiIngestTool = tool({
 			.optional()
 			.describe('Path relative to the configured source folder.'),
 	}),
-	execute: async ({ relativePath }) => runWiki(relativePath),
+	execute: async ({ relativePath }, signal) => runWiki(relativePath, signal),
 });

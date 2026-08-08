@@ -7,11 +7,13 @@ export interface WikiTransactionInput<T> {
 	targetPath: string;
 	operationId: string;
 	repository?: WikiRepository;
+	signal?: AbortSignal;
 	apply(stagedPath: string): Promise<T>;
 	validate?(stagedPath: string): Promise<string[]>;
 }
 
 export async function transactWiki<T>(input: WikiTransactionInput<T>): Promise<T> {
+	input.signal?.throwIfAborted();
 	const parent = path.dirname(input.targetPath);
 	await mkdir(parent, { recursive: true });
 	const transactionRoot = await mkdtemp(path.resolve(parent, `.wiki-${input.operationId}-`));
@@ -23,11 +25,14 @@ export async function transactWiki<T>(input: WikiTransactionInput<T>): Promise<T
 	try {
 		if (targetExists) await cp(input.targetPath, stagedPath, { recursive: true, force: false });
 		else await mkdir(stagedPath, { recursive: true });
+		input.signal?.throwIfAborted();
 		const result = await input.apply(stagedPath);
+		input.signal?.throwIfAborted();
 		const errors = await (input.validate
 			? input.validate(stagedPath)
 			: validateWiki(stagedPath, input.repository ?? getWikiRepository(input.targetPath)));
 		if (errors.length > 0) throw new Error(`Wiki validation failed: ${errors.join('; ')}`);
+		input.signal?.throwIfAborted();
 		if (targetExists) await rename(input.targetPath, backupPath);
 		try {
 			await rename(stagedPath, input.targetPath);

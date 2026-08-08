@@ -18,10 +18,10 @@ export const knowledgeSearchTool: Tool = tool({
 			.optional()
 			.describe('Maximum number of matching excerpts to return (default 5).'),
 	}),
-	execute: async ({ query, count }) => {
+	execute: async ({ query, count }, signal) => {
 		const configuration = getRagConfiguration();
 		if (configuration.enabled !== true) throw new Error('Knowledge Base is disabled.');
-		const results = await searchRag(query, configuration.indexName, count);
+		const results = await searchRag(query, configuration.indexName, count, { signal });
 		return JSON.stringify({ query, results }, null, 2);
 	},
 });

@@ -6,7 +6,12 @@ import type { WikiSource } from './wiki_types';
 const MAX_CONTEXT_PAGES = 8;
 const MAX_CONTEXT_CHARACTERS = 60_000;
 
-export async function buildWikiContext(targetPath: string, source: WikiSource): Promise<string> {
+export async function buildWikiContext(
+	targetPath: string,
+	source: WikiSource,
+	signal?: AbortSignal
+): Promise<string> {
+	signal?.throwIfAborted();
 	const sourceTerms = new Set(
 		source.content
 			.toLowerCase()
@@ -17,9 +22,13 @@ export async function buildWikiContext(targetPath: string, source: WikiSource): 
 	const pages: Array<{ path: string; content: string; score: number }> = [];
 
 	for (const entry of entries) {
+		signal?.throwIfAborted();
 		if (path.extname(entry).toLowerCase() !== '.md') continue;
 		if (['index.md', 'log.md', 'AGENTS.md'].includes(entry)) continue;
-		const content = await readFile(path.resolve(targetPath, entry), 'utf8');
+		const content = await readFile(path.resolve(targetPath, entry), {
+			encoding: 'utf8',
+			signal,
+		});
 		const parsed = matter(content);
 		const pageTerms =
 			`${String(parsed.data.title ?? '')} ${String(parsed.data.summary ?? '')} ${parsed.content.slice(0, 20_000)}`
@@ -29,7 +38,11 @@ export async function buildWikiContext(targetPath: string, source: WikiSource): 
 		pages.push({ path: entry.split(path.sep).join('/'), content, score });
 	}
 
-	const index = await readFile(path.resolve(targetPath, 'index.md'), 'utf8').catch(() => '');
+	const index = await readFile(path.resolve(targetPath, 'index.md'), {
+		encoding: 'utf8',
+		signal,
+	}).catch(() => '');
+	signal?.throwIfAborted();
 	const selected = pages
 		.sort((left, right) => right.score - left.score || left.path.localeCompare(right.path))
 		.slice(0, MAX_CONTEXT_PAGES)

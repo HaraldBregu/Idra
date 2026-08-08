@@ -10,6 +10,6 @@ export const wikiQueryTool = tool({
 		query: z.string().trim().min(1),
 		includeRaw: z.boolean().optional(),
 	}),
-	execute: async ({ query, includeRaw }) =>
-		JSON.stringify(await buildWikiAnswerContext(query, includeRaw), null, 2),
+	execute: async ({ query, includeRaw }, signal) =>
+		JSON.stringify(await buildWikiAnswerContext(query, includeRaw, undefined, signal), null, 2),
 });

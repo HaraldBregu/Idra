@@ -10,10 +10,12 @@ import { assertWikiSourceSafe } from './wiki_source_safety';
 export async function registerWikiSource(
 	source: WikiSource,
 	operationId: string,
-	repository: WikiRepository = getWikiRepository(getWikiSettings().targetPath)
+	repository: WikiRepository = getWikiRepository(getWikiSettings().targetPath),
+	signal?: AbortSignal
 ): Promise<WikiRegisteredSource> {
+	signal?.throwIfAborted();
 	const evidenceRoot = repository.paths.evidence;
-	const bytes = await readFile(source.absolutePath);
+	const bytes = await readFile(source.absolutePath, { signal });
 	if (bytes.length > MAX_WIKI_SOURCE_BYTES) {
 		throw new Error(
 			`Refusing to ingest oversized source (${bytes.length} bytes; maximum ${MAX_WIKI_SOURCE_BYTES}): ${source.relativePath}`
@@ -53,10 +55,11 @@ export async function registerWikiSource(
 	const archiveDirectory = path.resolve(evidenceRoot, sourceId);
 	const archivePath = path.resolve(archiveDirectory, originalName || 'source.txt');
 	await mkdir(archiveDirectory, { recursive: true });
-	await writeFile(archivePath, bytes, { flag: 'wx' }).catch(
+	signal?.throwIfAborted();
+	await writeFile(archivePath, bytes, { flag: 'wx', signal }).catch(
 		async (error: NodeJS.ErrnoException) => {
 			if (error.code !== 'EEXIST') throw error;
-			const archived = await readFile(archivePath);
+			const archived = await readFile(archivePath, { signal });
 			if (createHash('sha256').update(archived).digest('hex') !== checksum) {
 				throw new Error(`Immutable source archive checksum mismatch: ${sourceId}`);
 			}

@@ -7,22 +7,30 @@ import type { WikiSearchResult } from './wiki_types';
 export async function searchWiki(
 	query: string,
 	count = 5,
-	targetPath = getWikiSettings().targetPath
+	targetPath = getWikiSettings().targetPath,
+	signal?: AbortSignal
 ): Promise<WikiSearchResult[]> {
+	signal?.throwIfAborted();
 	const normalizedQuery = query.trim().toLowerCase();
 	if (!normalizedQuery) throw new Error('Wiki search query is required.');
 	const limit = Math.max(1, Math.min(20, Math.trunc(count)));
 	const terms = [...new Set(normalizedQuery.match(/[\p{L}\p{N}][\p{L}\p{N}-]{1,}/gu) ?? [])];
-	const index = await readFile(path.resolve(targetPath, 'index.md'), 'utf8').catch(() => '');
+	const index = await readFile(path.resolve(targetPath, 'index.md'), {
+		encoding: 'utf8',
+		signal,
+	}).catch(() => '');
 	const indexLines = index.toLowerCase().split('\n');
 	const entries = await readdir(targetPath, { recursive: true }).catch(() => []);
 	const pages: Array<WikiSearchResult & { aliases: string[]; links: string[]; score: number }> = [];
 
 	for (const entry of entries) {
+		signal?.throwIfAborted();
 		const relativePath = entry.split(path.sep).join('/');
 		if (path.posix.extname(relativePath).toLowerCase() !== '.md') continue;
 		if (['index.md', 'log.md', 'AGENTS.md'].includes(relativePath)) continue;
-		const parsed = matter(await readFile(path.resolve(targetPath, entry), 'utf8'));
+		const parsed = matter(
+			await readFile(path.resolve(targetPath, entry), { encoding: 'utf8', signal })
+		);
 		const title = String(parsed.data.title ?? path.posix.basename(relativePath, '.md')).trim();
 		const summary = String(parsed.data.summary ?? '').trim();
 		const aliases = Array.isArray(parsed.data.aliases) ? parsed.data.aliases.map(String) : [];

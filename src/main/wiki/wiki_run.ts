@@ -17,9 +17,14 @@ import { transactWiki } from './wiki_transaction';
 import type { WikiOperationRecord } from './wiki_types';
 import { incrementWikiMetric } from './wiki_metrics';
 
-export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
+export async function runWiki(
+	relativePath?: string,
+	signal?: AbortSignal
+): Promise<WikiRunResult> {
 	if (wikiRuntime.run) return wikiRuntime.run;
+	signal?.throwIfAborted();
 	const controller = new AbortController();
+	const runSignal = signal ? AbortSignal.any([controller.signal, signal]) : controller.signal;
 	const runStartedAt = new Date().toISOString();
 	wikiRuntime.controller = controller;
 
@@ -42,7 +47,8 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 		const repository = getWikiRepository(settings.targetPath);
 		const paths = repository.paths;
 		await ensureWikiSchema(settings.targetPath, paths.config, false);
-		const discoveredSources = await collectWikiSources(settings.sourcePath);
+		runSignal.throwIfAborted();
+		const discoveredSources = await collectWikiSources(settings.sourcePath, runSignal);
 		const selectedPath = relativePath?.trim().replaceAll('\\', '/').replace(/^\.\//, '');
 		const sources = selectedPath
 			? discoveredSources.filter((source) => source.relativePath === selectedPath)
@@ -66,7 +72,7 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 		let pendingReviews = 0;
 
 		for (const [sourceIndex, discovered] of sources.entries()) {
-			controller.signal.throwIfAborted();
+			runSignal.throwIfAborted();
 			wikiRuntime.progress = {
 				phase: 'preparing',
 				currentSource: sourceIndex + 1,
@@ -75,7 +81,12 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 				startedAt: runStartedAt,
 			};
 			const operationId = `operation-ingest-${discovered.hash.slice(0, 16)}`;
-			const registered = await registerWikiSource(discovered, operationId, repository);
+			const registered = await registerWikiSource(
+				discovered,
+				operationId,
+				repository,
+				runSignal
+			);
 			const source = registered.source;
 			if (!registered.isNew && registered.record.status === 'integrated') {
 				state.sources[source.relativePath] = source.hash;
@@ -115,26 +126,33 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 			};
 
 			try {
-				const context = await buildWikiContext(settings.targetPath, source);
+				runSignal.throwIfAborted();
+				const context = await buildWikiContext(settings.targetPath, source, runSignal);
 				operation = { ...operation, status: 'executing', updatedAt: new Date().toISOString() };
 				repository.operations.store = {
 					...repository.operations.store,
 					operations: { ...repository.operations.store.operations, [operationId]: operation },
 				};
 				wikiRuntime.progress = { ...wikiRuntime.progress, phase: 'generating' };
-				const update = await generateWikiUpdate(settings, source, context, controller.signal);
+				const update = await generateWikiUpdate(settings, source, context, runSignal);
+				runSignal.throwIfAborted();
 				wikiRuntime.progress = { ...wikiRuntime.progress, phase: 'writing' };
 				const applied = await transactWiki({
 					targetPath: settings.targetPath,
 					operationId,
 					repository,
+					signal: runSignal,
 					apply: async (stagedPath) => {
+						runSignal.throwIfAborted();
 						await ensureWikiSchema(stagedPath, paths.config);
+						runSignal.throwIfAborted();
 						const result = await applyWikiUpdate(stagedPath, source, update, {
 							operationId,
 							requireReviewForMajorChanges: settings.requireReviewForMajorChanges,
 						});
+						runSignal.throwIfAborted();
 						await rebuildWikiIndex(stagedPath);
+						runSignal.throwIfAborted();
 						await appendWikiLog(stagedPath, source, result, operationId);
 						return result;
 					},
@@ -221,7 +239,9 @@ export async function runWiki(relativePath?: string): Promise<WikiRunResult> {
 			}
 		}
 
+		runSignal.throwIfAborted();
 		if (processedSources === 0) await rebuildWikiIndex(settings.targetPath);
+		runSignal.throwIfAborted();
 		const result: WikiRunResult = {
 			processedSources,
 			skippedSources,

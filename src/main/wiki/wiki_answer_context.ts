@@ -10,14 +10,19 @@ import { incrementWikiMetric } from './wiki_metrics';
 export async function buildWikiAnswerContext(
 	query: string,
 	includeRaw = false,
-	targetPath = getWikiSettings().targetPath
+	targetPath = getWikiSettings().targetPath,
+	signal?: AbortSignal
 ): Promise<WikiAnswerContext> {
+	signal?.throwIfAborted();
 	const repository = getWikiRepository(targetPath);
 	incrementWikiMetric('wiki_queries_total');
-	const compiledWiki = await searchWiki(query, 5, targetPath);
+	const compiledWiki = await searchWiki(query, 5, targetPath, signal);
 	const contradictions: WikiContradiction[] = [];
 	for (const page of compiledWiki) {
-		const parsed = matter(await readFile(path.resolve(targetPath, page.path), 'utf8'));
+		signal?.throwIfAborted();
+		const parsed = matter(
+			await readFile(path.resolve(targetPath, page.path), { encoding: 'utf8', signal })
+		);
 		if (Array.isArray(parsed.data.contradictions)) {
 			for (const contradiction of parsed.data.contradictions as WikiContradiction[]) {
 				if (!contradictions.some((item) => item.id === contradiction.id))
@@ -39,9 +44,13 @@ export async function buildWikiAnswerContext(
 		].slice(0, 4);
 		const term = query.toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}-]{2,}/u)?.[0] ?? '';
 		for (const sourceId of sourceIds) {
+			signal?.throwIfAborted();
 			const record = repository.sources.store.sources[sourceId];
 			if (!record || record.status !== 'integrated') continue;
-			const content = await readFile(record.archivePath, 'utf8').catch(() => '');
+			const content = await readFile(record.archivePath, { encoding: 'utf8', signal }).catch(
+				() => ''
+			);
+			signal?.throwIfAborted();
 			if (!content) continue;
 			const match = term ? content.toLowerCase().indexOf(term) : -1;
 			const start = Math.max(0, match < 0 ? 0 : match - 500);

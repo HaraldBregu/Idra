@@ -7,12 +7,14 @@ import { MAX_WIKI_SOURCE_BYTES } from './wiki_source_limits';
 
 const WIKI_SOURCE_EXTENSIONS = new Set(['.txt', '.md', '.markdown', '.json', '.csv', '.log']);
 
-export async function collectWikiSources(root: string): Promise<WikiSource[]> {
+export async function collectWikiSources(root: string, signal?: AbortSignal): Promise<WikiSource[]> {
+	signal?.throwIfAborted();
 	const sourceRoot = await realpath(root);
 	const entries = await readdir(sourceRoot, { recursive: true });
 	const sources: WikiSource[] = [];
 
 	for (const entry of entries.sort()) {
+		signal?.throwIfAborted();
 		const candidatePath = path.resolve(sourceRoot, entry);
 		const candidateStat = await lstat(candidatePath);
 		const absolutePath = await realpath(candidatePath);
@@ -32,7 +34,7 @@ export async function collectWikiSources(root: string): Promise<WikiSource[]> {
 		const sourceStat = candidateStat.isSymbolicLink() ? await stat(absolutePath) : candidateStat;
 		if (!sourceStat.isFile()) continue;
 		if (!WIKI_SOURCE_EXTENSIONS.has(path.extname(entry).toLowerCase())) continue;
-		const bytes = await readFile(absolutePath);
+		const bytes = await readFile(absolutePath, { signal });
 		if (bytes.length > MAX_WIKI_SOURCE_BYTES) {
 			throw new Error(
 				`Refusing to ingest oversized source (${bytes.length} bytes; maximum ${MAX_WIKI_SOURCE_BYTES}): ${entry}`
