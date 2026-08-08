@@ -1,5 +1,4 @@
 import { BrowserWindow, desktopCapturer, net, protocol, session } from 'electron';
-import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { resolveWorkspaceFile } from './ipc/workspace';
 import { agentLocation } from './shared/agent_location';
