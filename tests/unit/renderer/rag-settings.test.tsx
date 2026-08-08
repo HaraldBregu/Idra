@@ -138,7 +138,8 @@ it('enables the Knowledge Base from its settings page', async () => {
 
 	const toggle = await screen.findByRole('switch', { name: 'Enable Knowledge Base' });
 	expect(toggle).not.toBeChecked();
-	await user.click(toggle);
+	toggle.focus();
+	await user.keyboard(' ');
 	await waitFor(() =>
 		expect(agentApi.ragSaveConfiguration).toHaveBeenCalledWith(
 			expect.objectContaining({ enabled: true })
