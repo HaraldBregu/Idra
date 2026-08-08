@@ -188,6 +188,7 @@ describe('local MCP registry', () => {
 				type: 'stdio',
 				command: 'node',
 				args: ['--experimental-strip-types', 'src/index.ts'],
+				env: { GMAIL_SMTP_HOST: 'smtp.gmail.com' },
 			}, localRoot);
 
 			const installed = path.join(localRoot, 'gmail-smtp');
