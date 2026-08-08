@@ -87,7 +87,7 @@ it('confirms before deleting an extension', async () => {
 	await user.click(within(dialog).getByRole('button', { name: 'common.delete' }));
 
 	await waitFor(() => expect(window.extensions.delete).toHaveBeenCalledWith('demo-extension'));
-	expect(screen.queryByText('Demo Extension')).not.toBeInTheDocument();
+	await waitFor(() => expect(screen.queryByText('Demo Extension')).not.toBeInTheDocument());
 	expect(screen.queryByText('Extension detail')).not.toBeInTheDocument();
 });
 
