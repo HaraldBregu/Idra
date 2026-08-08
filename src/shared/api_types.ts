@@ -204,6 +204,7 @@ export interface DatabaseApi {
 export interface ExtensionsApi {
 	list: () => Promise<Extension[]>;
 	open: (extensionId: string) => Promise<void>;
+	openFolder: () => Promise<void>;
 	import: () => Promise<ExtensionImportResult | undefined>;
 }
 

@@ -1,7 +1,9 @@
-import { BrowserWindow, dialog } from 'electron';
+import { BrowserWindow, dialog, shell } from 'electron';
+import { mkdir } from 'node:fs/promises';
 import type { EventBus } from '../event_bus';
 import type { WindowFactory } from '../window_factory';
 import { importExtensions, listExtensions, loadExtension } from '../extensions/extension_index';
+import { extensionsRoot } from '../extensions/extension_root';
 import { ExtensionChannels } from '../../shared/ipc_channels_definitions';
 import type { ExtensionImportResult } from '../../shared/extension_types';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
@@ -20,6 +22,12 @@ export class ExtensionsIpc implements IpcModule<ExtensionsIpcDeps> {
 			const extension = listExtensions().find((item) => item.id === extensionId);
 			if (!extension) throw new Error(`Extension not found: ${extensionId}`);
 			loadExtension(windowFactory, extension);
+		});
+		registerCommand(ExtensionChannels.openFolder, async () => {
+			const root = extensionsRoot();
+			await mkdir(root, { recursive: true });
+			const error = await shell.openPath(root);
+			if (error) throw new Error(error);
 		});
 		registerCommandWithEvent(
 			ExtensionChannels.import,

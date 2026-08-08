@@ -1183,6 +1183,7 @@
 		"extensions": {
 			"title": "Extension installati",
 			"description": "App extension esterne che si aprono in una finestra dedicata e possono usare le API dell'app.",
+			"openFolder": "Apri Cartella",
 			"refresh": "Aggiorna",
 			"upload": "Carica Extension",
 			"uploading": "Caricamento...",

@@ -1184,6 +1184,7 @@
 		"extensions": {
 			"title": "Installed extensions",
 			"description": "External extension apps that open in their own window and can call the app API.",
+			"openFolder": "Open Folder",
 			"refresh": "Refresh",
 			"upload": "Upload Extension",
 			"uploading": "Uploading...",

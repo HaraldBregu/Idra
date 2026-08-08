@@ -31,6 +31,7 @@ beforeEach(() => {
 		value: {
 			list: jest.fn().mockResolvedValue(extensions),
 			open: jest.fn(),
+			openFolder: jest.fn(),
 			import: jest.fn(),
 		},
 	});
@@ -47,6 +48,24 @@ beforeEach(() => {
 			dispatchEvent: jest.fn(),
 		})),
 	});
+});
+
+it('opens the extensions folder from the page header', async () => {
+	const user = userEvent.setup();
+
+	render(
+		<MemoryRouter initialEntries={['/settings/extensions']}>
+			<Routes>
+				<Route path="/settings" element={<Layout />}>
+					<Route path="extensions" element={<ExtensionsPage />} />
+				</Route>
+			</Routes>
+		</MemoryRouter>
+	);
+
+	await user.click(screen.getByRole('button', { name: 'settings.extensions.openFolder' }));
+
+	expect(window.extensions.openFolder).toHaveBeenCalledTimes(1);
 });
 
 it('navigates extension clicks to the extension detail subroute', async () => {

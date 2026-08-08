@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Blocks, ChevronRight, RefreshCw, Upload } from 'lucide-react';
+import { AlertTriangle, Blocks, ChevronRight, FolderOpen, RefreshCw, Upload } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
@@ -82,6 +82,10 @@ const ExtensionsPage: React.FC = () => {
 				description={t('settings.extensions.description')}
 				action={
 					<div className="flex flex-wrap items-center gap-2">
+						<Button variant="outline" size="xs" onClick={() => void window.extensions.openFolder()}>
+							<FolderOpen className="size-3" />
+							{t('settings.extensions.openFolder')}
+						</Button>
 						<Button
 							variant="outline"
 							size="xs"
