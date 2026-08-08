@@ -83,10 +83,12 @@ describe('session persistence', () => {
 		const stored = fs.readFileSync(messagesFilePath(state), 'utf8');
 		expect(stored).not.toContain(base64);
 		expect(stored).toContain('"attachment"');
-		expect(fs.readdirSync(path.join(path.dirname(messagesFilePath(state)), 'attachments'))).toHaveLength(
-			1
+		expect(
+			fs.readdirSync(path.join(path.dirname(messagesFilePath(state)), 'attachments'))
+		).toHaveLength(1);
+		expect(loadMessagesBySessionId(SESSION_ID, location)[0].content).toEqual(
+			state.messages[0].content
 		);
-		expect(loadMessagesBySessionId(SESSION_ID, location)[0].content).toEqual(state.messages[0].content);
 	});
 
 	it('writes only semantic run events and skips raw deltas', () => {

@@ -1,4 +1,8 @@
-import type { AgentInputFile, AgentOrigin, ModelReasoningEffort } from '../../../shared/agent_types';
+import type {
+	AgentInputFile,
+	AgentOrigin,
+	ModelReasoningEffort,
+} from '../../../shared/agent_types';
 import type { AgentContext } from '../context';
 import type { Message, MessageContentBlock, ToolCall } from '../types';
 

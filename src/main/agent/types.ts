@@ -1,10 +1,6 @@
 import type { z } from 'zod';
 import type { LlmEvent } from '../models/adapters/llm';
-import type {
-	AgentOrigin,
-	AgentToolEffect,
-	AgentToolRisk,
-} from '../../shared/agent_types';
+import type { AgentOrigin, AgentToolEffect, AgentToolRisk } from '../../shared/agent_types';
 
 export interface Config {
 	location: string;
@@ -181,11 +177,11 @@ export type RuntimeEvent =
 			risk: AgentToolRisk;
 			effect: AgentToolEffect;
 			targets: string[];
-				hardApproval: boolean;
-				expiresAt: string;
-				origin: AgentOrigin;
-				inputFingerprint: string;
-		  }
+			hardApproval: boolean;
+			expiresAt: string;
+			origin: AgentOrigin;
+			inputFingerprint: string;
+	  }
 	| {
 			type: 'tool_call_end';
 			toolCallId: string;

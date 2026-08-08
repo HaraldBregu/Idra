@@ -86,7 +86,7 @@ function sessionSummary(s: ProcessSession) {
 function paginateLines(
 	text: string,
 	offset: number,
-	lines: number,
+	lines: number
 ): { content: string; nextOffset: number; hasMore: boolean } {
 	const all = text.split('\n');
 	const slice = all.slice(offset, offset + lines);
@@ -137,11 +137,28 @@ async function pollUntil(
 
 const processInputSchema = z.object({
 	action: z
-		.enum(['list', 'poll', 'log', 'write', 'send-keys', 'submit', 'paste', 'kill', 'clear', 'remove'])
+		.enum([
+			'list',
+			'poll',
+			'log',
+			'write',
+			'send-keys',
+			'submit',
+			'paste',
+			'kill',
+			'clear',
+			'remove',
+		])
 		.describe('list|poll|log|write|send-keys|submit|paste|kill|clear|remove'),
 	sessionId: z.string().optional().describe('Target session (required for all except list).'),
-	timeout: z.number().optional().describe('poll: wait up to N ms for new output or exit (max 30000).'),
-	offset: z.number().optional().describe('log: start from this line number (0-based, for pagination).'),
+	timeout: z
+		.number()
+		.optional()
+		.describe('poll: wait up to N ms for new output or exit (max 30000).'),
+	offset: z
+		.number()
+		.optional()
+		.describe('log: start from this line number (0-based, for pagination).'),
 	lines: z.number().optional().describe('log: number of lines to return (default 200).'),
 	text: z.string().optional().describe('write/paste: text to send to stdin.'),
 	bytes: z
@@ -200,7 +217,8 @@ async function runProcess(
 		}
 
 		case 'send-keys': {
-			if (!session.child.stdin) throw new Error('process send-keys: session stdin is not available.');
+			if (!session.child.stdin)
+				throw new Error('process send-keys: session stdin is not available.');
 			const bytes = input.bytes;
 			const literal = input.literal;
 			if (bytes !== undefined) {

@@ -82,22 +82,25 @@ beforeEach(() => {
 it.each([
 	['clearMessages', clearMessages],
 	['deleteSession', deleteSession],
-] as const)('resolves a legacy alias before scheduling and %s cancels that UUID run first', async (method, mutate) => {
-	const agent = new Agent();
-	const running = started();
-	const send = agent.send('health check', 'health', {
-		category: 'health',
-		sessionId: 'health',
-	});
-	await running;
-	const mutation = agent[method]('health');
-	await Promise.all([send, mutation]);
+] as const)(
+	'resolves a legacy alias before scheduling and %s cancels that UUID run first',
+	async (method, mutate) => {
+		const agent = new Agent();
+		const running = started();
+		const send = agent.send('health check', 'health', {
+			category: 'health',
+			sessionId: 'health',
+		});
+		await running;
+		const mutation = agent[method]('health');
+		await Promise.all([send, mutation]);
 
-	expect(resolveSessionId).toHaveBeenCalledWith('health', expect.any(String), 'health');
-	expect(init.mock.calls[0][2]).toMatchObject({
-		sessionId: SESSION_ID,
-		legacySessionId: 'health',
-	});
-	expect(resolveStoredSessionId).toHaveBeenCalledWith('health', expect.any(String));
-	expect(mutate).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), SESSION_ID);
-});
+		expect(resolveSessionId).toHaveBeenCalledWith('health', expect.any(String), 'health');
+		expect(init.mock.calls[0][2]).toMatchObject({
+			sessionId: SESSION_ID,
+			legacySessionId: 'health',
+		});
+		expect(resolveStoredSessionId).toHaveBeenCalledWith('health', expect.any(String));
+		expect(mutate).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), SESSION_ID);
+	}
+);

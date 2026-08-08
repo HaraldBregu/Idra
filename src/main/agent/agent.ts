@@ -156,7 +156,8 @@ export class Agent {
 				message: resolveSkillCommand(view.message),
 				origin,
 				contextMode:
-					options.contextMode ?? (options.lightContext === true || origin !== 'main' ? 'minimal' : 'workspace'),
+					options.contextMode ??
+					(options.lightContext === true || origin !== 'main' ? 'minimal' : 'workspace'),
 				...(options.effort ? { effort: options.effort } : {}),
 				...(options.toolsAllow ? { toolsAllow: options.toolsAllow } : {}),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
@@ -164,7 +165,7 @@ export class Agent {
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.legacySessionId ? { legacySessionId: options.legacySessionId } : {}),
 				...(options.providerId ? { providerId: options.providerId } : {}),
-				...(options.model ?? options.modelId ? { model: options.model ?? options.modelId } : {}),
+				...((options.model ?? options.modelId) ? { model: options.model ?? options.modelId } : {}),
 				...(options.approvalWindowId === undefined
 					? {}
 					: { approvalWindowId: options.approvalWindowId }),
@@ -251,7 +252,8 @@ export class Agent {
 	}
 
 	runningSkill(): string | undefined {
-		return [...this.activeSessions.values()].find((session) => session.context.skill)?.context.skill;
+		return [...this.activeSessions.values()].find((session) => session.context.skill)?.context
+			.skill;
 	}
 
 	private async cancelSession(sessionId: string): Promise<void> {
@@ -450,10 +452,10 @@ function runtimeEventToAgentEvents(
 				risk: event.risk,
 				effect: event.effect,
 				targets: event.targets,
-					hardApproval: event.hardApproval,
-					expiresAt: event.expiresAt,
-					origin: event.origin,
-					inputFingerprint: event.inputFingerprint,
+				hardApproval: event.hardApproval,
+				expiresAt: event.expiresAt,
+				origin: event.origin,
+				inputFingerprint: event.inputFingerprint,
 				agentId,
 				runId,
 			},

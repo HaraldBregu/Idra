@@ -134,8 +134,7 @@ async function* loop(
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
-	const permissionMode: AgentPermissionMode =
-		origin === 'main' ? getPermissionMode() : 'ask';
+	const permissionMode: AgentPermissionMode = origin === 'main' ? getPermissionMode() : 'ask';
 	let tools: Tool[] = options.tools
 		? [...options.tools]
 		: [
@@ -222,7 +221,8 @@ async function* loop(
 				origin === 'main' && contextMode === 'workspace' && session.context.basePrompt === undefined
 					? await buildWorkspaceContext(config)
 					: '';
-			const skillContext = origin === 'main' && contextMode === 'workspace' ? buildSkillContext() : '';
+			const skillContext =
+				origin === 'main' && contextMode === 'workspace' ? buildSkillContext() : '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
 			if (runtimeContext) session.context.toolsContext.hasPrivateContext = true;
 			const messages = session.messages;
@@ -272,9 +272,8 @@ async function* loop(
 			paidToolCalls += requestedPaidCalls;
 			const requestedBotWebCalls =
 				origin === 'bot'
-					? turn.toolCalls.filter(
-							(call) => call.name === 'web_search' || call.name === 'web_fetch'
-						).length
+					? turn.toolCalls.filter((call) => call.name === 'web_search' || call.name === 'web_fetch')
+							.length
 					: 0;
 			if (botWebToolCalls + requestedBotWebCalls > MAX_BOT_WEB_TOOL_CALLS) {
 				session.stopReason = 'budget_exhausted';
@@ -297,15 +296,13 @@ async function* loop(
 				interactive,
 				signal,
 				session.context.toolsContext,
-					permissionMode,
-					{
-						runId,
-						origin,
-						...(input.approvalWindowId === undefined
-							? {}
-							: { windowId: input.approvalWindowId }),
-					}
-				)) {
+				permissionMode,
+				{
+					runId,
+					origin,
+					...(input.approvalWindowId === undefined ? {} : { windowId: input.approvalWindowId }),
+				}
+			)) {
 				yield event;
 				if (event.type !== 'tool_call_end') continue;
 				toolOutputBytes += Buffer.byteLength(formatToolOutput(event.output), 'utf8');
@@ -322,7 +319,7 @@ async function* loop(
 							trust?: unknown;
 							hash?: unknown;
 							allowedTools?: unknown;
-						}
+					  }
 					| undefined;
 				const skill = output?.skill;
 				if (typeof skill !== 'string') continue;

@@ -111,7 +111,8 @@ describe('run stream system prompt', () => {
 			},
 			new AbortController().signal,
 			{ tools: [webTool], interactive: false }
-		)) botEvents.push(event);
+		))
+			botEvents.push(event);
 		expect(search).not.toHaveBeenCalled();
 		expect(botEvents.at(-1)).toMatchObject({
 			type: 'run_finished',
@@ -136,7 +137,8 @@ describe('run stream system prompt', () => {
 			},
 			new AbortController().signal,
 			{ tools: [webTool], interactive: false }
-		)) void event;
+		))
+			void event;
 		expect(search).toHaveBeenCalledTimes(9);
 	});
 
@@ -160,7 +162,8 @@ describe('run stream system prompt', () => {
 			},
 			controller.signal,
 			{ tools: [] }
-		)) events.push(event);
+		))
+			events.push(event);
 
 		expect(events.filter((event) => event.type === 'run_finished')).toHaveLength(1);
 		expect(events.at(-1)).toMatchObject({
@@ -191,7 +194,8 @@ describe('run stream system prompt', () => {
 				},
 				new AbortController().signal,
 				{ tools: [] }
-			)) events.push(event);
+			))
+				events.push(event);
 		}).rejects.toThrow('provider failed');
 
 		expect(events.filter((event) => event.type === 'run_finished')).toHaveLength(1);
@@ -222,7 +226,8 @@ describe('run stream system prompt', () => {
 			},
 			new AbortController().signal,
 			{ tools: [] }
-		)) events.push(event);
+		))
+			events.push(event);
 
 		expect(events.filter((event) => event.type === 'run_finished')).toHaveLength(1);
 		expect(events.at(-1)?.type).toBe('run_finished');
