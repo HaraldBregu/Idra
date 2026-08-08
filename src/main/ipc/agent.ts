@@ -236,10 +236,18 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 				? { contextMode: options.lightContext ? 'minimal' : 'workspace' }
 				: {}),
 		...(Array.isArray(options.toolsAllow)
-			? { toolsAllow: options.toolsAllow.filter((value): value is string => typeof value === 'string') }
+			? {
+					toolsAllow: options.toolsAllow.filter(
+						(value): value is string => typeof value === 'string'
+					),
+				}
 			: {}),
 		...(Array.isArray(options.toolsDeny)
-			? { toolsDeny: options.toolsDeny.filter((value): value is string => typeof value === 'string') }
+			? {
+					toolsDeny: options.toolsDeny.filter(
+						(value): value is string => typeof value === 'string'
+					),
+				}
 			: {}),
 		...(files ? { files } : {}),
 	};
@@ -349,11 +357,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				const normalizedFilePath = optionalTrimmedString(filePath);
 				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
 				if (typeof content !== 'string') throw new Error('Invalid workspace file content.');
-				await writeWorkspaceMarkdown(
-					workspacePath(agent.config),
-					normalizedFilePath,
-					content
-				);
+				await writeWorkspaceMarkdown(workspacePath(agent.config), normalizedFilePath, content);
 			}, AgentChannels.writeWorkspaceMarkdown)
 		);
 
@@ -401,10 +405,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler(async (directoryPath: unknown): Promise<void> => {
 				const normalizedDirectoryPath = optionalTrimmedString(directoryPath);
 				if (!normalizedDirectoryPath) throw new Error('Invalid workspace folder path.');
-				await deleteWorkspaceDirectory(
-					workspacePath(agent.config),
-					normalizedDirectoryPath
-				);
+				await deleteWorkspaceDirectory(workspacePath(agent.config), normalizedDirectoryPath);
 			}, AgentChannels.deleteWorkspaceDirectory)
 		);
 

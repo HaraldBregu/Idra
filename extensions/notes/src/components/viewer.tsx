@@ -1,160 +1,187 @@
-import { useRef } from "react"
-import { FileQuestion, Music2 } from "lucide-react"
-import type { WorkspaceFileKind } from "@friday/sdk"
+import { useRef } from 'react';
+import { FileQuestion, Music2 } from 'lucide-react';
+import type { WorkspaceFileKind } from '@friday/sdk';
 
-import { CodeMirrorEditor } from "@/components/code-mirror-editor"
-import { MarkdownPreview } from "@/components/markdown"
-import { TabsContent } from "@/components/ui/tabs"
-import { copyImage } from "@/lib/image"
-import { showMediaContextMenu } from "@/lib/media"
-import { showNativeContextMenu } from "@/lib/menu"
+import { CodeMirrorEditor } from '@/components/code-mirror-editor';
+import { MarkdownPreview } from '@/components/markdown';
+import { TabsContent } from '@/components/ui/tabs';
+import { copyImage } from '@/lib/image';
+import { showMediaContextMenu } from '@/lib/media';
+import { showNativeContextMenu } from '@/lib/menu';
 
 interface FileViewerProps {
-  canSave: boolean
-  content: string
-  kind: WorkspaceFileKind
-  markdownMode: "source" | "preview"
-  onChange: (content: string) => void
-  onSave: () => Promise<boolean>
-  path: string
-  url: string
+	canSave: boolean;
+	content: string;
+	kind: WorkspaceFileKind;
+	markdownMode: 'source' | 'preview';
+	onChange: (content: string) => void;
+	onSave: () => Promise<boolean>;
+	path: string;
+	url: string;
 }
 
-export function FileViewer({ canSave, content, kind, markdownMode, onChange, onSave, path, url }: FileViewerProps) {
-  const name = path.split(/[\\/]/).pop() ?? path
-  const mediaRef = useRef<HTMLMediaElement | null>(null)
+export function FileViewer({
+	canSave,
+	content,
+	kind,
+	markdownMode,
+	onChange,
+	onSave,
+	path,
+	url,
+}: FileViewerProps) {
+	const name = path.split(/[\\/]/).pop() ?? path;
+	const mediaRef = useRef<HTMLMediaElement | null>(null);
 
-  if (kind === "markdown") {
-    return (
-      <>
-        <TabsContent value="source" forceMount className="m-0 min-h-full data-[state=inactive]:hidden">
-          <article className="mx-auto flex min-h-full w-full max-w-[920px] flex-col px-5 pb-12 pt-8 sm:px-8 lg:px-12">
-            <CodeMirrorEditor
-              key={path}
-              canSave={canSave}
-              value={content}
-              onChange={onChange}
-              onSave={onSave}
-              className="min-h-[calc(100dvh-8rem)] flex-1"
-            />
-          </article>
-        </TabsContent>
-        <TabsContent value="preview" forceMount className="m-0 min-h-full data-[state=inactive]:hidden">
-          <MarkdownPreview canSave={canSave} content={content} onSave={onSave} path={path} />
-        </TabsContent>
-      </>
-    )
-  }
+	if (kind === 'markdown') {
+		return (
+			<>
+				<TabsContent
+					value="source"
+					forceMount
+					className="m-0 min-h-full data-[state=inactive]:hidden"
+				>
+					<article className="mx-auto flex min-h-full w-full max-w-[920px] flex-col px-5 pb-12 pt-8 sm:px-8 lg:px-12">
+						<CodeMirrorEditor
+							key={path}
+							canSave={canSave}
+							value={content}
+							onChange={onChange}
+							onSave={onSave}
+							className="min-h-[calc(100dvh-8rem)] flex-1"
+						/>
+					</article>
+				</TabsContent>
+				<TabsContent
+					value="preview"
+					forceMount
+					className="m-0 min-h-full data-[state=inactive]:hidden"
+				>
+					<MarkdownPreview canSave={canSave} content={content} onSave={onSave} path={path} />
+				</TabsContent>
+			</>
+		);
+	}
 
-  if (kind === "text") {
-    return (
-      <article className="mx-auto min-h-full w-full max-w-[1000px] px-5 py-8 sm:px-8 lg:px-12">
-        <pre
-          className="whitespace-pre-wrap break-words font-mono text-[13px] leading-6 text-foreground"
-          onContextMenu={(event) => {
-            showNativeContextMenu(
-              event,
-              [
-                { type: "role", role: "copy" },
-                { type: "role", role: "selectAll" },
-                { type: "separator" },
-                { id: "copy-path", label: "Copy Path" },
-              ],
-              { "copy-path": () => navigator.clipboard.writeText(path) },
-            )
-          }}
-        >
-          {content}
-        </pre>
-      </article>
-    )
-  }
+	if (kind === 'text') {
+		return (
+			<article className="mx-auto min-h-full w-full max-w-[1000px] px-5 py-8 sm:px-8 lg:px-12">
+				<pre
+					className="whitespace-pre-wrap break-words font-mono text-[13px] leading-6 text-foreground"
+					onContextMenu={(event) => {
+						showNativeContextMenu(
+							event,
+							[
+								{ type: 'role', role: 'copy' },
+								{ type: 'role', role: 'selectAll' },
+								{ type: 'separator' },
+								{ id: 'copy-path', label: 'Copy Path' },
+							],
+							{ 'copy-path': () => navigator.clipboard.writeText(path) }
+						);
+					}}
+				>
+					{content}
+				</pre>
+			</article>
+		);
+	}
 
-  if (kind === "image") {
-    return (
-      <div
-        className="flex min-h-full items-center justify-center bg-muted/25 p-6 sm:p-10"
-        onContextMenu={(event) => {
-          showNativeContextMenu(
-            event,
-            [
-              { id: "copy-image", label: "Copy Image" },
-              { type: "separator" },
-              { id: "copy-path", label: "Copy Path" },
-            ],
-            {
-              "copy-image": () => copyImage(url),
-              "copy-path": () => navigator.clipboard.writeText(path),
-            },
-          )
-        }}
-      >
-        <img src={url} alt={name} className="max-h-[calc(100dvh-8rem)] max-w-full rounded-md object-contain shadow-sm" />
-      </div>
-    )
-  }
+	if (kind === 'image') {
+		return (
+			<div
+				className="flex min-h-full items-center justify-center bg-muted/25 p-6 sm:p-10"
+				onContextMenu={(event) => {
+					showNativeContextMenu(
+						event,
+						[
+							{ id: 'copy-image', label: 'Copy Image' },
+							{ type: 'separator' },
+							{ id: 'copy-path', label: 'Copy Path' },
+						],
+						{
+							'copy-image': () => copyImage(url),
+							'copy-path': () => navigator.clipboard.writeText(path),
+						}
+					);
+				}}
+			>
+				<img
+					src={url}
+					alt={name}
+					className="max-h-[calc(100dvh-8rem)] max-w-full rounded-md object-contain shadow-sm"
+				/>
+			</div>
+		);
+	}
 
-  if (kind === "audio") {
-    return (
-      <div
-        className="flex min-h-full items-center justify-center px-6 py-10"
-        onContextMenu={(event) => showMediaContextMenu(event, mediaRef.current, path)}
-      >
-        <div className="w-full max-w-xl rounded-lg border bg-card p-5 shadow-sm">
-          <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-muted-foreground">
-              <Music2 className="h-4 w-4" />
-            </div>
-            <p className="min-w-0 flex-1 truncate text-sm font-medium">{name}</p>
-          </div>
-          <audio
-            ref={(element) => {
-              mediaRef.current = element
-            }}
-            src={url}
-            controls
-            preload="metadata"
-            className="w-full"
-          />
-        </div>
-      </div>
-    )
-  }
+	if (kind === 'audio') {
+		return (
+			<div
+				className="flex min-h-full items-center justify-center px-6 py-10"
+				onContextMenu={(event) => showMediaContextMenu(event, mediaRef.current, path)}
+			>
+				<div className="w-full max-w-xl rounded-lg border bg-card p-5 shadow-sm">
+					<div className="mb-5 flex items-center gap-3">
+						<div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-muted-foreground">
+							<Music2 className="h-4 w-4" />
+						</div>
+						<p className="min-w-0 flex-1 truncate text-sm font-medium">{name}</p>
+					</div>
+					<audio
+						ref={(element) => {
+							mediaRef.current = element;
+						}}
+						src={url}
+						controls
+						preload="metadata"
+						className="w-full"
+					/>
+				</div>
+			</div>
+		);
+	}
 
-  if (kind === "video") {
-    return (
-      <div
-        className="flex min-h-full items-center justify-center bg-black/95 p-4 sm:p-8"
-        onContextMenu={(event) => showMediaContextMenu(event, mediaRef.current, path)}
-      >
-        <video
-          ref={(element) => {
-            mediaRef.current = element
-          }}
-          src={url}
-          controls
-          preload="metadata"
-          className="max-h-[calc(100dvh-8rem)] max-w-full"
-        />
-      </div>
-    )
-  }
+	if (kind === 'video') {
+		return (
+			<div
+				className="flex min-h-full items-center justify-center bg-black/95 p-4 sm:p-8"
+				onContextMenu={(event) => showMediaContextMenu(event, mediaRef.current, path)}
+			>
+				<video
+					ref={(element) => {
+						mediaRef.current = element;
+					}}
+					src={url}
+					controls
+					preload="metadata"
+					className="max-h-[calc(100dvh-8rem)] max-w-full"
+				/>
+			</div>
+		);
+	}
 
-  if (kind === "pdf") {
-    return <iframe src={url} title={name} className="h-full min-h-[calc(100dvh-3.5rem)] w-full border-0 bg-white" />
-  }
+	if (kind === 'pdf') {
+		return (
+			<iframe
+				src={url}
+				title={name}
+				className="h-full min-h-[calc(100dvh-3.5rem)] w-full border-0 bg-white"
+			/>
+		);
+	}
 
-  return (
-    <div className="flex min-h-full items-center justify-center px-6 text-center">
-      <div>
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <FileQuestion className="h-5 w-5" />
-        </div>
-        <h2 className="text-sm font-semibold">Preview unavailable</h2>
-        <p className="mx-auto mt-1.5 max-w-72 text-xs leading-5 text-muted-foreground">
-          This file type does not have a safe built-in preview.
-        </p>
-      </div>
-    </div>
-  )
+	return (
+		<div className="flex min-h-full items-center justify-center px-6 text-center">
+			<div>
+				<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+					<FileQuestion className="h-5 w-5" />
+				</div>
+				<h2 className="text-sm font-semibold">Preview unavailable</h2>
+				<p className="mx-auto mt-1.5 max-w-72 text-xs leading-5 text-muted-foreground">
+					This file type does not have a safe built-in preview.
+				</p>
+			</div>
+		</div>
+	);
 }

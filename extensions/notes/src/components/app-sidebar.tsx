@@ -149,7 +149,7 @@ function WorkspaceTreeItem({
 				if (!isDirectory) onSelect(entry);
 			}}
 			onKeyDown={(event) => {
-			if (event.key === 'Backspace' || event.key === 'Delete') {
+				if (event.key === 'Backspace' || event.key === 'Delete') {
 					event.preventDefault();
 					onDeleteRequest(entry);
 				}
@@ -230,9 +230,7 @@ export function AppSidebar({
 	);
 	const regularFiles = useMemo(
 		() =>
-			workspaceFiles.filter(
-				(entry) => entry.type !== 'file' || !agentFilePathSet.has(entry.path)
-			),
+			workspaceFiles.filter((entry) => entry.type !== 'file' || !agentFilePathSet.has(entry.path)),
 		[workspaceFiles]
 	);
 	const workspaceName = useMemo(() => {

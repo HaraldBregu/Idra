@@ -335,10 +335,7 @@ export default function App() {
 			if (target.type === 'directory') await agent.deleteWorkspaceDirectory(targetPath);
 			else await agent.deleteWorkspaceFile(targetPath);
 			setWorkspaceFiles((current) => removeWorkspaceEntry(current, targetPath));
-			if (
-				selectedPathRef.current &&
-				isWorkspacePathWithin(selectedPathRef.current, targetPath)
-			) {
+			if (selectedPathRef.current && isWorkspacePathWithin(selectedPathRef.current, targetPath)) {
 				selectionRequestRef.current += 1;
 				selectedPathRef.current = null;
 				selectedContentRef.current = '';

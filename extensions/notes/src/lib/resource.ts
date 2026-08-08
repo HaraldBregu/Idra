@@ -1,6 +1,10 @@
 export function workspaceResourceUrl(source: string, markdownPath: string): string {
 	const normalizedSource = source.trim().replaceAll('\\', '/');
-	if (!normalizedSource || normalizedSource.startsWith('/') || /^[a-z][a-z\d+.-]*:/i.test(normalizedSource)) {
+	if (
+		!normalizedSource ||
+		normalizedSource.startsWith('/') ||
+		/^[a-z][a-z\d+.-]*:/i.test(normalizedSource)
+	) {
 		return '';
 	}
 

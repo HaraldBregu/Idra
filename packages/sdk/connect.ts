@@ -68,7 +68,8 @@ export function connect(options: ConnectOptions): FridayClient {
 		if (opened) return opened;
 		controller = new AbortController();
 		opened = call(`${base}/events`, { headers, signal: controller.signal }).then((response) => {
-			if (!response.ok || !response.body) throw new Error(`Event stream failed: ${response.status}`);
+			if (!response.ok || !response.body)
+				throw new Error(`Event stream failed: ${response.status}`);
 			void read(response.body).catch(() => undefined);
 		});
 		return opened;
@@ -134,24 +135,37 @@ export function connect(options: ConnectOptions): FridayClient {
 			},
 		}),
 		agent: {
-			getWorkspaceLocation: () =>
-				invoke(AgentChannels.getWorkspaceLocation, []) as Promise<string>,
+			getWorkspaceLocation: () => invoke(AgentChannels.getWorkspaceLocation, []) as Promise<string>,
 			listWorkspaceFiles: () =>
 				invoke(AgentChannels.listWorkspaceFiles, []) as ReturnType<AgentApi['listWorkspaceFiles']>,
 			readWorkspaceFile: (filePath) =>
-				invoke(AgentChannels.readWorkspaceFile, [filePath]) as ReturnType<AgentApi['readWorkspaceFile']>,
+				invoke(AgentChannels.readWorkspaceFile, [filePath]) as ReturnType<
+					AgentApi['readWorkspaceFile']
+				>,
 			readWorkspaceAsset: (filePath) =>
-				invoke(AgentChannels.readWorkspaceAsset, [filePath]) as ReturnType<AgentApi['readWorkspaceAsset']>,
+				invoke(AgentChannels.readWorkspaceAsset, [filePath]) as ReturnType<
+					AgentApi['readWorkspaceAsset']
+				>,
 			writeWorkspaceMarkdown: (filePath, content) =>
-				invoke(AgentChannels.writeWorkspaceMarkdown, [filePath, content]) as ReturnType<AgentApi['writeWorkspaceMarkdown']>,
+				invoke(AgentChannels.writeWorkspaceMarkdown, [filePath, content]) as ReturnType<
+					AgentApi['writeWorkspaceMarkdown']
+				>,
 			createWorkspaceFile: (parentPath, name) =>
-				invoke(AgentChannels.createWorkspaceFile, [parentPath, name]) as ReturnType<AgentApi['createWorkspaceFile']>,
+				invoke(AgentChannels.createWorkspaceFile, [parentPath, name]) as ReturnType<
+					AgentApi['createWorkspaceFile']
+				>,
 			createWorkspaceDirectory: (parentPath, name) =>
-				invoke(AgentChannels.createWorkspaceDirectory, [parentPath, name]) as ReturnType<AgentApi['createWorkspaceDirectory']>,
+				invoke(AgentChannels.createWorkspaceDirectory, [parentPath, name]) as ReturnType<
+					AgentApi['createWorkspaceDirectory']
+				>,
 			deleteWorkspaceFile: (filePath) =>
-				invoke(AgentChannels.deleteWorkspaceFile, [filePath]) as ReturnType<AgentApi['deleteWorkspaceFile']>,
+				invoke(AgentChannels.deleteWorkspaceFile, [filePath]) as ReturnType<
+					AgentApi['deleteWorkspaceFile']
+				>,
 			deleteWorkspaceDirectory: (directoryPath) =>
-				invoke(AgentChannels.deleteWorkspaceDirectory, [directoryPath]) as ReturnType<AgentApi['deleteWorkspaceDirectory']>,
+				invoke(AgentChannels.deleteWorkspaceDirectory, [directoryPath]) as ReturnType<
+					AgentApi['deleteWorkspaceDirectory']
+				>,
 		},
 		ping: async () => {
 			const response = await call(`${base}/health`, { headers });

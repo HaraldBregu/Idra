@@ -38,9 +38,7 @@ export function MarkdownPreview({ canSave, content, onSave, path }: MarkdownPrev
 				components={{
 					a: ({ children }) => <span className="font-medium text-primary">{children}</span>,
 				}}
-				urlTransform={(url, key) =>
-					key === 'src' ? workspaceResourceUrl(url, path) : ''
-				}
+				urlTransform={(url, key) => (key === 'src' ? workspaceResourceUrl(url, path) : '')}
 			>
 				{content}
 			</ReactMarkdown>

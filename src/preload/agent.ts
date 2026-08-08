@@ -149,11 +149,7 @@ export const agent: AgentApi = {
 		const normalizedFilePath = optionalTrimmedString(filePath);
 		if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
 		if (typeof content !== 'string') throw new Error('Invalid workspace file content.');
-		return typedInvokeUnwrap(
-			AgentChannels.writeWorkspaceMarkdown,
-			normalizedFilePath,
-			content
-		);
+		return typedInvokeUnwrap(AgentChannels.writeWorkspaceMarkdown, normalizedFilePath, content);
 	},
 	createWorkspaceFile: (parentPath, name) => {
 		if (typeof parentPath !== 'string') throw new Error('Invalid workspace parent path.');

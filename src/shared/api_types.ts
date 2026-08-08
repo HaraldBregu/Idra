@@ -47,7 +47,12 @@ import type {
 	WorkspaceTreeEntry,
 } from './agent_types';
 import type { CatalogModel, ProviderModel } from './model_types';
-import type { ChannelModelKind, ChannelModelSelection, ChannelStatusEvent, ChannelType } from './channels_types';
+import type {
+	ChannelModelKind,
+	ChannelModelSelection,
+	ChannelStatusEvent,
+	ChannelType,
+} from './channels_types';
 import type { EmbeddingRequest, EmbeddingResult } from './embedding_types';
 import type { ImageRequest, ImageResult } from './image_types';
 import type { SoundFile, SoundRequest, SoundResult } from './sound_types';
@@ -352,7 +357,11 @@ export interface AppApi {
 	mcps: () => Promise<CatalogService[]>;
 	channels: () => Promise<CatalogService[]>;
 	getChannelsModelSelection: (kind: ChannelModelKind) => Promise<ChannelModelSelection>;
-	setChannelsModelSelection: (kind: ChannelModelKind, providerId: string, modelId: string) => Promise<void>;
+	setChannelsModelSelection: (
+		kind: ChannelModelKind,
+		providerId: string,
+		modelId: string
+	) => Promise<void>;
 	/** Fires when resources/providers changes on disk; returns an unsubscribe function. */
 	onModelsChanged: (callback: () => void) => () => void;
 	getPathForFile: (file: File) => string;

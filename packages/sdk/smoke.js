@@ -10,7 +10,11 @@ assert.throws(() => agent.getWorkspaceLocation, /unavailable/);
 assert.throws(() => win.showContextMenu, /unavailable/);
 
 globalThis.app = {
-	getThemeData: async () => ({ themeMode: 'system', isDark: false, colors: { background: '#fff' } }),
+	getThemeData: async () => ({
+		themeMode: 'system',
+		isDark: false,
+		colors: { background: '#fff' },
+	}),
 	getTheme: async () => 'system',
 	setTheme: async () => undefined,
 	getLanguage: async () => 'en',
@@ -24,7 +28,8 @@ globalThis.agent = {
 	readWorkspaceAsset: async () => ({ mimeType: 'image/png', data: new Uint8Array([1, 2, 3]) }),
 	writeWorkspaceMarkdown: async () => undefined,
 	createWorkspaceFile: async (parentPath, name) => [parentPath, name].filter(Boolean).join('/'),
-	createWorkspaceDirectory: async (parentPath, name) => [parentPath, name].filter(Boolean).join('/'),
+	createWorkspaceDirectory: async (parentPath, name) =>
+		[parentPath, name].filter(Boolean).join('/'),
 	deleteWorkspaceFile: async () => undefined,
 	deleteWorkspaceDirectory: async () => undefined,
 };
@@ -39,7 +44,9 @@ assert.deepEqual(await app.getThemeData(), {
 	colors: { background: '#fff' },
 });
 assert.equal(await agent.getWorkspaceLocation(), '/tmp/friday-workspace');
-assert.deepEqual(await agent.listWorkspaceFiles(), [{ name: 'USER.md', path: 'USER.md', type: 'file' }]);
+assert.deepEqual(await agent.listWorkspaceFiles(), [
+	{ name: 'USER.md', path: 'USER.md', type: 'file' },
+]);
 assert.equal(await agent.readWorkspaceFile('USER.md'), 'content:USER.md');
 assert.deepEqual(await agent.readWorkspaceAsset('photo.png'), {
 	mimeType: 'image/png',
@@ -87,7 +94,7 @@ const server = createServer(async (req, res) => {
 							? `content:${args[0]}`
 							: channel === 'agent:workspace:asset:read'
 								? { mimeType: 'image/png', data: { $bytes: 'AQID' } }
-						: (args[0] ?? null),
+								: (args[0] ?? null),
 		})
 	);
 });
@@ -112,18 +119,21 @@ await friday.agent.createWorkspaceDirectory('notes', 'ideas');
 await friday.agent.deleteWorkspaceFile('old.md');
 await friday.agent.deleteWorkspaceDirectory('archive');
 
-assert.deepEqual(calls.map((call) => call.channel), [
-	'app:get-theme-data',
-	'agent:workspace:location:get',
-	'agent:workspace:files:list',
-	'agent:workspace:file:read',
-	'agent:workspace:asset:read',
-	'agent:workspace:markdown:write',
-	'agent:workspace:file:create',
-	'agent:workspace:directory:create',
-	'agent:workspace:file:delete',
-	'agent:workspace:directory:delete',
-]);
+assert.deepEqual(
+	calls.map((call) => call.channel),
+	[
+		'app:get-theme-data',
+		'agent:workspace:location:get',
+		'agent:workspace:files:list',
+		'agent:workspace:file:read',
+		'agent:workspace:asset:read',
+		'agent:workspace:markdown:write',
+		'agent:workspace:file:create',
+		'agent:workspace:directory:create',
+		'agent:workspace:file:delete',
+		'agent:workspace:directory:delete',
+	]
+);
 
 // events reach subscribers over the stream
 const seen = [];
