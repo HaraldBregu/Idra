@@ -101,6 +101,13 @@ export class WindowIpc implements IpcModule<WindowIpcDeps> {
 					let selectedId: string | null = null;
 					const template: MenuItemConstructorOptions[] = items.map((item) => {
 						if (item.type === 'separator') return { type: 'separator' };
+						if (item.type === 'role') {
+							return {
+								role: item.role,
+								label: item.label,
+								enabled: item.enabled ?? true,
+							};
+						}
 						if (!item.id.trim() || !item.label.trim()) {
 							throw new Error('Context menu items require an id and label.');
 						}

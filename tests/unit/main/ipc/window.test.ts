@@ -8,10 +8,12 @@ import { WindowChannels } from '../../../../src/shared/ipc_channels_definitions'
 
 it('shows a native context menu and returns the selected item id', async () => {
 	const fromWebContents = jest.fn(() => ({}));
+	let builtTemplate: MenuItemConstructorOptions[] = [];
 	Object.assign(BrowserWindow, { fromWebContents });
 
 	(Menu.buildFromTemplate as jest.Mock).mockImplementation(
 		(template: MenuItemConstructorOptions[]) => {
+			builtTemplate = template;
 			let close: (() => void) | undefined;
 			return {
 				once: (_event: string, listener: () => void) => {
@@ -37,7 +39,9 @@ it('shows a native context menu and returns the selected item id', async () => {
 		handler({ sender: {} } as IpcMainInvokeEvent, [
 			{ id: 'open', label: 'Open' },
 			{ type: 'separator' },
+			{ type: 'role', role: 'copy' },
 		])
 	).resolves.toEqual({ success: true, data: 'open' });
 	expect(fromWebContents).toHaveBeenCalledTimes(1);
+	expect(builtTemplate[2]).toMatchObject({ role: 'copy', enabled: true });
 });

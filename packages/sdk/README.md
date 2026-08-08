@@ -55,8 +55,9 @@ const content = await agent.readWorkspaceFile('USER.md');
 const image = await agent.readWorkspaceAsset('images/photo.png');
 await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
 const action = await win.showContextMenu([
-	{ id: 'open', label: 'Open' },
+	{ type: 'role', role: 'copy' },
 	{ type: 'separator' },
+	{ id: 'open', label: 'Open' },
 	{ id: 'copy-path', label: 'Copy Path' },
 ]);
 ```

@@ -11,7 +11,7 @@ export {
 	type WorkspaceFileKind,
 	type WorkspaceFileType,
 } from '../../src/shared/workspace';
-export type { ContextMenuDescriptor } from '../../src/shared/window_types';
+export type { ContextMenuDescriptor, ContextMenuRole } from '../../src/shared/window_types';
 
 // Typed lazy views over the host preload globals.
 function bridge<T extends object>(name: string): T {
