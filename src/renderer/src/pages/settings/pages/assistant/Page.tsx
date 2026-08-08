@@ -45,6 +45,13 @@ import type { DataScope } from '../../../../../../shared/data_types';
 import { Button } from '@/components/ui/button';
 
 type CatalogProvider = PublicProvider;
+type DataControlKind =
+	| 'memory'
+	| 'sessions'
+	| 'wiki'
+	| 'local_index'
+	| 'local_namespace'
+	| 'remote_namespace';
 
 function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
 	return providers().find((provider) => provider.id === providerId);
@@ -93,11 +100,7 @@ const AssistantPage: React.FC = () => {
 	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
 	const [searchEngineError, setSearchEngineError] = useState<string | null>(null);
 	const [searchSavingEngineId, setSearchSavingEngineId] = useState<SearchEngineId | null>(null);
-	const [dataScopes, setDataScopes] = useState<{
-		ragIndexName: string;
-		wikiTargetPath: string;
-		sessionIds: string[];
-	} | null>(null);
+	const [dataScopes, setDataScopes] = useState<DataScope[] | null>(null);
 	const [dataAction, setDataAction] = useState<string | null>(null);
 	const [dataError, setDataError] = useState<string | null>(null);
 	const model = modelsFor('llm').find(
@@ -130,18 +133,10 @@ const AssistantPage: React.FC = () => {
 	}, [t]);
 	useEffect(() => {
 		let mounted = true;
-		void Promise.all([
-			window.agent.ragGetConfiguration(),
-			window.wiki.getSettings(),
-			window.agent.listSessions(),
-		]).then(
-			([rag, wiki, sessions]) => {
+		void window.dataControls.listScopes().then(
+			(scopes) => {
 				if (!mounted) return;
-				setDataScopes({
-					ragIndexName: rag.indexName,
-					wikiTargetPath: wiki.targetPath,
-					sessionIds: sessions.map((session) => session.id),
-				});
+				setDataScopes(scopes);
 				setDataError(null);
 			},
 			(error) => {
@@ -230,20 +225,17 @@ const AssistantPage: React.FC = () => {
 		});
 	};
 
-	const dataScope = (kind: 'rag' | 'wiki' | 'memory' | 'sessions'): DataScope | undefined => {
-		if (kind === 'memory') return { kind: 'memory' };
-		if (!dataScopes) return undefined;
-		if (kind === 'rag') {
-			return { kind: 'rag', mode: 'local_index', indexName: dataScopes.ragIndexName };
-		}
-		if (kind === 'wiki') return { kind: 'wiki', targetPath: dataScopes.wikiTargetPath };
-		return dataScopes.sessionIds.length > 0
-			? { kind: 'sessions', sessionIds: dataScopes.sessionIds }
-			: undefined;
+	const dataScope = (kind: DataControlKind): DataScope | undefined => {
+		return dataScopes?.find((scope) => {
+			if (kind === 'memory' || kind === 'sessions' || kind === 'wiki') {
+				return scope.kind === kind;
+			}
+			return scope.kind === 'rag' && scope.mode === kind;
+		});
 	};
 
 	const handleDataAction = async (
-		kind: 'rag' | 'wiki' | 'memory' | 'sessions',
+		kind: DataControlKind,
 		action: 'export' | 'purge'
 	): Promise<void> => {
 		const scope = dataScope(kind);
@@ -263,17 +255,19 @@ const AssistantPage: React.FC = () => {
 		}
 	};
 
-	const dataActions = (kind: 'rag' | 'wiki' | 'memory' | 'sessions') => (
+	const dataActions = (kind: DataControlKind, exportable = true) => (
 		<>
-			<Button
-				variant="outline"
-				size="sm"
-				disabled={!dataScope(kind) || dataAction !== null}
-				onClick={() => void handleDataAction(kind, 'export')}
-			>
-				<Download className="size-3" />
-				{t('settings.dataControls.export')}
-			</Button>
+			{exportable && (
+				<Button
+					variant="outline"
+					size="sm"
+					disabled={!dataScope(kind) || dataAction !== null}
+					onClick={() => void handleDataAction(kind, 'export')}
+				>
+					<Download className="size-3" />
+					{t('settings.dataControls.export')}
+				</Button>
+			)}
 			<Button
 				variant="destructive"
 				size="sm"
@@ -421,14 +415,27 @@ const AssistantPage: React.FC = () => {
 					<SettingsRow
 						title={t('settings.dataControls.sessions')}
 						description={t('settings.dataControls.sessionsDescription', {
-							count: dataScopes?.sessionIds.length ?? 0,
+							count:
+								dataScope('sessions')?.kind === 'sessions'
+									? dataScope('sessions').sessionIds.length
+									: 0,
 						})}
 						actions={dataActions('sessions')}
 					/>
 					<SettingsRow
-						title={t('settings.dataControls.rag')}
-						description={t('settings.dataControls.ragDescription')}
-						actions={dataActions('rag')}
+						title={t('settings.dataControls.ragIndex')}
+						description={t('settings.dataControls.ragIndexDescription')}
+						actions={dataActions('local_index')}
+					/>
+					<SettingsRow
+						title={t('settings.dataControls.ragNamespace')}
+						description={t('settings.dataControls.ragNamespaceDescription')}
+						actions={dataActions('local_namespace')}
+					/>
+					<SettingsRow
+						title={t('settings.dataControls.remoteNamespace')}
+						description={t('settings.dataControls.remoteNamespaceDescription')}
+						actions={dataActions('remote_namespace', false)}
 					/>
 					<SettingsRow
 						title={t('settings.dataControls.wiki')}
