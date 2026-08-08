@@ -2,24 +2,24 @@ const mk = (tag: string) => jest.fn((spec: unknown) => ({ tag, spec }));
 const ttaEleven = mk('tta-eleven');
 const ttvGoogle = mk('ttv-google');
 
-jest.mock('../../../../src/main/app/models_adapters/tta/tta_elevenlabs', () => ({ createElevenLabsMusicAdapter: ttaEleven }));
-jest.mock('../../../../src/main/app/models_adapters/tta/tta_stability', () => ({ createStabilityMusicAdapter: mk('tta-stab') }));
+jest.mock('../../../../src/main/models/adapters/tta/tta_elevenlabs', () => ({ createElevenLabsMusicAdapter: ttaEleven }));
+jest.mock('../../../../src/main/models/adapters/tta/tta_stability', () => ({ createStabilityMusicAdapter: mk('tta-stab') }));
 
-jest.mock('../../../../src/main/app/models_adapters/ttv/ttv_google', () => ({ createGoogleVideoAdapter: ttvGoogle }));
-jest.mock('../../../../src/main/app/models_adapters/ttv/ttv_kling', () => ({ createKlingVideoAdapter: mk('k') }));
-jest.mock('../../../../src/main/app/models_adapters/ttv/ttv_luma', () => ({ createLumaVideoAdapter: mk('l') }));
-jest.mock('../../../../src/main/app/models_adapters/ttv/ttv_minimax', () => ({ createMinimaxVideoAdapter: mk('m') }));
-jest.mock('../../../../src/main/app/models_adapters/ttv/ttv_pika', () => ({ createPikaVideoAdapter: mk('p') }));
-jest.mock('../../../../src/main/app/models_adapters/ttv/ttv_qwen', () => ({ createQwenVideoAdapter: mk('q') }));
-jest.mock('../../../../src/main/app/models_adapters/ttv/ttv_runway', () => ({ createRunwayVideoAdapter: mk('r') }));
-jest.mock('../../../../src/main/app/models_adapters/ttv/ttv_xai', () => ({ createXaiVideoAdapter: mk('x') }));
+jest.mock('../../../../src/main/models/adapters/ttv/ttv_google', () => ({ createGoogleVideoAdapter: ttvGoogle }));
+jest.mock('../../../../src/main/models/adapters/ttv/ttv_kling', () => ({ createKlingVideoAdapter: mk('k') }));
+jest.mock('../../../../src/main/models/adapters/ttv/ttv_luma', () => ({ createLumaVideoAdapter: mk('l') }));
+jest.mock('../../../../src/main/models/adapters/ttv/ttv_minimax', () => ({ createMinimaxVideoAdapter: mk('m') }));
+jest.mock('../../../../src/main/models/adapters/ttv/ttv_pika', () => ({ createPikaVideoAdapter: mk('p') }));
+jest.mock('../../../../src/main/models/adapters/ttv/ttv_qwen', () => ({ createQwenVideoAdapter: mk('q') }));
+jest.mock('../../../../src/main/models/adapters/ttv/ttv_runway', () => ({ createRunwayVideoAdapter: mk('r') }));
+jest.mock('../../../../src/main/models/adapters/ttv/ttv_xai', () => ({ createXaiVideoAdapter: mk('x') }));
 
-import { buildMusicAdapter } from '../../../../src/main/app/models_adapters/tta/tta_factory';
-import { MusicProviderUnsupportedError } from '../../../../src/main/app/models_adapters/tta/tta_errors';
-import type { MusicProviderSpec } from '../../../../src/main/app/models_adapters/tta/tta_types';
-import { buildVideoAdapter } from '../../../../src/main/app/models_adapters/ttv/ttv_factory';
-import { VideoProviderUnsupportedError } from '../../../../src/main/app/models_adapters/ttv/ttv_errors';
-import type { VideoProviderSpec } from '../../../../src/main/app/models_adapters/ttv/ttv_types';
+import { buildMusicAdapter } from '../../../../src/main/models/adapters/tta/tta_factory';
+import { MusicProviderUnsupportedError } from '../../../../src/main/models/adapters/tta/tta_errors';
+import type { MusicProviderSpec } from '../../../../src/main/models/adapters/tta/tta_types';
+import { buildVideoAdapter } from '../../../../src/main/models/adapters/ttv/ttv_factory';
+import { VideoProviderUnsupportedError } from '../../../../src/main/models/adapters/ttv/ttv_errors';
+import type { VideoProviderSpec } from '../../../../src/main/models/adapters/ttv/ttv_types';
 
 describe('buildMusicAdapter', () => {
 	it('dispatches to elevenlabs', () => {
