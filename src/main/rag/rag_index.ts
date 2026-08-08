@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { appendFile, mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Pinecone } from '@pinecone-database/pinecone';
@@ -25,7 +26,9 @@ export async function indexRag(
 	if (sources.length === 0) throw new Error('Choose at least one source folder before indexing.');
 
 	const outputDirectory = ragLocation();
-	const outputFile = path.join(outputDirectory, 'embeddings.json');
+	const activeNamespace = `friday-${randomUUID()}`;
+	const artifactFile = `embeddings-${activeNamespace}.json`;
+	const outputFile = path.join(outputDirectory, artifactFile);
 	const temporaryOutputFile = `${outputFile}.tmp`;
 	const pinecone = ragClient();
 	let index: ReturnType<Pinecone['index']> | undefined;
@@ -42,42 +45,55 @@ export async function indexRag(
 					texts: batch,
 					inputType: 'document',
 					requireRemote: true,
-				});
-				if (!index) {
-					index = await ensureIndex(pinecone, selectedIndexName, embedded.dimensions);
-					writeRagManifest({
-						indexName: selectedIndexName,
-						providerId: embedded.providerId,
-						modelId: embedded.modelId,
-						dimensions: embedded.dimensions,
 					});
-					await mkdir(outputDirectory, { recursive: true });
-					const metadata = JSON.stringify({
-						indexName: selectedIndexName,
-						providerId: embedded.providerId,
+					if (!index) {
+						index = (
+							await ensureIndex(pinecone, selectedIndexName, embedded.dimensions)
+						).namespace(activeNamespace);
+						await mkdir(outputDirectory, { recursive: true });
+						const metadata = JSON.stringify({
+							indexName: selectedIndexName,
+							activeNamespace,
+							providerId: embedded.providerId,
 						modelId: embedded.modelId,
 						dimensions: embedded.dimensions,
 					});
 					await writeFile(temporaryOutputFile, `${metadata.slice(0, -1)},"records":[`, 'utf8');
 				}
-				const records = batch.map((text, offset) => ({
-					id: `${sourceIndex}:${file}#${start + offset}`,
-					values: embedded.embeddings[offset],
-					metadata: { path: path.join(path.basename(source), file), text },
-				}));
-				await index.upsert({ records });
-				await appendFile(
-					temporaryOutputFile,
-					`${vectors > 0 ? ',' : ''}${records.map((record) => JSON.stringify(record)).join(',')}`,
+					const remoteRecords = batch.map((_text, offset) => ({
+						id: `${sourceIndex}:${file}#${start + offset}`,
+						values: embedded.embeddings[offset],
+					}));
+					const localRecords = batch.map((text, offset) => ({
+						...remoteRecords[offset],
+						metadata: { path: path.join(path.basename(source), file), text },
+					}));
+					await index.upsert({ records: remoteRecords });
+					await appendFile(
+						temporaryOutputFile,
+						`${vectors > 0 ? ',' : ''}${localRecords.map((record) => JSON.stringify(record)).join(',')}`,
 					'utf8'
 				);
 				vectors += batch.length;
 			}
 		}
-		if (!index) throw new Error('No indexable text content found in the selected source folders.');
-		await appendFile(temporaryOutputFile, ']}\n', 'utf8');
-		await rename(temporaryOutputFile, outputFile);
-		return { files: indexedFiles, vectors };
+			if (!index) throw new Error('No indexable text content found in the selected source folders.');
+			await appendFile(temporaryOutputFile, ']}\n', 'utf8');
+			await rename(temporaryOutputFile, outputFile);
+			writeRagManifest({
+				indexName: selectedIndexName,
+				activeNamespace,
+				artifactFile,
+				providerId: JSON.parse(await import('node:fs/promises').then(({ readFile }) => readFile(outputFile, 'utf8')))
+					.providerId,
+				modelId: JSON.parse(await import('node:fs/promises').then(({ readFile }) => readFile(outputFile, 'utf8')))
+					.modelId,
+				dimensions: JSON.parse(
+					await import('node:fs/promises').then(({ readFile }) => readFile(outputFile, 'utf8'))
+				).dimensions,
+				completedAt: new Date().toISOString(),
+			});
+			return { files: indexedFiles, vectors };
 	} finally {
 		await rm(temporaryOutputFile, { force: true }).catch(() => undefined);
 	}
@@ -85,9 +101,6 @@ export async function indexRag(
 
 async function ensureIndex(pinecone: Pinecone, indexName: string, dimension: number) {
 	if (dimension === 0) throw new Error('Embedding provider returned no dimensions.');
-	// ponytail: indexing re-embeds every file anyway, so rebuild from scratch — drops vectors of
-	// deleted files and survives a dimension change. Swap for incremental sync if runs get slow.
-	await pinecone.deleteIndex(indexName).catch(() => undefined);
 	await pinecone.createIndex({
 		name: indexName,
 		dimension,

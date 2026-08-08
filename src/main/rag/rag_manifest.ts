@@ -1,12 +1,16 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { userDataLocation } from '../shared/user_data_location';
 
 export interface RagManifest {
-	indexName?: string;
+	indexName: string;
+	activeNamespace: string;
+	artifactFile: string;
 	providerId: string;
 	modelId: string;
 	dimensions: number;
+	completedAt: string;
 }
 
 function manifestPath(): string {
@@ -23,6 +27,12 @@ export function readRagManifest(): RagManifest | undefined {
 
 export function writeRagManifest(manifest: RagManifest): void {
 	const file = manifestPath();
+	const temporaryFile = `${file}.${randomUUID()}.tmp`;
 	mkdirSync(path.dirname(file), { recursive: true });
-	writeFileSync(file, JSON.stringify(manifest), 'utf8');
+	try {
+		writeFileSync(temporaryFile, JSON.stringify(manifest), 'utf8');
+		renameSync(temporaryFile, file);
+	} finally {
+		rmSync(temporaryFile, { force: true });
+	}
 }

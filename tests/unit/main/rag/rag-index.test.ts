@@ -11,10 +11,10 @@ const stat = jest.fn();
 const writeFile = jest.fn();
 const createEmbedding = jest.fn();
 const upsert = jest.fn();
-const index = jest.fn(() => ({ upsert }));
+const namespace = jest.fn(() => ({ upsert }));
+const index = jest.fn(() => ({ namespace }));
 const createIndex = jest.fn();
-const deleteIndex = jest.fn();
-const ragClient = jest.fn(() => ({ createIndex, deleteIndex, index }));
+const ragClient = jest.fn(() => ({ createIndex, index }));
 const writeRagManifest = jest.fn();
 
 jest.mock('node:fs/promises', () => ({
@@ -49,7 +49,6 @@ beforeEach(() => {
 		dimensions: 2,
 		embeddings: [[0.1, 0.2]],
 	});
-	deleteIndex.mockRejectedValue(new Error('missing'));
 	createIndex.mockResolvedValue(undefined);
 	upsert.mockResolvedValue(undefined);
 	appendFile.mockResolvedValue(undefined);
@@ -62,8 +61,10 @@ beforeEach(() => {
 it('saves the completed embedding index directly under the RAG directory', async () => {
 	const result = await indexRag(['/documents'], 'knowledge-base');
 	const directory = path.join('/user/data', 'rag');
-	const outputFile = path.join(directory, 'embeddings.json');
-	const temporaryOutputFile = `${outputFile}.tmp`;
+	const temporaryOutputFile = writeFile.mock.calls[0][0] as string;
+	const outputFile = temporaryOutputFile.slice(0, -4);
+	const activeNamespace = namespace.mock.calls[0][0] as string;
+	const artifactFile = path.basename(outputFile);
 	const initialContent = writeFile.mock.calls[0][1] as string;
 	const appendedContent = appendFile.mock.calls
 		.filter(([file]) => file === temporaryOutputFile)
@@ -74,6 +75,7 @@ it('saves the completed embedding index directly under the RAG directory', async
 		providerId: string;
 		modelId: string;
 		dimensions: number;
+		activeNamespace: string;
 		records: Array<{ id: string; values: number[]; metadata: { path: string; text: string } }>;
 	};
 
@@ -84,6 +86,7 @@ it('saves the completed embedding index directly under the RAG directory', async
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,
+		activeNamespace,
 		records: [
 			{
 				id: '0:guide.md#0',
@@ -93,6 +96,22 @@ it('saves the completed embedding index directly under the RAG directory', async
 		],
 	});
 	expect(rename).toHaveBeenCalledWith(temporaryOutputFile, outputFile);
+	expect(activeNamespace).toMatch(/^friday-[a-f0-9-]+$/);
+	expect(writeRagManifest).toHaveBeenCalledWith({
+		indexName: 'knowledge-base',
+		activeNamespace,
+		artifactFile,
+		providerId: 'openai',
+		modelId: 'text-embedding-3-small',
+		dimensions: 2,
+		completedAt: expect.any(String),
+	});
+	expect(writeRagManifest.mock.invocationCallOrder[0]).toBeGreaterThan(
+		rename.mock.invocationCallOrder[0]
+	);
+	expect(upsert).toHaveBeenCalledWith({
+		records: [{ id: '0:guide.md#0', values: [0.1, 0.2] }],
+	});
 });
 
 it('indexes nested and extensionless text files while skipping binary files', async () => {
@@ -113,17 +132,23 @@ it('indexes nested and extensionless text files while skipping binary files', as
 	expect(records).toEqual([
 		expect.objectContaining({
 			id: '0:README#0',
-			metadata: expect.objectContaining({ path: path.join('documents', 'README') }),
 		}),
 		expect.objectContaining({
 			id: '0:nested/guide.txt#0',
-			metadata: expect.objectContaining({ path: path.join('documents', 'nested/guide.txt') }),
 		}),
 	]);
 	expect(createEmbedding.mock.calls.map(([request]) => request.texts[0])).toEqual([
 		'Extensionless notes',
 		'Nested guide',
 	]);
+});
+
+it('does not publish a failed namespace build over the prior manifest', async () => {
+	upsert.mockRejectedValueOnce(new Error('remote failure'));
+
+	await expect(indexRag(['/documents'], 'knowledge-base')).rejects.toThrow('remote failure');
+	expect(writeRagManifest).not.toHaveBeenCalled();
+	expect(rename).not.toHaveBeenCalled();
 });
 
 it('refuses to upload credential-like text files', async () => {
