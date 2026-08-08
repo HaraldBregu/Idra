@@ -1,5 +1,5 @@
 import { ChevronRight, File, Folder, FolderOpen } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import type { WorkspaceTreeEntry } from "@friday/sdk"
 
 import { cn } from "@/lib/utils"
@@ -57,12 +57,6 @@ interface AppSidebarProps {
   workspaceLocation: string
 }
 
-function collectDirectoryPaths(entries: WorkspaceTreeEntry[]): string[] {
-  return entries.flatMap((entry) =>
-    entry.type === "directory" ? [entry.path, ...collectDirectoryPaths(entry.children ?? [])] : [],
-  )
-}
-
 function WorkspaceTreeItem({
   depth,
   entry,
@@ -89,7 +83,7 @@ function WorkspaceTreeItem({
         type="button"
         onClick={() => {
           if (isDirectory) onToggle(entry.path)
-          onSelect(entry)
+          else onSelect(entry)
         }}
         aria-expanded={isDirectory ? isExpanded : undefined}
         aria-current={selected ? "page" : undefined}
@@ -144,10 +138,6 @@ export function AppSidebar({
     if (!workspaceLocation) return "Workspace"
     return workspaceLocation.split(/[\\/]/).filter(Boolean).pop() ?? workspaceLocation
   }, [workspaceLocation])
-
-  useEffect(() => {
-    setExpanded(new Set(collectDirectoryPaths(workspaceFiles)))
-  }, [workspaceFiles])
 
   function toggleDirectory(path: string) {
     setExpanded((current) => {
