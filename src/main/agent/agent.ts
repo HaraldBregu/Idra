@@ -163,11 +163,11 @@ export class Agent {
 				...(options.files?.length ? { files: options.files } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.legacySessionId ? { legacySessionId: options.legacySessionId } : {}),
-					...(options.providerId ? { providerId: options.providerId } : {}),
-					...(options.model ?? options.modelId ? { model: options.model ?? options.modelId } : {}),
-					...(options.approvalWindowId === undefined
-						? {}
-						: { approvalWindowId: options.approvalWindowId }),
+				...(options.providerId ? { providerId: options.providerId } : {}),
+				...(options.model ?? options.modelId ? { model: options.model ?? options.modelId } : {}),
+				...(options.approvalWindowId === undefined
+					? {}
+					: { approvalWindowId: options.approvalWindowId }),
 			} satisfies RuntimeInput;
 
 			init(session, this.config, input, options.category);
