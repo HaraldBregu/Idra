@@ -41,8 +41,9 @@ export default function App() {
 	const [selectedSaveError, setSelectedSaveError] = useState('');
 	const [sidebarWidth, setSidebarWidth] = useState(sidebarDefaultWidth);
 	const selectedPathRef = useRef<string | null>(null);
-	const mediaUrlRef = useRef('');
+	const saveInFlightRef = useRef(false);
 	const selectionRequestRef = useRef(0);
+	const selectedDirty = selectedKind === 'markdown' && selectedContent !== selectedSavedContent;
 	const themeStyle = Object.fromEntries(
 		Object.entries(theme.colors).map(([name, value]) => [`--${name}`, value]),
 	) as CSSProperties;
@@ -93,25 +94,14 @@ export default function App() {
 		};
 	}, []);
 
-	useEffect(() => {
-		return () => {
-			if (mediaUrlRef.current) URL.revokeObjectURL(mediaUrlRef.current);
-		};
-	}, []);
-
-	function replaceMediaUrl(nextUrl = '') {
-		if (mediaUrlRef.current && mediaUrlRef.current !== nextUrl) {
-			URL.revokeObjectURL(mediaUrlRef.current);
-		}
-		mediaUrlRef.current = nextUrl;
-		setSelectedMediaUrl(nextUrl);
-	}
-
 	async function saveWorkspaceMarkdown(
 		filePath = selectedPathRef.current,
 		content = selectedContent
 	): Promise<boolean> {
-		if (!filePath || selectedKind !== 'markdown' || !isFriday()) return false;
+		if (!filePath || selectedKind !== 'markdown' || !isFriday() || saveInFlightRef.current) {
+			return false;
+		}
+		saveInFlightRef.current = true;
 		setSelectedSaving(true);
 		setSelectedSaveError('');
 		try {
@@ -126,9 +116,29 @@ export default function App() {
 			}
 			return false;
 		} finally {
+			saveInFlightRef.current = false;
 			if (selectedPathRef.current === filePath) setSelectedSaving(false);
 		}
 	}
+
+	useEffect(() => {
+		if (!selectedDirty || selectedSaving || selectedSaveError) return;
+		const timeout = window.setTimeout(() => {
+			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContent);
+		}, 700);
+		return () => window.clearTimeout(timeout);
+	}, [selectedContent, selectedDirty, selectedSaveError, selectedSaving]);
+
+	useEffect(() => {
+		if (!selectedDirty) return;
+		const preventUnsavedClose = (event: BeforeUnloadEvent) => {
+			event.preventDefault();
+			event.returnValue = 'Changes are still being saved.';
+			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContent);
+		};
+		window.addEventListener('beforeunload', preventUnsavedClose);
+		return () => window.removeEventListener('beforeunload', preventUnsavedClose);
+	}, [selectedContent, selectedDirty]);
 
 	async function selectWorkspaceEntry(entry: WorkspaceTreeEntry) {
 		if (entry.type !== 'file') return;
@@ -147,7 +157,7 @@ export default function App() {
 		setSelectedSavedContent('');
 		setSelectedError('');
 		setSelectedSaveError('');
-		replaceMediaUrl();
+		setSelectedMediaUrl('');
 
 		if (kind === 'unsupported') {
 			setSelectedLoading(false);
@@ -157,13 +167,9 @@ export default function App() {
 		setSelectedLoading(true);
 		try {
 			if (['image', 'audio', 'video', 'pdf'].includes(kind)) {
-				const asset = await agent.readWorkspaceAsset(entry.path);
-				const url = URL.createObjectURL(new Blob([asset.data], { type: asset.mimeType }));
-				if (selectionRequestRef.current !== requestId) {
-					URL.revokeObjectURL(url);
-					return;
-				}
-				replaceMediaUrl(url);
+				const url = new URL('local-resource://agent/');
+				url.pathname = `/${entry.path.replaceAll('\\', '/')}`;
+				setSelectedMediaUrl(url.toString());
 			} else {
 				const content = await agent.readWorkspaceFile(entry.path);
 				if (selectionRequestRef.current !== requestId) return;
@@ -225,12 +231,15 @@ export default function App() {
 				<main className="relative min-h-0 min-w-0 flex-1">
 					<WorkspaceViewer
 						content={selectedContent}
-						dirty={selectedKind === 'markdown' && selectedContent !== selectedSavedContent}
+						dirty={selectedDirty}
 						error={selectedError}
 						kind={selectedKind}
 						loading={selectedLoading}
 						mediaUrl={selectedMediaUrl}
-						onChange={setSelectedContent}
+						onChange={(content) => {
+							setSelectedContent(content);
+							setSelectedSaveError('');
+						}}
 						onSave={() => saveWorkspaceMarkdown(selectedPathRef.current, selectedContent)}
 						path={selectedWorkspacePath}
 						saveError={selectedSaveError}

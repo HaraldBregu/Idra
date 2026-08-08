@@ -1,6 +1,7 @@
 import { BrowserWindow, desktopCapturer, net, protocol, session } from 'electron';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { resolveWorkspaceFile } from './ipc/workspace';
 import { agentLocation } from './shared/agent_location';
 import type { LoggerService } from './shared';
 
@@ -29,9 +30,7 @@ export function registerLocalResourceProtocolHandler(
 			const url = new URL(request.url);
 			let pathname = decodeURIComponent(url.pathname);
 			if (url.host === 'agent') {
-				// Path is relative to the agent data directory; resolve it here where
-				// the agent location is known.
-				pathname = path.join(agentLocation(), pathname.replace(/^\/+/, ''));
+				pathname = await resolveWorkspaceFile(agentLocation(), pathname.replace(/^\/+/, ''));
 			} else if (process.platform === 'win32' && /^\/[A-Za-z]:/.test(pathname)) {
 				pathname = pathname.slice(1);
 			}
