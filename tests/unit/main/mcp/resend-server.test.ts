@@ -46,7 +46,7 @@ describe('resend MCP server', () => {
 		expect(sendEmail?.inputSchema.properties).toEqual(
 			expect.objectContaining({
 				from: expect.objectContaining({ type: 'string' }),
-				to: expect.objectContaining({ oneOf: expect.any(Array) }),
+				to: expect.objectContaining({ anyOf: expect.any(Array) }),
 				subject: expect.objectContaining({ type: 'string' }),
 				idempotency_key: expect.objectContaining({ type: 'string' }),
 			})
