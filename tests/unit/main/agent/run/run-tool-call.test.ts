@@ -47,7 +47,7 @@ describe('runToolCall', () => {
 			events.push(event);
 		}
 
-		expect(run).toHaveBeenCalledWith({ command: 'echo done' });
+		expect(run).toHaveBeenCalledWith({ command: 'echo done' }, expect.any(AbortSignal));
 		expect(events).not.toContainEqual(expect.objectContaining({ type: 'tool_permission_request' }));
 
 		const restrictedCall: ToolCall = {

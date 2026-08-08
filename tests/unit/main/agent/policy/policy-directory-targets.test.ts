@@ -3,7 +3,7 @@ import { directoryPermissionTargets } from '../../../../../src/main/agent/policy
 import { taskStorePath } from '../../../../../src/main/tasks/tasks_store';
 import { healthStorePath } from '../../../../../src/main/agent/health/health_store';
 import { registry, type ProcessSession } from '../../../../../src/main/agent/tools/run_process';
-import { skillsRoot } from '../../../../../src/main/skills/skills_paths';
+import { skillsRoot } from '../../../../../src/main/agent/skills/skills_root';
 
 const agentDir = path.resolve('/appdata/agent');
 

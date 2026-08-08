@@ -19,6 +19,7 @@ describe('runModelTurn', () => {
 			[{ role: 'user', content: 'hello' }],
 			[],
 			new AbortController().signal,
+			{},
 			{ stream } as ModelTurnStream
 		);
 
