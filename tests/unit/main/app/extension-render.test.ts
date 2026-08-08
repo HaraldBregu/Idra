@@ -2,10 +2,12 @@ import type { BrowserWindow, WebContentsView } from 'electron';
 import { render } from '../../../../src/main/extensions/extension_render';
 import type { WindowFactory } from '../../../../src/main/window_factory';
 
+type Handler = (...args: unknown[]) => void;
+
 describe('extension renderer', () => {
 	it('places extension content below the host titlebar and closes content first', async () => {
-		const handlers = new Map<string, (...args: any[]) => void>();
-		const viewHandlers = new Map<string, (...args: any[]) => void>();
+		const handlers = new Map<string, Handler>();
+		const viewHandlers = new Map<string, Handler>();
 		const shellWebContents = {
 			isDestroyed: jest.fn(() => false),
 			on: jest.fn(),
@@ -14,12 +16,8 @@ describe('extension renderer', () => {
 		const viewWebContents = {
 			close: jest.fn(),
 			isDestroyed: jest.fn(() => false),
-			on: jest.fn((event: string, handler: (...args: any[]) => void) =>
-				viewHandlers.set(event, handler)
-			),
-			once: jest.fn((event: string, handler: (...args: any[]) => void) =>
-				viewHandlers.set(event, handler)
-			),
+			on: jest.fn((event: string, handler: Handler) => viewHandlers.set(event, handler)),
+			once: jest.fn((event: string, handler: Handler) => viewHandlers.set(event, handler)),
 			send: jest.fn(),
 		};
 		const view = {
@@ -30,13 +28,10 @@ describe('extension renderer', () => {
 			contentView: { addChildView: jest.fn() },
 			close: jest.fn(),
 			getContentBounds: jest.fn(() => ({ x: 0, y: 0, width: 820, height: 640 })),
+			isDestroyed: jest.fn(() => false),
 			setMenuBarVisibility: jest.fn(),
-			once: jest.fn((event: string, handler: (...args: any[]) => void) =>
-				handlers.set(event, handler)
-			),
-			on: jest.fn((event: string, handler: (...args: any[]) => void) =>
-				handlers.set(event, handler)
-			),
+			once: jest.fn((event: string, handler: Handler) => handlers.set(event, handler)),
+			on: jest.fn((event: string, handler: Handler) => handlers.set(event, handler)),
 			show: jest.fn(),
 			webContents: shellWebContents,
 		} as unknown as BrowserWindow;
