@@ -64,6 +64,21 @@ it('kills only the exec child when its run is cancelled', async () => {
 	registry.remove('unrelated');
 });
 
+it('kills a background exec cancelled before its spawn acknowledgement', async () => {
+	const child = childProcess();
+	spawn.mockReturnValue(child);
+	const controller = new AbortController();
+	const result = execTool.run(
+		{ command: 'background command', workdir: '/tmp', background: true },
+		controller.signal
+	);
+	const reason = new Error('cancel background exec');
+	controller.abort(reason);
+
+	await expect(result).rejects.toBe(reason);
+	expect(child.kill).toHaveBeenCalledWith('SIGTERM');
+});
+
 it('cancels a process poll without killing or removing its existing session', async () => {
 	const child = childProcess();
 	const session: ProcessSession = {
