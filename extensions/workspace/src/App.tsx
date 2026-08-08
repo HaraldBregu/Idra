@@ -562,7 +562,7 @@ export default function App() {
 					);
 				}}
 			>
-				<Sidebar id="notes-workspace-sidebar" collapsible="offcanvas" width={sidebarWidth}>
+				<Sidebar id="workspace-sidebar" collapsible="offcanvas" width={sidebarWidth}>
 					<SidebarContent>{sidebar}</SidebarContent>
 					<SidebarResizeHandle
 						onPointerDown={startSidebarResize}

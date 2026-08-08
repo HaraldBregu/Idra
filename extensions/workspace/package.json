@@ -1,8 +1,8 @@
 {
-	"name": "friday-notes",
+	"name": "workspace",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Friday notes extension.",
+	"description": "Friday workspace extension.",
 	"keywords": [
 		"utility"
 	],
