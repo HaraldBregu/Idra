@@ -209,7 +209,6 @@ async function runExec(
 		const yieldTimer = setTimeout(() => {
 			if (settled || aborted) return;
 			settled = true;
-			abortSignal?.removeEventListener('abort', abort);
 
 			const sessionId = randomUUID();
 			ownedSessionId = sessionId;
