@@ -26,7 +26,6 @@ export function CustomMcpCard({
 
 	const remove = async (): Promise<void> => {
 		if (!onRemove) return;
-		if (!window.confirm(`Remove ${entry.name ?? id}? This cannot be undone.`)) return;
 		await onRemove(id);
 	};
 
