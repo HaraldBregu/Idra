@@ -118,7 +118,7 @@ export default function App() {
 		if (isFriday()) void app.openExternalUrl(url);
 		else window.open(url, '_blank', 'noopener,noreferrer');
 	};
-	const copySvg = () => void navigator.clipboard.writeText(svg);
+	const copySvg = () => void navigator.clipboard.writeText(svg).catch((reason) => setError(errorMessage(reason)));
 	const exportSvg = () => downloadFile('diagram.svg', svg, 'image/svg+xml;charset=utf-8');
 	const exportPng = () => void svgToPng(svg).then((png) => downloadFile('diagram.png', png, 'image/png')).catch((reason) => setError(errorMessage(reason)));
 	const fit = () => {

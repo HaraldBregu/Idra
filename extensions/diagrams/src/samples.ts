@@ -380,4 +380,10 @@ treeView-beta
 		source: `flowchart LR
     formula["**Energy**<br/>$$E = mc^2$$"] --> result["Mass becomes<br/>*energy*"]`,
 	},
+	{
+		name: 'Legacy directive',
+		source: `%%{init: { "flowchart": { "curve": "linear" } } }%%
+flowchart LR
+    Compatible --> Configured --> Rendered`,
+	},
 ];
