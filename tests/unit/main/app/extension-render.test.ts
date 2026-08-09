@@ -73,9 +73,9 @@ describe('extension renderer', () => {
 	it('loads the titlebar shell before attaching and loading extension content', async () => {
 		const harness = createHarness();
 
-		expect(
-			render(harness.windowFactory, '/extension/index.html', 'Project', 'project-order')
-		).toBe(harness.win);
+		expect(render(harness.windowFactory, '/extension/index.html', 'Project', 'project-order')).toBe(
+			harness.win
+		);
 		expect(harness.create).toHaveBeenCalledWith(
 			expect.objectContaining({
 				frame: false,
@@ -101,9 +101,9 @@ describe('extension renderer', () => {
 			height: 592,
 		});
 		expect(harness.load).toHaveBeenCalledTimes(1);
-		expect(
-			harness.win.contentView.addChildView.mock.invocationCallOrder[0]
-		).toBeLessThan(harness.load.mock.invocationCallOrder[0]);
+		expect(harness.win.contentView.addChildView.mock.invocationCallOrder[0]).toBeLessThan(
+			harness.load.mock.invocationCallOrder[0]
+		);
 		expect(harness.win.show).not.toHaveBeenCalled();
 
 		harness.resolveLoad();

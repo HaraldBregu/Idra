@@ -123,15 +123,12 @@ export class WindowFactory {
 		const view = new WebContentsView({ webPreferences: this.getBaseWebPreferences() });
 		const viewContents = view.webContents;
 		this.secureNavigation(viewContents, path.dirname(file));
-		viewContents.on(
-			'did-fail-load',
-			(_event, errorCode, errorDescription, validatedURL) => {
-				this.logger?.error('Extensions', `Extension view failed to load: ${validatedURL}`, {
-					errorCode,
-					errorDescription,
-				});
-			}
-		);
+		viewContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+			this.logger?.error('Extensions', `Extension view failed to load: ${validatedURL}`, {
+				errorCode,
+				errorDescription,
+			});
+		});
 		viewContents.on('render-process-gone', (_event, details) => {
 			this.logger?.error('Extensions', `Extension renderer exited: ${file}`, {
 				reason: details.reason,

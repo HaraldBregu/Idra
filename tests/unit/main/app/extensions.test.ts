@@ -3,7 +3,11 @@ import os from 'node:os';
 import path from 'node:path';
 import type { BrowserWindow, WebContentsView } from 'electron';
 import type { WindowFactory } from '../../../../src/main/window_factory';
-import { ensureExtensions, listExtensions, loadExtension } from '../../../../src/main/extensions/extension_index';
+import {
+	ensureExtensions,
+	listExtensions,
+	loadExtension,
+} from '../../../../src/main/extensions/extension_index';
 import { extensionEntryPath } from '../../../../src/main/extensions/extension_entry';
 import { extensionManifestPath } from '../../../../src/main/extensions/extension_manifest';
 import type { ExtensionManifest } from '../../../../src/main/extensions/extension_types';
@@ -132,7 +136,10 @@ describe('extension discovery and loading', () => {
 
 	it('omits extensions whose manifest entry is missing or unsafe', () => {
 		fs.mkdirSync(path.dirname(extensionManifestPath('missing', appLocation)), { recursive: true });
-		fs.writeFileSync(extensionManifestPath('missing', appLocation), JSON.stringify(projectManifest));
+		fs.writeFileSync(
+			extensionManifestPath('missing', appLocation),
+			JSON.stringify(projectManifest)
+		);
 		fs.mkdirSync(path.dirname(extensionManifestPath('unsafe', appLocation)), { recursive: true });
 		fs.writeFileSync(
 			extensionManifestPath('unsafe', appLocation),
