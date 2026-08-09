@@ -11,11 +11,15 @@ export function isExtensionStoreValue(value: unknown): value is ExtensionStoreVa
 
 		let valid: boolean;
 		if (Array.isArray(input)) {
-			valid = input.every(visit);
+			valid =
+				Object.keys(input).length === input.length &&
+				Object.getOwnPropertySymbols(input).length === 0 &&
+				input.every(visit);
 		} else {
 			const prototype = Object.getPrototypeOf(input);
 			valid =
 				(prototype === Object.prototype || prototype === null) &&
+				Object.getOwnPropertySymbols(input).length === 0 &&
 				Object.values(input as Record<string, unknown>).every(visit);
 		}
 		seen.delete(input);

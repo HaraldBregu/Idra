@@ -35,6 +35,8 @@ describe('extension storage', () => {
 			expect(() => storage.set('draw', key, 'value')).toThrow('store key');
 		}
 		expect(() => storage.set('draw', 'value', Number.NaN)).toThrow('store value');
+		const sparse = new Array(1) as never;
+		expect(() => storage.set('draw', 'value', sparse)).toThrow('store value');
 		expect(() => storage.set('../draw', 'value', true)).toThrow('Invalid extension ID');
 	});
 
