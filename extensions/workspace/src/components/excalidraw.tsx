@@ -43,7 +43,8 @@ export function ExcalidrawEditor({
 			};
 		}
 	});
-	const lastSerializedRef = useRef(initialScene.content);
+	const initializedRef = useRef(false);
+	const lastSerializedRef = useRef('');
 
 	useEffect(() => {
 		const save = (event: KeyboardEvent) => {
@@ -71,6 +72,11 @@ export function ExcalidrawEditor({
 				name={path.split(/[\\/]/).pop() ?? path}
 				onChange={(elements, appState, files) => {
 					const serialized = serializeAsJSON(elements, appState, files, 'local');
+					if (!initializedRef.current) {
+						initializedRef.current = true;
+						lastSerializedRef.current = serialized;
+						return;
+					}
 					if (serialized === lastSerializedRef.current) return;
 					lastSerializedRef.current = serialized;
 					onChange(serialized);
