@@ -67,6 +67,8 @@ export const POLICY_TOOLS = [
 	'get_schedule',
 	'list_schedules',
 	'run_schedule_now',
+	'list_extensions',
+	'open_extensions',
 	'complete_bootstrap',
 	'subagent',
 ] as const;
@@ -108,6 +110,8 @@ export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 	get_schedule: allow(),
 	list_schedules: allow(),
 	run_schedule_now: ask(),
+	list_extensions: allow(),
+	open_extensions: ask(),
 	recorder_microphone: ask(),
 	recorder_microphone_status: allow(),
 	recorder_microphone_stop: allow(),

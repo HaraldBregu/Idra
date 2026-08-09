@@ -74,6 +74,7 @@ jest.mock('../../../../src/main/agent/run/run_stream', () => ({
 }));
 
 import { Agent } from '../../../../src/main/agent/agent';
+import type { WindowFactory } from '../../../../src/main/window_factory';
 
 beforeEach(() => {
 	jest.clearAllMocks();
@@ -86,7 +87,7 @@ it.each([
 ] as const)(
 	'resolves a legacy alias before scheduling and %s cancels that UUID run first',
 	async (method, mutate) => {
-		const agent = new Agent();
+		const agent = new Agent({} as WindowFactory);
 		const running = started();
 		const send = agent.send('health check', 'health', {
 			category: 'health',

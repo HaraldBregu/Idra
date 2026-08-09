@@ -26,11 +26,11 @@ export function bootstrapServices(): BootstrapResult {
 	const appState = new AppState();
 	const eventBus = new EventBus();
 	const logger = new LoggerService(eventBus);
-	const agentService = new Agent();
-	const channelRegistry = createChannelRegistry({ logger, eventBus, agentService });
 	const extensionRegistry = new ExtensionRegistry();
 	const extensionStorage = new ExtensionStorage();
 	const windowFactory = new WindowFactory(logger, extensionRegistry);
+	const agentService = new Agent(windowFactory);
+	const channelRegistry = createChannelRegistry({ logger, eventBus, agentService });
 	const windowContextManager = new WindowContextManager(logger, eventBus);
 
 	logger.info('Bootstrap', 'Registered global services');

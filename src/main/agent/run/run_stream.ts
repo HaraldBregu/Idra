@@ -50,8 +50,11 @@ import { getScheduleTool } from '../tools/tasks/get_schedule';
 import { listSchedulesTool } from '../tools/tasks/list_schedules';
 import { runScheduleNowTool } from '../tools/tasks/run_schedule_now';
 import { subagentTool } from '../tools/assistant/subagent';
+import { listExtensionsTool } from '../tools/extensions/list';
+import { openExtensionsTool } from '../tools/extensions/open';
 import type { AgentPermissionMode } from '../../../shared/agent_types';
 import type { Config, McpDiscoveryDiagnostics, RuntimeEvent, RuntimeInput, Tool } from '../types';
+import type { WindowFactory } from '../../window_factory';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 import { getPermissionMode } from '../policy';
@@ -63,6 +66,7 @@ import { hasPrivateInput } from './run_has_private_input';
 export interface StreamOptions {
 	tools?: Tool[];
 	interactive?: boolean;
+	windowFactory?: WindowFactory;
 }
 
 const MAX_TOOL_CALLS = 100;
@@ -174,6 +178,8 @@ async function* loop(
 				getScheduleTool,
 				listSchedulesTool,
 				runScheduleNowTool,
+				listExtensionsTool,
+				...(options.windowFactory ? [openExtensionsTool(options.windowFactory)] : []),
 				completeBootstrapTool,
 			];
 

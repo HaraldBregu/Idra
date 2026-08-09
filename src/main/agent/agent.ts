@@ -37,6 +37,7 @@ import type {
 } from '../../shared/agent_types';
 import { toError } from '../ipc/core/error';
 import { AgentRunScheduler } from './agent_scheduler';
+import type { WindowFactory } from '../window_factory';
 
 interface ActiveAgentRun {
 	agentId: string;
@@ -66,7 +67,7 @@ export class Agent {
 	readonly config: Config;
 	readonly state: AgentContextState;
 
-	constructor() {
+	constructor(private readonly windowFactory: WindowFactory) {
 		this.config = { location: path.resolve(agentLocation()) };
 		initTask();
 		this.state = createContextState(createSessionState().context);
@@ -181,6 +182,7 @@ export class Agent {
 			const runSignal = AbortSignal.any([controller.signal, timeoutSignal]);
 			const events = stream(this.config, session, input, runSignal, {
 				interactive: options.interactive ?? true,
+				windowFactory: this.windowFactory,
 			});
 
 			const streamingToolArgs = new Map<string, { name: string; argsText: string }>();
