@@ -32,6 +32,14 @@ it('reserves output and safety tokens from catalog context-window metadata', () 
 	);
 });
 
+it('uses a provider-documented context window outside the request fields', () => {
+	findModel.mockReturnValue({
+		metadata: { contextWindow: 1_048_576, inputs: {} },
+	});
+
+	expect(modelInputLimit('deepseek', 'deepseek-v4-flash', 32_768)).toBe(1_000_000);
+});
+
 it('uses the conservative documented fallback when metadata is unavailable', () => {
 	findModel.mockReturnValue(undefined);
 

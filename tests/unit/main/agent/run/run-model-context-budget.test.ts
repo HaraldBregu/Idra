@@ -43,22 +43,38 @@ describe('fitModelContext', () => {
 		expect(result.estimatedTokens).toBeLessThanOrEqual(900);
 	});
 
-	it('sends only the exact tool schemas that fit the remaining budget', () => {
+	it('keeps every tool schema by trimming optional system context first', () => {
 		const input: ModelContextBudgetInput = {
-			systemPrompt: 'System rules.',
+			systemPrompt: `System rules. ${'context '.repeat(700)}`,
 			messages: [{ role: 'user', content: 'Use an available tool.' }],
 			tools: [
-				makeTool('first', 'a'.repeat(700)),
-				makeTool('second', 'b'.repeat(700)),
-				makeTool('third', 'c'.repeat(700)),
+				makeTool('first', 'a'.repeat(300)),
+				makeTool('second', 'b'.repeat(300)),
+				makeTool('third', 'c'.repeat(300)),
 			],
-			maxInputTokens: 420,
+			maxInputTokens: 1_600,
 		};
 
 		const result = fitModelContext(input);
 
-		expect(result.tools.map((tool) => tool.name)).toEqual(['first']);
+		expect(result.tools.map((tool) => tool.name)).toEqual(['first', 'second', 'third']);
+		expect(result.systemPrompt).toContain('Additional system context omitted');
 		expect(result.estimatedTokens).toBeLessThanOrEqual(input.maxInputTokens);
+	});
+
+	it('fails explicitly instead of silently hiding tools that cannot fit', () => {
+		expect(() =>
+			fitModelContext({
+				systemPrompt: 'System rules.',
+				messages: [{ role: 'user', content: 'Use an available tool.' }],
+				tools: [
+					makeTool('first', 'a'.repeat(700)),
+					makeTool('second', 'b'.repeat(700)),
+					makeTool('third', 'c'.repeat(700)),
+				],
+				maxInputTokens: 420,
+			})
+		).toThrow('available tool schemas');
 	});
 
 	it('keeps current text while replacing an attachment payload that cannot fit', () => {

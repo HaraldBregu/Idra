@@ -40,6 +40,7 @@ it('exposes one main-session knowledge broker and prefers confident compiled wik
 	);
 
 	expect(getKnowledgeTools('main').map((tool) => tool.name)).toEqual(['knowledge_query']);
+	expect(getKnowledgeTools('task').map((tool) => tool.name)).toEqual(['knowledge_query']);
 	expect(getKnowledgeTools('bot')).toEqual([]);
 	expect(DEFAULT_PERMISSIONS.knowledge_query).toMatchObject({ default: 'allow' });
 	expect(buildWikiAnswerContext).toHaveBeenCalledWith(

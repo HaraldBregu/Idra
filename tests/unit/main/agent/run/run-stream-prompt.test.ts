@@ -8,6 +8,7 @@ const successfulTurn = async function* () {
 };
 const runModelTurnMock = jest.fn(successfulTurn);
 const appendRunMock = jest.fn();
+const closeMcpMock = jest.fn();
 
 jest.mock('../../../../../src/main/settings_store', () => ({
 	getModelId: jest.fn(() => 'test-model'),
@@ -20,6 +21,10 @@ jest.mock('../../../../../src/main/agent/run/run_model_turn', () => ({
 
 jest.mock('../../../../../src/main/agent/session/session_append_run', () => ({
 	appendRun: (...args: unknown[]) => appendRunMock(...args),
+}));
+
+jest.mock('../../../../../src/main/agent/tools/mcp/loader', () => ({
+	loadMcpTools: jest.fn(async () => ({ tools: [], close: closeMcpMock })),
 }));
 
 jest.mock('../../../../../src/main/agent/skills', () => ({
@@ -36,6 +41,49 @@ describe('run stream system prompt', () => {
 	beforeEach(() => {
 		runModelTurnMock.mockReset().mockImplementation(successfulTurn);
 		appendRunMock.mockReset();
+		closeMcpMock.mockReset();
+	});
+
+	it('applies main toolsAllow and toolsDeny to the subagent tool', async () => {
+		const noTools = [];
+		for await (const event of stream(
+			{ location: '/workspace' },
+			createSessionState(),
+			{
+				runId: 'allow-none',
+				task: 'chat',
+				message: 'answer directly',
+				model: 'test-model',
+				origin: 'main',
+				contextMode: 'minimal',
+				toolsAllow: [],
+			},
+			new AbortController().signal
+		))
+			noTools.push(event);
+		expect(noTools[0]).toMatchObject({ type: 'run_started', tools: [] });
+
+		const denied = [];
+		for await (const event of stream(
+			{ location: '/workspace' },
+			createSessionState(),
+			{
+				runId: 'deny-subagent',
+				task: 'chat',
+				message: 'use native tools',
+				model: 'test-model',
+				origin: 'main',
+				contextMode: 'minimal',
+				toolsDeny: ['subagent'],
+			},
+			new AbortController().signal
+		))
+			denied.push(event);
+		expect(denied[0]).toMatchObject({ type: 'run_started' });
+		if (denied[0]?.type !== 'run_started') throw new Error('Expected run_started');
+		expect(denied[0].tools).toContain('read');
+		expect(denied[0].tools).not.toContain('subagent');
+		expect(closeMcpMock).toHaveBeenCalledTimes(2);
 	});
 
 	it('sends workspace files as user context instead of system instructions', async () => {
