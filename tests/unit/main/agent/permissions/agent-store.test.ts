@@ -54,17 +54,17 @@ describe('agent store permissions', () => {
 		setDirectoryPermissions({
 			' /shared ': { recoursive: true, tools: [' read ', 'read'] },
 		});
-		const policy = setToolPermission('read', {
+		const permission = setToolPermission('read', {
 			default: 'ask',
 			allow: [],
 			deny: [],
 			ask: [],
 		});
 
-		expect(policy.dir).toEqual({
+		expect(permission.dir).toEqual({
 			'/shared': { recoursive: true, tools: ['read'] },
 		});
-		expect(policy.read).toEqual({ default: 'ask', allow: [], deny: [], ask: [] });
+		expect(permission.read).toEqual({ default: 'ask', allow: [], deny: [], ask: [] });
 	});
 
 	it('reserves dir from tool updates', () => {

@@ -95,7 +95,7 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('apply_patch', { input })).toBe('deny');
 	});
 
-	it('sends targetless tools directly to their tool policy', () => {
+	it('sends targetless tools directly to their tool permission', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
 			web_search: entry('deny'),
@@ -108,7 +108,7 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('custom_file_tool', { path: '/outside/a.txt' })).toBe('ask');
 	});
 
-	it('uses a tool-provided fallback only when no stored policy exists', () => {
+	it('uses a tool-provided fallback only when no stored permission exists', () => {
 		expect(resolveToolPermission('mcp__safe__lookup', {}, undefined, true, 'allow')).toBe('allow');
 		getPermissions.mockReturnValue({
 			...defaults(),
@@ -152,7 +152,7 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('edit', { path: '/shared/nested/file.txt' })).toBe('allow');
 	});
 
-	it('falls through to the tool policy when a matching directory omits the tool', () => {
+	it('falls through to the tool permission when a matching directory omits the tool', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
 			dir: { '/shared': { recoursive: true, tools: ['read'] } },
@@ -218,7 +218,7 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('exec', { command: 'npm test', workdir: '/outside' })).toBe('ask');
 	});
 
-	it('resolves process calls through explicit policy and directory scope', () => {
+	it('resolves process calls through explicit permission and directory scope', () => {
 		const sessions = [
 			{ id: 'process-system', workdir: '/appdata/agent/app' },
 			{ id: 'process-directory', workdir: '/shared/app' },
@@ -245,7 +245,7 @@ describe('resolveToolPermission', () => {
 		}
 	});
 
-	it('uses exec policy when a matching working directory omits it', () => {
+	it('uses exec permission when a matching working directory omits it', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
 			dir: { '/shared': { recoursive: true, tools: ['read'] } },
@@ -290,7 +290,7 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('read', { path: '/watched/a.txt' })).toBe('deny');
 	});
 
-	it('resolves relative policy paths from the user home', () => {
+	it('resolves relative permission paths from the user home', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
 			read: entry('deny', { allow: ['Desktop'] }),

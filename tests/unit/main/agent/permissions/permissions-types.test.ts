@@ -4,7 +4,7 @@ import {
 } from '../../../../../src/main/agent/permissions/permissions_types';
 
 describe('DEFAULT_PERMISSIONS', () => {
-	it('uses a complete top-level tool policy schema', () => {
+	it('uses a complete top-level tool permission schema', () => {
 		expect(Object.keys(DEFAULT_PERMISSIONS).sort()).toEqual(
 			['dir', 'mode', ...PERMISSION_TOOLS].sort()
 		);

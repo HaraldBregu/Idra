@@ -4,7 +4,7 @@ import type { ToolPermission } from '../../../../../src/main/agent/permissions/p
 const fallback: ToolPermission = { default: 'ask', allow: [], deny: [], ask: [] };
 
 describe('normalizeToolPermission', () => {
-	it('keeps only the requested tool policy fields and normalizes lists', () => {
+	it('keeps only the requested tool permission fields and normalizes lists', () => {
 		expect(
 			normalizeToolPermission(
 				{

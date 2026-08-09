@@ -32,7 +32,7 @@ describe('toolPathDir', () => {
 		expect(toolPathDir({ path: '' }, agentDir)).toBeUndefined();
 	});
 	it('uses the destination directory of a symlinked file', () => {
-		const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-policy-path-'));
+		const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-permission-path-'));
 		try {
 			const inside = path.join(tempDir, 'agent');
 			const outside = path.join(tempDir, 'outside');

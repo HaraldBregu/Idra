@@ -75,7 +75,7 @@ describe('directoryPermissionTargets', () => {
 
 	it('uses the originating exec workdir for process calls', () => {
 		const session = {
-			id: 'policy-session',
+			id: 'permission-session',
 			workdir: '/workspace/app',
 		} as ProcessSession;
 		registry.register(session);
