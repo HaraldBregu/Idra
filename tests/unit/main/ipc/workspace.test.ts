@@ -113,9 +113,11 @@ describe('workspace files', () => {
 		const mermaid = path.join(root, 'flow.mmd');
 		const excalidraw = path.join(root, 'sketch.excalidraw');
 		const text = path.join(root, 'notes.txt');
+		const directory = path.join(root, 'folder.excalidraw');
 		await fs.writeFile(mermaid, 'flowchart TD');
 		await fs.writeFile(excalidraw, '{}');
 		await fs.writeFile(text, 'Before');
+		await fs.mkdir(directory);
 
 		await writeWorkspaceFile(root, 'flow.mmd', 'flowchart LR\nA --> B');
 		await writeWorkspaceFile(root, 'sketch.excalidraw', '{"type":"excalidraw"}');
@@ -124,6 +126,12 @@ describe('workspace files', () => {
 		await expect(fs.readFile(excalidraw, 'utf8')).resolves.toBe('{"type":"excalidraw"}');
 		await expect(writeWorkspaceFile(root, 'notes.txt', 'After')).rejects.toThrow(
 			'Only Markdown, Mermaid, and Excalidraw'
+		);
+		await expect(writeWorkspaceFile(root, 'folder.excalidraw', '{}')).rejects.toThrow(
+			'not a file'
+		);
+		await expect(writeWorkspaceFile(root, '../escape.mmd', 'flowchart TD')).rejects.toThrow(
+			'outside workspace'
 		);
 		await fs.rm(root, { recursive: true });
 	});
