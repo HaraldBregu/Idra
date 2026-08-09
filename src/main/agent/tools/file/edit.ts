@@ -15,7 +15,9 @@ export const editTool = tool({
 		path: z
 			.string()
 			.min(1)
-			.describe('Path relative to the agent filesystem root, or an absolute path. ~ is the OS user home.'),
+			.describe(
+				'Path relative to the agent filesystem root, or an absolute path. ~ is the OS user home.'
+			),
 		oldText: z.string().min(1).describe('Exact text to replace.'),
 		newText: z.string().describe('Replacement text.'),
 	}),
