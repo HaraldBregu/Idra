@@ -16,6 +16,7 @@ const themes: AppTheme[] = [
 	'redux-dark',
 	'redux-color',
 	'redux-dark-color',
+	'null',
 ];
 const looks: DiagramLook[] = ['classic', 'handDrawn', 'neo'];
 const layouts: DiagramLayout[] = [

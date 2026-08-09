@@ -36,6 +36,7 @@ const themeChoices: AppTheme[] = [
 	'redux-dark',
 	'redux-color',
 	'redux-dark-color',
+	'null',
 ];
 const lookChoices: DiagramLook[] = ['classic', 'handDrawn', 'neo'];
 const layoutChoices: DiagramLayout[] = [

@@ -177,7 +177,7 @@ mindmap
 		name: 'Timeline',
 		source: `timeline
     title Diagrams extension
-    Audit : Draw conventions
+    Audit : Extension conventions
     Build : Mermaid integration : Editor UI
     Verify : Syntax coverage : Runtime smoke
     Install : Friday extension`,
@@ -228,7 +228,7 @@ Renderer,PNG,22`,
     editor[Build editor]
     render[Integrate renderer]
   done[Done]
-    duplicate[Duplicate Draw]`,
+    scaffold[Create Diagrams extension]`,
 	},
 	{
 		name: 'Architecture',

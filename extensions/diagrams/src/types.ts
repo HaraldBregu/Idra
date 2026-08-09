@@ -12,7 +12,8 @@ export type AppTheme =
 	| 'redux'
 	| 'redux-dark'
 	| 'redux-color'
-	| 'redux-dark-color';
+	| 'redux-dark-color'
+	| 'null';
 export type DiagramLook = 'classic' | 'handDrawn' | 'neo';
 export type DiagramLayout =
 	| 'auto'
