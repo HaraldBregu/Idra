@@ -1,0 +1,9 @@
+{
+	"title": "Draw",
+	"description": "A visual canvas powered by Excalidraw.",
+	"metadata": {
+		"version": "1.0.0",
+		"category": "utility",
+		"entry": "dist/index.html"
+	}
+}
