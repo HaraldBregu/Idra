@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Menu, PanelLeft, User } from 'lucide-react';
+import { Menu, PanelLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
@@ -11,6 +11,7 @@ import { TitleBarProvider } from './context/TitleBarContext';
 import { NavButton } from './components/NavButton';
 // import { NavigationButtons } from './components/NavigationButtons';
 import { SessionsButton } from './components/SessionsButton';
+import { UserMenu } from './components/UserMenu';
 import { WindowControls } from './components/WindowControls';
 import { useWindowState } from './hooks/useWindowState';
 import { GradientSphere } from '@/components/ui/gradient-sphere';
@@ -57,24 +58,20 @@ export const TitleBar = React.memo(function TitleBar({
 	const isSettings = location.pathname.startsWith('/settings');
 	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
 	const homeButtonLabel = t('titleBar.home', 'Home');
-	const settingsButtonLabel = t('settings.title', 'Settings');
-	const routeButtonLabel = isSettings ? homeButtonLabel : settingsButtonLabel;
-	const routeButton = !isStart ? (
+	const routeButton = isSettings ? (
 		<Button
 			type="button"
 			variant="ghost"
 			size="icon"
 			className="size-8 rounded-full"
-			onClick={() => navigate(isSettings ? '/home' : '/settings')}
-			title={routeButtonLabel}
-			aria-label={routeButtonLabel}
+			onClick={() => navigate('/home')}
+			title={homeButtonLabel}
+			aria-label={homeButtonLabel}
 		>
-			{isSettings ? (
-				<GradientSphere size={18} className="pointer-events-none" />
-			) : (
-				<User className="size-4" strokeWidth={1.8} />
-			)}
+			<GradientSphere size={18} className="pointer-events-none" />
 		</Button>
+	) : !isStart ? (
+		<UserMenu align={isMac ? 'end' : 'start'} />
 	) : null;
 	const sessionsButton = isHome ? <SessionsButton /> : null;
 
