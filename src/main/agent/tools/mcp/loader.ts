@@ -71,15 +71,16 @@ export async function loadMcpTools(signal?: AbortSignal): Promise<{
 	for (const settled of discovered) {
 		if (settled.status !== 'fulfilled') continue;
 		const result = settled.value;
-		if (result.failure === 'connect') {
-			diagnostics.failures.push({ serverId: result.id, phase: 'connect' });
-			continue;
-		}
-		diagnostics.connectedServers += 1;
-		if (result.failure === 'list') {
+		if ('failure' in result) {
+			if (result.failure === 'connect') {
+				diagnostics.failures.push({ serverId: result.id, phase: 'connect' });
+				continue;
+			}
+			diagnostics.connectedServers += 1;
 			diagnostics.failures.push({ serverId: result.id, phase: 'list' });
 			continue;
 		}
+		diagnostics.connectedServers += 1;
 		diagnostics.listedTools += result.listed.tools.length;
 		if (tools.length >= MCP_MAX_TOOLS) {
 			diagnostics.truncated = true;
