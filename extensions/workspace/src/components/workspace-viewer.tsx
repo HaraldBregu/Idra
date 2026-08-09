@@ -5,6 +5,7 @@ import type { WorkspaceFileKind } from '@friday/sdk';
 import { FileViewer } from '@/components/viewer';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { showNativeContextMenu } from '@/lib/menu';
 
 interface WorkspaceViewerProps {
@@ -180,14 +181,24 @@ export function WorkspaceViewer({
 				</div>
 
 				{kind === 'markdown' && !loading ? (
-					<footer className="flex h-9 shrink-0 items-center justify-end border-t bg-muted/20 px-3 sm:px-5">
-						<TabsList className="h-7" aria-label="Markdown view mode">
-							<TabsTrigger value="source" className="h-5 gap-1.5 px-2 text-[11px]">
-								<FileCode2 className="h-3 w-3" /> Source
-							</TabsTrigger>
-							<TabsTrigger value="preview" className="h-5 gap-1.5 px-2 text-[11px]">
-								<FileText className="h-3 w-3" /> Preview
-							</TabsTrigger>
+					<footer className="flex h-8 shrink-0 items-center justify-end border-t bg-muted/20 px-2 sm:px-3">
+						<TabsList className="h-6 rounded-md p-0.5" aria-label="Markdown view mode">
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<TabsTrigger value="source" className="h-5 w-6 p-0" aria-label="Source view">
+										<FileCode2 className="h-3 w-3" />
+									</TabsTrigger>
+								</TooltipTrigger>
+								<TooltipContent side="top">Source</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<TabsTrigger value="preview" className="h-5 w-6 p-0" aria-label="Preview view">
+										<FileText className="h-3 w-3" />
+									</TabsTrigger>
+								</TooltipTrigger>
+								<TooltipContent side="top">Preview</TooltipContent>
+							</Tooltip>
 						</TabsList>
 					</footer>
 				) : null}

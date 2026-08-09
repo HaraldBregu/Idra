@@ -46,7 +46,7 @@ export function FileViewer({
 							value={content}
 							onChange={onChange}
 							onSave={onSave}
-							className="min-h-[calc(100dvh-10.25rem)] flex-1"
+							className="min-h-[calc(100dvh-10rem)] flex-1"
 						/>
 					</article>
 				</TabsContent>
