@@ -3,7 +3,9 @@ import { FileQuestion, Music2 } from 'lucide-react';
 import type { WorkspaceFileKind } from '@friday/sdk';
 
 import { CodeMirrorEditor } from '@/components/code-mirror-editor';
+import { ExcalidrawEditor } from '@/components/excalidraw';
 import { MarkdownPreview } from '@/components/markdown';
+import { MermaidPreview } from '@/components/mermaid';
 import { TabsContent } from '@/components/ui/tabs';
 import { copyImage } from '@/lib/image';
 import { showMediaContextMenu } from '@/lib/media';
@@ -12,6 +14,7 @@ import { showNativeContextMenu } from '@/lib/menu';
 interface FileViewerProps {
 	canSave: boolean;
 	content: string;
+	isDark: boolean;
 	kind: WorkspaceFileKind;
 	onChange: (content: string) => void;
 	onSave: () => Promise<boolean>;
@@ -22,6 +25,7 @@ interface FileViewerProps {
 export function FileViewer({
 	canSave,
 	content,
+	isDark,
 	kind,
 	onChange,
 	onSave,
@@ -58,6 +62,52 @@ export function FileViewer({
 					<MarkdownPreview canSave={canSave} content={content} onSave={onSave} path={path} />
 				</TabsContent>
 			</>
+		);
+	}
+
+	if (kind === 'mermaid') {
+		return (
+			<>
+				<TabsContent
+					value="source"
+					forceMount
+					className="m-0 min-h-full data-[state=inactive]:hidden"
+				>
+					<article className="mx-auto flex min-h-full w-full max-w-[1000px] flex-col px-5 pb-12 pt-8 sm:px-8 lg:px-12">
+						<CodeMirrorEditor
+							key={path}
+							ariaLabel="Mermaid source"
+							canSave={canSave}
+							className="min-h-[calc(100dvh-10rem)] flex-1"
+							language="plain"
+							onChange={onChange}
+							onSave={onSave}
+							placeholderText="flowchart TD"
+							value={content}
+						/>
+					</article>
+				</TabsContent>
+				<TabsContent
+					value="preview"
+					forceMount
+					className="m-0 min-h-full data-[state=inactive]:hidden"
+				>
+					<MermaidPreview content={content} isDark={isDark} />
+				</TabsContent>
+			</>
+		);
+	}
+
+	if (kind === 'excalidraw') {
+		return (
+			<ExcalidrawEditor
+				key={path}
+				content={content}
+				isDark={isDark}
+				onChange={onChange}
+				onSave={onSave}
+				path={path}
+			/>
 		);
 	}
 
