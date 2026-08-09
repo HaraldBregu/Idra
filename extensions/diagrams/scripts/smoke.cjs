@@ -288,8 +288,10 @@ async function run() {
 		setter.call(input, 'pie title Latest render\\n"Current" : 100');
 		input.dispatchEvent(new Event('input', { bubbles: true }));
 	})()`);
-	await wait(700);
-	await waitFor(window, "!document.querySelector('.rendering')");
+	await waitFor(
+		window,
+		"!document.querySelector('.rendering') && document.querySelector('[data-testid=\"diagram-source\"]').value.startsWith('pie') && Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'pie')"
+	);
 	const latestRender = await window.webContents.executeJavaScript(`({
 		source: document.querySelector('[data-testid="diagram-source"]').value,
 		type: Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'pie'),
