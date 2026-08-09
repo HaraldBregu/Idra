@@ -318,6 +318,14 @@ export default function App() {
 				createRequest.type === 'directory'
 					? await agent.createWorkspaceDirectory(createRequest.parentPath, name)
 					: await agent.createWorkspaceFile(createRequest.parentPath, name);
+			if (createRequest.type === 'file') {
+				const createdKind = workspaceFileType(createdPath).kind;
+				if (createdKind === 'mermaid') {
+					await agent.writeWorkspaceFile(createdPath, EMPTY_MERMAID_CONTENT);
+				} else if (createdKind === 'excalidraw') {
+					await agent.writeWorkspaceFile(createdPath, EMPTY_EXCALIDRAW_CONTENT);
+				}
+			}
 			setWorkspaceFiles(await agent.listWorkspaceFiles());
 			setWorkspaceError('');
 			setCreateRequest(null);
