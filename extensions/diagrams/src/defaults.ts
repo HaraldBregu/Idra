@@ -30,7 +30,7 @@ export const defaultState: DiagramState = {
 	configText: defaultConfigText,
 	theme: 'auto',
 	look: 'classic',
-	layout: 'dagre',
+	layout: 'auto',
 	live: true,
 	view: 'split',
 };

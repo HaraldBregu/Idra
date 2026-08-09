@@ -5,7 +5,7 @@ import type { AppTheme, DiagramLayout, DiagramLook, DiagramState, ViewMode } fro
 
 const themes: AppTheme[] = ['auto', 'default', 'base', 'dark', 'forest', 'neutral', 'neo', 'neo-dark', 'redux', 'redux-dark', 'redux-color', 'redux-dark-color'];
 const looks: DiagramLook[] = ['classic', 'handDrawn', 'neo'];
-const layouts: DiagramLayout[] = ['dagre', 'cose-bilkent', 'elk', 'elk.layered', 'elk.stress', 'elk.force', 'elk.mrtree', 'elk.sporeOverlap', 'tidy-tree'];
+const layouts: DiagramLayout[] = ['auto', 'dagre', 'elk', 'elk.layered', 'elk.stress', 'elk.force', 'elk.mrtree', 'elk.sporeOverlap', 'tidy-tree'];
 const views: ViewMode[] = ['split', 'source', 'preview'];
 
 export async function loadState(): Promise<DiagramState> {

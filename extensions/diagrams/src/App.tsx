@@ -18,7 +18,7 @@ import type { AppTheme, DiagramLayout, DiagramLook, DiagramState, EditorTab, Vie
 
 const themeChoices: AppTheme[] = ['auto', 'default', 'base', 'dark', 'forest', 'neutral', 'neo', 'neo-dark', 'redux', 'redux-dark', 'redux-color', 'redux-dark-color'];
 const lookChoices: DiagramLook[] = ['classic', 'handDrawn', 'neo'];
-const layoutChoices: DiagramLayout[] = ['dagre', 'cose-bilkent', 'elk', 'elk.layered', 'elk.stress', 'elk.force', 'elk.mrtree', 'elk.sporeOverlap', 'tidy-tree'];
+const layoutChoices: DiagramLayout[] = ['auto', 'dagre', 'elk', 'elk.layered', 'elk.stress', 'elk.force', 'elk.mrtree', 'elk.sporeOverlap', 'tidy-tree'];
 
 export default function App() {
 	const fridayTheme = useFridayTheme();

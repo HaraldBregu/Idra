@@ -16,7 +16,7 @@ export function renderDiagram(source: string, options: DiagramOptions): Promise<
 			suppressErrorRendering: true,
 			theme: options.theme,
 			look: options.look,
-			layout: options.layout,
+			...(options.layout === 'auto' ? {} : { layout: options.layout }),
 		});
 		const parsed = await mermaid.parse(source);
 		const rendered = await mermaid.render(`friday-diagram-${++renderId}`, source);

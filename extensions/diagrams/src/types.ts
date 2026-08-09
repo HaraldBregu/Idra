@@ -2,7 +2,7 @@ import type { MermaidConfig, RenderResult } from 'mermaid';
 
 export type AppTheme = 'auto' | 'default' | 'base' | 'dark' | 'forest' | 'neutral' | 'neo' | 'neo-dark' | 'redux' | 'redux-dark' | 'redux-color' | 'redux-dark-color';
 export type DiagramLook = 'classic' | 'handDrawn' | 'neo';
-export type DiagramLayout = 'dagre' | 'cose-bilkent' | 'elk' | 'elk.layered' | 'elk.stress' | 'elk.force' | 'elk.mrtree' | 'elk.sporeOverlap' | 'tidy-tree';
+export type DiagramLayout = 'auto' | 'dagre' | 'elk' | 'elk.layered' | 'elk.stress' | 'elk.force' | 'elk.mrtree' | 'elk.sporeOverlap' | 'tidy-tree';
 export type EditorTab = 'source' | 'config';
 export type ViewMode = 'split' | 'source' | 'preview';
 
