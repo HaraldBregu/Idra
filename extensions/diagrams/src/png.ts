@@ -1,8 +1,11 @@
+import { flattenForeignObjects } from './flatten';
+
 export async function svgToPng(svg: string): Promise<Blob> {
 	const container = document.createElement('div');
 	container.innerHTML = svg;
 	const documentSvg = container.querySelector('svg');
 	if (!documentSvg) throw new Error('The rendered diagram does not contain an SVG.');
+	flattenForeignObjects(documentSvg);
 	documentSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 	documentSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 	const serialized = new XMLSerializer().serializeToString(documentSvg);

@@ -17,16 +17,6 @@ async function waitFor(window, expression, timeout = 15000) {
 	throw new Error(`Timed out waiting for: ${expression}`);
 }
 
-async function waitForValue(read, timeout = 15000) {
-	const started = Date.now();
-	while (Date.now() - started < timeout) {
-		const value = read();
-		if (value) return value;
-		await wait(100);
-	}
-	throw new Error('Timed out waiting for a runtime value.');
-}
-
 async function waitForDownload(window, downloads, count) {
 	const started = Date.now();
 	while (Date.now() - started < 15000) {
