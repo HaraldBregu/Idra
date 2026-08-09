@@ -1,8 +1,8 @@
 {
-	"name": "diagrams",
+	"name": "friday-mermaid",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Friday diagram editor powered by Mermaid.",
+	"description": "Create, edit, preview, and export Mermaid diagrams in Friday with official layouts, themes, icons, math, and ZenUML support.",
 	"keywords": [
 		"utility"
 	],
