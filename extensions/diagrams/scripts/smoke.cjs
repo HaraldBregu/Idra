@@ -27,6 +27,17 @@ async function waitForValue(read, timeout = 15000) {
 	throw new Error('Timed out waiting for a runtime value.');
 }
 
+async function waitForDownload(window, downloads, count) {
+	const started = Date.now();
+	while (Date.now() - started < 15000) {
+		if (downloads.length >= count) return;
+		const exportError = await window.webContents.executeJavaScript("document.querySelector('.error-card')?.textContent ?? ''");
+		if (exportError) throw new Error(`Export failed: ${exportError}`);
+		await wait(100);
+	}
+	throw new Error(`Timed out waiting for download ${count}.`);
+}
+
 async function run() {
 	await session.defaultSession.clearStorageData();
 	const downloads = [];
@@ -118,12 +129,12 @@ async function run() {
 		const button = Array.from(document.querySelectorAll('.preview-actions button')).find((node) => node.textContent === 'SVG');
 		button.click();
 	})()`);
-	await waitForValue(() => downloads.length >= 1);
+	await waitForDownload(window, downloads, 1);
 	await window.webContents.executeJavaScript(`(() => {
 		const button = Array.from(document.querySelectorAll('.preview-actions button')).find((node) => node.textContent === 'PNG');
 		button.click();
 	})()`);
-	await waitForValue(() => downloads.length >= 2);
+	await waitForDownload(window, downloads, 2);
 	for (const download of downloads) {
 		if (download.state !== 'completed' || fs.statSync(download.target).size < 100) throw new Error(`Export failed: ${JSON.stringify(download)}`);
 	}
