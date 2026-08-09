@@ -12,7 +12,10 @@ export function useFridayTheme(): AppThemeData {
 	useEffect(() => {
 		if (!isFriday()) return;
 		let active = true;
-		app.getThemeData().then((value) => active && setTheme(value)).catch(() => undefined);
+		app
+			.getThemeData()
+			.then((value) => active && setTheme(value))
+			.catch(() => undefined);
 		const unsubscribe = app.onThemeModeChanged((value) => active && setTheme(value));
 		return () => {
 			active = false;

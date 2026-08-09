@@ -4,7 +4,10 @@ export function flattenForeignObjects(svg: SVGSVGElement): void {
 	for (const foreignObject of svg.querySelectorAll('foreignObject')) {
 		const clone = foreignObject.cloneNode(true) as Element;
 		for (const lineBreak of clone.querySelectorAll('br')) lineBreak.replaceWith('\n');
-		const lines = (clone.textContent ?? '').split(/\n+/).map((line) => line.trim()).filter(Boolean);
+		const lines = (clone.textContent ?? '')
+			.split(/\n+/)
+			.map((line) => line.trim())
+			.filter(Boolean);
 		const x = Number.parseFloat(foreignObject.getAttribute('x') ?? '0');
 		const y = Number.parseFloat(foreignObject.getAttribute('y') ?? '0');
 		const width = Number.parseFloat(foreignObject.getAttribute('width') ?? '0');
@@ -14,7 +17,9 @@ export function flattenForeignObjects(svg: SVGSVGElement): void {
 		text.setAttribute('y', String(y + height / 2));
 		text.setAttribute('text-anchor', 'middle');
 		text.setAttribute('dominant-baseline', 'middle');
-		const label = foreignObject.querySelector<HTMLElement>('.nodeLabel, .edgeLabel, .label, span, div');
+		const label = foreignObject.querySelector<HTMLElement>(
+			'.nodeLabel, .edgeLabel, .label, span, div'
+		);
 		if (label?.className) text.setAttribute('class', label.className);
 		for (const [index, line] of (lines.length ? lines : ['']).entries()) {
 			const span = document.createElementNS(svgNamespace, 'tspan');

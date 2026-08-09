@@ -10,8 +10,14 @@ export async function svgToPng(svg: string): Promise<Blob> {
 	documentSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 	const serialized = new XMLSerializer().serializeToString(documentSvg);
 	const viewBox = documentSvg.getAttribute('viewBox')?.split(/\s+/).map(Number);
-	const width = Math.max(1, viewBox?.[2] || Number.parseFloat(documentSvg.getAttribute('width') ?? '') || 1200);
-	const height = Math.max(1, viewBox?.[3] || Number.parseFloat(documentSvg.getAttribute('height') ?? '') || 800);
+	const width = Math.max(
+		1,
+		viewBox?.[2] || Number.parseFloat(documentSvg.getAttribute('width') ?? '') || 1200
+	);
+	const height = Math.max(
+		1,
+		viewBox?.[3] || Number.parseFloat(documentSvg.getAttribute('height') ?? '') || 800
+	);
 	const scale = Math.min(3, 4096 / Math.max(width, height));
 	const image = new Image();
 	const url = URL.createObjectURL(new Blob([serialized], { type: 'image/svg+xml;charset=utf-8' }));
@@ -28,7 +34,10 @@ export async function svgToPng(svg: string): Promise<Blob> {
 		if (!context) throw new Error('Canvas rendering is unavailable.');
 		context.drawImage(image, 0, 0, canvas.width, canvas.height);
 		return await new Promise<Blob>((resolve, reject) => {
-			canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Unable to create the PNG.')), 'image/png');
+			canvas.toBlob(
+				(blob) => (blob ? resolve(blob) : reject(new Error('Unable to create the PNG.'))),
+				'image/png'
+			);
 		});
 	} finally {
 		URL.revokeObjectURL(url);

@@ -21,7 +21,9 @@ async function waitForDownload(window, downloads, count) {
 	const started = Date.now();
 	while (Date.now() - started < 15000) {
 		if (downloads.length >= count) return;
-		const exportError = await window.webContents.executeJavaScript("document.querySelector('.error-card')?.textContent ?? ''");
+		const exportError = await window.webContents.executeJavaScript(
+			"document.querySelector('.error-card')?.textContent ?? ''"
+		);
 		if (exportError) throw new Error(`Export failed: ${exportError}`);
 		await wait(100);
 	}
@@ -32,7 +34,10 @@ async function run() {
 	await session.defaultSession.clearStorageData();
 	const downloads = [];
 	session.defaultSession.on('will-download', (_event, item) => {
-		const target = path.join(app.getPath('temp'), `friday-diagrams-smoke-${Date.now()}-${item.getFilename()}`);
+		const target = path.join(
+			app.getPath('temp'),
+			`friday-diagrams-smoke-${Date.now()}-${item.getFilename()}`
+		);
 		item.setSavePath(target);
 		item.once('done', (_doneEvent, state) => downloads.push({ target, state }));
 	});
@@ -67,10 +72,14 @@ async function run() {
 		ariaRole: document.querySelector('.diagram-output svg')?.getAttribute('aria-roledescription')
 	})`);
 	if (initial.title !== 'Diagrams') throw new Error(`Unexpected title: ${initial.title}`);
-	if (!/^\d+ registered renderers$/.test(initial.renderers ?? '')) throw new Error(`Renderer inventory unavailable: ${initial.renderers}`);
+	if (!/^\d+ registered renderers$/.test(initial.renderers ?? ''))
+		throw new Error(`Renderer inventory unavailable: ${initial.renderers}`);
 	if (initial.error) throw new Error(initial.error);
-	if (!initial.titleNode || !initial.descriptionNode || !initial.ariaRole) throw new Error('Accessible SVG metadata is missing.');
-	const examples = await window.webContents.executeJavaScript("Array.from(document.querySelector('.app-bar select').options).slice(1).map((option) => option.textContent)");
+	if (!initial.titleNode || !initial.descriptionNode || !initial.ariaRole)
+		throw new Error('Accessible SVG metadata is missing.');
+	const examples = await window.webContents.executeJavaScript(
+		"Array.from(document.querySelector('.app-bar select').options).slice(1).map((option) => option.textContent)"
+	);
 	const rendered = [];
 	for (let index = 0; index < examples.length; index += 1) {
 		await window.webContents.executeJavaScript(`(() => {
@@ -85,7 +94,8 @@ async function run() {
 			error: document.querySelector('.error-card')?.textContent ?? '',
 			type: Array.from(document.querySelectorAll('.status-bar span')).map((node) => node.textContent).find((value) => value && !['Diagram ready', 'Accessibility text missing', 'Saved', 'Saving…'].includes(value) && !value.endsWith('characters')) ?? ''
 		})`);
-		if (!result.svg || result.error) throw new Error(`${examples[index]} failed: ${result.error || 'missing SVG'}`);
+		if (!result.svg || result.error)
+			throw new Error(`${examples[index]} failed: ${result.error || 'missing SVG'}`);
 		rendered.push({ name: examples[index], type: result.type });
 	}
 	await window.webContents.executeJavaScript(`(() => {
@@ -94,10 +104,19 @@ async function run() {
 		select.dispatchEvent(new Event('change', { bubbles: true }));
 	})()`);
 	await wait(500);
-	await waitFor(window, "!document.querySelector('.rendering') && !document.querySelector('.error-card')");
+	await waitFor(
+		window,
+		"!document.querySelector('.rendering') && !document.querySelector('.error-card')"
+	);
 	const optionResults = {};
-	for (const [name, index] of [['themes', 0], ['looks', 1], ['layouts', 2]]) {
-		const values = await window.webContents.executeJavaScript(`Array.from(document.querySelectorAll('.options-bar select')[${index}].options).map((option) => option.value)`);
+	for (const [name, index] of [
+		['themes', 0],
+		['looks', 1],
+		['layouts', 2],
+	]) {
+		const values = await window.webContents.executeJavaScript(
+			`Array.from(document.querySelectorAll('.options-bar select')[${index}].options).map((option) => option.value)`
+		);
 		optionResults[name] = [];
 		for (const value of values) {
 			await window.webContents.executeJavaScript(`(() => {
@@ -107,13 +126,19 @@ async function run() {
 			})()`);
 			await wait(500);
 			await waitFor(window, "!document.querySelector('.rendering')");
-			const optionError = await window.webContents.executeJavaScript("document.querySelector('.error-card')?.textContent ?? ''");
+			const optionError = await window.webContents.executeJavaScript(
+				"document.querySelector('.error-card')?.textContent ?? ''"
+			);
 			if (optionError) throw new Error(`${name} option ${value} failed: ${optionError}`);
 			optionResults[name].push(value);
 		}
 	}
-	await window.webContents.executeJavaScript("document.querySelector('.preview-actions button[aria-label=\"Zoom in\"]').click()");
-	const zoomTransform = await window.webContents.executeJavaScript("document.querySelector('.diagram-output').style.transform");
+	await window.webContents.executeJavaScript(
+		'document.querySelector(\'.preview-actions button[aria-label="Zoom in"]\').click()'
+	);
+	const zoomTransform = await window.webContents.executeJavaScript(
+		"document.querySelector('.diagram-output').style.transform"
+	);
 	if (zoomTransform !== 'scale(1.1)') throw new Error(`Zoom control failed: ${zoomTransform}`);
 	await window.webContents.executeJavaScript(`(() => {
 		const button = Array.from(document.querySelectorAll('.preview-actions button')).find((node) => node.textContent === 'SVG');
@@ -126,7 +151,8 @@ async function run() {
 	})()`);
 	await waitForDownload(window, downloads, 2);
 	for (const download of downloads) {
-		if (download.state !== 'completed' || fs.statSync(download.target).size < 100) throw new Error(`Export failed: ${JSON.stringify(download)}`);
+		if (download.state !== 'completed' || fs.statSync(download.target).size < 100)
+			throw new Error(`Export failed: ${JSON.stringify(download)}`);
 	}
 	await window.webContents.executeJavaScript(`(() => {
 		window.__fridayDiagramsInjected = false;
@@ -142,9 +168,12 @@ async function run() {
 		dangerousAttribute: Boolean(document.querySelector('.diagram-output [onerror], .diagram-output [onload]')),
 		error: document.querySelector('.error-card')?.textContent ?? ''
 	})`);
-	if (secure.injected || secure.dangerousAttribute || secure.error) throw new Error(`Strict security check failed: ${JSON.stringify(secure)}`);
-	await window.webContents.executeJavaScript("document.querySelectorAll('.tabs button')[1].click()");
-	await waitFor(window, "Boolean(document.querySelector('[data-testid=\"diagram-config\"]'))");
+	if (secure.injected || secure.dangerousAttribute || secure.error)
+		throw new Error(`Strict security check failed: ${JSON.stringify(secure)}`);
+	await window.webContents.executeJavaScript(
+		"document.querySelectorAll('.tabs button')[1].click()"
+	);
+	await waitFor(window, 'Boolean(document.querySelector(\'[data-testid="diagram-config"]\'))');
 	await window.webContents.executeJavaScript(`(() => {
 		const input = document.querySelector('[data-testid="diagram-config"]');
 		const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
@@ -160,21 +189,37 @@ async function run() {
 		input.dispatchEvent(new Event('input', { bubbles: true }));
 	})()`);
 	await wait(500);
-	await waitFor(window, "Boolean(document.querySelector('.diagram-output svg')) && !document.querySelector('.error-card')");
-	await waitFor(window, "Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'Saved')");
+	await waitFor(
+		window,
+		"Boolean(document.querySelector('.diagram-output svg')) && !document.querySelector('.error-card')"
+	);
+	await waitFor(
+		window,
+		"Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'Saved')"
+	);
 	await window.reload();
 	await waitFor(window, "Boolean(document.querySelector('.diagram-output svg'))");
-	await window.webContents.executeJavaScript("document.querySelectorAll('.tabs button')[1].click()");
-	await waitFor(window, "Boolean(document.querySelector('[data-testid=\"diagram-config\"]'))");
-	const restoredConfig = await window.webContents.executeJavaScript("document.querySelector('[data-testid=\"diagram-config\"]').value");
+	await window.webContents.executeJavaScript(
+		"document.querySelectorAll('.tabs button')[1].click()"
+	);
+	await waitFor(window, 'Boolean(document.querySelector(\'[data-testid="diagram-config"]\'))');
+	const restoredConfig = await window.webContents.executeJavaScript(
+		'document.querySelector(\'[data-testid="diagram-config"]\').value'
+	);
 	if (restoredConfig !== '{}') throw new Error('Persisted editor configuration was not restored.');
 	if (errors.length) throw new Error(`Runtime errors:\n${errors.join('\n')}`);
 	for (const download of downloads) fs.rmSync(download.target, { force: true });
-	process.stdout.write(`${JSON.stringify({ initial, rendered, options: optionResults, exports: downloads.map(({ target, state }) => ({ name: path.extname(target), state })), secure, errors }, null, 2)}\n`);
+	process.stdout.write(
+		`${JSON.stringify({ initial, rendered, options: optionResults, exports: downloads.map(({ target, state }) => ({ name: path.extname(target), state })), secure, errors }, null, 2)}\n`
+	);
 	window.destroy();
 }
 
-app.whenReady().then(run).then(() => app.quit()).catch((error) => {
-	process.stderr.write(`${error.stack ?? error}\n`);
-	app.exit(1);
-});
+app
+	.whenReady()
+	.then(run)
+	.then(() => app.quit())
+	.catch((error) => {
+		process.stderr.write(`${error.stack ?? error}\n`);
+		app.exit(1);
+	});
