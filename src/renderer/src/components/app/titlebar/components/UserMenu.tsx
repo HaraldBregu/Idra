@@ -38,7 +38,7 @@ export function UserMenu({ align }: UserMenuProps): ReactElement {
 			>
 				<User className="size-4" strokeWidth={1.8} />
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align={align} className="w-52">
+			<DropdownMenuContent align={align} className="w-44">
 				<DropdownMenuGroup>
 					<DropdownMenuLabel>{settingsLabel}</DropdownMenuLabel>
 					<DropdownMenuItem onClick={() => navigate('/settings/general')}>
