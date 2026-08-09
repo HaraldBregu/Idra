@@ -1,5 +1,5 @@
 import mermaid from 'mermaid';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 interface MermaidPreviewProps {
 	content: string;
@@ -7,7 +7,8 @@ interface MermaidPreviewProps {
 }
 
 export function MermaidPreview({ content, isDark }: MermaidPreviewProps) {
-	const renderId = `mermaid-${useId().replaceAll(':', '')}`;
+	const renderIdPrefix = `mermaid-${useId().replaceAll(':', '')}`;
+	const renderSequenceRef = useRef(0);
 	const [svg, setSvg] = useState('');
 	const [error, setError] = useState('');
 
@@ -16,6 +17,8 @@ export function MermaidPreview({ content, isDark }: MermaidPreviewProps) {
 		setSvg('');
 		setError('');
 		if (!content.trim()) return () => undefined;
+		const renderId = `${renderIdPrefix}-${renderSequenceRef.current + 1}`;
+		renderSequenceRef.current += 1;
 
 		mermaid.initialize({
 			securityLevel: 'strict',
@@ -36,7 +39,7 @@ export function MermaidPreview({ content, isDark }: MermaidPreviewProps) {
 		return () => {
 			active = false;
 		};
-	}, [content, isDark, renderId]);
+	}, [content, isDark, renderIdPrefix]);
 
 	if (!content.trim()) {
 		return (
