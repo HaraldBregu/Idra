@@ -1,4 +1,5 @@
-const { app, BrowserWindow, session } = require('electron');
+const { app, BrowserWindow, clipboard, nativeImage, session } = require('electron');
+const { createHash } = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -6,6 +7,10 @@ const errors = [];
 
 function wait(duration) {
 	return new Promise((resolve) => setTimeout(resolve, duration));
+}
+
+function signature(value) {
+	return createHash('sha256').update(value).digest('hex').slice(0, 12);
 }
 
 async function waitFor(window, expression, timeout = 15000) {
@@ -119,6 +124,15 @@ async function run() {
 		);
 		optionResults[name] = [];
 		for (const value of values) {
+			if (name === 'layouts') {
+				const example = ['cose-bilkent', 'tidy-tree'].includes(value) ? 'Mindmap' : 'Flowchart';
+				await window.webContents.executeJavaScript(`(() => {
+					const select = document.querySelector('.app-bar select');
+					const option = Array.from(select.options).find((entry) => entry.textContent === ${JSON.stringify(example)});
+					select.value = option.value;
+					select.dispatchEvent(new Event('change', { bubbles: true }));
+				})()`);
+			}
 			await window.webContents.executeJavaScript(`(() => {
 				const select = document.querySelectorAll('.options-bar select')[${index}];
 				select.value = ${JSON.stringify(value)};
@@ -130,9 +144,52 @@ async function run() {
 				"document.querySelector('.error-card')?.textContent ?? ''"
 			);
 			if (optionError) throw new Error(`${name} option ${value} failed: ${optionError}`);
-			optionResults[name].push(value);
+			const markup = await window.webContents.executeJavaScript(
+				"document.querySelector('.diagram-output svg')?.outerHTML ?? ''"
+			);
+			optionResults[name].push({ value, signature: signature(markup) });
 		}
 	}
+	const optionSignatures = Object.fromEntries(
+		Object.entries(optionResults).map(([name, values]) => [
+			name,
+			Object.fromEntries(values.map(({ value, signature: hash }) => [value, hash])),
+		])
+	);
+	if (optionSignatures.themes.default === optionSignatures.themes.dark)
+		throw new Error('Default and dark themes produced identical SVG output.');
+	if (optionSignatures.looks.classic === optionSignatures.looks.handDrawn)
+		throw new Error('Classic and hand-drawn looks produced identical SVG output.');
+	if (optionSignatures.layouts.dagre === optionSignatures.layouts.elk)
+		throw new Error('Dagre and ELK produced identical SVG output.');
+	if (optionSignatures.layouts['cose-bilkent'] === optionSignatures.layouts['tidy-tree'])
+		throw new Error('Cose-bilkent and tidy-tree produced identical mindmap output.');
+	await window.webContents.executeJavaScript(`(() => {
+		const controls = document.querySelectorAll('.options-bar select');
+		for (const [index, value] of [['0', 'default'], ['1', 'classic'], ['2', 'auto']]) {
+			controls[Number(index)].value = value;
+			controls[Number(index)].dispatchEvent(new Event('change', { bubbles: true }));
+		}
+		const select = document.querySelector('.app-bar select');
+		const option = Array.from(select.options).find((entry) => entry.textContent === 'Math and Markdown');
+		select.value = option.value;
+		select.dispatchEvent(new Event('change', { bubbles: true }));
+	})()`);
+	await wait(500);
+	await waitFor(window, "!document.querySelector('.rendering') && Boolean(document.querySelector('.diagram-output .katex'))");
+	const richLabels = await window.webContents.executeJavaScript(`({
+		foreignObjects: document.querySelectorAll('.diagram-output foreignObject').length,
+		katex: Boolean(document.querySelector('.diagram-output .katex')),
+		strong: Boolean(document.querySelector('.diagram-output strong')),
+		emphasis: Boolean(document.querySelector('.diagram-output em'))
+	})`);
+	if (!richLabels.foreignObjects || !richLabels.katex || !richLabels.strong || !richLabels.emphasis)
+		throw new Error(`Rich Mermaid labels are incomplete: ${JSON.stringify(richLabels)}`);
+	await window.webContents.executeJavaScript(`(() => {
+		const button = Array.from(document.querySelectorAll('.preview-actions button')).find((node) => node.textContent === 'Fit');
+		button.click();
+	})()`);
+	await wait(100);
 	await window.webContents.executeJavaScript(
 		'document.querySelector(\'.preview-actions button[aria-label="Zoom in"]\').click()'
 	);
@@ -154,6 +211,22 @@ async function run() {
 		if (download.state !== 'completed' || fs.statSync(download.target).size < 100)
 			throw new Error(`Export failed: ${JSON.stringify(download)}`);
 	}
+	const svgDownload = downloads.find(({ target }) => path.extname(target) === '.svg');
+	const pngDownload = downloads.find(({ target }) => path.extname(target) === '.png');
+	const exportedSvg = fs.readFileSync(svgDownload.target, 'utf8');
+	if (!exportedSvg.includes('<foreignObject') || !exportedSvg.includes('class="katex"'))
+		throw new Error('SVG export lost Mermaid rich-label content.');
+	const exportedPng = nativeImage.createFromPath(pngDownload.target);
+	if (exportedPng.isEmpty() || exportedPng.getSize().width < 1 || exportedPng.getSize().height < 1)
+		throw new Error('PNG export is not a decodable image.');
+	const printed = await window.webContents.printToPDF({ printBackground: true });
+	if (printed.length < 1000) throw new Error('Print layout did not produce a PDF.');
+	await window.webContents.executeJavaScript(`(() => {
+		const button = Array.from(document.querySelectorAll('.preview-actions button')).find((node) => node.textContent === 'Copy SVG');
+		button.click();
+	})()`);
+	await wait(100);
+	if (!clipboard.readText().includes('<svg')) throw new Error('Copy SVG did not write SVG markup.');
 	await window.webContents.executeJavaScript(`(() => {
 		window.__fridayDiagramsInjected = false;
 		const input = document.querySelector('[data-testid="diagram-source"]');
@@ -170,6 +243,21 @@ async function run() {
 	})`);
 	if (secure.injected || secure.dangerousAttribute || secure.error)
 		throw new Error(`Strict security check failed: ${JSON.stringify(secure)}`);
+	await window.webContents.executeJavaScript(`(() => {
+		const input = document.querySelector('.file-button input');
+		const file = new File(['# Notes\\n\\n\`\`\`mermaid\\nsequenceDiagram\\n  Alice->>Bob: Imported\\n\`\`\`'], 'diagram.md', { type: 'text/markdown' });
+		Object.defineProperty(input, 'files', { configurable: true, value: [file] });
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+	})()`);
+	await wait(500);
+	await waitFor(window, "!document.querySelector('.rendering') && Boolean(document.querySelector('.diagram-output svg'))");
+	const imported = await window.webContents.executeJavaScript(`({
+		source: document.querySelector('[data-testid="diagram-source"]').value,
+		type: Array.from(document.querySelectorAll('.status-bar span')).map((node) => node.textContent).find((value) => value === 'sequence') ?? '',
+		error: document.querySelector('.error-card')?.textContent ?? ''
+	})`);
+	if (imported.source.includes('```') || !imported.source.startsWith('sequenceDiagram') || imported.type !== 'sequence' || imported.error)
+		throw new Error(`Markdown import failed: ${JSON.stringify(imported)}`);
 	await window.webContents.executeJavaScript(
 		"document.querySelectorAll('.tabs button')[1].click()"
 	);
