@@ -4,6 +4,7 @@ import { scheduleIdSchema } from './schema';
 
 export const pauseScheduleTool = tool({
 	name: 'pause_schedule',
+	defaultPermission: 'allow',
 	risk: 'high',
 	effect: 'persistence',
 	hardApproval: true,

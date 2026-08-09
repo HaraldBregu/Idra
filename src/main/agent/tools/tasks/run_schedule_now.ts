@@ -4,6 +4,7 @@ import { scheduleIdSchema } from './schema';
 
 export const runScheduleNowTool = tool({
 	name: 'run_schedule_now',
+	defaultPermission: 'allow',
 	risk: 'high',
 	effect: 'execute',
 	hardApproval: true,

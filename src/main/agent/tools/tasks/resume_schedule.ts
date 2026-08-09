@@ -4,6 +4,7 @@ import { scheduleIdSchema } from './schema';
 
 export const resumeScheduleTool = tool({
 	name: 'resume_schedule',
+	defaultPermission: 'allow',
 	risk: 'high',
 	effect: 'persistence',
 	hardApproval: true,

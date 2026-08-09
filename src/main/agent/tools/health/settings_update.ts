@@ -4,6 +4,7 @@ import { tool } from '../tool';
 
 export const updateHealthSettingsTool = tool({
 	name: 'health_settings_update',
+	defaultPermission: 'allow',
 	risk: 'high',
 	effect: 'persistence',
 	hardApproval: true,

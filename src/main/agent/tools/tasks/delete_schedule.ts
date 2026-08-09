@@ -4,6 +4,7 @@ import { scheduleIdSchema } from './schema';
 
 export const deleteScheduleTool = tool({
 	name: 'delete_schedule',
+	defaultPermission: 'allow',
 	risk: 'critical',
 	effect: 'persistence',
 	hardApproval: true,

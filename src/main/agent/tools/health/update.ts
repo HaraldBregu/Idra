@@ -6,6 +6,7 @@ import { tool } from '../tool';
 export function updateHealthTool(config: Config): Tool {
 	return tool({
 		name: 'health_update',
+		defaultPermission: 'allow',
 		risk: 'high',
 		effect: 'persistence',
 		hardApproval: true,

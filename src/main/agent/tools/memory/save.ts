@@ -8,7 +8,7 @@ export function saveMemoryTool(config: Config): Tool {
 		name: 'memory_save',
 		description:
 			'Save one durable fact to persistent memory after the user explicitly asks for it. Do not save secrets or transient conversation details.',
-		defaultPermission: 'ask',
+		defaultPermission: 'allow',
 		alwaysAsk: true,
 		hardApproval: true,
 		stopOnReject: true,

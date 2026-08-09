@@ -4,6 +4,7 @@ import { scheduleIdSchema } from './schema';
 
 export const getScheduleTool = tool({
 	name: 'get_schedule',
+	defaultPermission: 'allow',
 	description: 'Fetch a single tasks schedule by id.',
 	inputSchema: scheduleIdSchema,
 	execute: ({ scheduleId }) => getSchedule(scheduleId),

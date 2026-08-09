@@ -4,6 +4,7 @@ import { scheduleIdSchema, updateScheduleRequestSchema } from './schema';
 
 export const updateScheduleTool = tool({
 	name: 'update_schedule',
+	defaultPermission: 'allow',
 	risk: 'high',
 	effect: 'persistence',
 	hardApproval: true,
