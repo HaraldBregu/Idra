@@ -32,7 +32,6 @@ import {
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { EMPTY_EXCALIDRAW_CONTENT, EMPTY_MERMAID_CONTENT } from '@/lib/content';
 import { showNativeContextMenu } from '@/lib/menu';
 import { removeWorkspaceEntry } from '@/lib/remove';
 import { rebaseWorkspacePath } from '@/lib/rebase';
@@ -86,8 +85,7 @@ export default function App() {
 	const allowCloseRef = useRef(false);
 	const deletingScopeRef = useRef<string | null>(null);
 	const selectionRequestRef = useRef(0);
-	const selectedEditable =
-		selectedKind === 'markdown' || selectedKind === 'mermaid' || selectedKind === 'excalidraw';
+	const selectedEditable = selectedKind === 'markdown';
 	const selectedDirty = selectedEditable && selectedContent !== selectedSavedContent;
 	useEffect(() => {
 		if (!isFriday()) return;
@@ -174,7 +172,7 @@ export default function App() {
 			setSelectedSaveError('');
 			saveSnapshotRef.current = { filePath, content };
 			const operation = Promise.resolve()
-				.then(() => agent.writeWorkspaceFile(filePath, content))
+				.then(() => agent.writeWorkspaceMarkdown(filePath, content))
 				.then(() => {
 					if (selectedPathRef.current === filePath) setSelectedSavedContent(content);
 					return true;
@@ -318,14 +316,6 @@ export default function App() {
 				createRequest.type === 'directory'
 					? await agent.createWorkspaceDirectory(createRequest.parentPath, name)
 					: await agent.createWorkspaceFile(createRequest.parentPath, name);
-			if (createRequest.type === 'file') {
-				const createdKind = workspaceFileType(createdPath).kind;
-				if (createdKind === 'mermaid') {
-					await agent.writeWorkspaceFile(createdPath, EMPTY_MERMAID_CONTENT);
-				} else if (createdKind === 'excalidraw') {
-					await agent.writeWorkspaceFile(createdPath, EMPTY_EXCALIDRAW_CONTENT);
-				}
-			}
 			setWorkspaceFiles(await agent.listWorkspaceFiles());
 			setWorkspaceError('');
 			setCreateRequest(null);
@@ -613,7 +603,6 @@ export default function App() {
 						documentMode={documentMode}
 						dirty={selectedDirty}
 						error={selectedError}
-						isDark={theme.isDark}
 						kind={selectedKind}
 						loading={selectedLoading}
 						mediaUrl={selectedMediaUrl}

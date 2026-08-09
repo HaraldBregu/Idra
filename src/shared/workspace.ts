@@ -25,7 +25,6 @@ const ASSET_MIME_TYPES: Record<string, string> = {
 };
 
 const MARKDOWN_EXTENSIONS = new Set(['md', 'markdown']);
-const MERMAID_EXTENSIONS = new Set(['mermaid', 'mmd']);
 const TEXT_EXTENSIONS = new Set([
 	'c',
 	'conf',
@@ -60,8 +59,6 @@ const TEXT_FILENAMES = new Set(['dockerfile', 'license', 'makefile', 'readme']);
 
 export type WorkspaceFileKind =
 	| 'markdown'
-	| 'mermaid'
-	| 'excalidraw'
 	| 'text'
 	| 'image'
 	| 'audio'
@@ -88,10 +85,6 @@ export function workspaceFileType(filePath: string): WorkspaceFileType {
 	if (mimeType?.startsWith('audio/')) return { kind: 'audio', mimeType };
 	if (mimeType?.startsWith('video/')) return { kind: 'video', mimeType };
 	if (MARKDOWN_EXTENSIONS.has(extension)) return { kind: 'markdown', mimeType: 'text/markdown' };
-	if (MERMAID_EXTENSIONS.has(extension)) return { kind: 'mermaid', mimeType: 'text/x-mermaid' };
-	if (extension === 'excalidraw') {
-		return { kind: 'excalidraw', mimeType: 'application/vnd.excalidraw+json' };
-	}
 	if (TEXT_EXTENSIONS.has(extension) || TEXT_FILENAMES.has(name)) return { kind: 'text', mimeType: 'text/plain' };
 	return { kind: 'unsupported' };
 }

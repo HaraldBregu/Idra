@@ -10,7 +10,6 @@ export type WorkspaceAgentApi = Pick<
 	| 'listWorkspaceFiles'
 	| 'readWorkspaceFile'
 	| 'readWorkspaceAsset'
-	| 'writeWorkspaceFile'
 	| 'writeWorkspaceMarkdown'
 	| 'createWorkspaceFile'
 	| 'createWorkspaceDirectory'
@@ -148,10 +147,6 @@ export function connect(options: ConnectOptions): FridayClient {
 			readWorkspaceAsset: (filePath) =>
 				invoke(AgentChannels.readWorkspaceAsset, [filePath]) as ReturnType<
 					AgentApi['readWorkspaceAsset']
-				>,
-			writeWorkspaceFile: (filePath, content) =>
-				invoke(AgentChannels.writeWorkspaceFile, [filePath, content]) as ReturnType<
-					AgentApi['writeWorkspaceFile']
 				>,
 			writeWorkspaceMarkdown: (filePath, content) =>
 				invoke(AgentChannels.writeWorkspaceMarkdown, [filePath, content]) as ReturnType<

@@ -12,16 +12,8 @@ const CodeMirrorEditor = lazy(() =>
 		default: CodeMirrorEditor,
 	}))
 );
-const ExcalidrawEditor = lazy(() =>
-	import('@/components/excalidraw').then(({ ExcalidrawEditor }) => ({
-		default: ExcalidrawEditor,
-	}))
-);
 const MarkdownPreview = lazy(() =>
 	import('@/components/markdown').then(({ MarkdownPreview }) => ({ default: MarkdownPreview }))
-);
-const MermaidPreview = lazy(() =>
-	import('@/components/mermaid').then(({ MermaidPreview }) => ({ default: MermaidPreview }))
 );
 const viewerFallback = (
 	<div className="flex min-h-full items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -32,7 +24,6 @@ const viewerFallback = (
 interface FileViewerProps {
 	canSave: boolean;
 	content: string;
-	isDark: boolean;
 	kind: WorkspaceFileKind;
 	onChange: (content: string) => void;
 	onSave: () => Promise<boolean>;
@@ -43,7 +34,6 @@ interface FileViewerProps {
 export function FileViewer({
 	canSave,
 	content,
-	isDark,
 	kind,
 	onChange,
 	onSave,
@@ -85,54 +75,6 @@ export function FileViewer({
 					</Suspense>
 				</TabsContent>
 			</>
-		);
-	}
-
-	if (kind === 'mermaid') {
-		return (
-			<>
-				<TabsContent
-					value="source"
-					forceMount
-					className="m-0 min-h-full data-[state=inactive]:hidden"
-				>
-					<article className="mx-auto flex min-h-full w-full max-w-[1000px] flex-col px-5 pb-12 pt-8 sm:px-8 lg:px-12">
-						<Suspense fallback={viewerFallback}>
-							<CodeMirrorEditor
-								key={path}
-								ariaLabel="Mermaid source"
-								canSave={canSave}
-								className="min-h-[calc(100dvh-10rem)] flex-1"
-								language="plain"
-								onChange={onChange}
-								onSave={onSave}
-								placeholderText="flowchart TD"
-								value={content}
-							/>
-						</Suspense>
-					</article>
-				</TabsContent>
-				<TabsContent value="preview" className="m-0 min-h-full">
-					<Suspense fallback={viewerFallback}>
-						<MermaidPreview content={content} isDark={isDark} />
-					</Suspense>
-				</TabsContent>
-			</>
-		);
-	}
-
-	if (kind === 'excalidraw') {
-		return (
-			<Suspense fallback={viewerFallback}>
-				<ExcalidrawEditor
-					key={path}
-					content={content}
-					isDark={isDark}
-					onChange={onChange}
-					onSave={onSave}
-					path={path}
-				/>
-			</Suspense>
 		);
 	}
 

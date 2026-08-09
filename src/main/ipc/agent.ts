@@ -65,7 +65,6 @@ import { writeWorkspaceMarkdown } from './markdown';
 import { moveWorkspaceEntry } from './move';
 import { renameWorkspaceEntry } from './rename';
 import { resolveWorkspaceFile } from './workspace';
-import { writeWorkspaceFile } from './write';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;
@@ -352,16 +351,6 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
 				return readWorkspaceAsset(workspacePath(agent.config), normalizedFilePath);
 			}, AgentChannels.readWorkspaceAsset)
-		);
-
-		ipcMain.handle(
-			AgentChannels.writeWorkspaceFile,
-			wrapSimpleHandler(async (filePath: unknown, content: unknown): Promise<void> => {
-				const normalizedFilePath = optionalTrimmedString(filePath);
-				if (!normalizedFilePath) throw new Error('Invalid workspace file path.');
-				if (typeof content !== 'string') throw new Error('Invalid workspace file content.');
-				await writeWorkspaceFile(workspacePath(agent.config), normalizedFilePath, content);
-			}, AgentChannels.writeWorkspaceFile)
 		);
 
 		ipcMain.handle(

@@ -126,7 +126,6 @@ export interface AgentApi {
 	listWorkspaceFiles: () => Promise<WorkspaceTreeEntry[]>;
 	readWorkspaceFile: (filePath: string) => Promise<string>;
 	readWorkspaceAsset: (filePath: string) => Promise<WorkspaceAsset>;
-	writeWorkspaceFile: (filePath: string, content: string) => Promise<void>;
 	writeWorkspaceMarkdown: (filePath: string, content: string) => Promise<void>;
 	createWorkspaceFile: (parentPath: string, name: string) => Promise<string>;
 	createWorkspaceDirectory: (parentPath: string, name: string) => Promise<string>;

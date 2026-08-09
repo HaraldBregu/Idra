@@ -12,7 +12,6 @@ interface WorkspaceViewerProps {
 	content: string;
 	dirty: boolean;
 	error: string;
-	isDark: boolean;
 	kind: WorkspaceFileKind | null;
 	loading: boolean;
 	documentMode: 'source' | 'preview';
@@ -31,7 +30,6 @@ export function WorkspaceViewer({
 	content,
 	dirty,
 	error,
-	isDark,
 	kind,
 	loading,
 	documentMode,
@@ -74,8 +72,8 @@ export function WorkspaceViewer({
 			</section>
 		);
 	}
-	const editable = kind === 'markdown' || kind === 'mermaid' || kind === 'excalidraw';
-	const previewable = kind === 'markdown' || kind === 'mermaid';
+	const editable = kind === 'markdown';
+	const previewable = kind === 'markdown';
 
 	return (
 		<Tabs
@@ -89,12 +87,6 @@ export function WorkspaceViewer({
 				className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background"
 				aria-label="Workspace file"
 				onContextMenu={(event) => {
-					if (
-						kind === 'excalidraw' &&
-						(event.target as HTMLElement).closest('.excalidraw')
-					) {
-						return;
-					}
 					showNativeContextMenu(
 						event,
 						[
@@ -185,7 +177,6 @@ export function WorkspaceViewer({
 						<FileViewer
 							canSave={dirty && !saving}
 							content={content}
-							isDark={isDark}
 							kind={kind}
 							onChange={onChange}
 							onSave={onSave}
