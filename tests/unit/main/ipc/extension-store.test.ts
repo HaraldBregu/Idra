@@ -9,8 +9,14 @@ import { registerCommandWithEvent, registerQueryWithEvent } from '../../../../sr
 import { AppChannels } from '../../../../src/shared/ipc_channels_definitions';
 
 describe('extension store IPC', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it('derives the namespace from the IPC sender', async () => {
-		const extensionRegistry = { resolve: jest.fn((id: number) => (id === 7 ? 'draw' : 'demo')) };
+		const extensionRegistry = {
+			resolve: jest.fn((sender: { id: number }) => (sender.id === 7 ? 'draw' : 'demo')),
+		};
 		const extensionStorage = {
 			get: jest.fn((_extensionId: string, key: string) => key),
 			set: jest.fn(),
@@ -34,7 +40,7 @@ describe('extension store IPC', () => {
 
 		expect(get(event, 'config')).toBe('config');
 		set(event, 'config', { ready: true });
-		expect(extensionRegistry.resolve).toHaveBeenCalledWith(7);
+		expect(extensionRegistry.resolve).toHaveBeenCalledWith(event.sender);
 		expect(extensionStorage.get).toHaveBeenCalledWith('draw', 'config');
 		expect(extensionStorage.set).toHaveBeenCalledWith('draw', 'config', { ready: true });
 	});

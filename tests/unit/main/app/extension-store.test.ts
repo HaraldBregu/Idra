@@ -31,8 +31,18 @@ describe('extension storage', () => {
 	it('rejects invalid keys and values', () => {
 		const storage = new ExtensionStorage(root);
 		expect(() => storage.set('draw', '', 'value')).toThrow('store key');
+		for (const key of ['__proto__', 'constructor', 'prototype', '__internal__']) {
+			expect(() => storage.set('draw', key, 'value')).toThrow('store key');
+		}
 		expect(() => storage.set('draw', 'value', Number.NaN)).toThrow('store value');
 		expect(() => storage.set('../draw', 'value', true)).toThrow('Invalid extension ID');
+	});
+
+	it('accepts literal dotted keys and repeated JSON object references', () => {
+		const storage = new ExtensionStorage(root);
+		const shared = { enabled: true };
+		storage.set('draw', 'config.theme', { first: shared, second: shared });
+		expect(storage.get('draw', 'config.theme')).toEqual({ first: shared, second: shared });
 	});
 
 	it('round-trips, overwrites, and deletes nested binary files', async () => {
@@ -53,7 +63,7 @@ describe('extension storage', () => {
 		await expect(storage.readFile('draw', 'scenes/current.bin')).rejects.toThrow('not found');
 	});
 
-	it.each(['', '../outside', '/outside', 'nested/../outside', 'nested\\outside'])(
+	it.each(['', '../outside', '/outside', 'C:/outside', 'nested/../outside', 'nested\\outside'])(
 		'rejects unsafe file path %p',
 		async (filePath) => {
 			const storage = new ExtensionStorage(root);
@@ -62,6 +72,19 @@ describe('extension storage', () => {
 			);
 		}
 	);
+
+	it('rejects directory targets and final file symlinks', async () => {
+		const storage = new ExtensionStorage(root);
+		await storage.writeFile('draw', '..notes/file.bin', new Uint8Array([1]));
+		fs.mkdirSync(path.join(root, 'draw', 'files', 'folder'));
+		await expect(storage.readFile('draw', 'folder')).rejects.toThrow('regular file');
+
+		if (process.platform === 'win32') return;
+		const outside = path.join(root, 'outside.bin');
+		fs.writeFileSync(outside, 'outside');
+		fs.symlinkSync(outside, path.join(root, 'draw', 'files', 'link.bin'));
+		await expect(storage.readFile('draw', 'link.bin')).rejects.toThrow('regular file');
+	});
 
 	it('rejects symlinks inside the files folder', async () => {
 		if (process.platform === 'win32') return;
