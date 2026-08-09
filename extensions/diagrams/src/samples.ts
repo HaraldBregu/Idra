@@ -156,6 +156,24 @@ export const examples: Example[] = [
       Print`,
 	},
 	{
+		name: 'Mindmap tidy tree',
+		source: `---
+config:
+  layout: tidy-tree
+---
+mindmap
+  root((Diagrams))
+    Author
+      Source
+      Config
+    Preview
+      Validate
+      Render
+    Export
+      SVG
+      PNG`,
+	},
+	{
 		name: 'Timeline',
 		source: `timeline
     title Diagrams extension
