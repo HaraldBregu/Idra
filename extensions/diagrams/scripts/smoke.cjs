@@ -176,7 +176,10 @@ async function run() {
 		select.dispatchEvent(new Event('change', { bubbles: true }));
 	})()`);
 	await wait(500);
-	await waitFor(window, "!document.querySelector('.rendering') && Boolean(document.querySelector('.diagram-output .katex'))");
+	await waitFor(
+		window,
+		"!document.querySelector('.rendering') && Boolean(document.querySelector('.diagram-output .katex'))"
+	);
 	const richLabels = await window.webContents.executeJavaScript(`({
 		foreignObjects: document.querySelectorAll('.diagram-output foreignObject').length,
 		katex: Boolean(document.querySelector('.diagram-output .katex')),
@@ -250,13 +253,21 @@ async function run() {
 		input.dispatchEvent(new Event('change', { bubbles: true }));
 	})()`);
 	await wait(500);
-	await waitFor(window, "!document.querySelector('.rendering') && Boolean(document.querySelector('.diagram-output svg'))");
+	await waitFor(
+		window,
+		"!document.querySelector('.rendering') && Boolean(document.querySelector('.diagram-output svg'))"
+	);
 	const imported = await window.webContents.executeJavaScript(`({
 		source: document.querySelector('[data-testid="diagram-source"]').value,
 		type: Array.from(document.querySelectorAll('.status-bar span')).map((node) => node.textContent).find((value) => value === 'sequence') ?? '',
 		error: document.querySelector('.error-card')?.textContent ?? ''
 	})`);
-	if (imported.source.includes('```') || !imported.source.startsWith('sequenceDiagram') || imported.type !== 'sequence' || imported.error)
+	if (
+		imported.source.includes('```') ||
+		!imported.source.startsWith('sequenceDiagram') ||
+		imported.type !== 'sequence' ||
+		imported.error
+	)
 		throw new Error(`Markdown import failed: ${JSON.stringify(imported)}`);
 	await window.webContents.executeJavaScript(`(() => {
 		const input = document.querySelector('[data-testid="diagram-source"]');
@@ -286,7 +297,8 @@ async function run() {
 	const beforeManualRender = await window.webContents.executeJavaScript(
 		"Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'pie')"
 	);
-	if (!beforeManualRender) throw new Error('Disabling live render did not preserve the previous preview.');
+	if (!beforeManualRender)
+		throw new Error('Disabling live render did not preserve the previous preview.');
 	await window.webContents.executeJavaScript("document.querySelector('button.primary').click()");
 	await waitFor(
 		window,
