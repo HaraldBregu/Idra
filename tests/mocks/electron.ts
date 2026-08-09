@@ -1,5 +1,6 @@
 export const app = {
 	getName: (): string => 'Friday',
+	getAppPath: (): string => process.cwd(),
 	getPath: (): string => process.cwd(),
 	getVersion: (): string => '0.0.0-test',
 };

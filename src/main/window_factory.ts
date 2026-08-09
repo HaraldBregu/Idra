@@ -1,4 +1,5 @@
 import {
+	app,
 	BrowserWindow,
 	BrowserWindowConstructorOptions,
 	WebContentsView,
@@ -37,8 +38,10 @@ export class WindowFactory {
 	) {
 		// Use path.resolve to ensure absolute path for preload
 		// Output as .js (CommonJS) for Electron preload compatibility
-		this.preloadPath = path.resolve(__dirname, '../preload/index.js');
-		this.iconPath = path.resolve(__dirname, '../../resources/icons/icon.png');
+		this.preloadPath = path.resolve(app.getAppPath(), 'out/preload/index.js');
+		this.iconPath = is.dev
+			? path.resolve(app.getAppPath(), 'resources/icons/icon.png')
+			: path.resolve(process.resourcesPath, 'resources/icons/icon.png');
 		this.logger?.info('WindowFactory', `Preload path: ${this.preloadPath}`);
 		// Verify preload file exists
 		try {
@@ -174,7 +177,7 @@ export class WindowFactory {
 			win.loadURL(url.toString());
 		} else {
 			const loadOptions = hash ? { hash } : undefined;
-			win.loadFile(path.join(__dirname, '../renderer', html), loadOptions);
+			win.loadFile(path.join(app.getAppPath(), 'out/renderer', html), loadOptions);
 		}
 	}
 }
