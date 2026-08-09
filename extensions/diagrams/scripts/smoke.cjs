@@ -87,10 +87,9 @@ async function run() {
 	await waitFor(window, "Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'Saved')");
 	await window.reload();
 	await waitFor(window, "Boolean(document.querySelector('.diagram-output svg'))");
-	const restoredConfig = await window.webContents.executeJavaScript(`(() => {
-		document.querySelectorAll('.tabs button')[1].click();
-		return document.querySelector('[data-testid="diagram-config"]')?.value;
-	})()`);
+	await window.webContents.executeJavaScript("document.querySelectorAll('.tabs button')[1].click()");
+	await waitFor(window, "Boolean(document.querySelector('[data-testid=\"diagram-config\"]'))");
+	const restoredConfig = await window.webContents.executeJavaScript("document.querySelector('[data-testid=\"diagram-config\"]').value");
 	if (restoredConfig !== '{}') throw new Error('Persisted editor configuration was not restored.');
 	if (errors.length) throw new Error(`Runtime errors:\n${errors.join('\n')}`);
 	process.stdout.write(`${JSON.stringify({ initial, rendered, errors }, null, 2)}\n`);
