@@ -3,6 +3,58 @@ import {
 	PERMISSION_TOOLS,
 } from '../../../../../src/main/agent/permissions/permissions_types';
 
+const ASK_BY_DEFAULT = [
+	'write',
+	'edit',
+	'apply_patch',
+	'exec',
+	'process',
+	'web_browser',
+	'memory_save',
+	'memory_forget',
+	'wiki_ingest_source',
+	'wiki_save_analysis',
+	'wiki_lint',
+	'wiki_review_changes',
+	'wiki_rebuild_index',
+	'health_update',
+	'health_settings_update',
+	'create_schedule',
+	'update_schedule',
+	'pause_schedule',
+	'resume_schedule',
+	'delete_schedule',
+	'complete_bootstrap',
+] as const;
+
+const ALLOW_BY_DEFAULT = [
+	'read',
+	'recorder_microphone',
+	'recorder_microphone_status',
+	'recorder_microphone_stop',
+	'recorder_camera',
+	'recorder_camera_status',
+	'recorder_camera_stop',
+	'recorder_screen',
+	'recorder_screen_status',
+	'recorder_screen_stop',
+	'web_search',
+	'web_fetch',
+	'create_image',
+	'create_video',
+	'create_sound',
+	'memory_list',
+	'knowledge_query',
+	'wiki_get_recent_activity',
+	'load_skill',
+	'get_schedule',
+	'list_schedules',
+	'run_schedule_now',
+	'list_extensions',
+	'open_extensions',
+	'subagent',
+] as const;
+
 describe('DEFAULT_PERMISSIONS', () => {
 	it('uses a complete top-level tool permission schema', () => {
 		expect(Object.keys(DEFAULT_PERMISSIONS).sort()).toEqual(
@@ -10,38 +62,29 @@ describe('DEFAULT_PERMISSIONS', () => {
 		);
 		expect(DEFAULT_PERMISSIONS.dir).toEqual({});
 		expect(DEFAULT_PERMISSIONS.mode).toBe('ask');
-		expect(DEFAULT_PERMISSIONS.read).toEqual({
-			default: 'ask',
-			allow: [],
-			deny: [],
-			ask: [],
-		});
-		expect(DEFAULT_PERMISSIONS.write).toEqual({
-			default: 'ask',
-			allow: [],
-			deny: [],
-			ask: [],
-		});
-		expect(DEFAULT_PERMISSIONS.edit).toEqual({
-			default: 'ask',
-			allow: [],
-			deny: [],
-			ask: [],
-		});
-		for (const toolName of ['list_extensions', 'open_extensions']) {
+		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('permissions');
+		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultMode');
+		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultPermissions');
+	});
+
+	it('asks only for editing and destructive capabilities by default', () => {
+		const classified = [...ASK_BY_DEFAULT, ...ALLOW_BY_DEFAULT];
+		expect(new Set(classified).size).toBe(classified.length);
+		expect([...classified].sort()).toEqual([...PERMISSION_TOOLS].sort());
+
+		for (const toolName of ASK_BY_DEFAULT)
+			expect(DEFAULT_PERMISSIONS[toolName]).toEqual({
+				default: 'ask',
+				allow: [],
+				deny: [],
+				ask: [],
+			});
+		for (const toolName of ALLOW_BY_DEFAULT)
 			expect(DEFAULT_PERMISSIONS[toolName]).toEqual({
 				default: 'allow',
 				allow: [],
 				deny: [],
 				ask: [],
 			});
-		}
-		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('permissions');
-		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultMode');
-		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultPermissions');
-		for (const toolName of PERMISSION_TOOLS) {
-			const permission = DEFAULT_PERMISSIONS[toolName];
-			expect(permission).toMatchObject({ allow: [], deny: [], ask: [] });
-		}
 	});
 });
