@@ -89,16 +89,26 @@ export function WorkspaceViewer({
 				className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background"
 				aria-label="Workspace file"
 				onContextMenu={(event) => {
+					if (
+						kind === 'excalidraw' &&
+						(event.target as HTMLElement).closest('.excalidraw')
+					) {
+						return;
+					}
 					showNativeContextMenu(
 						event,
 						[
-							...(kind === 'markdown'
+							...(previewable
 								? [
 										{
-											id: markdownMode === 'source' ? 'show-preview' : 'show-source',
-											label: markdownMode === 'source' ? 'Show Preview' : 'Show Source',
+											id: documentMode === 'source' ? 'show-preview' : 'show-source',
+											label: documentMode === 'source' ? 'Show Preview' : 'Show Source',
 										} as const,
 										{ type: 'separator' } as const,
+									]
+								: []),
+							...(editable
+								? [
 										{
 											id: 'save',
 											label: 'Save',
@@ -114,8 +124,8 @@ export function WorkspaceViewer({
 						],
 						{
 							save: () => onSave(),
-							'show-preview': () => onMarkdownModeChange('preview'),
-							'show-source': () => onMarkdownModeChange('source'),
+							'show-preview': () => onDocumentModeChange('preview'),
+							'show-source': () => onDocumentModeChange('source'),
 							rename: onRename,
 							'copy-path': () => navigator.clipboard.writeText(path),
 						}
