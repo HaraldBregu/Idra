@@ -43,12 +43,7 @@ it('exposes one main-session knowledge broker and prefers confident compiled wik
 	expect(getKnowledgeTools('task').map((tool) => tool.name)).toEqual(['knowledge_query']);
 	expect(getKnowledgeTools('bot')).toEqual([]);
 	expect(DEFAULT_PERMISSIONS.knowledge_query).toMatchObject({ default: 'allow' });
-	expect(buildWikiAnswerContext).toHaveBeenCalledWith(
-		'leave',
-		false,
-		undefined,
-		controller.signal
-	);
+	expect(buildWikiAnswerContext).toHaveBeenCalledWith('leave', false, undefined, controller.signal);
 	expect(searchRag).not.toHaveBeenCalled();
 	expect(output).toMatchObject({ route: 'compiled_wiki', abstain: false });
 	expect(output.results[0]).toMatchObject({
@@ -110,7 +105,9 @@ it('abstains when exact evidence cannot be verified', async () => {
 		limitations: [],
 	});
 
-	const output = JSON.parse((await knowledgeQueryTool.run({ query: 'quote', exact: true })) as string);
+	const output = JSON.parse(
+		(await knowledgeQueryTool.run({ query: 'quote', exact: true })) as string
+	);
 
 	expect(output.abstain).toBe(true);
 	expect(output.route).toBe('abstain');

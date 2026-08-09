@@ -4,9 +4,7 @@ import { MCP_MAX_TOOLS } from './limits';
 import { mcpToolName } from './name';
 import { mcpTool } from './tool';
 
-export async function loadMcpTools(
-	signal?: AbortSignal
-): Promise<{
+export async function loadMcpTools(signal?: AbortSignal): Promise<{
 	tools: Tool[];
 	diagnostics: McpDiscoveryDiagnostics;
 	close: () => Promise<void>;

@@ -42,7 +42,7 @@ describe('loadMcpTools', () => {
 		const result = await loadMcpTools();
 		expect(result.tools).toHaveLength(MCP_MAX_TOOLS);
 		expect(result.tools.map((tool) => tool.name)).not.toEqual(
-				expect.arrayContaining(['mcp__safe__invalid', 'mcp__safe__oversized'])
+			expect.arrayContaining(['mcp__safe__invalid', 'mcp__safe__oversized'])
 		);
 		expect(result.diagnostics).toMatchObject({
 			configuredServers: 1,

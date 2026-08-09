@@ -91,17 +91,13 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		while (true) {
 			const currentTokens =
 				Math.ceil(
-					Buffer.byteLength(JSON.stringify(selectedMessages), 'utf8') /
-						CONTEXT_BYTES_PER_TOKEN
+					Buffer.byteLength(JSON.stringify(selectedMessages), 'utf8') / CONTEXT_BYTES_PER_TOKEN
 				) + 32;
 			if (currentTokens <= maxInputTokens - 512) break;
 			let largestIndex = -1;
 			let largestBytes = 0;
 			for (const [index, block] of currentUser.content.entries()) {
-				if (
-					(block.type !== 'image' && block.type !== 'file') ||
-					typeof block.base64 !== 'string'
-				)
+				if ((block.type !== 'image' && block.type !== 'file') || typeof block.base64 !== 'string')
 					continue;
 				const bytes = Buffer.byteLength(block.base64, 'utf8');
 				if (bytes <= largestBytes) continue;
@@ -161,7 +157,7 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 				systemPrompt = minimumSystem;
 				break;
 			}
-			systemPrompt = `${systemPrompt.slice(0, -(Math.min(512, systemPrompt.length - minimumSystem.length - marker.length)) - marker.length)}${marker}`;
+			systemPrompt = `${systemPrompt.slice(0, -Math.min(512, systemPrompt.length - minimumSystem.length - marker.length) - marker.length)}${marker}`;
 		}
 	}
 

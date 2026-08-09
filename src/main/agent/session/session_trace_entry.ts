@@ -36,12 +36,9 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 								? mcp.failures.slice(0, 32).map((failure) => {
 										const issue = failure as Record<string, unknown>;
 										return {
-											serverId:
-												typeof issue.serverId === 'string' ? issue.serverId : 'unknown',
+											serverId: typeof issue.serverId === 'string' ? issue.serverId : 'unknown',
 											phase: typeof issue.phase === 'string' ? issue.phase : 'unknown',
-											...(typeof issue.toolName === 'string'
-												? { toolName: issue.toolName }
-												: {}),
+											...(typeof issue.toolName === 'string' ? { toolName: issue.toolName } : {}),
 										};
 									})
 								: [],
@@ -75,9 +72,7 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 			...(usage
 				? {
 						usage: {
-							...(typeof usage.inputTokens === 'number'
-								? { inputTokens: usage.inputTokens }
-								: {}),
+							...(typeof usage.inputTokens === 'number' ? { inputTokens: usage.inputTokens } : {}),
 							...(typeof usage.outputTokens === 'number'
 								? { outputTokens: usage.outputTokens }
 								: {}),
@@ -146,9 +141,7 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 			...(usage
 				? {
 						usage: {
-							...(typeof usage.inputTokens === 'number'
-								? { inputTokens: usage.inputTokens }
-								: {}),
+							...(typeof usage.inputTokens === 'number' ? { inputTokens: usage.inputTokens } : {}),
 							...(typeof usage.outputTokens === 'number'
 								? { outputTokens: usage.outputTokens }
 								: {}),

@@ -17,9 +17,7 @@ it('uses model catalog input metadata when available', () => {
 		metadata: { inputs: { max_input_tokens: { type: 'integer', maximum: 100_000 } } },
 	});
 
-	expect(modelInputLimit('provider', 'model', 8_000)).toBe(
-		100_000 - MODEL_CONTEXT_SAFETY_TOKENS
-	);
+	expect(modelInputLimit('provider', 'model', 8_000)).toBe(100_000 - MODEL_CONTEXT_SAFETY_TOKENS);
 });
 
 it('reserves output and safety tokens from catalog context-window metadata', () => {
