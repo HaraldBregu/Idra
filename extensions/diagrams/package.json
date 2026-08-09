@@ -7,11 +7,17 @@
 		"utility"
 	],
 	"main": "dist/index.html",
+	"files": [
+		"dist",
+		"manifest.json"
+	],
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
 		"typecheck": "tsc --noEmit",
 		"build": "npm run typecheck && vite build",
+		"install:friday": "npm run build && node scripts/install.cjs",
+		"prepack": "npm run build",
 		"preview": "vite preview",
 		"smoke": "npm run build && ../../node_modules/.bin/electron scripts/smoke.cjs"
 	},

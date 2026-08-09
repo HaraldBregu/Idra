@@ -26,3 +26,6 @@ jobs:
       - run: npm run build:packages
       - run: npm pack --dry-run --workspace @friday/sdk
       - run: npm pack --dry-run --workspace @friday/cli
+      - run: npm ci --prefix extensions/diagrams
+      - run: npm run build --prefix extensions/diagrams
+      - run: npm pack --dry-run --prefix extensions/diagrams
