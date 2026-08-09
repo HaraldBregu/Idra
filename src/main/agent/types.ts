@@ -157,9 +157,33 @@ export interface RuntimePerception {
 	signal?: AbortSignal;
 }
 
+export interface McpDiscoveryIssue {
+	serverId: string;
+	phase: 'connect' | 'list' | 'schema' | 'limit';
+	toolName?: string;
+}
+
+export interface McpDiscoveryDiagnostics {
+	configuredServers: number;
+	enabledServers: number;
+	connectedServers: number;
+	listedTools: number;
+	loadedTools: number;
+	rejectedTools: number;
+	truncated: boolean;
+	failures: McpDiscoveryIssue[];
+}
+
 export type RuntimeEvent =
 	| RuntimeModelEvent
-	| { type: 'run_started'; sessionId: string; model: string; providerId: string; tools: string[] }
+	| {
+			type: 'run_started';
+			sessionId: string;
+			model: string;
+			providerId: string;
+			tools: string[];
+			mcpDiscovery?: McpDiscoveryDiagnostics;
+	  }
 	| { type: 'assistant_message'; content: string; toolCalls: ToolCall[] }
 	| {
 			type: 'tool_call_start';

@@ -51,7 +51,7 @@ import { listSchedulesTool } from '../tools/tasks/list_schedules';
 import { runScheduleNowTool } from '../tools/tasks/run_schedule_now';
 import { subagentTool } from '../tools/subagent';
 import type { AgentPermissionMode } from '../../../shared/agent_types';
-import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
+import type { Config, McpDiscoveryDiagnostics, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 import { getPermissionMode } from '../policy';
@@ -179,12 +179,14 @@ async function* loop(
 			];
 
 	let closeMcp: (() => Promise<void>) | undefined;
+	let mcpDiscovery: McpDiscoveryDiagnostics | undefined;
 	if (!options.tools && origin === 'main') {
 		const mcp = await loadMcpTools(signal);
 		tools.push(...mcp.tools);
 		const childTools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
 		tools.push(subagentTool(config, childTools, session.context));
 		closeMcp = mcp.close;
+		mcpDiscovery = mcp.diagnostics;
 	}
 	tools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
 
@@ -204,6 +206,7 @@ async function* loop(
 		model: modelId,
 		providerId: provider.id,
 		tools: tools.map((tool) => tool.name),
+		...(mcpDiscovery ? { mcpDiscovery } : {}),
 	};
 
 	try {
