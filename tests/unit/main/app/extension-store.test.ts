@@ -48,14 +48,10 @@ describe('extension storage', () => {
 	it('round-trips, overwrites, and deletes nested binary files', async () => {
 		const storage = new ExtensionStorage(root);
 		await storage.writeFile('draw', 'scenes/current.bin', new Uint8Array([1, 2, 3]));
-		expect(await storage.readFile('draw', 'scenes/current.bin')).toEqual(
-			new Uint8Array([1, 2, 3])
-		);
+		expect(await storage.readFile('draw', 'scenes/current.bin')).toEqual(new Uint8Array([1, 2, 3]));
 
 		await storage.writeFile('draw', 'scenes/current.bin', new Uint8Array([4, 5]));
-		expect(await storage.readFile('draw', 'scenes/current.bin')).toEqual(
-			new Uint8Array([4, 5])
-		);
+		expect(await storage.readFile('draw', 'scenes/current.bin')).toEqual(new Uint8Array([4, 5]));
 		await expect(storage.readFile('demo', 'scenes/current.bin')).rejects.toThrow('not found');
 
 		await storage.deleteFile('draw', 'scenes/current.bin');
@@ -97,9 +93,9 @@ describe('extension storage', () => {
 			await expect(storage.readFile('draw', 'safe/file.bin')).rejects.toThrow(
 				'Invalid extension storage directory'
 			);
-			await expect(
-				storage.writeFile('draw', 'safe/file.bin', new Uint8Array([2]))
-			).rejects.toThrow('Invalid extension storage directory');
+			await expect(storage.writeFile('draw', 'safe/file.bin', new Uint8Array([2]))).rejects.toThrow(
+				'Invalid extension storage directory'
+			);
 		} finally {
 			fs.rmSync(outside, { recursive: true, force: true });
 		}

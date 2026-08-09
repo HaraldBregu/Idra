@@ -220,11 +220,7 @@ export class ExtensionStorage {
 			fs.realpath(target),
 		]);
 		const relative = path.relative(resolvedRoot, resolvedTarget);
-		if (
-			relative === '..' ||
-			relative.startsWith(`..${path.sep}`) ||
-			path.isAbsolute(relative)
-		) {
+		if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
 			throw new Error('Extension file path escapes its storage folder.');
 		}
 	}

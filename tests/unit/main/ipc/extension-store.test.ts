@@ -5,7 +5,10 @@ jest.mock('../../../../src/main/ipc/core/gateway', () => ({
 
 import type { IpcMainInvokeEvent } from 'electron';
 import { registerExtensionStoreIpc } from '../../../../src/main/ipc/extension_store';
-import { registerCommandWithEvent, registerQueryWithEvent } from '../../../../src/main/ipc/core/gateway';
+import {
+	registerCommandWithEvent,
+	registerQueryWithEvent,
+} from '../../../../src/main/ipc/core/gateway';
 import { AppChannels } from '../../../../src/shared/ipc_channels_definitions';
 
 describe('extension store IPC', () => {
