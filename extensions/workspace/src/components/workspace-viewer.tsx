@@ -132,14 +132,6 @@ export function WorkspaceViewer({
 
 					{kind === 'markdown' && !loading ? (
 						<div className="flex shrink-0 items-center gap-2">
-							<TabsList className="h-8">
-								<TabsTrigger value="source" className="h-6 gap-1.5 px-2 text-xs">
-									<FileCode2 className="h-3.5 w-3.5" /> Source
-								</TabsTrigger>
-								<TabsTrigger value="preview" className="h-6 gap-1.5 px-2 text-xs">
-									<FileText className="h-3.5 w-3.5" /> Preview
-								</TabsTrigger>
-							</TabsList>
 							<span
 								className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex"
 								title={saveError || undefined}
@@ -184,8 +176,21 @@ export function WorkspaceViewer({
 							path={path}
 							url={mediaUrl}
 						/>
-					)}
+						)}
 				</div>
+
+				{kind === 'markdown' && !loading ? (
+					<footer className="flex h-9 shrink-0 items-center justify-end border-t bg-muted/20 px-3 sm:px-5">
+						<TabsList className="h-7" aria-label="Markdown view mode">
+							<TabsTrigger value="source" className="h-5 gap-1.5 px-2 text-[11px]">
+								<FileCode2 className="h-3 w-3" /> Source
+							</TabsTrigger>
+							<TabsTrigger value="preview" className="h-5 gap-1.5 px-2 text-[11px]">
+								<FileText className="h-3 w-3" /> Preview
+							</TabsTrigger>
+						</TabsList>
+					</footer>
+				) : null}
 			</section>
 		</Tabs>
 	);
