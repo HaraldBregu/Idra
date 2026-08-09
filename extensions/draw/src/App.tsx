@@ -65,7 +65,9 @@ export default function App() {
 				</MainMenu>
 				<DefaultSidebar />
 				<WelcomeScreen>
-					<WelcomeScreen.Hints.MenuHint />
+					<WelcomeScreen.Hints.MenuHint>
+						Search, commands, and canvas options.
+					</WelcomeScreen.Hints.MenuHint>
 					<WelcomeScreen.Hints.ToolbarHint />
 					<WelcomeScreen.Hints.HelpHint />
 					<WelcomeScreen.Center>
