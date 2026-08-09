@@ -1,15 +1,33 @@
-import { useRef } from 'react';
-import { FileQuestion, Music2 } from 'lucide-react';
+import { lazy, Suspense, useRef } from 'react';
+import { FileQuestion, LoaderCircle, Music2 } from 'lucide-react';
 import type { WorkspaceFileKind } from '@friday/sdk';
 
-import { CodeMirrorEditor } from '@/components/code-mirror-editor';
-import { ExcalidrawEditor } from '@/components/excalidraw';
-import { MarkdownPreview } from '@/components/markdown';
-import { MermaidPreview } from '@/components/mermaid';
 import { TabsContent } from '@/components/ui/tabs';
 import { copyImage } from '@/lib/image';
 import { showMediaContextMenu } from '@/lib/media';
 import { showNativeContextMenu } from '@/lib/menu';
+
+const CodeMirrorEditor = lazy(() =>
+	import('@/components/code-mirror-editor').then(({ CodeMirrorEditor }) => ({
+		default: CodeMirrorEditor,
+	}))
+);
+const ExcalidrawEditor = lazy(() =>
+	import('@/components/excalidraw').then(({ ExcalidrawEditor }) => ({
+		default: ExcalidrawEditor,
+	}))
+);
+const MarkdownPreview = lazy(() =>
+	import('@/components/markdown').then(({ MarkdownPreview }) => ({ default: MarkdownPreview }))
+);
+const MermaidPreview = lazy(() =>
+	import('@/components/mermaid').then(({ MermaidPreview }) => ({ default: MermaidPreview }))
+);
+const viewerFallback = (
+	<div className="flex min-h-full items-center justify-center gap-2 text-sm text-muted-foreground">
+		<LoaderCircle className="h-4 w-4 animate-spin" /> Loading viewer...
+	</div>
+);
 
 interface FileViewerProps {
 	canSave: boolean;
@@ -44,22 +62,27 @@ export function FileViewer({
 					className="m-0 min-h-full data-[state=inactive]:hidden"
 				>
 					<article className="mx-auto flex min-h-full w-full max-w-[920px] flex-col px-5 pb-12 pt-8 sm:px-8 lg:px-12">
-						<CodeMirrorEditor
-							key={path}
-							canSave={canSave}
-							value={content}
-							onChange={onChange}
-							onSave={onSave}
-							className="min-h-[calc(100dvh-10rem)] flex-1"
-						/>
+						<Suspense fallback={viewerFallback}>
+							<CodeMirrorEditor
+								key={path}
+								canSave={canSave}
+								value={content}
+								onChange={onChange}
+								onSave={onSave}
+								className="min-h-[calc(100dvh-10rem)] flex-1"
+							/>
+						</Suspense>
 					</article>
 				</TabsContent>
-				<TabsContent
-					value="preview"
-					forceMount
-					className="m-0 min-h-full data-[state=inactive]:hidden"
-				>
-					<MarkdownPreview canSave={canSave} content={content} onSave={onSave} path={path} />
+				<TabsContent value="preview" className="m-0 min-h-full">
+					<Suspense fallback={viewerFallback}>
+						<MarkdownPreview
+							canSave={canSave}
+							content={content}
+							onSave={onSave}
+							path={path}
+						/>
+					</Suspense>
 				</TabsContent>
 			</>
 		);
@@ -74,25 +97,25 @@ export function FileViewer({
 					className="m-0 min-h-full data-[state=inactive]:hidden"
 				>
 					<article className="mx-auto flex min-h-full w-full max-w-[1000px] flex-col px-5 pb-12 pt-8 sm:px-8 lg:px-12">
-						<CodeMirrorEditor
-							key={path}
-							ariaLabel="Mermaid source"
-							canSave={canSave}
-							className="min-h-[calc(100dvh-10rem)] flex-1"
-							language="plain"
-							onChange={onChange}
-							onSave={onSave}
-							placeholderText="flowchart TD"
-							value={content}
-						/>
+						<Suspense fallback={viewerFallback}>
+							<CodeMirrorEditor
+								key={path}
+								ariaLabel="Mermaid source"
+								canSave={canSave}
+								className="min-h-[calc(100dvh-10rem)] flex-1"
+								language="plain"
+								onChange={onChange}
+								onSave={onSave}
+								placeholderText="flowchart TD"
+								value={content}
+							/>
+						</Suspense>
 					</article>
 				</TabsContent>
-				<TabsContent
-					value="preview"
-					forceMount
-					className="m-0 min-h-full data-[state=inactive]:hidden"
-				>
-					<MermaidPreview content={content} isDark={isDark} />
+				<TabsContent value="preview" className="m-0 min-h-full">
+					<Suspense fallback={viewerFallback}>
+						<MermaidPreview content={content} isDark={isDark} />
+					</Suspense>
 				</TabsContent>
 			</>
 		);
@@ -100,14 +123,16 @@ export function FileViewer({
 
 	if (kind === 'excalidraw') {
 		return (
-			<ExcalidrawEditor
-				key={path}
-				content={content}
-				isDark={isDark}
-				onChange={onChange}
-				onSave={onSave}
-				path={path}
-			/>
+			<Suspense fallback={viewerFallback}>
+				<ExcalidrawEditor
+					key={path}
+					content={content}
+					isDark={isDark}
+					onChange={onChange}
+					onSave={onSave}
+					path={path}
+				/>
+			</Suspense>
 		);
 	}
 
