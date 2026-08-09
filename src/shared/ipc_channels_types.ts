@@ -76,6 +76,10 @@ export interface AgentInvokeChannelMap {
 		args: [filePath: string];
 		result: import('./workspace').WorkspaceAsset;
 	};
+	[AgentChannels.writeWorkspaceFile]: {
+		args: [filePath: string, content: string];
+		result: void;
+	};
 	[AgentChannels.writeWorkspaceMarkdown]: {
 		args: [filePath: string, content: string];
 		result: void;

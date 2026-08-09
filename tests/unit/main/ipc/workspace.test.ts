@@ -10,6 +10,7 @@ import { writeWorkspaceMarkdown } from '../../../../src/main/ipc/markdown';
 import { moveWorkspaceEntry } from '../../../../src/main/ipc/move';
 import { renameWorkspaceEntry } from '../../../../src/main/ipc/rename';
 import { resolveWorkspaceFile } from '../../../../src/main/ipc/workspace';
+import { writeWorkspaceFile } from '../../../../src/main/ipc/write';
 import { workspaceFileType } from '../../../../src/shared/workspace';
 
 describe('workspace files', () => {
@@ -17,6 +18,18 @@ describe('workspace files', () => {
 		expect(workspaceFileType('notes/idea.md')).toEqual({
 			kind: 'markdown',
 			mimeType: 'text/markdown',
+		});
+		expect(workspaceFileType('diagrams/flow.mmd')).toEqual({
+			kind: 'mermaid',
+			mimeType: 'text/x-mermaid',
+		});
+		expect(workspaceFileType('diagrams/flow.mermaid')).toEqual({
+			kind: 'mermaid',
+			mimeType: 'text/x-mermaid',
+		});
+		expect(workspaceFileType('diagrams/sketch.excalidraw')).toEqual({
+			kind: 'excalidraw',
+			mimeType: 'application/vnd.excalidraw+json',
 		});
 		expect(workspaceFileType('images/photo.webp')).toEqual({
 			kind: 'image',
@@ -92,6 +105,26 @@ describe('workspace files', () => {
 		await deleteWorkspaceFile(root, 'notes.txt');
 		await expect(fs.stat(text)).rejects.toThrow();
 		await expect(deleteWorkspaceFile(root, 'folder')).rejects.toThrow('not a file');
+		await fs.rm(root, { recursive: true });
+	});
+
+	it('writes editable diagram files but rejects other text files', async () => {
+		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-workspace-'));
+		const mermaid = path.join(root, 'flow.mmd');
+		const excalidraw = path.join(root, 'sketch.excalidraw');
+		const text = path.join(root, 'notes.txt');
+		await fs.writeFile(mermaid, 'flowchart TD');
+		await fs.writeFile(excalidraw, '{}');
+		await fs.writeFile(text, 'Before');
+
+		await writeWorkspaceFile(root, 'flow.mmd', 'flowchart LR\nA --> B');
+		await writeWorkspaceFile(root, 'sketch.excalidraw', '{"type":"excalidraw"}');
+
+		await expect(fs.readFile(mermaid, 'utf8')).resolves.toBe('flowchart LR\nA --> B');
+		await expect(fs.readFile(excalidraw, 'utf8')).resolves.toBe('{"type":"excalidraw"}');
+		await expect(writeWorkspaceFile(root, 'notes.txt', 'After')).rejects.toThrow(
+			'Only Markdown, Mermaid, and Excalidraw'
+		);
 		await fs.rm(root, { recursive: true });
 	});
 
