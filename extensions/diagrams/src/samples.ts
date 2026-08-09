@@ -106,8 +106,8 @@ export const examples: Example[] = [
 		name: 'Requirement',
 		source: `requirementDiagram
     requirement editor {
-      id: REQ-1
-      text: Render every Mermaid syntax
+	      id: 1
+	      text: Render every Mermaid syntax
       risk: medium
       verifymethod: test
     }
