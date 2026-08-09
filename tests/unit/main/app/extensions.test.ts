@@ -148,6 +148,7 @@ describe('extension discovery and loading', () => {
 
 		handlers.get('ready-to-show')?.();
 		expect(win.show).toHaveBeenCalledTimes(1);
+		handlers.get('closed')?.();
 	});
 
 	it('does not open a window when the manifest entry is missing', () => {
