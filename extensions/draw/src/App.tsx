@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-	DefaultSidebar,
-	Excalidraw,
-	MainMenu,
-	THEME,
-	WelcomeScreen,
-} from '@excalidraw/excalidraw';
+import { DefaultSidebar, Excalidraw, MainMenu, THEME, WelcomeScreen } from '@excalidraw/excalidraw';
 import { app, isFriday, type AppThemeData } from '@friday/sdk';
 
 const fallbackTheme: AppThemeData = {
