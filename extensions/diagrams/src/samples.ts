@@ -368,7 +368,8 @@ treeView-beta
     expression <- term (("+" / "-") term)*;
     term <- factor (("*" / "/") factor)*;
     factor <- number / "(" expression ")";
-    number <- [0-9]+;`,
+	    number <- digit+;
+	    digit <- "0" / "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9";`,
 	},
 	{
 		name: 'Info',
