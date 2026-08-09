@@ -3,16 +3,9 @@ import os from 'node:os';
 import path from 'node:path';
 import type { BrowserWindow } from 'electron';
 import type { WindowFactory } from '../../../../src/main/window_factory';
-import {
-	ensureExtensions,
-	listExtensions,
-	loadExtension,
-	readExtensionSettings,
-	storeExtensionSettings,
-} from '../../../../src/main/extensions/extension_index';
+import { ensureExtensions, listExtensions, loadExtension } from '../../../../src/main/extensions/extension_index';
 import { extensionEntryPath } from '../../../../src/main/extensions/extension_entry';
 import { extensionManifestPath } from '../../../../src/main/extensions/extension_manifest';
-import { extensionsSettingsPath } from '../../../../src/main/extensions/extension_settings';
 import type { ExtensionManifest } from '../../../../src/main/extensions/extension_types';
 
 function createWindowHarness() {
@@ -53,7 +46,7 @@ function installExtension(
 	return entry;
 }
 
-describe('extension storage and loading', () => {
+describe('extension discovery and loading', () => {
 	let appLocation: string;
 	const projectManifest: ExtensionManifest = {
 		title: 'Project',
@@ -73,34 +66,9 @@ describe('extension storage and loading', () => {
 		fs.rmSync(appLocation, { recursive: true, force: true });
 	});
 
-	it('initializes settings with only the enabled property', () => {
+	it('initializes an empty extension directory', () => {
 		expect(ensureExtensions(appLocation)).toEqual([]);
-		expect(JSON.parse(fs.readFileSync(extensionsSettingsPath(appLocation), 'utf8'))).toEqual({
-			enabled: true,
-		});
-		expect(fs.readdirSync(path.join(appLocation, 'extensions'))).toEqual(['settings.json']);
-	});
-
-	it('stores and reads only the enabled extension setting', () => {
-		storeExtensionSettings({ enabled: false }, appLocation);
-
-		expect(readExtensionSettings(appLocation)).toEqual({ enabled: false });
-		expect(JSON.parse(fs.readFileSync(extensionsSettingsPath(appLocation), 'utf8'))).toEqual({
-			enabled: false,
-		});
-	});
-
-	it('removes legacy catalog data while preserving the enabled setting', () => {
-		fs.mkdirSync(path.dirname(extensionsSettingsPath(appLocation)), { recursive: true });
-		fs.writeFileSync(
-			extensionsSettingsPath(appLocation),
-			JSON.stringify({ enabled: false, extensions: [{ id: 'project' }] })
-		);
-
-		expect(ensureExtensions(appLocation)).toEqual([]);
-		expect(JSON.parse(fs.readFileSync(extensionsSettingsPath(appLocation), 'utf8'))).toEqual({
-			enabled: false,
-		});
+		expect(fs.readdirSync(path.join(appLocation, 'extensions'))).toEqual([]);
 	});
 
 	it('discovers extension folders from their manifests', () => {
@@ -128,13 +96,6 @@ describe('extension storage and loading', () => {
 		installExtension(appLocation, 'clock', { ...projectManifest, title: 'Clock' });
 
 		expect(listExtensions(appLocation).map(({ id }) => id)).toEqual(['clock', 'weather']);
-	});
-
-	it('returns no extensions when extensions are disabled', () => {
-		installExtension(appLocation, 'project', projectManifest);
-		storeExtensionSettings({ enabled: false }, appLocation);
-
-		expect(listExtensions(appLocation)).toEqual([]);
 	});
 
 	it('omits folders whose manifest is missing or invalid', () => {
