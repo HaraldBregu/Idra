@@ -4,6 +4,7 @@ import { WindowContextManager } from './window_context';
 import { WindowFactory } from './window_factory';
 import { LoggerService } from './shared';
 import { createChannelRegistry, type ChannelRegistry } from './channels';
+import { ExtensionRegistry, ExtensionStorage } from './extensions/extension_index';
 
 import { Agent } from './agent/agent';
 
@@ -15,6 +16,8 @@ export interface MainServices {
 	channelRegistry: ChannelRegistry;
 	windowFactory: WindowFactory;
 	windowContextManager: WindowContextManager;
+	extensionRegistry: ExtensionRegistry;
+	extensionStorage: ExtensionStorage;
 }
 
 export interface BootstrapResult extends MainServices {}
@@ -25,7 +28,9 @@ export function bootstrapServices(): BootstrapResult {
 	const logger = new LoggerService(eventBus);
 	const agentService = new Agent();
 	const channelRegistry = createChannelRegistry({ logger, eventBus, agentService });
-	const windowFactory = new WindowFactory(logger);
+	const extensionRegistry = new ExtensionRegistry();
+	const extensionStorage = new ExtensionStorage();
+	const windowFactory = new WindowFactory(logger, extensionRegistry);
 	const windowContextManager = new WindowContextManager(logger, eventBus);
 
 	logger.info('Bootstrap', 'Registered global services');
@@ -38,6 +43,8 @@ export function bootstrapServices(): BootstrapResult {
 		channelRegistry,
 		windowFactory,
 		windowContextManager,
+		extensionRegistry,
+		extensionStorage,
 	};
 }
 

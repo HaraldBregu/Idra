@@ -92,7 +92,7 @@ describe('extension renderer', () => {
 		expect(harness.win.show).not.toHaveBeenCalled();
 
 		harness.shellHandlers.get('did-finish-load')?.();
-		expect(harness.createView).toHaveBeenCalledWith('/extension/index.html');
+		expect(harness.createView).toHaveBeenCalledWith('/extension/index.html', 'project-order');
 		expect(harness.view.setVisible).toHaveBeenCalledWith(false);
 		expect(harness.win.contentView.addChildView).toHaveBeenCalledWith(harness.view);
 		expect(harness.view.setBounds).toHaveBeenCalledWith({

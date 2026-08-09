@@ -430,6 +430,30 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: import('./channels_types').ChannelStatusEvent | undefined;
 	};
+	[AppChannels.getExtensionStoreValue]: {
+		args: [key: string];
+		result: import('./extension_store_types').ExtensionStoreValue | undefined;
+	};
+	[AppChannels.setExtensionStoreValue]: {
+		args: [key: string, value: import('./extension_store_types').ExtensionStoreValue];
+		result: void;
+	};
+	[AppChannels.deleteExtensionStoreValue]: {
+		args: [key: string];
+		result: void;
+	};
+	[AppChannels.readExtensionStoreFile]: {
+		args: [path: string];
+		result: Uint8Array;
+	};
+	[AppChannels.writeExtensionStoreFile]: {
+		args: [path: string, data: Uint8Array];
+		result: void;
+	};
+	[AppChannels.deleteExtensionStoreFile]: {
+		args: [path: string];
+		result: void;
+	};
 }
 
 export interface ProviderInvokeChannelMap {

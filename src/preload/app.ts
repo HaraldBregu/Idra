@@ -5,8 +5,29 @@ import type { AppApi } from './index.d';
 import type { AppThemeData } from '../shared/app_types';
 import type { ChannelModelKind, ChannelStatusEvent, ChannelType } from '../shared';
 import { optionalTrimmedString } from './normalize';
+import type { ExtensionStoreValue } from '../shared/extension_store_types';
 
 export const app: AppApi = {
+	getExtensionStoreValue: <T extends ExtensionStoreValue = ExtensionStoreValue>(
+		key: string
+	): Promise<T | undefined> => {
+		return typedInvokeUnwrap(AppChannels.getExtensionStoreValue, key) as Promise<T | undefined>;
+	},
+	setExtensionStoreValue: (key, value) => {
+		return typedInvokeUnwrap(AppChannels.setExtensionStoreValue, key, value);
+	},
+	deleteExtensionStoreValue: (key) => {
+		return typedInvokeUnwrap(AppChannels.deleteExtensionStoreValue, key);
+	},
+	readExtensionStoreFile: (path) => {
+		return typedInvokeUnwrap(AppChannels.readExtensionStoreFile, path);
+	},
+	writeExtensionStoreFile: (path, data) => {
+		return typedInvokeUnwrap(AppChannels.writeExtensionStoreFile, path, data);
+	},
+	deleteExtensionStoreFile: (path) => {
+		return typedInvokeUnwrap(AppChannels.deleteExtensionStoreFile, path);
+	},
 	models: () => {
 		return typedInvokeUnwrap(AppChannels.models);
 	},

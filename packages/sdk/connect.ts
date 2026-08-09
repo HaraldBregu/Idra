@@ -19,6 +19,24 @@ export type WorkspaceAgentApi = Pick<
 	| 'deleteWorkspaceDirectory'
 >;
 
+const extensionStoreAppMethods = [
+	'getExtensionStoreValue',
+	'setExtensionStoreValue',
+	'deleteExtensionStoreValue',
+	'readExtensionStoreFile',
+	'writeExtensionStoreFile',
+	'deleteExtensionStoreFile',
+] as const;
+
+type ExtensionStoreAppMethod = (typeof extensionStoreAppMethods)[number];
+export type RemoteAppApi = Omit<AppApi, ExtensionStoreAppMethod>;
+
+const RemoteAppChannels = Object.fromEntries(
+	Object.entries(AppChannels).filter(
+		([method]) => !extensionStoreAppMethods.includes(method as ExtensionStoreAppMethod)
+	)
+) as Omit<typeof AppChannels, ExtensionStoreAppMethod>;
+
 export interface ConnectOptions {
 	/** Base URL of the Friday API. Defaults to `http://127.0.0.1:8765`. */
 	url?: string;
@@ -29,7 +47,7 @@ export interface ConnectOptions {
 }
 
 export interface FridayClient {
-	app: AppApi;
+	app: RemoteAppApi;
 	agent: WorkspaceAgentApi;
 	/** Verify the app is reachable and the token is accepted. */
 	ping: () => Promise<{ name: string; version: string }>;
@@ -110,7 +128,7 @@ export function connect(options: ConnectOptions): FridayClient {
 		}) as T;
 
 	return {
-		app: namespace<AppApi>(AppChannels, {
+		app: namespace<RemoteAppApi>(RemoteAppChannels, {
 			onModelsChanged: (callback: () => void) => {
 				const pending = listen((channel) => {
 					if (channel === AppChannels.modelsChanged) callback();

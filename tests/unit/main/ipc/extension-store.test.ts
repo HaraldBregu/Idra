@@ -1,0 +1,58 @@
+jest.mock('../../../../src/main/ipc/core/gateway', () => ({
+	registerCommandWithEvent: jest.fn(),
+	registerQueryWithEvent: jest.fn(),
+}));
+
+import type { IpcMainInvokeEvent } from 'electron';
+import { registerExtensionStoreIpc } from '../../../../src/main/ipc/extension_store';
+import { registerCommandWithEvent, registerQueryWithEvent } from '../../../../src/main/ipc/core/gateway';
+import { AppChannels } from '../../../../src/shared/ipc_channels_definitions';
+
+describe('extension store IPC', () => {
+	it('derives the namespace from the IPC sender', async () => {
+		const extensionRegistry = { resolve: jest.fn((id: number) => (id === 7 ? 'draw' : 'demo')) };
+		const extensionStorage = {
+			get: jest.fn((_extensionId: string, key: string) => key),
+			set: jest.fn(),
+			delete: jest.fn(),
+			readFile: jest.fn(async () => new Uint8Array([1])),
+			writeFile: jest.fn(async () => undefined),
+			deleteFile: jest.fn(async () => undefined),
+		};
+		registerExtensionStoreIpc({
+			extensionRegistry: extensionRegistry as never,
+			extensionStorage: extensionStorage as never,
+		});
+
+		const get = (registerQueryWithEvent as jest.Mock).mock.calls.find(
+			([channel]) => channel === AppChannels.getExtensionStoreValue
+		)?.[1];
+		const set = (registerCommandWithEvent as jest.Mock).mock.calls.find(
+			([channel]) => channel === AppChannels.setExtensionStoreValue
+		)?.[1];
+		const event = { sender: { id: 7 } } as IpcMainInvokeEvent;
+
+		expect(get(event, 'config')).toBe('config');
+		set(event, 'config', { ready: true });
+		expect(extensionRegistry.resolve).toHaveBeenCalledWith(7);
+		expect(extensionStorage.get).toHaveBeenCalledWith('draw', 'config');
+		expect(extensionStorage.set).toHaveBeenCalledWith('draw', 'config', { ready: true });
+	});
+
+	it('rejects senders that are not registered extension views', () => {
+		const extensionRegistry = {
+			resolve: jest.fn(() => {
+				throw new Error('Extension storage is only available to registered extension views.');
+			}),
+		};
+		registerExtensionStoreIpc({
+			extensionRegistry: extensionRegistry as never,
+			extensionStorage: {} as never,
+		});
+		const get = (registerQueryWithEvent as jest.Mock).mock.calls.find(
+			([channel]) => channel === AppChannels.getExtensionStoreValue
+		)?.[1];
+
+		expect(() => get({ sender: { id: 1 } }, 'config')).toThrow('registered extension views');
+	});
+});

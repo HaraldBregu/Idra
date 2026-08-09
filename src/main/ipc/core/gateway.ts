@@ -23,6 +23,24 @@ export function registerQuery(channel: string, handler: (...args: unknown[]) => 
 	ipcMain.handle(channel, wrapSimpleHandler(handler, channel));
 }
 
+export function registerQueryWithEvent<C extends keyof InvokeChannelMap>(
+	channel: C,
+	handler: (
+		event: IpcMainInvokeEvent,
+		...args: InvokeChannelMap[C]['args']
+	) => Promise<InvokeChannelMap[C]['result']> | InvokeChannelMap[C]['result']
+): void;
+export function registerQueryWithEvent<TArgs extends unknown[], TResult>(
+	channel: string,
+	handler: (event: IpcMainInvokeEvent, ...args: TArgs) => Promise<TResult> | TResult
+): void;
+export function registerQueryWithEvent(
+	channel: string,
+	handler: (event: IpcMainInvokeEvent, ...args: unknown[]) => unknown
+): void {
+	ipcMain.handle(channel, wrapIpcHandler(handler, channel));
+}
+
 // ---- registerCommand ------------------------------------------------------
 
 /**

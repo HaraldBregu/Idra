@@ -93,6 +93,7 @@ import type {
 import type { WikiRunResult, WikiSettings, WikiStatus } from './wiki_types';
 import type { ContextMenuDescriptor } from './window_types';
 import type { WorkspaceAsset } from './workspace';
+import type { ExtensionStoreValue } from './extension_store_types';
 export type { DataApi } from './data_types';
 
 export interface WindowApi {
@@ -356,6 +357,14 @@ export interface ModelsApi {
 type ProviderStoreRecord = Provider | BotProvider;
 
 export interface AppApi {
+	getExtensionStoreValue<T extends ExtensionStoreValue = ExtensionStoreValue>(
+		key: string
+	): Promise<T | undefined>;
+	setExtensionStoreValue(key: string, value: ExtensionStoreValue): Promise<void>;
+	deleteExtensionStoreValue(key: string): Promise<void>;
+	readExtensionStoreFile(path: string): Promise<Uint8Array>;
+	writeExtensionStoreFile(path: string, data: Uint8Array): Promise<void>;
+	deleteExtensionStoreFile(path: string): Promise<void>;
 	models: () => Promise<CatalogModel[]>;
 	databases: () => Promise<CatalogService[]>;
 	storages: () => Promise<CatalogService[]>;

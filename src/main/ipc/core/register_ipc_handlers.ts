@@ -17,7 +17,14 @@ import type { EventBus } from '../../event_bus';
 import type { MainServices } from '../../bootstrap';
 
 export function registerIpcHandlers(services: MainServices, eventBus: EventBus): void {
-	const { logger, agentService, channelRegistry, windowFactory } = services;
+	const {
+		logger,
+		agentService,
+		channelRegistry,
+		windowFactory,
+		extensionRegistry,
+		extensionStorage,
+	} = services;
 
 	const safeRegister = (name: string, register: () => void): void => {
 		try {
@@ -27,7 +34,12 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 		}
 	};
 
-	safeRegister('app', () => new AppIpc().register({ logger, channelRegistry }, eventBus));
+	safeRegister('app', () =>
+		new AppIpc().register(
+			{ logger, channelRegistry, extensionRegistry, extensionStorage },
+			eventBus
+		)
+	);
 	safeRegister('agent', () => new AgentIpc().register({ logger, agent: agentService }, eventBus));
 	safeRegister('recorder', () => new RecorderIpc().register(undefined, eventBus));
 	safeRegister('tasks', () => new TaskIpc().register(undefined, eventBus));

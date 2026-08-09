@@ -84,7 +84,7 @@ export function render(
 	});
 	win.webContents.once('did-finish-load', () => {
 		if (win.isDestroyed()) return;
-		const { view, load } = windowFactory.createView(file);
+		const { view, load } = windowFactory.createView(file, extensionId);
 		extensionView = view;
 		extensionContents = view.webContents;
 		const viewContents = extensionContents;

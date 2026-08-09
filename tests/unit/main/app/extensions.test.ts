@@ -175,7 +175,7 @@ describe('extension discovery and loading', () => {
 		expect(createView).not.toHaveBeenCalled();
 
 		shellHandlers.get('did-finish-load')?.();
-		expect(createView).toHaveBeenCalledWith(entry);
+		expect(createView).toHaveBeenCalledWith(entry, 'project');
 		expect(win.contentView.addChildView).toHaveBeenCalledWith(view);
 		expect(view.setBounds).toHaveBeenCalledWith({ x: 0, y: 48, width: 820, height: 592 });
 		expect(load).toHaveBeenCalledTimes(1);

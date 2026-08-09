@@ -62,10 +62,15 @@ import {
 	setChannelModelSelection,
 	type ChannelRegistry,
 } from '../channels';
+import type { ExtensionRegistry } from '../extensions/extension_registry';
+import type { ExtensionStorage } from '../extensions/extension_store';
+import { registerExtensionStoreIpc } from './extension_store';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
 	channelRegistry: ChannelRegistry;
+	extensionRegistry: ExtensionRegistry;
+	extensionStorage: ExtensionStorage;
 }
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
@@ -380,7 +385,11 @@ function showVideoContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
-	register({ logger, channelRegistry }: AppIpcDeps, eventBus: EventBus): void {
+	register(
+		{ logger, channelRegistry, extensionRegistry, extensionStorage }: AppIpcDeps,
+		eventBus: EventBus
+	): void {
+		registerExtensionStoreIpc({ extensionRegistry, extensionStorage });
 		// Honor the persisted keep-awake setting on startup
 		applyKeepAwake(getStoredKeepAwake());
 		let currentThemeData: AppThemeData = getThemeData();

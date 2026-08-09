@@ -147,6 +147,12 @@ export const AppChannels = {
 	stopTelegram: 'app:channels:telegram:stop',
 	restartTelegram: 'app:channels:telegram:restart',
 	channelsStatusChanged: 'app:channels:status-changed',
+	getExtensionStoreValue: 'app:extension-store:value:get',
+	setExtensionStoreValue: 'app:extension-store:value:set',
+	deleteExtensionStoreValue: 'app:extension-store:value:delete',
+	readExtensionStoreFile: 'app:extension-store:file:read',
+	writeExtensionStoreFile: 'app:extension-store:file:write',
+	deleteExtensionStoreFile: 'app:extension-store:file:delete',
 } as const;
 
 export const EmbeddingChannels = {

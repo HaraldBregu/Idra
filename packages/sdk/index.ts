@@ -1,7 +1,13 @@
 import type { AgentApi, AppApi, WindowApi } from '../../src/shared/api_types';
 import type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
 
-export { connect, type ConnectOptions, type FridayClient, type WorkspaceAgentApi } from './connect';
+export {
+	connect,
+	type ConnectOptions,
+	type FridayClient,
+	type RemoteAppApi,
+	type WorkspaceAgentApi,
+} from './connect';
 export type { AgentApi, AppApi, WindowApi } from '../../src/shared/api_types';
 export type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
 export type { WorkspaceTreeEntry } from '../../src/shared/agent_types';
@@ -12,6 +18,7 @@ export {
 	type WorkspaceFileType,
 } from '../../src/shared/workspace';
 export type { ContextMenuDescriptor, ContextMenuRole } from '../../src/shared/window_types';
+export type { ExtensionStoreValue } from '../../src/shared/extension_store_types';
 
 // Typed lazy views over the host preload globals.
 function bridge<T extends object>(name: string): T {

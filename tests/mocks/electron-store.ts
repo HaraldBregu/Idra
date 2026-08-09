@@ -30,4 +30,10 @@ export default class Store<T extends Record<string, unknown> = Record<string, un
 	set<K extends keyof T>(key: K, value: T[K]): void {
 		this.value = { ...this.value, [key]: value };
 	}
+
+	delete<K extends keyof T>(key: K): void {
+		const value = { ...this.value };
+		delete value[key];
+		this.value = value;
+	}
 }

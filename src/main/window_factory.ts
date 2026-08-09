@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from './shared';
 import { setupPdfContextMenu } from './pdf';
+import type { ExtensionRegistry } from './extensions/extension_registry';
 
 export interface WindowPreset {
 	name: string;
@@ -30,7 +31,10 @@ export class WindowFactory {
 	private readonly preloadPath: string;
 	private readonly iconPath: string;
 
-	constructor(private readonly logger?: LoggerService) {
+	constructor(
+		private readonly logger: LoggerService | undefined,
+		private readonly extensionRegistry: ExtensionRegistry
+	) {
 		// Use path.resolve to ensure absolute path for preload
 		// Output as .js (CommonJS) for Electron preload compatibility
 		this.preloadPath = path.resolve(__dirname, '../preload/index.js');
@@ -119,9 +123,13 @@ export class WindowFactory {
 		return win;
 	}
 
-	createView(file: string): LoadableView {
+	createView(file: string, extensionId: string): LoadableView {
 		const view = new WebContentsView({ webPreferences: this.getBaseWebPreferences() });
 		const viewContents = view.webContents;
+		this.extensionRegistry.register(viewContents.id, extensionId);
+		viewContents.once('destroyed', () => {
+			this.extensionRegistry.unregister(viewContents.id, extensionId);
+		});
 		this.secureNavigation(viewContents, path.dirname(file));
 		viewContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
 			this.logger?.error('Extensions', `Extension view failed to load: ${validatedURL}`, {
