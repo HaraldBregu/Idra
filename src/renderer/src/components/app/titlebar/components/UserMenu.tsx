@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
@@ -38,23 +39,25 @@ export function UserMenu({ align }: UserMenuProps): ReactElement {
 				<User className="size-4" strokeWidth={1.8} />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align={align} className="w-52">
-				<DropdownMenuLabel>{settingsLabel}</DropdownMenuLabel>
-				<DropdownMenuItem onClick={() => navigate('/settings/general')}>
-					<Info />
-					{t('settings.tabs.general')}
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => navigate('/settings/assistant')}>
-					<Bot />
-					{t('settings.overview.groups.agent')}
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => navigate('/settings/system')}>
-					<MonitorCog />
-					{t('settings.tabs.system')}
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => navigate('/settings/extensions')}>
-					<Blocks />
-					{t('settings.tabs.extensions')}
-				</DropdownMenuItem>
+				<DropdownMenuGroup>
+					<DropdownMenuLabel>{settingsLabel}</DropdownMenuLabel>
+					<DropdownMenuItem onClick={() => navigate('/settings/general')}>
+						<Info />
+						{t('settings.tabs.general')}
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => navigate('/settings/assistant')}>
+						<Bot />
+						{t('settings.overview.groups.agent')}
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => navigate('/settings/system')}>
+						<MonitorCog />
+						{t('settings.tabs.system')}
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => navigate('/settings/extensions')}>
+						<Blocks />
+						{t('settings.tabs.extensions')}
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem onClick={() => navigate('/settings')}>
 					<Settings />

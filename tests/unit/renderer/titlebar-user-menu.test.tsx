@@ -20,6 +20,7 @@ it.each([
 		<MemoryRouter initialEntries={['/home']}>
 			<UserMenu align="end" />
 			<Routes>
+				<Route path="/home" element={null} />
 				<Route path={path} element={<p>{path}</p>} />
 			</Routes>
 		</MemoryRouter>
