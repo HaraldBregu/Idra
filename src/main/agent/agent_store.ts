@@ -139,7 +139,7 @@ export function getToolPermission(toolName: string): ToolPermission {
 
 export function setToolPermission(toolName: string, permission: ToolPermission): PermissionsSchema {
 	if (toolName === 'dir' || toolName === 'mode')
-		throw new Error(`'${toolName}' is reserved for policy settings.`);
+		throw new Error(`'${toolName}' is reserved for permission settings.`);
 	store.set('permissions', {
 		...getPermissions(),
 		[toolName]: normalizeToolPermission(permission, UNKNOWN_TOOL_PERMISSION),

@@ -17,10 +17,10 @@ export function resolveToolPermission(
 ): PermissionMode {
 	const targets = toolPermissionTargets(toolName, args, AGENT_DIRECTORY);
 	const directoryTargets = directoryPermissionTargets(toolName, args, AGENT_DIRECTORY);
-	const policy = getPermissions();
-	const configuredEntry = policy[toolName];
+	const permissions = getPermissions();
+	const configuredEntry = permissions[toolName];
 	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
-	const directories = policy.dir ?? {};
+	const directories = permissions.dir ?? {};
 	const stored = resolveStoredToolPermission(toolName, targets, configured, fallback);
 	if (stored.explicit === 'deny' || stored.explicit === 'ask') return stored.explicit;
 	if (stored.explicit === 'allow') return 'allow';

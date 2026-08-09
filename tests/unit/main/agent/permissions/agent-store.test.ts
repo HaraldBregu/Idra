@@ -70,7 +70,7 @@ describe('agent store permissions', () => {
 	it('reserves dir from tool updates', () => {
 		expect(() =>
 			setToolPermission('dir', { default: 'allow', allow: [], deny: [], ask: [] })
-		).toThrow("'dir' is reserved");
+		).toThrow("'dir' is reserved for permission settings.");
 	});
 
 	it('resets directory permissions to an empty map', () => {
