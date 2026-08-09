@@ -132,17 +132,17 @@ async function run() {
 		window.__fridayDiagramsInjected = false;
 		const input = document.querySelector('[data-testid="diagram-source"]');
 		const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
-		setter.call(input, 'flowchart LR\\nA["<img src=x onerror=window.__fridayDiagramsInjected=true>"] --> B');
+		setter.call(input, 'flowchart LR\\nA["<img src=data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw== onload=window.__fridayDiagramsInjected=true>"] --> B');
 		input.dispatchEvent(new Event('input', { bubbles: true }));
 	})()`);
 	await wait(500);
 	await waitFor(window, "!document.querySelector('.rendering')");
 	const secure = await window.webContents.executeJavaScript(`({
 		injected: window.__fridayDiagramsInjected,
-		image: Boolean(document.querySelector('.diagram-output img')),
+		dangerousAttribute: Boolean(document.querySelector('.diagram-output [onerror], .diagram-output [onload]')),
 		error: document.querySelector('.error-card')?.textContent ?? ''
 	})`);
-	if (secure.injected || secure.image || secure.error) throw new Error(`Strict security check failed: ${JSON.stringify(secure)}`);
+	if (secure.injected || secure.dangerousAttribute || secure.error) throw new Error(`Strict security check failed: ${JSON.stringify(secure)}`);
 	await window.webContents.executeJavaScript("document.querySelectorAll('.tabs button')[1].click()");
 	await waitFor(window, "Boolean(document.querySelector('[data-testid=\"diagram-config\"]'))");
 	await window.webContents.executeJavaScript(`(() => {
