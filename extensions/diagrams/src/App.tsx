@@ -4,6 +4,7 @@ import { app, isFriday } from '@friday/sdk';
 import Editor from './Editor';
 import Preview from './Preview';
 import { defaultState } from './defaults';
+import { copyText } from './copy';
 import { downloadFile } from './download';
 import { renderDiagram } from './engine';
 import { getDiagramTypes } from './inventory';
@@ -152,7 +153,7 @@ export default function App() {
 		else window.open(url, '_blank', 'noopener,noreferrer');
 	};
 	const copySvg = () =>
-		void navigator.clipboard.writeText(svg).catch((reason) => setError(errorMessage(reason)));
+		void copyText(svg).catch((reason) => setError(errorMessage(reason)));
 	const exportSvg = () => downloadFile('diagram.svg', svg, 'image/svg+xml;charset=utf-8');
 	const exportPng = () =>
 		void svgToPng(svg)
