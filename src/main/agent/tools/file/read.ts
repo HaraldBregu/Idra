@@ -18,7 +18,10 @@ export const readTool = tool({
 	description:
 		'Read the full UTF-8 contents of a single text file. Use this before editing when you need the current file contents.',
 	inputSchema: z.object({
-		path: z.string().min(1).describe('Absolute file path to read. ~ expands to the user home.'),
+		path: z
+			.string()
+			.min(1)
+			.describe('Path relative to the agent filesystem root, or an absolute path. ~ is the OS user home.'),
 	}),
 	execute: async ({ path: filePath }) => {
 		const resolved = resolveUserPath(filePath, agentLocation());

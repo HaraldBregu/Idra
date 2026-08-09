@@ -17,7 +17,7 @@ export const writeTool = tool({
 		path: z
 			.string()
 			.min(1)
-			.describe('Absolute file path to write. ~ expands to the user home.'),
+			.describe('Path relative to the agent filesystem root, or an absolute path. ~ is the OS user home.'),
 		content: z.string().describe('UTF-8 text content to write.'),
 	}),
 	execute: async ({ path: filePath, content }) => {

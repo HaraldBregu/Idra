@@ -111,4 +111,25 @@ describe('loadMcpTools', () => {
 		});
 		expect(JSON.stringify(result.diagnostics)).not.toContain('secret');
 	});
+
+	it('starts discovery for enabled servers concurrently', async () => {
+		getMcpServersMock.mockReturnValue({
+			first: { type: 'http', url: 'https://first.test' },
+			second: { type: 'http', url: 'https://second.test' },
+		});
+		let releaseFirst: (() => void) | undefined;
+		const firstConnected = new Promise<void>((resolve) => {
+			releaseFirst = resolve;
+		});
+		connectMock.mockImplementation(async (id: string) => {
+			if (id === 'first') await firstConnected;
+			return { id };
+		});
+		listToolsMock.mockResolvedValue({ tools: [] });
+
+		const loading = loadMcpTools();
+		expect(connectMock).toHaveBeenCalledTimes(2);
+		releaseFirst?.();
+		await expect(loading).resolves.toMatchObject({ tools: [] });
+	});
 });

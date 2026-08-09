@@ -6,6 +6,5 @@ export function optionalTrimmedString(value: unknown): string | undefined {
 
 export function optionalStringList(value: unknown): string[] | undefined {
 	if (!Array.isArray(value)) return undefined;
-	const items = value.map(optionalTrimmedString).filter((item): item is string => Boolean(item));
-	return items.length > 0 ? items : undefined;
+	return value.map(optionalTrimmedString).filter((item): item is string => Boolean(item));
 }

@@ -8,12 +8,14 @@ export const editTool = tool({
 	name: 'edit',
 	risk: 'high',
 	effect: 'write',
-	hardApproval: true,
 	allowedOrigins: ['main', 'task', 'subagent'],
 	description:
 		'Edit a UTF-8 text file by replacing one exact text match. Use this for focused changes when the old text appears exactly once.',
 	inputSchema: z.object({
-		path: z.string().min(1).describe('Absolute file path to edit. ~ expands to the user home.'),
+		path: z
+			.string()
+			.min(1)
+			.describe('Path relative to the agent filesystem root, or an absolute path. ~ is the OS user home.'),
 		oldText: z.string().min(1).describe('Exact text to replace.'),
 		newText: z.string().describe('Replacement text.'),
 	}),

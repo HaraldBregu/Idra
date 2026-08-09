@@ -10,7 +10,6 @@ import { wikiReviewTool } from '../../../../../src/main/agent/tools/wiki/review'
 import { wikiSaveTool } from '../../../../../src/main/agent/tools/wiki/save';
 
 it.each([
-	[editTool, 'high', 'write', ['main', 'task', 'subagent']],
 	[pauseScheduleTool, 'high', 'persistence', ['main']],
 	[updateHealthTool({ location: '/workspace' }), 'high', 'persistence', ['main']],
 	[updateHealthSettingsTool, 'high', 'persistence', ['main']],
@@ -25,6 +24,11 @@ it.each([
 		expect(tool).toMatchObject({ risk, effect, hardApproval: true, allowedOrigins: origins });
 	}
 );
+
+it('uses ordinary policy approval for focused text edits', () => {
+	expect(editTool).toMatchObject({ risk: 'high', effect: 'write' });
+	expect(editTool.hardApproval).not.toBe(true);
+});
 
 it('hard-approves wiki lint only when deterministic auto-fix is requested', () => {
 	expect(wikiLintTool).toMatchObject({

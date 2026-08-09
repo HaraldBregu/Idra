@@ -4,6 +4,16 @@ import { MCP_MAX_TOOLS } from './limits';
 import { mcpToolName } from './name';
 import { mcpTool } from './tool';
 
+type DiscoveredServer =
+	| { id: string; failure: 'connect' }
+	| { id: string; client: McpClient; failure: 'list' }
+	| {
+			id: string;
+			client: McpClient;
+			approval: 'always' | 'never' | undefined;
+			listed: Awaited<ReturnType<typeof listTools>>;
+	  };
+
 export async function loadMcpTools(signal?: AbortSignal): Promise<{
 	tools: Tool[];
 	diagnostics: McpDiscoveryDiagnostics;
@@ -25,51 +35,75 @@ export async function loadMcpTools(signal?: AbortSignal): Promise<{
 		truncated: false,
 		failures: [],
 	};
+	const enabledServers = servers.filter(([, data]) => data.enabled !== false);
+	const discovered = await Promise.allSettled(
+		enabledServers.map(async ([id, data]): Promise<DiscoveredServer> => {
+			signal?.throwIfAborted();
+			let client: McpClient;
+			try {
+				client = await connect(id, data, 30_000, signal);
+			} catch (error) {
+				if (signal?.aborted) throw error;
+				return { id, failure: 'connect' };
+			}
+			clients.push(client);
+			try {
+				return {
+					id,
+					client,
+					approval: data.require_approval,
+					listed: await listTools(client, 30_000, signal),
+				};
+			} catch (error) {
+				if (signal?.aborted) throw error;
+				return { id, client, failure: 'list' };
+			}
+		})
+	);
+	const rejected = discovered.find(
+		(result): result is PromiseRejectedResult => result.status === 'rejected'
+	);
+	if (rejected) {
+		await Promise.all(clients.map((client) => close(client).catch(() => {})));
+		throw rejected.reason;
+	}
 
-	for (const [id, data] of servers) {
-		signal?.throwIfAborted();
-		if (data.enabled === false) continue;
+	for (const settled of discovered) {
+		if (settled.status !== 'fulfilled') continue;
+		const result = settled.value;
+		if (result.failure === 'connect') {
+			diagnostics.failures.push({ serverId: result.id, phase: 'connect' });
+			continue;
+		}
+		diagnostics.connectedServers += 1;
+		if (result.failure === 'list') {
+			diagnostics.failures.push({ serverId: result.id, phase: 'list' });
+			continue;
+		}
+		diagnostics.listedTools += result.listed.tools.length;
 		if (tools.length >= MCP_MAX_TOOLS) {
 			diagnostics.truncated = true;
-			diagnostics.failures.push({ serverId: id, phase: 'limit' });
-			break;
-		}
-		let client: McpClient;
-		try {
-			client = await connect(id, data, 30_000, signal);
-		} catch (error) {
-			if (signal?.aborted) throw error;
-			diagnostics.failures.push({ serverId: id, phase: 'connect' });
+			diagnostics.rejectedTools += result.listed.tools.length;
+			diagnostics.failures.push({ serverId: result.id, phase: 'limit' });
 			continue;
 		}
-		clients.push(client);
-		diagnostics.connectedServers += 1;
-		let listed: Awaited<ReturnType<typeof listTools>>;
-		try {
-			listed = await listTools(client, 30_000, signal);
-		} catch (error) {
-			if (signal?.aborted) throw error;
-			diagnostics.failures.push({ serverId: id, phase: 'list' });
-			continue;
-		}
-		diagnostics.listedTools += listed.tools.length;
-		for (const [index, listedTool] of listed.tools.entries()) {
+		for (const [index, listedTool] of result.listed.tools.entries()) {
 			if (tools.length >= MCP_MAX_TOOLS) {
 				diagnostics.truncated = true;
-				diagnostics.rejectedTools += listed.tools.length - index;
-				diagnostics.failures.push({ serverId: id, phase: 'limit' });
+				diagnostics.rejectedTools += result.listed.tools.length - index;
+				diagnostics.failures.push({ serverId: result.id, phase: 'limit' });
 				break;
 			}
 			try {
-				const runtimeName = mcpToolName(id, listedTool.name, usedNames);
+				const runtimeName = mcpToolName(result.id, listedTool.name, usedNames);
 				tools.push(
 					mcpTool(
-						client,
+						result.client,
 						listedTool.name,
 						listedTool.description ?? '',
 						listedTool.inputSchema as JSONSchema,
-						id,
-						data.require_approval,
+						result.id,
+						result.approval,
 						runtimeName
 					)
 				);
@@ -78,7 +112,7 @@ export async function loadMcpTools(signal?: AbortSignal): Promise<{
 			} catch {
 				diagnostics.rejectedTools += 1;
 				diagnostics.failures.push({
-					serverId: id,
+					serverId: result.id,
 					phase: 'schema',
 					toolName: listedTool.name,
 				});

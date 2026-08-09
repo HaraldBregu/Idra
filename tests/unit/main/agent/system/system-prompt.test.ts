@@ -7,6 +7,7 @@ import { addBasePrompt } from '../../../../../src/main/agent/system/system_add_b
 import { addSkillPrompt } from '../../../../../src/main/agent/system/system_add_skill_prompt';
 import { addToolsPrompt } from '../../../../../src/main/agent/system/system_add_tools_prompt';
 import { buildSkillContext } from '../../../../../src/main/agent/system/system_build_skill_context';
+import { buildSystemPrompt } from '../../../../../src/main/agent/system/system_build_prompt';
 import type { Tool } from '../../../../../src/main/agent/types';
 
 const listSkillsMock = jest.mocked(listSkills);
@@ -58,6 +59,21 @@ describe('addToolsPrompt', () => {
 	it('does not add a tools section when only MCP tools are provided', () => {
 		const prompt = addToolsPrompt('base', [tool('mcp__notion__notion-search')]);
 		expect(prompt).toBe('base');
+	});
+});
+
+describe('buildSystemPrompt', () => {
+	it('keeps the native tool catalog visible in minimal context', async () => {
+		const prompt = await buildSystemPrompt(
+			{ location: '/workspace' },
+			[tool('read', 'Read a file'), tool('write', 'Write a file')],
+			[],
+			undefined,
+			'minimal'
+		);
+
+		expect(prompt).toContain('| `read` | Read a file |');
+		expect(prompt).toContain('| `write` | Write a file |');
 	});
 });
 

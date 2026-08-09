@@ -177,9 +177,11 @@ describe('run stream system prompt', () => {
 				return { content: '', model: 'test-model', toolCalls: calls };
 			})
 			.mockImplementationOnce(successfulTurn);
+		const mainSession = createSessionState();
+		mainSession.messages = [{ role: 'user', content: 'public current-events question' }];
 		for await (const event of stream(
 			{ location: '/workspace' },
-			createSessionState(),
+			mainSession,
 			{
 				runId: 'main-run',
 				task: 'chat',
@@ -195,9 +197,14 @@ describe('run stream system prompt', () => {
 		expect(search).toHaveBeenCalledTimes(9);
 	});
 
-	it('hard-gates public web egress after main minimal-context user text', async () => {
+	it('hard-gates web egress when the main minimal-context input has an attachment', async () => {
 		const session = createSessionState();
-		session.messages = [{ role: 'user', content: 'my pasted access code is private' }];
+		session.messages = [
+			{
+				role: 'user',
+				content: [{ type: 'file', name: 'private.txt', attachment: { id: 'a', bytes: 1 } }],
+			},
+		];
 		const search = jest.fn().mockResolvedValue('public result');
 		const webTool = jsonTool({
 			name: 'web_search',
