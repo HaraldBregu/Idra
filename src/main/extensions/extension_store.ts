@@ -48,7 +48,7 @@ export class ExtensionStorage {
 			`.${path.basename(target)}.${randomUUID()}.tmp`
 		);
 		try {
-			await fs.writeFile(temporary, data, { flag: 'wx' });
+			await fs.writeFile(temporary, data, { flag: 'wx', mode: 0o600 });
 			await fs.rename(temporary, target);
 		} finally {
 			await fs.rm(temporary, { force: true });
@@ -68,6 +68,8 @@ export class ExtensionStorage {
 			name: 'store',
 			cwd: directory,
 			accessPropertiesByDotNotation: false,
+			clearInvalidConfig: false,
+			configFileMode: 0o600,
 		});
 		this.stores.set(extensionId, created);
 		return created;
@@ -99,7 +101,16 @@ export class ExtensionStorage {
 	}
 
 	private validateKey(key: string): void {
-		if (typeof key !== 'string' || key.length === 0 || key.includes('\0')) {
+		if (
+			typeof key !== 'string' ||
+			key.length === 0 ||
+			key.includes('\0') ||
+			key === '__proto__' ||
+			key === 'constructor' ||
+			key === 'prototype' ||
+			key === '__internal__' ||
+			key.startsWith('__internal__.')
+		) {
 			throw new Error('Invalid extension store key.');
 		}
 	}
@@ -111,7 +122,8 @@ export class ExtensionStorage {
 			filePath.includes('\\') ||
 			filePath.includes('\0') ||
 			path.isAbsolute(filePath) ||
-			path.posix.isAbsolute(filePath)
+			path.posix.isAbsolute(filePath) ||
+			path.win32.isAbsolute(filePath)
 		) {
 			throw new Error('Invalid extension file path.');
 		}
@@ -208,7 +220,11 @@ export class ExtensionStorage {
 			fs.realpath(target),
 		]);
 		const relative = path.relative(resolvedRoot, resolvedTarget);
-		if (relative.startsWith('..') || path.isAbsolute(relative)) {
+		if (
+			relative === '..' ||
+			relative.startsWith(`..${path.sep}`) ||
+			path.isAbsolute(relative)
+		) {
 			throw new Error('Extension file path escapes its storage folder.');
 		}
 	}
