@@ -51,6 +51,7 @@ export const ShortcutId = {
 	openDocumentList: 'openDocumentList',
 	openAppSearch: 'openAppSearch',
 	newDocument: 'newDocument',
+	openSettings: 'openSettings',
 } as const;
 
 export type ShortcutId = (typeof ShortcutId)[keyof typeof ShortcutId];
@@ -77,12 +78,18 @@ export const SHORTCUT_BINDINGS: Record<ShortcutId, ShortcutBinding> = {
 		win: 'Ctrl+Alt+N',
 		linux: 'Ctrl+Alt+N',
 	},
+	[ShortcutId.openSettings]: {
+		mac: '⌘,',
+		win: 'Ctrl+,',
+		linux: 'Ctrl+,',
+	},
 };
 
 export const SHORTCUT_ACCELERATORS: Record<ShortcutId, string> = {
 	[ShortcutId.openDocumentList]: 'CmdOrCtrl+D',
 	[ShortcutId.openAppSearch]: 'CmdOrCtrl+K',
 	[ShortcutId.newDocument]: 'Ctrl+Alt+N',
+	[ShortcutId.openSettings]: 'CmdOrCtrl+,',
 };
 
 export function getShortcutLabel(id: ShortcutId, platform: 'mac' | 'win' | 'linux'): string {
