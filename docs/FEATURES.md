@@ -157,7 +157,7 @@ Subagents and scheduled agent tasks are non-interactive. The persisted policy mo
 
 ### Permissions and execution control
 
-The Policies screen provides persistent controls for sensitive tools:
+The Permissions screen provides persistent controls for sensitive tools:
 
 - Every tool owns a top-level policy object with `default`, `allow`, `ask`, and `deny` fields.
 - The top-level `dir` map assigns directory-scoped tool allow-lists using `{ "recoursive": boolean, "tools": "*" | string[] }` entries.

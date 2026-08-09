@@ -470,12 +470,16 @@ const routes: RouteObject[] = [
 								),
 							},
 							{
-								path: 'policies',
+								path: 'permissions',
 								element: (
 									<SettingsRouteWrapper>
 										<PermissionsPage />
 									</SettingsRouteWrapper>
 								),
+							},
+							{
+								path: 'policies',
+								element: <Navigate to="/settings/assistant/permissions" replace />,
 							},
 						],
 					},
