@@ -3,6 +3,12 @@ const loadExtension = jest.fn();
 const importExtensions = jest.fn();
 const openRoot = jest.fn();
 const deleteExtension = jest.fn();
+const extension = {
+	id: 'demo-extension',
+	title: 'Demo Extension',
+	description: 'A demo extension.',
+	metadata: { version: '1.0.0', category: 'Demo', entry: 'index.html' },
+};
 
 jest.mock('../../../../src/main/extensions/extension_index', () => ({
 	listExtensions,
@@ -19,24 +25,60 @@ jest.mock('../../../../src/main/ipc/core/gateway', () => ({
 
 import type { EventBus } from '../../../../src/main/event_bus';
 import { ExtensionsIpc } from '../../../../src/main/ipc/extensions';
-import { registerCommand } from '../../../../src/main/ipc/core/gateway';
+import { registerCommand, registerCommandWithEvent } from '../../../../src/main/ipc/core/gateway';
 import type { WindowFactory } from '../../../../src/main/window_factory';
 import { ExtensionChannels } from '../../../../src/shared/ipc_channels_definitions';
+import { BrowserWindow, dialog } from 'electron';
 
-it('opens the extensions directory in the system file explorer', async () => {
+beforeEach(() => {
+	listExtensions.mockReturnValue([extension]);
+	(BrowserWindow.fromWebContents as jest.Mock).mockReturnValue(null);
+	(dialog.showMessageBox as jest.Mock).mockResolvedValue({ response: 0, checkboxChecked: false });
+});
+
+it('opens the extensions directory in the system file explorer', () => {
 	new ExtensionsIpc().register({ windowFactory: {} as WindowFactory }, {} as EventBus);
 
 	const handler = (registerCommand as jest.Mock).mock.calls.find(
 		([channel]) => channel === ExtensionChannels.openRoot
 	)?.[1];
-	await handler();
+	handler();
 
 	expect(openRoot).toHaveBeenCalledTimes(1);
+});
 
-	const deleteHandler = (registerCommand as jest.Mock).mock.calls.find(
+it('uses a native confirmation before deleting an extension', async () => {
+	new ExtensionsIpc().register({ windowFactory: {} as WindowFactory }, {} as EventBus);
+	const owner = {};
+	const event = { sender: {} };
+	(BrowserWindow.fromWebContents as jest.Mock).mockReturnValue(owner);
+
+	const deleteHandler = (registerCommandWithEvent as jest.Mock).mock.calls.find(
 		([channel]) => channel === ExtensionChannels.delete
 	)?.[1];
-	await deleteHandler('demo-extension');
 
-	expect(deleteExtension).toHaveBeenCalledWith('demo-extension');
+	await expect(deleteHandler(event, extension.id)).resolves.toBe(false);
+	expect(deleteExtension).not.toHaveBeenCalled();
+	expect(dialog.showMessageBox).toHaveBeenCalledWith(
+		owner,
+		expect.objectContaining({
+			type: 'warning',
+			buttons: ['Cancel', 'Delete Extension'],
+			cancelId: 0,
+			defaultId: 0,
+			message: 'Delete “Demo Extension”?',
+		})
+	);
+
+	(dialog.showMessageBox as jest.Mock).mockResolvedValueOnce({
+		response: 1,
+		checkboxChecked: false,
+	});
+	await expect(deleteHandler(event, extension.id)).resolves.toBe(true);
+	expect(deleteExtension).toHaveBeenCalledTimes(1);
+	expect(deleteExtension).toHaveBeenCalledWith(extension.id);
+
+	await expect(deleteHandler(event, 'missing-extension')).rejects.toThrow(
+		'Extension not found: missing-extension'
+	);
 });

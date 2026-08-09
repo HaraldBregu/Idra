@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Layout } from '../../../src/renderer/src/pages/settings/Layout';
@@ -52,6 +52,11 @@ beforeEach(() => {
 
 it('confirms before deleting an extension', async () => {
 	const user = userEvent.setup();
+	const deleteExtension = window.extensions.delete as jest.Mock;
+	deleteExtension
+		.mockResolvedValueOnce(false)
+		.mockRejectedValueOnce(new Error('Delete failed'))
+		.mockResolvedValueOnce(true);
 
 	render(
 		<MemoryRouter initialEntries={['/settings/extensions']}>
@@ -71,21 +76,17 @@ it('confirms before deleting an extension', async () => {
 	});
 	await user.click(deleteButton);
 
-	let dialog = await screen.findByRole('alertdialog', {
-		name: 'settings.extensions.deleteTitle',
-	});
-	expect(window.extensions.delete).not.toHaveBeenCalled();
-	await user.click(within(dialog).getByRole('button', { name: 'common.cancel' }));
 	expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+	await waitFor(() => expect(deleteExtension).toHaveBeenCalledTimes(1));
 	expect(screen.getByText('Demo Extension')).toBeInTheDocument();
 
 	await user.click(deleteButton);
-	dialog = await screen.findByRole('alertdialog', {
-		name: 'settings.extensions.deleteTitle',
-	});
-	await user.click(within(dialog).getByRole('button', { name: 'common.delete' }));
+	expect(await screen.findByText('Delete failed')).toBeInTheDocument();
+	expect(screen.getByText('Demo Extension')).toBeInTheDocument();
 
-	await waitFor(() => expect(window.extensions.delete).toHaveBeenCalledWith('demo-extension'));
+	await user.click(deleteButton);
+	await waitFor(() => expect(deleteExtension).toHaveBeenCalledTimes(3));
+	expect(deleteExtension).toHaveBeenLastCalledWith('demo-extension');
 	await waitFor(() => expect(screen.queryByText('Demo Extension')).not.toBeInTheDocument());
 	expect(screen.queryByText('Extension detail')).not.toBeInTheDocument();
 });
