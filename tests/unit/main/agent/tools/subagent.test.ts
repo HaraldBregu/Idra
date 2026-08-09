@@ -6,7 +6,7 @@ jest.mock('../../../../../src/main/agent/run/run_stream', () => ({
 
 import { createContext } from '../../../../../src/main/agent/context';
 import type { SessionState } from '../../../../../src/main/agent/session';
-import { subagentTool } from '../../../../../src/main/agent/tools/subagent';
+import { subagentTool } from '../../../../../src/main/agent/tools/assistant/subagent';
 
 describe('subagentTool', () => {
 	beforeEach(() => {

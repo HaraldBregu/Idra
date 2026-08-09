@@ -10,12 +10,12 @@ jest.mock('../../../../../src/main/shared/user_path', () => ({
 	resolveUserPath: () => '/workspace',
 }));
 
-import { recorderCameraTool } from '../../../../../src/main/agent/tools/system/recorder_camera';
-import { recorderCameraStopTool } from '../../../../../src/main/agent/tools/system/recorder_camera_stop';
-import { recorderMicrophoneTool } from '../../../../../src/main/agent/tools/system/recorder_microphone';
-import { recorderMicrophoneStopTool } from '../../../../../src/main/agent/tools/system/recorder_microphone_stop';
-import { recorderScreenTool } from '../../../../../src/main/agent/tools/system/recorder_screen';
-import { recorderScreenStopTool } from '../../../../../src/main/agent/tools/system/recorder_screen_stop';
+import { recorderCameraTool } from '../../../../../src/main/agent/tools/os/recorder_camera';
+import { recorderCameraStopTool } from '../../../../../src/main/agent/tools/os/recorder_camera_stop';
+import { recorderMicrophoneTool } from '../../../../../src/main/agent/tools/os/recorder_microphone';
+import { recorderMicrophoneStopTool } from '../../../../../src/main/agent/tools/os/recorder_microphone_stop';
+import { recorderScreenTool } from '../../../../../src/main/agent/tools/os/recorder_screen';
+import { recorderScreenStopTool } from '../../../../../src/main/agent/tools/os/recorder_screen_stop';
 
 const id = '123e4567-e89b-12d3-a456-426614174000';
 

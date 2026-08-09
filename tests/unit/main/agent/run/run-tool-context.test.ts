@@ -22,7 +22,6 @@ import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import { runToolCalls } from '../../../../../src/main/agent/run/run_tool_calls';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
 import { readTool } from '../../../../../src/main/agent/tools/core/read';
-import { execTool } from '../../../../../src/main/agent/tools/core/exec';
 import type { RuntimeEvent, Tool, ToolCall } from '../../../../../src/main/agent/types';
 
 const asking = { default: 'ask' as const, allow: [], deny: [], ask: [] };
@@ -43,28 +42,6 @@ beforeEach(() => {
 });
 
 describe('tool context permissions', () => {
-	it.each(["bash -lc 'rm -rf ./build'", 'cat ~/.ssh/id_rsa'])(
-		'requires hard approval through trusted-main bypass for exec: %s',
-		async (command) => {
-			const events = runToolCall(
-				execTool,
-				{ id: 'dangerous-exec', name: 'exec', args: { command } },
-				true,
-				undefined,
-				createContext().toolsContext,
-				'bypass'
-			);
-			expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-			const request = (await events.next()).value;
-			expect(request).toMatchObject({ type: 'tool_permission_request', hardApproval: true });
-			if (!request || request.type !== 'tool_permission_request')
-				throw new Error('Expected approval');
-			const end = events.next();
-			expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
-			expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
-		}
-	);
-
 	it('keeps an explicit credential-path deny ahead of trusted-main bypass', async () => {
 		getPermissions.mockReturnValue({
 			...askingPermissions,

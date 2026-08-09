@@ -1,7 +1,7 @@
-import { completeBootstrapTool } from '../../../../../src/main/agent/tools/bootstrap_complete';
+import { completeBootstrapTool } from '../../../../../src/main/agent/tools/assistant/bootstrap_complete';
 import { editTool } from '../../../../../src/main/agent/tools/core/edit';
-import { updateHealthSettingsTool } from '../../../../../src/main/agent/tools/health_settings_update';
-import { updateHealthTool } from '../../../../../src/main/agent/tools/health_update';
+import { updateHealthSettingsTool } from '../../../../../src/main/agent/tools/assistant/health_settings_update';
+import { updateHealthTool } from '../../../../../src/main/agent/tools/assistant/health_update';
 import { pauseScheduleTool } from '../../../../../src/main/agent/tools/tasks/pause_schedule';
 import { wikiIngestTool } from '../../../../../src/main/agent/tools/knowledge/ingest';
 import { wikiLintTool } from '../../../../../src/main/agent/tools/knowledge/lint';

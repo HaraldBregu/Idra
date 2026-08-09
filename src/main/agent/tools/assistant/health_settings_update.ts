@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { rescheduleHealth, updateHealthSettings } from '../health';
-import { tool } from './tool';
+import { rescheduleHealth, updateHealthSettings } from '../../health';
+import { tool } from '../tool';
 
 export const updateHealthSettingsTool = tool({
 	name: 'health_settings_update',

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
-import { tool } from './tool';
-import { createSessionState } from '../session';
-import { adoptSubagent, type AgentContext } from '../context';
-import { stream } from '../run/run_stream';
-import type { Config, RuntimeInput, Tool } from '../types';
+import { tool } from '../tool';
+import { createSessionState } from '../../session';
+import { adoptSubagent, type AgentContext } from '../../context';
+import { stream } from '../../run/run_stream';
+import type { Config, RuntimeInput, Tool } from '../../types';
 
 const instructions = `You are a subagent spawned by the main agent to complete one specific task.
 

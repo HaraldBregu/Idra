@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
-import { agentLocation } from '../../shared/agent_location';
-import { BOOTSTRAP_FILE } from '../system/system_types';
-import { tool } from './tool';
+import { agentLocation } from '../../../shared/agent_location';
+import { BOOTSTRAP_FILE } from '../../system/system_types';
+import { tool } from '../tool';
 
 export const completeBootstrapTool = tool({
 	name: 'complete_bootstrap',

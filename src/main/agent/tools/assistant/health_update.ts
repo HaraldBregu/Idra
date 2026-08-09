@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { saveHealthData } from '../health';
-import type { Config, Tool } from '../types';
-import { tool } from './tool';
+import { saveHealthData } from '../../health';
+import type { Config, Tool } from '../../types';
+import { tool } from '../tool';
 
 export function updateHealthTool(config: Config): Tool {
 	return tool({

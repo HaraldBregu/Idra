@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tool } from './tool';
-import { listSkills, loadSkill } from '../skills';
+import { tool } from '../tool';
+import { listSkills, loadSkill } from '../../skills';
 
 export const loadSkillTool = tool({
 	name: 'load_skill',
