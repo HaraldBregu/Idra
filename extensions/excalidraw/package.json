@@ -1,8 +1,8 @@
 {
-	"name": "draw",
+	"name": "friday-excalidraw",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Friday drawing extension powered by Excalidraw.",
+	"description": "Create freeform drawings, wireframes, and visual notes on an infinite Excalidraw canvas in Friday.",
 	"keywords": [
 		"utility"
 	],

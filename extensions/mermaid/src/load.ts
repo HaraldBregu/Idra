@@ -11,7 +11,11 @@ export async function loadState(): Promise<DiagramState> {
 	try {
 		stored = isFriday()
 			? await app.getExtensionStoreValue('editor')
-			: JSON.parse(localStorage.getItem('friday-diagrams-editor') ?? 'null');
+			: JSON.parse(
+					localStorage.getItem('friday-mermaid-editor') ??
+						localStorage.getItem('friday-diagrams-editor') ??
+						'null'
+				);
 	} catch {
 		return defaultState;
 	}

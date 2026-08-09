@@ -176,13 +176,13 @@ export default function App() {
 	};
 
 	return (
-		<main className="diagrams">
+		<main className="mermaid-extension">
 			<header className="app-bar">
 				<div className="brand">
 					<span className="brand-mark" aria-hidden="true">
 						◇
 					</span>
-					<strong>Diagrams</strong>
+					<strong>Mermaid</strong>
 				</div>
 				<label>
 					Example

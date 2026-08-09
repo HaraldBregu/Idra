@@ -4,9 +4,13 @@ const path = require('node:path');
 
 const source = path.resolve(__dirname, '..');
 const parent = path.join(os.homedir(), '.friday', 'extensions');
-const destination = path.join(parent, 'diagrams');
-const staging = path.join(parent, `.diagrams-installing-${process.pid}`);
-const backup = path.join(parent, `.diagrams-previous-${process.pid}`);
+const destination = path.join(parent, 'mermaid');
+const legacy = path.join(parent, 'diagrams');
+const staging = path.join(parent, `.mermaid-installing-${process.pid}`);
+const backup = path.join(parent, `.mermaid-previous-${process.pid}`);
+const dataParent = path.join(os.homedir(), '.friday', 'extensions-data');
+const dataDestination = path.join(dataParent, 'mermaid');
+const legacyData = path.join(dataParent, 'diagrams');
 const files = ['manifest.json', 'package.json', 'dist'];
 
 if (!fs.existsSync(path.join(source, 'dist', 'index.html'))) {
@@ -25,10 +29,14 @@ try {
 	if (fs.existsSync(destination)) fs.renameSync(destination, backup);
 	fs.renameSync(staging, destination);
 	fs.rmSync(backup, { force: true, recursive: true });
+	fs.rmSync(legacy, { force: true, recursive: true });
+	if (fs.existsSync(legacyData) && !fs.existsSync(dataDestination)) {
+		fs.renameSync(legacyData, dataDestination);
+	}
 } catch (error) {
 	fs.rmSync(staging, { force: true, recursive: true });
 	if (!fs.existsSync(destination) && fs.existsSync(backup)) fs.renameSync(backup, destination);
 	throw error;
 }
 
-process.stdout.write(`Installed Diagrams to ${destination}\n`);
+process.stdout.write(`Installed Mermaid to ${destination}\n`);

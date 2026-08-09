@@ -7,5 +7,5 @@ export async function saveState(state: DiagramState): Promise<void> {
 		await app.setExtensionStoreValue('editor', state as unknown as ExtensionStoreValue);
 		return;
 	}
-	localStorage.setItem('friday-diagrams-editor', JSON.stringify(state));
+	localStorage.setItem('friday-mermaid-editor', JSON.stringify(state));
 }

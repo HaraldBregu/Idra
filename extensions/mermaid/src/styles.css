@@ -43,7 +43,7 @@
 html,
 body,
 #root,
-.diagrams {
+.mermaid-extension {
 	height: 100%;
 	width: 100%;
 }
@@ -116,7 +116,7 @@ kbd {
 	opacity: 0.72;
 }
 
-.diagrams {
+.mermaid-extension {
 	display: grid;
 	grid-template-rows: 44px 40px minmax(0, 1fr) 26px;
 }
@@ -446,7 +446,7 @@ kbd {
 	.rendering {
 		display: none !important;
 	}
-	.diagrams,
+	.mermaid-extension,
 	.workspace,
 	.preview-panel,
 	.preview-scroll {

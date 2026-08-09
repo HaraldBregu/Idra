@@ -33,11 +33,11 @@ export default function App() {
 	}, []);
 
 	return (
-		<main className="draw">
+		<main className="excalidraw-extension">
 			<Excalidraw
 				autoFocus
 				handleKeyboardGlobally
-				name="Draw"
+				name="Excalidraw"
 				theme={theme.isDark ? THEME.DARK : THEME.LIGHT}
 				UIOptions={{
 					canvasActions: {
@@ -70,7 +70,7 @@ export default function App() {
 					<WelcomeScreen.Hints.ToolbarHint />
 					<WelcomeScreen.Hints.HelpHint />
 					<WelcomeScreen.Center>
-						<WelcomeScreen.Center.Logo>Draw</WelcomeScreen.Center.Logo>
+						<WelcomeScreen.Center.Logo>Excalidraw</WelcomeScreen.Center.Logo>
 						<WelcomeScreen.Center.Heading>
 							Sketch, connect, and explore ideas.
 						</WelcomeScreen.Center.Heading>

@@ -120,12 +120,12 @@ export const examples: Example[] = [
 		name: 'Git graph',
 		source: `gitGraph LR:
     commit id: "extension"
-    branch diagrams
-    checkout diagrams
+    branch mermaid
+    checkout mermaid
     commit id: "mermaid"
     commit id: "preview"
     checkout main
-    merge diagrams
+    merge mermaid
     commit id: "release"`,
 	},
 	{
@@ -162,7 +162,7 @@ config:
   layout: tidy-tree
 ---
 mindmap
-  root((Diagrams))
+  root((Mermaid))
     Author
       Source
       Config
@@ -176,7 +176,7 @@ mindmap
 	{
 		name: 'Timeline',
 		source: `timeline
-    title Diagrams extension
+    title Mermaid extension
     Audit : Extension conventions
     Build : Mermaid integration : Editor UI
     Verify : Syntax coverage : Runtime smoke
@@ -228,7 +228,7 @@ Renderer,PNG,22`,
     editor[Build editor]
     render[Integrate renderer]
   done[Done]
-    scaffold[Create Diagrams extension]`,
+    scaffold[Create Mermaid extension]`,
 	},
 	{
 		name: 'Architecture',
@@ -245,14 +245,14 @@ Renderer,PNG,22`,
 		source: `radar-beta
     title Diagram quality
     axis speed["Speed"], clarity["Clarity"], access["Accessibility"], export["Export"], coverage["Coverage"]
-    curve current["Diagrams"] { 85, 92, 88, 90, 96 }
+    curve current["Mermaid"] { 85, 92, 88, 90, 96 }
     max 100
     min 0`,
 	},
 	{
 		name: 'Treemap',
 		source: `treemap-beta
-"Diagrams"
+"Mermaid"
     "Structural": 34
     "Behavioral": 28
     "Planning": 20
@@ -298,7 +298,7 @@ Renderer,PNG,22`,
     set Clear
     set Complete
     set Secure
-    union Clear,Complete,Secure["Friday Diagrams"]`,
+    union Clear,Complete,Secure["Friday Mermaid"]`,
 	},
 	{
 		name: 'Ishikawa',
@@ -350,7 +350,7 @@ config:
     showIcons: true
 ---
 treeView-beta
-    diagrams/
+    mermaid/
         src/
             App.tsx icon(mdi:react)
             engine.ts icon(mdi:cog)
