@@ -9,7 +9,19 @@ assert.throws(() => app.getTheme, /unavailable/);
 assert.throws(() => agent.getWorkspaceLocation, /unavailable/);
 assert.throws(() => win.showContextMenu, /unavailable/);
 
+const extensionValues = new Map();
+const extensionFiles = new Map();
 globalThis.app = {
+	getExtensionStoreValue: async (key) => extensionValues.get(key),
+	setExtensionStoreValue: async (key, value) => extensionValues.set(key, value),
+	deleteExtensionStoreValue: async (key) => extensionValues.delete(key),
+	readExtensionStoreFile: async (path) => {
+		const data = extensionFiles.get(path);
+		if (!data) throw new Error('Extension file not found.');
+		return data;
+	},
+	writeExtensionStoreFile: async (path, data) => extensionFiles.set(path, new Uint8Array(data)),
+	deleteExtensionStoreFile: async (path) => extensionFiles.delete(path),
 	getThemeData: async () => ({
 		themeMode: 'system',
 		isDark: false,
@@ -55,6 +67,14 @@ assert.deepEqual(await app.getThemeData(), {
 	isDark: false,
 	colors: { background: '#fff' },
 });
+await app.setExtensionStoreValue('config', { color: 'blue' });
+assert.deepEqual(await app.getExtensionStoreValue('config'), { color: 'blue' });
+await app.deleteExtensionStoreValue('config');
+assert.equal(await app.getExtensionStoreValue('config'), undefined);
+await app.writeExtensionStoreFile('assets/data.bin', new Uint8Array([4, 5, 6]));
+assert.deepEqual(await app.readExtensionStoreFile('assets/data.bin'), new Uint8Array([4, 5, 6]));
+await app.deleteExtensionStoreFile('assets/data.bin');
+await assert.rejects(app.readExtensionStoreFile('assets/data.bin'), /not found/);
 assert.equal(await agent.getWorkspaceLocation(), '/tmp/friday-workspace');
 assert.deepEqual(await agent.listWorkspaceFiles(), [
 	{ name: 'USER.md', path: 'USER.md', type: 'file' },
@@ -118,6 +138,7 @@ await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const friday = connect({ url: `http://127.0.0.1:${server.address().port}`, token: 'secret' });
 
 assert.deepEqual(await friday.ping(), { name: 'friday', version: '1.0.0' });
+assert.throws(() => friday.app.getExtensionStoreValue, /not available over the API/);
 await friday.app.getThemeData();
 assert.equal(await friday.agent.getWorkspaceLocation(), '/tmp/friday-workspace');
 assert.deepEqual(await friday.agent.listWorkspaceFiles(), [

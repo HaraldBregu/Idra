@@ -69,7 +69,7 @@ export default function App() {
 	const [theme, setTheme] = useState<AppThemeData>(fallbackTheme);
 	const [language, setLanguage] = useState<AppLanguage>(fallbackLanguage);
 	const [status, setStatus] = useState(translations.en.waiting);
-	const [localStorageValue, setLocalStorageValue] = useState('');
+	const [extensionStoreValue, setExtensionStoreValue] = useState('');
 	const inFridayApp = isFriday();
 	const text = translations[language] ?? translations.en;
 	const themeStyle = Object.fromEntries(
@@ -144,14 +144,16 @@ export default function App() {
 		}
 	};
 
-	const setDemoLocalStorage = () => {
-		localStorage.setItem(demoStorageKey, demoStorageValue);
-		setStatus('Set local storage demo value.');
+	const setDemoExtensionStore = async () => {
+		if (!ensureFridayApp()) return;
+		await app.setExtensionStoreValue(demoStorageKey, demoStorageValue);
+		setStatus('Set isolated extension store value.');
 	};
 
-	const getDemoLocalStorage = () => {
-		setLocalStorageValue(localStorage.getItem(demoStorageKey) ?? '');
-		setStatus('Got local storage demo value.');
+	const getDemoExtensionStore = async () => {
+		if (!ensureFridayApp()) return;
+		setExtensionStoreValue((await app.getExtensionStoreValue<string>(demoStorageKey)) ?? '');
+		setStatus('Got isolated extension store value.');
 	};
 
 	useEffect(() => {
@@ -224,13 +226,13 @@ export default function App() {
 						</div>
 					</div>
 					<div className="space-y-2">
-						<p className="text-sm font-semibold">Local storage</p>
-						<p className="text-sm">Value: {localStorageValue || 'empty'}</p>
+						<p className="text-sm font-semibold">Extension store</p>
+						<p className="text-sm">Value: {extensionStoreValue || 'empty'}</p>
 						<div className="mt-2 flex flex-wrap gap-2">
-							<Button variant="outline" onClick={setDemoLocalStorage}>
+							<Button variant="outline" onClick={setDemoExtensionStore}>
 								Set demo
 							</Button>
-							<Button variant="secondary" onClick={getDemoLocalStorage}>
+							<Button variant="secondary" onClick={getDemoExtensionStore}>
 								Get demo
 							</Button>
 						</div>

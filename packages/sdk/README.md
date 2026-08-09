@@ -55,6 +55,13 @@ if (!isFriday()) throw new Error('Not running inside Friday');
 const themeData: AppThemeData = await app.getThemeData();
 await app.setTheme(themeData.themeMode === 'dark' ? 'light' : 'dark');
 
+await app.setExtensionStoreValue('config', { color: 'blue', autosave: true });
+const config = await app.getExtensionStoreValue<{ color: string; autosave: boolean }>('config');
+
+const encoded = new TextEncoder().encode('extension-owned file');
+await app.writeExtensionStoreFile('notes/example.txt', encoded);
+const decoded = new TextDecoder().decode(await app.readExtensionStoreFile('notes/example.txt'));
+
 const workspace = await agent.getWorkspaceLocation();
 const files = await agent.listWorkspaceFiles();
 const content = await agent.readWorkspaceFile('USER.md');
@@ -84,6 +91,11 @@ const maximized = await win.isMaximized();
 - `connect()`: remote client for the app API and workspace agent APIs.
 - `isFriday()`: host check for in-app mode.
 - `ping()`: validate API reachability in remote mode.
+
+Extension store methods are available only to extensions embedded in Friday. Friday derives the
+extension namespace from the calling view, so extensions never pass or select an extension ID.
+Values are JSON state stored in plaintext and should not contain passwords or API keys. File paths
+are relative to the extension's isolated files directory, and file data uses `Uint8Array`.
 
 ## Development
 
