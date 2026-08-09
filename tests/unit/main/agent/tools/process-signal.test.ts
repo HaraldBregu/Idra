@@ -4,12 +4,12 @@ const spawn = jest.fn();
 
 jest.mock('node:child_process', () => ({ spawn }));
 
-import { execTool } from '../../../../../src/main/agent/tools/run_exec';
+import { execTool } from '../../../../../src/main/agent/tools/core/run_exec';
 import {
 	processTool,
 	registry,
 	type ProcessSession,
-} from '../../../../../src/main/agent/tools/run_process';
+} from '../../../../../src/main/agent/tools/core/run_process';
 
 function childProcess() {
 	const child = new EventEmitter() as EventEmitter & {

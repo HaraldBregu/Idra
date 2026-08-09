@@ -4,7 +4,7 @@ import { resolveUserPath } from '../../shared/user_path';
 import { taskStorePath } from '../../tasks/tasks_store';
 import { healthStorePath } from '../health/health_store';
 import { skillsRoot } from '../skills/skills_root';
-import { registry } from '../tools/run_process';
+import { registry } from '../tools/core/run_process';
 import { toolPermissionTargets } from './policy_targets';
 
 const AGENT_FILES: Record<string, string> = {

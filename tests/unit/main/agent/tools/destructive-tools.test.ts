@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { applyPatchTool } from '../../../../../src/main/agent/tools/file/apply_patch';
-import { writeTool } from '../../../../../src/main/agent/tools/file/write';
-import { execTool } from '../../../../../src/main/agent/tools/run_exec';
-import { processTool } from '../../../../../src/main/agent/tools/run_process';
+import { applyPatchTool } from '../../../../../src/main/agent/tools/core/apply_patch';
+import { writeTool } from '../../../../../src/main/agent/tools/core/write';
+import { execTool } from '../../../../../src/main/agent/tools/core/run_exec';
+import { processTool } from '../../../../../src/main/agent/tools/core/run_process';
 import type { Tool } from '../../../../../src/main/agent/types';
 
 function requiresHardApproval(tool: Tool, input: Record<string, unknown>): boolean {

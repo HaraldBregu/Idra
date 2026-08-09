@@ -21,8 +21,8 @@ import { respondToolPermission } from '../../../../../src/main/agent/policy';
 import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import { runToolCalls } from '../../../../../src/main/agent/run/run_tool_calls';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
-import { readTool } from '../../../../../src/main/agent/tools/file/read';
-import { execTool } from '../../../../../src/main/agent/tools/run_exec';
+import { readTool } from '../../../../../src/main/agent/tools/core/read';
+import { execTool } from '../../../../../src/main/agent/tools/core/run_exec';
 import type { RuntimeEvent, Tool, ToolCall } from '../../../../../src/main/agent/types';
 
 const asking = { default: 'ask' as const, allow: [], deny: [], ask: [] };

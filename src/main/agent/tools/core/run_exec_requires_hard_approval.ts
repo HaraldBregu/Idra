@@ -1,4 +1,4 @@
-import { isCredentialReference } from '../policy/policy_credential_reference';
+import { isCredentialReference } from '../../policy/policy_credential_reference';
 
 const INTERPRETER =
 	/(?:^|[\s;&|()])(?:[^\s;&|()]*\/)?(?:ba|da|k|z)?sh\b|(?:^|[\s;&|()])(?:[^\s;&|()]*\/)?(?:python\d*(?:\.\d+)?|node|ruby|perl|php|osascript|pwsh|powershell)\b/i;

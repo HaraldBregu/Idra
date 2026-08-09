@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { agentLocation } from '../../shared/agent_location';
-import { resolveUserPath } from '../../shared/user_path';
-import { tool } from './tool';
+import { agentLocation } from '../../../shared/agent_location';
+import { resolveUserPath } from '../../../shared/user_path';
+import { tool } from '../tool';
 import { registry } from './run_process';
 import { execRequiresHardApproval } from './run_exec_requires_hard_approval';
 
