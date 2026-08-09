@@ -17,7 +17,7 @@ jest.mock('../../../../../src/main/agent/agent_store', () => ({
 }));
 
 import { createContext, fileToolState, rememberTool } from '../../../../../src/main/agent/context';
-import { respondToolPermission } from '../../../../../src/main/agent/policy';
+import { respondToolPermission } from '../../../../../src/main/agent/permissions';
 import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import { runToolCalls } from '../../../../../src/main/agent/run/run_tool_calls';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';

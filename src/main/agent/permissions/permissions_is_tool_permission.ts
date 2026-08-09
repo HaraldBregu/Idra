@@ -1,4 +1,4 @@
-import type { ToolPermission } from './policy_types';
+import type { ToolPermission } from './permissions_types';
 
 export function isToolPermission(value: unknown): value is ToolPermission {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return false;

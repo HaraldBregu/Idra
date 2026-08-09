@@ -57,7 +57,7 @@ import type { Config, McpDiscoveryDiagnostics, RuntimeEvent, RuntimeInput, Tool 
 import type { WindowFactory } from '../../window_factory';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
-import { getPermissionMode } from '../policy';
+import { getPermissionMode } from '../permissions';
 import { selectOriginTools } from './run_origin_tools';
 import { formatToolOutput } from './run_common';
 import { selectSkillTools } from './run_skill_tools';

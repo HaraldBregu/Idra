@@ -1,12 +1,12 @@
 import {
 	DEFAULT_PERMISSIONS,
-	POLICY_TOOLS,
-} from '../../../../../src/main/agent/policy/policy_types';
+	PERMISSION_TOOLS,
+} from '../../../../../src/main/agent/permissions/permissions_types';
 
 describe('DEFAULT_PERMISSIONS', () => {
 	it('uses a complete top-level tool policy schema', () => {
 		expect(Object.keys(DEFAULT_PERMISSIONS).sort()).toEqual(
-			['dir', 'mode', ...POLICY_TOOLS].sort()
+			['dir', 'mode', ...PERMISSION_TOOLS].sort()
 		);
 		expect(DEFAULT_PERMISSIONS.dir).toEqual({});
 		expect(DEFAULT_PERMISSIONS.mode).toBe('ask');
@@ -39,7 +39,7 @@ describe('DEFAULT_PERMISSIONS', () => {
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('permissions');
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultMode');
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultPermissions');
-		for (const toolName of POLICY_TOOLS) {
+		for (const toolName of PERMISSION_TOOLS) {
 			const permission = DEFAULT_PERMISSIONS[toolName];
 			expect(permission).toMatchObject({ allow: [], deny: [], ask: [] });
 		}

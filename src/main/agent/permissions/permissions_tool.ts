@@ -1,18 +1,18 @@
-import { toolPermissionFor } from './policy_override';
-import type { PermissionMode, ToolPermission } from './policy_types';
+import { toolPermissionFor } from './permissions_override';
+import type { PermissionMode, ToolPermission } from './permissions_types';
 
-export interface ToolPolicyResolution {
+export interface ToolPermissionResolution {
 	permission: PermissionMode;
 	contextCanAllow: boolean;
 	explicit?: PermissionMode;
 }
 
-export function resolveStoredToolPolicy(
+export function resolveStoredToolPermission(
 	toolName: string,
 	targets: string[],
 	configured: ToolPermission | undefined,
 	fallback: PermissionMode
-): ToolPolicyResolution {
+): ToolPermissionResolution {
 	if (targets.length === 0) return { permission: configured?.default ?? fallback, contextCanAllow: true };
 	const decisions = targets.map((target) =>
 		configured ? toolPermissionFor(toolName, target, configured) : undefined

@@ -37,7 +37,7 @@ import type {
 	DirectoryPermissions,
 	PermissionsSchema,
 	ToolPermission,
-} from '../main/agent/policy/policy_types';
+} from '../main/agent/permissions/permissions_types';
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,

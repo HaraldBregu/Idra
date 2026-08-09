@@ -5,7 +5,7 @@ import { taskStorePath } from '../../tasks/tasks_store';
 import { healthStorePath } from '../health/health_store';
 import { skillsRoot } from '../skills/skills_root';
 import { registry } from '../tools/core/process';
-import { toolPermissionTargets } from './policy_targets';
+import { toolPermissionTargets } from './permissions_targets';
 
 const AGENT_FILES: Record<string, string> = {
 	memory_save: 'MEMORY.md',

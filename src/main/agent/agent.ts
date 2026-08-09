@@ -17,7 +17,7 @@ import { stream } from './run/run_stream';
 import { agentLocation } from '../shared/agent_location';
 import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../tasks';
 import { startHealth, stopHealth } from './health';
-import { rejectPendingToolPermissions } from './policy';
+import { rejectPendingToolPermissions } from './permissions';
 import { resolveSkillCommand } from './skills';
 import {
 	createContextState,

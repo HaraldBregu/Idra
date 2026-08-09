@@ -2,8 +2,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
-import { isPathWithin } from './policy_path';
-import type { DirectoryPermissions, PermissionMode } from './policy_types';
+import { isPathWithin } from './permissions_path';
+import type { DirectoryPermissions, PermissionMode } from './permissions_types';
 
 export function directoryPermissionFor(
 	directories: DirectoryPermissions,

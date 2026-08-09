@@ -8,7 +8,7 @@ jest.mock('../../../../../src/main/agent/agent_store', () => ({
 	getPermissions,
 }));
 
-import { resolveToolPermission } from '../../../../../src/main/agent/policy/policy_resolve';
+import { resolveToolPermission } from '../../../../../src/main/agent/permissions/permissions_resolve';
 import {
 	registry,
 	type ProcessSession,
@@ -16,7 +16,7 @@ import {
 import type {
 	PermissionsSchema,
 	ToolPermission,
-} from '../../../../../src/main/agent/policy/policy_types';
+} from '../../../../../src/main/agent/permissions/permissions_types';
 
 const entry = (
 	defaultMode: ToolPermission['default'],

@@ -1,4 +1,4 @@
-import type { DirectoryPermissions } from './policy_types';
+import type { DirectoryPermissions } from './permissions_types';
 
 export function normalizeDirectoryPermissions(value: unknown): DirectoryPermissions {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return {};

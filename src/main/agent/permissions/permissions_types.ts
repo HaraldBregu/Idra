@@ -24,7 +24,7 @@ export type PermissionsSchema = Record<
 	mode: AgentPermissionMode;
 };
 
-export const POLICY_TOOLS = [
+export const PERMISSION_TOOLS = [
 	'read',
 	'write',
 	'edit',

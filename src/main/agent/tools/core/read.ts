@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { agentLocation } from '../../../shared/agent_location';
 import { resolveUserPath } from '../../../shared/user_path';
 import { realPath } from '../../../shared/real_path';
-import { isCredentialReference } from '../../policy/policy_credential_reference';
+import { isCredentialReference } from '../../permissions/permissions_credential_reference';
 import { tool } from '../tool';
 
 export const readTool = tool({

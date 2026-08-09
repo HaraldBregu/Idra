@@ -9,7 +9,7 @@ jest.mock('../../../../../src/main/wiki/wiki_answer_context', () => ({
 	buildWikiAnswerContext,
 }));
 
-import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/policy/policy_types';
+import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/permissions/permissions_types';
 import { getKnowledgeTools } from '../../../../../src/main/agent/tools/knowledge';
 import { knowledgeQueryTool } from '../../../../../src/main/agent/tools/knowledge/query';
 

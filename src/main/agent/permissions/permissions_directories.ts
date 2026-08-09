@@ -1,7 +1,7 @@
-import { directoryPermissionFor } from './policy_directory';
-import type { DirectoryPermissions } from './policy_types';
+import { directoryPermissionFor } from './permissions_directory';
+import type { DirectoryPermissions } from './permissions_types';
 
-export function directoryPolicyAllows(
+export function directoryPermissionAllows(
 	directories: DirectoryPermissions,
 	toolName: string,
 	targets: string[]

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { resolveUserPath } from '../../../../../src/main/shared/user_path';
-import { toolPathDir, isPathWithin } from '../../../../../src/main/agent/policy/policy_path';
+import { toolPathDir, isPathWithin } from '../../../../../src/main/agent/permissions/permissions_path';
 
 const agentDir = path.resolve('/appdata/agent');
 

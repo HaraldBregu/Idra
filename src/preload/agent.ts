@@ -19,7 +19,7 @@ import type {
 	DirectoryPermissions,
 	PermissionsSchema,
 	ToolPermission,
-} from '../main/agent/policy/policy_types';
+} from '../main/agent/permissions/permissions_types';
 import { optionalStringList, optionalTrimmedString } from './normalize';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [

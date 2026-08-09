@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { directoryPermissionTargets } from '../../../../../src/main/agent/policy/policy_directory_targets';
+import { directoryPermissionTargets } from '../../../../../src/main/agent/permissions/permissions_directory_targets';
 import { taskStorePath } from '../../../../../src/main/tasks/tasks_store';
 import { healthStorePath } from '../../../../../src/main/agent/health/health_store';
 import {

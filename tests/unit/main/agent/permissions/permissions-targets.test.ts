@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { toolPermissionTargets } from '../../../../../src/main/agent/policy/policy_targets';
+import { toolPermissionTargets } from '../../../../../src/main/agent/permissions/permissions_targets';
 import { resolveUserPath } from '../../../../../src/main/shared/user_path';
 
 const agentDir = path.resolve('/appdata/agent');

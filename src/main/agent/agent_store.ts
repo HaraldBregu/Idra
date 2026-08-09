@@ -7,9 +7,9 @@ import type {
 } from '../../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
-import { isToolPermission } from './policy/policy_is_tool_permission';
-import { normalizeToolPermission } from './policy/policy_normalize';
-import { normalizeDirectoryPermissions } from './policy/policy_normalize_directories';
+import { isToolPermission } from './permissions/permissions_is_tool_permission';
+import { normalizeToolPermission } from './permissions/permissions_normalize';
+import { normalizeDirectoryPermissions } from './permissions/permissions_normalize_directories';
 import {
 	DEFAULT_PERMISSIONS,
 	DEFAULT_TOOL_PERMISSIONS,
@@ -17,7 +17,7 @@ import {
 	type PermissionBucket,
 	type PermissionsSchema,
 	type ToolPermission,
-} from './policy/policy_types';
+} from './permissions/permissions_types';
 
 export type SearchEngineSettings = {
 	providerId: string;

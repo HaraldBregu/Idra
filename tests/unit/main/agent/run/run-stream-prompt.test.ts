@@ -35,7 +35,7 @@ import { stream } from '../../../../../src/main/agent/run/run_stream';
 import { createSessionState } from '../../../../../src/main/agent/session';
 import type { Message } from '../../../../../src/main/agent/types';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
-import { respondToolPermission } from '../../../../../src/main/agent/policy';
+import { respondToolPermission } from '../../../../../src/main/agent/permissions';
 
 describe('run stream system prompt', () => {
 	beforeEach(() => {

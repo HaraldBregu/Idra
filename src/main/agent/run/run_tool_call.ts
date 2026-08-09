@@ -9,9 +9,9 @@ import {
 	setToolPermission,
 	toolApprovalTargets,
 	waitForToolPermission,
-} from '../policy';
-import { inputFingerprint } from '../policy/policy_fingerprint';
-import { redactApprovalInput } from '../policy/policy_redact_input';
+} from '../permissions';
+import { inputFingerprint } from '../permissions/permissions_fingerprint';
+import { redactApprovalInput } from '../permissions/permissions_redact_input';
 import { formatToolOutput } from './run_common';
 import { limitToolOutput } from './run_limit_output';
 import type { AgentOrigin } from '../../../shared/agent_types';

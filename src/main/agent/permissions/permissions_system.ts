@@ -1,7 +1,7 @@
 import { realPath } from '../../shared/real_path';
-import { isPathWithin } from './policy_path';
+import { isPathWithin } from './permissions_path';
 
-export function systemPolicyAllows(
+export function systemPermissionAllows(
 	toolName: string,
 	targets: string[],
 	agentDirectory: string

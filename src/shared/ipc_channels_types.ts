@@ -127,7 +127,7 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.policyGet]: {
 		args: [];
-		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
 	};
 	[AgentChannels.policyPickDirectory]: {
 		args: [];
@@ -136,21 +136,21 @@ export interface AgentInvokeChannelMap {
 	[AgentChannels.policySetTool]: {
 		args: [
 			toolName: string,
-			permission: import('../main/agent/policy/policy_types').ToolPermission,
+			permission: import('../main/agent/permissions/permissions_types').ToolPermission,
 		];
-		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
 	};
 	[AgentChannels.policySetDirectories]: {
-		args: [directories: import('../main/agent/policy/policy_types').DirectoryPermissions];
-		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+		args: [directories: import('../main/agent/permissions/permissions_types').DirectoryPermissions];
+		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
 	};
 	[AgentChannels.policySetMode]: {
 		args: [mode: import('./agent_types').AgentPermissionMode];
-		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
 	};
 	[AgentChannels.policyReset]: {
 		args: [];
-		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
 	};
 	[AgentChannels.healthSettings]: {
 		args: [];

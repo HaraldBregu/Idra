@@ -3,7 +3,7 @@ import {
 	respondToolPermission,
 	rejectPendingToolPermissions,
 	type PendingToolApproval,
-} from '../../../../../src/main/agent/policy/policy_pending';
+} from '../../../../../src/main/agent/permissions/permissions_pending';
 
 const approval = (approvalId: string, hardApproval = false): PendingToolApproval => ({
 	approvalId,

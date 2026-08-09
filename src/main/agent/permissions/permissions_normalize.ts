@@ -1,4 +1,4 @@
-import type { ToolPermission } from './policy_types';
+import type { ToolPermission } from './permissions_types';
 
 export function normalizeToolPermission(value: unknown, fallback: ToolPermission): ToolPermission {
 	if (!value || typeof value !== 'object' || Array.isArray(value))

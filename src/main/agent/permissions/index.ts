@@ -9,29 +9,29 @@ export {
 	setPermissionMode,
 	setToolPermission,
 } from '../agent_store';
-export { isPathWithin, toolPathDir } from './policy_path';
-export { directoryPermissionFor } from './policy_directory';
-export { directoryPolicyAllows } from './policy_directories';
-export { directoryPermissionTargets } from './policy_directory_targets';
-export { systemPolicyAllows } from './policy_system';
-export { toolApprovalTargets } from './policy_approval_targets';
-export { toolPermissionTargets } from './policy_targets';
-export { toolPermissionFor } from './policy_override';
-export { resolveStoredToolPolicy } from './policy_tool';
-export { resolveToolPermission } from './policy_resolve';
+export { isPathWithin, toolPathDir } from './permissions_path';
+export { directoryPermissionFor } from './permissions_directory';
+export { directoryPermissionAllows } from './permissions_directories';
+export { directoryPermissionTargets } from './permissions_directory_targets';
+export { systemPermissionAllows } from './permissions_system';
+export { toolApprovalTargets } from './permissions_approval_targets';
+export { toolPermissionTargets } from './permissions_targets';
+export { toolPermissionFor } from './permissions_override';
+export { resolveStoredToolPermission } from './permissions_tool';
+export { resolveToolPermission } from './permissions_resolve';
 export {
 	rejectPendingToolPermissions,
 	respondToolPermission,
 	waitForToolPermission,
-} from './policy_pending';
+} from './permissions_pending';
 export {
 	DEFAULT_PERMISSIONS,
 	DEFAULT_TOOL_PERMISSIONS,
-	POLICY_TOOLS,
+	PERMISSION_TOOLS,
 	type DirectoryPermission,
 	type DirectoryPermissions,
 	type PermissionBucket,
 	type PermissionMode,
 	type PermissionsSchema,
 	type ToolPermission,
-} from './policy_types';
+} from './permissions_types';
