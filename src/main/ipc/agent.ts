@@ -30,7 +30,7 @@ import {
 	type DirectoryPermissions,
 	type PermissionsSchema,
 	type ToolPermission,
-} from '../agent/policy';
+} from '../agent/permissions';
 import {
 	getHealthSettings,
 	resetHealthSettings,
