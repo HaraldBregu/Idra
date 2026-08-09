@@ -41,6 +41,7 @@ export function render(
 		{ html: 'extension.html', hash: `extension/${encodeURIComponent(title)}` }
 	);
 	const { view, loaded } = windowFactory.createView(file);
+	const viewContents = view.webContents;
 	const resizeView = (): void => {
 		const { width, height } = win.getContentBounds();
 		view.setBounds({ x: 0, y: titleBarHeight, width, height: Math.max(0, height - titleBarHeight) });
@@ -48,8 +49,8 @@ export function render(
 
 	win.contentView.addChildView(view);
 	resizeView();
-	setupPdfContextMenu(win, view.webContents);
-	attachWindowHandlers(win, [win.webContents, view.webContents]);
+	setupPdfContextMenu(win, viewContents);
+	attachWindowHandlers(win, [win.webContents, viewContents]);
 
 	windows.set(extensionId, win);
 	win.setMenuBarVisibility(false);
@@ -71,10 +72,10 @@ export function render(
 			showWhenReady();
 		});
 	win.on('resize', resizeView);
-	view.webContents.on('will-prevent-unload', () => {
+	viewContents.on('will-prevent-unload', () => {
 		childClosing = false;
 	});
-	view.webContents.once('destroyed', () => {
+	viewContents.once('destroyed', () => {
 		childClosing = false;
 		if (!win.isDestroyed()) {
 			hostCloseAllowed = true;
@@ -82,15 +83,15 @@ export function render(
 		}
 	});
 	win.on('close', (event) => {
-		if (hostCloseAllowed || view.webContents.isDestroyed()) return;
+		if (hostCloseAllowed || viewContents.isDestroyed()) return;
 		event.preventDefault();
 		if (childClosing) return;
 		childClosing = true;
-		view.webContents.close({ waitForBeforeUnload: true });
+		viewContents.close({ waitForBeforeUnload: true });
 	});
 	win.on('closed', () => {
 		windows.delete(extensionId);
-		if (!view.webContents.isDestroyed()) view.webContents.close();
+		if (!viewContents.isDestroyed()) viewContents.close();
 	});
 	return win;
 }
