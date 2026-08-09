@@ -32,6 +32,7 @@ import {
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { EMPTY_EXCALIDRAW_CONTENT, EMPTY_MERMAID_CONTENT } from '@/lib/content';
 import { showNativeContextMenu } from '@/lib/menu';
 import { removeWorkspaceEntry } from '@/lib/remove';
 import { rebaseWorkspacePath } from '@/lib/rebase';
@@ -61,7 +62,7 @@ export default function App() {
 	const [selectedError, setSelectedError] = useState('');
 	const [selectedSaving, setSelectedSaving] = useState(false);
 	const [selectedSaveError, setSelectedSaveError] = useState('');
-	const [markdownMode, setMarkdownMode] = useState<'source' | 'preview'>('source');
+	const [documentMode, setDocumentMode] = useState<'source' | 'preview'>('source');
 	const [createRequest, setCreateRequest] = useState<{
 		parentPath: string;
 		type: 'file' | 'directory';
@@ -85,7 +86,9 @@ export default function App() {
 	const allowCloseRef = useRef(false);
 	const deletingScopeRef = useRef<string | null>(null);
 	const selectionRequestRef = useRef(0);
-	const selectedDirty = selectedKind === 'markdown' && selectedContent !== selectedSavedContent;
+	const selectedEditable =
+		selectedKind === 'markdown' || selectedKind === 'mermaid' || selectedKind === 'excalidraw';
+	const selectedDirty = selectedEditable && selectedContent !== selectedSavedContent;
 	useEffect(() => {
 		if (!isFriday()) return;
 
@@ -142,14 +145,14 @@ export default function App() {
 		};
 	}, []);
 
-	const saveWorkspaceMarkdown = useCallback(
-		async function saveWorkspaceMarkdown(
+	const saveWorkspaceFile = useCallback(
+		async function saveWorkspaceFile(
 			filePath = selectedPathRef.current,
 			content = selectedContent
 		): Promise<boolean> {
 			if (
 				!filePath ||
-				selectedKind !== 'markdown' ||
+				!selectedEditable ||
 				!isFriday() ||
 				(deletingScopeRef.current
 					? isWorkspacePathWithin(filePath, deletingScopeRef.current)
@@ -164,14 +167,14 @@ export default function App() {
 					return pendingSave;
 				}
 				await pendingSave;
-				return saveWorkspaceMarkdown(filePath, content);
+				return saveWorkspaceFile(filePath, content);
 			}
 
 			setSelectedSaving(true);
 			setSelectedSaveError('');
 			saveSnapshotRef.current = { filePath, content };
 			const operation = Promise.resolve()
-				.then(() => agent.writeWorkspaceMarkdown(filePath, content))
+				.then(() => agent.writeWorkspaceFile(filePath, content))
 				.then(() => {
 					if (selectedPathRef.current === filePath) setSelectedSavedContent(content);
 					return true;
@@ -179,7 +182,7 @@ export default function App() {
 				.catch((error) => {
 					if (selectedPathRef.current === filePath) {
 						setSelectedSaveError(
-							error instanceof Error ? error.message : 'Unable to save the Markdown file.'
+							error instanceof Error ? error.message : 'Unable to save the file.'
 						);
 					}
 					return false;
@@ -192,17 +195,17 @@ export default function App() {
 			saveInFlightRef.current = operation;
 			return operation;
 		},
-		[selectedContent, selectedKind]
+		[selectedContent, selectedEditable]
 	);
 
-	const saveLatestWorkspaceMarkdown = useCallback(
-		async function saveLatestWorkspaceMarkdown(
+	const saveLatestWorkspaceFile = useCallback(
+		async function saveLatestWorkspaceFile(
 			filePath = selectedPathRef.current
 		): Promise<boolean> {
 			if (!filePath) return false;
 			let content = selectedContentRef.current;
 			while (selectedPathRef.current === filePath) {
-				const saved = await saveWorkspaceMarkdown(filePath, content);
+				const saved = await saveWorkspaceFile(filePath, content);
 				if (!saved) return false;
 				const latestContent = selectedContentRef.current;
 				if (latestContent === content) return true;
@@ -210,7 +213,7 @@ export default function App() {
 			}
 			return false;
 		},
-		[saveWorkspaceMarkdown]
+		[saveWorkspaceFile]
 	);
 
 	useEffect(() => {
