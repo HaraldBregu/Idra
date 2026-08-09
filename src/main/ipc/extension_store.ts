@@ -17,7 +17,7 @@ export function registerExtensionStoreIpc({
 	extensionStorage,
 }: ExtensionStoreIpcDeps): void {
 	const extensionId = (event: IpcMainInvokeEvent): string =>
-		extensionRegistry.resolve(event.sender.id);
+		extensionRegistry.resolve(event.sender);
 
 	registerQueryWithEvent(AppChannels.getExtensionStoreValue, (event, key) =>
 		extensionStorage.get(extensionId(event), key)

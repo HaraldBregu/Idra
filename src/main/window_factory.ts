@@ -126,10 +126,7 @@ export class WindowFactory {
 	createView(file: string, extensionId: string): LoadableView {
 		const view = new WebContentsView({ webPreferences: this.getBaseWebPreferences() });
 		const viewContents = view.webContents;
-		this.extensionRegistry.register(viewContents.id, extensionId);
-		viewContents.once('destroyed', () => {
-			this.extensionRegistry.unregister(viewContents.id, extensionId);
-		});
+		this.extensionRegistry.register(viewContents, extensionId);
 		this.secureNavigation(viewContents, path.dirname(file));
 		viewContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
 			this.logger?.error('Extensions', `Extension view failed to load: ${validatedURL}`, {

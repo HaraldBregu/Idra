@@ -9,10 +9,17 @@ export function isExtensionStoreValue(value: unknown): value is ExtensionStoreVa
 		if (seen.has(input)) return false;
 		seen.add(input);
 
-		if (Array.isArray(input)) return input.every(visit);
-		const prototype = Object.getPrototypeOf(input);
-		if (prototype !== Object.prototype && prototype !== null) return false;
-		return Object.values(input as Record<string, unknown>).every(visit);
+		let valid: boolean;
+		if (Array.isArray(input)) {
+			valid = input.every(visit);
+		} else {
+			const prototype = Object.getPrototypeOf(input);
+			valid =
+				(prototype === Object.prototype || prototype === null) &&
+				Object.values(input as Record<string, unknown>).every(visit);
+		}
+		seen.delete(input);
+		return valid;
 	};
 
 	return visit(value);

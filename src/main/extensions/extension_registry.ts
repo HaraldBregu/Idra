@@ -1,31 +1,44 @@
+import type { WebContents } from 'electron';
 import { isExtensionId } from './extension_id';
 
-export class ExtensionRegistry {
-	private readonly extensions = new Map<number, string>();
+type ExtensionWebContents = Pick<WebContents, 'id' | 'once'>;
 
-	register(webContentsId: number, extensionId: string): void {
-		if (!Number.isInteger(webContentsId) || webContentsId <= 0) {
+interface ExtensionRegistration {
+	webContents: ExtensionWebContents;
+	extensionId: string;
+}
+
+export class ExtensionRegistry {
+	private readonly extensions = new Map<number, ExtensionRegistration>();
+
+	register(webContents: ExtensionWebContents, extensionId: string): void {
+		if (!Number.isInteger(webContents.id) || webContents.id <= 0) {
 			throw new Error('Invalid extension web contents ID.');
 		}
 		if (!isExtensionId(extensionId)) throw new Error('Invalid extension ID.');
 
-		const registered = this.extensions.get(webContentsId);
-		if (registered && registered !== extensionId) {
+		const registered = this.extensions.get(webContents.id);
+		if (registered?.webContents === webContents && registered.extensionId === extensionId) return;
+		if (registered) {
 			throw new Error('Extension web contents is already registered.');
 		}
-		this.extensions.set(webContentsId, extensionId);
+
+		const unregister = (): void => this.unregister(webContents);
+		this.extensions.set(webContents.id, { webContents, extensionId });
+		webContents.once('render-process-gone', unregister);
+		webContents.once('destroyed', unregister);
 	}
 
-	unregister(webContentsId: number, extensionId?: string): void {
-		if (extensionId && this.extensions.get(webContentsId) !== extensionId) return;
-		this.extensions.delete(webContentsId);
+	unregister(webContents: Pick<WebContents, 'id'>): void {
+		if (this.extensions.get(webContents.id)?.webContents !== webContents) return;
+		this.extensions.delete(webContents.id);
 	}
 
-	resolve(webContentsId: number): string {
-		const extensionId = this.extensions.get(webContentsId);
-		if (!extensionId) {
+	resolve(webContents: Pick<WebContents, 'id'>): string {
+		const registered = this.extensions.get(webContents.id);
+		if (!registered || registered.webContents !== webContents) {
 			throw new Error('Extension storage is only available to registered extension views.');
 		}
-		return extensionId;
+		return registered.extensionId;
 	}
 }
