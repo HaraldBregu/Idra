@@ -13,6 +13,7 @@ MCP servers and extensions are integrations rather than providers.
 | Status       | Meaning                                                                                         |
 | ------------ | ----------------------------------------------------------------------------------------------- |
 | Available    | The service has both a catalog entry and an execution path in Friday.                           |
+| Partial      | Execution code exists, but a normal configuration or selection path is incomplete.              |
 | Mixed        | At least one cataloged capability works, while another capability is catalog only.              |
 | Catalog only | Friday can display or select the service, but the runtime has no execution adapter for it.       |
 | Code only    | Adapter support exists, but Friday does not ship a provider manifest that makes it selectable.  |
@@ -74,8 +75,8 @@ manifest.
 | [Mistral AI](https://console.mistral.ai/api-keys) | `mistral` | Chat, speech to text, text to speech | Available |
 | [Nomic](https://atlas.nomic.ai) | `nomic` | Embeddings | Available |
 | [OpenAI](https://platform.openai.com/api-keys) | `openai` | Chat, speech to text, text to speech, embeddings | Available |
-| [Perplexity](https://www.perplexity.ai/settings/api) | `perplexity` | Research chat | Available |
-| [Pika](https://pika.art) | `pika` | Video | Available |
+| [Perplexity](https://www.perplexity.ai/settings/api) | `perplexity` | Research chat | Partial: onboarding can select it, but the main Assistant, Tasks, and Health settings filter it out |
+| [Pika](https://pika.art) | `pika` | Video | Partial: the adapter uses fal.run while the manifest supplies Pika's URL |
 | [Pinecone](https://app.pinecone.io) | `pinecone` | Vector database | Available for RAG |
 | [Qwen and Wan](https://modelstudio.console.alibabacloud.com) | `qwen` | Chat, speech to text, realtime voice, image, video | Mixed: realtime voice is catalog only |
 | [Reka AI](https://platform.reka.ai/apikeys) | `reka` | Chat | Available |
@@ -96,6 +97,10 @@ Friday's settings and sent to provider adapters.
 
 Anthropic uses its native Messages API, OpenAI uses the Responses API, and every other chat
 provider uses an OpenAI-compatible Chat Completions path.
+
+Perplexity's research models share that compatible runtime path and appear during first-run setup,
+but the main Assistant, Tasks, and Health settings currently list only `large-language-model`
+entries. They therefore omit Perplexity's `research-chat-model` entries.
 
 | Provider | Cataloged models |
 | --- | --- |
@@ -170,7 +175,7 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | Available | Luma AI | Ray 3 (`ray-3`); Ray 2 (`ray-2`) |
 | Catalog only | Midjourney | Midjourney Video v1 (`midjourney-video-v1`) |
 | Available | MiniMax | Hailuo 2.3 (`MiniMax-Hailuo-2.3`); Hailuo 02 (`MiniMax-Hailuo-02`) |
-| Available | Pika | Pika 2.2 (`pika-2.2`) |
+| Partial | Pika | Pika 2.2 (`pika-2.2`); the adapter uses fal.run while the manifest supplies Pika's URL |
 | Available | Qwen | Wan 2.5 T2V (`wan2.5-t2v`); Wan 2.2 T2V Plus (`wan2.2-t2v-plus`) |
 | Available | Runway | Gen-4 Turbo (`gen4_turbo`); Gen-3 Alpha Turbo (`gen3a_turbo`) |
 | Available | xAI | Grok Imagine Video 1.5 (`grok-imagine-video-1.5`) |
