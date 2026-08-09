@@ -177,6 +177,7 @@ describe('extension discovery and loading', () => {
 		handlers.get('ready-to-show')?.();
 		win.show.mockClear();
 		win.focus.mockClear();
+		win.isDestroyed.mockClear();
 
 		const secondWindow = loadExtension(windowFactory, extension, appLocation);
 		expect(secondWindow).toBe(win);
