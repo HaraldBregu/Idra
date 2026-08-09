@@ -249,8 +249,16 @@ export function CommandMenu(): React.JSX.Element {
 
 	useEffect(() => {
 		const handler = (e: KeyboardEvent): void => {
+			const isSettingsShortcut =
+				e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey && e.key === ',';
 			const isSearchShortcut =
 				(e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'f';
+
+			if (isSettingsShortcut) {
+				e.preventDefault();
+				navigateTo('/settings');
+				return;
+			}
 
 			if (isSearchShortcut) {
 				e.preventDefault();
@@ -259,7 +267,7 @@ export function CommandMenu(): React.JSX.Element {
 		};
 		window.addEventListener('keydown', handler);
 		return () => window.removeEventListener('keydown', handler);
-	}, []);
+	}, [navigateTo]);
 
 	return (
 		<CommandDialog

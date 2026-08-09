@@ -7,9 +7,6 @@ import type { ChannelModelKind, ChannelStatusEvent, ChannelType } from '../share
 import { optionalTrimmedString } from './normalize';
 
 export const app: AppApi = {
-	onShortcut: (callback) => {
-		return typedOn(AppChannels.shortcut, callback);
-	},
 	models: () => {
 		return typedInvokeUnwrap(AppChannels.models);
 	},

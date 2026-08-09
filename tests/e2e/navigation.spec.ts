@@ -57,6 +57,14 @@ for (const route of routes) {
 	});
 }
 
+test('Command+, opens the settings page', async () => {
+	await page.evaluate(() => {
+		window.location.hash = '#/home';
+	});
+	await page.keyboard.press('Meta+,');
+	await expect(page).toHaveURL(/#\/settings$/);
+});
+
 test('wiki settings renders the complete configuration workflow', async ({}, testInfo) => {
 	await page.evaluate(() => {
 		window.location.hash = '#/settings/wiki';

@@ -26,7 +26,6 @@ import {
 } from './contexts/chat-session';
 import { cn } from './lib/utils';
 import HomePage from './pages/home/Page';
-import { useShortcut } from './hooks/shortcut';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
@@ -102,7 +101,6 @@ function SettingsRouteWrapper({ children }: { readonly children: ReactNode }): R
 function RootRouteComponent(): React.JSX.Element {
 	const { t } = useTranslation();
 	const location = useLocation();
-	useShortcut();
 	const [chatMode, setChatMode] = useState<ChatMode>('chat');
 	const [chatSessionId, setChatSessionId] = useState<string>(readPersistedChatSessionId);
 

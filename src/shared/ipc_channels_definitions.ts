@@ -108,7 +108,6 @@ export const McpChannels = {
 } as const;
 
 export const AppChannels = {
-	shortcut: 'app:shortcut',
 	openAppDataFolder: 'app:open-app-data-folder',
 	openDataFolder: 'app:open-data-folder',
 	openProvidersFolder: 'app:open-providers-folder',

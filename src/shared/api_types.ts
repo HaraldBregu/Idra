@@ -89,7 +89,6 @@ import type {
 	AppLanguage,
 	AppThemeData,
 	AppTheme,
-	ShortcutId,
 } from './app_types';
 import type { WikiRunResult, WikiSettings, WikiStatus } from './wiki_types';
 import type { ContextMenuDescriptor } from './window_types';
@@ -358,7 +357,6 @@ export interface ModelsApi {
 type ProviderStoreRecord = Provider | BotProvider;
 
 export interface AppApi {
-	onShortcut: (callback: (id: ShortcutId) => void) => () => void;
 	models: () => Promise<CatalogModel[]>;
 	databases: () => Promise<CatalogService[]>;
 	storages: () => Promise<CatalogService[]>;
