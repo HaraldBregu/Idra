@@ -396,7 +396,9 @@ treeView-beta
 	{
 		name: 'Math and Markdown',
 		source: `flowchart LR
-    formula["**Energy**<br/>$$E = mc^2$$"] --> result["Mass becomes<br/>*energy*"]`,
+    formula["\`**Energy**
+$$E = mc^2$$\`"] --> result["\`Mass becomes
+*energy*\`"]`,
 	},
 	{
 		name: 'Legacy directive',
