@@ -162,8 +162,8 @@ async function* loop(
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
 				memoryListTool(config),
-				...getKnowledgeTools(session.category),
-				...getWikiTools(session.category),
+				...getKnowledgeTools(origin),
+				...getWikiTools(origin),
 				updateHealthTool(config),
 				updateHealthSettingsTool,
 				loadSkillTool,
@@ -182,12 +182,11 @@ async function* loop(
 	if (!options.tools && origin === 'main') {
 		const mcp = await loadMcpTools(signal);
 		tools.push(...mcp.tools);
-		tools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
-		tools.push(subagentTool(config, [...tools], session.context));
+		const childTools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
+		tools.push(subagentTool(config, childTools, session.context));
 		closeMcp = mcp.close;
-	} else {
-		tools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
 	}
+	tools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
 
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;

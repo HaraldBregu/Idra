@@ -5,7 +5,7 @@ import type { Tool } from '../../types';
 import { knowledgeQueryTool } from './query';
 
 export function getKnowledgeTools(category: SessionCategory): Tool[] {
-	if (category !== 'main') return [];
+	if (category !== 'main' && category !== 'task') return [];
 	if (getWikiSettings().enabled !== true && getRagConfiguration().enabled !== true) return [];
 	return [knowledgeQueryTool];
 }
