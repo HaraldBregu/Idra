@@ -13,7 +13,8 @@ export function resolveStoredToolPermission(
 	configured: ToolPermission | undefined,
 	fallback: PermissionMode
 ): ToolPermissionResolution {
-	if (targets.length === 0) return { permission: configured?.default ?? fallback, contextCanAllow: true };
+	if (targets.length === 0)
+		return { permission: configured?.default ?? fallback, contextCanAllow: true };
 	const decisions = targets.map((target) =>
 		configured ? toolPermissionFor(toolName, target, configured) : undefined
 	);

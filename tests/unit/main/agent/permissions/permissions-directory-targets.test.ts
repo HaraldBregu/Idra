@@ -2,10 +2,7 @@ import path from 'node:path';
 import { directoryPermissionTargets } from '../../../../../src/main/agent/permissions/permissions_directory_targets';
 import { taskStorePath } from '../../../../../src/main/tasks/tasks_store';
 import { healthStorePath } from '../../../../../src/main/agent/health/health_store';
-import {
-	registry,
-	type ProcessSession,
-} from '../../../../../src/main/agent/tools/core/process';
+import { registry, type ProcessSession } from '../../../../../src/main/agent/tools/core/process';
 import { skillsRoot } from '../../../../../src/main/agent/skills/skills_root';
 
 const agentDir = path.resolve('/appdata/agent');

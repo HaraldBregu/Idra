@@ -2,7 +2,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { resolveUserPath } from '../../../../../src/main/shared/user_path';
-import { toolPathDir, isPathWithin } from '../../../../../src/main/agent/permissions/permissions_path';
+import {
+	toolPathDir,
+	isPathWithin,
+} from '../../../../../src/main/agent/permissions/permissions_path';
 
 const agentDir = path.resolve('/appdata/agent');
 
@@ -21,7 +24,7 @@ describe('resolveUserPath', () => {
 describe('toolPathDir', () => {
 	it('returns the parent dir of a path arg', () => {
 		expect(toolPathDir({ path: '/a/b/c.txt' }, agentDir)).toBe(
-			path.dirname(path.resolve('/a/b/c.txt')),
+			path.dirname(path.resolve('/a/b/c.txt'))
 		);
 	});
 	it('falls back to workdir', () => {

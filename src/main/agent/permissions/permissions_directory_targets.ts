@@ -52,7 +52,6 @@ export function directoryPermissionTargets(
 		return [realPath(resolveUserPath(directory, baseDir))];
 	}
 	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(taskStorePath)];
-	if (toolName === 'load_skill')
-		return [realPath(path.join(skillsRoot, String(args.name ?? '')))];
+	if (toolName === 'load_skill') return [realPath(path.join(skillsRoot, String(args.name ?? '')))];
 	return [];
 }

@@ -1,4 +1,5 @@
-const SECRET_KEY = /(?:authorization|api[_-]?key|client[_-]?secret|password|refresh[_-]?token|token)/i;
+const SECRET_KEY =
+	/(?:authorization|api[_-]?key|client[_-]?secret|password|refresh[_-]?token|token)/i;
 
 export function redactApprovalInput(input: Record<string, unknown>): Record<string, unknown> {
 	const redact = (value: unknown, key = '', depth = 0): unknown => {

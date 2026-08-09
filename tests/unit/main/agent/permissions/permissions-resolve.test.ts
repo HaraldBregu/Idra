@@ -9,10 +9,7 @@ jest.mock('../../../../../src/main/agent/agent_store', () => ({
 }));
 
 import { resolveToolPermission } from '../../../../../src/main/agent/permissions/permissions_resolve';
-import {
-	registry,
-	type ProcessSession,
-} from '../../../../../src/main/agent/tools/core/process';
+import { registry, type ProcessSession } from '../../../../../src/main/agent/tools/core/process';
 import type {
 	PermissionsSchema,
 	ToolPermission,

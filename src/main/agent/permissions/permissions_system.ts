@@ -8,8 +8,5 @@ export function systemPermissionAllows(
 ): boolean {
 	if (toolName !== 'read') return false;
 	const root = realPath(agentDirectory);
-	return (
-		targets.length > 0 &&
-		targets.every((target) => isPathWithin(root, target))
-	);
+	return targets.length > 0 && targets.every((target) => isPathWithin(root, target));
 }
