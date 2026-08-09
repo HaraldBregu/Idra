@@ -5,7 +5,7 @@ import { healthStorePath } from '../../../../../src/main/agent/health/health_sto
 import {
 	registry,
 	type ProcessSession,
-} from '../../../../../src/main/agent/tools/core/run_process';
+} from '../../../../../src/main/agent/tools/core/process';
 import { skillsRoot } from '../../../../../src/main/agent/skills/skills_root';
 
 const agentDir = path.resolve('/appdata/agent');

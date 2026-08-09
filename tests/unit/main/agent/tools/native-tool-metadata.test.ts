@@ -3,11 +3,11 @@ import { editTool } from '../../../../../src/main/agent/tools/core/edit';
 import { updateHealthSettingsTool } from '../../../../../src/main/agent/tools/health_settings_update';
 import { updateHealthTool } from '../../../../../src/main/agent/tools/health_update';
 import { pauseScheduleTool } from '../../../../../src/main/agent/tools/tasks/pause_schedule';
-import { wikiIngestTool } from '../../../../../src/main/agent/tools/wiki/ingest';
-import { wikiLintTool } from '../../../../../src/main/agent/tools/wiki/lint';
-import { wikiRebuildTool } from '../../../../../src/main/agent/tools/wiki/rebuild';
-import { wikiReviewTool } from '../../../../../src/main/agent/tools/wiki/review';
-import { wikiSaveTool } from '../../../../../src/main/agent/tools/wiki/save';
+import { wikiIngestTool } from '../../../../../src/main/agent/tools/knowledge/ingest';
+import { wikiLintTool } from '../../../../../src/main/agent/tools/knowledge/lint';
+import { wikiRebuildTool } from '../../../../../src/main/agent/tools/knowledge/rebuild';
+import { wikiReviewTool } from '../../../../../src/main/agent/tools/knowledge/review';
+import { wikiSaveTool } from '../../../../../src/main/agent/tools/knowledge/save';
 
 it.each([
 	[pauseScheduleTool, 'high', 'persistence', ['main']],

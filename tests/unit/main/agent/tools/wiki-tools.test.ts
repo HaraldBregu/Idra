@@ -1,5 +1,5 @@
 import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/policy/policy_types';
-import { getWikiTools } from '../../../../../src/main/agent/tools/wiki';
+import { getWikiTools } from '../../../../../src/main/agent/tools/knowledge';
 import {
 	DEFAULT_WIKI_SETTINGS,
 	wikiSettingsStore,

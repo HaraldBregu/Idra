@@ -12,7 +12,7 @@ import { resolveToolPermission } from '../../../../../src/main/agent/policy/poli
 import {
 	registry,
 	type ProcessSession,
-} from '../../../../../src/main/agent/tools/core/run_process';
+} from '../../../../../src/main/agent/tools/core/process';
 import type {
 	PermissionsSchema,
 	ToolPermission,

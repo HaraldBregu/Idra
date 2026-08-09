@@ -37,7 +37,7 @@ import { recorderScreenStopTool } from '../tools/system/recorder_screen_stop';
 import { saveMemoryTool } from '../tools/memory/save';
 import { forgetMemoryTool } from '../tools/memory/forget';
 import { memoryListTool } from '../tools/memory/list';
-import { getKnowledgeTools } from '../tools/knowledge';
+import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
 import { updateHealthTool } from '../tools/health_update';
 import { updateHealthSettingsTool } from '../tools/health_settings_update';
 import { loadSkillTool } from '../tools/skill_load';
@@ -55,7 +55,6 @@ import type { Config, McpDiscoveryDiagnostics, RuntimeEvent, RuntimeInput, Tool 
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 import { getPermissionMode } from '../policy';
-import { getWikiTools } from '../tools/wiki';
 import { selectOriginTools } from './run_origin_tools';
 import { formatToolOutput } from './run_common';
 import { selectSkillTools } from './run_skill_tools';
