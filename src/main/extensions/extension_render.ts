@@ -3,7 +3,12 @@ import { setupPdfContextMenu } from '../pdf';
 import type { WindowFactory } from '../window_factory';
 import { attachWindowHandlers } from '../window_events';
 
-const windows = new Map<string, BrowserWindow>();
+interface ExtensionWindow {
+	window: BrowserWindow;
+	ready: boolean;
+}
+
+const windows = new Map<string, ExtensionWindow>();
 const titleBarHeight = 48;
 
 export function render(
@@ -12,12 +17,12 @@ export function render(
 	title: string,
 	extensionId: string
 ): BrowserWindow {
-	const existingWindow = windows.get(extensionId);
-	if (existingWindow && !existingWindow.isDestroyed()) {
-		if (existingWindow.isMinimized()) existingWindow.restore();
-		if (!existingWindow.isVisible()) existingWindow.show();
-		existingWindow.focus();
-		return existingWindow;
+	const existing = windows.get(extensionId);
+	if (existing && !existing.window.isDestroyed()) {
+		if (existing.window.isMinimized()) existing.window.restore();
+		if (existing.ready && !existing.window.isVisible()) existing.window.show();
+		existing.window.focus();
+		return existing.window;
 	}
 
 	const isMac = process.platform === 'darwin';
@@ -41,7 +46,8 @@ export function render(
 		{ html: 'extension.html', hash: `extension/${encodeURIComponent(title)}` }
 	);
 
-	windows.set(extensionId, win);
+	const extensionWindow: ExtensionWindow = { window: win, ready: false };
+	windows.set(extensionId, extensionWindow);
 	win.setMenuBarVisibility(false);
 	let extensionView: WebContentsView | undefined;
 	let extensionContents: WebContents | undefined;
@@ -50,7 +56,9 @@ export function render(
 	let childClosing = false;
 	let hostCloseAllowed = false;
 	const showWhenReady = (): void => {
-		if (shellReady && extensionReady && !win.isDestroyed()) win.show();
+		if (!shellReady || !extensionReady || win.isDestroyed()) return;
+		extensionWindow.ready = true;
+		win.show();
 	};
 	const resizeView = (): void => {
 		if (!extensionView || win.isDestroyed()) return;
@@ -69,11 +77,12 @@ export function render(
 	});
 	win.webContents.once('did-finish-load', () => {
 		if (win.isDestroyed()) return;
-		const { view, loaded } = windowFactory.createView(file);
+		const { view, load } = windowFactory.createView(file);
 		extensionView = view;
 		extensionContents = view.webContents;
 		const viewContents = extensionContents;
 
+		view.setVisible(false);
 		win.contentView.addChildView(view);
 		resizeView();
 		setupPdfContextMenu(win, viewContents);
@@ -88,13 +97,28 @@ export function render(
 				win.close();
 			}
 		});
-		void loaded
-			.catch(() => undefined)
-			.finally(() => {
+		viewContents.once('render-process-gone', () => {
+			if (!win.isDestroyed()) {
+				hostCloseAllowed = true;
+				win.close();
+			}
+		});
+		void load()
+			.then(() => {
+				if (win.isDestroyed() || viewContents.isDestroyed()) return;
+				view.setVisible(true);
 				extensionReady = true;
 				showWhenReady();
+			})
+			.catch(() => {
+				if (!win.isDestroyed()) {
+					hostCloseAllowed = true;
+					win.close();
+				}
 			});
 	});
+	win.webContents.on('page-title-updated', (event) => event.preventDefault());
+	win.setTitle(title);
 	win.on('resize', resizeView);
 	win.on('close', (event) => {
 		if (!extensionContents || hostCloseAllowed || extensionContents.isDestroyed()) return;
@@ -104,7 +128,7 @@ export function render(
 		extensionContents.close({ waitForBeforeUnload: true });
 	});
 	win.on('closed', () => {
-		windows.delete(extensionId);
+		if (windows.get(extensionId) === extensionWindow) windows.delete(extensionId);
 		if (extensionContents && !extensionContents.isDestroyed()) extensionContents.close();
 	});
 	return win;

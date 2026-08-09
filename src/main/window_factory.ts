@@ -21,9 +21,9 @@ export interface RendererContentOptions {
 	file?: string;
 }
 
-export interface LoadedView {
+export interface LoadableView {
 	view: WebContentsView;
-	loaded: Promise<void>;
+	load: () => Promise<void>;
 }
 
 export class WindowFactory {
@@ -119,7 +119,7 @@ export class WindowFactory {
 		return win;
 	}
 
-	createView(file: string): LoadedView {
+	createView(file: string): LoadableView {
 		const view = new WebContentsView({ webPreferences: this.getBaseWebPreferences() });
 		const viewContents = view.webContents;
 		this.secureNavigation(viewContents, path.dirname(file));
@@ -138,13 +138,17 @@ export class WindowFactory {
 				exitCode: details.exitCode,
 			});
 		});
-		const loaded = viewContents.loadFile(file);
-		void loaded.catch((error: unknown) => {
-			this.logger?.error('Extensions', `Unable to open extension entry: ${file}`, {
-				error: error instanceof Error ? error.message : String(error),
-			});
-		});
-		return { view, loaded };
+		const load = async (): Promise<void> => {
+			try {
+				await viewContents.loadFile(file);
+			} catch (error) {
+				this.logger?.error('Extensions', `Unable to open extension entry: ${file}`, {
+					error: error instanceof Error ? error.message : String(error),
+				});
+				throw error;
+			}
+		};
+		return { view, load };
 	}
 
 	/**
