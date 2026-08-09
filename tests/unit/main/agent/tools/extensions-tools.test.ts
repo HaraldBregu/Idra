@@ -50,9 +50,7 @@ it.each([
 	await expect(extensionTool.run({ ids })).resolves.toEqual({
 		opened: expected.map((extension) => extension.id),
 	});
-	expect(loadExtension.mock.calls).toEqual(
-		expected.map((extension) => [windowFactory, extension])
-	);
+	expect(loadExtension.mock.calls).toEqual(expected.map((extension) => [windowFactory, extension]));
 });
 
 it('rejects missing IDs before opening any extension', async () => {
