@@ -336,20 +336,9 @@ IDs, credential requirements, and the distinction between catalog entries and ex
 
 Provider routing uses the native Anthropic Messages API for Anthropic, the OpenAI Responses API for OpenAI, and the OpenAI-compatible Chat Completions path for every other chat provider.
 
-| Provider                 | Current model catalog                                                    |
-| ------------------------ | ------------------------------------------------------------------------ |
-| Anthropic                | Claude Opus 4.7; Claude Sonnet 4.6; Claude Haiku 4.5                     |
-| DeepSeek                 | DeepSeek V4 Pro; DeepSeek V4 Flash                                       |
-| Google                   | Gemini 3.1 Pro Preview; Gemini 3.1 Flash Lite                            |
-| Kimi                     | Kimi K2.6; Kimi K2.5; Kimi K2 Thinking                                   |
-| MiniMax                  | MiniMax M2.7; MiniMax M2.5                                               |
-| Mistral                  | Mistral Large 2512; Mistral Medium 3.5; Devstral 2512                    |
-| OpenAI                   | GPT-5.6 Sol, Terra, Luna; GPT-5.5, 5.5 Pro; GPT-5.4, 5.4 Pro, Mini, Nano |
-| Qwen                     | Qwen3.7 Max; Qwen3.6 Plus; Qwen3.6 Flash                                 |
-| Reka                     | Reka Flash; Reka Edge 2603                                               |
-| xAI                      | Grok 4.3; Grok Build 0.1                                                 |
-| Z.ai                     | GLM-5.1; GLM-5; GLM-5 Turbo                                              |
-| Perplexity research chat | Sonar Deep Research; Sonar Reasoning Pro; Sonar Pro; Sonar               |
+The chat catalog includes Anthropic, DeepSeek, Google, Kimi, MiniMax, Mistral, OpenAI, Qwen,
+Reka AI, xAI, and Z.ai. Perplexity supplies the research-chat catalog. Exact model names and IDs are
+maintained in [Provider Reference](PROVIDERS.md#chat-and-research).
 
 The built-in catalog contains 32 providers across models, search, vector database, and object
 storage. Model-provider entries include capability labels and an external setup link.
@@ -362,14 +351,8 @@ Realtime-voice models are cataloged for Google, Luma, Qwen, and xAI, but there i
 
 Realtime and recorded transcription use independent saved selections. Settings filters models by whether they implement streaming or batch transcription and provides a live test and a record-then-transcribe test.
 
-| Provider   | Models                                                          | Modes                                      |
-| ---------- | --------------------------------------------------------------- | ------------------------------------------ |
-| Deepgram   | Nova 3; Flux                                                    | Nova 3: batch and stream; Flux: stream     |
-| ElevenLabs | Scribe v2; Scribe v2 Realtime                                   | Batch; stream                              |
-| Mistral    | Voxtral Mini 2602; Voxtral Mini Transcribe Realtime 2602        | Batch; stream                              |
-| OpenAI     | GPT-4o Transcribe; GPT-4o Mini Transcribe; GPT Realtime Whisper | First two: batch; Realtime Whisper: stream |
-| Qwen       | Qwen3 ASR Flash Realtime                                        | Stream                                     |
-| xAI        | xAI STT Batch; xAI STT Streaming                                | Batch; stream                              |
+Deepgram, ElevenLabs, Mistral, OpenAI, Qwen, and xAI have speech-to-text adapters. See
+[Speech to text](PROVIDERS.md#speech-to-text) for the batch and streaming support of each model.
 
 The transcription API accepts optional language, prompt, temperature, and sample-rate settings. Batch audio is capped at 64 MiB of encoded input, and realtime chunks are capped at 256 KiB.
 
@@ -377,17 +360,8 @@ The transcription API accepts optional language, prompt, temperature, and sample
 
 Settings selects a provider/model and can synthesize and play editable sample text. Responses can use the same service for read-aloud playback. Input text is required and capped at 4,096 characters.
 
-| Provider   | Models                                               |
-| ---------- | ---------------------------------------------------- |
-| Cartesia   | Sonic 3.5; Sonic 3                                   |
-| Deepgram   | Aura 2                                               |
-| ElevenLabs | Eleven v3; Eleven Multilingual v2; Eleven Flash v2.5 |
-| Google     | Gemini 3.1 Flash TTS Preview                         |
-| MiniMax    | Speech 2.8 HD; Speech 2.8 Turbo                      |
-| Mistral    | Voxtral Mini TTS 2603                                |
-| OpenAI     | GPT-4o Mini TTS; TTS-1 HD                            |
-
-All text-to-speech providers in this table have runtime adapters.
+Cartesia, Deepgram, ElevenLabs, Google, MiniMax, Mistral, and OpenAI have text-to-speech adapters.
+See [Text to speech](PROVIDERS.md#text-to-speech) for their exact model catalogs.
 
 ## 4. Media generation
 
@@ -604,13 +578,13 @@ The main implementation areas behind this reference are:
 - [LLM Wiki](../src/main/wiki/)
 - [Extensions](../src/main/extensions/)
 - [Cloud storage sync](../src/renderer/src/pages/settings/pages/storage/)
-- [Provider catalog and models](../src/shared/provider_models_definitions.ts)
-- [Provider metadata](../src/shared/providers_definitions.ts)
-- [Speech-to-text adapters](../src/main/models/stt/)
-- [Text-to-speech adapters](../src/main/models/tts/)
-- [Image adapters](../src/main/models/tti/)
-- [Video adapters](../src/main/models/ttv/)
-- [Audio adapters](../src/main/models/tta/)
+- [Provider catalog declarations](../resources/providers/)
+- [Provider catalog loader](../src/main/models.ts)
+- [Speech-to-text adapters](../src/main/models/adapters/stt/)
+- [Text-to-speech adapters](../src/main/models/adapters/tts/)
+- [Image adapters](../src/main/models/adapters/tti/)
+- [Video adapters](../src/main/models/adapters/ttv/)
+- [Audio adapters](../src/main/models/adapters/tta/)
 - [Messaging channels](../src/main/channels/)
 - [Desktop application services](../src/main/app/)
 - [Security policy](../SECURITY.md)

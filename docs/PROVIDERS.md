@@ -44,6 +44,8 @@ Most integrations use one API key. The exceptions are:
 - **Pinecone** also requires the RAG index configuration.
 - **Brave** and **Tavily** can use `BRAVE_API_KEY` and `TAVILY_API_KEY` respectively when no key is
   stored in Settings.
+- **Pika** video execution uses a fal.run adapter even though the built-in manifest links to Pika's
+  account page. The credential and endpoint must be compatible with fal.run.
 
 ## Built-in provider inventory
 
