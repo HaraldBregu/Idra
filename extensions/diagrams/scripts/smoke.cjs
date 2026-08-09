@@ -224,12 +224,23 @@ async function run() {
 		throw new Error('PNG export is not a decodable image.');
 	const printed = await window.webContents.printToPDF({ printBackground: true });
 	if (printed.length < 1000) throw new Error('Print layout did not produce a PDF.');
-	await window.webContents.executeJavaScript(`(() => {
+	const copyPoint = await window.webContents.executeJavaScript(`(() => {
 		const button = Array.from(document.querySelectorAll('.preview-actions button')).find((node) => node.textContent === 'Copy SVG');
-		button.click();
+		const bounds = button.getBoundingClientRect();
+		return { x: Math.round(bounds.left + bounds.width / 2), y: Math.round(bounds.top + bounds.height / 2) };
 	})()`);
-	await wait(100);
-	if (!clipboard.readText().includes('<svg')) throw new Error('Copy SVG did not write SVG markup.');
+	window.show();
+	window.focus();
+	window.webContents.sendInputEvent({ type: 'mouseDown', ...copyPoint, button: 'left', clickCount: 1 });
+	window.webContents.sendInputEvent({ type: 'mouseUp', ...copyPoint, button: 'left', clickCount: 1 });
+	await wait(200);
+	window.hide();
+	if (!clipboard.readText().includes('<svg')) {
+		const copyError = await window.webContents.executeJavaScript(
+			"document.querySelector('.error-card')?.textContent ?? ''"
+		);
+		throw new Error(`Copy SVG did not write SVG markup: ${copyError || 'clipboard stayed empty'}`);
+	}
 	await window.webContents.executeJavaScript(`(() => {
 		window.__fridayDiagramsInjected = false;
 		const input = document.querySelector('[data-testid="diagram-source"]');
