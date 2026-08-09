@@ -84,6 +84,7 @@ async function run() {
 	})()`);
 	await wait(500);
 	await waitFor(window, "Boolean(document.querySelector('.diagram-output svg')) && !document.querySelector('.error-card')");
+	await waitFor(window, "Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'Saved')");
 	await window.reload();
 	await waitFor(window, "Boolean(document.querySelector('.diagram-output svg'))");
 	const restoredConfig = await window.webContents.executeJavaScript(`(() => {
