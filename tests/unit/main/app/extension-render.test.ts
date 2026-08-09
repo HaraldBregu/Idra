@@ -22,7 +22,9 @@ describe('extension renderer', () => {
 		};
 		const view = {
 			setBounds: jest.fn(),
-			webContents: viewWebContents,
+			get webContents() {
+				return viewWebContents.isDestroyed() ? undefined : viewWebContents;
+			},
 		} as unknown as WebContentsView;
 		const win = {
 			contentView: { addChildView: jest.fn() },
@@ -63,7 +65,7 @@ describe('extension renderer', () => {
 		expect(win.close).toHaveBeenCalledTimes(1);
 
 		viewWebContents.isDestroyed.mockReturnValue(true);
-		handlers.get('closed')?.();
+		expect(() => handlers.get('closed')?.()).not.toThrow();
 		expect(viewWebContents.close).toHaveBeenCalledTimes(2);
 	});
 });
