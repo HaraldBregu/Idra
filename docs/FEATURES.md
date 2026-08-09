@@ -329,6 +329,9 @@ See [LLM Wiki](WIKI.md) for storage, configuration, schemas, workflows, examples
 
 ## 3. Providers and model catalogs
 
+See [Provider Reference](PROVIDERS.md) for the complete built-in provider inventory, exact service
+IDs, credential requirements, and the distinction between catalog entries and executable adapters.
+
 ### Chat and research providers
 
 Provider routing uses the native Anthropic Messages API for Anthropic, the OpenAI Responses API for OpenAI, and the OpenAI-compatible Chat Completions path for every other chat provider.
@@ -348,7 +351,8 @@ Provider routing uses the native Anthropic Messages API for Anthropic, the OpenA
 | Z.ai                     | GLM-5.1; GLM-5; GLM-5 Turbo                                              |
 | Perplexity research chat | Sonar Deep Research; Sonar Reasoning Pro; Sonar Pro; Sonar               |
 
-The provider key manager includes 24 catalog entries: OpenAI, Anthropic, Google, xAI, Mistral, DeepSeek, Qwen, Kimi, Z.ai, MiniMax, ElevenLabs, Deepgram, Cartesia, Black Forest Labs, Midjourney, Kling, Runway, Luma, Stability AI, Ideogram, Pika, Suno, Reka, and Perplexity. Each entry includes capability labels and an external setup/documentation link.
+The built-in catalog contains 32 providers across models, search, vector database, and object
+storage. Model-provider entries include capability labels and an external setup link.
 
 Realtime-voice models are cataloged for Google, Luma, Qwen, and xAI, but there is no realtime-voice IPC or model execution service. Friday's current Voice API is text-to-speech, and Home's voice-conversation panel is not connected to these models.
 
