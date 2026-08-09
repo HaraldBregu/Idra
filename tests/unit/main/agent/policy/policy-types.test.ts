@@ -28,6 +28,14 @@ describe('DEFAULT_PERMISSIONS', () => {
 			deny: [],
 			ask: [],
 		});
+		for (const toolName of ['list_extensions', 'open_extensions']) {
+			expect(DEFAULT_PERMISSIONS[toolName]).toEqual({
+				default: 'allow',
+				allow: [],
+				deny: [],
+				ask: [],
+			});
+		}
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('permissions');
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultMode');
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultPermissions');

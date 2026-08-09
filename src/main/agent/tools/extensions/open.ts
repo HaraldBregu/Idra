@@ -7,7 +7,7 @@ export function openExtensionsTool(windowFactory: WindowFactory) {
 	return tool({
 		name: 'open_extensions',
 		description: 'Open one or more installed Friday extensions by exact ID.',
-		defaultPermission: 'ask',
+		defaultPermission: 'allow',
 		risk: 'medium',
 		effect: 'execute',
 		allowedOrigins: ['main'],

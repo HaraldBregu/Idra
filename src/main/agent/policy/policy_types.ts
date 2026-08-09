@@ -111,7 +111,7 @@ export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 	list_schedules: allow(),
 	run_schedule_now: ask(),
 	list_extensions: allow(),
-	open_extensions: ask(),
+	open_extensions: allow(),
 	recorder_microphone: ask(),
 	recorder_microphone_status: allow(),
 	recorder_microphone_stop: allow(),

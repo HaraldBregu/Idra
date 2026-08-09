@@ -62,10 +62,10 @@ it('rejects missing IDs before opening any extension', async () => {
 	expect(loadExtension).not.toHaveBeenCalled();
 });
 
-it('defines opening extensions as a main-only approval-gated action', () => {
+it('defines opening extensions as a permission-free main-only action', () => {
 	expect(openExtensionsTool(windowFactory)).toMatchObject({
 		name: 'open_extensions',
-		defaultPermission: 'ask',
+		defaultPermission: 'allow',
 		risk: 'medium',
 		effect: 'execute',
 		allowedOrigins: ['main'],
