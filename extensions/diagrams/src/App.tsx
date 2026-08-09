@@ -48,6 +48,18 @@ const layoutChoices: DiagramLayout[] = [
 	'elk.mrtree',
 	'elk.sporeOverlap',
 ];
+const themeVariables = [
+	['background', 'background'],
+	['surface', 'card'],
+	['surface-alt', 'muted'],
+	['text', 'foreground'],
+	['muted', 'muted-foreground'],
+	['border', 'border'],
+	['accent', 'primary'],
+	['accent-contrast', 'primary-foreground'],
+	['danger', 'destructive'],
+	['focus', 'ring'],
+] as const;
 
 export default function App() {
 	const fridayTheme = useFridayTheme();
@@ -73,8 +85,10 @@ export default function App() {
 
 	useEffect(() => {
 		document.documentElement.classList.toggle('dark', fridayTheme.isDark);
-		for (const [name, value] of Object.entries(fridayTheme.colors))
-			document.documentElement.style.setProperty(`--${name}`, value);
+		for (const [target, source] of themeVariables) {
+			const value = fridayTheme.colors[source];
+			if (value) document.documentElement.style.setProperty(`--${target}`, value);
+		}
 	}, [fridayTheme]);
 
 	useEffect(() => {
