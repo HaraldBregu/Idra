@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type { BrowserWindow } from 'electron';
+import type { BrowserWindow, WebContentsView } from 'electron';
 import type { WindowFactory } from '../../../../src/main/window_factory';
 import { ensureExtensions, listExtensions, loadExtension } from '../../../../src/main/extensions/extension_index';
 import { extensionEntryPath } from '../../../../src/main/extensions/extension_entry';
@@ -10,13 +10,30 @@ import type { ExtensionManifest } from '../../../../src/main/extensions/extensio
 
 function createWindowHarness() {
 	const handlers = new Map<string, () => void>();
+	const shellHandlers = new Map<string, () => void>();
 	const webContents = {
 		isDestroyed: jest.fn(() => false),
-		on: jest.fn(),
+		on: jest.fn((event: string, handler: () => void) => shellHandlers.set(event, handler)),
+		once: jest.fn((event: string, handler: () => void) => shellHandlers.set(event, handler)),
 		send: jest.fn(),
 	};
+	const viewWebContents = {
+		close: jest.fn(),
+		isDestroyed: jest.fn(() => false),
+		on: jest.fn(),
+		once: jest.fn(),
+		send: jest.fn(),
+	};
+	const view = {
+		setBounds: jest.fn(),
+		setVisible: jest.fn(),
+		webContents: viewWebContents,
+	} as unknown as WebContentsView;
 	const win = {
+		close: jest.fn(),
+		contentView: { addChildView: jest.fn() },
 		focus: jest.fn(),
+		getContentBounds: jest.fn(() => ({ x: 0, y: 0, width: 820, height: 640 })),
 		isDestroyed: jest.fn(() => false),
 		isMinimized: jest.fn(() => false),
 		isVisible: jest.fn(() => true),
@@ -29,8 +46,10 @@ function createWindowHarness() {
 		webContents,
 	} as unknown as BrowserWindow;
 	const create = jest.fn(() => win);
-	const windowFactory = { create } as unknown as WindowFactory;
-	return { create, handlers, win, windowFactory };
+	const load = jest.fn(() => Promise.resolve());
+	const createView = jest.fn(() => ({ view, load }));
+	const windowFactory = { create, createView } as unknown as WindowFactory;
+	return { create, createView, handlers, load, shellHandlers, view, win, windowFactory };
 }
 
 function installExtension(
@@ -126,27 +145,34 @@ describe('extension discovery and loading', () => {
 		expect(listExtensions(appLocation)).toEqual([]);
 	});
 
-	it('loads the manifest entry in a standalone window using its title', () => {
+	it('loads the manifest entry below the extension titlebar', async () => {
 		const manifest: ExtensionManifest = {
 			...projectManifest,
 			metadata: { ...projectManifest.metadata, entry: 'pages/project.html' },
 		};
 		const entry = installExtension(appLocation, 'project', manifest);
 		const extension = { id: 'project', ...manifest };
-		const { create, handlers, win, windowFactory } = createWindowHarness();
+		const { create, createView, handlers, load, shellHandlers, view, win, windowFactory } =
+			createWindowHarness();
 
 		expect(loadExtension(windowFactory, extension, appLocation)).toBe(win);
 		expect(create).toHaveBeenCalledWith(
 			expect.objectContaining({
-				frame: true,
+				frame: false,
 				title: 'Project',
 				resizable: true,
-				transparent: false,
 			}),
-			{ file: entry }
+			{ html: 'extension.html', hash: 'extension/Project' }
 		);
+		expect(createView).not.toHaveBeenCalled();
 
+		shellHandlers.get('did-finish-load')?.();
+		expect(createView).toHaveBeenCalledWith(entry);
+		expect(win.contentView.addChildView).toHaveBeenCalledWith(view);
+		expect(view.setBounds).toHaveBeenCalledWith({ x: 0, y: 48, width: 820, height: 592 });
+		expect(load).toHaveBeenCalledTimes(1);
 		handlers.get('ready-to-show')?.();
+		await new Promise((resolve) => setImmediate(resolve));
 		expect(win.show).toHaveBeenCalledTimes(1);
 		handlers.get('closed')?.();
 	});
@@ -161,32 +187,29 @@ describe('extension discovery and loading', () => {
 		expect(create).not.toHaveBeenCalled();
 	});
 
-	it('reuses an already-open extension window instead of creating another', () => {
+	it('reuses an extension window while its titlebar is still loading', () => {
 		const manifest: ExtensionManifest = {
 			...projectManifest,
 			metadata: { ...projectManifest.metadata, entry: 'pages/project.html' },
 		};
 		installExtension(appLocation, 'project', manifest);
 		const extension = { id: 'project', ...manifest };
-		const { create, handlers, win, windowFactory } = createWindowHarness();
+		const { create, createView, handlers, win, windowFactory } = createWindowHarness();
 
 		const firstWindow = loadExtension(windowFactory, extension, appLocation);
 		expect(firstWindow).toBe(win);
 		expect(create).toHaveBeenCalledTimes(1);
 
-		handlers.get('ready-to-show')?.();
-		win.show.mockClear();
-		win.focus.mockClear();
-		win.isDestroyed.mockClear();
-
 		const secondWindow = loadExtension(windowFactory, extension, appLocation);
 		expect(secondWindow).toBe(win);
 		expect(create).toHaveBeenCalledTimes(1);
+		expect(createView).not.toHaveBeenCalled();
 		expect(win.focus).toHaveBeenCalledTimes(1);
 		expect(win.show).toHaveBeenCalledTimes(0);
 		expect(win.isDestroyed).toHaveBeenCalledTimes(1);
 		expect(win.isMinimized).toHaveBeenCalledTimes(1);
-		expect(win.isVisible).toHaveBeenCalledTimes(1);
+		expect(win.isVisible).not.toHaveBeenCalled();
+		handlers.get('closed')?.();
 	});
 
 	it('rejects extension paths outside the extensions folder', () => {
