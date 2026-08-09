@@ -120,4 +120,35 @@ describe('session persistence', () => {
 		expect(trace).not.toContain('private contents');
 		expect(state.runTraceBuffer).toEqual([]);
 	});
+
+	it('records privacy-safe MCP discovery counts and failure phases', () => {
+		const state = createSessionState();
+		state.id = SESSION_ID;
+		state.folderName = SESSION_ID;
+		state.sessionsPath = path.join(temporaryRoot, 'sessions');
+		appendRun(state, {
+			type: 'run_started',
+			sessionId: SESSION_ID,
+			model: 'model',
+			providerId: 'provider',
+			tools: ['read'],
+			mcpDiscovery: {
+				configuredServers: 1,
+				enabledServers: 1,
+				connectedServers: 0,
+				listedTools: 0,
+				loadedTools: 0,
+				rejectedTools: 0,
+				truncated: false,
+				failures: [{ serverId: 'resend', phase: 'connect' }],
+			},
+		});
+		appendRun(state, { type: 'run_finished', result: { sessionId: SESSION_ID, text: '' } });
+
+		const trace = fs.readFileSync(runFilePath(state), 'utf8');
+		expect(trace).toContain(
+			'"mcpDiscovery":{"configuredServers":1,"enabledServers":1,"connectedServers":0'
+		);
+		expect(trace).toContain('"serverId":"resend","phase":"connect"');
+	});
 });

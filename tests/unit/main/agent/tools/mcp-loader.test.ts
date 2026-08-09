@@ -42,8 +42,22 @@ describe('loadMcpTools', () => {
 		const result = await loadMcpTools();
 		expect(result.tools).toHaveLength(MCP_MAX_TOOLS);
 		expect(result.tools.map((tool) => tool.name)).not.toEqual(
-			expect.arrayContaining(['mcp__safe__invalid', 'mcp__safe__oversized'])
+				expect.arrayContaining(['mcp__safe__invalid', 'mcp__safe__oversized'])
 		);
+		expect(result.diagnostics).toMatchObject({
+			configuredServers: 1,
+			enabledServers: 1,
+			connectedServers: 1,
+			listedTools: MCP_MAX_TOOLS + 12,
+			loadedTools: MCP_MAX_TOOLS,
+			rejectedTools: 12,
+			truncated: true,
+		});
+		expect(result.diagnostics.failures).toEqual([
+			{ serverId: 'safe', phase: 'schema', toolName: 'invalid' },
+			{ serverId: 'safe', phase: 'schema', toolName: 'oversized' },
+			{ serverId: 'safe', phase: 'limit' },
+		]);
 		await result.close();
 		expect(closeMock).toHaveBeenCalledTimes(1);
 	});
@@ -65,5 +79,36 @@ describe('loadMcpTools', () => {
 			expect(name).toMatch(/^[a-zA-Z0-9_-]+$/);
 			expect(name.length).toBeLessThanOrEqual(64);
 		}
+		expect(result.diagnostics).toMatchObject({ loadedTools: 3, failures: [] });
+	});
+
+	it('reports connection and listing failures without exposing raw errors', async () => {
+		getMcpServersMock.mockReturnValue({
+			connects: { type: 'http', url: 'https://connects.test' },
+			lists: { type: 'http', url: 'https://lists.test' },
+		});
+		connectMock.mockImplementation(async (id: string) => {
+			if (id === 'connects') throw new Error('secret connection detail');
+			return { id };
+		});
+		listToolsMock.mockRejectedValue(new Error('secret listing detail'));
+
+		const result = await loadMcpTools();
+
+		expect(result.tools).toEqual([]);
+		expect(result.diagnostics).toMatchObject({
+			configuredServers: 2,
+			enabledServers: 2,
+			connectedServers: 1,
+			listedTools: 0,
+			loadedTools: 0,
+			rejectedTools: 0,
+			truncated: false,
+			failures: [
+				{ serverId: 'connects', phase: 'connect' },
+				{ serverId: 'lists', phase: 'list' },
+			],
+		});
+		expect(JSON.stringify(result.diagnostics)).not.toContain('secret');
 	});
 });
