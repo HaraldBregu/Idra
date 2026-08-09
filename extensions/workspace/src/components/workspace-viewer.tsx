@@ -12,12 +12,13 @@ interface WorkspaceViewerProps {
 	content: string;
 	dirty: boolean;
 	error: string;
+	isDark: boolean;
 	kind: WorkspaceFileKind | null;
 	loading: boolean;
-	markdownMode: 'source' | 'preview';
+	documentMode: 'source' | 'preview';
 	mediaUrl: string;
 	onChange: (content: string) => void;
-	onMarkdownModeChange: (mode: 'source' | 'preview') => void;
+	onDocumentModeChange: (mode: 'source' | 'preview') => void;
 	onRename: () => void;
 	onSave: () => Promise<boolean>;
 	path: string | null;
@@ -30,12 +31,13 @@ export function WorkspaceViewer({
 	content,
 	dirty,
 	error,
+	isDark,
 	kind,
 	loading,
-	markdownMode,
+	documentMode,
 	mediaUrl,
 	onChange,
-	onMarkdownModeChange,
+	onDocumentModeChange,
 	onRename,
 	onSave,
 	path,
@@ -72,12 +74,14 @@ export function WorkspaceViewer({
 			</section>
 		);
 	}
+	const editable = kind === 'markdown' || kind === 'mermaid' || kind === 'excalidraw';
+	const previewable = kind === 'markdown' || kind === 'mermaid';
 
 	return (
 		<Tabs
-			value={kind === 'markdown' ? markdownMode : undefined}
+			value={previewable ? documentMode : undefined}
 			onValueChange={(value) => {
-				if (value === 'source' || value === 'preview') onMarkdownModeChange(value);
+				if (value === 'source' || value === 'preview') onDocumentModeChange(value);
 			}}
 			asChild
 		>
