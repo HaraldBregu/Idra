@@ -34,7 +34,6 @@ const workspace = await friday.agent.getWorkspaceLocation();
 const files = await friday.agent.listWorkspaceFiles();
 const content = await friday.agent.readWorkspaceFile('USER.md');
 await friday.agent.writeWorkspaceMarkdown('USER.md', '# Updated');
-await friday.agent.writeWorkspaceFile('diagram.mmd', 'flowchart TD\nA --> B');
 await friday.agent.createWorkspaceFile('', 'draft.md');
 await friday.agent.createWorkspaceDirectory('notes', 'ideas');
 await friday.agent.moveWorkspaceEntry('draft.md', 'notes');
@@ -61,7 +60,6 @@ const files = await agent.listWorkspaceFiles();
 const content = await agent.readWorkspaceFile('USER.md');
 const image = await agent.readWorkspaceAsset('images/photo.png');
 await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
-await agent.writeWorkspaceFile('diagram.mmd', 'flowchart TD\nA --> B');
 await agent.createWorkspaceFile('', 'draft.md');
 await agent.createWorkspaceDirectory('notes', 'ideas');
 await agent.moveWorkspaceEntry('draft.md', 'notes');
@@ -81,7 +79,7 @@ const maximized = await win.isMaximized();
 ## What's available
 
 - `app`: app data + settings APIs exposed by preload (`setTheme`, `getThemeData`, `getLanguage`, etc.)
-- `agent`: workspace APIs exposed by preload, including text reads, typed asset reads, and editable document writes.
+- `agent`: workspace APIs exposed by preload, including text reads, typed asset reads, and Markdown writes.
 - `win`: embedded-only window APIs, including native context menus and window controls.
 - `connect()`: remote client for the app API and workspace agent APIs.
 - `isFriday()`: host check for in-app mode.
