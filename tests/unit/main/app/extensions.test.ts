@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type { BrowserWindow, WebContentsView } from 'electron';
+import type { BrowserWindow } from 'electron';
 import type { WindowFactory } from '../../../../src/main/window_factory';
 import {
 	ensureExtensions,
@@ -22,34 +22,22 @@ function createWindowHarness() {
 		on: jest.fn(),
 		send: jest.fn(),
 	};
-	const viewWebContents = {
-		close: jest.fn(),
-		isDestroyed: jest.fn(() => false),
-		on: jest.fn(),
-		send: jest.fn(),
-	};
-	const view = {
-		setBounds: jest.fn(),
-		webContents: viewWebContents,
-	} as unknown as WebContentsView;
 	const win = {
-		contentView: { addChildView: jest.fn() },
 		focus: jest.fn(),
-		getContentBounds: jest.fn(() => ({ x: 0, y: 0, width: 820, height: 640 })),
 		isDestroyed: jest.fn(() => false),
 		isMinimized: jest.fn(() => false),
 		isVisible: jest.fn(() => true),
 		restore: jest.fn(),
 		setMenuBarVisibility: jest.fn(),
+		setTitle: jest.fn(),
 		show: jest.fn(),
 		once: jest.fn((event: string, handler: () => void) => handlers.set(event, handler)),
 		on: jest.fn((event: string, handler: () => void) => handlers.set(event, handler)),
 		webContents,
 	} as unknown as BrowserWindow;
 	const create = jest.fn(() => win);
-	const createView = jest.fn(() => ({ view, loaded: Promise.resolve() }));
-	const windowFactory = { create, createView } as unknown as WindowFactory;
-	return { create, createView, handlers, view, win, windowFactory };
+	const windowFactory = { create } as unknown as WindowFactory;
+	return { create, handlers, win, windowFactory };
 }
 
 function installExtension(
@@ -184,20 +172,18 @@ describe('extension storage and loading', () => {
 		};
 		const entry = installExtension(appLocation, 'project', manifest);
 		const extension = { id: 'project', ...manifest };
-		const { create, createView, handlers, view, win, windowFactory } = createWindowHarness();
+		const { create, handlers, win, windowFactory } = createWindowHarness();
 
 		expect(loadExtension(windowFactory, extension, appLocation)).toBe(win);
 		expect(create).toHaveBeenCalledWith(
 			expect.objectContaining({
-				frame: false,
+				frame: true,
 				title: 'Project',
 				resizable: true,
+				transparent: false,
 			}),
-			{ html: 'extension.html', hash: 'extension/Project' }
+			{ file: entry }
 		);
-		expect(createView).toHaveBeenCalledWith(entry);
-		expect(win.contentView.addChildView).toHaveBeenCalledWith(view);
-		expect(view.setBounds).toHaveBeenCalledWith({ x: 0, y: 48, width: 820, height: 592 });
 
 		handlers.get('ready-to-show')?.();
 		expect(win.show).toHaveBeenCalledTimes(1);

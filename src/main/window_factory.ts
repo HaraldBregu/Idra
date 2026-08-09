@@ -1,7 +1,6 @@
 import {
 	BrowserWindow,
 	BrowserWindowConstructorOptions,
-	WebContentsView,
 	type WebContents,
 } from 'electron';
 import path from 'node:path';
@@ -19,11 +18,6 @@ export interface RendererContentOptions {
 	html?: string;
 	hash?: string;
 	file?: string;
-}
-
-export interface LoadedView {
-	view: WebContentsView;
-	loaded: Promise<void>;
 }
 
 export class WindowFactory {
@@ -113,38 +107,10 @@ export class WindowFactory {
 		// 	return { action: 'deny' };
 		// });
 
-		this.secureNavigation(win.webContents);
+		this.secureNavigation(win.webContents, content.file ? path.dirname(content.file) : undefined);
 
 		this.loadContent(win, content);
 		return win;
-	}
-
-	createView(file: string): LoadedView {
-		const view = new WebContentsView({ webPreferences: this.getBaseWebPreferences() });
-		const viewContents = view.webContents;
-		this.secureNavigation(viewContents, path.dirname(file));
-		viewContents.on(
-			'did-fail-load',
-			(_event, errorCode, errorDescription, validatedURL) => {
-				this.logger?.error('Extensions', `Extension view failed to load: ${validatedURL}`, {
-					errorCode,
-					errorDescription,
-				});
-			}
-		);
-		viewContents.on('render-process-gone', (_event, details) => {
-			this.logger?.error('Extensions', `Extension renderer exited: ${file}`, {
-				reason: details.reason,
-				exitCode: details.exitCode,
-			});
-		});
-		const loaded = viewContents.loadFile(file);
-		void loaded.catch((error: unknown) => {
-			this.logger?.error('Extensions', `Unable to open extension entry: ${file}`, {
-				error: error instanceof Error ? error.message : String(error),
-			});
-		});
-		return { view, loaded };
 	}
 
 	/**
