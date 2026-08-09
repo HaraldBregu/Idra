@@ -231,7 +231,7 @@ export interface ExtensionsApi {
 	list: () => Promise<Extension[]>;
 	open: (extensionId: string) => Promise<void>;
 	openRoot: () => Promise<void>;
-	delete: (extensionId: string) => Promise<void>;
+	delete: (extensionId: string) => Promise<boolean>;
 	import: () => Promise<ExtensionImportResult | undefined>;
 }
 

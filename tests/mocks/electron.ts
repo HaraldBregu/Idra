@@ -27,7 +27,13 @@ export const systemPreferences = {
 export const BrowserWindow = Object.assign(jest.fn(), {
 	getAllWindows: jest.fn(() => []),
 	getFocusedWindow: jest.fn(() => null),
+	fromWebContents: jest.fn(() => null),
 });
+
+export const dialog = {
+	showMessageBox: jest.fn(async () => ({ response: 0, checkboxChecked: false })),
+	showOpenDialog: jest.fn(async () => ({ canceled: true, filePaths: [] })),
+};
 
 export const Menu = {
 	buildFromTemplate: jest.fn(() => ({})),

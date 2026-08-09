@@ -28,7 +28,27 @@ export class ExtensionsIpc implements IpcModule<ExtensionsIpcDeps> {
 			loadExtension(windowFactory, extension);
 		});
 		registerCommand(ExtensionChannels.openRoot, openRoot);
-		registerCommand(ExtensionChannels.delete, deleteExtension);
+		registerCommandWithEvent(ExtensionChannels.delete, async (event, extensionId) => {
+			const extension = listExtensions().find((item) => item.id === extensionId);
+			if (!extension) throw new Error(`Extension not found: ${extensionId}`);
+			const options = {
+				type: 'warning' as const,
+				title: 'Delete Extension',
+				buttons: ['Cancel', 'Delete Extension'],
+				cancelId: 0,
+				defaultId: 0,
+				noLink: true,
+				message: `Delete “${extension.title}”?`,
+				detail: 'This permanently deletes the extension from Friday. This action cannot be undone.',
+			};
+			const window = BrowserWindow.fromWebContents(event.sender);
+			const result = await (window
+				? dialog.showMessageBox(window, options)
+				: dialog.showMessageBox(options));
+			if (result.response !== 1) return false;
+			deleteExtension(extensionId);
+			return true;
+		});
 		registerCommandWithEvent(
 			ExtensionChannels.import,
 			async (event): Promise<ExtensionImportResult | undefined> => {

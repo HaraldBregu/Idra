@@ -179,6 +179,7 @@ const ExtensionsPage: React.FC = () => {
 											current.filter(({ id }) => id !== extensionId)
 										);
 									}}
+									onError={setErrorMessage}
 								/>
 							</div>
 						))
