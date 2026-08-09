@@ -47,7 +47,7 @@ const ProviderKeysPage = lazy(() => import('./pages/settings/pages/providers/key
 const ProviderVectorDbPage = lazy(() => import('./pages/settings/pages/providers/vectordb/Page'));
 const RagPage = lazy(() => import('./pages/settings/pages/rag/Page'));
 const WikiPage = lazy(() => import('./pages/settings/pages/wiki/Page'));
-const PoliciesPage = lazy(() => import('./pages/settings/pages/policies/Page'));
+const PermissionsPage = lazy(() => import('./pages/settings/pages/permissions/Page'));
 const HealthPage = lazy(() => import('./pages/settings/pages/tasks/health/Page'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
 const ChatHistoryPage = lazy(() => import('./pages/settings/pages/assistant/chathistory/Page'));
@@ -473,7 +473,7 @@ const routes: RouteObject[] = [
 								path: 'policies',
 								element: (
 									<SettingsRouteWrapper>
-										<PoliciesPage />
+										<PermissionsPage />
 									</SettingsRouteWrapper>
 								),
 							},

@@ -287,12 +287,12 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		descriptionKey: 'settings.cron.schedulesDescription',
 		keywords: 'cron schedule recurring task',
 	},
-	// Policies
+	// Permissions
 	{
-		path: '/settings/assistant/policies',
-		labelKey: 'settings.policies.toolsTitle',
-		descriptionKey: 'settings.policies.toolsDescription',
-		keywords: 'policy permission directory recursive tool write edit exec allow deny ask',
+		path: '/settings/assistant/permissions',
+		labelKey: 'settings.permissions.toolsTitle',
+		descriptionKey: 'settings.permissions.toolsDescription',
+		keywords: 'permissions permission directory recursive tool write edit exec allow deny ask',
 	},
 	// Health
 	{
@@ -404,9 +404,9 @@ export const SETTINGS_NAVIGATION: readonly SettingsNavigationItem[] = [
 		icon: HeartPulse,
 	},
 	{
-		path: '/settings/assistant/policies',
-		labelKey: 'settings.tabs.policies',
-		descriptionKey: 'settings.overview.descriptions.policies',
+		path: '/settings/assistant/permissions',
+		labelKey: 'settings.tabs.permissions',
+		descriptionKey: 'settings.overview.descriptions.permissions',
 		icon: ShieldCheck,
 	},
 	{

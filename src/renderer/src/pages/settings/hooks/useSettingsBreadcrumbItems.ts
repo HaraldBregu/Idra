@@ -12,7 +12,7 @@ interface SettingsBreadcrumbItem {
 const ASSISTANT_SUBPAGE_LABEL_KEYS: Record<string, string> = {
 	'/settings/assistant/chathistory': 'settings.chatHistory.title',
 	'/settings/assistant/health': 'settings.tabs.health',
-	'/settings/assistant/policies': 'settings.tabs.policies',
+	'/settings/assistant/permissions': 'settings.tabs.permissions',
 	'/settings/search': 'settings.tabs.searchEngine',
 };
 

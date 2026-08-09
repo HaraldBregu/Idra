@@ -1,12 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import PoliciesPage from '../../../src/renderer/src/pages/settings/pages/policies/Page';
+import PermissionsPage from '../../../src/renderer/src/pages/settings/pages/permissions/Page';
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({ t: (key: string) => key.split('.').at(-1) ?? key }),
 }));
 
-const policy = {
+const permissions = {
 	dir: { '/tmp': { recoursive: true, tools: ['read'] } },
 	read: { default: 'allow' as const, allow: ['Desktop'], deny: [], ask: [] },
 	write: { default: 'allow' as const, allow: [], deny: [], ask: [] },
@@ -32,16 +32,16 @@ beforeAll(() => {
 
 beforeEach(() => {
 	Object.defineProperty(window, 'agent', { configurable: true, value: agentApi });
-	agentApi.policyGet.mockResolvedValue(policy);
+	agentApi.policyGet.mockResolvedValue(permissions);
 	agentApi.policyPickDirectory.mockResolvedValue(undefined);
-	agentApi.policySetDirectories.mockResolvedValue(policy);
-	agentApi.policySetTool.mockResolvedValue(policy);
-	agentApi.policyReset.mockResolvedValue(policy);
+	agentApi.policySetDirectories.mockResolvedValue(permissions);
+	agentApi.policySetTool.mockResolvedValue(permissions);
+	agentApi.policyReset.mockResolvedValue(permissions);
 });
 
-describe('Policies settings', () => {
+describe('Permissions settings', () => {
 	it('renders directory permissions and top-level tool defaults', async () => {
-		render(<PoliciesPage />);
+		render(<PermissionsPage />);
 
 		expect((await screen.findAllByText('read')).length).toBeGreaterThan(0);
 		expect(screen.getByText('write')).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe('Policies settings', () => {
 
 	it('updates the default owned by one tool', async () => {
 		const user = userEvent.setup();
-		render(<PoliciesPage />);
+		render(<PermissionsPage />);
 		await screen.findByText('/tmp');
 
 		const readDefault = screen.getAllByRole('combobox')[0];
@@ -64,7 +64,7 @@ describe('Policies settings', () => {
 
 		await waitFor(() =>
 			expect(agentApi.policySetTool).toHaveBeenCalledWith('read', {
-				...policy.read,
+				...permissions.read,
 				default: 'ask',
 			})
 		);
@@ -72,7 +72,7 @@ describe('Policies settings', () => {
 
 	it('adds a directory with a normalized tool allow-list', async () => {
 		const user = userEvent.setup();
-		render(<PoliciesPage />);
+		render(<PermissionsPage />);
 		await screen.findByText('/tmp');
 
 		await user.type(screen.getByRole('textbox', { name: 'directoryPath' }), '/workspace');
@@ -84,7 +84,7 @@ describe('Policies settings', () => {
 
 		await waitFor(() =>
 			expect(agentApi.policySetDirectories).toHaveBeenCalledWith({
-				...policy.dir,
+				...permissions.dir,
 				'/workspace': { recoursive: false, tools: ['read', 'write'] },
 			})
 		);
@@ -93,7 +93,7 @@ describe('Policies settings', () => {
 	it('uses the directory picker and saves wildcard permissions', async () => {
 		const user = userEvent.setup();
 		agentApi.policyPickDirectory.mockResolvedValue('/picked');
-		render(<PoliciesPage />);
+		render(<PermissionsPage />);
 		await screen.findByText('/tmp');
 
 		await user.click(screen.getByRole('button', { name: 'browseDirectory' }));
@@ -104,7 +104,7 @@ describe('Policies settings', () => {
 
 		await waitFor(() =>
 			expect(agentApi.policySetDirectories).toHaveBeenCalledWith({
-				...policy.dir,
+				...permissions.dir,
 				'/picked': { recoursive: true, tools: '*' },
 			})
 		);
@@ -112,7 +112,7 @@ describe('Policies settings', () => {
 
 	it('removes a directory permission', async () => {
 		const user = userEvent.setup();
-		render(<PoliciesPage />);
+		render(<PermissionsPage />);
 		await screen.findByText('/tmp');
 
 		await user.click(screen.getByRole('button', { name: 'removeDirectory' }));

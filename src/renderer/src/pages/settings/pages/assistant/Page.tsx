@@ -475,17 +475,17 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/assistant/policies')}
+					onClick={() => navigate('/settings/assistant/permissions')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
 							event.preventDefault();
-							navigate('/settings/assistant/policies');
+							navigate('/settings/assistant/permissions');
 						}
 					}}
 				>
 					<SettingsRow
-						title={t('settings.tabs.policies')}
-						description={t('settings.overview.descriptions.policies')}
+						title={t('settings.tabs.permissions')}
+						description={t('settings.overview.descriptions.permissions')}
 						className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
 						actionClassName="w-auto justify-end"
 						actions={<ChevronRight className="size-4 text-muted-foreground" />}

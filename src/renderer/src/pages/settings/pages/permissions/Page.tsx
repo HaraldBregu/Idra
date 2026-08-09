@@ -37,8 +37,8 @@ const isPermission = (entry: Permissions[string]): entry is Permission =>
 	'default' in entry &&
 	(entry.default === 'allow' || entry.default === 'ask' || entry.default === 'deny');
 
-const permissionFor = (policy: Permissions | null, toolName: string): Permission | undefined => {
-	const entry = policy?.[toolName];
+const permissionFor = (permissions: Permissions | null, toolName: string): Permission | undefined => {
+	const entry = permissions?.[toolName];
 	return entry && isPermission(entry) ? entry : undefined;
 };
 
@@ -55,9 +55,9 @@ const directoryToolsFor = (value: string): '*' | string[] => {
 	];
 };
 
-const PoliciesPage: React.FC = () => {
+const PermissionsPage: React.FC = () => {
 	const { t } = useTranslation();
-	const [policy, setPolicy] = useState<Permissions | null>(null);
+	const [permissions, setPolicy] = useState<Permissions | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [newDirectory, setNewDirectory] = useState('');
 	const [newDirectoryTools, setNewDirectoryTools] = useState('*');
@@ -66,7 +66,7 @@ const PoliciesPage: React.FC = () => {
 	const apply = (operation: Promise<Permissions>): void => {
 		setError(null);
 		operation.then(setPolicy).catch((err: unknown) => {
-			setError(err instanceof Error ? err.message : t('settings.policies.saveFailed'));
+			setError(err instanceof Error ? err.message : t('settings.permissions.saveFailed'));
 		});
 	};
 
@@ -80,7 +80,7 @@ const PoliciesPage: React.FC = () => {
 	}, []);
 
 	const setDefault = (toolName: string, mode: PermissionMode): void => {
-		const permission = permissionFor(policy, toolName);
+		const permission = permissionFor(permissions, toolName);
 		if (!permission) return;
 		apply(window.agent.policySetTool(toolName, { ...permission, default: mode }));
 	};
@@ -88,10 +88,10 @@ const PoliciesPage: React.FC = () => {
 	const addDirectory = (): void => {
 		const directory = newDirectory.trim();
 		const directoryTools = directoryToolsFor(newDirectoryTools);
-		if (!policy || !directory || (directoryTools !== '*' && directoryTools.length === 0)) return;
+		if (!permissions || !directory || (directoryTools !== '*' && directoryTools.length === 0)) return;
 		apply(
 			window.agent.policySetDirectories({
-				...policy.dir,
+				...permissions.dir,
 				[directory]: { recoursive: newDirectoryRecursive, tools: directoryTools },
 			})
 		);
@@ -99,8 +99,8 @@ const PoliciesPage: React.FC = () => {
 	};
 
 	const removeDirectory = (directory: string): void => {
-		if (!policy) return;
-		const directories = { ...policy.dir };
+		if (!permissions) return;
+		const directories = { ...permissions.dir };
 		delete directories[directory];
 		apply(window.agent.policySetDirectories(directories));
 	};
@@ -117,10 +117,10 @@ const PoliciesPage: React.FC = () => {
 			});
 	};
 
-	const tools = policy
-		? Object.keys(policy).filter((toolName) => permissionFor(policy, toolName) !== undefined)
+	const tools = permissions
+		? Object.keys(permissions).filter((toolName) => permissionFor(permissions, toolName) !== undefined)
 		: [];
-	const directories = policy ? Object.entries(policy.dir) : [];
+	const directories = permissions ? Object.entries(permissions.dir) : [];
 	const parsedDirectoryTools = directoryToolsFor(newDirectoryTools);
 	const canAddDirectory =
 		newDirectory.trim().length > 0 &&
@@ -129,8 +129,8 @@ const PoliciesPage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={t('settings.tabs.policies')}
-				description={t('settings.overview.descriptions.policies')}
+				title={t('settings.tabs.permissions')}
+				description={t('settings.overview.descriptions.permissions')}
 				action={
 					<Button
 						type="button"
@@ -139,7 +139,7 @@ const PoliciesPage: React.FC = () => {
 						onClick={() => apply(window.agent.policyReset())}
 					>
 						<RotateCcw className="size-3" />
-						{t('settings.policies.reset')}
+						{t('settings.permissions.reset')}
 					</Button>
 				}
 			/>
@@ -150,25 +150,25 @@ const PoliciesPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			{!policy ? (
+			{!permissions ? (
 				<SettingsLoadingRows rows={4} />
 			) : (
 				<>
 					<SettingsSection
-						title={t('settings.policies.directoriesTitle')}
-						description={t('settings.policies.directoriesDescription')}
+						title={t('settings.permissions.directoriesTitle')}
+						description={t('settings.permissions.directoriesDescription')}
 					>
 						<SettingsPanel>
 							{directories.length === 0 ? (
 								<SettingsEmptyState
 									icon={FolderX}
-									title={t('settings.policies.directoriesEmpty')}
+									title={t('settings.permissions.directoriesEmpty')}
 								/>
 							) : (
 								directories.map(([directory, permission]) => {
 									const tools =
 										permission.tools === '*'
-											? t('settings.policies.allTools')
+											? t('settings.permissions.allTools')
 											: permission.tools.join(', ');
 									return (
 										<Item key={directory} variant="outline" size="md" className={ROW_CLASS}>
@@ -185,15 +185,15 @@ const PoliciesPage: React.FC = () => {
 												<span className="text-xs text-muted-foreground">
 													{t(
 														permission.recoursive
-															? 'settings.policies.recursive'
-															: 'settings.policies.currentDirectory'
+															? 'settings.permissions.recursive'
+															: 'settings.permissions.currentDirectory'
 													)}
 												</span>
 												<Button
 													type="button"
 													variant="ghost"
 													size="icon-sm"
-													aria-label={t('settings.policies.removeDirectory')}
+													aria-label={t('settings.permissions.removeDirectory')}
 													onClick={() => removeDirectory(directory)}
 												>
 													<Trash2 className="size-3" />
@@ -210,8 +210,8 @@ const PoliciesPage: React.FC = () => {
 										<Input
 											value={newDirectory}
 											onChange={(event) => setNewDirectory(event.target.value)}
-											placeholder={t('settings.policies.directoryPlaceholder')}
-											aria-label={t('settings.policies.directoryPath')}
+											placeholder={t('settings.permissions.directoryPlaceholder')}
+											aria-label={t('settings.permissions.directoryPath')}
 											className="h-7 min-w-48 flex-1 font-mono text-xs"
 										/>
 										<Input
@@ -220,8 +220,8 @@ const PoliciesPage: React.FC = () => {
 											onKeyDown={(event) => {
 												if (event.key === 'Enter') addDirectory();
 											}}
-											placeholder={t('settings.policies.directoryToolsPlaceholder')}
-											aria-label={t('settings.policies.directoryTools')}
+											placeholder={t('settings.permissions.directoryToolsPlaceholder')}
+											aria-label={t('settings.permissions.directoryTools')}
 											className="h-7 min-w-40 flex-1 font-mono text-xs"
 										/>
 										<div className="flex h-7 items-center gap-2 px-1">
@@ -230,10 +230,10 @@ const PoliciesPage: React.FC = () => {
 												size="sm"
 												checked={newDirectoryRecursive}
 												onCheckedChange={setNewDirectoryRecursive}
-												aria-label={t('settings.policies.recursive')}
+												aria-label={t('settings.permissions.recursive')}
 											/>
 											<Label htmlFor="directory-recursive" className="text-xs">
-												{t('settings.policies.recursive')}
+												{t('settings.permissions.recursive')}
 											</Label>
 										</div>
 									</div>
@@ -243,7 +243,7 @@ const PoliciesPage: React.FC = () => {
 										type="button"
 										variant="outline"
 										size="icon-sm"
-										aria-label={t('settings.policies.browseDirectory')}
+										aria-label={t('settings.permissions.browseDirectory')}
 										onClick={() => browseDirectory(setNewDirectory)}
 									>
 										<FolderOpen className="size-3" />
@@ -251,7 +251,7 @@ const PoliciesPage: React.FC = () => {
 									<Button
 										type="button"
 										size="icon-sm"
-										aria-label={t('settings.policies.addDirectory')}
+										aria-label={t('settings.permissions.addDirectory')}
 										disabled={!canAddDirectory}
 										onClick={addDirectory}
 									>
@@ -263,8 +263,8 @@ const PoliciesPage: React.FC = () => {
 					</SettingsSection>
 
 					<SettingsSection
-						title={t('settings.policies.toolsTitle')}
-						description={t('settings.policies.toolsDescription')}
+						title={t('settings.permissions.toolsTitle')}
+						description={t('settings.permissions.toolsDescription')}
 					>
 						<SettingsPanel>
 							{tools.map((toolName) => (
@@ -274,10 +274,10 @@ const PoliciesPage: React.FC = () => {
 									</ItemContent>
 									<ItemActions className="ml-auto flex-none justify-end gap-2">
 										<span className="text-xs text-muted-foreground">
-											{t('settings.policies.defaultMode')}
+											{t('settings.permissions.defaultMode')}
 										</span>
 										<Select
-											value={permissionFor(policy, toolName)!.default}
+											value={permissionFor(permissions, toolName)!.default}
 											onValueChange={(value) => {
 												if (value) setDefault(toolName, value as PermissionMode);
 											}}
@@ -288,7 +288,7 @@ const PoliciesPage: React.FC = () => {
 											<SelectContent>
 												{PERMISSION_MODES.map((mode) => (
 													<SelectItem key={mode} value={mode}>
-														{t(`settings.policies.modes.${mode}`)}
+														{t(`settings.permissions.modes.${mode}`)}
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -304,4 +304,4 @@ const PoliciesPage: React.FC = () => {
 	);
 };
 
-export default PoliciesPage;
+export default PermissionsPage;
