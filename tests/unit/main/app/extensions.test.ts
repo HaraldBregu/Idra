@@ -36,6 +36,7 @@ function createWindowHarness() {
 	const win = {
 		close: jest.fn(),
 		contentView: { addChildView: jest.fn() },
+		destroy: jest.fn(),
 		focus: jest.fn(),
 		getContentBounds: jest.fn(() => ({ x: 0, y: 0, width: 820, height: 640 })),
 		isDestroyed: jest.fn(() => false),

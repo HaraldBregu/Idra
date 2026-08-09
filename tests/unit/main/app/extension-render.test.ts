@@ -35,6 +35,7 @@ function createHarness() {
 	const win = {
 		close: jest.fn(),
 		contentView: { addChildView: jest.fn() },
+		destroy: jest.fn(),
 		focus: jest.fn(),
 		getContentBounds: jest.fn(() => ({ x: 0, y: 0, width: 820, height: 640 })),
 		isDestroyed: jest.fn(() => false),
@@ -131,6 +132,18 @@ describe('extension renderer', () => {
 		expect(harness.view.setVisible).not.toHaveBeenCalledWith(true);
 		expect(harness.win.show).not.toHaveBeenCalled();
 		expect(harness.win.close).toHaveBeenCalledTimes(1);
+		harness.handlers.get('closed')?.();
+	});
+
+	it('discards a crashed titlebar shell so the extension can be opened again', () => {
+		const harness = createHarness();
+		render(harness.windowFactory, '/extension/index.html', 'Project', 'project-crash');
+
+		harness.shellHandlers.get('render-process-gone')?.();
+		expect(harness.win.destroy).toHaveBeenCalledTimes(1);
+
+		render(harness.windowFactory, '/extension/index.html', 'Project', 'project-crash');
+		expect(harness.create).toHaveBeenCalledTimes(2);
 		harness.handlers.get('closed')?.();
 	});
 

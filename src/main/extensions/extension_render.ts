@@ -49,6 +49,7 @@ export function render(
 	const extensionWindow: ExtensionWindow = { window: win, ready: false };
 	windows.set(extensionId, extensionWindow);
 	win.setMenuBarVisibility(false);
+	let shellFailed = false;
 	let extensionView: WebContentsView | undefined;
 	let extensionContents: WebContents | undefined;
 	let shellReady = false;
@@ -69,6 +70,12 @@ export function render(
 			width,
 			height: Math.max(0, height - titleBarHeight),
 		});
+	};
+	const discardFailedShell = (): void => {
+		if (shellFailed) return;
+		shellFailed = true;
+		if (windows.get(extensionId) === extensionWindow) windows.delete(extensionId);
+		if (!win.isDestroyed()) win.destroy();
 	};
 
 	win.once('ready-to-show', () => {
@@ -116,6 +123,10 @@ export function render(
 					win.close();
 				}
 			});
+	});
+	win.webContents.once('render-process-gone', discardFailedShell);
+	win.webContents.once('did-fail-load', (_event, errorCode) => {
+		if (errorCode !== -3) discardFailedShell();
 	});
 	win.webContents.on('page-title-updated', (event) => event.preventDefault());
 	win.setTitle(title);
