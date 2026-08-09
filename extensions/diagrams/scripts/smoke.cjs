@@ -258,6 +258,41 @@ async function run() {
 	})`);
 	if (imported.source.includes('```') || !imported.source.startsWith('sequenceDiagram') || imported.type !== 'sequence' || imported.error)
 		throw new Error(`Markdown import failed: ${JSON.stringify(imported)}`);
+	await window.webContents.executeJavaScript(`(() => {
+		const input = document.querySelector('[data-testid="diagram-source"]');
+		const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
+		setter.call(input, 'flowchart LR\\nOld --> Render');
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+		setter.call(input, 'pie title Latest render\\n"Current" : 100');
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+	})()`);
+	await wait(700);
+	await waitFor(window, "!document.querySelector('.rendering')");
+	const latestRender = await window.webContents.executeJavaScript(`({
+		source: document.querySelector('[data-testid="diagram-source"]').value,
+		type: Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'pie'),
+		error: document.querySelector('.error-card')?.textContent ?? ''
+	})`);
+	if (!latestRender.source.startsWith('pie') || !latestRender.type || latestRender.error)
+		throw new Error(`Rapid-edit render ordering failed: ${JSON.stringify(latestRender)}`);
+	await window.webContents.executeJavaScript(`(() => {
+		document.querySelector('.live input').click();
+		const input = document.querySelector('[data-testid="diagram-source"]');
+		const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
+		setter.call(input, 'stateDiagram-v2\\n[*] --> Manual');
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+	})()`);
+	await wait(700);
+	const beforeManualRender = await window.webContents.executeJavaScript(
+		"Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'pie')"
+	);
+	if (!beforeManualRender) throw new Error('Disabling live render did not preserve the previous preview.');
+	await window.webContents.executeJavaScript("document.querySelector('button.primary').click()");
+	await waitFor(
+		window,
+		"!document.querySelector('.rendering') && Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'stateDiagram')"
+	);
+	await window.webContents.executeJavaScript("document.querySelector('.live input').click()");
 	await window.webContents.executeJavaScript(
 		"document.querySelectorAll('.tabs button')[1].click()"
 	);
