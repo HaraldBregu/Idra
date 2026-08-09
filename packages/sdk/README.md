@@ -61,7 +61,7 @@ const files = await agent.listWorkspaceFiles();
 const content = await agent.readWorkspaceFile('USER.md');
 const image = await agent.readWorkspaceAsset('images/photo.png');
 await agent.writeWorkspaceMarkdown('USER.md', '# Updated');
-await agent.writeWorkspaceFile('drawing.excalidraw', excalidrawJson);
+await agent.writeWorkspaceFile('diagram.mmd', 'flowchart TD\nA --> B');
 await agent.createWorkspaceFile('', 'draft.md');
 await agent.createWorkspaceDirectory('notes', 'ideas');
 await agent.moveWorkspaceEntry('draft.md', 'notes');
