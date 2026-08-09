@@ -9,13 +9,10 @@ interface MermaidPreviewProps {
 export function MermaidPreview({ content, isDark }: MermaidPreviewProps) {
 	const renderIdPrefix = `mermaid-${useId().replaceAll(':', '')}`;
 	const renderSequenceRef = useRef(0);
-	const [svg, setSvg] = useState('');
-	const [error, setError] = useState('');
+	const [rendered, setRendered] = useState({ content: '', isDark, svg: '', error: '' });
 
 	useEffect(() => {
 		let active = true;
-		setSvg('');
-		setError('');
 		if (!content.trim()) return () => undefined;
 		const renderId = `${renderIdPrefix}-${renderSequenceRef.current + 1}`;
 		renderSequenceRef.current += 1;
@@ -29,11 +26,17 @@ export function MermaidPreview({ content, isDark }: MermaidPreviewProps) {
 		void mermaid
 			.render(renderId, content)
 			.then((result) => {
-				if (active) setSvg(result.svg);
+				if (active) setRendered({ content, isDark, svg: result.svg, error: '' });
 			})
 			.catch((renderError: unknown) => {
 				if (!active) return;
-				setError(renderError instanceof Error ? renderError.message : 'Unable to render diagram.');
+				setRendered({
+					content,
+					isDark,
+					svg: '',
+					error:
+						renderError instanceof Error ? renderError.message : 'Unable to render diagram.',
+				});
 			});
 
 		return () => {
@@ -49,15 +52,25 @@ export function MermaidPreview({ content, isDark }: MermaidPreviewProps) {
 		);
 	}
 
-	if (error) {
+	if (rendered.content !== content || rendered.isDark !== isDark) {
 		return (
-			<div className="flex min-h-full items-center justify-center px-6 text-center">
-				<p className="max-w-xl whitespace-pre-wrap text-sm text-destructive">{error}</p>
+			<div className="flex min-h-full items-center justify-center text-sm text-muted-foreground">
+				Rendering diagram...
 			</div>
 		);
 	}
 
-	if (!svg) {
+	if (rendered.error) {
+		return (
+			<div className="flex min-h-full items-center justify-center px-6 text-center">
+				<p className="max-w-xl whitespace-pre-wrap text-sm text-destructive">
+					{rendered.error}
+				</p>
+			</div>
+		);
+	}
+
+	if (!rendered.svg) {
 		return (
 			<div className="flex min-h-full items-center justify-center text-sm text-muted-foreground">
 				Rendering diagram...
@@ -68,7 +81,7 @@ export function MermaidPreview({ content, isDark }: MermaidPreviewProps) {
 	return (
 		<div
 			className="flex min-h-full items-center justify-center overflow-auto p-6 [&_svg]:h-auto [&_svg]:max-w-full"
-			dangerouslySetInnerHTML={{ __html: svg }}
+			dangerouslySetInnerHTML={{ __html: rendered.svg }}
 		/>
 	);
 }
