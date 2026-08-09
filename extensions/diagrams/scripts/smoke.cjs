@@ -17,6 +17,7 @@ async function waitFor(window, expression, timeout = 15000) {
 }
 
 async function run() {
+	await session.defaultSession.clearStorageData();
 	const window = new BrowserWindow({
 		show: false,
 		width: 1100,
