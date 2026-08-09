@@ -62,7 +62,17 @@ const noteEditorTheme = EditorView.theme({
 })
 
 export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
-  { canSave = true, className, onChange, onSave, readOnly = false, value },
+  {
+    ariaLabel = "Note content",
+    canSave = true,
+    className,
+    language = "markdown",
+    onChange,
+    onSave,
+    placeholderText = "Start writing...",
+    readOnly = false,
+    value,
+  },
   ref,
 ) {
   const mountRef = useRef(null)
@@ -71,6 +81,9 @@ export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
   const onSaveRef = useRef(onSave)
   const initialValueRef = useRef(value)
   const initialReadOnlyRef = useRef(readOnly)
+  const initialLanguageRef = useRef(language)
+  const initialAriaLabelRef = useRef(ariaLabel)
+  const initialPlaceholderRef = useRef(placeholderText)
   const editabilityRef = useRef(new Compartment())
   onChangeRef.current = onChange
   onSaveRef.current = onSave
@@ -147,20 +160,20 @@ export const CodeMirrorEditor = forwardRef(function CodeMirrorEditor(
           ...defaultKeymap,
           ...historyKeymap,
         ]),
-        markdown(),
+        ...(initialLanguageRef.current === "markdown" ? [markdown()] : []),
         syntaxHighlighting(markdownHighlight, { fallback: true }),
         EditorView.lineWrapping,
         noteEditorTheme,
-        placeholder("Start writing..."),
+        placeholder(initialPlaceholderRef.current),
         editabilityRef.current.of([
           EditorState.readOnly.of(initialReadOnlyRef.current),
           EditorView.editable.of(!initialReadOnlyRef.current),
         ]),
         EditorView.contentAttributes.of({
-          "aria-label": "Note content",
+          "aria-label": initialAriaLabelRef.current,
           "aria-multiline": "true",
-          autocapitalize: "sentences",
-          spellcheck: "true",
+          autocapitalize: initialLanguageRef.current === "markdown" ? "sentences" : "off",
+          spellcheck: initialLanguageRef.current === "markdown" ? "true" : "false",
         }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) onChangeRef.current(update.state.doc.toString())
