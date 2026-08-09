@@ -28,8 +28,8 @@ async function run() {
 			sandbox: true,
 		},
 	});
-	window.webContents.on('console-message', (_event, details) => {
-		if (details.level === 'error') errors.push(details.message);
+	window.webContents.on('console-message', (event) => {
+		if (event.level === 'error') errors.push(event.message);
 	});
 	window.webContents.on('did-fail-load', (_event, code, description, url) => {
 		if (code !== -3) errors.push(`${code} ${description} ${url}`);
@@ -66,9 +66,9 @@ async function run() {
 		if (!result.svg || result.error) throw new Error(`${examples[index]} failed: ${result.error || 'missing SVG'}`);
 		rendered.push({ name: examples[index], type: result.type });
 	}
+	await window.webContents.executeJavaScript("document.querySelectorAll('.tabs button')[1].click()");
+	await waitFor(window, "Boolean(document.querySelector('[data-testid=\"diagram-config\"]'))");
 	await window.webContents.executeJavaScript(`(() => {
-		const config = document.querySelectorAll('.tabs button')[1];
-		config.click();
 		const input = document.querySelector('[data-testid="diagram-config"]');
 		const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
 		setter.call(input, '{invalid');
