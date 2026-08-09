@@ -1,11 +1,17 @@
 export async function svgToPng(svg: string): Promise<Blob> {
-	const documentSvg = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
+	const container = document.createElement('div');
+	container.innerHTML = svg;
+	const documentSvg = container.querySelector('svg');
+	if (!documentSvg) throw new Error('The rendered diagram does not contain an SVG.');
+	documentSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+	documentSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+	const serialized = new XMLSerializer().serializeToString(documentSvg);
 	const viewBox = documentSvg.getAttribute('viewBox')?.split(/\s+/).map(Number);
 	const width = Math.max(1, viewBox?.[2] || Number.parseFloat(documentSvg.getAttribute('width') ?? '') || 1200);
 	const height = Math.max(1, viewBox?.[3] || Number.parseFloat(documentSvg.getAttribute('height') ?? '') || 800);
 	const scale = Math.min(3, 4096 / Math.max(width, height));
 	const image = new Image();
-	const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
+	const url = URL.createObjectURL(new Blob([serialized], { type: 'image/svg+xml;charset=utf-8' }));
 	try {
 		await new Promise<void>((resolve, reject) => {
 			image.onload = () => resolve();
