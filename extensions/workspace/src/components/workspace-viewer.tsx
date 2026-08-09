@@ -145,7 +145,7 @@ export function WorkspaceViewer({
 						<p className="mt-0.5 truncate text-[11px] text-muted-foreground">{path}</p>
 					</div>
 
-					{kind === 'markdown' && !loading ? (
+					{editable && !loading ? (
 						<div className="flex shrink-0 items-center gap-2">
 							<span
 								className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex"
@@ -185,6 +185,7 @@ export function WorkspaceViewer({
 						<FileViewer
 							canSave={dirty && !saving}
 							content={content}
+							isDark={isDark}
 							kind={kind}
 							onChange={onChange}
 							onSave={onSave}
@@ -194,9 +195,9 @@ export function WorkspaceViewer({
 						)}
 				</div>
 
-				{kind === 'markdown' && !loading ? (
+				{previewable && !loading ? (
 					<footer className="flex h-8 shrink-0 items-center justify-end border-t bg-muted/20 px-2 sm:px-3">
-						<TabsList className="h-6 rounded-md p-0.5" aria-label="Markdown view mode">
+						<TabsList className="h-6 rounded-md p-0.5" aria-label="Document view mode">
 							<Tooltip>
 								<TooltipTrigger asChild>
 									<TabsTrigger value="source" className="h-5 w-6 p-0" aria-label="Source view">
