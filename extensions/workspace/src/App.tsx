@@ -219,10 +219,10 @@ export default function App() {
 	useEffect(() => {
 		if (!selectedDirty || selectedSaving || selectedSaveError) return;
 		const timeout = window.setTimeout(() => {
-			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContent);
+			void saveWorkspaceFile(selectedPathRef.current, selectedContent);
 		}, 700);
 		return () => window.clearTimeout(timeout);
-	}, [saveWorkspaceMarkdown, selectedContent, selectedDirty, selectedSaveError, selectedSaving]);
+	}, [saveWorkspaceFile, selectedContent, selectedDirty, selectedSaveError, selectedSaving]);
 
 	useEffect(() => {
 		if (!selectedDirty && !selectedSaving) return;
@@ -236,7 +236,7 @@ export default function App() {
 			event.returnValue = 'Changes are still being saved.';
 			if (closeAfterSaveRef.current) return;
 			closeAfterSaveRef.current = true;
-			void saveLatestWorkspaceMarkdown(selectedPathRef.current).then((saved) => {
+			void saveLatestWorkspaceFile(selectedPathRef.current).then((saved) => {
 				closeAfterSaveRef.current = false;
 				if (!saved) return;
 				allowCloseRef.current = true;
@@ -245,15 +245,15 @@ export default function App() {
 		};
 		window.addEventListener('beforeunload', preventUnsavedClose);
 		return () => window.removeEventListener('beforeunload', preventUnsavedClose);
-	}, [saveLatestWorkspaceMarkdown, selectedDirty, selectedSaveError, selectedSaving]);
+	}, [saveLatestWorkspaceFile, selectedDirty, selectedSaveError, selectedSaving]);
 
 	async function selectWorkspaceEntry(entry: WorkspaceTreeEntry) {
 		if (entry.type !== 'file') return;
 		if (
-			selectedKind === 'markdown' &&
+			selectedEditable &&
 			(selectedContent !== selectedSavedContent || selectedSaving)
 		) {
-			const saved = await saveLatestWorkspaceMarkdown(selectedPathRef.current);
+			const saved = await saveLatestWorkspaceFile(selectedPathRef.current);
 			if (!saved) return;
 		}
 
@@ -262,7 +262,7 @@ export default function App() {
 		const kind = workspaceFileType(entry.path).kind;
 		selectedPathRef.current = entry.path;
 		setSelectedWorkspacePath(entry.path);
-		setMarkdownMode('source');
+		setDocumentMode('source');
 		setSelectedKind(kind);
 		selectedContentRef.current = '';
 		setSelectedContent('');
@@ -354,12 +354,12 @@ export default function App() {
 		setRenameError('');
 		if (
 			renamesSelection &&
-			selectedKind === 'markdown' &&
+			selectedEditable &&
 			(selectedContentRef.current !== selectedSavedContent || selectedSaving)
 		) {
-			const saved = await saveLatestWorkspaceMarkdown(selectedPath);
+			const saved = await saveLatestWorkspaceFile(selectedPath);
 			if (!saved) {
-				setRenameError('Save the selected Markdown file before renaming it.');
+				setRenameError('Save the selected file before renaming it.');
 				setRenaming(false);
 				return;
 			}
@@ -456,7 +456,7 @@ export default function App() {
 			isWorkspacePathWithin(selectedPathRef.current, targetPath) &&
 			selectedContentRef.current !== selectedSavedContent
 		) {
-			void saveWorkspaceMarkdown(selectedPathRef.current, selectedContentRef.current);
+			void saveWorkspaceFile(selectedPathRef.current, selectedContentRef.current);
 		}
 	}
 
@@ -471,11 +471,11 @@ export default function App() {
 		);
 		if (
 			movesSelection &&
-			selectedKind === 'markdown' &&
+			selectedEditable &&
 			(selectedContentRef.current !== selectedSavedContent || selectedSaving)
 		) {
-			const saved = await saveLatestWorkspaceMarkdown(currentSelectedPath);
-			if (!saved) throw new Error('Save the selected Markdown file before moving it.');
+			const saved = await saveLatestWorkspaceFile(currentSelectedPath);
+			if (!saved) throw new Error('Save the selected file before moving it.');
 		}
 
 		const movedPath = await agent.moveWorkspaceEntry(entry.path, destinationPath);
@@ -602,18 +602,19 @@ export default function App() {
 				<SidebarInset>
 					<WorkspaceViewer
 						content={selectedContent}
+						documentMode={documentMode}
 						dirty={selectedDirty}
 						error={selectedError}
+						isDark={theme.isDark}
 						kind={selectedKind}
 						loading={selectedLoading}
-						markdownMode={markdownMode}
 						mediaUrl={selectedMediaUrl}
 						onChange={(content) => {
 							selectedContentRef.current = content;
 							setSelectedContent(content);
 							setSelectedSaveError('');
 						}}
-						onMarkdownModeChange={setMarkdownMode}
+						onDocumentModeChange={setDocumentMode}
 						onRename={() => {
 							if (!selectedWorkspacePath) return;
 							startRenameWorkspaceEntry({
@@ -622,7 +623,7 @@ export default function App() {
 								type: 'file',
 							});
 						}}
-						onSave={() => saveWorkspaceMarkdown(selectedPathRef.current, selectedContent)}
+						onSave={() => saveWorkspaceFile(selectedPathRef.current, selectedContent)}
 						path={selectedWorkspacePath}
 						saveError={selectedSaveError}
 						sidebarTrigger={<SidebarTrigger />}
