@@ -14,10 +14,10 @@ interface WorkspaceViewerProps {
 	error: string;
 	kind: WorkspaceFileKind | null;
 	loading: boolean;
-	documentMode: 'source' | 'preview';
 	mediaUrl: string;
+	markdownMode: 'source' | 'preview';
 	onChange: (content: string) => void;
-	onDocumentModeChange: (mode: 'source' | 'preview') => void;
+	onMarkdownModeChange: (mode: 'source' | 'preview') => void;
 	onRename: () => void;
 	onSave: () => Promise<boolean>;
 	path: string | null;
@@ -32,10 +32,10 @@ export function WorkspaceViewer({
 	error,
 	kind,
 	loading,
-	documentMode,
 	mediaUrl,
+	markdownMode,
 	onChange,
-	onDocumentModeChange,
+	onMarkdownModeChange,
 	onRename,
 	onSave,
 	path,
@@ -72,14 +72,11 @@ export function WorkspaceViewer({
 			</section>
 		);
 	}
-	const editable = kind === 'markdown';
-	const previewable = kind === 'markdown';
-
 	return (
 		<Tabs
-			value={previewable ? documentMode : undefined}
+			value={kind === 'markdown' ? markdownMode : undefined}
 			onValueChange={(value) => {
-				if (value === 'source' || value === 'preview') onDocumentModeChange(value);
+				if (value === 'source' || value === 'preview') onMarkdownModeChange(value);
 			}}
 			asChild
 		>
@@ -90,16 +87,16 @@ export function WorkspaceViewer({
 					showNativeContextMenu(
 						event,
 						[
-							...(previewable
+							...(kind === 'markdown'
 								? [
 										{
-											id: documentMode === 'source' ? 'show-preview' : 'show-source',
-											label: documentMode === 'source' ? 'Show Preview' : 'Show Source',
+										id: markdownMode === 'source' ? 'show-preview' : 'show-source',
+										label: markdownMode === 'source' ? 'Show Preview' : 'Show Source',
 										} as const,
 										{ type: 'separator' } as const,
 									]
 								: []),
-							...(editable
+							...(kind === 'markdown'
 								? [
 										{
 											id: 'save',
@@ -116,8 +113,8 @@ export function WorkspaceViewer({
 						],
 						{
 							save: () => onSave(),
-							'show-preview': () => onDocumentModeChange('preview'),
-							'show-source': () => onDocumentModeChange('source'),
+							'show-preview': () => onMarkdownModeChange('preview'),
+							'show-source': () => onMarkdownModeChange('source'),
 							rename: onRename,
 							'copy-path': () => navigator.clipboard.writeText(path),
 						}
@@ -137,7 +134,7 @@ export function WorkspaceViewer({
 						<p className="mt-0.5 truncate text-[11px] text-muted-foreground">{path}</p>
 					</div>
 
-					{editable && !loading ? (
+					{kind === 'markdown' && !loading ? (
 						<div className="flex shrink-0 items-center gap-2">
 							<span
 								className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex"
@@ -186,9 +183,9 @@ export function WorkspaceViewer({
 						)}
 				</div>
 
-				{previewable && !loading ? (
+				{kind === 'markdown' && !loading ? (
 					<footer className="flex h-8 shrink-0 items-center justify-end border-t bg-muted/20 px-2 sm:px-3">
-						<TabsList className="h-6 rounded-md p-0.5" aria-label="Document view mode">
+						<TabsList className="h-6 rounded-md p-0.5" aria-label="Markdown view mode">
 							<Tooltip>
 								<TooltipTrigger asChild>
 									<TabsTrigger value="source" className="h-5 w-6 p-0" aria-label="Source view">
