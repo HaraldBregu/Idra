@@ -251,4 +251,132 @@ Renderer,PNG,22`,
     }
     Editor->User: Show preview`,
 	},
+	{
+		name: 'Swimlanes',
+		source: `swimlane-beta LR
+    subgraph User
+      request[Describe diagram]
+      review[Review preview]
+    end
+    subgraph Friday
+      validate[Validate source]
+      render[Render SVG]
+    end
+    request --> validate --> render --> review`,
+	},
+	{
+		name: 'Event modeling',
+		source: `eventmodeling
+    tf 01 ui DiagramEditor
+    tf 02 cmd RenderDiagram { source: string }
+    tf 03 evt DiagramRendered { type: string }
+    tf 04 rmo DiagramPreview
+    tf 05 ui DiagramEditor`,
+	},
+	{
+		name: 'Venn',
+		source: `venn-beta
+    title "Diagram qualities"
+    set Clear
+    set Complete
+    set Secure
+    union Clear,Complete,Secure["Friday Diagrams"]`,
+	},
+	{
+		name: 'Ishikawa',
+		source: `ishikawa-beta
+    Unclear Diagram
+      Source
+        Missing labels
+        Invalid syntax
+      Layout
+        Too many nodes
+        Wrong direction
+      Styling
+        Low contrast
+        Small text`,
+	},
+	{
+		name: 'Wardley map',
+		source: `wardley-beta
+    title Diagram Workbench
+    anchor User [0.95, 0.70]
+    component Editor [0.78, 0.62]
+    component Mermaid [0.58, 0.76]
+    component Browser [0.35, 0.90]
+    User -> Editor
+    Editor -> Mermaid
+    Mermaid -> Browser
+    evolve Mermaid 0.88`,
+	},
+	{
+		name: 'Cynefin',
+		source: `cynefin-beta
+    title Diagram decisions
+    complex
+      "Explore a new notation"
+    complicated
+      "Tune a dense layout"
+    clear
+      "Export a valid SVG"
+    chaotic
+      "Recover a broken render"
+    confusion
+      "Choose the diagram family"`,
+	},
+	{
+		name: 'Tree view',
+		source: `---
+config:
+  treeView:
+    showIcons: true
+---
+treeView-beta
+    diagrams/
+        src/
+            App.tsx icon(mdi:react)
+            engine.ts icon(mdi:cog)
+        package.json icon(logos:npm-icon)
+        README.md`,
+	},
+	{
+		name: 'Railroad',
+		source: `railroad-beta
+    title Diagram statement
+    statement = sequence(nonterminal("subject"), choice(terminal("-->"), terminal("---")), nonterminal("object"));`,
+	},
+	{
+		name: 'Railroad EBNF',
+		source: `railroad-ebnf-beta
+    title Expression grammar
+    expression = term, { ("+" | "-"), term };
+    term = factor, { ("*" | "/"), factor };
+    factor = number | "(", expression, ")";`,
+	},
+	{
+		name: 'Railroad ABNF',
+		source: `railroad-abnf-beta
+    title Identifier grammar
+    identifier = ALPHA *(ALPHA / DIGIT / "-");
+    ALPHA = %x41-5A / %x61-7A;
+    DIGIT = %x30-39;`,
+	},
+	{
+		name: 'Railroad PEG',
+		source: `railroad-peg-beta
+    title Expression grammar
+    expression <- term (("+" / "-") term)*;
+    term <- factor (("*" / "/") factor)*;
+    factor <- number / "(" expression ")";
+    number <- [0-9]+;`,
+	},
+	{
+		name: 'Info',
+		source: `info`,
+	},
+	{
+		name: 'Math and Markdown',
+		source: `flowchart LR
+    formula["**Energy**<br/>$$E = mc^2$$"] --> result["Mass becomes<br/>*energy*"]`,
+	},
 ];

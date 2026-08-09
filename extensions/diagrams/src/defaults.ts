@@ -4,6 +4,8 @@ export const defaultSource = `---
 title: Friday architecture
 ---
 flowchart LR
+	accTitle: Friday architecture
+	accDescr: A user asks Friday for help. Friday's AI agent uses tools, skills, and the workspace to produce a useful result.
     User([User]) --> Friday[Friday]
     Friday --> Agent{AI agent}
     Agent --> Tools[Tools and skills]
