@@ -263,10 +263,9 @@ async function run() {
 		Object.defineProperty(input, 'files', { configurable: true, value: [file] });
 		input.dispatchEvent(new Event('change', { bubbles: true }));
 	})()`);
-	await wait(500);
 	await waitFor(
 		window,
-		"!document.querySelector('.rendering') && Boolean(document.querySelector('.diagram-output svg'))"
+		"!document.querySelector('.rendering') && document.querySelector('[data-testid=\"diagram-source\"]').value.startsWith('sequenceDiagram') && Array.from(document.querySelectorAll('.status-bar span')).some((node) => node.textContent === 'sequence')"
 	);
 	const imported = await window.webContents.executeJavaScript(`({
 		source: document.querySelector('[data-testid="diagram-source"]').value,
