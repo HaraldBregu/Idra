@@ -19,8 +19,8 @@ export const defaultConfigText = `{
   "fontFamily": "Inter, ui-sans-serif, system-ui, sans-serif",
   "deterministicIds": true,
   "deterministicIDSeed": "friday-diagrams",
+  "htmlLabels": true,
   "flowchart": {
-    "htmlLabels": true,
     "curve": "basis"
   }
 }`;

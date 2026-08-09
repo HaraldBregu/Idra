@@ -19,11 +19,12 @@ export type DiagramLayout =
 	| 'auto'
 	| 'dagre'
 	| 'elk'
-	| 'elk.layered'
 	| 'elk.stress'
 	| 'elk.force'
 	| 'elk.mrtree'
-	| 'elk.sporeOverlap';
+	| 'elk.sporeOverlap'
+	| 'cose-bilkent'
+	| 'tidy-tree';
 export type EditorTab = 'source' | 'config';
 export type ViewMode = 'split' | 'source' | 'preview';
 

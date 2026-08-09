@@ -1,11 +1,8 @@
-import { flattenForeignObjects } from './flatten';
-
 export async function svgToPng(svg: string): Promise<Blob> {
 	const container = document.createElement('div');
 	container.innerHTML = svg;
 	const documentSvg = container.querySelector('svg');
 	if (!documentSvg) throw new Error('The rendered diagram does not contain an SVG.');
-	flattenForeignObjects(documentSvg);
 	documentSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 	documentSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 	const serialized = new XMLSerializer().serializeToString(documentSvg);
@@ -20,26 +17,21 @@ export async function svgToPng(svg: string): Promise<Blob> {
 	);
 	const scale = Math.min(3, 4096 / Math.max(width, height));
 	const image = new Image();
-	const url = URL.createObjectURL(new Blob([serialized], { type: 'image/svg+xml;charset=utf-8' }));
-	try {
-		await new Promise<void>((resolve, reject) => {
-			image.onload = () => resolve();
-			image.onerror = () => reject(new Error('Unable to rasterize this SVG.'));
-			image.src = url;
-		});
-		const canvas = document.createElement('canvas');
-		canvas.width = Math.ceil(width * scale);
-		canvas.height = Math.ceil(height * scale);
-		const context = canvas.getContext('2d');
-		if (!context) throw new Error('Canvas rendering is unavailable.');
-		context.drawImage(image, 0, 0, canvas.width, canvas.height);
-		return await new Promise<Blob>((resolve, reject) => {
-			canvas.toBlob(
-				(blob) => (blob ? resolve(blob) : reject(new Error('Unable to create the PNG.'))),
-				'image/png'
-			);
-		});
-	} finally {
-		URL.revokeObjectURL(url);
-	}
+	await new Promise<void>((resolve, reject) => {
+		image.onload = () => resolve();
+		image.onerror = () => reject(new Error('Unable to rasterize this SVG.'));
+		image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(serialized)}`;
+	});
+	const canvas = document.createElement('canvas');
+	canvas.width = Math.ceil(width * scale);
+	canvas.height = Math.ceil(height * scale);
+	const context = canvas.getContext('2d');
+	if (!context) throw new Error('Canvas rendering is unavailable.');
+	context.drawImage(image, 0, 0, canvas.width, canvas.height);
+	return await new Promise<Blob>((resolve, reject) => {
+		canvas.toBlob(
+			(blob) => (blob ? resolve(blob) : reject(new Error('Unable to create the PNG.'))),
+			'image/png'
+		);
+	});
 }

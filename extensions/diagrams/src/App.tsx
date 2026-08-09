@@ -10,9 +10,11 @@ import { getDiagramTypes } from './inventory';
 import { loadState } from './load';
 import { errorMessage } from './message';
 import { parseConfig } from './config';
+import { layoutChoices, lookChoices, themeChoices } from './options';
 import { svgToPng } from './png';
 import { saveState } from './save';
 import { examples } from './samples';
+import { readSource } from './source';
 import { useFridayTheme } from './theme';
 import type {
 	AppTheme,
@@ -23,32 +25,6 @@ import type {
 	ViewMode,
 } from './types';
 
-const themeChoices: AppTheme[] = [
-	'auto',
-	'default',
-	'base',
-	'dark',
-	'forest',
-	'neutral',
-	'neo',
-	'neo-dark',
-	'redux',
-	'redux-dark',
-	'redux-color',
-	'redux-dark-color',
-	'null',
-];
-const lookChoices: DiagramLook[] = ['classic', 'handDrawn', 'neo'];
-const layoutChoices: DiagramLayout[] = [
-	'auto',
-	'dagre',
-	'elk',
-	'elk.layered',
-	'elk.stress',
-	'elk.force',
-	'elk.mrtree',
-	'elk.sporeOverlap',
-];
 const themeVariables = [
 	['background', 'background'],
 	['surface', 'card'],
@@ -166,7 +142,7 @@ export default function App() {
 	const update = <K extends keyof DiagramState>(key: K, value: DiagramState[K]) =>
 		setState((current) => ({ ...current, [key]: value }));
 	const importFile = (file: File) =>
-		void file.text().then((source) => {
+		void readSource(file).then((source) => {
 			update('source', source);
 			setTab('source');
 		});
