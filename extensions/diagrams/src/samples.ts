@@ -226,8 +226,8 @@ Renderer,PNG,22`,
 		name: 'Radar',
 		source: `radar-beta
     title Diagram quality
-    axis speed[Speed], clarity[Clarity], access[Accessibility], export[Export], coverage[Coverage]
-    curve current[Diagrams] { 85, 92, 88, 90, 96 }
+    axis speed["Speed"], clarity["Clarity"], access["Accessibility"], export["Export"], coverage["Coverage"]
+    curve current["Diagrams"] { 85, 92, 88, 90, 96 }
     max 100
     min 0`,
 	},
