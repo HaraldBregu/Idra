@@ -1,0 +1,9 @@
+{
+	"title": "Diagrams",
+	"description": "A complete Mermaid diagram editor and preview workbench.",
+	"metadata": {
+		"version": "1.0.0",
+		"category": "utility",
+		"entry": "dist/index.html"
+	}
+}
