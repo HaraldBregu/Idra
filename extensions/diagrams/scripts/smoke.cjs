@@ -231,8 +231,18 @@ async function run() {
 	})()`);
 	window.show();
 	window.focus();
-	window.webContents.sendInputEvent({ type: 'mouseDown', ...copyPoint, button: 'left', clickCount: 1 });
-	window.webContents.sendInputEvent({ type: 'mouseUp', ...copyPoint, button: 'left', clickCount: 1 });
+	window.webContents.sendInputEvent({
+		type: 'mouseDown',
+		...copyPoint,
+		button: 'left',
+		clickCount: 1,
+	});
+	window.webContents.sendInputEvent({
+		type: 'mouseUp',
+		...copyPoint,
+		button: 'left',
+		clickCount: 1,
+	});
 	await wait(200);
 	window.hide();
 	if (!clipboard.readText().includes('<svg')) {

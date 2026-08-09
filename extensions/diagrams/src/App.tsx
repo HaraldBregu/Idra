@@ -152,8 +152,7 @@ export default function App() {
 		if (isFriday()) void app.openExternalUrl(url);
 		else window.open(url, '_blank', 'noopener,noreferrer');
 	};
-	const copySvg = () =>
-		void copyText(svg).catch((reason) => setError(errorMessage(reason)));
+	const copySvg = () => void copyText(svg).catch((reason) => setError(errorMessage(reason)));
 	const exportSvg = () => downloadFile('diagram.svg', svg, 'image/svg+xml;charset=utf-8');
 	const exportPng = () =>
 		void svgToPng(svg)
