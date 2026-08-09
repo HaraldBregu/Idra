@@ -57,7 +57,7 @@ const directoryToolsFor = (value: string): '*' | string[] => {
 
 const PermissionsPage: React.FC = () => {
 	const { t } = useTranslation();
-	const [permissions, setPolicy] = useState<Permissions | null>(null);
+	const [permissions, setPermissions] = useState<Permissions | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [newDirectory, setNewDirectory] = useState('');
 	const [newDirectoryTools, setNewDirectoryTools] = useState('*');
@@ -65,7 +65,7 @@ const PermissionsPage: React.FC = () => {
 
 	const apply = (operation: Promise<Permissions>): void => {
 		setError(null);
-		operation.then(setPolicy).catch((err: unknown) => {
+		operation.then(setPermissions).catch((err: unknown) => {
 			setError(err instanceof Error ? err.message : t('settings.permissions.saveFailed'));
 		});
 	};
@@ -73,7 +73,7 @@ const PermissionsPage: React.FC = () => {
 	useEffect(() => {
 		window.agent
 			.policyGet()
-			.then(setPolicy)
+			.then(setPermissions)
 			.catch((err: unknown) => {
 				setError(err instanceof Error ? err.message : String(err));
 			});
