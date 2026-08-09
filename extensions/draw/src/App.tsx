@@ -38,7 +38,6 @@ export default function App() {
 				autoFocus
 				handleKeyboardGlobally
 				name="Draw"
-				showDeprecatedFonts
 				theme={theme.isDark ? THEME.DARK : THEME.LIGHT}
 				UIOptions={{
 					canvasActions: {
