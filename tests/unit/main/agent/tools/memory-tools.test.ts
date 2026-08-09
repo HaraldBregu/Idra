@@ -22,7 +22,7 @@ it.each([
 	['delete', forgetMemoryTool(config)],
 ])('marks memory %s as a hard-approved main-only persistence action', (_label, memoryTool) => {
 	expect(memoryTool).toMatchObject({
-		defaultPermission: 'ask',
+		defaultPermission: 'allow',
 		alwaysAsk: true,
 		hardApproval: true,
 		stopOnReject: true,
