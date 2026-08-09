@@ -37,7 +37,10 @@ const isPermission = (entry: Permissions[string]): entry is Permission =>
 	'default' in entry &&
 	(entry.default === 'allow' || entry.default === 'ask' || entry.default === 'deny');
 
-const permissionFor = (permissions: Permissions | null, toolName: string): Permission | undefined => {
+const permissionFor = (
+	permissions: Permissions | null,
+	toolName: string
+): Permission | undefined => {
 	const entry = permissions?.[toolName];
 	return entry && isPermission(entry) ? entry : undefined;
 };
@@ -88,7 +91,8 @@ const PermissionsPage: React.FC = () => {
 	const addDirectory = (): void => {
 		const directory = newDirectory.trim();
 		const directoryTools = directoryToolsFor(newDirectoryTools);
-		if (!permissions || !directory || (directoryTools !== '*' && directoryTools.length === 0)) return;
+		if (!permissions || !directory || (directoryTools !== '*' && directoryTools.length === 0))
+			return;
 		apply(
 			window.agent.policySetDirectories({
 				...permissions.dir,
@@ -118,7 +122,9 @@ const PermissionsPage: React.FC = () => {
 	};
 
 	const tools = permissions
-		? Object.keys(permissions).filter((toolName) => permissionFor(permissions, toolName) !== undefined)
+		? Object.keys(permissions).filter(
+				(toolName) => permissionFor(permissions, toolName) !== undefined
+			)
 		: [];
 	const directories = permissions ? Object.entries(permissions.dir) : [];
 	const parsedDirectoryTools = directoryToolsFor(newDirectoryTools);
