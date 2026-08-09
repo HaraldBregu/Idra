@@ -16,6 +16,9 @@ describe('provider manifests', () => {
 		const openAi = loadModels().find(
 			(model) => model.provider.id === 'openai' && model.id === 'gpt-5.6-sol'
 		);
+		const deepseek = loadModels().find(
+			(model) => model.provider.id === 'deepseek' && model.id === 'deepseek-v4-flash'
+		);
 		const stableImage = loadModels().find(
 			(model) => model.provider.id === 'stability-ai' && model.id === 'stable-image-core'
 		);
@@ -33,6 +36,9 @@ describe('provider manifests', () => {
 		expect(openAi?.provider.iconLightUrl).toMatch(/^local-resource:\/\/file/);
 		expect(openAi?.provider.iconLightUrl).toContain(
 			'/resources/providers/openai/images/fallback_lobehub/png_light/openai.png'
+		);
+		expect(deepseek?.metadata).toEqual(
+			expect.objectContaining({ contextWindow: 1_048_576, defaultOutputTokens: 32_768 })
 		);
 		expect(loadWebSearches()).toEqual(
 			expect.arrayContaining([
