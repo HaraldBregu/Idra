@@ -1,6 +1,27 @@
 import { render, waitFor } from '@testing-library/react';
 import { PromptEditor } from '@/components/prompt-editor';
 
+class ResizeObserverMock {
+	readonly callback: ResizeObserverCallback;
+
+	constructor(callback: ResizeObserverCallback) {
+		this.callback = callback;
+	}
+
+	observe(target: Element): void {
+		const height = (target.textContent?.length ?? 0) > 40 ? 48 : 28;
+		this.callback([{ contentRect: { height } } as ResizeObserverEntry], this as ResizeObserver);
+	}
+
+	disconnect(): void {}
+	unobserve(): void {}
+}
+
+Object.defineProperty(globalThis, 'ResizeObserver', {
+	configurable: true,
+	value: ResizeObserverMock,
+});
+
 jest.mock('@/components/text-editor', () => {
 	const React = jest.requireActual<typeof import('react')>('react');
 	return {
@@ -18,7 +39,7 @@ jest.mock('@/components/text-editor', () => {
 						if (!element) return;
 						Object.defineProperty(element, 'scrollHeight', {
 							configurable: true,
-							value: value && value.length > 40 ? 48 : 28,
+							value: 28,
 						});
 						onEditorReady?.({ view: { dom: element } });
 					},

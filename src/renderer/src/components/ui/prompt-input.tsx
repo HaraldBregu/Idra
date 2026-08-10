@@ -125,6 +125,15 @@ function usePromptInputExpansion({
         textarea.scrollHeight > threshold ||
         textarea.scrollWidth > textarea.clientWidth + 1
     )
+
+    if (typeof ResizeObserver === "undefined") return
+
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.height > threshold) setIsExpanded(true)
+    })
+    observer.observe(textarea)
+
+    return () => observer.disconnect()
   }, [enabled, threshold, textareaRef, value])
 
   return isExpanded
