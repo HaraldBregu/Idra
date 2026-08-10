@@ -238,11 +238,11 @@ export type AgentRunStreamEvent =
 			toolName: string;
 			input: unknown;
 			mode: 'ask';
-				targets: string[];
-				expiresAt: string;
-				inputFingerprint: string;
-				detail?: string;
-		  }
+			targets: string[];
+			expiresAt: string;
+			inputFingerprint: string;
+			detail?: string;
+	  }
 	| ({
 			type: 'tool_call_result';
 			iteration: number;

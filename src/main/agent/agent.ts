@@ -14,13 +14,7 @@ import {
 } from './session';
 import { stream } from './runner/run_stream';
 import { agentLocation } from '../shared/agent_location';
-import {
-	destroyTask,
-	getRuntime,
-	initTask,
-	setTaskRunner,
-	startTask,
-} from '../tasks';
+import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../tasks';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './permissions';
 import { parseSkillCommand } from './skills';

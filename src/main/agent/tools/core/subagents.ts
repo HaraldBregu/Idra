@@ -8,8 +8,10 @@ import type { Config, RuntimeInput, Tool } from '../../types';
 import type { AgentRunType } from '../../../../shared/agent_types';
 import { tool } from '../tool';
 
-export interface ChildRuntime
-	extends Pick<StreamOptions, 'resources' | 'providerLimiter' | 'subagentLimiter'> {
+export interface ChildRuntime extends Pick<
+	StreamOptions,
+	'resources' | 'providerLimiter' | 'subagentLimiter'
+> {
 	type: AgentRunType;
 }
 

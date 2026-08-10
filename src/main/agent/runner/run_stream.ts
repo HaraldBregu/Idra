@@ -215,11 +215,7 @@ async function* loop(
 		tools.splice(
 			0,
 			tools.length,
-			...filterTools(
-				selectSkillTools(tools, skill.allowedTools),
-				input.toolsAllow,
-				input.toolsDeny
-			)
+			...filterTools(selectSkillTools(tools, skill.allowedTools), input.toolsAllow, input.toolsDeny)
 		);
 		session.context.toolsContext.hasPrivateContext = true;
 	};
