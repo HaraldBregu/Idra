@@ -24,6 +24,7 @@ export interface SkillInfo {
 	manifest: SkillManifest;
 	enabled: boolean;
 	invocationPolicy: SkillInvocationPolicy;
+	origin?: string;
 	source: SkillSource;
 	trust: SkillTrust;
 	hash: string;

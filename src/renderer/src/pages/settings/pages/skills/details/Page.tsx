@@ -5,7 +5,7 @@ import { AlertTriangle, Download, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { SkillInfo } from '../../../../../../../shared/skills_types';
+import type { SkillInfo, SkillLoadResult } from '../../../../../../../shared/skills_types';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -37,6 +37,7 @@ const SkillDetailsPage: React.FC = () => {
 	const { skillId } = useParams<{ skillId: string }>();
 	const decodedSkillId = decodeURIComponent(skillId ?? '');
 	const [skill, setSkill] = useState<SkillInfo | null>(null);
+	const [inspection, setInspection] = useState<SkillLoadResult | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [downloading, setDownloading] = useState(false);
 	const [deleting, setDeleting] = useState(false);
@@ -50,10 +51,13 @@ const SkillDetailsPage: React.FC = () => {
 		setErrorMessage('');
 		try {
 			const list = await window.skills.list();
-			setSkill(list.find((item) => item.id === decodedSkillId) ?? null);
+			const selected = list.find((item) => item.id === decodedSkillId) ?? null;
+			setSkill(selected);
+			setInspection(selected ? await window.skills.load(selected.id) ?? null : null);
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, loadErrorFallback));
 			setSkill(null);
+			setInspection(null);
 		} finally {
 			setLoading(false);
 		}
@@ -206,11 +210,15 @@ const SkillDetailsPage: React.FC = () => {
 			<SettingsSection title={t('settings.skills.details')}>
 				<SettingsPanel>
 					<SkillDetail label={t('settings.skills.detailId')} value={skill.id} mono />
+					<SkillDetail label={t('settings.skills.detailTrust')} value={skill.trust} />
+					<SkillDetail label={t('settings.skills.detailHash')} value={skill.hash} mono />
+					<SkillDetail label={t('settings.skills.detailOrigin')} value={skill.origin || t('settings.skills.localOrigin')} mono />
 					<SkillDetail
 						label={t('settings.skills.detailFormat')}
 						value={skill.structure?.standard || t('settings.skills.none')}
 					/>
 					<SkillDetail label={t('settings.skills.detailVersion')} value={skillVersion(skill)} />
+					<SkillDetail label={t('settings.skills.detailCompatibility')} value={skill.manifest.compatibility || t('settings.skills.none')} />
 					<SkillDetail
 						label={t('settings.skills.detailAuthor')}
 						value={skill.manifest.metadata?.author || t('settings.skills.none')}
@@ -234,6 +242,15 @@ const SkillDetailsPage: React.FC = () => {
 					/>
 				</SettingsPanel>
 			</SettingsSection>
+
+			{inspection && (
+				<SettingsSection title={t('settings.skills.review')}>
+					<SettingsPanel>
+						<SkillDetail label={t('settings.skills.detailResources')} value={compactList(inspection.resources, t('settings.skills.none'))} mono />
+						<pre className="max-h-96 overflow-auto whitespace-pre-wrap border-t border-border/60 p-4 text-xs leading-5 text-foreground">{inspection.instructions}</pre>
+					</SettingsPanel>
+				</SettingsSection>
+			)}
 
 			{skill.diagnostics && skill.diagnostics.length > 0 && (
 				<SettingsSection title={t('settings.skills.detailDiagnostics')}>

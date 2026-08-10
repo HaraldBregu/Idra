@@ -52,6 +52,7 @@ export function readSkill(folder: string, id: string): SkillInfo | undefined {
 		manifest,
 		enabled: policy?.enabled !== false,
 		invocationPolicy: policy?.invocationPolicy ?? 'implicit',
+		...(policy?.origin ? { origin: policy.origin } : {}),
 		source: 'local-filesystem',
 		trust: trusted ? 'user-controlled' : 'unreviewed',
 		hash,
