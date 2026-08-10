@@ -58,7 +58,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	const [historyLoading, setHistoryLoading] = useState(false);
 	const requestIdRef = useRef(0);
 	const requestActiveRef = useRef(false);
-	const activeRunIdRef = useRef<string>();
+	const activeRunIdRef = useRef<string | undefined>(undefined);
 	const localInteractionRef = useRef(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
