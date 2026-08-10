@@ -18,7 +18,7 @@ import { agentLocation } from '../shared/agent_location';
 import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../tasks';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './permissions';
-import { resolveSkillCommand } from './skills';
+import { parseSkillCommand } from './skills';
 import {
 	createContextState,
 	enqueueCommand,
@@ -150,11 +150,12 @@ export class Agent {
 		let response = '';
 		try {
 			if (controller.signal.aborted) return '';
+			const parsedSkillCommand = parseSkillCommand(view.message);
 
 			const input = {
 				runId: view.id,
 				task: 'chat',
-				message: resolveSkillCommand(view.message),
+				message: parsedSkillCommand.message,
 				origin,
 				contextMode:
 					options.contextMode ??
@@ -170,6 +171,9 @@ export class Agent {
 				...(options.approvalWindowId === undefined
 					? {}
 					: { approvalWindowId: options.approvalWindowId }),
+				...(parsedSkillCommand.explicitSkill
+					? { explicitSkill: parsedSkillCommand.explicitSkill }
+					: {}),
 			} satisfies RuntimeInput;
 
 			init(session, this.config, input, options.category);

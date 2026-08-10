@@ -10,7 +10,7 @@ import {
 	type SessionState,
 } from '../session';
 import { rememberSkill } from '../context';
-import { buildSkillContext, buildSystemPrompt, buildWorkspaceContext } from '../system';
+import { buildLoadedSkillPrompt, buildSkillContext, buildSystemPrompt, buildWorkspaceContext } from '../system';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { completeBootstrapTool } from '../tools/assistant/bootstrap_complete';
 import { readTool } from '../tools/core/read';
@@ -40,7 +40,7 @@ import { memoryListTool } from '../tools/memory/list';
 import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
 import { updateHealthTool } from '../tools/health/update';
 import { updateHealthSettingsTool } from '../tools/health/settings_update';
-import { loadSkillTool } from '../tools/assistant/skill_load';
+import { createLoadSkillTool } from '../tools/assistant/skill_load';
 import { createScheduleTool } from '../tools/tasks/create_schedule';
 import { updateScheduleTool } from '../tools/tasks/update_schedule';
 import { pauseScheduleTool } from '../tools/tasks/pause_schedule';
@@ -62,6 +62,8 @@ import { selectOriginTools } from './run_origin_tools';
 import { formatToolOutput } from './run_common';
 import { selectSkillTools } from './run_skill_tools';
 import { hasPrivateInput } from './run_has_private_input';
+import { activateSkill, createSkillRegistrySnapshot } from '../skills';
+import type { SkillLoadResult } from '../../../shared/skills_types';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -133,11 +135,19 @@ async function* loop(
 	const origin = input.origin ?? session.category ?? 'main';
 	const contextMode = input.contextMode ?? (origin === 'main' ? 'workspace' : 'minimal');
 	const runId = input.runId ?? session.id;
+	const skillSnapshot = origin === 'main' ? createSkillRegistrySnapshot() : { skills: [], diagnostics: [] };
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
 	const permissionMode: AgentPermissionMode = origin === 'main' ? getPermissionMode() : 'ask';
+	session.context.skill = undefined;
+	session.context.loadedSkills = undefined;
+	session.context.subagents = undefined;
+	session.context.toolsContext = {
+		...(hasPrivateInput(session.messages) ? { hasPrivateContext: true } : {}),
+	};
+
 	let tools: Tool[] = options.tools
 		? [...options.tools]
 		: [
@@ -169,7 +179,6 @@ async function* loop(
 				...getWikiTools(origin),
 				updateHealthTool(config),
 				updateHealthSettingsTool,
-				loadSkillTool,
 				createScheduleTool,
 				updateScheduleTool,
 				pauseScheduleTool,
@@ -182,6 +191,26 @@ async function* loop(
 				...(options.windowFactory ? [openExtensionsTool(options.windowFactory)] : []),
 				completeBootstrapTool,
 			];
+	const applyActivatedSkill = (skill: SkillLoadResult): void => {
+		session.context.skill = skill.name;
+		rememberSkill(session.context, {
+			id: skill.id,
+			name: skill.name,
+			canonicalRoot: skill.canonicalRoot,
+			instructions: skill.instructions,
+			source: skill.source,
+			trust: 'user-controlled',
+			hash: skill.hash,
+			allowedTools: skill.allowedTools,
+			resources: skill.resources,
+		});
+		tools.splice(0, tools.length, ...selectSkillTools(tools, skill.allowedTools));
+		session.context.toolsContext.hasPrivateContext = true;
+	};
+	if (!options.tools && origin === 'main') {
+		const activationTool = createLoadSkillTool(skillSnapshot, applyActivatedSkill);
+		if (activationTool) tools.push(activationTool);
+	}
 
 	let closeMcp: (() => Promise<void>) | undefined;
 	let mcpDiscovery: McpDiscoveryDiagnostics | undefined;
@@ -194,13 +223,7 @@ async function* loop(
 		mcpDiscovery = mcp.diagnostics;
 	}
 	tools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
-
-	session.context.skill = undefined;
-	session.context.loadedSkills = undefined;
-	session.context.subagents = undefined;
-	session.context.toolsContext = {
-		...(hasPrivateInput(session.messages) ? { hasPrivateContext: true } : {}),
-	};
+	if (input.explicitSkill) applyActivatedSkill(await activateSkill(skillSnapshot, input.explicitSkill));
 
 	yield {
 		type: 'run_started',
@@ -222,14 +245,20 @@ async function* loop(
 				tools,
 				session.context.loadedSkills,
 				session.context.basePrompt,
-				contextMode
+				contextMode,
+				tools.some((tool) => tool.name === 'load_skill')
 			);
+			const protectedSkillPrompt = buildLoadedSkillPrompt(session.context.loadedSkills ?? []);
 			const workspaceContext =
 				origin === 'main' && contextMode === 'workspace' && session.context.basePrompt === undefined
 					? await buildWorkspaceContext(config)
 					: '';
-			const skillContext =
-				origin === 'main' && contextMode === 'workspace' ? buildSkillContext() : '';
+			const implicitSkills = skillSnapshot.skills.filter(
+				(skill) => skill.enabled && skill.trust === 'user-controlled' && skill.invocationPolicy === 'implicit'
+			);
+			const skillContext = tools.some((tool) => tool.name === 'load_skill')
+				? buildSkillContext(implicitSkills)
+				: '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
 			if (runtimeContext) session.context.toolsContext.hasPrivateContext = true;
 			const messages = session.messages;
@@ -238,10 +267,13 @@ async function* loop(
 				provider,
 				modelId,
 				session.context.systemPrompt,
-				runtimeContext ? [{ role: 'user', content: runtimeContext }, ...messages] : messages,
+				messages,
 				tools,
 				signal,
-				modelOptions
+				modelOptions,
+				undefined,
+				protectedSkillPrompt,
+				runtimeContext ? [{ role: 'user', content: runtimeContext }] : []
 			);
 
 			recordTurn(session, turn);
@@ -316,38 +348,6 @@ async function* loop(
 				if (toolOutputBytes > MAX_TOOL_OUTPUT_BYTES) {
 					outputBudgetExceeded = true;
 					break;
-				}
-				if (event.toolName !== loadSkillTool.name) continue;
-				const output = event.output as
-					| {
-							skill?: unknown;
-							content?: unknown;
-							source?: unknown;
-							trust?: unknown;
-							hash?: unknown;
-							allowedTools?: unknown;
-					  }
-					| undefined;
-				const skill = output?.skill;
-				if (typeof skill !== 'string') continue;
-				session.context.skill = skill;
-				const allowedTools = Array.isArray(output?.allowedTools)
-					? output.allowedTools.filter((name): name is string => typeof name === 'string')
-					: undefined;
-				const narrowedTools = selectSkillTools(tools, allowedTools);
-				tools.splice(0, tools.length, ...narrowedTools);
-				if (typeof output?.content === 'string') {
-					rememberSkill(session.context, skill, output.content, {
-						...(output.source === 'local-filesystem' ? { source: output.source } : {}),
-						...(output.trust === 'user-controlled' ? { trust: output.trust } : {}),
-						...(typeof output.hash === 'string' ? { hash: output.hash } : {}),
-						...(allowedTools ? { allowedTools } : {}),
-					});
-				}
-			}
-			for (const call of turn.toolCalls) {
-				if (call.name === loadSkillTool.name && call.result) {
-					call.result.content = '[skill instructions loaded for this run]';
 				}
 			}
 			addToolResults(session, turn.toolCalls);

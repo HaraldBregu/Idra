@@ -25,12 +25,16 @@ export async function* runModelTurn(
 	tools: Tool[],
 	signal: AbortSignal,
 	modelOptions: Record<string, unknown> = {},
-	llm: ModelTurnStream = llmModel
+	llm: ModelTurnStream = llmModel,
+	protectedSystemPrompt = '',
+	contextMessages: Message[] = []
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	const maxRetries = 1;
 	const maxTokens = modelOutputLimit(provider.id, modelId, modelOptions);
 	const context = fitModelContext({
 		systemPrompt,
+		protectedSystemPrompt,
+		contextMessages,
 		messages,
 		tools,
 		maxInputTokens: modelInputLimit(provider.id, modelId, maxTokens),

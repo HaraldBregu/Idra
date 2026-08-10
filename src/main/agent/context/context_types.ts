@@ -1,10 +1,13 @@
 export interface LoadedSkill {
+	id: string;
 	name: string;
-	content: string;
+	canonicalRoot: string;
+	instructions: string;
 	source?: 'local-filesystem';
-	trust?: 'user-controlled';
-	hash?: string;
+	trust: 'user-controlled';
+	hash: string;
 	allowedTools?: string[];
+	resources: string[];
 }
 
 export interface ToolContextState {

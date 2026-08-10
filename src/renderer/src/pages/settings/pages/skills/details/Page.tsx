@@ -27,13 +27,8 @@ function compactList(values: readonly string[] | undefined, emptyLabel: string):
 	return values && values.length > 0 ? values.join(', ') : emptyLabel;
 }
 
-function metadataFlag(skill: SkillInfo, key: string): boolean | undefined {
-	const value = skill.manifest.metadata?.[key];
-	return typeof value === 'boolean' ? value : undefined;
-}
-
 function skillVersion(skill: SkillInfo): string {
-	return skill.manifest.version?.trim() || '0.1.0';
+	return skill.manifest.metadata?.version?.trim() || '0.1.0';
 }
 
 const SkillDetailsPage: React.FC = () => {
@@ -166,11 +161,11 @@ const SkillDetailsPage: React.FC = () => {
 					<div className="flex flex-wrap items-center gap-1.5">
 						<label className="mr-1 flex items-center gap-1.5 text-xs text-muted-foreground">
 							<Switch
-								checked={skill.manifest.enabled !== false}
+								checked={skill.enabled}
 								onCheckedChange={(value) => void handleToggleEnabled(value)}
 								disabled={toggling || downloading || deleting}
 							/>
-							{skill.manifest.enabled !== false
+							{skill.enabled
 								? t('settings.skills.enabled')
 								: t('settings.skills.disabled')}
 						</label>
@@ -217,46 +212,19 @@ const SkillDetailsPage: React.FC = () => {
 					/>
 					<SkillDetail label={t('settings.skills.detailVersion')} value={skillVersion(skill)} />
 					<SkillDetail
-						label={t('settings.skills.detailCategory')}
-						value={skill.manifest.category || t('settings.skills.none')}
-					/>
-					<SkillDetail
-						label={t('settings.skills.detailSafety')}
-						value={skill.manifest.safetyLevel || t('settings.skills.none')}
-					/>
-					<SkillDetail
-						label={t('settings.skills.detailVisibility')}
-						value={skill.manifest.visibility || t('settings.skills.none')}
-					/>
-					<SkillDetail
 						label={t('settings.skills.detailAuthor')}
-						value={skill.manifest.author || t('settings.skills.none')}
+						value={skill.manifest.metadata?.author || t('settings.skills.none')}
 					/>
 					<SkillDetail
 						label={t('settings.skills.detailTools')}
 						value={compactList(
-							[
-								...(skill.manifest.requiredTools ?? []),
-								...(skill.manifest.allowedTools ?? []),
-							],
+							skill.manifest.allowedTools,
 							t('settings.skills.none')
 						)}
 					/>
 					<SkillDetail
-						label={t('settings.skills.detailConnectors')}
-						value={compactList(skill.manifest.requiredConnectors, t('settings.skills.none'))}
-					/>
-					<SkillDetail
-						label={t('settings.skills.detailTags')}
-						value={compactList(skill.manifest.tags, t('settings.skills.none'))}
-					/>
-					<SkillDetail
 						label={t('settings.skills.detailModel')}
-						value={
-							metadataFlag(skill, 'disableModelInvocation') === true
-								? t('settings.skills.modelHidden')
-								: t('settings.skills.modelVisible')
-						}
+						value={skill.invocationPolicy === 'explicit' ? t('settings.skills.modelHidden') : t('settings.skills.modelVisible')}
 					/>
 					<SkillDetail label={t('settings.skills.detailFolder')} value={skill.folderPath} mono />
 					<SkillDetail

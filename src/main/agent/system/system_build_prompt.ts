@@ -11,16 +11,15 @@ export async function buildSystemPrompt(
 	tools: Tool[] = [],
 	loadedSkills: LoadedSkill[] = [],
 	basePrompt?: string,
-	contextMode: 'minimal' | 'workspace' = 'workspace'
+	contextMode: 'minimal' | 'workspace' = 'workspace',
+	hasAvailableSkills = loadedSkills.length > 0
 ): Promise<string> {
 	let prompt = basePrompt ?? addBasePrompt('');
 	if (basePrompt === undefined) {
 		prompt = addToolsPrompt(prompt, tools);
 		if (contextMode === 'workspace') prompt = await addWorkspacePrompt(config, prompt);
 	}
-	if (contextMode === 'workspace') {
-		prompt = await addFilesystemPrompt(config, prompt);
-		prompt = addSkillPrompt(prompt, loadedSkills);
-	}
+	if (contextMode === 'workspace') prompt = await addFilesystemPrompt(config, prompt);
+	prompt = addSkillPrompt(prompt, [], hasAvailableSkills);
 	return prompt;
 }

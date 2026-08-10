@@ -1,30 +1,40 @@
 import { z } from 'zod';
 import { tool } from '../tool';
-import { listSkills, loadSkill } from '../../skills';
+import { activateSkill } from '../../skills';
+import type { SkillLoadResult, SkillRegistrySnapshot } from '../../../../shared/skills_types';
+import type { Tool } from '../../types';
 
-export const loadSkillTool = tool({
-	name: 'load_skill',
-	description:
-		'Load an Agent Skill by name to get its full instructions. Returns the SKILL.md body and the skill directory path; prepend that path when reading bundled scripts, references, or assets.',
-	inputSchema: z.object({
-		name: z.string().describe('The skill name (or id) to load.'),
-	}),
-	execute: async ({ name }) => {
-		const skill = await loadSkill(name);
-		if (!skill) {
+export function createLoadSkillTool(
+	snapshot: SkillRegistrySnapshot,
+	onActivate: (skill: SkillLoadResult) => void
+): Tool | undefined {
+	const names = snapshot.skills
+		.filter(
+			(skill) =>
+				skill.enabled && skill.trust === 'user-controlled' && skill.invocationPolicy === 'implicit'
+		)
+		.map((skill) => skill.name);
+	if (names.length === 0) return undefined;
+	return tool({
+		name: 'load_skill',
+		description:
+			'Activate an Agent Skill for this run. The harness injects its protected instructions and canonical resource root on the next model turn.',
+		inputSchema: z.object({
+			name: z.enum(names as [string, ...string[]]).describe('The exact skill name to activate.'),
+		}),
+		execute: async ({ name }) => {
+			const skill = await activateSkill(snapshot, name);
+			onActivate(skill);
 			return {
-				error: `Skill '${name}' not found.`,
-				available: listSkills().map((entry) => entry.title),
+				activated: true,
+				id: skill.id,
+				name: skill.name,
+				canonicalRoot: skill.canonicalRoot,
+				hash: skill.hash,
+				trust: skill.trust,
+				resources: skill.resources,
+				warnings: skill.warnings,
 			};
-		}
-		return {
-			skill: skill.name,
-			skillDirectory: skill.directory,
-			content: skill.content,
-			source: skill.source,
-			trust: skill.trust,
-			hash: skill.hash,
-			allowedTools: skill.allowedTools,
-		};
-	},
-});
+		},
+	});
+}

@@ -7,7 +7,7 @@ export function resolveSkillCommand(message: string): string {
 	if (!match) return message;
 	const wanted = normalize(match[1]);
 	const skill = list()
-		.filter((entry) => entry.manifest.enabled !== false)
+		.filter((entry) => entry.enabled)
 		.find((entry) => normalize(entry.name) === wanted || normalize(entry.id) === wanted);
 	if (!skill) return message;
 	const args = match[2].trim();

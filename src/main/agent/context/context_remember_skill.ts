@@ -2,12 +2,10 @@ import type { AgentContext } from './context_types';
 
 export function rememberSkill(
 	context: AgentContext,
-	name: string,
-	content: string,
-	metadata: Omit<NonNullable<AgentContext['loadedSkills']>[number], 'name' | 'content'> = {}
+	skill: NonNullable<AgentContext['loadedSkills']>[number]
 ): void {
 	const skills = (context.loadedSkills ??= []);
-	const existing = skills.find((skill) => skill.name === name);
-	if (existing) Object.assign(existing, { content, ...metadata });
-	else skills.push({ name, content, ...metadata });
+	const existing = skills.find((candidate) => candidate.id === skill.id);
+	if (existing) Object.assign(existing, skill);
+	else skills.push(skill);
 }

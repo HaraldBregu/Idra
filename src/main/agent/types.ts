@@ -134,6 +134,7 @@ export interface RuntimeInput extends Pick<
 	toolsAllow?: string[];
 	toolsDeny?: string[];
 	approvalWindowId?: number;
+	explicitSkill?: string;
 }
 
 export interface RuntimeModelRoute {
