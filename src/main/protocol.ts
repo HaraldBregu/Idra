@@ -49,6 +49,7 @@ export function setupMediaPermissionHandlers(extensionRegistry: ExtensionRegistr
 	session.defaultSession.setPermissionCheckHandler(
 		(webContents, permission, requestingOrigin, details) => {
 			const isAppContents = isAppWindowWebContents(webContents, extensionRegistry);
+			if (permission === 'fullscreen') return Boolean(webContents && extensionRegistry.has(webContents));
 			if (permission === 'clipboard-read' || permission === 'clipboard-sanitized-write') {
 				return Boolean(
 					details.isMainFrame &&
@@ -74,6 +75,10 @@ export function setupMediaPermissionHandlers(extensionRegistry: ExtensionRegistr
 
 	session.defaultSession.setPermissionRequestHandler(
 		(webContents, permission, callback, details) => {
+			if (permission === 'fullscreen') {
+				callback(Boolean(webContents && extensionRegistry.has(webContents)));
+				return;
+			}
 			if (permission === 'clipboard-read' || permission === 'clipboard-sanitized-write') {
 				callback(
 					Boolean(

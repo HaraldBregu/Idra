@@ -383,6 +383,7 @@ export interface AppApi {
 	openDataFolder: () => Promise<void>;
 	openProvidersFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
+	unfurlUrl: (url: string) => Promise<import('./app_types').UrlMetadata>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;
 	setKeepAwake: (enabled: boolean) => Promise<void>;

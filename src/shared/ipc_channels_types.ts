@@ -302,6 +302,10 @@ export interface AppInvokeChannelMap {
 		args: [url: string];
 		result: void;
 	};
+	[AppChannels.unfurlUrl]: {
+		args: [url: string];
+		result: import('./app_types').UrlMetadata;
+	};
 	[AppChannels.setTrayEnabled]: {
 		args: [enabled: boolean];
 		result: void;

@@ -110,6 +110,7 @@ export const AppChannels = {
 	openDataFolder: 'app:open-data-folder',
 	openProvidersFolder: 'app:open-providers-folder',
 	openExternalUrl: 'app:open-external-url',
+	unfurlUrl: 'app:unfurl-url',
 	openSystemPreference: 'app:open-system-preference',
 	setTrayEnabled: 'app:set-tray-enabled',
 	getTrayEnabled: 'app:get-tray-enabled',

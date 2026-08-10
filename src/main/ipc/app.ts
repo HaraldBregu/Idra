@@ -66,6 +66,7 @@ import type { ExtensionRegistry } from '../extensions/extension_registry';
 import type { ExtensionStorage } from '../extensions/extension_store';
 import { registerExtensionStoreIpc } from './extension_store';
 import { externalUrl } from '../external';
+import { unfurlUrl } from '../unfurl';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
@@ -499,6 +500,11 @@ export class AppIpc implements IpcModule {
 				if (!target) throw new Error('Invalid external URL.');
 				await shell.openExternal(target);
 			}, AppChannels.openExternalUrl)
+		);
+
+		ipcMain.handle(
+			AppChannels.unfurlUrl,
+			wrapSimpleHandler((url: string) => unfurlUrl(url), AppChannels.unfurlUrl)
 		);
 
 		ipcMain.handle(

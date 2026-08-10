@@ -81,7 +81,6 @@
 		"build:packages": "npm run build --workspaces --if-present",
 		"build:all": "npm run build && npm run build:packages",
 		"install:mermaid": "npm run install:friday --prefix extensions/mermaid",
-		"install:tldraw": "npm run install:friday --prefix extensions/tldraw",
 		"build:dev": "cross-env NODE_ENV=development npm run typecheck && electron-vite build --mode development",
 		"build:staging": "cross-env NODE_ENV=staging npm run typecheck && electron-vite build --mode staging",
 		"lint": "eslint .",

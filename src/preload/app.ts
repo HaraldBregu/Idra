@@ -77,6 +77,9 @@ export const app: AppApi = {
 	openExternalUrl: (url: string): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.openExternalUrl, url);
 	},
+	unfurlUrl: (url: string) => {
+		return typedInvokeUnwrap(AppChannels.unfurlUrl, url);
+	},
 	setTrayEnabled: (enabled: boolean): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.setTrayEnabled, enabled);
 	},

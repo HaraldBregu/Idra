@@ -10,6 +10,7 @@ export {
 } from './connect';
 export type { AgentApi, AppApi, WindowApi } from '../../src/shared/api_types';
 export type { AppLanguage, AppTheme, AppThemeColors, AppThemeData } from '../../src/shared/app_types';
+export type { UrlMetadata } from '../../src/shared/app_types';
 export type { WorkspaceTreeEntry } from '../../src/shared/agent_types';
 export {
 	workspaceFileType,

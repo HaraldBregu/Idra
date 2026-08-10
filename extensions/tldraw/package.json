@@ -16,13 +16,13 @@
 		"dev": "vite",
 		"typecheck": "tsc --noEmit",
 		"build": "npm run typecheck && vite build",
-		"install:friday": "npm run build && node scripts/install.cjs",
 		"prepack": "npm run build",
 		"preview": "vite preview"
 	},
 	"dependencies": {
 		"@friday/sdk": "file:../../packages/sdk",
 		"@tldraw/assets": "5.3.0",
+		"@tldraw/sync": "5.3.0",
 		"react": "^19.2.1",
 		"react-dom": "^19.2.1",
 		"tldraw": "5.3.0"

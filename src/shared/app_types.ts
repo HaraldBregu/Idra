@@ -47,6 +47,13 @@ export interface AppThemeData {
 	readonly colors: AppThemeColors;
 }
 
+export interface UrlMetadata {
+	readonly title: string;
+	readonly description: string;
+	readonly image: string;
+	readonly favicon: string;
+}
+
 export const ShortcutId = {
 	openDocumentList: 'openDocumentList',
 	openAppSearch: 'openAppSearch',
