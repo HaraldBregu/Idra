@@ -78,23 +78,28 @@ describe('run stream system prompt', () => {
 	it.each(['minimal', 'workspace'] as const)(
 		'injects an explicitly selected skill before the first %s model turn',
 		async (contextMode) => {
+			const root = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-explicit-skill-'));
 			createSkillRegistrySnapshotMock.mockReturnValue({ skills: [registrySkill], diagnostics: [] });
 			activateSkillMock.mockResolvedValue(activatedSkill);
 			const session = createSessionState();
 			session.messages = [{ role: 'user', content: 'Draft this' }];
-			for await (const event of stream(
-				{ location: '/workspace' },
-				session,
-				{ runId: `explicit-${contextMode}`, task: 'chat', message: 'Draft this', model: 'test-model', origin: 'main', contextMode, explicitSkill: 'writer' },
-				new AbortController().signal,
-				{ tools: [] }
-			)) void event;
+			try {
+				for await (const event of stream(
+					{ location: root },
+					session,
+					{ runId: `explicit-${contextMode}`, task: 'chat', message: 'Draft this', model: 'test-model', origin: 'main', contextMode, explicitSkill: 'writer' },
+					new AbortController().signal,
+					{ tools: [] }
+				)) void event;
 
-			expect(activateSkillMock).toHaveBeenCalledWith(expect.objectContaining({ skills: [registrySkill] }), 'writer');
-			const protectedPrompt = runModelTurnMock.mock.calls[0][9] as string;
-			expect(protectedPrompt).toContain('EXACT WRITER INSTRUCTIONS');
-			expect(protectedPrompt).toContain('"canonicalRoot":"/canonical/skills/writer"');
-			expect(protectedPrompt).toContain('references/style.md');
+				expect(activateSkillMock).toHaveBeenCalledWith(expect.objectContaining({ skills: [registrySkill] }), 'writer');
+				const protectedPrompt = runModelTurnMock.mock.calls[0][9] as string;
+				expect(protectedPrompt).toContain('EXACT WRITER INSTRUCTIONS');
+				expect(protectedPrompt).toContain('"canonicalRoot":"/canonical/skills/writer"');
+				expect(protectedPrompt).toContain('references/style.md');
+			} finally {
+				await fs.rm(root, { recursive: true, force: true });
+			}
 		}
 	);
 
@@ -122,7 +127,7 @@ describe('run stream system prompt', () => {
 		]);
 		expect(runModelTurnMock.mock.calls[1][9]).toContain('EXACT WRITER INSTRUCTIONS');
 		const receipt = session.messages.find((message) => message.toolCalls?.[0]?.name === 'load_skill')?.toolCalls?.[0]?.result?.content;
-		expect(receipt).toContain('"activated": true');
+		expect(receipt).toContain('"activated":true');
 		expect(receipt).not.toContain('EXACT WRITER INSTRUCTIONS');
 	});
 
@@ -225,14 +230,15 @@ describe('run stream system prompt', () => {
 
 			const systemPrompt = runModelTurnMock.mock.calls[0][3] as string;
 			const messages = runModelTurnMock.mock.calls[0][4] as Message[];
+			const contextMessages = runModelTurnMock.mock.calls[0][10] as Message[];
 			expect(systemPrompt).not.toContain('Alice');
 			expect(systemPrompt).not.toContain('Private preference');
-			expect(messages[0]).toMatchObject({
+			expect(contextMessages[0]).toMatchObject({
 				role: 'user',
 				content: expect.stringContaining('- **Name:** Alice'),
 			});
-			expect(messages[0].content).toEqual(expect.stringContaining('- Private preference'));
-			expect(messages[1]).toEqual({ role: 'user', content: 'Current request' });
+			expect(contextMessages[0].content).toEqual(expect.stringContaining('- Private preference'));
+			expect(messages[0]).toEqual({ role: 'user', content: 'Current request' });
 			expect(session.context.toolsContext.hasPrivateContext).toBe(true);
 		} finally {
 			await fs.rm(root, { recursive: true, force: true });

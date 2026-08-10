@@ -91,10 +91,12 @@ export async function* stream(
 			if (event.type === 'run_finished') terminal = true;
 		}
 	} catch (error) {
-		tryAppendRun(session, {
+		const errorEvent = {
 			type: 'run_error',
 			message: error instanceof Error ? error.message : String(error),
-		});
+		} as const;
+		tryAppendRun(session, errorEvent);
+		yield errorEvent;
 		if (!terminal) {
 			session.stopReason = signal.aborted
 				? signal.reason instanceof DOMException && signal.reason.name === 'TimeoutError'

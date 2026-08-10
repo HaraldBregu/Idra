@@ -177,6 +177,7 @@ export interface McpDiscoveryDiagnostics {
 
 export type RuntimeEvent =
 	| RuntimeModelEvent
+	| { type: 'run_error'; message: string }
 	| {
 			type: 'run_started';
 			sessionId: string;

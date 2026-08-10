@@ -6,7 +6,16 @@ export function resolveSkillResource(canonicalRoot: string, relativePath: string
 		throw new Error('Skill resource path must be a non-empty relative path.');
 	}
 	const root = fs.realpathSync(canonicalRoot);
-	const candidate = fs.realpathSync(path.resolve(root, relativePath));
+	const unresolved = path.resolve(root, relativePath);
+	const unresolvedRelative = path.relative(root, unresolved);
+	if (
+		unresolvedRelative === '..' ||
+		unresolvedRelative.startsWith(`..${path.sep}`) ||
+		path.isAbsolute(unresolvedRelative)
+	) {
+		throw new Error(`Skill resource "${relativePath}" resolves outside its skill root.`);
+	}
+	const candidate = fs.realpathSync(unresolved);
 	const relative = path.relative(root, candidate);
 	if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
 		throw new Error(`Skill resource "${relativePath}" resolves outside its skill root.`);
