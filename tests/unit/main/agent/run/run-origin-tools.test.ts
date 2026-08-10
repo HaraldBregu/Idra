@@ -16,25 +16,29 @@ const tools = [
 	namedTool('read', ['main', 'task', 'subagent']),
 	namedTool('write'),
 	namedTool('apply_patch'),
-	namedTool('web_search'),
-	namedTool('web_fetch'),
+	namedTool('web_search', ['main', 'bot', 'task', 'subagent']),
+	namedTool('web_fetch', ['main', 'bot', 'task', 'subagent']),
+	namedTool('bot_write', ['bot']),
 	namedTool('exec', ['main', 'task', 'subagent']),
 	namedTool('memory_list', ['main']),
 	namedTool('subagent', ['main']),
+	namedTool('subagents', ['main']),
 ];
 
-it('gives bots unrestricted-origin tools and respects tool-specific origin restrictions', () => {
+it('gives bots only explicitly bot-allowed tools and never elevates through toolsAllow', () => {
 	expect(selectOriginTools(tools, 'bot').map((tool) => tool.name)).toEqual([
-		'write',
-		'apply_patch',
 		'web_search',
 		'web_fetch',
+		'bot_write',
 	]);
 	expect(selectOriginTools(tools, 'bot', ['exec', 'memory_list'])).toEqual([]);
-	expect(selectOriginTools(tools, 'bot', ['write']).map((tool) => tool.name)).toEqual(['write']);
+	expect(selectOriginTools(tools, 'bot', ['write'])).toEqual([]);
+	expect(selectOriginTools(tools, 'bot', ['bot_write']).map((tool) => tool.name)).toEqual([
+		'bot_write',
+	]);
 	expect(
 		selectOriginTools(tools, 'bot', undefined, ['web_fetch']).map((tool) => tool.name)
-	).toEqual(['write', 'apply_patch', 'web_search']);
+	).toEqual(['web_search', 'bot_write']);
 });
 
 it('gives tasks all compatible tools by default and keeps a non-empty allowlist as a filter', () => {
@@ -45,6 +49,7 @@ it('gives tasks all compatible tools by default and keeps a non-empty allowlist 
 		'apply_patch',
 		'web_search',
 		'web_fetch',
+		'bot_write',
 		'exec',
 	]);
 	expect(selectOriginTools(tools, 'task', []).map((tool) => tool.name)).toEqual([
@@ -53,6 +58,7 @@ it('gives tasks all compatible tools by default and keeps a non-empty allowlist 
 		'apply_patch',
 		'web_search',
 		'web_fetch',
+		'bot_write',
 		'exec',
 	]);
 	expect(selectOriginTools(tools, 'task', ['exec']).map((tool) => tool.name)).toEqual(['exec']);

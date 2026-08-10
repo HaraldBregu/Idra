@@ -3,6 +3,8 @@ import fs from 'node:fs/promises';
 jest.mock('node:fs/promises', () => ({
 	readFile: jest.fn(),
 	writeFile: jest.fn(),
+	rename: jest.fn(),
+	rm: jest.fn(),
 }));
 jest.mock('../../../../../src/main/agent/memory/memory_path', () => ({
 	memoryPath: jest.fn(() => '/mem/MEMORY.md'),
@@ -16,11 +18,15 @@ import type { Config } from '../../../../../src/main/agent/types';
 
 const readFile = fs.readFile as jest.Mock;
 const writeFile = fs.writeFile as jest.Mock;
+const rename = fs.rename as jest.Mock;
+const rm = fs.rm as jest.Mock;
 const config = {} as Config;
 
 beforeEach(() => {
 	readFile.mockReset();
 	writeFile.mockReset().mockResolvedValue(undefined);
+	rename.mockReset().mockResolvedValue(undefined);
+	rm.mockReset().mockResolvedValue(undefined);
 });
 
 describe('saveMemory', () => {
@@ -33,10 +39,11 @@ describe('saveMemory', () => {
 			memory: { id: expect.stringMatching(/^memory-[a-f0-9]{16}$/), fact: 'prefers concise answers' },
 		});
 		expect(writeFile).toHaveBeenCalledWith(
-			'/mem/MEMORY.md',
+			expect.stringMatching(/^\/mem\/\.MEMORY\.md\..+\.tmp$/),
 			`# Memory\n- [${result.memory.id}] prefers concise answers\n`,
-			'utf8'
+			expect.objectContaining({ encoding: 'utf8', flag: 'wx' })
 		);
+		expect(rename).toHaveBeenCalledWith(expect.any(String), '/mem/MEMORY.md');
 	});
 
 	it('deduplicates a legacy fact by its derived stable ID', async () => {
@@ -77,7 +84,12 @@ describe('forgetMemory', () => {
 		readFile.mockResolvedValue('- target\n- target details\n');
 
 		expect(await forgetMemory(config, target.id)).toEqual({ removed: true, id: target.id });
-		expect(writeFile).toHaveBeenCalledWith('/mem/MEMORY.md', '- target details\n', 'utf8');
+		expect(writeFile).toHaveBeenCalledWith(
+			expect.stringMatching(/^\/mem\/\.MEMORY\.md\..+\.tmp$/),
+			'- target details\n',
+			expect.objectContaining({ encoding: 'utf8', flag: 'wx' })
+		);
+		expect(rename).toHaveBeenCalledWith(expect.any(String), '/mem/MEMORY.md');
 		expect(detail.id).not.toBe(target.id);
 	});
 

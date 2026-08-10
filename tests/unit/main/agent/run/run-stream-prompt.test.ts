@@ -208,7 +208,7 @@ describe('run stream system prompt', () => {
 		expect(events[0].tools).not.toContain('load_skill');
 	});
 
-	it('exposes file creation tools to bot runs', async () => {
+	it('keeps mutation tools unavailable to bot runs by default', async () => {
 		const events = [];
 		for await (const event of stream(
 			{ location: '/workspace' },
@@ -228,7 +228,10 @@ describe('run stream system prompt', () => {
 
 		expect(events[0]).toMatchObject({ type: 'run_started' });
 		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
-		expect(events[0].tools).toEqual(expect.arrayContaining(['write', 'apply_patch']));
+		expect(events[0].tools).toContain('web_fetch');
+		expect(events[0].tools).not.toEqual(
+			expect.arrayContaining(['write', 'edit', 'apply_patch', 'exec', 'create_schedule'])
+		);
 	});
 
 	it('exposes task-compatible tools when a background task has no allowlist', async () => {

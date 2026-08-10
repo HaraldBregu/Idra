@@ -17,9 +17,17 @@ function fakeTool(name: string): Tool {
 
 describe('selectSkillTools', () => {
 	it('intersects runtime tools with declared capabilities', () => {
-		const tools = [fakeTool('read'), fakeTool('write'), fakeTool('subagent')];
+		const tools = [
+			fakeTool('read'),
+			fakeTool('write'),
+			fakeTool('subagent'),
+			fakeTool('subagents'),
+		];
 		expect(
-			selectSkillTools([...tools, fakeTool('load_skill')], ['read', 'subagent']).map(
+			selectSkillTools(
+				[...tools, fakeTool('load_skill')],
+				['read', 'subagent', 'subagents']
+			).map(
 				(tool) => tool.name
 			)
 		).toEqual(['read', 'load_skill']);

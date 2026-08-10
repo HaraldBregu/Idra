@@ -53,6 +53,7 @@ const ALLOW_BY_DEFAULT = [
 	'list_extensions',
 	'open_extensions',
 	'subagent',
+	'subagents',
 ] as const;
 
 describe('DEFAULT_PERMISSIONS', () => {

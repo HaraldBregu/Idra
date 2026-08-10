@@ -98,6 +98,22 @@ describe('stringifyRunEntry', () => {
 		expect(
 			JSON.parse(
 				stringifyRunEntry({
+					type: 'provider_queue_metrics',
+					providerId: 'openai',
+					queueDelayMs: 9,
+					attempt: 1,
+					prompt: 'private',
+				})!
+			).event
+		).toEqual({
+			type: 'provider_queue_metrics',
+			providerId: 'openai',
+			queueDelayMs: 9,
+			attempt: 1,
+		});
+		expect(
+			JSON.parse(
+				stringifyRunEntry({
 					type: 'model_call_end',
 					model: 'model',
 					durationMs: 42,
