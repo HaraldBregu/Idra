@@ -343,7 +343,7 @@ describe('run stream system prompt', () => {
 		}
 	});
 
-	it('denies background ask rules even when the stored mode is bypass', async () => {
+	it('uses an injected bypass mode for a non-interactive run', async () => {
 		const execute = jest.fn().mockResolvedValue('done');
 		const webTool = jsonTool({
 			name: 'web_search',
@@ -369,7 +369,7 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'search',
 				model: 'test-model',
-				origin: 'bot',
+				origin: 'main',
 				contextMode: 'minimal',
 			},
 			new AbortController().signal,
@@ -385,7 +385,7 @@ describe('run stream system prompt', () => {
 		))
 			void event;
 
-		expect(execute).not.toHaveBeenCalled();
+		expect(execute).toHaveBeenCalledTimes(1);
 	});
 
 	it('caps public web calls only for bot-origin runs', async () => {

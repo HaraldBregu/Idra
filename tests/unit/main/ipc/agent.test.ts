@@ -33,7 +33,12 @@ describe('AgentIpc run ownership', () => {
 		expect(send).toHaveBeenCalledWith(
 			'hello',
 			'main',
-			expect.objectContaining({ runId: 'run-1', windowId: 7, streamEvent: expect.any(Function) })
+			expect.objectContaining({
+				runId: 'run-1',
+				permissions: expect.objectContaining({ mode: expect.any(String), dir: expect.any(Object) }),
+				windowId: 7,
+				streamEvent: expect.any(Function),
+			})
 		);
 		const streamEvent = send.mock.calls[0][2].streamEvent;
 		streamEvent({ type: 'text_delta', delta: 'x', agentId: 'main', runId: 'run-1' });
