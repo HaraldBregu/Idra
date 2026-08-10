@@ -2,9 +2,9 @@ import { z } from 'zod';
 import { rescheduleHealth, updateHealthSettings } from '../../health';
 import { tool } from '../tool';
 
-export const updateHealthCheckSettingsTool = tool({
-	id: 'health_check_settings_update',
-	name: 'Health check settings update',
+export const updateHealthCheeckSettingsTool = tool({
+	id: 'update_health_cheeck_settings',
+	name: 'Update health cheeck settings',
 	description:
 		'Update the health check run configuration. Only the provided fields change; the run schedule is refreshed automatically. Returns the resulting settings.',
 	inputSchema: z.object({

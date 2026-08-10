@@ -11,7 +11,7 @@ import { getWikiSettings } from '../knowledge/wiki/wiki_get_settings';
 const AGENT_FILES: Record<string, string> = {
 	memory_save: 'MEMORY.md',
 	memory_forget: 'MEMORY.md',
-	health_check_update: 'HEALTH.md',
+	update_health_cheeck: 'HEALTH.md',
 	complete_bootstrap: 'BOOTSTRAP.md',
 };
 const MEDIA_TOOLS = new Set(['create_image', 'create_video', 'create_sound']);
@@ -54,7 +54,7 @@ export function directoryPermissionTargets(
 	}
 	const fileName = AGENT_FILES[toolName];
 	if (fileName) return [realPath(path.join(baseDir, fileName))];
-	if (toolName === 'health_check_settings_update') return [realPath(healthStorePath)];
+	if (toolName === 'update_health_cheeck_settings') return [realPath(healthStorePath)];
 	if (MEDIA_TOOLS.has(toolName)) {
 		const directory = typeof args.directory === 'string' && args.directory ? args.directory : '.';
 		return [realPath(resolveUserPath(directory, baseDir))];
