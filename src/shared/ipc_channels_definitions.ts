@@ -33,6 +33,9 @@ export const AgentChannels = {
 	healthSettings: 'agent:health:settings',
 	healthSaveSettings: 'agent:health:settings:save',
 	healthResetSettings: 'agent:health:settings:reset',
+	healthPermissionsGet: 'agent:health:permissions:get',
+	healthPermissionsSave: 'agent:health:permissions:save',
+	healthPermissionsReset: 'agent:health:permissions:reset',
 	healthData: 'agent:health:data',
 	healthSaveData: 'agent:health:data:save',
 	ragIndex: 'agent:rag:index',
@@ -77,6 +80,9 @@ export const TaskChannels = {
 	getRuntime: 'tasks:runtime:get',
 	setRuntime: 'tasks:runtime:set',
 	configureCapabilities: 'tasks:capabilities:configure',
+	permissionsGet: 'tasks:permissions:get',
+	permissionsSave: 'tasks:permissions:save',
+	permissionsReset: 'tasks:permissions:reset',
 } as const;
 
 export const SkillsChannels = {
@@ -140,6 +146,9 @@ export const AppChannels = {
 	channels: 'app:channels:list',
 	getChannelModelSelection: 'app:channels:model-selection:get',
 	setChannelModelSelection: 'app:channels:model-selection:set',
+	getChannelsPermissions: 'app:channels:permissions:get',
+	saveChannelsPermissions: 'app:channels:permissions:save',
+	resetChannelsPermissions: 'app:channels:permissions:reset',
 	modelsChanged: 'app:models-changed',
 	uploadProvider: 'app:upload-provider',
 	getChannelsStatus: 'app:channels:get-status',
