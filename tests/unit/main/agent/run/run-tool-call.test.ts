@@ -110,7 +110,8 @@ describe('runToolCall', () => {
 				markFirstStarted();
 				await new Promise<void>((done) => {
 					releaseFirst = done;
-			});
+				});
+			},
 		});
 		let secondRan = false;
 		const second = jsonTool({
