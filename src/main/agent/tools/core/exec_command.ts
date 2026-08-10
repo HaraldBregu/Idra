@@ -140,6 +140,12 @@ async function runExec(
 	const spawnArgs = wrapped?.args ?? hostArgs;
 	const shell = wrapped ? false : !pty;
 	Object.assign(env, wrapped?.env);
+	let sandboxCleaned = false;
+	const cleanupSandbox = (): void => {
+		if (executionMode !== 'sandbox' || sandboxCleaned) return;
+		sandboxCleaned = true;
+		sandbox.cleanup();
+	};
 
 	if (backgroundInput === true) {
 		const child = spawn(spawnCommand, spawnArgs, {
@@ -174,10 +180,11 @@ async function runExec(
 				if (settled) return;
 				settled = true;
 				cleanup();
+				cleanupSandbox();
 				reject(error);
 			});
 			child.once('exit', () => {
-				if (executionMode === 'sandbox') sandbox.cleanup();
+				cleanupSandbox();
 				cleanup();
 			});
 			child.once('spawn', () => {
@@ -264,8 +271,8 @@ async function runExec(
 			child.once('close', (exitCode, signal) => {
 				if (executionMode === 'sandbox') {
 					session.stderr = sandbox.annotate(commandId, session.stderr);
-					sandbox.cleanup();
 				}
+				cleanupSandbox();
 				session.exited = true;
 				session.exitCode = exitCode;
 				session.exitSignal = signal;
@@ -307,6 +314,7 @@ async function runExec(
 			clearTimeout(yieldTimer);
 			if (timeoutTimer) clearTimeout(timeoutTimer);
 			abortSignal?.removeEventListener('abort', abort);
+			cleanupSandbox();
 			reject(error);
 		});
 		child.on('close', (exitCode, signal) => {
@@ -316,13 +324,14 @@ async function runExec(
 			settled = true;
 			clearTimeout(yieldTimer);
 			if (aborted) {
+				cleanupSandbox();
 				reject(abortSignal?.reason ?? new Error('Exec cancelled.'));
 				return;
 			}
 			if (executionMode === 'sandbox') {
 				stderr = sandbox.annotate(commandId, stderr);
-				sandbox.cleanup();
 			}
+			cleanupSandbox();
 			resolve({
 				command,
 				workdir: cwd,

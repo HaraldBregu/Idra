@@ -38,7 +38,7 @@ export class ExecSandbox {
 		await this.ensureReady();
 		const wrapped = await SandboxManager.wrapWithSandboxArgv(
 			command,
-			undefined,
+			process.platform === 'win32' ? undefined : '/bin/sh',
 			undefined,
 			signal,
 			cwd,
@@ -78,8 +78,29 @@ export class ExecSandbox {
 	}
 
 	async status(): Promise<SandboxStatus> {
+		if (!SandboxManager.isSupportedPlatform()) {
+			return {
+				state: 'unavailable',
+				platform: process.platform,
+				message: `Command sandboxing is unavailable on ${process.platform}.`,
+			};
+		}
 		try {
-			await this.ensureReady();
+			const dependencies =
+				process.platform === 'win32'
+					? await import('@anthropic-ai/sandbox-runtime').then(({ checkWindowsDependenciesAsync }) =>
+							checkWindowsDependenciesAsync({
+								srtWin: resolveSrtWin({ path: this.vendoredWindowsPath() }),
+							})
+						)
+					: await SandboxManager.checkDependenciesAsync();
+			if (dependencies.errors.length > 0) {
+				return {
+					state: process.platform === 'win32' ? 'setup_required' : 'unavailable',
+					platform: process.platform,
+					message: [...dependencies.errors, ...dependencies.warnings].join('\n'),
+				};
+			}
 			return { state: 'ready', platform: process.platform };
 		} catch (error) {
 			return {
@@ -106,10 +127,7 @@ export class ExecSandbox {
 	}
 
 	async invalidate(): Promise<void> {
-		for (const child of this.children) {
-			if (!child.killed) child.kill('SIGTERM');
-		}
-		this.children.clear();
+		await this.stopChildren();
 		this.fingerprint = undefined;
 		await SandboxManager.reset();
 	}
@@ -133,7 +151,10 @@ export class ExecSandbox {
 				throw new Error(`Command sandboxing is unavailable on ${process.platform}.`);
 			}
 			await fs.mkdir(this.temporaryDirectory, { recursive: true });
-			if (SandboxManager.isSandboxingEnabled()) await SandboxManager.reset();
+			if (SandboxManager.isSandboxingEnabled()) {
+				await this.stopChildren();
+				await SandboxManager.reset();
+			}
 			await SandboxManager.initialize(config);
 			this.fingerprint = fingerprint;
 		} finally {
@@ -169,6 +190,7 @@ export class ExecSandbox {
 			);
 		const allowWrite = [...roots, this.temporaryDirectory];
 		const windowsPath = this.vendoredWindowsPath();
+		const seccompPath = this.vendoredSeccompPath();
 		const config: SandboxRuntimeConfig = {
 			network: {
 				allowedDomains: ['*'],
@@ -190,14 +212,54 @@ export class ExecSandbox {
 			...(process.platform === 'win32'
 				? { windows: { srtWin: { path: windowsPath } } }
 				: {}),
+			...(process.platform === 'linux' ? { seccomp: { applyPath: seccompPath } } : {}),
 		};
 		return { config, fingerprint: JSON.stringify(allowWrite) };
 	}
 
 	private vendoredWindowsPath(): string {
-		return VENDORED_SRT_WIN_EXE.replace(
+		return this.unpackedPath(VENDORED_SRT_WIN_EXE);
+	}
+
+	private vendoredSeccompPath(): string {
+		return this.unpackedPath(
+			path.resolve(
+				path.dirname(VENDORED_SRT_WIN_EXE),
+				'..',
+				'..',
+				'seccomp',
+				process.arch,
+				'apply-seccomp'
+			)
+		);
+	}
+
+	private unpackedPath(value: string): string {
+		return value.replace(
 			`${path.sep}app.asar${path.sep}`,
 			`${path.sep}app.asar.unpacked${path.sep}`
 		);
+	}
+
+	private async stopChildren(): Promise<void> {
+		const children = [...this.children];
+		await Promise.all(
+			children.map(
+				(child) =>
+					new Promise<void>((resolve) => {
+						if (child.exitCode !== null || child.signalCode !== null) {
+							resolve();
+							return;
+						}
+						const timer = setTimeout(resolve, 2_000);
+						child.once('close', () => {
+							clearTimeout(timer);
+							resolve();
+						});
+						child.kill('SIGTERM');
+					})
+			)
+		);
+		this.children.clear();
 	}
 }
