@@ -87,12 +87,24 @@ describe('run stream system prompt', () => {
 				for await (const event of stream(
 					{ location: root },
 					session,
-					{ runId: `explicit-${contextMode}`, task: 'chat', message: 'Draft this', model: 'test-model', origin: 'main', contextMode, explicitSkill: 'writer' },
+					{
+						runId: `explicit-${contextMode}`,
+						task: 'chat',
+						message: 'Draft this',
+						model: 'test-model',
+						origin: 'main',
+						contextMode,
+						explicitSkill: 'writer',
+					},
 					new AbortController().signal,
 					{ tools: [] }
-				)) void event;
+				))
+					void event;
 
-				expect(activateSkillMock).toHaveBeenCalledWith(expect.objectContaining({ skills: [registrySkill] }), 'writer');
+				expect(activateSkillMock).toHaveBeenCalledWith(
+					expect.objectContaining({ skills: [registrySkill] }),
+					'writer'
+				);
 				const protectedPrompt = runModelTurnMock.mock.calls[0][9] as string;
 				expect(protectedPrompt).toContain('EXACT WRITER INSTRUCTIONS');
 				expect(protectedPrompt).toContain('"canonicalRoot":"/canonical/skills/writer"');
@@ -109,7 +121,11 @@ describe('run stream system prompt', () => {
 		runModelTurnMock
 			.mockImplementationOnce(async function* () {
 				yield* [];
-				return { content: '', model: 'test-model', toolCalls: [{ id: 'load', name: 'load_skill', args: { name: 'writer' } }] };
+				return {
+					content: '',
+					model: 'test-model',
+					toolCalls: [{ id: 'load', name: 'load_skill', args: { name: 'writer' } }],
+				};
 			})
 			.mockImplementationOnce(successfulTurn);
 		const session = createSessionState();
@@ -117,34 +133,57 @@ describe('run stream system prompt', () => {
 		for await (const event of stream(
 			{ location: '/workspace' },
 			session,
-			{ runId: 'implicit-minimal', task: 'chat', message: 'Draft this', model: 'test-model', origin: 'main', contextMode: 'minimal' },
+			{
+				runId: 'implicit-minimal',
+				task: 'chat',
+				message: 'Draft this',
+				model: 'test-model',
+				origin: 'main',
+				contextMode: 'minimal',
+			},
 			new AbortController().signal,
 			{ interactive: false }
-		)) void event;
+		))
+			void event;
 
 		expect(runModelTurnMock.mock.calls[0][10]).toEqual([
 			expect.objectContaining({ content: expect.stringContaining('Draft polished documents') }),
 		]);
 		expect(runModelTurnMock.mock.calls[1][9]).toContain('EXACT WRITER INSTRUCTIONS');
-		const receipt = session.messages.find((message) => message.toolCalls?.[0]?.name === 'load_skill')?.toolCalls?.[0]?.result?.content;
+		const receipt = session.messages.find(
+			(message) => message.toolCalls?.[0]?.name === 'load_skill'
+		)?.toolCalls?.[0]?.result?.content;
 		expect(receipt).toContain('"activated":true');
 		expect(receipt).not.toContain('EXACT WRITER INSTRUCTIONS');
 	});
 
 	it('surfaces explicit activation errors before model inference', async () => {
 		createSkillRegistrySnapshotMock.mockReturnValue({ skills: [], diagnostics: [] });
-		activateSkillMock.mockRejectedValue(new Error('Skill "missing" was not found in this run\'s registry.'));
+		activateSkillMock.mockRejectedValue(
+			new Error('Skill "missing" was not found in this run\'s registry.')
+		);
 		const events = [];
 		await expect(async () => {
 			for await (const event of stream(
 				{ location: '/workspace' },
 				createSessionState(),
-				{ runId: 'missing', task: 'chat', message: 'request', model: 'test-model', origin: 'main', contextMode: 'minimal', explicitSkill: 'missing' },
+				{
+					runId: 'missing',
+					task: 'chat',
+					message: 'request',
+					model: 'test-model',
+					origin: 'main',
+					contextMode: 'minimal',
+					explicitSkill: 'missing',
+				},
 				new AbortController().signal,
 				{ tools: [] }
-			)) events.push(event);
+			))
+				events.push(event);
 		}).rejects.toThrow('not found');
-		expect(events).toContainEqual(expect.objectContaining({ type: 'run_error', message: expect.stringContaining('not found') }));
+		expect(events).toContainEqual(
+			expect.objectContaining({ type: 'run_error', message: expect.stringContaining('not found') })
+		);
 		expect(runModelTurnMock).not.toHaveBeenCalled();
 	});
 
@@ -153,9 +192,17 @@ describe('run stream system prompt', () => {
 		for await (const event of stream(
 			{ location: '/workspace' },
 			createSessionState(),
-			{ runId: 'empty-skills', task: 'chat', message: 'request', model: 'test-model', origin: 'main', contextMode: 'minimal' },
+			{
+				runId: 'empty-skills',
+				task: 'chat',
+				message: 'request',
+				model: 'test-model',
+				origin: 'main',
+				contextMode: 'minimal',
+			},
 			new AbortController().signal
-		)) events.push(event);
+		))
+			events.push(event);
 		expect(events[0]).toMatchObject({ type: 'run_started' });
 		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
 		expect(events[0].tools).not.toContain('load_skill');

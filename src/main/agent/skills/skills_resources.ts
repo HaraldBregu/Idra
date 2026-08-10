@@ -9,7 +9,9 @@ export function listSkillResources(canonicalRoot: string): string[] {
 	while (pending.length > 0 && resources.length < SKILL_RESOURCE_LIST_LIMIT) {
 		const relativeDirectory = pending.pop() as string;
 		const directory = path.join(canonicalRoot, relativeDirectory);
-		const entries = fs.readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+		const entries = fs
+			.readdirSync(directory, { withFileTypes: true })
+			.sort((a, b) => a.name.localeCompare(b.name));
 		for (const entry of entries) {
 			const relativePath = path.join(relativeDirectory, entry.name);
 			if (relativePath === SKILL_FILE) continue;

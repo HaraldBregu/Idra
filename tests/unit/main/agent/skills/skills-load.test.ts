@@ -14,21 +14,64 @@ describe('activateSkill', () => {
 			fs.mkdirSync(path.join(root, 'references'), { recursive: true });
 			fs.writeFileSync(path.join(root, 'SKILL.md'), source);
 			fs.writeFileSync(path.join(root, 'references', 'guide.md'), 'guide');
-			const info: SkillInfo = { id: 'writer', name: 'writer', description: 'Writes', location: root, folderPath: root, skillPath: path.join(root, 'SKILL.md'), manifest: { name: 'writer', description: 'Writes', allowedTools: ['read'] }, enabled: true, invocationPolicy: 'implicit', source: 'local-filesystem', trust: 'user-controlled', hash: createHash('sha256').update(source).digest('hex') };
+			const info: SkillInfo = {
+				id: 'writer',
+				name: 'writer',
+				description: 'Writes',
+				location: root,
+				folderPath: root,
+				skillPath: path.join(root, 'SKILL.md'),
+				manifest: { name: 'writer', description: 'Writes', allowedTools: ['read'] },
+				enabled: true,
+				invocationPolicy: 'implicit',
+				source: 'local-filesystem',
+				trust: 'user-controlled',
+				hash: createHash('sha256').update(source).digest('hex'),
+			};
 			const snapshot: SkillRegistrySnapshot = { skills: [info], diagnostics: [] };
 			const loaded = await activateSkill(snapshot, 'writer');
-			expect(loaded).toEqual(expect.objectContaining({ canonicalRoot: fs.realpathSync(root), instructions: 'Exact body', hash: info.hash, resources: ['references/guide.md'] }));
+			expect(loaded).toEqual(
+				expect.objectContaining({
+					canonicalRoot: fs.realpathSync(root),
+					instructions: 'Exact body',
+					hash: info.hash,
+					resources: ['references/guide.md'],
+				})
+			);
 			fs.appendFileSync(path.join(root, 'SKILL.md'), '\nchanged');
-			await expect(activateSkill(snapshot, 'writer')).rejects.toThrow('changed while it was loading');
+			await expect(activateSkill(snapshot, 'writer')).rejects.toThrow(
+				'changed while it was loading'
+			);
 		} finally {
 			fs.rmSync(parent, { recursive: true, force: true });
 		}
 	});
 
 	it('fails for unknown, disabled, and unreviewed skills', async () => {
-		const base = { id: 'writer', name: 'writer', description: 'Writes', location: '/skills/writer', folderPath: '/skills/writer', manifest: { name: 'writer', description: 'Writes' }, enabled: false, invocationPolicy: 'implicit' as const, source: 'local-filesystem' as const, trust: 'user-controlled' as const, hash: 'hash' };
-		await expect(activateSkill({ skills: [], diagnostics: [] }, 'missing')).rejects.toThrow('not found');
-		await expect(activateSkill({ skills: [base], diagnostics: [] }, 'writer')).rejects.toThrow('disabled');
-		await expect(activateSkill({ skills: [{ ...base, enabled: true, trust: 'unreviewed' }], diagnostics: [] }, 'writer')).rejects.toThrow('not been reviewed');
+		const base = {
+			id: 'writer',
+			name: 'writer',
+			description: 'Writes',
+			location: '/skills/writer',
+			folderPath: '/skills/writer',
+			manifest: { name: 'writer', description: 'Writes' },
+			enabled: false,
+			invocationPolicy: 'implicit' as const,
+			source: 'local-filesystem' as const,
+			trust: 'user-controlled' as const,
+			hash: 'hash',
+		};
+		await expect(activateSkill({ skills: [], diagnostics: [] }, 'missing')).rejects.toThrow(
+			'not found'
+		);
+		await expect(activateSkill({ skills: [base], diagnostics: [] }, 'writer')).rejects.toThrow(
+			'disabled'
+		);
+		await expect(
+			activateSkill(
+				{ skills: [{ ...base, enabled: true, trust: 'unreviewed' }], diagnostics: [] },
+				'writer'
+			)
+		).rejects.toThrow('not been reviewed');
 	});
 });

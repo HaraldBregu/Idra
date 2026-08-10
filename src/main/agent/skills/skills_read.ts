@@ -41,7 +41,8 @@ export function readSkill(folder: string, id: string): SkillInfo | undefined {
 	};
 	const policy = readSkillPolicyState().skills[id];
 	const hash = createHash('sha256').update(source).digest('hex');
-	const trusted = policy?.trusted !== false && (!policy?.reviewedHash || policy.reviewedHash === hash);
+	const trusted =
+		policy?.trusted !== false && (!policy?.reviewedHash || policy.reviewedHash === hash);
 	return {
 		id,
 		name,
@@ -61,7 +62,7 @@ export function readSkill(folder: string, id: string): SkillInfo | undefined {
 			standard: 'agentskills.io',
 			kind: 'direct',
 			resourceDirectories: RESOURCE_DIRECTORIES.filter((dir) =>
-				fs.existsSync(path.join(folder, dir)),
+				fs.existsSync(path.join(folder, dir))
 			),
 		},
 	};

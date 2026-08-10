@@ -53,7 +53,7 @@ const SkillDetailsPage: React.FC = () => {
 			const list = await window.skills.list();
 			const selected = list.find((item) => item.id === decodedSkillId) ?? null;
 			setSkill(selected);
-			setInspection(selected ? await window.skills.load(selected.id) ?? null : null);
+			setInspection(selected ? ((await window.skills.load(selected.id)) ?? null) : null);
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, loadErrorFallback));
 			setSkill(null);
@@ -169,9 +169,7 @@ const SkillDetailsPage: React.FC = () => {
 								onCheckedChange={(value) => void handleToggleEnabled(value)}
 								disabled={toggling || downloading || deleting}
 							/>
-							{skill.enabled
-								? t('settings.skills.enabled')
-								: t('settings.skills.disabled')}
+							{skill.enabled ? t('settings.skills.enabled') : t('settings.skills.disabled')}
 						</label>
 						<Button
 							variant="outline"
@@ -201,38 +199,42 @@ const SkillDetailsPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			{successMessage && (
-				<SettingsNotice>
-					{successMessage}
-				</SettingsNotice>
-			)}
+			{successMessage && <SettingsNotice>{successMessage}</SettingsNotice>}
 
 			<SettingsSection title={t('settings.skills.details')}>
 				<SettingsPanel>
 					<SkillDetail label={t('settings.skills.detailId')} value={skill.id} mono />
 					<SkillDetail label={t('settings.skills.detailTrust')} value={skill.trust} />
 					<SkillDetail label={t('settings.skills.detailHash')} value={skill.hash} mono />
-					<SkillDetail label={t('settings.skills.detailOrigin')} value={skill.origin || t('settings.skills.localOrigin')} mono />
+					<SkillDetail
+						label={t('settings.skills.detailOrigin')}
+						value={skill.origin || t('settings.skills.localOrigin')}
+						mono
+					/>
 					<SkillDetail
 						label={t('settings.skills.detailFormat')}
 						value={skill.structure?.standard || t('settings.skills.none')}
 					/>
 					<SkillDetail label={t('settings.skills.detailVersion')} value={skillVersion(skill)} />
-					<SkillDetail label={t('settings.skills.detailCompatibility')} value={skill.manifest.compatibility || t('settings.skills.none')} />
+					<SkillDetail
+						label={t('settings.skills.detailCompatibility')}
+						value={skill.manifest.compatibility || t('settings.skills.none')}
+					/>
 					<SkillDetail
 						label={t('settings.skills.detailAuthor')}
 						value={skill.manifest.metadata?.author || t('settings.skills.none')}
 					/>
 					<SkillDetail
 						label={t('settings.skills.detailTools')}
-						value={compactList(
-							skill.manifest.allowedTools,
-							t('settings.skills.none')
-						)}
+						value={compactList(skill.manifest.allowedTools, t('settings.skills.none'))}
 					/>
 					<SkillDetail
 						label={t('settings.skills.detailModel')}
-						value={skill.invocationPolicy === 'explicit' ? t('settings.skills.modelHidden') : t('settings.skills.modelVisible')}
+						value={
+							skill.invocationPolicy === 'explicit'
+								? t('settings.skills.modelHidden')
+								: t('settings.skills.modelVisible')
+						}
 					/>
 					<SkillDetail label={t('settings.skills.detailFolder')} value={skill.folderPath} mono />
 					<SkillDetail
@@ -246,8 +248,14 @@ const SkillDetailsPage: React.FC = () => {
 			{inspection && (
 				<SettingsSection title={t('settings.skills.review')}>
 					<SettingsPanel>
-						<SkillDetail label={t('settings.skills.detailResources')} value={compactList(inspection.resources, t('settings.skills.none'))} mono />
-						<pre className="max-h-96 overflow-auto whitespace-pre-wrap border-t border-border/60 p-4 text-xs leading-5 text-foreground">{inspection.instructions}</pre>
+						<SkillDetail
+							label={t('settings.skills.detailResources')}
+							value={compactList(inspection.resources, t('settings.skills.none'))}
+							mono
+						/>
+						<pre className="max-h-96 overflow-auto whitespace-pre-wrap border-t border-border/60 p-4 text-xs leading-5 text-foreground">
+							{inspection.instructions}
+						</pre>
 					</SettingsPanel>
 				</SettingsSection>
 			)}

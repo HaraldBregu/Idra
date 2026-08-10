@@ -35,7 +35,11 @@ export function validateSkill(folder: string): SkillValidationResult {
 		};
 	}
 	const relativePath = path.relative(canonicalFolder, canonicalSkillPath);
-	if (relativePath.startsWith(`..${path.sep}`) || relativePath === '..' || path.isAbsolute(relativePath)) {
+	if (
+		relativePath.startsWith(`..${path.sep}`) ||
+		relativePath === '..' ||
+		path.isAbsolute(relativePath)
+	) {
 		return {
 			valid: false,
 			issues: [

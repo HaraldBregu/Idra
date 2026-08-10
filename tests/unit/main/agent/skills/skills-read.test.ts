@@ -25,7 +25,9 @@ describe('readSkill', () => {
 				})
 			);
 			expect(skill?.manifest.allowedTools).toEqual(['read', 'write']);
-			expect(skill).toEqual(expect.objectContaining({ enabled: true, invocationPolicy: 'implicit' }));
+			expect(skill).toEqual(
+				expect.objectContaining({ enabled: true, invocationPolicy: 'implicit' })
+			);
 		} finally {
 			fs.rmSync(parent, { recursive: true, force: true });
 		}

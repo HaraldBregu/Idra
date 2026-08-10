@@ -75,16 +75,20 @@ describe('validateSkill', () => {
 			withFrontmatter({ name: 'x', description: 'does things', 'allowed-tools': 'read write' })
 		);
 		expect(validateSkill('/skills/x')).toEqual({ valid: true, issues: [] });
-		readMock.mockReturnValue(withFrontmatter({ name: 'x', description: 'does things', allowedTools: 'write' }));
-		expect(validateSkill('/skills/x').issues.map((issue) => issue.code)).toContain(
-			'unknown-field'
+		readMock.mockReturnValue(
+			withFrontmatter({ name: 'x', description: 'does things', allowedTools: 'write' })
 		);
+		expect(validateSkill('/skills/x').issues.map((issue) => issue.code)).toContain('unknown-field');
 	});
 
 	it('validates parent directory, compatibility, and string-only metadata', () => {
 		readMock.mockReturnValue(withFrontmatter({ name: 'other', description: 'ok' }));
-		expect(validateSkill('/skills/x').issues.map((issue) => issue.code)).toContain('name-folder-mismatch');
-		readMock.mockReturnValue(`---\nname: x\ndescription: ok\ncompatibility: ${'x'.repeat(501)}\nmetadata:\n  version: 1\n---\nbody`);
+		expect(validateSkill('/skills/x').issues.map((issue) => issue.code)).toContain(
+			'name-folder-mismatch'
+		);
+		readMock.mockReturnValue(
+			`---\nname: x\ndescription: ok\ncompatibility: ${'x'.repeat(501)}\nmetadata:\n  version: 1\n---\nbody`
+		);
 		const codes = validateSkill('/skills/x').issues.map((issue) => issue.code);
 		expect(codes).toEqual(expect.arrayContaining(['invalid-compatibility', 'invalid-metadata']));
 	});

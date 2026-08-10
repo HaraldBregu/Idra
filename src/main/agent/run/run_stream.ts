@@ -10,7 +10,12 @@ import {
 	type SessionState,
 } from '../session';
 import { rememberSkill } from '../context';
-import { buildLoadedSkillPrompt, buildSkillContext, buildSystemPrompt, buildWorkspaceContext } from '../system';
+import {
+	buildLoadedSkillPrompt,
+	buildSkillContext,
+	buildSystemPrompt,
+	buildWorkspaceContext,
+} from '../system';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { completeBootstrapTool } from '../tools/assistant/bootstrap_complete';
 import { readTool } from '../tools/core/read';
@@ -137,7 +142,8 @@ async function* loop(
 	const origin = input.origin ?? session.category ?? 'main';
 	const contextMode = input.contextMode ?? (origin === 'main' ? 'workspace' : 'minimal');
 	const runId = input.runId ?? session.id;
-	const skillSnapshot = origin === 'main' ? createSkillRegistrySnapshot() : { skills: [], diagnostics: [] };
+	const skillSnapshot =
+		origin === 'main' ? createSkillRegistrySnapshot() : { skills: [], diagnostics: [] };
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
@@ -225,7 +231,8 @@ async function* loop(
 		mcpDiscovery = mcp.diagnostics;
 	}
 	tools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
-	if (input.explicitSkill) applyActivatedSkill(await activateSkill(skillSnapshot, input.explicitSkill));
+	if (input.explicitSkill)
+		applyActivatedSkill(await activateSkill(skillSnapshot, input.explicitSkill));
 
 	yield {
 		type: 'run_started',
@@ -256,7 +263,10 @@ async function* loop(
 					? await buildWorkspaceContext(config)
 					: '';
 			const implicitSkills = skillSnapshot.skills.filter(
-				(skill) => skill.enabled && skill.trust === 'user-controlled' && skill.invocationPolicy === 'implicit'
+				(skill) =>
+					skill.enabled &&
+					skill.trust === 'user-controlled' &&
+					skill.invocationPolicy === 'implicit'
 			);
 			const skillContext = tools.some((tool) => tool.name === 'load_skill')
 				? buildSkillContext(implicitSkills)

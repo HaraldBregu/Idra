@@ -132,12 +132,14 @@ describe('fitModelContext', () => {
 	});
 
 	it('fails visibly when protected skill instructions cannot fit', () => {
-		expect(() => fitModelContext({
-			systemPrompt: 'Base policy.',
-			protectedSystemPrompt: 'skill'.repeat(1_000),
-			messages: [{ role: 'user', content: 'current request' }],
-			tools: [],
-			maxInputTokens: 500,
-		})).toThrow('active skill instructions');
+		expect(() =>
+			fitModelContext({
+				systemPrompt: 'Base policy.',
+				protectedSystemPrompt: 'skill'.repeat(1_000),
+				messages: [{ role: 'user', content: 'current request' }],
+				tools: [],
+				maxInputTokens: 500,
+			})
+		).toThrow('active skill instructions');
 	});
 });

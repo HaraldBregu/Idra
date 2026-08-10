@@ -119,7 +119,8 @@ export async function* runModelTurn(
 				visibleOutput ||
 				!isTransientModelError(error) ||
 				attempt >= maxRetries
-			) throw error;
+			)
+				throw error;
 			await wait(250 * 2 ** attempt, undefined, { signal });
 		}
 	}

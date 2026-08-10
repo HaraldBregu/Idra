@@ -36,16 +36,31 @@ describe('sanitizeMessages', () => {
 	});
 
 	it('preserves bodyless activation receipts and structured errors', () => {
-		const messages: Message[] = [{
-			role: 'assistant',
-			content: '',
-			toolCalls: [
-				{ id: 'ok', name: 'load_skill', args: { name: 'writer' }, result: { content: '{"activated":true,"id":"writer"}' } },
-				{ id: 'error', name: 'load_skill', args: { name: 'missing' }, result: { content: 'Error: missing skill', isError: true } },
-			],
-		}];
+		const messages: Message[] = [
+			{
+				role: 'assistant',
+				content: '',
+				toolCalls: [
+					{
+						id: 'ok',
+						name: 'load_skill',
+						args: { name: 'writer' },
+						result: { content: '{"activated":true,"id":"writer"}' },
+					},
+					{
+						id: 'error',
+						name: 'load_skill',
+						args: { name: 'missing' },
+						result: { content: 'Error: missing skill', isError: true },
+					},
+				],
+			},
+		];
 		const sanitized = sanitizeMessages(messages);
 		expect(sanitized[0].toolCalls?.[0].result?.content).toContain('"activated":true');
-		expect(sanitized[0].toolCalls?.[1].result).toEqual({ content: 'Error: missing skill', isError: true });
+		expect(sanitized[0].toolCalls?.[1].result).toEqual({
+			content: 'Error: missing skill',
+			isError: true,
+		});
 	});
 });

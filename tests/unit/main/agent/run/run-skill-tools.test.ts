@@ -18,7 +18,11 @@ function fakeTool(name: string): Tool {
 describe('selectSkillTools', () => {
 	it('intersects runtime tools with declared capabilities', () => {
 		const tools = [fakeTool('read'), fakeTool('write'), fakeTool('subagent')];
-		expect(selectSkillTools([...tools, fakeTool('load_skill')], ['read', 'subagent']).map((tool) => tool.name)).toEqual(['read', 'load_skill']);
+		expect(
+			selectSkillTools([...tools, fakeTool('load_skill')], ['read', 'subagent']).map(
+				(tool) => tool.name
+			)
+		).toEqual(['read', 'load_skill']);
 	});
 
 	it('keeps backward-compatible tools when no capability list is declared', () => {

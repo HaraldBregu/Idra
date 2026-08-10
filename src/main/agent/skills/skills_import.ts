@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { SkillImportResult, SkillImportSkipped, SkillInfo } from '../../../shared/skills_types';
+import type {
+	SkillImportResult,
+	SkillImportSkipped,
+	SkillInfo,
+} from '../../../shared/skills_types';
 import { skillsRoot } from './skills_root';
 import { readSkill } from './skills_read';
 import { pickDirectories } from './skills_pick_directories';
@@ -47,8 +51,14 @@ export async function importSkills(): Promise<SkillImportResult | undefined> {
 			fs.cpSync(source, temporary, { recursive: true, errorOnExist: true });
 			validateSkillPackage(temporary);
 			const stagedValidation = validateSkill(temporary);
-			if (!stagedValidation.valid) throw new Error(stagedValidation.issues.map((issue) => issue.message).join('; '));
-			setSkillPolicy(id, { enabled: false, trusted: false, invocationPolicy: 'explicit', origin: source });
+			if (!stagedValidation.valid)
+				throw new Error(stagedValidation.issues.map((issue) => issue.message).join('; '));
+			setSkillPolicy(id, {
+				enabled: false,
+				trusted: false,
+				invocationPolicy: 'explicit',
+				origin: source,
+			});
 			fs.renameSync(temporary, destination);
 			fs.rmSync(temporaryParent, { recursive: true, force: true });
 			const info = readSkill(destination, id);

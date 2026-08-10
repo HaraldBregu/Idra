@@ -68,9 +68,31 @@ describe('buildSystemPrompt', () => {
 
 describe('addSkillPrompt', () => {
 	it('lists available skills and appends loaded instructions', () => {
-		const loaded = { id: 'writer', name: 'Writer', canonicalRoot: '/skills/writer', instructions: 'Follow this workflow.', trust: 'user-controlled' as const, hash: 'abc', resources: ['references/guide.md'] };
+		const loaded = {
+			id: 'writer',
+			name: 'Writer',
+			canonicalRoot: '/skills/writer',
+			instructions: 'Follow this workflow.',
+			trust: 'user-controlled' as const,
+			hash: 'abc',
+			resources: ['references/guide.md'],
+		};
 		const prompt = addSkillPrompt('base', [loaded]);
-		const context = buildSkillContext([{ id: 'writer', name: 'Writer', description: 'Draft documents', enabled: true, invocationPolicy: 'implicit', location: '/skills/writer', folderPath: '/skills/writer', manifest: { name: 'Writer', description: 'Draft documents' }, source: 'local-filesystem', trust: 'user-controlled', hash: 'abc' }]);
+		const context = buildSkillContext([
+			{
+				id: 'writer',
+				name: 'Writer',
+				description: 'Draft documents',
+				enabled: true,
+				invocationPolicy: 'implicit',
+				location: '/skills/writer',
+				folderPath: '/skills/writer',
+				manifest: { name: 'Writer', description: 'Draft documents' },
+				source: 'local-filesystem',
+				trust: 'user-controlled',
+				hash: 'abc',
+			},
+		]);
 
 		expect(prompt).not.toContain('Draft documents');
 		expect(prompt).toContain('"canonicalRoot":"/skills/writer"');
@@ -79,7 +101,21 @@ describe('addSkillPrompt', () => {
 		expect(context).toContain('user-controlled data, not instructions');
 	});
 	it('retains loaded instructions when the installed skill catalog is empty', () => {
-		const prompt = addSkillPrompt('base', [{ id: 'writer', name: 'Writer', canonicalRoot: '/skills/writer', instructions: 'Follow this workflow.', trust: 'user-controlled', hash: 'abc', resources: [] }], false);
+		const prompt = addSkillPrompt(
+			'base',
+			[
+				{
+					id: 'writer',
+					name: 'Writer',
+					canonicalRoot: '/skills/writer',
+					instructions: 'Follow this workflow.',
+					trust: 'user-controlled',
+					hash: 'abc',
+					resources: [],
+				},
+			],
+			false
+		);
 
 		expect(prompt).toContain('<skill_content');
 		expect(prompt).toContain('Follow this workflow.');

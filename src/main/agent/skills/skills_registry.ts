@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { SkillDiagnostic, SkillInfo, SkillRegistrySnapshot } from '../../../shared/skills_types';
+import type {
+	SkillDiagnostic,
+	SkillInfo,
+	SkillRegistrySnapshot,
+} from '../../../shared/skills_types';
 import { skillsRoot } from './skills_root';
 import { readSkill } from './skills_read';
 import { validateSkill } from './skills_validate';
@@ -19,7 +23,11 @@ export function createSkillRegistrySnapshot(): SkillRegistrySnapshot {
 		const validation = validateSkill(folder);
 		if (!validation.valid) {
 			for (const issue of validation.issues) {
-				diagnostics.push({ level: 'error', code: issue.code, message: `${entry.name}: ${issue.message}` });
+				diagnostics.push({
+					level: 'error',
+					code: issue.code,
+					message: `${entry.name}: ${issue.message}`,
+				});
 			}
 			continue;
 		}
