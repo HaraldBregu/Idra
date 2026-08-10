@@ -61,7 +61,7 @@ export function UserMenu({ align }: UserMenuProps): ReactElement {
 				<DropdownMenuSeparator />
 				<DropdownMenuItem onClick={() => navigate('/settings')}>
 					<Settings />
-					{t('settings.overview.backToSettings')}
+					{settingsLabel}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

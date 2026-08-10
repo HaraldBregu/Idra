@@ -12,7 +12,7 @@ it.each([
 	['settings.overview.groups.agent', '/settings/assistant'],
 	['settings.tabs.system', '/settings/system'],
 	['settings.tabs.extensions', '/settings/extensions'],
-	['settings.overview.backToSettings', '/settings'],
+	['settings.title', '/settings'],
 ])('navigates from %s to %s', async (label, path) => {
 	const user = userEvent.setup();
 
