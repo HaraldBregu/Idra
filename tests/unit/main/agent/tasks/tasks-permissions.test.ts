@@ -24,7 +24,9 @@ it('initializes every background-task tool as allowed', () => {
 	for (const toolName of PERMISSION_TOOLS) {
 		expect(permissions[toolName]).toMatchObject({ default: 'allow' });
 	}
-	expect(setTaskState).toHaveBeenCalledWith(expect.objectContaining({ permissions: expect.any(Object) }));
+	expect(setTaskState).toHaveBeenCalledWith(
+		expect.objectContaining({ permissions: expect.any(Object) })
+	);
 });
 
 it('saves and resets permissions without replacing schedules or runtime settings', () => {
