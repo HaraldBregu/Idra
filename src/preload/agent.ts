@@ -6,6 +6,7 @@ import type {
 	AgentHistoryMessage,
 	AgentPermissionMode,
 	AgentResponseEvent,
+	AgentRunOptions,
 	AgentSessionSummary,
 	AgentToolPermissionDecision,
 	AgentToolPermissionScope,
@@ -36,19 +37,16 @@ function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
 }
 
 function normalizeAgentSendRuntimeOptions(
-	options?: Record<string, unknown>
-): Record<string, unknown> | undefined {
+	options?: AgentRunOptions
+): AgentRunOptions | undefined {
 	if (!options) return undefined;
 	const files = normalizeAgentInputFiles(options.files);
-	const normalized: Record<string, unknown> = {
+	const normalized: AgentRunOptions = {
 		...(optionalTrimmedString(options.runId)
 			? { runId: optionalTrimmedString(options.runId) }
 			: {}),
 		...(optionalTrimmedString(options.sessionId)
 			? { sessionId: optionalTrimmedString(options.sessionId) }
-			: {}),
-		...(optionalTrimmedString(options.agentRuntime)
-			? { agentRuntime: optionalTrimmedString(options.agentRuntime) }
 			: {}),
 		...(optionalTrimmedString(options.providerId)
 			? { providerId: optionalTrimmedString(options.providerId) }
@@ -76,7 +74,7 @@ function normalizeAgentSendRuntimeOptions(
 function sendAgent(
 	channel: typeof AgentChannels.send,
 	message: string,
-	options?: Record<string, unknown>,
+	options?: AgentRunOptions,
 	onEvent?: (event: AgentResponseEvent) => void
 ): Promise<string> {
 	const runId = optionalTrimmedString(options?.runId) || crypto.randomUUID();
@@ -97,13 +95,15 @@ function sendAgent(
 export const agent: AgentApi = {
 	send: (
 		message: string,
-		options?: Record<string, unknown>,
+		options?: AgentRunOptions,
 		onEvent?: (event: AgentResponseEvent) => void
 	): Promise<string> => {
 		return sendAgent(AgentChannels.send, message, options, onEvent);
 	},
-	cancel: (): Promise<void> => {
-		return typedInvokeUnwrap(AgentChannels.cancel);
+	cancel: (runId: string): Promise<boolean> => {
+		const normalizedRunId = optionalTrimmedString(runId);
+		if (!normalizedRunId) throw new Error('Invalid assistant run id.');
+		return typedInvokeUnwrap(AgentChannels.cancel, normalizedRunId);
 	},
 	respondToolPermission: (
 		scope: AgentToolPermissionScope,

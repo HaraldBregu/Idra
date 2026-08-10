@@ -40,6 +40,7 @@ import type {
 } from '../main/agent/permissions/permissions_types';
 import type {
 	AgentHistoryMessage,
+	AgentRunOptions,
 	AgentResponseEvent,
 	AgentSessionSummary,
 	AgentPermissionMode,
@@ -111,10 +112,10 @@ export interface WindowApi {
 export interface AgentApi {
 	send: (
 		message: string,
-		options?: Record<string, unknown>,
+		options?: AgentRunOptions,
 		onEvent?: (event: AgentResponseEvent) => void
 	) => Promise<string>;
-	cancel: () => Promise<void>;
+	cancel: (runId: string) => Promise<boolean>;
 	respondToolPermission: (
 		scope: AgentToolPermissionScope,
 		decision: AgentToolPermissionDecision

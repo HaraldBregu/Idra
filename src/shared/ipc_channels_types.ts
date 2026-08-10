@@ -49,10 +49,10 @@ type ProviderStoreRecord = StoredProvider | StoredBotProvider;
 
 export interface AgentInvokeChannelMap {
 	[AgentChannels.send]: {
-		args: [message: string, options?: Record<string, unknown>];
+		args: [message: string, options?: import('./agent_types').AgentRunOptions];
 		result: string;
 	};
-	[AgentChannels.cancel]: { args: []; result: void };
+	[AgentChannels.cancel]: { args: [runId: string]; result: boolean };
 	[AgentChannels.respondToolPermission]: {
 		args: [
 			scope: import('./agent_types').AgentToolPermissionScope,

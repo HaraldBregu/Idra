@@ -58,6 +58,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	const [historyLoading, setHistoryLoading] = useState(false);
 	const requestIdRef = useRef(0);
 	const requestActiveRef = useRef(false);
+	const activeRunIdRef = useRef<string>();
 	const localInteractionRef = useRef(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -80,12 +81,12 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	);
 
 	const stopResponse = useCallback((): void => {
+		const runId = activeRunIdRef.current;
+		activeRunIdRef.current = undefined;
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
 		setIsLoading(false);
-		void getAgentApi()
-			?.cancel()
-			.catch(() => undefined);
+		if (runId) void getAgentApi()?.cancel(runId).catch(() => undefined);
 		dispatchChat({ type: 'cancel_active', completedAtMs: Date.now() });
 	}, [dispatchChat]);
 
@@ -95,8 +96,10 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 			if (!trimmed && files.length === 0) return;
 
 			const requestId = requestIdRef.current + 1;
+			const runId = crypto.randomUUID();
 			requestIdRef.current = requestId;
 			requestActiveRef.current = true;
+			activeRunIdRef.current = runId;
 			localInteractionRef.current = true;
 			const submittedAtMs = Date.now();
 
@@ -124,8 +127,10 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 			try {
 				const inputFiles = files.length > 0 ? await filesToAgentInput(files) : [];
+				if (requestIdRef.current !== requestId) return;
 				const runtimeOptions = {
 					...runtimeOptionsForPrompt(trimmed),
+					runId,
 					sessionId,
 					...(inputFiles.length > 0 ? { files: inputFiles } : {}),
 				};
@@ -137,11 +142,13 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				};
 				response = await agent.send(trimmed, runtimeOptions, onEvent);
 				if (requestIdRef.current !== requestId) return;
+				activeRunIdRef.current = undefined;
 				requestActiveRef.current = false;
 				setIsLoading(false);
 				dispatchChat({ type: 'complete_active', response, completedAtMs: Date.now() });
 			} catch (error) {
 				if (requestIdRef.current !== requestId) return;
+				activeRunIdRef.current = undefined;
 				requestActiveRef.current = false;
 				setIsLoading(false);
 				const message = error instanceof Error ? error.message : 'Agent request failed.';
@@ -180,6 +187,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	const resetChat = useCallback((): void => {
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
+		activeRunIdRef.current = undefined;
 		localInteractionRef.current = true;
 		setInput('');
 		setIsLoading(false);

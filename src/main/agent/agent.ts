@@ -38,21 +38,33 @@ import type {
 	AgentRunOptions,
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
+	AgentOrigin,
 	AgentResponseEvent,
 	AgentRunStopReason,
 	AgentSessionSummary,
 } from '../../shared/agent_types';
 import { toError } from '../ipc/core/error';
-import { AgentRunScheduler } from './agent_scheduler';
+import { AgentRunScheduler, type AgentRunPriority } from './agent_scheduler';
 import type { WindowFactory } from '../window_factory';
 import type { PermissionsSchema } from './permissions';
 
 interface ActiveAgentRun {
+	runId: string;
 	agentId: string;
-	sessionKey: string;
+	sessionId: string;
+	origin: AgentOrigin;
+	windowId?: number;
 	controller: AbortController;
-	promise?: Promise<string>;
+	completion?: Promise<string>;
 }
+
+const RUN_PRIORITIES: Record<AgentOrigin, AgentRunPriority> = {
+	main: 'high',
+	bot: 'normal',
+	health: 'low',
+	task: 'low',
+	subagent: 'low',
+};
 
 export interface AgentSendOptions extends AgentRunOptions {
 	interactive?: boolean;
@@ -60,7 +72,7 @@ export interface AgentSendOptions extends AgentRunOptions {
 	permissions?: PermissionsSchema;
 	category?: SessionCategory;
 	modelId?: string;
-	approvalWindowId?: number;
+	windowId?: number;
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
@@ -110,7 +122,7 @@ export class Agent {
 	}
 
 	destroy(): void {
-		this.cancel();
+		this.cancelAll();
 		stopHealth();
 		setTaskRunner(undefined);
 		destroyTask();
@@ -119,6 +131,8 @@ export class Agent {
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
 		const category = options.category ?? 'main';
 		const sessionId = resolveSessionId(options.sessionId, this.config.location, category);
+		const runId = options.runId ?? randomUUID();
+		if (this.activeRuns.has(runId)) throw new Error(`Agent run '${runId}' is already active.`);
 		const commandOptions: InternalAgentSendOptions = {
 			...options,
 			sessionId,
@@ -127,19 +141,28 @@ export class Agent {
 				: {}),
 		};
 		const command: AgentCommand<InternalAgentSendOptions> = {
-			id: options.runId ?? randomUUID(),
+			id: runId,
 			agentId: agentId.trim(),
 			message,
 			options: commandOptions,
 			queuedAt: Date.now(),
 		};
 		enqueueCommand(this.state, command);
-		const sessionKey = sessionId;
 		const controller = new AbortController();
-		const active: ActiveAgentRun = { agentId: command.agentId, sessionKey, controller };
-		const run = this.scheduler.run(sessionKey, () => this.process(command, controller));
-		active.promise = run;
+		const active: ActiveAgentRun = {
+			runId,
+			agentId: command.agentId,
+			sessionId,
+			origin: category,
+			...(options.windowId === undefined ? {} : { windowId: options.windowId }),
+			controller,
+		};
 		this.activeRuns.set(command.id, active);
+		const run = this.scheduler.run(sessionId, () => this.process(command, controller), {
+			priority: RUN_PRIORITIES[category],
+			signal: controller.signal,
+		});
+		active.completion = run;
 		const cleanup = () => {
 			if (this.activeRuns.get(command.id) === active) this.activeRuns.delete(command.id);
 		};
@@ -180,9 +203,7 @@ export class Agent {
 				...(options.legacySessionId ? { legacySessionId: options.legacySessionId } : {}),
 				...(options.providerId ? { providerId: options.providerId } : {}),
 				...((options.model ?? options.modelId) ? { model: options.model ?? options.modelId } : {}),
-				...(options.approvalWindowId === undefined
-					? {}
-					: { approvalWindowId: options.approvalWindowId }),
+				...(options.windowId === undefined ? {} : { approvalWindowId: options.windowId }),
 				...(parsedSkillCommand.explicitSkill
 					? { explicitSkill: parsedSkillCommand.explicitSkill }
 					: {}),
@@ -242,7 +263,7 @@ export class Agent {
 		await this.cancelSession(resolvedSessionId);
 		await this.scheduler.run(resolvedSessionId, async () => {
 			clearSessionMessages(createSessionState(), this.config, resolvedSessionId);
-		});
+		}, { priority: 'high' });
 	}
 
 	async deleteSession(sessionId: string): Promise<void> {
@@ -250,17 +271,23 @@ export class Agent {
 		await this.cancelSession(resolvedSessionId);
 		await this.scheduler.run(resolvedSessionId, async () => {
 			deleteStoredSession(createSessionState(), this.config, resolvedSessionId);
-		});
+		}, { priority: 'high' });
 	}
 
-	cancel(agentId?: string): void {
-		if (!agentId) rejectPendingToolPermissions();
-		interruptCommands(this.state, agentId);
-		for (const [runId, active] of this.activeRuns) {
-			if (!agentId || active.agentId === agentId) {
-				if (agentId) rejectPendingToolPermissions(runId);
-				active.controller.abort();
-			}
+	cancel(runId: string, windowId?: number): boolean {
+		const active = this.activeRuns.get(runId);
+		if (!active || (windowId !== undefined && active.windowId !== windowId)) return false;
+		this.state.pending = this.state.pending.filter((command) => command.id !== runId);
+		rejectPendingToolPermissions(runId);
+		active.controller.abort(new DOMException('Run cancelled.', 'AbortError'));
+		return true;
+	}
+
+	cancelAll(): void {
+		rejectPendingToolPermissions();
+		interruptCommands(this.state);
+		for (const active of this.activeRuns.values()) {
+			active.controller.abort(new DOMException('Application shutting down.', 'AbortError'));
 		}
 	}
 
@@ -281,14 +308,15 @@ export class Agent {
 			(command) => (command.options as InternalAgentSendOptions).sessionId !== sessionId
 		);
 		const matching = [...this.activeRuns.entries()].filter(
-			([, active]) => active.sessionKey === sessionId
+			([, active]) => active.sessionId === sessionId
 		);
 		for (const [runId, active] of matching) {
-			rejectPendingToolPermissions(runId);
-			active.controller.abort();
+			this.cancel(runId);
 		}
 		await Promise.allSettled(
-			matching.map(([, active]) => active.promise).filter((run): run is Promise<string> => !!run)
+			matching
+				.map(([, active]) => active.completion)
+				.filter((run): run is Promise<string> => !!run)
 		);
 	}
 }

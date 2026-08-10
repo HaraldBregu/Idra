@@ -269,7 +269,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				if (!window) throw new Error('Assistant request requires an originating window.');
 				return agent.send(message, 'main', {
 					...normalizeAgentSendRuntimeOptions(options),
-					approvalWindowId: window.id,
+					windowId: window.id,
 					streamEvent: (responseEvent) =>
 						eventBus.sendTo(window.id, AgentChannels.response, responseEvent),
 				});
@@ -278,8 +278,12 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.cancel,
-			wrapSimpleHandler((): void => {
-				agent.cancel();
+			wrapIpcHandler((event, value: unknown): boolean => {
+				const window = BrowserWindow.fromWebContents(event.sender);
+				if (!window) return false;
+				const runId = optionalTrimmedString(value);
+				if (!runId) throw new Error('Invalid assistant run id.');
+				return agent.cancel(runId, window.id);
 			}, AgentChannels.cancel)
 		);
 
