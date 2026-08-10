@@ -16,14 +16,14 @@ const AGENT_FILES: Record<string, string> = {
 };
 const MEDIA_TOOLS = new Set(['create_image', 'create_video', 'create_sound']);
 const SCHEDULE_TOOLS = new Set([
-	'create_schedule',
-	'update_schedule',
-	'pause_schedule',
-	'resume_schedule',
-	'delete_schedule',
-	'get_schedule',
-	'list_schedules',
-	'run_schedule_now',
+	'create_task',
+	'update_task',
+	'pause_task',
+	'resume_task',
+	'delete_task',
+	'get_task',
+	'list_tasks',
+	'run_task_now',
 ]);
 const WIKI_TOOLS = new Set([
 	'wiki_ingest_source',

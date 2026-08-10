@@ -10,12 +10,12 @@ import { saveMemoryTool } from '../../../../../src/main/agent/tools/memory/save'
 import { cameraRecorderTool } from '../../../../../src/main/agent/tools/system/camera_recorder';
 import { microphoneRecorderTool } from '../../../../../src/main/agent/tools/system/microphone_recorder';
 import { screenRecorderTool } from '../../../../../src/main/agent/tools/system/screen_recorder';
-import { createScheduleTool } from '../../../../../src/main/agent/tools/tasks/create_schedule';
-import { deleteScheduleTool } from '../../../../../src/main/agent/tools/tasks/delete_schedule';
-import { pauseScheduleTool } from '../../../../../src/main/agent/tools/tasks/pause_schedule';
-import { resumeScheduleTool } from '../../../../../src/main/agent/tools/tasks/resume_schedule';
-import { runScheduleNowTool } from '../../../../../src/main/agent/tools/tasks/run_schedule_now';
-import { updateScheduleTool } from '../../../../../src/main/agent/tools/tasks/update_schedule';
+import { createTaskTool } from '../../../../../src/main/agent/tools/tasks/create_task';
+import { deleteTaskTool } from '../../../../../src/main/agent/tools/tasks/delete_task';
+import { pauseTaskTool } from '../../../../../src/main/agent/tools/tasks/pause_task';
+import { resumeTaskTool } from '../../../../../src/main/agent/tools/tasks/resume_task';
+import { runTaskNowTool } from '../../../../../src/main/agent/tools/tasks/run_task_now';
+import { updateTaskTool } from '../../../../../src/main/agent/tools/tasks/update_task';
 import { wikiIngestTool } from '../../../../../src/main/agent/tools/knowledge/ingest';
 import { wikiLintTool } from '../../../../../src/main/agent/tools/knowledge/lint';
 import { wikiReadTool } from '../../../../../src/main/agent/tools/knowledge/read';
@@ -58,12 +58,12 @@ it.each([knowledgeSearchTool, wikiSearchTool, wikiReadTool, wikiQueryTool])(
 );
 
 it.each([
-	createScheduleTool,
-	updateScheduleTool,
-	deleteScheduleTool,
-	pauseScheduleTool,
-	resumeScheduleTool,
-	runScheduleNowTool,
+	createTaskTool,
+	updateTaskTool,
+	deleteTaskTool,
+	pauseTaskTool,
+	resumeTaskTool,
+	runTaskNowTool,
 ])('%s uses its scoped permission without forced approval', (tool) => {
 	expect(tool.defaultPermission).toBe('allow');
 	expect(tool.hardApproval).not.toBe(true);

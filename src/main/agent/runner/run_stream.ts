@@ -46,14 +46,14 @@ import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
 import { updateHealthTool } from '../tools/health/update';
 import { updateHealthSettingsTool } from '../tools/health/settings_update';
 import { createLoadSkillTool } from '../tools/assistant/skill_load';
-import { createScheduleTool } from '../tools/tasks/create_schedule';
-import { updateScheduleTool } from '../tools/tasks/update_schedule';
-import { pauseScheduleTool } from '../tools/tasks/pause_schedule';
-import { resumeScheduleTool } from '../tools/tasks/resume_schedule';
-import { deleteScheduleTool } from '../tools/tasks/delete_schedule';
-import { getScheduleTool } from '../tools/tasks/get_schedule';
-import { listSchedulesTool } from '../tools/tasks/list_schedules';
-import { runScheduleNowTool } from '../tools/tasks/run_schedule_now';
+import { createTaskTool } from '../tools/tasks/create_task';
+import { updateTaskTool } from '../tools/tasks/update_task';
+import { pauseTaskTool } from '../tools/tasks/pause_task';
+import { resumeTaskTool } from '../tools/tasks/resume_task';
+import { deleteTaskTool } from '../tools/tasks/delete_task';
+import { getTaskTool } from '../tools/tasks/get_task';
+import { listTasksTool } from '../tools/tasks/list_tasks';
+import { runTaskNowTool } from '../tools/tasks/run_task_now';
 import { subagentTool } from '../tools/assistant/subagent';
 import { subagentsTool } from '../tools/assistant/subagents';
 import { listExtensionsTool } from '../tools/extensions/list';
@@ -197,14 +197,14 @@ async function* loop(
 				...getWikiTools(origin),
 				updateHealthTool(config),
 				updateHealthSettingsTool,
-				createScheduleTool,
-				updateScheduleTool,
-				pauseScheduleTool,
-				resumeScheduleTool,
-				deleteScheduleTool,
-				getScheduleTool,
-				listSchedulesTool,
-				runScheduleNowTool,
+				createTaskTool,
+				updateTaskTool,
+				pauseTaskTool,
+				resumeTaskTool,
+				deleteTaskTool,
+				getTaskTool,
+				listTasksTool,
+				runTaskNowTool,
 				listExtensionsTool,
 				...(options.windowFactory ? [openExtensionsTool(options.windowFactory)] : []),
 				completeBootstrapTool,

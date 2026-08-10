@@ -12,11 +12,11 @@ export const taskActionSchema = z.discriminatedUnion('type', [
 	}),
 ]);
 
-export const scheduleIdSchema = z.object({
-	scheduleId: z.string().min(1).describe('Identifier of the schedule to act on.'),
+export const taskIdSchema = z.object({
+	taskId: z.string().min(1).describe('Identifier of the task to act on.'),
 });
 
-export const createScheduleRequestSchema = z.object({
+export const createTaskRequestSchema = z.object({
 	name: z.string(),
 	description: z.string().optional(),
 	cronExpression: z.string().optional(),
@@ -24,7 +24,7 @@ export const createScheduleRequestSchema = z.object({
 	action: taskActionSchema,
 });
 
-export const updateScheduleRequestSchema = z
+export const updateTaskRequestSchema = z
 	.object({
 		name: z.string().optional(),
 		description: z.string().optional(),
@@ -33,5 +33,5 @@ export const updateScheduleRequestSchema = z
 	action: taskActionSchema.optional(),
 	})
 	.refine((value) => Object.keys(value).length > 0, {
-		message: 'update_schedule requires at least one field in request.',
+		message: 'update_task requires at least one field in request.',
 	});

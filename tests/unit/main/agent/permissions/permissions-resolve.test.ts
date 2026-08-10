@@ -70,7 +70,7 @@ describe('resolveToolPermission', () => {
 			exec: entry('deny'),
 			mcp__files__inspect: entry('deny'),
 			memory_save: entry('deny'),
-			create_schedule: entry('deny'),
+			create_task: entry('deny'),
 		});
 		expect(resolveToolPermission('read', { path: '/appdata/agent/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('edit', { path: '/appdata/agent/nested/a.txt' })).toBe('deny');
@@ -86,7 +86,7 @@ describe('resolveToolPermission', () => {
 			'deny'
 		);
 		expect(resolveToolPermission('memory_save', { fact: 'remember me' })).toBe('deny');
-		expect(resolveToolPermission('create_schedule', { request: {} })).toBe('deny');
+		expect(resolveToolPermission('create_task', { request: {} })).toBe('deny');
 	});
 
 	it('requires every target to pass the system layer', () => {

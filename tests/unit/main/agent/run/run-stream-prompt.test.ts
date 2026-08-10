@@ -229,7 +229,7 @@ describe('run stream system prompt', () => {
 		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
 		expect(events[0].tools).toContain('web_fetch');
 		expect(events[0].tools).not.toEqual(
-			expect.arrayContaining(['write', 'edit', 'apply_patch', 'exec', 'create_schedule'])
+			expect.arrayContaining(['write', 'edit', 'apply_patch', 'exec', 'create_task'])
 		);
 	});
 

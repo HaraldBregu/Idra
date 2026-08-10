@@ -51,7 +51,7 @@ describe('directoryPermissionTargets', () => {
 	});
 
 	it('maps schedule changes to the shared cron store', () => {
-		expect(directoryPermissionTargets('create_schedule', {}, agentDir)).toEqual([taskStorePath]);
+		expect(directoryPermissionTargets('create_task', {}, agentDir)).toEqual([taskStorePath]);
 	});
 
 	it('maps health settings changes to the shared health store', () => {
