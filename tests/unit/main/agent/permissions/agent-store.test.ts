@@ -19,17 +19,16 @@ jest.mock('electron-store', () =>
 );
 
 import {
-	getModelId,
+	AGENT_DIRECTORY,
 	getMediaModel,
+	getModelId,
 	getPermissions,
-	getPermissionMode,
 	getProviderId,
 	getSearchEngine,
 	resetPermissions,
 	setDirectoryPermissions,
-	setModelId,
 	setMediaModel,
-	setPermissionMode,
+	setModelId,
 	setProviderId,
 	setSearchEngine,
 	setToolPermission,
@@ -43,40 +42,64 @@ beforeEach(() => {
 });
 
 describe('agent store permissions', () => {
-	it('persists the agent permission mode', () => {
-		expect(getPermissionMode()).toBe('ask');
-		setPermissionMode('bypass');
-		expect(getPermissions().mode).toBe('bypass');
-		expect(resetPermissions().mode).toBe('ask');
+	it('does not inject a workspace directory permission', () => {
+		expect(getPermissions().directories).toEqual([]);
 	});
 
 	it('preserves normalized directory entries when a tool changes', () => {
-		setDirectoryPermissions({
-			' /shared ': { recoursive: true, tools: [' read ', 'read'] },
-		});
-		const permission = setToolPermission('read', {
+		setDirectoryPermissions([
+			{
+				path: ' /shared ',
+				enabled: true,
+				recoursive: true,
+				tools: [' read_file ', 'read_file'],
+			},
+		]);
+		const permissions = setToolPermission('read_file', {
 			default: 'ask',
 			allow: [],
 			deny: [],
 			ask: [],
 		});
 
-		expect(permission.dir).toEqual({
-			'/shared': { recoursive: true, tools: ['read'] },
+		expect(permissions.directories).toEqual([
+			{ path: '/shared', enabled: true, recoursive: true, tools: ['read_file'] },
+		]);
+		expect(permissions.tools.read_file).toEqual({
+			default: 'ask',
+			allow: [],
+			deny: [],
+			ask: [],
 		});
-		expect(permission.read).toEqual({ default: 'ask', allow: [], deny: [], ask: [] });
 	});
 
-	it('reserves dir from tool updates', () => {
-		expect(() =>
-			setToolPermission('dir', { default: 'allow', allow: [], deny: [], ask: [] })
-		).toThrow("'dir' is reserved for permission settings.");
+	it('allows the workspace only when it is explicitly stored', () => {
+		expect(
+			setDirectoryPermissions([
+				{
+					path: AGENT_DIRECTORY,
+					enabled: true,
+					recoursive: true,
+					tools: '*',
+				},
+			]).directories
+		).toEqual([
+			{
+				path: AGENT_DIRECTORY,
+				enabled: true,
+				recoursive: true,
+				tools: '*',
+			},
+		]);
+		expect(setDirectoryPermissions([]).directories).toEqual([]);
 	});
 
-	it('resets directory permissions to an empty map', () => {
-		setDirectoryPermissions({ '/shared': { recoursive: true, tools: '*' } });
-		expect(getPermissions().dir).not.toEqual({});
-		expect(resetPermissions().dir).toEqual({});
+	it('resets directory permissions to an empty list', () => {
+		setDirectoryPermissions([
+			{ path: '/shared', enabled: true, recoursive: true, tools: '*' },
+		]);
+		expect(getPermissions().directories).not.toEqual([]);
+		expect(resetPermissions().directories).toEqual([]);
 	});
 
 	it('preserves the other agent settings when permissions change', () => {
@@ -89,7 +112,12 @@ describe('agent store permissions', () => {
 			options: { aspectRatio: '16:9' },
 		});
 
-		setPermissionMode('bypass');
+		setToolPermission('exec_command', {
+			default: 'deny',
+			allow: [],
+			deny: [],
+			ask: [],
+		});
 
 		expect(getProviderId()).toBe('provider');
 		expect(getModelId()).toBe('model');

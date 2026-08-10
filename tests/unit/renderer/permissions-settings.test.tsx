@@ -7,29 +7,32 @@ jest.mock('react-i18next', () => ({
 }));
 
 const permissions = {
-	dir: { '/tmp': { recoursive: true, tools: ['read'] } },
-	read: { default: 'allow' as const, allow: ['Desktop'], deny: [], ask: [] },
-	write: { default: 'allow' as const, allow: [], deny: [], ask: [] },
-	edit: {
-		default: 'ask' as const,
-		allow: ['Desktop/file.txt'],
-		deny: [],
-		ask: [],
+	tools: {
+		read_file: { default: 'allow' as const, allow: ['Desktop'], deny: [], ask: [] },
+		write_file: { default: 'allow' as const, allow: [], deny: [], ask: [] },
+		edit_file: {
+			default: 'ask' as const,
+			allow: ['Desktop/file.txt'],
+			deny: [],
+			ask: [],
+		},
 	},
+	directories: [
+		{
+			path: '/tmp',
+			enabled: true,
+			recoursive: true,
+			tools: ['read_file'],
+		},
+	],
 };
 
 const agentApi = {
 	policyGet: jest.fn(),
-	getWorkspaceLocation: jest.fn(),
 	policyPickDirectory: jest.fn(),
 	policySetDirectories: jest.fn(),
 	policySetTool: jest.fn(),
 	policyReset: jest.fn(),
-};
-const tasksApi = {
-	getPermissions: jest.fn(),
-	savePermissions: jest.fn(),
-	resetPermissions: jest.fn(),
 };
 
 beforeAll(() => {
@@ -39,36 +42,28 @@ beforeAll(() => {
 beforeEach(() => {
 	jest.clearAllMocks();
 	Object.defineProperty(window, 'agent', { configurable: true, value: agentApi });
-	Object.defineProperty(window, 'tasks', { configurable: true, value: tasksApi });
 	agentApi.policyGet.mockResolvedValue(permissions);
-	agentApi.getWorkspaceLocation.mockResolvedValue('/workspace');
 	agentApi.policyPickDirectory.mockResolvedValue(undefined);
 	agentApi.policySetDirectories.mockResolvedValue(permissions);
 	agentApi.policySetTool.mockResolvedValue(permissions);
 	agentApi.policyReset.mockResolvedValue(permissions);
-	tasksApi.getPermissions.mockResolvedValue(permissions);
-	tasksApi.savePermissions.mockResolvedValue(permissions);
-	tasksApi.resetPermissions.mockResolvedValue(permissions);
 });
 
 describe('Permissions settings', () => {
-	it('renders directory permissions and top-level tool defaults', async () => {
+	it('renders directory permissions and tool defaults', async () => {
 		render(<PermissionsPage />);
 
-		expect((await screen.findAllByText('read')).length).toBeGreaterThan(0);
-		expect(screen.getByText('write')).toBeInTheDocument();
-		expect(screen.getAllByText('edit').length).toBeGreaterThan(0);
+		expect((await screen.findAllByText('read_file')).length).toBeGreaterThan(0);
+		expect(screen.getByText('write_file')).toBeInTheDocument();
+		expect(screen.getByText('edit_file')).toBeInTheDocument();
 		expect(screen.queryByText('Desktop')).not.toBeInTheDocument();
-		expect(screen.queryByText('Desktop/file.txt')).not.toBeInTheDocument();
 		expect(screen.getByText('/tmp')).toBeInTheDocument();
-		expect(screen.getAllByText('recursive').length).toBeGreaterThan(0);
 	});
 
-	it('prefills the workspace location for a new directory permission', async () => {
+	it('does not implicitly prefill the workspace', async () => {
 		render(<PermissionsPage />);
 
-		expect(await screen.findByRole('textbox', { name: 'directoryPath' })).toHaveValue('/workspace');
-		expect(agentApi.getWorkspaceLocation).toHaveBeenCalledTimes(1);
+		expect(await screen.findByRole('textbox', { name: 'directoryPath' })).toHaveValue('');
 	});
 
 	it('updates the default owned by one tool', async () => {
@@ -82,8 +77,8 @@ describe('Permissions settings', () => {
 		await user.click(await screen.findByRole('option', { name: 'ask' }));
 
 		await waitFor(() =>
-			expect(agentApi.policySetTool).toHaveBeenCalledWith('read', {
-				...permissions.read,
+			expect(agentApi.policySetTool).toHaveBeenCalledWith('read_file', {
+				...permissions.tools.read_file,
 				default: 'ask',
 			})
 		);
@@ -94,20 +89,23 @@ describe('Permissions settings', () => {
 		render(<PermissionsPage />);
 		await screen.findByText('/tmp');
 
-		const directory = screen.getByRole('textbox', { name: 'directoryPath' });
-		await user.clear(directory);
-		await user.type(directory, '/workspace');
+		await user.type(screen.getByRole('textbox', { name: 'directoryPath' }), '/workspace');
 		const tools = screen.getByRole('textbox', { name: 'directoryTools' });
 		await user.clear(tools);
-		await user.type(tools, 'read, write, read');
+		await user.type(tools, 'read_file, write_file, read_file');
 		await user.click(screen.getByRole('switch', { name: 'recursive' }));
 		await user.click(screen.getByRole('button', { name: 'addDirectory' }));
 
 		await waitFor(() =>
-			expect(agentApi.policySetDirectories).toHaveBeenCalledWith({
-				...permissions.dir,
-				'/workspace': { recoursive: false, tools: ['read', 'write'] },
-			})
+			expect(agentApi.policySetDirectories).toHaveBeenCalledWith([
+				...permissions.directories,
+				{
+					path: '/workspace',
+					enabled: true,
+					recoursive: false,
+					tools: ['read_file', 'write_file'],
+				},
+			])
 		);
 	});
 
@@ -124,44 +122,25 @@ describe('Permissions settings', () => {
 		await user.click(screen.getByRole('button', { name: 'addDirectory' }));
 
 		await waitFor(() =>
-			expect(agentApi.policySetDirectories).toHaveBeenCalledWith({
-				...permissions.dir,
-				'/picked': { recoursive: true, tools: '*' },
-			})
+			expect(agentApi.policySetDirectories).toHaveBeenCalledWith([
+				...permissions.directories,
+				{
+					path: '/picked',
+					enabled: true,
+					recoursive: true,
+					tools: '*',
+				},
+			])
 		);
 	});
 
-	it('removes a directory permission', async () => {
+	it('removes every explicitly configured directory', async () => {
 		const user = userEvent.setup();
 		render(<PermissionsPage />);
 		await screen.findByText('/tmp');
 
 		await user.click(screen.getByRole('button', { name: 'removeDirectory' }));
 
-		await waitFor(() => expect(agentApi.policySetDirectories).toHaveBeenCalledWith({}));
-	});
-
-	it('loads and saves the task policy without changing the main policy', async () => {
-		const user = userEvent.setup();
-		render(<PermissionsPage scope="tasks" />);
-
-		expect(await screen.findByText('tasksTitle')).toBeInTheDocument();
-		expect(screen.getByText('nonInteractiveNotice')).toBeInTheDocument();
-		await screen.findByText('/tmp');
-		const readDefault = screen.getAllByRole('combobox')[0];
-		readDefault.focus();
-		await user.keyboard('{ArrowDown}');
-		await user.click(await screen.findByRole('option', { name: 'ask' }));
-
-		await waitFor(() =>
-			expect(tasksApi.savePermissions).toHaveBeenCalledWith({
-				...permissions,
-				read: { ...permissions.read, default: 'ask' },
-			})
-		);
-		expect(agentApi.policySetTool).not.toHaveBeenCalled();
-		await user.click(screen.getByRole('button', { name: 'reset' }));
-		await waitFor(() => expect(tasksApi.resetPermissions).toHaveBeenCalled());
-		expect(agentApi.policyReset).not.toHaveBeenCalled();
+		await waitFor(() => expect(agentApi.policySetDirectories).toHaveBeenCalledWith([]));
 	});
 });
