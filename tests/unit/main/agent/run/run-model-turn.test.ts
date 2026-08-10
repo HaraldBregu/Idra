@@ -1,6 +1,6 @@
 import { LlmContextOverflowError } from '../../../../../src/main/models/adapters/llm';
-import { runModelTurn } from '../../../../../src/main/agent/run/run_model_turn';
-import type { ModelTurnStream } from '../../../../../src/main/agent/run/run_model_turn';
+import { runModelTurn } from '../../../../../src/main/agent/runner/run_model_turn';
+import type { ModelTurnStream } from '../../../../../src/main/agent/runner/run_model_turn';
 import type { ResolvedProvider } from '../../../../../src/shared/provider_types';
 import { KeyedLimiter } from '../../../../../src/main/agent/limiter';
 

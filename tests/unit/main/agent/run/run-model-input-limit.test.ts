@@ -6,7 +6,7 @@ import {
 	DEFAULT_MODEL_CONTEXT_TOKENS,
 	MODEL_CONTEXT_SAFETY_TOKENS,
 	modelInputLimit,
-} from '../../../../../src/main/agent/run/run_model_input_limit';
+} from '../../../../../src/main/agent/runner/run_model_input_limit';
 
 beforeEach(() => {
 	findModel.mockReset();

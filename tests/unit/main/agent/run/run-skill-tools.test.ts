@@ -1,5 +1,5 @@
 import type { Tool } from '../../../../../src/main/agent/types';
-import { selectSkillTools } from '../../../../../src/main/agent/run/run_skill_tools';
+import { selectSkillTools } from '../../../../../src/main/agent/runner/run_skill_tools';
 
 function fakeTool(name: string): Tool {
 	return {

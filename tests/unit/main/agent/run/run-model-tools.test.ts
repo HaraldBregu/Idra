@@ -8,9 +8,9 @@ const findModel = jest.fn(() => ({
 
 jest.mock('../../../../../src/main/models', () => ({ findModel }));
 
-import { runModelTurn } from '../../../../../src/main/agent/run/run_model_turn';
+import { runModelTurn } from '../../../../../src/main/agent/runner/run_model_turn';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
-import type { ModelTurnStream } from '../../../../../src/main/agent/run/run_model_turn';
+import type { ModelTurnStream } from '../../../../../src/main/agent/runner/run_model_turn';
 import type { ResolvedProvider } from '../../../../../src/shared/provider_types';
 
 it('submits every selected tool to a model with documented context metadata', async () => {

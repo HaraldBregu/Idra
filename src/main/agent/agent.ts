@@ -13,7 +13,7 @@ import {
 	type SessionCategory,
 	type SessionState,
 } from './session';
-import { stream } from './run/run_stream';
+import { stream } from './runner/run_stream';
 import { agentLocation } from '../shared/agent_location';
 import {
 	destroyTask,

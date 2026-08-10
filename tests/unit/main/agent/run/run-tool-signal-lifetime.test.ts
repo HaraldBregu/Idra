@@ -1,4 +1,4 @@
-import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
+import { runToolCall } from '../../../../../src/main/agent/runner/run_tool_call';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
 
 it('clears the tool timeout while retaining parent-run cancellation after return', async () => {

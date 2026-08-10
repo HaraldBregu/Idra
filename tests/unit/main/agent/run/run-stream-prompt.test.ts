@@ -17,7 +17,7 @@ jest.mock('../../../../../src/main/settings_store', () => ({
 	getResolvedProvider: jest.fn(() => ({ id: 'test-provider', apiKey: 'key' })),
 }));
 
-jest.mock('../../../../../src/main/agent/run/run_model_turn', () => ({
+jest.mock('../../../../../src/main/agent/runner/run_model_turn', () => ({
 	runModelTurn: (...args: unknown[]) => runModelTurnMock(...args),
 }));
 
@@ -34,7 +34,7 @@ jest.mock('../../../../../src/main/agent/skills', () => ({
 	activateSkill: (...args: unknown[]) => activateSkillMock(...args),
 }));
 
-import { stream } from '../../../../../src/main/agent/run/run_stream';
+import { stream } from '../../../../../src/main/agent/runner/run_stream';
 import { createSessionState } from '../../../../../src/main/agent/session';
 import type { Message } from '../../../../../src/main/agent/types';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';

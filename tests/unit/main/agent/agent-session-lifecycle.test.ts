@@ -57,7 +57,7 @@ jest.mock('../../../../src/main/agent/session', () => ({
 	resolveStoredSessionId,
 	tryAppendRun: jest.fn(),
 }));
-jest.mock('../../../../src/main/agent/run/run_stream', () => ({
+jest.mock('../../../../src/main/agent/runner/run_stream', () => ({
 	stream: async function* (
 		_config: unknown,
 		_session: unknown,

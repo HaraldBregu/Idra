@@ -1,7 +1,7 @@
 import {
 	fitModelContext,
 	type ModelContextBudgetInput,
-} from '../../../../../src/main/agent/run/run_model_context_budget';
+} from '../../../../../src/main/agent/runner/run_model_context_budget';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
 
 const makeTool = (name: string, description = name) =>

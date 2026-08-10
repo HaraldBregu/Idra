@@ -1,4 +1,4 @@
-import { retryAfterMs } from '../../../../../src/main/agent/run/run_retry_after';
+import { retryAfterMs } from '../../../../../src/main/agent/runner/run_retry_after';
 
 it('parses Retry-After seconds and HTTP dates with a bounded delay', () => {
 	expect(retryAfterMs({ headers: { 'retry-after': '1.5' } }, 0)).toBe(1_500);

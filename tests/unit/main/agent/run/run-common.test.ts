@@ -1,5 +1,5 @@
-import { formatToolOutput } from '../../../../../src/main/agent/run/run_common';
-import { limitToolOutput } from '../../../../../src/main/agent/run/run_limit_output';
+import { formatToolOutput } from '../../../../../src/main/agent/runner/run_common';
+import { limitToolOutput } from '../../../../../src/main/agent/runner/run_limit_output';
 
 describe('formatToolOutput', () => {
 	it('returns strings unchanged', () => {

@@ -5,7 +5,7 @@ jest.mock('../../../../../src/main/models', () => ({ findModel }));
 import {
 	DEFAULT_MODEL_OUTPUT_TOKENS,
 	modelOutputLimit,
-} from '../../../../../src/main/agent/run/run_model_output_limit';
+} from '../../../../../src/main/agent/runner/run_model_output_limit';
 
 beforeEach(() => {
 	findModel.mockReset();

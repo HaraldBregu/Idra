@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { adoptSubagent, type AgentContext } from '../../context';
-import { stream, type StreamOptions } from '../../run/run_stream';
+import { stream, type StreamOptions } from '../../runner/run_stream';
 import { createSessionState } from '../../session';
 import type { Config, RuntimeInput, Tool } from '../../types';
 
