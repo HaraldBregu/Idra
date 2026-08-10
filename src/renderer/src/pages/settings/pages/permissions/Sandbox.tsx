@@ -4,7 +4,7 @@ import { RefreshCw, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { SandboxStatus } from '../../../../../../../shared/sandbox';
+import type { SandboxStatus } from '@shared/sandbox';
 
 const Sandbox: React.FC = () => {
 	const { t } = useTranslation();
