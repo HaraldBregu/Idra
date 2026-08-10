@@ -12,8 +12,14 @@ jest.mock('@/components/text-editor', () => {
 			onEditorReady?: (editor: { view: { dom: HTMLDivElement } }) => void;
 		}) =>
 			React.createElement('div', {
-				ref: (element: HTMLDivElement | null) =>
-					element && onEditorReady?.({ view: { dom: element } }),
+				ref: (element: HTMLDivElement | null) => {
+					if (!element) return;
+					Object.defineProperty(element, 'scrollHeight', {
+						configurable: true,
+						value: value && value.length > 80 ? 64 : 28,
+					});
+					onEditorReady?.({ view: { dom: element } });
+				},
 				role: 'textbox',
 				children: value,
 			}),
@@ -21,26 +27,29 @@ jest.mock('@/components/text-editor', () => {
 });
 
 describe('PromptEditor', () => {
-	it('expands for multiline content and collapses when cleared', async () => {
+	it('expands for overflowing content and collapses when cleared', async () => {
 		const { container, rerender } = render(
 			<PromptEditor value="" leadingAction={<button>Attach</button>} actions={<button>Send</button>} />
 		);
 		const prompt = container.querySelector('[data-expanded]');
 
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
+		expect(prompt).toHaveClass('min-h-10');
 
 		rerender(
 			<PromptEditor
-				value={'First line\nSecond line'}
+				value={'A long prompt that needs more vertical space. '.repeat(3)}
 				leadingAction={<button>Attach</button>}
 				actions={<button>Send</button>}
 			/>
 		);
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'true'));
+		expect(prompt).toHaveClass('min-h-24');
 
 		rerender(
 			<PromptEditor value="" leadingAction={<button>Attach</button>} actions={<button>Send</button>} />
 		);
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
+		expect(prompt).toHaveClass('min-h-10');
 	});
 });
