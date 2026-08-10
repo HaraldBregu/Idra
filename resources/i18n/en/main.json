@@ -1100,6 +1100,7 @@
 			"allModelServices": "All model services",
 			"identity": "Identity",
 			"configuration": "Configuration",
+			"providersConfigurations": "Providers Configurations",
 			"fridayBreadcrumb": "Friday",
 			"assistantName": "Agent",
 			"fridayDescription": "Chat, tools, and planning",
@@ -1436,7 +1437,7 @@
 		},
 		"dataControls": {
 			"title": "Data management",
-			"description": "Export or purge assistant data and local knowledge.",
+			"description": "Export or purge assistant memory and sessions.",
 			"export": "Export",
 			"purge": "Purge",
 			"memory": "Persistent memory",

@@ -43,7 +43,8 @@ jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
 		'settings.modelServices.assistantName': 'Agent',
 		'settings.modelServices.fridayDescription': 'Chat, tools, and planning',
-		'settings.modelServices.configuration': 'Configuration',
+		'settings.modelServices.providersConfigurations': 'Providers Configurations',
+		'settings.modelServices.subtitle': 'Configure model assignments',
 		'settings.modelServices.imageAssistantName': 'Image',
 		'settings.modelServices.musicCreatorName': 'Audio',
 		'settings.modelServices.videoCreatorName': 'Video',
@@ -130,13 +131,18 @@ beforeEach(() => {
 	jest.clearAllMocks();
 });
 
-it('shows image, audio, and video defaults on the Agent settings page', async () => {
+it('groups provider configurations in an expandable card', async () => {
+	const user = userEvent.setup();
 	render(
 		<MemoryRouter>
 			<AssistantPage />
 		</MemoryRouter>
 	);
 
+	expect(screen.queryByRole('button', { name: /Image.*Gemini Image/ })).not.toBeInTheDocument();
+	await user.click(
+		await screen.findByRole('button', { name: /Providers Configurations.*Configure model assignments/ })
+	);
 	expect(await screen.findByRole('button', { name: /Image.*Gemini Image/ })).toBeInTheDocument();
 	expect(await screen.findByRole('button', { name: /Audio.*Eleven Music/ })).toBeInTheDocument();
 	expect(await screen.findByRole('button', { name: /Video.*Veo/ })).toBeInTheDocument();

@@ -1099,6 +1099,7 @@
 			"allModelServices": "Tutti i servizi modello",
 			"identity": "Identita",
 			"configuration": "Configurazione",
+			"providersConfigurations": "Configurazioni provider",
 			"fridayBreadcrumb": "Friday",
 			"assistantName": "Agent",
 			"fridayDescription": "Chat, strumenti e piani",
@@ -1435,7 +1436,7 @@
 		},
 		"dataControls": {
 			"title": "Gestione dati",
-			"description": "Esporta o elimina i dati dell'assistente e la conoscenza locale.",
+			"description": "Esporta o elimina la memoria e le sessioni dell'assistente.",
 			"export": "Esporta",
 			"purge": "Elimina",
 			"memory": "Memoria persistente",
