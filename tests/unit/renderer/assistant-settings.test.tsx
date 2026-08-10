@@ -43,6 +43,7 @@ jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
 		'settings.modelServices.assistantName': 'Agent',
 		'settings.modelServices.fridayDescription': 'Chat, tools, and planning',
+		'settings.modelServices.configuration': 'Configuration',
 		'settings.modelServices.providersConfigurations': 'Providers Configurations',
 		'settings.modelServices.subtitle': 'Configure model assignments',
 		'settings.modelServices.imageAssistantName': 'Image',
@@ -140,9 +141,12 @@ it('groups provider configurations in an expandable card', async () => {
 	);
 
 	expect(screen.queryByRole('button', { name: /Image.*Gemini Image/ })).not.toBeInTheDocument();
-	await user.click(
-		await screen.findByRole('button', { name: /Providers Configurations.*Configure model assignments/ })
-	);
+	const providersConfigurations = await screen.findByRole('button', {
+		name: /Providers Configurations.*Configure model assignments/,
+	});
+	expect(providersConfigurations).toHaveAttribute('aria-expanded', 'false');
+	await user.click(providersConfigurations);
+	expect(providersConfigurations).toHaveAttribute('aria-expanded', 'true');
 	expect(await screen.findByRole('button', { name: /Image.*Gemini Image/ })).toBeInTheDocument();
 	expect(await screen.findByRole('button', { name: /Audio.*Eleven Music/ })).toBeInTheDocument();
 	expect(await screen.findByRole('button', { name: /Video.*Veo/ })).toBeInTheDocument();

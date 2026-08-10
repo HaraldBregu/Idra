@@ -207,7 +207,8 @@ const AssistantPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<Collapsible className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+			<SettingsSection title={t('settings.modelServices.configuration')}>
+				<Collapsible className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
 				<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 					<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
 						<Settings2 className="size-4" aria-hidden="true" />
@@ -220,7 +221,10 @@ const AssistantPage: React.FC = () => {
 							{t('settings.modelServices.subtitle')}
 						</p>
 					</div>
-					<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+					<ChevronDown
+						className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180"
+						aria-hidden="true"
+					/>
 				</CollapsibleTrigger>
 				<CollapsibleContent className="border-t border-border/60">
 					<div className="grid min-w-0 gap-3 p-3">
@@ -305,7 +309,8 @@ const AssistantPage: React.FC = () => {
 						</Collapsible>
 					</div>
 				</CollapsibleContent>
-			</Collapsible>
+				</Collapsible>
+			</SettingsSection>
 
 			<SettingsSection title={t('settings.modelServices.history')}>
 				<SettingsPanel>
