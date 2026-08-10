@@ -32,7 +32,11 @@ jest.mock('@/components/text-editor', () => {
 describe('PromptEditor', () => {
 	it('expands for overflowing content and collapses when cleared', async () => {
 		const { container, rerender } = render(
-			<PromptEditor value="" leadingAction={<button>Attach</button>} actions={<button>Send</button>} />
+			<PromptEditor
+				value=""
+				leadingAction={<button>Attach</button>}
+				actions={<button>Send</button>}
+			/>
 		);
 		const prompt = container.querySelector('[data-expanded]');
 
@@ -50,7 +54,11 @@ describe('PromptEditor', () => {
 		expect(prompt).toHaveClass('min-h-24');
 
 		rerender(
-			<PromptEditor value="" leadingAction={<button>Attach</button>} actions={<button>Send</button>} />
+			<PromptEditor
+				value=""
+				leadingAction={<button>Attach</button>}
+				actions={<button>Send</button>}
+			/>
 		);
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
 		expect(prompt).toHaveClass('min-h-10');
