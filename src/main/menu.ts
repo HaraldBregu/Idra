@@ -69,7 +69,7 @@ export class Menu {
 				submenu: [
 					{
 						label: m.newWindow,
-						accelerator: 'CmdOrCtrl+N',
+						accelerator: 'CmdOrCtrl+Shift+N',
 						click: (): void => {
 							this.callbacks.onNewWindow();
 						},

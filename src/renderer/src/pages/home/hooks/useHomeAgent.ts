@@ -52,7 +52,7 @@ function runtimeOptionsForPrompt(prompt: string) {
 
 export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) => void }) {
 	const { chatState, dispatchChat } = useHomeAgentContext();
-	const { sessionId } = useChatSession();
+	const { sessionId, setSessionId } = useChatSession();
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(false);
@@ -221,6 +221,17 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 	useEffect(() => {
 		const handler = (event: KeyboardEvent): void => {
+			if (
+				event.ctrlKey &&
+				!event.metaKey &&
+				!event.altKey &&
+				!event.shiftKey &&
+				event.key.toLowerCase() === 'n'
+			) {
+				event.preventDefault();
+				setSessionId(crypto.randomUUID());
+				return;
+			}
 			if ((event.metaKey || event.ctrlKey) && event.key === '/') {
 				event.preventDefault();
 				switchToTyping();
@@ -228,7 +239,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		};
 		window.addEventListener('keydown', handler);
 		return () => window.removeEventListener('keydown', handler);
-	}, [switchToTyping]);
+	}, [setSessionId, switchToTyping]);
 
 	return {
 		chatState,

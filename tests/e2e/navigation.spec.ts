@@ -68,6 +68,20 @@ test('Command+, opens the settings page', async () => {
 	await expect(page).toHaveURL(/#\/settings$/);
 });
 
+test('Control+N creates a new chat session', async () => {
+	await page.evaluate(() => {
+		window.location.hash = '#/home';
+	});
+	await expect(page).toHaveURL(/#\/home$/);
+	const previousSessionId = await page.evaluate(() => localStorage.getItem('chat-session-id'));
+
+	await page.keyboard.press('Control+n');
+
+	await expect
+		.poll(() => page.evaluate(() => localStorage.getItem('chat-session-id')))
+		.not.toBe(previousSessionId);
+});
+
 test('wiki settings renders the complete configuration workflow', async ({}, testInfo) => {
 	await page.evaluate(() => {
 		window.location.hash = '#/settings/wiki';

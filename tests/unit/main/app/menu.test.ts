@@ -10,11 +10,32 @@ jest.mock('../../../../src/main/i18n', () => ({
 
 type MenuEntry = {
 	label?: string;
+	accelerator?: string;
 	submenu?: MenuEntry[];
 	click?: () => void;
 };
 
 describe('application menu extensions', () => {
+	it('keeps Ctrl+N available for a new chat session', () => {
+		const onNewWindow = jest.fn();
+		const buildFromTemplate = ElectronMenu.buildFromTemplate as jest.Mock;
+		buildFromTemplate.mockImplementation((template: MenuEntry[]) => template);
+		const menu = new Menu({
+			onLanguageChange: jest.fn(),
+			onNewWindow,
+			getExtensions: () => [],
+			onOpenExtension: jest.fn(),
+		});
+
+		menu.create();
+
+		const template = buildFromTemplate.mock.calls[0][0] as MenuEntry[];
+		const newWindow = template[process.platform === 'darwin' ? 1 : 0].submenu?.[0];
+		expect(newWindow?.accelerator).toBe('CmdOrCtrl+Shift+N');
+		newWindow?.click?.();
+		expect(onNewWindow).toHaveBeenCalledTimes(1);
+	});
+
 	it('opens manifest-defined extensions from the Extensions menu', () => {
 		const extensionConfigurations = [
 			{
