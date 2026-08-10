@@ -5,7 +5,7 @@ import { saveDocument } from './save';
 
 export const overrides: TLUiOverrides = {
 	actions(editor, actions, helpers) {
-		const fridayActions = {
+		const fridayActions: typeof actions = {
 			...actions,
 			'new-project': {
 				id: 'new-project',
