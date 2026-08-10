@@ -144,21 +144,20 @@ it('renders each provider setting in a separate collapsible card', async () => {
 
 	expect(screen.queryByRole('heading', { name: 'Configuration' })).not.toBeInTheDocument();
 	expect(screen.queryByRole('heading', { name: 'History' })).not.toBeInTheDocument();
-	const cards = await Promise.all(
-		[
-			[/Model.*GPT/, 'Model'],
-			[/Image.*Gemini Image/, 'Image'],
-			[/Audio.*Eleven Music/, 'Audio'],
-			[/Video.*Veo/, 'Video'],
-			[/Search Engine.*Brave/, 'Search Engine'],
-		].map(async ([name]) => {
-			const trigger = await screen.findByRole('button', { name });
-			expect(trigger).toHaveAttribute('aria-expanded', 'false');
-			await user.click(trigger);
-			expect(trigger).toHaveAttribute('aria-expanded', 'true');
-			return trigger.closest('[data-slot="card"]');
-		})
-	);
+	const cards: Array<Element | null> = [];
+	for (const name of [
+		/Model.*GPT/,
+		/Image.*Gemini Image/,
+		/Audio.*Eleven Music/,
+		/Video.*Veo/,
+		/Search Engine.*Brave/,
+	]) {
+		const trigger = await screen.findByRole('button', { name });
+		expect(trigger).toHaveAttribute('aria-expanded', 'false');
+		await user.click(trigger);
+		expect(trigger).toHaveAttribute('aria-expanded', 'true');
+		cards.push(trigger.closest('[data-slot="card"]'));
+	}
 	const model = await screen.findByRole('combobox', { name: 'Model' });
 	const image = await screen.findByRole('combobox', { name: 'Image' });
 	const audio = await screen.findByRole('combobox', { name: 'Audio' });

@@ -44,6 +44,8 @@ export function ModelProviderConfiguration({
 		? getProviderCatalogItem(provider.id).name
 		: t('settings.modelServices.providerPlaceholder');
 	const modelName = model?.name ?? model?.id ?? t('settings.modelServices.modelUnavailable');
+	const selectLabel =
+		typeof triggerTitle === 'string' ? triggerTitle : t('settings.modelServices.model');
 
 	const configurationBody = configState.loading ? (
 		<SettingsLoadingRows rows={2} />
@@ -63,6 +65,7 @@ export function ModelProviderConfiguration({
 				onChange={onChange}
 				disabled={configState.loading || configState.saving || configState.modelGroups.length === 0}
 				labels={{
+					label: selectLabel,
 					description,
 					placeholder: configState.loadingModels
 						? t('settings.modelServices.modelsLoading')
@@ -92,7 +95,6 @@ export function ModelProviderConfiguration({
 
 	if (!collapsible) {
 		const rowTitle = triggerTitle ?? providerName;
-		const rowLabel = typeof rowTitle === 'string' ? rowTitle : t('settings.modelServices.model');
 		return (
 			<>
 				{showInlineError && configState.error && (
@@ -114,8 +116,8 @@ export function ModelProviderConfiguration({
 							disabled={
 								configState.loading || configState.saving || configState.modelGroups.length === 0
 							}
-							labels={{
-								label: rowLabel,
+						labels={{
+							label: selectLabel,
 								placeholder: configState.loadingModels
 									? t('settings.modelServices.modelsLoading')
 									: undefined,
