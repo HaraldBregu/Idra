@@ -25,6 +25,11 @@ const agentApi = {
 	policySetTool: jest.fn(),
 	policyReset: jest.fn(),
 };
+const tasksApi = {
+	getPermissions: jest.fn(),
+	savePermissions: jest.fn(),
+	resetPermissions: jest.fn(),
+};
 
 beforeAll(() => {
 	Object.defineProperty(window, 'PointerEvent', { configurable: true, value: MouseEvent });
@@ -32,11 +37,15 @@ beforeAll(() => {
 
 beforeEach(() => {
 	Object.defineProperty(window, 'agent', { configurable: true, value: agentApi });
+	Object.defineProperty(window, 'tasks', { configurable: true, value: tasksApi });
 	agentApi.policyGet.mockResolvedValue(permissions);
 	agentApi.policyPickDirectory.mockResolvedValue(undefined);
 	agentApi.policySetDirectories.mockResolvedValue(permissions);
 	agentApi.policySetTool.mockResolvedValue(permissions);
 	agentApi.policyReset.mockResolvedValue(permissions);
+	tasksApi.getPermissions.mockResolvedValue(permissions);
+	tasksApi.savePermissions.mockResolvedValue(permissions);
+	tasksApi.resetPermissions.mockResolvedValue(permissions);
 });
 
 describe('Permissions settings', () => {
@@ -118,5 +127,28 @@ describe('Permissions settings', () => {
 		await user.click(screen.getByRole('button', { name: 'removeDirectory' }));
 
 		await waitFor(() => expect(agentApi.policySetDirectories).toHaveBeenCalledWith({}));
+	});
+
+	it('loads and saves the task policy without changing the main policy', async () => {
+		const user = userEvent.setup();
+		render(<PermissionsPage scope="tasks" />);
+
+		expect(await screen.findByText('tasksTitle')).toBeInTheDocument();
+		expect(screen.getByText('nonInteractiveNotice')).toBeInTheDocument();
+		const readDefault = screen.getAllByRole('combobox')[0];
+		readDefault.focus();
+		await user.keyboard('{ArrowDown}');
+		await user.click(await screen.findByRole('option', { name: 'ask' }));
+
+		await waitFor(() =>
+			expect(tasksApi.savePermissions).toHaveBeenCalledWith({
+				...permissions,
+				read: { ...permissions.read, default: 'ask' },
+			})
+		);
+		expect(agentApi.policySetTool).not.toHaveBeenCalled();
+		await user.click(screen.getByRole('button', { name: 'reset' }));
+		await waitFor(() => expect(tasksApi.resetPermissions).toHaveBeenCalled());
+		expect(agentApi.policyReset).not.toHaveBeenCalled();
 	});
 });

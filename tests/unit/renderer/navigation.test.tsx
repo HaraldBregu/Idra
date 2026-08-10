@@ -28,8 +28,13 @@ it.each([
 	['/settings/llm-wiki', 'settings.wiki.title'],
 	['/settings/tasks', 'settings.tabs.taskScheduler'],
 	['/settings/assistant/permissions', 'settings.tabs.permissions'],
+	['/settings/tasks/permissions', 'settings.permissions.scopes.tasksTitle'],
+	['/settings/channels/permissions', 'settings.permissions.scopes.channelsTitle'],
+	['/settings/assistant/health/permissions', 'settings.permissions.scopes.healthTitle'],
 ])('uses the canonical %s route and breadcrumb', (path, labelKey) => {
-	expect(SETTINGS_NAVIGATION).toContainEqual(expect.objectContaining({ path, labelKey }));
+	if (!path.endsWith('/permissions') || path === '/settings/assistant/permissions') {
+		expect(SETTINGS_NAVIGATION).toContainEqual(expect.objectContaining({ path, labelKey }));
+	}
 
 	render(
 		<MemoryRouter initialEntries={[path]}>
