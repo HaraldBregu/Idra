@@ -423,6 +423,7 @@ function PromptInput({
             <motion.div
               layout
               transition={transition}
+              style={{ borderRadius: isConversationMode || !isPromptExpanded ? 9999 : 12 }}
               onClick={isConversationMode ? onClick : handleClick}
               data-expanded={isPromptExpanded}
               data-voice-mode={voiceMode ?? undefined}

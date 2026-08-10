@@ -43,6 +43,7 @@ describe('PromptEditor', () => {
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
 		expect(prompt).toHaveClass('min-h-10');
 		expect(prompt).toHaveClass('rounded-full');
+		expect(prompt).toHaveStyle({ borderRadius: '9999px' });
 
 		rerender(
 			<PromptEditor
@@ -54,6 +55,7 @@ describe('PromptEditor', () => {
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'true'));
 		expect(prompt).toHaveClass('min-h-24');
 		expect(prompt).toHaveClass('rounded-xl');
+		expect(prompt).toHaveStyle({ borderRadius: '12px' });
 
 		rerender(
 			<PromptEditor
@@ -65,5 +67,6 @@ describe('PromptEditor', () => {
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
 		expect(prompt).toHaveClass('min-h-10');
 		expect(prompt).toHaveClass('rounded-full');
+		expect(prompt).toHaveStyle({ borderRadius: '9999px' });
 	});
 });
