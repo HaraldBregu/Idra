@@ -43,8 +43,8 @@ import { saveMemoryTool } from '../tools/memory/save';
 import { forgetMemoryTool } from '../tools/memory/forget';
 import { memoryListTool } from '../tools/memory/list';
 import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
-import { updateHealthTool } from '../tools/health/update';
-import { updateHealthSettingsTool } from '../tools/health/settings_update';
+import { updateHealthCheckTool } from '../tools/health_check/health_check_update';
+import { updateHealthCheckSettingsTool } from '../tools/health_check/health_check_settings_update';
 import { loadSkillTool } from '../tools/skills/load_skill';
 import { createTaskTool } from '../tools/tasks/create_task';
 import { updateTaskTool } from '../tools/tasks/update_task';
@@ -194,8 +194,8 @@ async function* loop(
 				memoryListTool(config),
 				...getKnowledgeTools(origin),
 				...getWikiTools(origin),
-				updateHealthTool(config),
-				updateHealthSettingsTool,
+				updateHealthCheckTool(config),
+				updateHealthCheckSettingsTool,
 				createTaskTool,
 				updateTaskTool,
 				pauseTaskTool,

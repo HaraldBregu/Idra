@@ -42,7 +42,7 @@ describe('directoryPermissionTargets', () => {
 
 	it.each([
 		['memory_save', 'MEMORY.md'],
-		['health_update', 'HEALTH.md'],
+		['health_check_update', 'HEALTH.md'],
 		['complete_bootstrap', 'BOOTSTRAP.md'],
 	] as const)('maps %s to its agent-owned resource', (toolName, fileName) => {
 		expect(directoryPermissionTargets(toolName, {}, agentDir)).toEqual([
@@ -55,7 +55,7 @@ describe('directoryPermissionTargets', () => {
 	});
 
 	it('maps health settings changes to the shared health store', () => {
-		expect(directoryPermissionTargets('health_settings_update', {}, agentDir)).toEqual([
+		expect(directoryPermissionTargets('health_check_settings_update', {}, agentDir)).toEqual([
 			healthStorePath,
 		]);
 	});

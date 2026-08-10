@@ -4,6 +4,8 @@ const TOOL_ALIASES: Readonly<Record<string, string>> = {
 	edit: 'edit_file',
 	exec: 'exec_command',
 	get_schedule: 'get_task',
+	health_settings_update: 'health_check_settings_update',
+	health_update: 'health_check_update',
 	list_schedules: 'list_tasks',
 	pause_schedule: 'pause_task',
 	recorder_camera: 'camera_recorder',
