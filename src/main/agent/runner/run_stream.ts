@@ -382,7 +382,6 @@ async function* loop(
 			for await (const event of runToolCalls(
 				tools,
 				turn.toolCalls,
-				input.type,
 				signal,
 				session.context.toolsContext,
 				{

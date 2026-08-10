@@ -1,6 +1,5 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import { fileToolState, isFileCreation, rememberTool, type ToolsContext } from '../context';
-import type { AgentRunType } from '../../../shared/agent_types';
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
@@ -25,7 +24,6 @@ export interface ToolCallSecurityContext {
 export async function* runToolCall(
 	tool: Tool | undefined,
 	toolCall: ToolCall,
-	type: AgentRunType,
 	signal?: AbortSignal,
 	context?: ToolsContext,
 	security: ToolCallSecurityContext = { runId: 'internal' },
