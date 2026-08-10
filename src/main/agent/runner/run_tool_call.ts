@@ -144,13 +144,13 @@ export async function* runToolCall(
 				const toolSignal = signal
 					? AbortSignal.any([signal, timeoutController.signal])
 					: timeoutController.signal;
-				const exclusiveTargets = directoryPermissionTargets(
+				const resourceTargets = directoryPermissionTargets(
 					tool.name,
 					canonicalInput,
 					agentLocation()
 				);
 				const release = resources
-					? await resources.acquire(exclusiveTargets, toolSignal)
+					? await resources.acquire(resourceTargets, toolSignal)
 					: () => undefined;
 				let abort: (() => void) | undefined;
 				try {
