@@ -1,23 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	AlertTriangle,
-	FolderOpen,
-	FolderX,
-	Pencil,
-	Plus,
-	RotateCcw,
-	Trash2,
-} from 'lucide-react';
+import { AlertTriangle, FolderOpen, FolderX, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
@@ -326,9 +312,7 @@ const PermissionsPage: React.FC = () => {
 										)}
 										<Button type="submit" size="sm" disabled={!canSaveDirectory || saving}>
 											{!editingDirectory && <Plus className="size-3" />}
-											{t(
-												editingDirectory ? 'common.save' : 'settings.permissions.addDirectory'
-											)}
+											{t(editingDirectory ? 'common.save' : 'settings.permissions.addDirectory')}
 										</Button>
 									</div>
 								</form>
