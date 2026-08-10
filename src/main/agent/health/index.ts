@@ -2,7 +2,10 @@ export { getHealthData, saveHealthData } from './health_data';
 export { rescheduleHealth, startHealth, stopHealth } from './health_schedule';
 export {
 	getHealthSettings,
+	getHealthPermissions,
+	resetHealthPermissions,
 	resetHealthSettings,
+	saveHealthPermissions,
 	updateHealthSettings,
 } from './health_store';
 export {
