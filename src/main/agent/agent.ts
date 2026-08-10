@@ -10,7 +10,6 @@ import {
 	resolveSessionId,
 	resolveStoredSessionId,
 	tryAppendRun,
-	type SessionCategory,
 	type SessionState,
 } from './session';
 import { stream } from './runner/run_stream';
@@ -115,14 +114,13 @@ export class Agent {
 		setTaskRunner((schedule) => {
 			if (schedule.action.type !== 'agent') return Promise.resolve('');
 			const runtime = getRuntime();
+			const toolsAllow = schedule.action.toolsAllow ?? [];
 			return this.send(schedule.action.prompt, 'tasks', {
 				interactive: false,
 				streaming: false,
 				permissions: getTaskPermissions(),
 				contextMode: 'minimal',
-				...(schedule.action.toolsAllow.length > 0
-					? { toolsAllow: schedule.action.toolsAllow }
-					: {}),
+				...(toolsAllow.length > 0 ? { toolsAllow } : {}),
 				effort: schedule.action.effort,
 				...(runtime ? { providerId: runtime.providerId, modelId: runtime.modelId } : {}),
 			});
