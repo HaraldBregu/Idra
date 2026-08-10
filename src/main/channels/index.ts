@@ -7,6 +7,9 @@ export {
 	getChannelModelSelection,
 	setChannelModelSelection,
 	getChannelModelSelections,
+	getChannelPermissions,
+	resetChannelPermissions,
+	saveChannelPermissions,
 	setChannelModelSelections,
 	setChannelProvider,
 } from './channels_store';
