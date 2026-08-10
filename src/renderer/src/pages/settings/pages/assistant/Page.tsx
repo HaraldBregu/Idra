@@ -22,7 +22,6 @@ import {
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsRow,
-	SettingsSection,
 } from '../../components';
 import { ModelProviderConfiguration } from '../../components/model-configuration';
 import {
@@ -207,8 +206,7 @@ const AssistantPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.modelServices.configuration')}>
-				<Collapsible className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+			<Collapsible className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
 					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 						<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
 							<Settings2 className="size-4" aria-hidden="true" />
@@ -309,33 +307,30 @@ const AssistantPage: React.FC = () => {
 							</Collapsible>
 						</div>
 					</CollapsibleContent>
-				</Collapsible>
-			</SettingsSection>
+			</Collapsible>
 
-			<SettingsSection title={t('settings.modelServices.history')}>
-				<SettingsPanel>
-					<div
-						role="button"
-						tabIndex={0}
-						className="cursor-pointer hover:bg-muted/40"
-						onClick={() => navigate('/settings/assistant/chathistory')}
-						onKeyDown={(event) => {
-							if (event.key === 'Enter' || event.key === ' ') {
-								event.preventDefault();
-								navigate('/settings/assistant/chathistory');
-							}
-						}}
-					>
-						<SettingsRow
-							title={t('settings.chatHistory.title')}
-							description={t('settings.chatHistory.description')}
-							className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
-							actionClassName="w-auto justify-end"
-							actions={<ChevronRight className="size-4 text-muted-foreground" />}
-						/>
-					</div>
-				</SettingsPanel>
-			</SettingsSection>
+			<SettingsPanel>
+				<div
+					role="button"
+					tabIndex={0}
+					className="cursor-pointer hover:bg-muted/40"
+					onClick={() => navigate('/settings/assistant/chathistory')}
+					onKeyDown={(event) => {
+						if (event.key === 'Enter' || event.key === ' ') {
+							event.preventDefault();
+							navigate('/settings/assistant/chathistory');
+						}
+					}}
+				>
+					<SettingsRow
+						title={t('settings.chatHistory.title')}
+						description={t('settings.chatHistory.description')}
+						className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
+						actionClassName="w-auto justify-end"
+						actions={<ChevronRight className="size-4 text-muted-foreground" />}
+					/>
+				</div>
+			</SettingsPanel>
 
 			<SettingsPanel>
 				<div

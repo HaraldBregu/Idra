@@ -140,6 +140,8 @@ it('groups provider configurations in an expandable card', async () => {
 		</MemoryRouter>
 	);
 
+	expect(screen.queryByRole('heading', { name: 'Configuration' })).not.toBeInTheDocument();
+	expect(screen.queryByRole('heading', { name: 'History' })).not.toBeInTheDocument();
 	expect(screen.queryByRole('button', { name: /Image.*Gemini Image/ })).not.toBeInTheDocument();
 	const providersConfigurations = await screen.findByRole('button', {
 		name: /Providers Configurations.*Configure model assignments/,
