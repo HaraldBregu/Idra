@@ -156,7 +156,7 @@ The Home prompt classifier computes `none`, `medium`, or `high` reasoning effort
 Agent runs have one explicit runtime type:
 
 - `default` resolves every tool call against the live global permission policy. Approval is interactive only when the run has both an originating window and an event callback; otherwise `ask` denies immediately.
-- `background` is available only to trusted main-process callers. It bypasses Friday's stored tool policy without reading or changing it, never requests approval, and requires an explicit tool allowlist. An empty allowlist exposes no tools.
+- `background` is available only to trusted main-process callers. It resolves the same stored policy without interactive approval, so an **Ask** decision is denied, and it requires an explicit tool allowlist. An empty allowlist exposes no tools.
 
 Both types still enforce capability filtering, input validation, cancellation, timeouts, resource locks, execution budgets, sandboxing, OS permissions, and authorization implemented inside a tool. Subagents inherit the parent run type and exact filtered tool IDs, but cannot spawn nested subagents.
 
@@ -166,13 +166,13 @@ The Permissions screen provides persistent controls for sensitive tools:
 
 - Every tool owns a policy object under `tools` with `default`, `allow`, `ask`, and `deny` fields.
 - The top-level `directories` array assigns directory-scoped tool allow-lists using `{ "path": string, "enabled": boolean, "recoursive": boolean, "tools": "*" | string[] }` entries.
-- Only directories explicitly added in Settings receive directory-level authorization.
-- `read`, `write`, and `process` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
+- The agent workspace is present by default as an enabled recursive entry for all tools. It can be edited or removed like any other directory entry.
+- `read`, sandboxed `exec`, and `process` default to **Allow**. `write`, `edit`, `apply_patch`, and media creation default to **Ask**.
 - Other built-in tools retain independent **Allow** defaults.
 - An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
 - An always-allow decision stores the containing folder for `read`, the exact target for other file and patch tools, and the raw command for `exec`.
 - Always-allow decisions persist path or command rules in the owning tool's `allow` list.
-- The policy can be reset to defaults.
+- Resetting restores the default tool policies and agent-workspace directory entry.
 
 Permissions use this top-level structure:
 
@@ -207,8 +207,10 @@ Rule resolution is tool-local:
 
 Important boundaries:
 
-- `exec` policy resolution examines the command string; it is not an operating-system sandbox and cannot prove which paths a command will access.
-- Directory policy resolves `exec` from its working directory, but commands can still access paths outside that directory.
+- Normal `exec` calls run inside the operating-system command sandbox. They may read outside configured directories, but may write only inside enabled recursive directory entries that allow `exec_command`.
+- A command that intentionally needs to write elsewhere must retry with `elevated: true`. Elevated execution runs on the host only after an interactive approval, and an **Always allow** decision applies to that exact command rather than a command prefix.
+- Directory policy resolves `exec` from its working directory; the command sandbox independently enforces its write boundary even when command operands reference other paths.
+- Background calls never bypass stored permissions. Because they cannot display an approval request, an **Ask** result is denied.
 - Relative policy paths such as `Desktop` resolve from the user home directory.
 - Tool defaults and directory pre-authorizations are editable from Settings.
 
