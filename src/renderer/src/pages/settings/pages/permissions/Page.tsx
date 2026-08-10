@@ -85,9 +85,11 @@ const PermissionsPage: React.FC = () => {
 	};
 
 	useEffect(() => {
-		window.agent
-			.policyGet()
-			.then(setPermissions)
+		Promise.all([window.agent.policyGet(), window.agent.getWorkspaceLocation()])
+			.then(([loadedPermissions, workspaceLocation]) => {
+				setPermissions(loadedPermissions);
+				setNewDirectory(workspaceLocation);
+			})
 			.catch((err: unknown) => {
 				setError(err instanceof Error ? err.message : String(err));
 			});

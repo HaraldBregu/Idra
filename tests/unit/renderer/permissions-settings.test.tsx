@@ -20,6 +20,7 @@ const permissions = {
 
 const agentApi = {
 	policyGet: jest.fn(),
+	getWorkspaceLocation: jest.fn(),
 	policyPickDirectory: jest.fn(),
 	policySetDirectories: jest.fn(),
 	policySetTool: jest.fn(),
@@ -40,6 +41,7 @@ beforeEach(() => {
 	Object.defineProperty(window, 'agent', { configurable: true, value: agentApi });
 	Object.defineProperty(window, 'tasks', { configurable: true, value: tasksApi });
 	agentApi.policyGet.mockResolvedValue(permissions);
+	agentApi.getWorkspaceLocation.mockResolvedValue('/workspace');
 	agentApi.policyPickDirectory.mockResolvedValue(undefined);
 	agentApi.policySetDirectories.mockResolvedValue(permissions);
 	agentApi.policySetTool.mockResolvedValue(permissions);
@@ -60,6 +62,15 @@ describe('Permissions settings', () => {
 		expect(screen.queryByText('Desktop/file.txt')).not.toBeInTheDocument();
 		expect(screen.getByText('/tmp')).toBeInTheDocument();
 		expect(screen.getAllByText('recursive').length).toBeGreaterThan(0);
+	});
+
+	it('prefills the workspace location for a new directory permission', async () => {
+		render(<PermissionsPage />);
+
+		expect(await screen.findByRole('textbox', { name: 'directoryPath' })).toHaveValue(
+			'/workspace'
+		);
+		expect(agentApi.getWorkspaceLocation).toHaveBeenCalledTimes(1);
 	});
 
 	it('updates the default owned by one tool', async () => {
