@@ -8,43 +8,24 @@ function toJsonSchema(schema: z.ZodType): JSONSchema {
 }
 
 export function tool<T extends z.ZodType>({
+	id,
 	name,
 	description,
-	defaultPermission,
-	alwaysAsk,
-	hardApproval,
-	stopOnReject,
-	risk = 'low',
-	effect = 'read',
-	allowedOrigins,
 	exclusiveTargets,
 	parallelSafe,
 	timeoutMs = 10 * 60_000,
 	maxOutputBytes = 200_000,
-	confirmDetail,
-	targets,
 	inputSchema,
 	execute,
 }: ToolConfig<T>): Tool {
 	return {
+		id,
 		name,
 		description,
-		defaultPermission,
-		alwaysAsk,
-		hardApproval:
-			typeof hardApproval === 'function'
-				? (args) => hardApproval(inputSchema.parse(args))
-				: hardApproval,
-		stopOnReject,
-		risk,
-		effect,
-		allowedOrigins,
 		exclusiveTargets,
 		parallelSafe,
 		timeoutMs,
 		maxOutputBytes,
-		confirmDetail,
-		targets,
 		schema: toJsonSchema(inputSchema),
 		parseInput(input: unknown) {
 			return inputSchema.parse(input) as Record<string, unknown>;
@@ -56,35 +37,25 @@ export function tool<T extends z.ZodType>({
 }
 
 export function jsonTool({
+	id,
 	name,
 	description,
-	defaultPermission,
-	hardApproval,
-	risk = 'high',
-	effect = 'external',
-	allowedOrigins,
 	exclusiveTargets,
 	parallelSafe,
 	timeoutMs = 10 * 60_000,
 	maxOutputBytes = 200_000,
-	targets,
 	parseInput,
 	schema,
 	execute,
 }: JsonToolConfig): Tool {
 	return {
+		id,
 		name,
 		description,
-		defaultPermission,
-		hardApproval,
-		risk,
-		effect,
-		allowedOrigins,
 		exclusiveTargets,
 		parallelSafe,
 		timeoutMs,
 		maxOutputBytes,
-		targets,
 		schema,
 		parseInput(input: unknown) {
 			if (parseInput) return parseInput(input);

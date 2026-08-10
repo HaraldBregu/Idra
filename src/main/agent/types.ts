@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import type { LlmEvent } from '../models/adapters/llm';
-import type { AgentOrigin, AgentToolEffect, AgentToolRisk } from '../../shared/agent_types';
+import type { AgentOrigin } from '../../shared/agent_types';
 import type { SkillDiagnostic, SkillTrust } from '../../shared/skills_types';
 
 export interface Config {
@@ -33,59 +33,38 @@ export interface JSONSchema {
 }
 
 export interface Tool {
+	readonly id: string;
 	readonly name: string;
 	readonly description: string;
 	readonly schema: JSONSchema;
-	readonly defaultPermission?: 'allow' | 'ask' | 'deny';
-	readonly alwaysAsk?: boolean;
-	readonly hardApproval?: boolean | ((args: Record<string, unknown>) => boolean);
-	readonly stopOnReject?: boolean;
-	readonly risk: AgentToolRisk;
-	readonly effect: AgentToolEffect;
-	readonly allowedOrigins?: readonly AgentOrigin[];
 	readonly exclusiveTargets?: (args: Record<string, unknown>) => string[];
 	readonly parallelSafe?: boolean;
 	readonly timeoutMs: number;
 	readonly maxOutputBytes: number;
-	readonly confirmDetail?: (args: Record<string, unknown>) => string | undefined;
-	readonly targets?: (args: Record<string, unknown>) => string[];
 	parseInput(input: unknown): Record<string, unknown>;
 	run(input: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> | unknown;
 }
 
 export type ToolConfig<T extends z.ZodType> = {
+	id: string;
 	name: string;
 	description: string;
-	defaultPermission?: 'allow' | 'ask' | 'deny';
-	alwaysAsk?: boolean;
-	hardApproval?: boolean | ((args: z.infer<T>) => boolean);
-	stopOnReject?: boolean;
-	risk?: AgentToolRisk;
-	effect?: AgentToolEffect;
-	allowedOrigins?: readonly AgentOrigin[];
 	exclusiveTargets?: (args: Record<string, unknown>) => string[];
 	parallelSafe?: boolean;
 	timeoutMs?: number;
 	maxOutputBytes?: number;
-	confirmDetail?: (args: Record<string, unknown>) => string | undefined;
-	targets?: (args: Record<string, unknown>) => string[];
 	inputSchema: T;
 	execute: (input: z.infer<T>, signal?: AbortSignal) => Promise<unknown> | unknown;
 };
 
 export type JsonToolConfig = {
+	id: string;
 	name: string;
 	description: string;
-	defaultPermission?: 'allow' | 'ask' | 'deny';
-	hardApproval?: boolean | ((args: Record<string, unknown>) => boolean);
-	risk?: AgentToolRisk;
-	effect?: AgentToolEffect;
-	allowedOrigins?: readonly AgentOrigin[];
 	exclusiveTargets?: (args: Record<string, unknown>) => string[];
 	parallelSafe?: boolean;
 	timeoutMs?: number;
 	maxOutputBytes?: number;
-	targets?: (args: Record<string, unknown>) => string[];
 	parseInput?: (input: unknown) => Record<string, unknown>;
 	schema: JSONSchema;
 	execute: (input: Record<string, unknown>, signal?: AbortSignal) => Promise<unknown> | unknown;
