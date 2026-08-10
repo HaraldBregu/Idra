@@ -5,7 +5,7 @@ import { saveDocument } from './save';
 
 export const overrides: TLUiOverrides = {
 	actions(editor, actions, helpers) {
-		return {
+		const fridayActions = {
 			...actions,
 			'new-project': {
 				id: 'new-project',
@@ -27,5 +27,7 @@ export const overrides: TLUiOverrides = {
 				onSelect: saveDocument.bind(null, editor, helpers),
 			},
 		};
+		delete fridayActions['toggle-dark-mode'];
+		return fridayActions;
 	},
 };
