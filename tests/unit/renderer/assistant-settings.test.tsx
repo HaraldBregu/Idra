@@ -162,10 +162,10 @@ it('groups provider settings in an expandable Configuration card', async () => {
 
 	const wiki = screen.getByRole('button', { name: /LLM Wiki/ });
 	const dataManagement = screen.getByRole('button', { name: /Data management/ });
-	expect(wiki.compareDocumentPosition(dataManagement) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-	expect(dataManagement.closest('[data-slot="card"]')).not.toBe(
-		wiki.closest('[data-slot="card"]')
-	);
+	expect(
+		wiki.compareDocumentPosition(dataManagement) & Node.DOCUMENT_POSITION_FOLLOWING
+	).toBeTruthy();
+	expect(dataManagement.closest('[data-slot="card"]')).not.toBe(wiki.closest('[data-slot="card"]'));
 });
 
 it.each([

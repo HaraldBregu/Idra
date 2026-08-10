@@ -110,9 +110,7 @@ export function ModelProviderConfiguration({
 							modelId={configState.modelId}
 							onChange={onChange}
 							disabled={
-								configState.loading ||
-								configState.saving ||
-								configState.modelGroups.length === 0
+								configState.loading || configState.saving || configState.modelGroups.length === 0
 							}
 							labels={{
 								label: rowLabel,

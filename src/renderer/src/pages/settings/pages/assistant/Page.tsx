@@ -262,11 +262,7 @@ const AssistantPage: React.FC = () => {
 						description={t('settings.modelServices.videoModelDescription')}
 					/>
 					{searchEngineError && (
-						<SettingsNotice
-							variant="destructive"
-							icon={AlertTriangle}
-							className="mx-3 mt-3"
-						>
+						<SettingsNotice variant="destructive" icon={AlertTriangle} className="mx-3 mt-3">
 							{searchEngineError}
 						</SettingsNotice>
 					)}

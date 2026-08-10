@@ -25,10 +25,8 @@ export function resolveStoredModelProvider(
 	storedProviderId: string | null | undefined,
 	storedModelId: string | null | undefined
 ): { providerId: string; modelId: string } {
-	const group =
-		providerGroups.find((item) => item.id === storedProviderId) ?? providerGroups[0];
-	const model =
-		group?.models.find((item) => item.id === storedModelId) ?? group?.models[0];
+	const group = providerGroups.find((item) => item.id === storedProviderId) ?? providerGroups[0];
+	const model = group?.models.find((item) => item.id === storedModelId) ?? group?.models[0];
 	return {
 		providerId: group?.id ?? '',
 		modelId: model?.id ?? '',
@@ -98,7 +96,7 @@ export function ModelProviderSelect({
 			<SelectTrigger
 				id={`${idPrefix}-model`}
 				className={inline ? 'w-56 max-w-full text-xs' : 'w-full min-w-0 max-w-full text-xs'}
-				aria-label={inline ? labels?.label ?? t('settings.modelServices.model') : undefined}
+				aria-label={inline ? (labels?.label ?? t('settings.modelServices.model')) : undefined}
 			>
 				<SelectValue
 					className="min-w-0 overflow-hidden"
