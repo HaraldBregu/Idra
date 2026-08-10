@@ -139,7 +139,8 @@ export class Agent {
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
-		const category = AGENT_CATEGORIES[agentId] ?? 'main';
+		const normalizedAgentId = agentId.trim();
+		const category = AGENT_CATEGORIES[normalizedAgentId] ?? 'main';
 		const sessionId = resolveSessionId(options.sessionId, this.config.location, category);
 		const runId = options.runId ?? randomUUID();
 		if (this.activeRuns.has(runId)) throw new Error(`Agent run '${runId}' is already active.`);
@@ -152,7 +153,7 @@ export class Agent {
 		};
 		const command: AgentCommand<InternalAgentSendOptions> = {
 			id: runId,
-			agentId: agentId.trim(),
+			agentId: normalizedAgentId,
 			message,
 			options: commandOptions,
 			queuedAt: Date.now(),
