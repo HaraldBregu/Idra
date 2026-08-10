@@ -5,12 +5,16 @@ import { agentLocation } from '../../../shared/agent_location';
 import { resolveUserPath } from '../../../shared/user_path';
 import { tool } from '../tool';
 import { registry } from './process';
+import type { ExecSandbox } from '../../sandbox';
+import type { ExecutionMode } from '../../../../shared/sandbox';
+import { shellQuote } from './quote';
 
 interface ExecResult {
 	command: string;
 	workdir: string;
 	background: boolean;
 	pty: boolean;
+	executionMode: ExecutionMode;
 	pid?: number;
 	sessionId?: string;
 	exitCode?: number | null;
@@ -51,7 +55,9 @@ const execInputSchema = z.object({
 	elevated: z
 		.boolean()
 		.optional()
-		.describe('Run on the host with elevated permissions (if allowed)'),
+		.describe(
+			'Run outside the filesystem sandbox after approval. This does not grant administrator or root privileges.'
+		),
 	host: z
 		.enum(['auto', 'sandbox', 'gateway', 'node'])
 		.optional()
@@ -72,6 +78,7 @@ const execInputSchema = z.object({
 });
 
 async function runExec(
+	sandbox: ExecSandbox,
 	input: z.infer<typeof execInputSchema>,
 	abortSignal?: AbortSignal
 ): Promise<ExecResult> {
@@ -88,11 +95,11 @@ async function runExec(
 		host: hostInput,
 	} = input;
 
-	if (elevatedInput === true) {
-		throw new Error('exec elevated mode is not available in this runtime.');
-	}
 	if (hostInput === 'gateway' || hostInput === 'node') {
 		throw new Error(`exec host '${hostInput}' is not available in this runtime.`);
+	}
+	if (elevatedInput === true && hostInput === 'sandbox') {
+		throw new Error("exec host 'sandbox' cannot be combined with elevated mode.");
 	}
 
 	const env: NodeJS.ProcessEnv = { ...process.env };
@@ -107,8 +114,9 @@ async function runExec(
 	const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
 	const startedAt = Date.now();
 	const pty = ptyInput === true;
-	const spawnCommand = pty ? 'script' : command;
-	const spawnArgs = pty
+	const executionMode: ExecutionMode = elevatedInput === true ? 'host' : 'sandbox';
+	const hostCommand = pty ? 'script' : command;
+	const hostArgs = pty
 		? process.platform === 'darwin' ||
 			process.platform === 'freebsd' ||
 			process.platform === 'openbsd' ||
@@ -116,7 +124,22 @@ async function runExec(
 			? ['-q', '/dev/null', process.env.SHELL ?? '/bin/sh', '-lc', command]
 			: ['-q', '-e', '-c', command, '/dev/null']
 		: [];
-	const shell = !pty;
+	const ptyCommand =
+		process.platform === 'darwin' ||
+		process.platform === 'freebsd' ||
+		process.platform === 'openbsd' ||
+		process.platform === 'netbsd'
+			? `script -q /dev/null ${shellQuote(process.env.SHELL ?? '/bin/sh')} -lc ${shellQuote(command)}`
+			: `script -q -e -c ${shellQuote(command)} /dev/null`;
+	const commandId = randomUUID();
+	const wrapped =
+		executionMode === 'sandbox'
+			? await sandbox.wrap(pty ? ptyCommand : command, cwd, commandId, abortSignal)
+			: undefined;
+	const spawnCommand = wrapped?.command ?? hostCommand;
+	const spawnArgs = wrapped?.args ?? hostArgs;
+	const shell = wrapped ? false : !pty;
+	Object.assign(env, wrapped?.env);
 
 	if (backgroundInput === true) {
 		const child = spawn(spawnCommand, spawnArgs, {
@@ -126,6 +149,7 @@ async function runExec(
 			detached: true,
 			stdio: 'ignore',
 		});
+		if (executionMode === 'sandbox') sandbox.track(child);
 		let timeoutTimer: NodeJS.Timeout | undefined;
 		if (timeoutMs !== undefined) {
 			timeoutTimer = setTimeout(() => child.kill('SIGTERM'), timeoutMs);
@@ -153,6 +177,7 @@ async function runExec(
 				reject(error);
 			});
 			child.once('exit', () => {
+				if (executionMode === 'sandbox') sandbox.cleanup();
 				cleanup();
 			});
 			child.once('spawn', () => {
@@ -164,6 +189,7 @@ async function runExec(
 					workdir: cwd,
 					background: true,
 					pty,
+					executionMode,
 					pid: child.pid,
 					stdout: '',
 					stderr: '',
@@ -174,6 +200,7 @@ async function runExec(
 	}
 
 	const child = spawn(spawnCommand, spawnArgs, { cwd, env, shell });
+	if (executionMode === 'sandbox') sandbox.track(child);
 	const maxOutputLength = 200000;
 	let stdout = '';
 	let stderr = '';
@@ -217,6 +244,7 @@ async function runExec(
 				command,
 				workdir: cwd,
 				startedAt,
+				executionMode,
 				stdout,
 				stderr,
 				exitCode: undefined,
@@ -234,6 +262,10 @@ async function runExec(
 				registry.append(session, 'stderr', chunk.toString())
 			);
 			child.once('close', (exitCode, signal) => {
+				if (executionMode === 'sandbox') {
+					session.stderr = sandbox.annotate(commandId, session.stderr);
+					sandbox.cleanup();
+				}
 				session.exited = true;
 				session.exitCode = exitCode;
 				session.exitSignal = signal;
@@ -245,6 +277,7 @@ async function runExec(
 				background: true,
 				sessionId,
 				pty,
+				executionMode,
 				pid: child.pid,
 				stdout,
 				stderr,
@@ -286,11 +319,16 @@ async function runExec(
 				reject(abortSignal?.reason ?? new Error('Exec cancelled.'));
 				return;
 			}
+			if (executionMode === 'sandbox') {
+				stderr = sandbox.annotate(commandId, stderr);
+				sandbox.cleanup();
+			}
 			resolve({
 				command,
 				workdir: cwd,
 				background: false,
 				pty,
+				executionMode,
 				pid: child.pid,
 				exitCode,
 				signal,
@@ -305,12 +343,14 @@ async function runExec(
 	});
 }
 
-export const execTool = tool({
-	id: 'exec_command',
-	name: 'Execute command',
-	description:
-		'Run a shell command from the workspace or a chosen working directory. ' +
-		'Use it for builds, tests, searches, and other command-line checks; set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
-	inputSchema: execInputSchema,
-	execute: runExec,
-});
+export function execTool(sandbox: ExecSandbox) {
+	return tool({
+		id: 'exec_command',
+		name: 'Execute command',
+		description:
+			'Run a shell command in a filesystem sandbox. Reads are allowed outside configured directories, but writes are limited to enabled recursive directories that allow exec_command. ' +
+			'For an intentional write outside those directories, retry with elevated: true to request host execution. Set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
+		inputSchema: execInputSchema,
+		execute: (input, signal) => runExec(sandbox, input, signal),
+	});
+}

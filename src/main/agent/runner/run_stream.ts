@@ -69,6 +69,7 @@ import { activateSkill, createSkillRegistrySnapshot } from '../skills';
 import type { SkillLoadResult } from '../../../shared/skills_types';
 import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
+import type { ExecSandbox } from '../sandbox';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -77,6 +78,7 @@ export interface StreamOptions {
 	resources?: KeyedMutex;
 	providerLimiter?: KeyedLimiter;
 	subagentLimiter?: KeyedLimiter;
+	sandbox?: ExecSandbox;
 }
 
 const MAX_TOOL_CALLS = 100;
@@ -159,6 +161,7 @@ async function* loop(
 	session.context.toolsContext = {
 		...(hasPrivateInput(session.messages) ? { hasPrivateContext: true } : {}),
 	};
+	if (!options.tools && !options.sandbox) throw new Error('Agent command sandbox is unavailable.');
 
 	let tools: Tool[] = options.tools
 		? [...options.tools]
@@ -167,7 +170,7 @@ async function* loop(
 				writeTool,
 				editTool,
 				applyPatchTool,
-				execTool,
+				execTool(options.sandbox!),
 				processTool,
 				...getSearchWebTools(),
 				fetchWebPageTool,

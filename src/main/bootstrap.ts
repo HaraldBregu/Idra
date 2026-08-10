@@ -7,6 +7,7 @@ import { createChannelRegistry, type ChannelRegistry } from './channels';
 import { ExtensionRegistry, ExtensionStorage } from './extensions/extension_index';
 
 import { Agent } from './agent/agent';
+import { ExecSandbox } from './agent/sandbox';
 
 export interface MainServices {
 	appState: AppState;
@@ -29,7 +30,7 @@ export function bootstrapServices(): BootstrapResult {
 	const extensionRegistry = new ExtensionRegistry();
 	const extensionStorage = new ExtensionStorage();
 	const windowFactory = new WindowFactory(logger, extensionRegistry);
-	const agentService = new Agent(windowFactory);
+	const agentService = new Agent(windowFactory, new ExecSandbox());
 	const channelRegistry = createChannelRegistry({ logger, eventBus, agentService });
 	const windowContextManager = new WindowContextManager(logger, eventBus);
 

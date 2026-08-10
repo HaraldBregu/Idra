@@ -40,6 +40,7 @@ import type { WindowFactory } from '../window_factory';
 import type { SessionCategory } from './session';
 import { KeyedLimiter } from './limiter';
 import { KeyedMutex } from './mutex';
+import type { ExecSandbox } from './sandbox';
 
 interface ActiveAgentRun {
 	runId: string;
@@ -91,7 +92,10 @@ export class Agent {
 	readonly config: Config;
 	readonly state: AgentContextState;
 
-	constructor(private readonly windowFactory: WindowFactory) {
+	constructor(
+		private readonly windowFactory: WindowFactory,
+		readonly sandbox: ExecSandbox
+	) {
 		this.config = { location: path.resolve(agentLocation()) };
 		initTask();
 		this.state = createContextState(createSessionState().context);
@@ -127,6 +131,7 @@ export class Agent {
 		stopHealth();
 		setTaskRunner(undefined);
 		destroyTask();
+		void this.sandbox.reset();
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions): Promise<string> {
@@ -232,6 +237,7 @@ export class Agent {
 				streaming: options.streaming ?? true,
 				windowFactory: this.windowFactory,
 				resources: this.resources,
+				sandbox: this.sandbox,
 				providerLimiter: this.providerLimiter,
 				subagentLimiter: this.subagentLimiter,
 			});

@@ -2,6 +2,7 @@ import type { ChildProcess } from 'node:child_process';
 import { z } from 'zod';
 import { tool } from '../tool';
 import type { Tool } from '../../types';
+import type { ExecutionMode } from '../../../../shared/sandbox';
 
 const MAX_BUFFER = 500_000;
 
@@ -11,6 +12,7 @@ export interface ProcessSession {
 	readonly command: string;
 	readonly workdir: string;
 	readonly startedAt: number;
+	readonly executionMode: ExecutionMode;
 	stdout: string;
 	stderr: string;
 	exitCode: number | null | undefined;
@@ -74,6 +76,7 @@ function sessionSummary(s: ProcessSession) {
 		command: s.command,
 		workdir: s.workdir,
 		startedAt: s.startedAt,
+		executionMode: s.executionMode,
 		exited: s.exited,
 		exitCode: s.exitCode,
 		exitSignal: s.exitSignal,
