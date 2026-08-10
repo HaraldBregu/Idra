@@ -31,9 +31,12 @@ function TextEditor({
 	const onValueChangeRef = useRef(onValueChange);
 	const onSubmitRef = useRef(onSubmit);
 	const onVisualLineChangeRef = useRef(onVisualLineChange);
-	onValueChangeRef.current = onValueChange;
-	onSubmitRef.current = onSubmit;
-	onVisualLineChangeRef.current = onVisualLineChange;
+
+	useEffect(() => {
+		onValueChangeRef.current = onValueChange;
+		onSubmitRef.current = onSubmit;
+		onVisualLineChangeRef.current = onVisualLineChange;
+	}, [onSubmit, onValueChange, onVisualLineChange]);
 
 	const reportVisualLineChange = (updatedEditor: Editor): void => {
 		const range = updatedEditor.view.dom.ownerDocument.createRange();
