@@ -106,7 +106,6 @@ describe('Permissions settings', () => {
 		await user.click(screen.getByRole('button', { name: 'addDirectory' }));
 
 		await waitFor(() =>
-			expect(agentApi.policySetDirectories).toHaveBeenCalledWith({
 			expect(agentApi.policySetDirectories).toHaveBeenCalledWith([
 				...permissions.directories,
 				{ path: '/workspace', recoursive: false, tools: ['read', 'write'] },
