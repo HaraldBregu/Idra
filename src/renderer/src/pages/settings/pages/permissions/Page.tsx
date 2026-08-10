@@ -195,7 +195,7 @@ const PermissionsPage: React.FC = () => {
 						type="button"
 						variant="outline"
 						size="sm"
-						onClick={() => apply(window.agent.policyReset)}
+						onClick={() => apply(window.agent.policyReset, cancelDirectoryEdit)}
 						disabled={saving}
 					>
 						<RotateCcw className="size-3" />
@@ -214,115 +214,210 @@ const PermissionsPage: React.FC = () => {
 				<SettingsLoadingRows rows={4} />
 			) : (
 				<>
-					<SettingsSection
-						title={t('settings.permissions.directoriesTitle')}
-						description={t('settings.permissions.directoriesDescription')}
-					>
-						<SettingsPanel>
-							{directories.length === 0 ? (
-								<SettingsEmptyState
-									icon={FolderX}
-									title={t('settings.permissions.directoriesEmpty')}
-								/>
-							) : (
-								directories.map((permission) => {
-									const directory = permission.path;
-									const tools =
-										permission.tools === '*'
-											? t('settings.permissions.allTools')
-											: permission.tools.join(', ');
-									return (
-										<Item key={directory} variant="outline" size="md" className={ROW_CLASS}>
-											<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
-												<ItemTitle className="max-w-full truncate font-mono">{directory}</ItemTitle>
-												<span
-													className="max-w-full truncate font-mono text-xs text-muted-foreground"
-													title={tools}
-												>
-													{tools}
-												</span>
-											</ItemContent>
-											<ItemActions className="ml-auto flex-none justify-end gap-2">
-												<span className="text-xs text-muted-foreground">
-													{t(
-														permission.recoursive
-															? 'settings.permissions.recursive'
-															: 'settings.permissions.currentDirectory'
-													)}
-												</span>
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon-sm"
-													aria-label={t('settings.permissions.removeDirectory')}
-													onClick={() => removeDirectory(directory)}
-													disabled={saving || directory === workspaceDirectory}
-												>
-													<Trash2 className="size-3" />
-												</Button>
-											</ItemActions>
-										</Item>
-									);
-								})
-							)}
+					<section aria-labelledby="directory-permissions-title">
+						<Card size="sm" className="gap-0! py-0!">
+							<CardHeader className="border-b border-border/60 py-3">
+								<CardTitle>
+									<h2 id="directory-permissions-title">
+										{t('settings.permissions.directoriesTitle')}
+									</h2>
+								</CardTitle>
+								<CardDescription className="text-xs">
+									{t('settings.permissions.directoriesDescription')}
+								</CardDescription>
+							</CardHeader>
 
-							<Item variant="outline" size="md">
-								<ItemContent className="min-w-0 flex-1 gap-2">
-									<div className="flex w-full flex-wrap items-center gap-2">
+							<CardContent className="p-0!">
+								<form
+									className="grid gap-3 border-b border-border/60 bg-muted/20 px-3 py-3 sm:grid-cols-2"
+									onSubmit={(event) => {
+										event.preventDefault();
+										saveDirectory();
+									}}
+								>
+									<div className="sm:col-span-2">
+										<h3 className="text-xs font-semibold text-foreground">
+											{t(
+												editingDirectory
+													? 'settings.permissions.editDirectoryTitle'
+													: 'settings.permissions.addDirectoryTitle'
+											)}
+										</h3>
+									</div>
+
+									<Field className="sm:col-span-2">
+										<Label htmlFor="directory-path">
+											{t('settings.permissions.directoryPath')}
+										</Label>
+										<div className="flex min-w-0 gap-2">
+											<Input
+												id="directory-path"
+												value={newDirectory}
+												onChange={(event) => setNewDirectory(event.target.value)}
+												placeholder={t('settings.permissions.directoryPlaceholder')}
+												className="h-8 min-w-0 flex-1 font-mono text-xs"
+												disabled={saving || editingDirectory === workspaceDirectory}
+											/>
+											<Button
+												type="button"
+												variant="outline"
+												size="icon-sm"
+												aria-label={t('settings.permissions.browseDirectory')}
+												onClick={() => browseDirectory(setNewDirectory)}
+												disabled={saving || editingDirectory === workspaceDirectory}
+											>
+												<FolderOpen className="size-3" />
+											</Button>
+										</div>
+									</Field>
+
+									<Field>
+										<Label htmlFor="directory-tools">
+											{t('settings.permissions.directoryTools')}
+										</Label>
 										<Input
-											value={newDirectory}
-											onChange={(event) => setNewDirectory(event.target.value)}
-											placeholder={t('settings.permissions.directoryPlaceholder')}
-											aria-label={t('settings.permissions.directoryPath')}
-											className="h-7 min-w-48 flex-1 font-mono text-xs"
-										/>
-										<Input
+											id="directory-tools"
 											value={newDirectoryTools}
 											onChange={(event) => setNewDirectoryTools(event.target.value)}
-											onKeyDown={(event) => {
-												if (event.key === 'Enter') addDirectory();
-											}}
 											placeholder={t('settings.permissions.directoryToolsPlaceholder')}
-											aria-label={t('settings.permissions.directoryTools')}
-											className="h-7 min-w-40 flex-1 font-mono text-xs"
+											className="h-8 font-mono text-xs"
+											disabled={saving}
 										/>
-										<div className="flex h-7 items-center gap-2 px-1">
+									</Field>
+
+									<div className="flex flex-wrap items-end gap-4 pb-1">
+										<div className="flex h-8 items-center gap-2">
+											<Switch
+												id="directory-enabled"
+												size="sm"
+												checked={newDirectoryEnabled}
+												onCheckedChange={setNewDirectoryEnabled}
+												disabled={saving}
+											/>
+											<Label htmlFor="directory-enabled" className="text-xs">
+												{t('settings.permissions.enabled')}
+											</Label>
+										</div>
+										<div className="flex h-8 items-center gap-2">
 											<Switch
 												id="directory-recursive"
 												size="sm"
 												checked={newDirectoryRecursive}
 												onCheckedChange={setNewDirectoryRecursive}
-												aria-label={t('settings.permissions.recursive')}
+												disabled={saving}
 											/>
 											<Label htmlFor="directory-recursive" className="text-xs">
 												{t('settings.permissions.recursive')}
 											</Label>
 										</div>
 									</div>
-								</ItemContent>
-								<ItemActions className="ml-auto flex-none justify-end gap-2">
-									<Button
-										type="button"
-										variant="outline"
-										size="icon-sm"
-										aria-label={t('settings.permissions.browseDirectory')}
-										onClick={() => browseDirectory(setNewDirectory)}
-									>
-										<FolderOpen className="size-3" />
-									</Button>
-									<Button
-										type="button"
-										size="icon-sm"
-										aria-label={t('settings.permissions.addDirectory')}
-										disabled={!canAddDirectory || saving}
-										onClick={addDirectory}
-									>
-										<Plus className="size-3" />
-									</Button>
-								</ItemActions>
-							</Item>
-						</SettingsPanel>
-					</SettingsSection>
+
+									<div className="flex justify-end gap-2 sm:col-span-2">
+										{editingDirectory && (
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												onClick={cancelDirectoryEdit}
+												disabled={saving}
+											>
+												{t('common.cancel')}
+											</Button>
+										)}
+										<Button type="submit" size="sm" disabled={!canSaveDirectory || saving}>
+											{!editingDirectory && <Plus className="size-3" />}
+											{t(
+												editingDirectory ? 'common.save' : 'settings.permissions.addDirectory'
+											)}
+										</Button>
+									</div>
+								</form>
+
+								<div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
+									<h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+										{t('settings.permissions.configuredDirectories')}
+									</h3>
+									<Badge variant="secondary" className="text-[10px]">
+										{directories.length}
+									</Badge>
+								</div>
+
+								{directories.length === 0 ? (
+									<SettingsEmptyState
+										icon={FolderX}
+										title={t('settings.permissions.directoriesEmpty')}
+									/>
+								) : (
+									directories.map((permission) => {
+										const directory = permission.path;
+										const directoryTools =
+											permission.tools === '*'
+												? t('settings.permissions.allTools')
+												: permission.tools.join(', ');
+										const isWorkspace = directory === workspaceDirectory;
+										return (
+											<Item key={directory} variant="outline" size="md" className={ROW_CLASS}>
+												<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
+													<ItemTitle className="max-w-full truncate font-mono">
+														{directory}
+													</ItemTitle>
+													<span
+														className="max-w-full truncate font-mono text-xs text-muted-foreground"
+														title={directoryTools}
+													>
+														{directoryTools}
+													</span>
+												</ItemContent>
+												<ItemActions className="ml-auto flex-wrap justify-end gap-1.5">
+													<Badge variant={permission.enabled ? 'secondary' : 'outline'}>
+														{t(
+															permission.enabled
+																? 'settings.permissions.enabled'
+																: 'settings.permissions.disabled'
+														)}
+													</Badge>
+													{isWorkspace && (
+														<Badge variant="outline">
+															{t('settings.permissions.workspaceDirectory')}
+														</Badge>
+													)}
+													<span className="px-1 text-xs text-muted-foreground">
+														{t(
+															permission.recoursive
+																? 'settings.permissions.recursive'
+																: 'settings.permissions.currentDirectory'
+														)}
+													</span>
+													<Button
+														type="button"
+														variant="ghost"
+														size="icon-sm"
+														aria-label={t('settings.permissions.editDirectory', { directory })}
+														onClick={() => editDirectory(permission)}
+														disabled={saving}
+													>
+														<Pencil className="size-3" />
+													</Button>
+													{!isWorkspace && (
+														<Button
+															type="button"
+															variant="ghost"
+															size="icon-sm"
+															aria-label={t('settings.permissions.removeDirectory', { directory })}
+															onClick={() => removeDirectory(directory)}
+															disabled={saving}
+														>
+															<Trash2 className="size-3" />
+														</Button>
+													)}
+												</ItemActions>
+											</Item>
+										);
+									})
+								)}
+							</CardContent>
+						</Card>
+					</section>
 
 					<SettingsSection
 						title={t('settings.permissions.toolsTitle')}
