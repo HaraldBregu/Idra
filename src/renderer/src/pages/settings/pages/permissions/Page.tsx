@@ -58,7 +58,9 @@ const directoryToolsFor = (value: string): '*' | string[] => {
 	];
 };
 
-const PermissionsPage: React.FC = () => {
+type PermissionsScope = 'agent' | 'tasks' | 'health' | 'channels';
+
+const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scope = 'agent' }) => {
 	const { t } = useTranslation();
 	const [permissions, setPermissions] = useState<Permissions | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -74,18 +76,34 @@ const PermissionsPage: React.FC = () => {
 	};
 
 	useEffect(() => {
-		window.agent
-			.policyGet()
+		const operation =
+			scope === 'tasks'
+				? window.tasks.getPermissions()
+				: scope === 'health'
+					? window.agent.healthGetPermissions()
+					: scope === 'channels'
+						? window.app.getChannelsPermissions()
+						: window.agent.policyGet();
+		operation
 			.then(setPermissions)
 			.catch((err: unknown) => {
 				setError(err instanceof Error ? err.message : String(err));
 			});
-	}, []);
+	}, [scope]);
 
 	const setDefault = (toolName: string, mode: PermissionMode): void => {
 		const permission = permissionFor(permissions, toolName);
 		if (!permission) return;
-		apply(window.agent.policySetTool(toolName, { ...permission, default: mode }));
+		const next = { ...permission, default: mode };
+		apply(
+			scope === 'tasks'
+				? window.tasks.savePermissions({ ...permissions!, [toolName]: next })
+				: scope === 'health'
+					? window.agent.healthSavePermissions({ ...permissions!, [toolName]: next })
+					: scope === 'channels'
+						? window.app.saveChannelsPermissions({ ...permissions!, [toolName]: next })
+						: window.agent.policySetTool(toolName, next)
+		);
 	};
 
 	const addDirectory = (): void => {
@@ -93,11 +111,18 @@ const PermissionsPage: React.FC = () => {
 		const directoryTools = directoryToolsFor(newDirectoryTools);
 		if (!permissions || !directory || (directoryTools !== '*' && directoryTools.length === 0))
 			return;
+		const directories = {
+			...permissions.dir,
+			[directory]: { recoursive: newDirectoryRecursive, tools: directoryTools },
+		};
 		apply(
-			window.agent.policySetDirectories({
-				...permissions.dir,
-				[directory]: { recoursive: newDirectoryRecursive, tools: directoryTools },
-			})
+			scope === 'tasks'
+				? window.tasks.savePermissions({ ...permissions, dir: directories })
+				: scope === 'health'
+					? window.agent.healthSavePermissions({ ...permissions, dir: directories })
+					: scope === 'channels'
+						? window.app.saveChannelsPermissions({ ...permissions, dir: directories })
+						: window.agent.policySetDirectories(directories)
 		);
 		setNewDirectory('');
 	};
@@ -106,7 +131,15 @@ const PermissionsPage: React.FC = () => {
 		if (!permissions) return;
 		const directories = { ...permissions.dir };
 		delete directories[directory];
-		apply(window.agent.policySetDirectories(directories));
+		apply(
+			scope === 'tasks'
+				? window.tasks.savePermissions({ ...permissions, dir: directories })
+				: scope === 'health'
+					? window.agent.healthSavePermissions({ ...permissions, dir: directories })
+					: scope === 'channels'
+						? window.app.saveChannelsPermissions({ ...permissions, dir: directories })
+						: window.agent.policySetDirectories(directories)
+		);
 	};
 
 	const browseDirectory = (onPicked: (directory: string) => void): void => {
@@ -131,24 +164,52 @@ const PermissionsPage: React.FC = () => {
 	const canAddDirectory =
 		newDirectory.trim().length > 0 &&
 		(parsedDirectoryTools === '*' || parsedDirectoryTools.length > 0);
+	const title =
+		scope === 'tasks'
+			? t('settings.permissions.scopes.tasksTitle')
+			: scope === 'health'
+				? t('settings.permissions.scopes.healthTitle')
+				: scope === 'channels'
+					? t('settings.permissions.scopes.channelsTitle')
+					: t('settings.tabs.permissions');
+	const description =
+		scope === 'tasks'
+			? t('settings.permissions.scopes.tasksDescription')
+			: scope === 'health'
+				? t('settings.permissions.scopes.healthDescription')
+				: scope === 'channels'
+					? t('settings.permissions.scopes.channelsDescription')
+					: t('settings.overview.descriptions.permissions');
+	const reset = (): Promise<Permissions> =>
+		scope === 'tasks'
+			? window.tasks.resetPermissions()
+			: scope === 'health'
+				? window.agent.healthResetPermissions()
+				: scope === 'channels'
+					? window.app.resetChannelsPermissions()
+					: window.agent.policyReset();
 
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={t('settings.tabs.permissions')}
-				description={t('settings.overview.descriptions.permissions')}
+				title={title}
+				description={description}
 				action={
 					<Button
 						type="button"
 						variant="outline"
 						size="sm"
-						onClick={() => apply(window.agent.policyReset())}
+						onClick={() => apply(reset())}
 					>
 						<RotateCcw className="size-3" />
 						{t('settings.permissions.reset')}
 					</Button>
 				}
 			/>
+
+			{scope !== 'agent' && (
+				<SettingsNotice>{t('settings.permissions.scopes.nonInteractiveNotice')}</SettingsNotice>
+			)}
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
@@ -232,13 +293,13 @@ const PermissionsPage: React.FC = () => {
 										/>
 										<div className="flex h-7 items-center gap-2 px-1">
 											<Switch
-												id="directory-recursive"
+												id={`directory-recursive-${scope}`}
 												size="sm"
 												checked={newDirectoryRecursive}
 												onCheckedChange={setNewDirectoryRecursive}
 												aria-label={t('settings.permissions.recursive')}
 											/>
-											<Label htmlFor="directory-recursive" className="text-xs">
+											<Label htmlFor={`directory-recursive-${scope}`} className="text-xs">
 												{t('settings.permissions.recursive')}
 											</Label>
 										</div>
