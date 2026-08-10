@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MAX_MEMORY_FACT_LENGTH, memoryPath, saveMemory } from '../../memory';
+import { MAX_MEMORY_FACT_LENGTH, saveMemory } from '../../memory';
 import type { Config, Tool } from '../../types';
 import { tool } from '../tool';
 

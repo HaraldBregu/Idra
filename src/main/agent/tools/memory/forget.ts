@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { forgetMemory, memoryPath } from '../../memory';
+import { forgetMemory } from '../../memory';
 import type { Config, Tool } from '../../types';
 import { tool } from '../tool';
 

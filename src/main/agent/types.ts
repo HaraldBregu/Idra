@@ -37,7 +37,6 @@ export interface Tool {
 	readonly name: string;
 	readonly description: string;
 	readonly schema: JSONSchema;
-	readonly exclusiveTargets?: (args: Record<string, unknown>) => string[];
 	readonly parallelSafe?: boolean;
 	readonly timeoutMs: number;
 	readonly maxOutputBytes: number;
@@ -49,7 +48,6 @@ export type ToolConfig<T extends z.ZodType> = {
 	id?: string;
 	name: string;
 	description: string;
-	exclusiveTargets?: (args: Record<string, unknown>) => string[];
 	parallelSafe?: boolean;
 	timeoutMs?: number;
 	maxOutputBytes?: number;
@@ -61,7 +59,6 @@ export type JsonToolConfig = {
 	id?: string;
 	name: string;
 	description: string;
-	exclusiveTargets?: (args: Record<string, unknown>) => string[];
 	parallelSafe?: boolean;
 	timeoutMs?: number;
 	maxOutputBytes?: number;

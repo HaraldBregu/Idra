@@ -227,7 +227,6 @@ function applyUpdateChunks(filePath: string, contents: string, chunks: UpdateChu
 
 export const applyPatchTool = tool({
 	name: 'apply_patch',
-	hardApproval: ({ input }) => /^\*\*\* (?:Delete File:|Move to:)/m.test(input),
 	description:
 		'Apply a multi-file patch using the *** Begin Patch/*** End Patch format. Supports Add File, Delete File, and Update File (with optional Move to) hunks.',
 	inputSchema: z.object({

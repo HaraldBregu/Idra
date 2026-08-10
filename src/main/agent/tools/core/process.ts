@@ -274,7 +274,6 @@ async function runProcess(
 
 export const processTool: Tool = tool({
 	name: 'process',
-	hardApproval: ({ action }) => action === 'kill' || action === 'clear' || action === 'remove',
 	description:
 		'Manage running exec sessions for commands already started: list, poll, log, write, send-keys, submit, paste, kill. ' +
 		'Use poll/log when you need status, logs, quiet-success confirmation, or completion confirmation. ' +
