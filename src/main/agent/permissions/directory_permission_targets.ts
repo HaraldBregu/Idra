@@ -26,11 +26,11 @@ const TASK_TOOLS = new Set([
 	'run_task_now',
 ]);
 const WIKI_TOOLS = new Set([
-	'wiki_ingest_source',
-	'wiki_save_analysis',
-	'wiki_lint',
-	'wiki_review_changes',
-	'wiki_rebuild_index',
+	'ingest_wiki_source',
+	'save_wiki_analysis',
+	'lint_wiki',
+	'review_wiki_changes',
+	'rebuild_wiki_index',
 ]);
 
 export function directoryPermissionTargets(

@@ -66,7 +66,7 @@ Rules:
 - You are NOT the main agent: do not converse with the user or spawn more agents.`;
 
 const fallbackPool = new KeyedLimiter(3);
-const PARALLEL_TOOL_IDS = new Set(['read_file', 'web_search', 'web_fetch', 'knowledge_query']);
+const PARALLEL_TOOL_IDS = new Set(['read_file', 'web_search', 'web_fetch', 'query_knowledge']);
 
 export function subagentTool(
 	config: Config,

@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { searchWiki } from '../../knowledge/wiki/wiki_search';
 import { tool } from '../tool';
 
-export const wikiSearchTool = tool({
-	id: 'wiki_search',
+export const searchWikiTool = tool({
+	id: 'search_wiki',
 	name: 'Search wiki',
 	description:
 		'Search compiled wiki pages by exact title, alias, metadata, full text, and linked-page relevance. Returns wiki synthesis, never primary evidence.',

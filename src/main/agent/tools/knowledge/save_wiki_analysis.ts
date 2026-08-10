@@ -8,8 +8,8 @@ const evidence = z.object({
 	evidenceType: z.enum(['direct', 'indirect']),
 });
 
-export const wikiSaveTool = tool({
-	id: 'wiki_save_analysis',
+export const saveWikiAnalysisTool = tool({
+	id: 'save_wiki_analysis',
 	name: 'Save wiki analysis',
 	description:
 		'Save a durable, reusable comparison, synthesis, project analysis, or resolved research question. Search first and provide integrated source IDs. Do not save casual conversation, secrets, temporary status, or speculation. Unless automatic filing is enabled, call only when the user asks to persist the analysis.',
