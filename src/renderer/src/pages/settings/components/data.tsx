@@ -157,9 +157,7 @@ export function DataControls({ kinds }: DataControlsProps): React.JSX.Element {
 							key={kind}
 							title={t(item.titleKey)}
 							description={
-								kind === 'sessions'
-									? t(item.descriptionKey, { count })
-									: t(item.descriptionKey)
+								kind === 'sessions' ? t(item.descriptionKey, { count }) : t(item.descriptionKey)
 							}
 							actions={actionsFor(kind, item.exportable)}
 						/>

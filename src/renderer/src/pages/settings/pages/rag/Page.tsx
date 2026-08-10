@@ -620,12 +620,7 @@ const RagPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.dataControls.title')}>
 				<DataControls
-					kinds={[
-						'local_index',
-						'local_namespace',
-						'remote_namespace',
-						'remote_all_namespaces',
-					]}
+					kinds={['local_index', 'local_namespace', 'remote_namespace', 'remote_all_namespaces']}
 				/>
 			</SettingsSection>
 		</SettingsPageShell>

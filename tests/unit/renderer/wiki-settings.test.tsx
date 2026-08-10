@@ -133,16 +133,16 @@ describe('Wiki settings', () => {
 		await user.click(within(row).getByRole('button', { name: 'Export' }));
 		await waitFor(() =>
 			expect(dataControls.export).toHaveBeenCalledWith({
-					kind: 'wiki',
-					targetPath: '/wiki/data',
-				})
+				kind: 'wiki',
+				targetPath: '/wiki/data',
+			})
 		);
 		await user.click(within(row).getByRole('button', { name: 'Purge' }));
 		await waitFor(() =>
 			expect(dataControls.purge).toHaveBeenCalledWith(
-					{ kind: 'wiki', targetPath: '/wiki/data' },
-					'confirmation-id'
-				)
+				{ kind: 'wiki', targetPath: '/wiki/data' },
+				'confirmation-id'
+			)
 		);
 	});
 
