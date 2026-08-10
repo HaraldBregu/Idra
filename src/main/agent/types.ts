@@ -186,10 +186,7 @@ export type RuntimeEvent =
 			toolName: string;
 			input: Record<string, unknown>;
 			mode: 'ask';
-			risk: AgentToolRisk;
-			effect: AgentToolEffect;
 			targets: string[];
-			hardApproval: boolean;
 			expiresAt: string;
 			origin: AgentOrigin;
 			inputFingerprint: string;

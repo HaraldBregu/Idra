@@ -66,7 +66,7 @@ export function ToolPermissionCard({
 				>
 					Deny
 				</Button>
-				{!permission.hardApproval && <Button
+				<Button
 					type="button"
 					variant="outline"
 					size="sm"
@@ -74,7 +74,7 @@ export function ToolPermissionCard({
 					onClick={() => respond('approve_always')}
 				>
 					Always allow
-				</Button>}
+				</Button>
 				<Button
 					type="button"
 					variant="default"

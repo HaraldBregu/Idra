@@ -147,8 +147,6 @@ function applyResponseEvent(
 						toolName: event.toolName,
 						inputFingerprint: event.inputFingerprint,
 					input: event.input,
-					detail: event.detail,
-					hardApproval: event.hardApproval,
 				},
 				startedAtMs: message.startedAtMs ?? receivedAtMs,
 			})

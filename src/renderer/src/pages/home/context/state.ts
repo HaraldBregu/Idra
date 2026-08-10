@@ -18,8 +18,6 @@ export interface PendingToolPermission {
 	readonly toolName: string;
 	readonly inputFingerprint: string;
 	readonly input: unknown;
-	readonly detail?: string;
-	readonly hardApproval: boolean;
 }
 
 export interface AgentMessage {

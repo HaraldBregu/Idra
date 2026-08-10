@@ -342,10 +342,8 @@ async function* loop(
 				yield { type: 'run_finished', result: toResult(session, 'success') };
 				return;
 			}
-			const toolByName = new Map(tools.map((candidate) => [candidate.name, candidate]));
-			const requestedPaidCalls = turn.toolCalls.filter(
-				(call) => toolByName.get(call.name)?.effect === 'paid'
-			).length;
+			const paidTools = new Set(['create_image', 'create_video', 'create_sound']);
+			const requestedPaidCalls = turn.toolCalls.filter((call) => paidTools.has(call.name)).length;
 			if (paidToolCalls + requestedPaidCalls > MAX_PAID_TOOL_CALLS) {
 				session.stopReason = 'budget_exhausted';
 				yield { type: 'run_finished', result: toResult(session, 'success') };

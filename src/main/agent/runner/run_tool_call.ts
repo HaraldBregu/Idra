@@ -79,24 +79,16 @@ export async function* runToolCall(
 			canonicalInput,
 			context,
 			interactive,
-			tool.defaultPermission,
+			'ask',
 			permissions
 		);
 		let permission =
 			permissionMode === 'bypass' && policyPermission !== 'deny' ? 'allow' : policyPermission;
 
-		const hardApproval =
-			(typeof tool.hardApproval === 'function'
-				? tool.hardApproval(canonicalInput)
-				: tool.hardApproval === true) || tool.alwaysAsk === true;
-		if (permission !== 'deny' && hardApproval) permission = 'ask';
 		if (permission === 'ask' && !interactive) permission = 'deny';
 
 		if (permission === 'ask') {
-			const detail = tool.confirmDetail?.(canonicalInput);
-			const targets =
-				tool.targets?.(canonicalInput) ??
-				toolApprovalTargets(toolCall.name, canonicalInput, agentLocation());
+			const targets = toolApprovalTargets(toolCall.name, canonicalInput, agentLocation());
 			const approvalId = crypto.randomUUID();
 			const fingerprint = inputFingerprint(canonicalInput);
 			const expiresAtMs = Date.now() + 120_000;
@@ -107,14 +99,10 @@ export async function* runToolCall(
 				toolName: toolCall.name,
 				input: redactApprovalInput(canonicalInput),
 				mode: 'ask',
-				risk: tool.risk,
-				effect: tool.effect,
 				targets,
-				hardApproval,
 				expiresAt: new Date(expiresAtMs).toISOString(),
 				origin: security.origin,
 				inputFingerprint: fingerprint,
-				...(detail ? { detail } : {}),
 			};
 			const decision = await waitForToolPermission(
 				{
@@ -124,14 +112,12 @@ export async function* runToolCall(
 					toolName: toolCall.name,
 					inputFingerprint: fingerprint,
 					expiresAtMs,
-					hardApproval,
 					...(security.windowId === undefined ? {} : { windowId: security.windowId }),
 				},
 				signal
 			);
 			permissionOutcome = decision;
-			if (decision === 'reject' && tool.stopOnReject && context) context.cancelled = true;
-			if (decision === 'approve_always' && !hardApproval) {
+			if (decision === 'approve_always') {
 				if (targets.length === 0) {
 					const configured = getToolPermission(toolCall.name);
 					setToolPermission(toolCall.name, { ...configured, default: 'allow' });
@@ -158,11 +144,11 @@ export async function* runToolCall(
 				const toolSignal = signal
 					? AbortSignal.any([signal, timeoutController.signal])
 					: timeoutController.signal;
-				const exclusiveTargets =
-					tool.exclusiveTargets?.(canonicalInput) ??
-					(tool.effect === 'write' || tool.effect === 'persistence'
-						? directoryPermissionTargets(tool.name, canonicalInput, agentLocation())
-						: []);
+				const exclusiveTargets = directoryPermissionTargets(
+					tool.name,
+					canonicalInput,
+					agentLocation()
+				);
 				const release = resources
 					? await resources.acquire(exclusiveTargets, toolSignal)
 					: () => undefined;

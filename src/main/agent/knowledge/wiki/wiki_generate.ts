@@ -63,10 +63,9 @@ ${source.content}
 			],
 			tools: [
 				{
+					id: 'apply_wiki_update',
 					name: 'apply_wiki_update',
 					description: 'Apply a complete, validated set of Markdown page updates to the wiki.',
-					risk: 'low',
-					effect: 'read',
 					timeoutMs: WIKI_GENERATION_TIMEOUT_MS,
 					maxOutputBytes: 200_000,
 					parseInput: (input) => input as Record<string, unknown>,

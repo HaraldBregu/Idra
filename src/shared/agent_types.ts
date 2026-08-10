@@ -241,10 +241,7 @@ export type AgentRunStreamEvent =
 			toolName: string;
 			input: unknown;
 			mode: 'ask';
-			risk: AgentToolRisk;
-			effect: AgentToolEffect;
 				targets: string[];
-				hardApproval: boolean;
 				expiresAt: string;
 				origin: AgentOrigin;
 				inputFingerprint: string;

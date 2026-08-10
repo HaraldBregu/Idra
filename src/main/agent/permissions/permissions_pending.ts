@@ -5,7 +5,6 @@ import type {
 
 export interface PendingToolApproval extends AgentToolPermissionScope {
 	expiresAtMs: number;
-	hardApproval: boolean;
 	windowId?: number;
 }
 
@@ -62,7 +61,7 @@ export function respondToolPermission(
 			scope.inputFingerprint !== entry.request.inputFingerprint)
 	)
 		return false;
-	entry.settle(entry.request.hardApproval && decision === 'approve_always' ? 'approve' : decision);
+	entry.settle(decision);
 	return true;
 }
 

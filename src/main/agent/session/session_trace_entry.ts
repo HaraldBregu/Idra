@@ -148,9 +148,6 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 			...(typeof event.approvalId === 'string' ? { approvalId: event.approvalId } : {}),
 			...(typeof event.toolCallId === 'string' ? { toolCallId: event.toolCallId } : {}),
 			...(typeof event.toolName === 'string' ? { toolName: event.toolName } : {}),
-			...(typeof event.risk === 'string' ? { risk: event.risk } : {}),
-			...(typeof event.effect === 'string' ? { effect: event.effect } : {}),
-			...(typeof event.hardApproval === 'boolean' ? { hardApproval: event.hardApproval } : {}),
 			...(typeof event.expiresAt === 'string' ? { expiresAt: event.expiresAt } : {}),
 		};
 	}
