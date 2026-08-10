@@ -1,4 +1,4 @@
-import { completeBootstrapTool } from '../../../../../src/main/agent/tools/assistant/bootstrap_complete';
+import { completeBootstrapTool } from '../../../../../src/main/agent/tools/assistant/complete_bootstrap';
 import { editTool } from '../../../../../src/main/agent/tools/core/edit_file';
 import { updateHealthSettingsTool } from '../../../../../src/main/agent/tools/health/settings_update';
 import { updateHealthTool } from '../../../../../src/main/agent/tools/health/update';

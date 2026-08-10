@@ -17,7 +17,7 @@ import {
 	buildWorkspaceContext,
 } from '../system';
 import { loadMcpTools } from '../tools/mcp/loader';
-import { completeBootstrapTool } from '../tools/assistant/bootstrap_complete';
+import { completeBootstrapTool } from '../tools/assistant/complete_bootstrap';
 import { readTool } from '../tools/core/read_file';
 import { writeTool } from '../tools/core/write_file';
 import { editTool } from '../tools/core/edit_file';
