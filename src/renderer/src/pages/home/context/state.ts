@@ -13,7 +13,6 @@ export interface UserMessage {
 export interface PendingToolPermission {
 	readonly approvalId: string;
 	readonly runId: string;
-	readonly origin: 'main' | 'bot' | 'health' | 'task' | 'subagent';
 	readonly toolCallId: string;
 	readonly toolName: string;
 	readonly inputFingerprint: string;

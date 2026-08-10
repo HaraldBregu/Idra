@@ -142,7 +142,6 @@ function applyResponseEvent(
 					pendingPermission: {
 						approvalId: event.approvalId,
 						runId: event.runId,
-						origin: event.origin,
 						toolCallId: event.toolCallId,
 						toolName: event.toolName,
 						inputFingerprint: event.inputFingerprint,

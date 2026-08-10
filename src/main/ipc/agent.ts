@@ -5,13 +5,13 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../event_bus';
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
 import { AgentChannels } from '../../shared/ipc_channels_definitions';
-import type { Agent, AgentSendOptions } from '../agent/agent';
+import type { Agent } from '../agent/agent';
 import type { LoggerService } from '../shared';
 import type { PublicProvider } from '../../shared/provider_types';
 import { loadProviders } from '../models';
 import type {
 	AgentContextMode,
-	AgentPermissionMode,
+	AgentRunOptions,
 	AgentToolPermissionDecision,
 	AgentToolPermissionScope,
 	ModelReasoningEffort,
@@ -25,7 +25,6 @@ import {
 	resetPermissions,
 	respondToolPermission,
 	setDirectoryPermissions,
-	setPermissionMode,
 	setToolPermission,
 	type DirectoryPermissions,
 	type PermissionsSchema,
@@ -87,20 +86,13 @@ function toToolPermissionScope(value: unknown): AgentToolPermissionScope {
 	const runId = optionalTrimmedString(value.runId);
 	const toolName = optionalTrimmedString(value.toolName);
 	const inputFingerprint = optionalTrimmedString(value.inputFingerprint);
-	if (
-		!approvalId ||
-		!runId ||
-		!toolName ||
-		!inputFingerprint ||
-		!['main', 'bot', 'health', 'task', 'subagent'].includes(String(value.origin))
-	)
+	if (!approvalId || !runId || !toolName || !inputFingerprint)
 		throw new Error('Invalid tool permission scope.');
 	return {
 		approvalId,
 		runId,
 		toolName,
 		inputFingerprint,
-		origin: value.origin as AgentToolPermissionScope['origin'],
 	};
 }
 
@@ -112,12 +104,6 @@ const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'high',
 	'xhigh',
 ];
-
-const AGENT_PERMISSION_MODES: readonly AgentPermissionMode[] = ['ask', 'bypass'];
-
-function isAgentPermissionMode(value: unknown): value is AgentPermissionMode {
-	return AGENT_PERMISSION_MODES.includes(value as AgentPermissionMode);
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -213,7 +199,7 @@ async function readWorkspaceTree(root: string, directory = root): Promise<Worksp
 	});
 }
 
-export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
+export function normalizeAgentSendRuntimeOptions(options: unknown): AgentRunOptions {
 	if (options === undefined || options === null) return {};
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
 
@@ -266,7 +252,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				if (!window) throw new Error('Assistant request requires an originating window.');
 				return agent.send(message, 'main', {
 					...normalizeAgentSendRuntimeOptions(options),
-					permissions: getPermissions(),
+					type: 'default',
 					windowId: window.id,
 					streamEvent: (responseEvent) =>
 						eventBus.sendTo(window.id, AgentChannels.response, responseEvent),
@@ -531,14 +517,6 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler((value: unknown): PermissionsSchema => {
 				return setDirectoryPermissions(toDirectoryPermissions(value));
 			}, AgentChannels.policySetDirectories)
-		);
-
-		ipcMain.handle(
-			AgentChannels.policySetMode,
-			wrapSimpleHandler((mode: unknown): PermissionsSchema => {
-				if (!isAgentPermissionMode(mode)) throw new Error('Invalid agent permission mode.');
-				return setPermissionMode(mode);
-			}, AgentChannels.policySetMode)
 		);
 
 		ipcMain.handle(

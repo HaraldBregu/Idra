@@ -4,7 +4,6 @@ import type { AgentApi } from './index.d';
 import type { PublicProvider } from '../shared';
 import type {
 	AgentHistoryMessage,
-	AgentPermissionMode,
 	AgentResponseEvent,
 	AgentRunOptions,
 	AgentSessionSummary,
@@ -227,9 +226,6 @@ export const agent: AgentApi = {
 	},
 	policySetDirectories: (directories: DirectoryPermissions): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policySetDirectories, directories);
-	},
-	policySetMode: (mode: AgentPermissionMode): Promise<PermissionsSchema> => {
-		return typedInvokeUnwrap(AgentChannels.policySetMode, mode);
 	},
 	policyReset: (): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyReset);

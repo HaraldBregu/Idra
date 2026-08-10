@@ -144,10 +144,6 @@ export interface AgentInvokeChannelMap {
 		args: [directories: import('../main/agent/permissions/permissions_types').DirectoryPermissions];
 		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
 	};
-	[AgentChannels.policySetMode]: {
-		args: [mode: import('./agent_types').AgentPermissionMode];
-		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
-	};
 	[AgentChannels.policyReset]: {
 		args: [];
 		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;

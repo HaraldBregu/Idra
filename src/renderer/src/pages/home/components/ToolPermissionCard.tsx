@@ -35,7 +35,6 @@ export function ToolPermissionCard({
 				{
 					approvalId: permission.approvalId,
 					runId: permission.runId,
-					origin: permission.origin,
 					toolName: permission.toolName,
 					inputFingerprint: permission.inputFingerprint,
 				},

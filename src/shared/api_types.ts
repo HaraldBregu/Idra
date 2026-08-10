@@ -43,7 +43,6 @@ import type {
 	AgentRunOptions,
 	AgentResponseEvent,
 	AgentSessionSummary,
-	AgentPermissionMode,
 	AgentToolPermissionDecision,
 	AgentToolPermissionScope,
 	WorkspaceTreeEntry,
@@ -145,7 +144,6 @@ export interface AgentApi {
 	policyPickDirectory: () => Promise<string | undefined>;
 	policySetTool: (toolName: string, permission: ToolPermission) => Promise<PermissionsSchema>;
 	policySetDirectories: (directories: DirectoryPermissions) => Promise<PermissionsSchema>;
-	policySetMode: (mode: AgentPermissionMode) => Promise<PermissionsSchema>;
 	policyReset: () => Promise<PermissionsSchema>;
 	healthGetSettings: () => Promise<HealthSettings>;
 	healthSaveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
