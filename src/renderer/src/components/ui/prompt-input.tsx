@@ -91,7 +91,11 @@ function usePromptInputTransition() {
 
   return prefersReducedMotion
     ? { duration: 0 }
-    : { type: "spring" as const, stiffness: 190, damping: 26, mass: 0.8 }
+    : {
+        type: "tween" as const,
+        duration: 0.32,
+        ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+      }
 }
 
 function usePromptInputExpansion({
@@ -421,8 +425,9 @@ function PromptInput({
           >
             <motion.div
               layout
+              initial={false}
+              animate={{ borderRadius: isConversationMode || !isPromptExpanded ? 28 : 12 }}
               transition={transition}
-              style={{ borderRadius: isConversationMode || !isPromptExpanded ? 9999 : 12 }}
               onClick={isConversationMode ? onClick : handleClick}
               data-expanded={isPromptExpanded}
               data-voice-mode={voiceMode ?? undefined}
