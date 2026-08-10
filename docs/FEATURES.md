@@ -156,7 +156,7 @@ The Home prompt classifier computes `none`, `medium`, or `high` reasoning effort
 Agent runs have one explicit runtime type:
 
 - `default` resolves every tool call against the live global permission policy. Approval is interactive only when the run has both an originating window and an event callback; otherwise `ask` denies immediately.
-- `background` is available only to trusted main-process callers. It resolves the same stored policy without interactive approval, so an **Ask** decision is denied, and it requires an explicit tool allowlist. An empty allowlist exposes no tools.
+- `background` is available only to trusted main-process callers. It resolves the same stored policy without interactive approval, so an **Ask** decision is denied. An omitted tool allowlist exposes the full catalog, a non-empty allowlist narrows it, and an explicit empty allowlist exposes no tools.
 
 Both types still enforce capability filtering, input validation, cancellation, timeouts, resource locks, execution budgets, sandboxing, OS permissions, and authorization implemented inside a tool. Subagents inherit the parent run type and exact filtered tool IDs, but cannot spawn nested subagents.
 
@@ -288,7 +288,7 @@ Friday persists cron schedule records with:
 
 The Tasks settings screen selects the task provider/model and lists each schedule's name, prompt or message, cron expression, and enabled state. Schedule creation and management are driven through the agent and slash commands rather than direct Settings forms.
 
-Scheduled agent actions run as background agents with their persisted tool allowlist. A blank allowlist means the schedule has no tools.
+Scheduled agent actions run as background agents with the full tool catalog by default. A non-empty persisted tool allowlist narrows the tools available to that schedule; a blank allowlist keeps the full catalog.
 
 **Partial:** the current cron callback logs debug actions and creates trigger/task metadata, but its agent-action branch is still an empty no-op. Scheduled prompts and **Run now** therefore do not execute an agent request yet.
 
@@ -451,7 +451,7 @@ Friday includes Telegram and Discord bot adapters. Enabled channels with tokens 
 - Long replies are split into platform-sized parts, and delivery receipts distinguish sent, partial, and failed delivery.
 - `/start` returns a fixed connected greeting. Other slash-prefixed channel messages are ignored.
 - All accepted Telegram and Discord messages currently share one fixed bot-session UUID.
-- Channel agent runs use the background type with only `search_web` and `fetch_web_page`, plus an eight-call public-web budget per run.
+- Channel agent runs use the background type with the full tool catalog, plus an eight-call public-web budget per run.
 
 ### Access policies
 

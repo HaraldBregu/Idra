@@ -701,7 +701,7 @@
 				"agent": "Prompt agente",
 				"notSet": "Non impostata",
 				"capabilities": "Capacità di esecuzione",
-				"capabilitiesDescription": "Le attività ricevono solo gli strumenti elencati. Lascia vuoto per eseguire senza strumenti.",
+				"capabilitiesDescription": "Le attività usano tutti gli strumenti per impostazione predefinita. Inserisci i nomi degli strumenti per limitare un'attività.",
 				"enabled": "Abilita attività",
 				"enabledDescription": "Consenti l'esecuzione dell'attività all'orario configurato.",
 				"toolsPlaceholder": "Tutti gli strumenti, oppure limita con nomi separati da virgole",

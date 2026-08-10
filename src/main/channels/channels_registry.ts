@@ -145,7 +145,6 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			});
 			const response = await agentService.send(text, 'channels', {
 				type: 'background',
-				toolsAllow: ['search_web', 'fetch_web_page'],
 				streaming: false,
 				contextMode: 'minimal',
 				sessionId: channelSessionId(message),

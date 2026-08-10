@@ -702,7 +702,7 @@
 				"agent": "Agent prompt",
 				"notSet": "Not set",
 				"capabilities": "Run capabilities",
-				"capabilitiesDescription": "Schedules receive only the listed tools. Leave this empty to run without tools.",
+				"capabilitiesDescription": "Schedules use all tools by default. Enter tool names to restrict a schedule.",
 				"enabled": "Enable schedule",
 				"enabledDescription": "Allow this schedule to run at its configured time.",
 				"toolsPlaceholder": "All tools, or restrict with comma-separated names",

@@ -76,7 +76,7 @@ type AgentSendBaseOptions = Omit<AgentRunOptions, 'toolsAllow'> & {
 
 export type AgentSendOptions =
 	| (AgentSendBaseOptions & { type: 'default'; toolsAllow?: string[] })
-	| (AgentSendBaseOptions & { type: 'background'; toolsAllow: string[] });
+	| (AgentSendBaseOptions & { type: 'background'; toolsAllow?: string[] });
 
 type InternalAgentSendOptions = AgentSendOptions & { legacySessionId?: string };
 
@@ -110,10 +110,10 @@ export class Agent {
 		setTaskRunner((schedule) => {
 			if (schedule.action.type !== 'agent') return Promise.resolve('');
 			const runtime = getRuntime();
-			const toolsAllow = schedule.action.toolsAllow ?? [];
+			const toolsAllow = schedule.action.toolsAllow;
 			return this.send(schedule.action.prompt, 'tasks', {
 				type: 'background',
-				toolsAllow,
+				...(toolsAllow?.length ? { toolsAllow } : {}),
 				streaming: false,
 				contextMode: 'minimal',
 				effort: schedule.action.effort,
@@ -218,7 +218,11 @@ export class Agent {
 			};
 			const input: RuntimeInput =
 				options.type === 'background'
-					? { ...baseInput, type: 'background', toolsAllow: options.toolsAllow }
+					? {
+							...baseInput,
+							type: 'background',
+							...(options.toolsAllow === undefined ? {} : { toolsAllow: options.toolsAllow }),
+						}
 					: {
 							...baseInput,
 							type: 'default',
