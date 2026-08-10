@@ -159,14 +159,6 @@ it('groups provider settings in an expandable Configuration card', async () => {
 	);
 	expect(await screen.findByRole('combobox', { name: 'Video' })).toHaveTextContent('Google / Veo');
 	expect(await screen.findByRole('combobox', { name: 'Search Engine' })).toHaveTextContent('Brave');
-});
-
-it('places Data management last in a separate card', () => {
-	render(
-		<MemoryRouter>
-			<AssistantPage />
-		</MemoryRouter>
-	);
 
 	const wiki = screen.getByRole('button', { name: /LLM Wiki/ });
 	const dataManagement = screen.getByRole('button', { name: /Data management/ });

@@ -283,7 +283,9 @@ const AssistantPage: React.FC = () => {
 									className="w-56 max-w-full text-xs [&_svg]:size-3"
 									aria-label={t('settings.tabs.searchEngine')}
 								>
-									<SelectValue placeholder={t('settings.searchEngine.defaultTitle')} />
+									<SelectValue placeholder={t('settings.searchEngine.defaultTitle')}>
+										{selectedSearchEngine?.name}
+									</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
 									{SEARCH_ENGINES.map((engine) => (
