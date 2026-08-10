@@ -3,11 +3,15 @@ import {
 	PERMISSION_TOOLS,
 } from '../../../../../src/main/agent/permissions/permissions_types';
 
-const ASK_BY_DEFAULT = ['edit_file', 'apply_patch', 'exec_command'] as const;
+const ASK_BY_DEFAULT = [
+	'edit',
+	'apply_patch',
+	'exec',
+] as const;
 
 const ALLOW_BY_DEFAULT = [
-	'read_file',
-	'write_file',
+	'read',
+	'write',
 	'process',
 	'microphone_recorder',
 	'microphone_recorder_status',
@@ -53,10 +57,15 @@ const ALLOW_BY_DEFAULT = [
 ] as const;
 
 describe('DEFAULT_PERMISSIONS', () => {
-	it('uses the current nested permission schema', () => {
-		expect(Object.keys(DEFAULT_PERMISSIONS).sort()).toEqual(['directories', 'tools']);
-		expect(DEFAULT_PERMISSIONS.directories).toEqual([]);
-		expect(Object.keys(DEFAULT_PERMISSIONS.tools).sort()).toEqual([...PERMISSION_TOOLS].sort());
+	it('uses a complete top-level tool permission schema', () => {
+		expect(Object.keys(DEFAULT_PERMISSIONS).sort()).toEqual(
+			['dir', 'mode', ...PERMISSION_TOOLS].sort()
+		);
+		expect(DEFAULT_PERMISSIONS.dir).toEqual({});
+		expect(DEFAULT_PERMISSIONS.mode).toBe('ask');
+		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('permissions');
+		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultMode');
+		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultPermissions');
 	});
 
 	it('asks only for destructive core capabilities by default', () => {
@@ -65,14 +74,14 @@ describe('DEFAULT_PERMISSIONS', () => {
 		expect([...classified].sort()).toEqual([...PERMISSION_TOOLS].sort());
 
 		for (const toolName of ASK_BY_DEFAULT)
-			expect(DEFAULT_PERMISSIONS.tools[toolName]).toEqual({
+			expect(DEFAULT_PERMISSIONS[toolName]).toEqual({
 				default: 'ask',
 				allow: [],
 				deny: [],
 				ask: [],
 			});
 		for (const toolName of ALLOW_BY_DEFAULT)
-			expect(DEFAULT_PERMISSIONS.tools[toolName]).toEqual({
+			expect(DEFAULT_PERMISSIONS[toolName]).toEqual({
 				default: 'allow',
 				allow: [],
 				deny: [],

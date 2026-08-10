@@ -29,21 +29,21 @@ describe('toolPermissionTargets', () => {
 	});
 
 	it('returns the raw exec command', () => {
-		expect(toolPermissionTargets('exec_command', { command: 'git status' }, agentDir)).toEqual([
+		expect(toolPermissionTargets('exec', { command: 'git status' }, agentDir)).toEqual([
 			'git status',
 		]);
-		expect(toolPermissionTargets('exec_command', {}, agentDir)).toEqual([]);
+		expect(toolPermissionTargets('exec', {}, agentDir)).toEqual([]);
 	});
 
 	it('returns the full file path for path tools', () => {
-		expect(toolPermissionTargets('write_file', { path: '/a/b.txt' }, agentDir)).toEqual([
+		expect(toolPermissionTargets('write', { path: '/a/b.txt' }, agentDir)).toEqual([
 			resolveUserPath('/a/b.txt', agentDir),
 		]);
-		expect(toolPermissionTargets('write_file', {}, agentDir)).toEqual([]);
+		expect(toolPermissionTargets('write', {}, agentDir)).toEqual([]);
 	});
 
 	it('returns the exact file for read permission evaluation', () => {
-		expect(toolPermissionTargets('read_file', { path: '/a/b.txt' }, agentDir)).toEqual([
+		expect(toolPermissionTargets('read', { path: '/a/b.txt' }, agentDir)).toEqual([
 			resolveUserPath('/a/b.txt', agentDir),
 		]);
 	});

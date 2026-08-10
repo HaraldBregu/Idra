@@ -5,7 +5,7 @@ import type { ToolPermission } from '../../../../../src/main/agent/permissions/p
 const fallback: ToolPermission = { default: 'ask', allow: [], deny: [], ask: [] };
 
 describe('normalizeToolPermission', () => {
-	it('keeps only permission fields and normalizes lists', () => {
+	it('keeps only the requested tool permission fields and normalizes lists', () => {
 		expect(
 			normalizeToolPermission(
 				{
@@ -28,44 +28,57 @@ describe('normalizeToolPermission', () => {
 });
 
 describe('normalizePermissionsSchema', () => {
-	it('normalizes current tool and directory entries', () => {
+	it('migrates legacy recorder permissions and directory tool names', () => {
 		const normalized = normalizePermissionsSchema({
-			tools: {
-				exec_command: { default: 'deny', allow: [' npm test '], deny: [], ask: [] },
-			},
-			directories: [
-				{
-					path: ' /workspace ',
-					enabled: true,
+			mode: 'ask',
+			dir: {
+				'/captures': {
 					recoursive: true,
-					tools: [' exec_command ', 'exec_command'],
+					tools: ['recorder_camera_stop', 'camera_recorder_stop'],
 				},
-			],
+			},
+			recorder_camera: {
+				default: 'deny',
+				allow: ['/captures'],
+				deny: [],
+				ask: [],
+			},
 		});
 
-		expect(normalized.tools.exec_command).toEqual({
+		expect(normalized.camera_recorder).toEqual({
 			default: 'deny',
-			allow: ['npm test'],
+			allow: ['/captures'],
 			deny: [],
 			ask: [],
 		});
-		expect(normalized.directories).toEqual([
-			{
-				path: '/workspace',
-				enabled: true,
-				recoursive: true,
-				tools: ['exec_command'],
-			},
-		]);
+		expect(normalized.dir).toEqual({
+			'/captures': { recoursive: true, tools: ['camera_recorder_stop'] },
+		});
+		expect(normalized).not.toHaveProperty('recorder_camera');
 	});
 
-	it('uses defaults for invalid stored entries', () => {
+	it('keeps an explicit current recorder permission ahead of its legacy alias', () => {
 		const normalized = normalizePermissionsSchema({
-			tools: { exec_command: null },
-			directories: 'invalid',
+			recorder_screen: { default: 'deny', allow: [], deny: [], ask: [] },
+			screen_recorder: { default: 'ask', allow: [], deny: [], ask: [] },
 		});
 
-		expect(normalized.tools.exec_command).toEqual(fallback);
-		expect(normalized.directories).toEqual([]);
+		expect(normalized.screen_recorder).toMatchObject({ default: 'ask' });
+		expect(normalized).not.toHaveProperty('recorder_screen');
+	});
+
+	it('migrates legacy task permissions to current tool names', () => {
+		const normalized = normalizePermissionsSchema({
+			create_schedule: { default: 'ask', allow: [], deny: [], ask: [] },
+			dir: {
+				'/tasks': { recoursive: false, tools: ['run_schedule_now'] },
+			},
+		});
+
+		expect(normalized.create_task).toMatchObject({ default: 'ask' });
+		expect(normalized.dir).toEqual({
+			'/tasks': { recoursive: false, tools: ['run_task_now'] },
+		});
+		expect(normalized).not.toHaveProperty('create_schedule');
 	});
 });

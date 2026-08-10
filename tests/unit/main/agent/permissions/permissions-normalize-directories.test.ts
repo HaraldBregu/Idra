@@ -3,36 +3,24 @@ import { normalizeDirectoryPermissions } from '../../../../../src/main/agent/per
 describe('normalizeDirectoryPermissions', () => {
 	it('keeps valid wildcard and tool-list entries', () => {
 		expect(
-			normalizeDirectoryPermissions([
-				{ path: ' /all ', enabled: true, recoursive: true, tools: '*' },
-				{
-					path: '/read',
-					enabled: false,
-					recoursive: false,
-					tools: [' read_file ', 'read_file', 'edit_file', 42],
-				},
-			])
-		).toEqual([
-			{ path: '/all', enabled: true, recoursive: true, tools: '*' },
-			{
-				path: '/read',
-				enabled: false,
-				recoursive: false,
-				tools: ['read_file', 'edit_file'],
-			},
-		]);
+			normalizeDirectoryPermissions({
+				' /all ': { recoursive: true, tools: '*' },
+				'/read': { recoursive: false, tools: [' read ', 'read', 'edit', 42] },
+			})
+		).toEqual({
+			'/all': { recoursive: true, tools: '*' },
+			'/read': { recoursive: false, tools: ['read', 'edit'] },
+		});
 	});
 
 	it('drops invalid directory entries', () => {
 		expect(
-			normalizeDirectoryPermissions([
-				{ path: '', enabled: true, recoursive: true, tools: '*' },
-				{ path: '/missing-recoursive', enabled: true, tools: '*' },
-				{ path: '/invalid-tools', enabled: true, recoursive: true, tools: 'read_file' },
-				{ path: '/valid', enabled: true, recoursive: true, tools: [] },
-			])
-		).toEqual([
-			{ path: '/valid', enabled: true, recoursive: true, tools: [] },
-		]);
+			normalizeDirectoryPermissions({
+				'': { recoursive: true, tools: '*' },
+				'/missing-recoursive': { tools: '*' },
+				'/invalid-tools': { recoursive: true, tools: 'read' },
+				'/valid': { recoursive: true, tools: [] },
+			})
+		).toEqual({ '/valid': { recoursive: true, tools: [] } });
 	});
 });
