@@ -9,7 +9,7 @@ import {
 	toResult,
 	type SessionState,
 } from '../session';
-import { rememberSkill } from '../context';
+import { rememberSkill, type LoadedSkill } from '../context';
 import {
 	buildLoadedSkillPrompt,
 	buildSkillContext,
@@ -242,7 +242,7 @@ async function* loop(
 		providerId: provider.id,
 		tools: tools.map((tool) => tool.name),
 		skillDiagnostics: skillSnapshot.diagnostics,
-		skillActivations: (session.context.loadedSkills ?? []).map((skill) => ({
+		skillActivations: (session.context.loadedSkills as LoadedSkill[] | undefined ?? []).map((skill) => ({
 			id: skill.id,
 			name: skill.name,
 			hash: skill.hash,
