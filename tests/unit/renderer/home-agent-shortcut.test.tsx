@@ -6,7 +6,10 @@ jest.mock('../../../src/renderer/src/pages/home/context', () => ({
 	useHomeAgentContext: () => ({ chatState: {}, dispatchChat: jest.fn() }),
 }));
 
-it('creates a new chat session when Ctrl+N is pressed', () => {
+it.each([
+	['Command+N', { metaKey: true }],
+	['Ctrl+N', { ctrlKey: true }],
+])('creates a new chat session when %s is pressed', (_label, modifier) => {
 	const setSessionId = jest.fn();
 	const sessionId = '00000000-0000-4000-8000-000000000001';
 	Object.defineProperty(globalThis.crypto, 'randomUUID', {
@@ -25,7 +28,7 @@ it('creates a new chat session when Ctrl+N is pressed', () => {
 		</ChatSessionContext.Provider>
 	);
 
-	fireEvent.keyDown(window, { key: 'n', ctrlKey: true });
+	fireEvent.keyDown(window, { key: 'n', ...modifier });
 
 	expect(setSessionId).toHaveBeenCalledWith(sessionId);
 });

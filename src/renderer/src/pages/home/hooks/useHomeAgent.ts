@@ -222,8 +222,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	useEffect(() => {
 		const handler = (event: KeyboardEvent): void => {
 			if (
-				event.ctrlKey &&
-				!event.metaKey &&
+				(event.metaKey || event.ctrlKey) &&
 				!event.altKey &&
 				!event.shiftKey &&
 				event.key.toLowerCase() === 'n'

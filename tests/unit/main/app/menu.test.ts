@@ -16,7 +16,7 @@ type MenuEntry = {
 };
 
 describe('application menu extensions', () => {
-	it('keeps Ctrl+N available for a new chat session', () => {
+	it('keeps the platform new-session shortcut available', () => {
 		const onNewWindow = jest.fn();
 		const buildFromTemplate = ElectronMenu.buildFromTemplate as jest.Mock;
 		buildFromTemplate.mockImplementation((template: MenuEntry[]) => template);
