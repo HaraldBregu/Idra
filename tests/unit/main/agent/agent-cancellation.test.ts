@@ -54,6 +54,7 @@ jest.mock('../../../../src/main/agent/runner/run_stream', () => ({
 }));
 
 import { Agent } from '../../../../src/main/agent/agent';
+import type { PermissionsSchema } from '../../../../src/main/agent/permissions';
 import type { WindowFactory } from '../../../../src/main/window_factory';
 
 interface ControlledRun {
@@ -131,6 +132,11 @@ describe('Agent scoped cancellation', () => {
 		const agent = new Agent({} as WindowFactory);
 		const ui = controlRun(controls, 'ui-run');
 		const bot = controlRun(controls, 'bot-run');
+		const botPermissions: PermissionsSchema = {
+			mode: 'ask',
+			dir: {},
+			web_fetch: { default: 'allow', allow: [], deny: [], ask: [] },
+		};
 		const uiResponse = agent.send('ui', 'main', {
 			runId: 'ui-run',
 			sessionId: 'ui-session',
@@ -139,8 +145,12 @@ describe('Agent scoped cancellation', () => {
 		const botResponse = agent.send('bot', 'channels', {
 			runId: 'bot-run',
 			sessionId: 'bot-session',
+			permissions: botPermissions,
 		});
 		await Promise.all([ui.started, bot.started]);
+		const botCall = mockStream.mock.calls.find((call) => call[2].runId === 'bot-run');
+		expect(botCall?.[2]).toMatchObject({ origin: 'main', contextMode: 'minimal' });
+		expect(botCall?.[4].permissions).toBe(botPermissions);
 
 		expect(agent.cancel('ui-run', 12)).toBe(false);
 		expect(ui.signal?.aborted).toBe(false);

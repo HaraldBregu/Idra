@@ -42,19 +42,25 @@ describe('subagentTool', () => {
 		});
 	});
 
-	it('does not forward a model-supplied permission bypass', async () => {
+	it('forwards trusted runtime permissions and ignores a model-supplied bypass', async () => {
 		mockStream.mockReturnValue(
 			(async function* () {
 				yield { type: 'assistant_message', content: 'done', toolCalls: [] };
 			})()
 		);
-		const tool = subagentTool({ location: '/agent' }, [], createContext());
+		const permissions = {
+			mode: 'ask',
+			dir: {},
+			read: { default: 'allow', allow: [], deny: [], ask: [] },
+		} as const;
+		const tool = subagentTool({ location: '/agent' }, [], createContext(), { permissions });
 
 		await tool.run({ task: 'apply the change', permissionMode: 'bypass' });
 
 		expect(mockStream.mock.calls[0][4]).toEqual({
 			tools: [],
 			interactive: false,
+			permissions,
 		});
 	});
 

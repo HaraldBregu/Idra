@@ -21,6 +21,7 @@ jest.mock('../../src/main/agent/health', () => ({
 	stopHealth: jest.fn(),
 }));
 jest.mock('../../src/main/agent/permissions', () => ({
+	getPermissions: () => ({ mode: 'ask', dir: {} }),
 	rejectPendingToolPermissions: jest.fn(),
 }));
 jest.mock('../../src/main/agent/skills', () => ({
