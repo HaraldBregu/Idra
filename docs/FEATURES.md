@@ -313,7 +313,7 @@ Friday maintains an agent workspace in local application data with these Markdow
 
 While `BOOTSTRAP.md` exists, it is included in the user-controlled workspace context. Completing bootstrap removes that file after the identity, user, and soul files have been updated.
 
-`memory_save` adds one bullet fact without duplicating an identical line. `memory_forget` removes every bullet containing the requested text, case-insensitively. Workspace profile and memory content are rebuilt as transient user-level context before each model turn rather than persisted in the system-prompt snapshot.
+`save_memory` adds one bullet fact without duplicating an identical line. `forget_memory` removes every bullet containing the requested text, case-insensitively. Workspace profile and memory content are rebuilt as transient user-level context before each model turn rather than persisted in the system-prompt snapshot.
 
 ### Persistent LLM Wiki
 

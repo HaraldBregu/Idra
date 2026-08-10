@@ -3,9 +3,9 @@ import { listMemories } from '../../memory';
 import type { Config, Tool } from '../../types';
 import { tool } from '../tool';
 
-export function memoryListTool(config: Config): Tool {
+export function listMemoriesTool(config: Config): Tool {
 	return tool({
-		id: 'memory_list',
+		id: 'list_memories',
 		name: 'List memories',
 		description: 'List persistent memories with their stable IDs for exact deletion.',
 		inputSchema: z.object({}).strict(),

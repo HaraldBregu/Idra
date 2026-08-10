@@ -9,8 +9,8 @@ import { toolPermissionTargets } from './tool_permission_targets';
 import { getWikiSettings } from '../knowledge/wiki/wiki_get_settings';
 
 const AGENT_FILES: Record<string, string> = {
-	memory_save: 'MEMORY.md',
-	memory_forget: 'MEMORY.md',
+	save_memory: 'MEMORY.md',
+	forget_memory: 'MEMORY.md',
 	update_health_cheeck: 'HEALTH.md',
 	complete_bootstrap: 'BOOTSTRAP.md',
 };

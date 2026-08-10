@@ -234,11 +234,11 @@ async function runAct(params: {
 	});
 }
 
-export const webBrowserTool = tool({
-	id: 'web_browser',
+export const useWebBrowserTool = tool({
+	id: 'use_web_browser',
 	name: 'Use web browser',
 	description:
-		'Drive a real Chrome browser for interactive web tasks: login flows, clicking UI, screenshots, PDFs, pages that need JavaScript. Heavier than web_fetch. Typical flow: open → snapshot (get element refs) → act (click/type on refs). The browser uses a persistent profile, so logins survive restarts.',
+		'Drive a real Chrome browser for interactive web tasks: login flows, clicking UI, screenshots, PDFs, pages that need JavaScript. Heavier than fetch_web_page. Typical flow: open → snapshot (get element refs) → act (click/type on refs). The browser uses a persistent profile, so logins survive restarts.',
 	inputSchema: z.object({
 		action: z.enum(ACTIONS).describe('Browser command to run.'),
 		targetId: z.string().optional().describe('Tab id from "tabs" output. Defaults to the most recent tab.'),

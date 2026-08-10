@@ -5,15 +5,15 @@ import { tool } from '../tool';
 
 export function forgetMemoryTool(config: Config): Tool {
 	return tool({
-		id: 'memory_forget',
+		id: 'forget_memory',
 		name: 'Forget memory',
-		description: 'Remove exactly one persistent memory by the stable ID returned by memory_list.',
+		description: 'Remove exactly one persistent memory by the stable ID returned by list_memories.',
 		inputSchema: z.object({
 			id: z
 				.string()
 				.trim()
 				.regex(/^memory-[a-f0-9]{16}$/i)
-				.describe('Exact stable memory ID returned by memory_list.'),
+				.describe('Exact stable memory ID returned by list_memories.'),
 		}),
 		execute: ({ id }) => forgetMemory(config, id),
 	});

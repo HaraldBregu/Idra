@@ -176,7 +176,7 @@ export async function* runToolCall(
 				output = `Error: tool '${toolCall.name}' failed: ${message}`;
 				isError = true;
 			}
-			if (context && toolCall.name !== 'web_search' && toolCall.name !== 'web_fetch') {
+			if (context && toolCall.name !== 'search_web' && toolCall.name !== 'fetch_web_page') {
 				context.hasPrivateContext = true;
 			}
 		}

@@ -84,7 +84,14 @@ function groupVerbs(type: string): GroupVerbs {
 	if (t === 'grep' || t === 'search') return { running: 'Searching', done: 'Searched', noun: 'pattern' };
 	if (t === 'list_dir') return { running: 'Listing', done: 'Listed', noun: 'folder' };
 	if (t === 'load_skill') return { running: 'Loading', done: 'Loaded', noun: 'skill' };
-	if (t === 'web_browser' || t === 'web_fetch' || t === 'web_search') {
+	if (
+		t === 'use_web_browser' ||
+		t === 'fetch_web_page' ||
+		t === 'search_web' ||
+		t === 'web_browser' ||
+		t === 'web_fetch' ||
+		t === 'web_search'
+	) {
 		return { running: 'Browsing', done: 'Browsed', noun: 'page' };
 	}
 	if (t.startsWith('mcp__')) return { running: 'Calling', done: 'Called', noun: 'tool' };
@@ -110,7 +117,14 @@ function toolRunningDetail(tool: AgentToolPart): string | undefined {
 		return stringArg(input, 'command', 'name');
 	if (t === 'grep' || t === 'search') return stringArg(input, 'pattern', 'query');
 	if (t === 'load_skill') return stringArg(input, 'name');
-	if (t === 'web_browser' || t === 'web_fetch' || t === 'web_search') {
+	if (
+		t === 'use_web_browser' ||
+		t === 'fetch_web_page' ||
+		t === 'search_web' ||
+		t === 'web_browser' ||
+		t === 'web_fetch' ||
+		t === 'web_search'
+	) {
 		return stringArg(input, 'url', 'query');
 	}
 	return undefined;

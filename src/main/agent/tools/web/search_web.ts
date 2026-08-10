@@ -3,8 +3,8 @@ import { getSearchSettings, searchWeb } from '../../../search';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
-const webSearchTool = tool({
-	id: 'web_search',
+const searchWebTool = tool({
+	id: 'search_web',
 	name: 'Search web',
 	description:
 		'Search the web for current information using the configured search engine. Returns a list of results with title, url, and description.',
@@ -23,7 +23,7 @@ const webSearchTool = tool({
 	},
 });
 
-export function getWebSearchTools(): Tool[] {
+export function getSearchWebTools(): Tool[] {
 	const { configured } = getSearchSettings();
-	return configured.brave || configured.tavily ? [webSearchTool] : [];
+	return configured.brave || configured.tavily ? [searchWebTool] : [];
 }

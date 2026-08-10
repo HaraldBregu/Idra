@@ -18,7 +18,7 @@ export async function searchWeb(
 	const apiKey = getSearchKey(engineId);
 	if (!apiKey) {
 		throw new Error(
-			`Configure ${engineId === 'brave' ? 'Brave' : 'Tavily'} in Settings > Search engine before using web_search.`
+			`Configure ${engineId === 'brave' ? 'Brave' : 'Tavily'} in Settings > Search engine before using search_web.`
 		);
 	}
 

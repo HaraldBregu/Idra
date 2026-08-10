@@ -25,13 +25,13 @@ async function assertPublicHost(hostname: string, signal?: AbortSignal): Promise
 	signal?.throwIfAborted();
 	const host = hostname.toLowerCase().replace(/\.$/, '');
 	if (host === 'localhost' || host.endsWith('.localhost'))
-		throw new Error(`web_fetch blocked: ${hostname} is not a public host`);
+		throw new Error(`fetch_web_page blocked: ${hostname} is not a public host`);
 	const addresses = await dns.lookup(host, { all: true });
 	signal?.throwIfAborted();
 	for (const { address } of addresses) {
 		const v4 = address.replace(/^::ffff:/i, '');
 		const blocked = net.isIPv4(v4) ? BLOCKED.check(v4, 'ipv4') : BLOCKED.check(address, 'ipv6');
-		if (blocked) throw new Error(`web_fetch blocked: ${hostname} resolves to a private address`);
+		if (blocked) throw new Error(`fetch_web_page blocked: ${hostname} resolves to a private address`);
 	}
 }
 
@@ -54,8 +54,8 @@ function htmlToText(html: string): string {
 		.trim();
 }
 
-export const webFetchTool = tool({
-	id: 'web_fetch',
+export const fetchWebPageTool = tool({
+	id: 'fetch_web_page',
 	name: 'Fetch web page',
 	description:
 		'Fetch an HTTP(S) URL and return its readable text content. HTML is converted to plain text; JSON is pretty-printed.',
@@ -88,14 +88,15 @@ export const webFetchTool = tool({
 			});
 			if (res.status >= 300 && res.status < 400) {
 				const location = res.headers.get('location');
-				if (!location) throw new Error(`web_fetch failed (${res.status}): missing Location header`);
-				if (hop >= MAX_REDIRECTS) throw new Error('web_fetch failed: too many redirects');
+				if (!location)
+					throw new Error(`fetch_web_page failed (${res.status}): missing Location header`);
+				if (hop >= MAX_REDIRECTS) throw new Error('fetch_web_page failed: too many redirects');
 				current = new URL(location, current);
 				continue;
 			}
 			break;
 		}
-		if (!res.ok) throw new Error(`web_fetch failed (${res.status}): ${res.statusText}`);
+		if (!res.ok) throw new Error(`fetch_web_page failed (${res.status}): ${res.statusText}`);
 
 		const contentType = res.headers.get('content-type') ?? '';
 		const body = await res.text();

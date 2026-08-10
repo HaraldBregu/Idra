@@ -24,9 +24,9 @@ import { editTool } from '../tools/core/edit_file';
 import { applyPatchTool } from '../tools/core/apply_patch';
 import { execTool } from '../tools/core/exec_command';
 import { processTool } from '../tools/core/process';
-import { getWebSearchTools } from '../tools/web/search';
-import { webFetchTool } from '../tools/web/fetch';
-import { webBrowserTool } from '../tools/web/browser';
+import { getSearchWebTools } from '../tools/web/search_web';
+import { fetchWebPageTool } from '../tools/web/fetch_web_page';
+import { useWebBrowserTool } from '../tools/web/use_web_browser';
 import { createImageTool } from '../tools/media/create_image';
 import { createVideoTool } from '../tools/media/create_video';
 import { createSoundTool } from '../tools/media/create_sound';
@@ -39,9 +39,9 @@ import { cameraRecorderStopTool } from '../tools/system/camera_recorder_stop';
 import { screenRecorderTool } from '../tools/system/screen_recorder';
 import { screenRecorderStatusTool } from '../tools/system/screen_recorder_status';
 import { screenRecorderStopTool } from '../tools/system/screen_recorder_stop';
-import { saveMemoryTool } from '../tools/memory/save';
-import { forgetMemoryTool } from '../tools/memory/forget';
-import { memoryListTool } from '../tools/memory/list';
+import { saveMemoryTool } from '../tools/memory/save_memory';
+import { forgetMemoryTool } from '../tools/memory/forget_memory';
+import { listMemoriesTool } from '../tools/memory/list_memories';
 import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
 import { updateHealthCheeckTool } from '../tools/health_check/update_health_cheeck';
 import { updateHealthCheeckSettingsTool } from '../tools/health_check/update_health_cheeck_settings';
@@ -174,9 +174,9 @@ async function* loop(
 				applyPatchTool,
 				execTool,
 				processTool,
-				...getWebSearchTools(),
-				webFetchTool,
-				webBrowserTool,
+				...getSearchWebTools(),
+				fetchWebPageTool,
+				useWebBrowserTool,
 				createImageTool(),
 				createVideoTool(),
 				createSoundTool(),
@@ -191,7 +191,7 @@ async function* loop(
 				screenRecorderStopTool,
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
-				memoryListTool(config),
+				listMemoriesTool(config),
 				...getKnowledgeTools(origin),
 				...getWikiTools(origin),
 				updateHealthCheeckTool(config),
@@ -351,8 +351,9 @@ async function* loop(
 			paidToolCalls += requestedPaidCalls;
 			const requestedBotWebCalls =
 				origin === 'bot'
-					? turn.toolCalls.filter((call) => call.name === 'web_search' || call.name === 'web_fetch')
-							.length
+					? turn.toolCalls.filter(
+							(call) => call.name === 'search_web' || call.name === 'fetch_web_page'
+						).length
 					: 0;
 			if (botWebToolCalls + requestedBotWebCalls > MAX_BOT_WEB_TOOL_CALLS) {
 				session.stopReason = 'budget_exhausted';

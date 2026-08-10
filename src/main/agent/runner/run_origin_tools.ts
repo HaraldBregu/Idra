@@ -12,7 +12,7 @@ export function selectOriginTools(
 		origin === 'main' || origin === 'task'
 			? tools
 			: origin === 'bot'
-				? tools.filter((tool) => tool.id === 'web_search' || tool.id === 'web_fetch')
+				? tools.filter((tool) => tool.id === 'search_web' || tool.id === 'fetch_web_page')
 				: origin === 'subagent'
 					? tools.filter((tool) => tool.id !== 'subagent' && tool.id !== 'subagents')
 					: [];
