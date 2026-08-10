@@ -201,9 +201,9 @@ const PermissionsPage: React.FC = () => {
 													type="button"
 													variant="ghost"
 													size="icon-sm"
-											aria-label={t('settings.permissions.removeDirectory')}
-											onClick={() => removeDirectory(directory)}
-											disabled={saving || directory === workspaceDirectory}
+													aria-label={t('settings.permissions.removeDirectory')}
+													onClick={() => removeDirectory(directory)}
+													disabled={saving || directory === workspaceDirectory}
 												>
 													<Trash2 className="size-3" />
 												</Button>
