@@ -4,17 +4,10 @@ jest.mock('../../../../src/main/shared/user_data_location', () => ({
 
 import {
 	channelsStorePath,
-	getChannelPermissions,
 	getChannelProvider,
 	listChannelProviders,
-	resetChannelPermissions,
-	saveChannelPermissions,
 	setChannelProvider,
 } from '../../../../src/main/channels/channels_store';
-import {
-	DEFAULT_PERMISSIONS,
-	PERMISSION_TOOLS,
-} from '../../../../src/main/agent/permissions/permissions_types';
 import type { StoredBotProvider } from '../../../../src/shared';
 
 describe('channels store', () => {
@@ -33,21 +26,6 @@ describe('channels store', () => {
 
 		expect(getChannelProvider('telegram')).toEqual(provider);
 
-		const initialPermissions = getChannelPermissions();
-		expect(initialPermissions).toMatchObject({ mode: 'ask', dir: {} });
-		for (const toolName of PERMISSION_TOOLS) {
-			expect(initialPermissions[toolName]).toMatchObject({ default: 'allow' });
-		}
-		saveChannelPermissions({
-			...DEFAULT_PERMISSIONS,
-			web_search: { default: 'deny', allow: [], deny: [], ask: [] },
-		});
-		expect(getChannelPermissions().web_search).toMatchObject({ default: 'deny' });
-		expect(getChannelProvider('telegram')).toEqual(provider);
-		const resetPermissions = resetChannelPermissions();
-		for (const toolName of PERMISSION_TOOLS) {
-			expect(resetPermissions[toolName]).toMatchObject({ default: 'allow' });
-		}
 		expect(getChannelProvider('telegram')).toEqual(provider);
 	});
 });

@@ -165,7 +165,7 @@ Both types still enforce capability filtering, input validation, cancellation, t
 The Permissions screen provides persistent controls for sensitive tools:
 
 - Every tool owns a policy object under `tools` with `default`, `allow`, `ask`, and `deny` fields.
-- The top-level `directories` array assigns directory-scoped tool allow-lists using `{ "path": string, "enabled": boolean, "recoursive": boolean, "tools": "*" | string[] }` entries. `enabled` defaults to `true`.
+- The top-level `directories` array assigns directory-scoped tool allow-lists using `{ "path": string, "enabled": boolean, "recoursive": boolean, "tools": "*" | string[] }` entries.
 - Only directories explicitly added in Settings receive directory-level authorization.
 - `read`, `write`, and `process` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
 - Other built-in tools retain independent **Allow** defaults.
