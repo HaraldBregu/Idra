@@ -210,7 +210,7 @@ const AssistantPage: React.FC = () => {
 				<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 					<div className="min-w-0 flex-1">
 						<div className="truncate text-[13px] font-medium leading-4 text-foreground">
-							{t('settings.modelServices.providersConfigurations')}
+							{t('settings.modelServices.configuration')}
 						</div>
 						<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
 							{t('settings.modelServices.subtitle')}

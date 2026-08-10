@@ -44,7 +44,6 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.assistantName': 'Agent',
 		'settings.modelServices.fridayDescription': 'Chat, tools, and planning',
 		'settings.modelServices.configuration': 'Configuration',
-		'settings.modelServices.providersConfigurations': 'Providers Configurations',
 		'settings.modelServices.subtitle': 'Configure model assignments',
 		'settings.modelServices.imageAssistantName': 'Image',
 		'settings.modelServices.musicCreatorName': 'Audio',
@@ -132,7 +131,7 @@ beforeEach(() => {
 	jest.clearAllMocks();
 });
 
-it('groups provider configurations in an expandable card', async () => {
+it('groups provider settings in an expandable Configuration card', async () => {
 	const user = userEvent.setup();
 	render(
 		<MemoryRouter>
@@ -144,7 +143,7 @@ it('groups provider configurations in an expandable card', async () => {
 	expect(screen.queryByRole('heading', { name: 'History' })).not.toBeInTheDocument();
 	expect(screen.queryByRole('button', { name: /Image.*Gemini Image/ })).not.toBeInTheDocument();
 	const providersConfigurations = await screen.findByRole('button', {
-		name: /Providers Configurations.*Configure model assignments/,
+		name: /Configuration.*Configure model assignments/,
 	});
 	expect(providersConfigurations).toHaveAttribute('aria-expanded', 'false');
 	await user.click(providersConfigurations);
