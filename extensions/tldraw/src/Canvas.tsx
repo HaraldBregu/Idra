@@ -11,7 +11,7 @@ export default function Canvas({ colorScheme }: { colorScheme: 'light' | 'dark' 
 			colorScheme={colorScheme}
 			components={components}
 			licenseKey={licenseKey}
-			onMount={mount}
+			onMount={(editor) => mount(editor, colorScheme)}
 			overrides={overrides}
 			persistenceKey="friday-tldraw"
 			shapeUtils={shapeUtils}

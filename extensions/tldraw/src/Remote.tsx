@@ -19,7 +19,7 @@ export default function Remote({ colorScheme, roomId }: RemoteProps) {
 			colorScheme={colorScheme}
 			components={components}
 			licenseKey={licenseKey}
-			onMount={mount}
+			onMount={(editor) => mount(editor, colorScheme)}
 			overrides={overrides}
 			shapeUtils={shapeUtils}
 			store={store}

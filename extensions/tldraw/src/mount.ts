@@ -1,7 +1,8 @@
 import { app, isFriday } from '@friday/sdk';
 import { AssetRecordType, getHashForString, type Editor, type TLBookmarkAsset } from 'tldraw';
 
-export function mount(editor: Editor): void {
+export function mount(editor: Editor, colorScheme: 'light' | 'dark'): void {
+	editor.user.updateUserPreferences({ colorScheme });
 	if (!isFriday()) return;
 	editor.registerExternalAssetHandler('url', async ({ url }): Promise<TLBookmarkAsset> => {
 		let metadata = { description: '', favicon: '', image: '', title: '' };
