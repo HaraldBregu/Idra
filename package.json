@@ -115,6 +115,7 @@
 		"cli:test": "npm test --workspace @friday/cli"
 	},
 	"dependencies": {
+		"@anthropic-ai/sandbox-runtime": "0.0.71",
 		"@anthropic-ai/sdk": "^0.92.0",
 		"@aws-sdk/client-s3": "^3.1092.0",
 		"@base-ui/react": "^1.6.0",
