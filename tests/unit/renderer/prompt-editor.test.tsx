@@ -18,22 +18,22 @@ jest.mock('@/components/text-editor', () => {
 				{ className },
 				React.createElement(
 					'div',
-				{
-					ref: (element: HTMLDivElement | null) => {
-						if (!element) return;
-						Object.defineProperty(element, 'scrollHeight', {
-							configurable: true,
-							value: value && value.length > 40 ? 48 : 28,
-						});
-						Object.defineProperty(element, 'clientHeight', {
-							configurable: true,
-							value: 28,
-						});
-						onEditorReady?.({ view: { dom: element } });
+					{
+						ref: (element: HTMLDivElement | null) => {
+							if (!element) return;
+							Object.defineProperty(element, 'scrollHeight', {
+								configurable: true,
+								value: value && value.length > 40 ? 48 : 28,
+							});
+							Object.defineProperty(element, 'clientHeight', {
+								configurable: true,
+								value: 28,
+							});
+							onEditorReady?.({ view: { dom: element } });
+						},
+						role: 'textbox',
 					},
-					role: 'textbox',
-				},
-				value
+					value
 				)
 			),
 	};
