@@ -9,3 +9,6 @@ export { deleteSkill } from './skills_delete';
 export { openRoot } from './skills_open_root';
 export { setEnabled } from './skills_set_enabled';
 export { validateSkill } from './skills_validate';
+export { activateSkill } from './skills_activate';
+export { createSkillRegistrySnapshot } from './skills_registry';
+export { resolveSkillResource } from './skills_resolve_resource';

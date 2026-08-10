@@ -1,54 +1,17 @@
-import { SKILL_CATEGORIES } from './skills_definitions';
-
-export type SkillCategory = (typeof SKILL_CATEGORIES)[number];
-
-export type SkillVisibility = 'public' | 'private' | 'internal' | 'unlisted';
-
-export type SkillSafetyLevel = 'low' | 'medium' | 'high' | 'restricted';
-
 export type SkillSource = 'local-filesystem';
 
-export type SkillTrust = 'user-controlled';
+export type SkillTrust = 'user-controlled' | 'unreviewed';
 
-export interface SkillExampleManifest {
-	description?: string;
-	input?: unknown;
-	output?: unknown;
-}
-
-export interface SkillDependencyManifest {
-	id: string;
-	version?: string;
-	optional?: boolean;
-}
+export type SkillInvocationPolicy = 'implicit' | 'explicit';
 
 export interface SkillManifest {
 	id?: string;
 	name: string;
-	description?: string;
+	description: string;
 	license?: string;
 	compatibility?: string;
-	category?: SkillCategory;
-	tags?: string[];
-	version?: string;
-	author?: string;
-	enabled?: boolean;
-	visibility?: SkillVisibility;
-	safetyLevel?: SkillSafetyLevel;
-	permissionsRequired?: string[];
-	requiredTools?: string[];
 	allowedTools?: string[];
-	requiredConnectors?: string[];
-	requiredMemoryKinds?: string[];
-	inputSchema?: Record<string, unknown>;
-	outputSchema?: Record<string, unknown>;
-	estimatedCost?: number;
-	estimatedLatency?: number;
-	reliabilityScore?: number;
-	examples?: SkillExampleManifest[];
-	dependencies?: SkillDependencyManifest[];
-	deprecated?: boolean;
-	metadata?: Record<string, unknown>;
+	metadata?: Record<string, string>;
 }
 
 export interface SkillInfo {
@@ -59,6 +22,8 @@ export interface SkillInfo {
 	folderPath: string;
 	skillPath?: string;
 	manifest: SkillManifest;
+	enabled: boolean;
+	invocationPolicy: SkillInvocationPolicy;
 	source: SkillSource;
 	trust: SkillTrust;
 	hash: string;
@@ -75,12 +40,14 @@ export interface SkillDownloadResult {
 export interface SkillLoadResult {
 	id: string;
 	name: string;
-	directory: string;
-	content: string;
+	canonicalRoot: string;
+	instructions: string;
 	source: SkillSource;
 	trust: SkillTrust;
 	hash: string;
 	allowedTools?: string[];
+	resources: string[];
+	warnings: SkillDiagnostic[];
 }
 
 export interface SkillFrontmatter {
@@ -88,8 +55,25 @@ export interface SkillFrontmatter {
 	description: string;
 	license?: string;
 	compatibility?: string;
-	metadata?: Record<string, unknown>;
+	metadata?: Record<string, string>;
 	allowedTools?: string[];
+}
+
+export interface SkillPolicy {
+	enabled?: boolean;
+	trusted?: boolean;
+	invocationPolicy?: SkillInvocationPolicy;
+	reviewedHash?: string;
+	origin?: string;
+}
+
+export interface SkillPolicyState {
+	skills: Record<string, SkillPolicy>;
+}
+
+export interface SkillRegistrySnapshot {
+	skills: readonly SkillInfo[];
+	diagnostics: readonly SkillDiagnostic[];
 }
 
 export interface SkillSearchOptions {

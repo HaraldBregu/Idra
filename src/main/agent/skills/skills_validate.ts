@@ -5,6 +5,14 @@ import type { SkillValidationIssue, SkillValidationResult } from '../../../share
 import { SKILL_FILE, SKILL_MAX_BYTES } from './skills_limits';
 
 const NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const STANDARD_FIELDS = new Set([
+	'name',
+	'description',
+	'license',
+	'compatibility',
+	'metadata',
+	'allowed-tools',
+]);
 
 export function validateSkill(folder: string): SkillValidationResult {
 	const issues: SkillValidationIssue[] = [];
@@ -79,6 +87,12 @@ export function validateSkill(folder: string): SkillValidationResult {
 				'"name" must be 1-64 lowercase alphanumeric characters and hyphens, without leading, trailing, or consecutive hyphens.',
 		});
 	}
+	if (typeof data.name === 'string' && data.name !== path.basename(canonicalFolder)) {
+		issues.push({
+			code: 'name-folder-mismatch',
+			message: `"name" must match the parent directory name "${path.basename(canonicalFolder)}".`,
+		});
+	}
 	if (typeof data.description !== 'string' || data.description.trim() === '') {
 		issues.push({
 			code: 'missing-description',
@@ -90,15 +104,48 @@ export function validateSkill(folder: string): SkillValidationResult {
 			message: '"description" must be at most 1024 characters.',
 		});
 	}
+	if (data.license !== undefined && typeof data.license !== 'string') {
+		issues.push({ code: 'invalid-license', message: '"license" must be a string.' });
+	}
 	if (
-		data.allowedTools !== undefined &&
-		(!Array.isArray(data.allowedTools) ||
-			data.allowedTools.some((tool) => typeof tool !== 'string' || tool.trim() === ''))
+		data.compatibility !== undefined &&
+		(typeof data.compatibility !== 'string' ||
+			data.compatibility.length === 0 ||
+			data.compatibility.length > 500)
+	) {
+		issues.push({
+			code: 'invalid-compatibility',
+			message: '"compatibility" must be a non-empty string of at most 500 characters.',
+		});
+	}
+	if (
+		data.metadata !== undefined &&
+		(typeof data.metadata !== 'object' ||
+			data.metadata === null ||
+			Array.isArray(data.metadata) ||
+			Object.values(data.metadata).some((value) => typeof value !== 'string'))
+	) {
+		issues.push({
+			code: 'invalid-metadata',
+			message: '"metadata" must map string keys to string values.',
+		});
+	}
+	if (
+		data['allowed-tools'] !== undefined &&
+		(typeof data['allowed-tools'] !== 'string' || data['allowed-tools'].trim() === '')
 	) {
 		issues.push({
 			code: 'invalid-allowed-tools',
-			message: '"allowedTools" must be an array of non-empty tool names.',
+			message: '"allowed-tools" must be a non-empty space-separated string.',
 		});
+	}
+	for (const key of Object.keys(data)) {
+		if (!STANDARD_FIELDS.has(key)) {
+			issues.push({
+				code: 'unknown-field',
+				message: `Unsupported SKILL.md frontmatter field: "${key}".`,
+			});
+		}
 	}
 	return { valid: issues.length === 0, issues };
 }

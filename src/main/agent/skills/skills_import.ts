@@ -5,6 +5,8 @@ import { skillsRoot } from './skills_root';
 import { readSkill } from './skills_read';
 import { pickDirectories } from './skills_pick_directories';
 import { validateSkill } from './skills_validate';
+import { validateSkillPackage } from './skills_validate_package';
+import { setSkillPolicy } from './skills_policy_set';
 
 export async function importSkills(): Promise<SkillImportResult | undefined> {
 	const sources = await pickDirectories({
@@ -37,9 +39,26 @@ export async function importSkills(): Promise<SkillImportResult | undefined> {
 			});
 			continue;
 		}
-		fs.cpSync(source, destination, { recursive: true });
-		const info = readSkill(destination, id);
-		if (info) imported.push(info);
+		const temporary = path.join(skillsRoot, `.import-${id}-${crypto.randomUUID()}`);
+		try {
+			validateSkillPackage(source);
+			fs.cpSync(source, temporary, { recursive: true, errorOnExist: true });
+			validateSkillPackage(temporary);
+			const stagedValidation = validateSkill(temporary);
+			if (!stagedValidation.valid) throw new Error(stagedValidation.issues.map((issue) => issue.message).join('; '));
+			setSkillPolicy(id, { enabled: false, trusted: false, invocationPolicy: 'explicit', origin: source });
+			fs.renameSync(temporary, destination);
+			const info = readSkill(destination, id);
+			if (!info) throw new Error('Imported skill could not be read after installation.');
+			imported.push(info);
+		} catch (error) {
+			fs.rmSync(temporary, { recursive: true, force: true });
+			skipped.push({
+				name: id,
+				sourcePath: source,
+				reason: error instanceof Error ? error.message : String(error),
+			});
+		}
 	}
 
 	return { imported, skipped };

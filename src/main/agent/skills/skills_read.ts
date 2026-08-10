@@ -5,6 +5,7 @@ import matter from 'gray-matter';
 import type { SkillInfo, SkillManifest } from '../../../shared/skills_types';
 import { SKILL_FILE, SKILL_MAX_BYTES } from './skills_limits';
 import { validateSkill } from './skills_validate';
+import { readSkillPolicyState } from './skills_policy_read';
 
 export { SKILL_FILE } from './skills_limits';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
@@ -13,24 +14,34 @@ export function readSkill(folder: string, id: string): SkillInfo | undefined {
 	if (!validateSkill(folder).valid) return undefined;
 	let canonicalSkillPath: string;
 	let source: string;
-	let fm: Partial<SkillManifest>;
+	let fm: Record<string, unknown>;
 	try {
 		canonicalSkillPath = fs.realpathSync(path.join(folder, SKILL_FILE));
 		source = fs.readFileSync(canonicalSkillPath, 'utf8');
 		if (Buffer.byteLength(source, 'utf8') > SKILL_MAX_BYTES) return undefined;
-		fm = matter(source).data as Partial<SkillManifest>;
+		fm = matter(source).data as Record<string, unknown>;
 	} catch {
 		return undefined;
 	}
-	const name = typeof fm.name === 'string' && fm.name.trim() ? fm.name : id;
-	const description = typeof fm.description === 'string' ? fm.description : '';
+	const name = fm.name as string;
+	const description = fm.description as string;
+	const allowedTools =
+		typeof fm['allowed-tools'] === 'string'
+			? fm['allowed-tools'].trim().split(/\s+/).filter(Boolean)
+			: undefined;
 	const manifest: SkillManifest = {
-		...fm,
 		name,
 		description,
-		id,
-		enabled: fm.enabled !== false,
+		...(typeof fm.license === 'string' ? { license: fm.license } : {}),
+		...(typeof fm.compatibility === 'string' ? { compatibility: fm.compatibility } : {}),
+		...(fm.metadata && typeof fm.metadata === 'object'
+			? { metadata: fm.metadata as Record<string, string> }
+			: {}),
+		...(allowedTools ? { allowedTools } : {}),
 	};
+	const policy = readSkillPolicyState().skills[id];
+	const hash = createHash('sha256').update(source).digest('hex');
+	const trusted = policy?.trusted !== false && (!policy?.reviewedHash || policy.reviewedHash === hash);
 	return {
 		id,
 		name,
@@ -39,9 +50,11 @@ export function readSkill(folder: string, id: string): SkillInfo | undefined {
 		folderPath: folder,
 		skillPath: canonicalSkillPath,
 		manifest,
+		enabled: policy?.enabled !== false,
+		invocationPolicy: policy?.invocationPolicy ?? 'implicit',
 		source: 'local-filesystem',
-		trust: 'user-controlled',
-		hash: createHash('sha256').update(source).digest('hex'),
+		trust: trusted ? 'user-controlled' : 'unreviewed',
+		hash,
 		structure: {
 			format: 'agent-skill',
 			standard: 'agentskills.io',
