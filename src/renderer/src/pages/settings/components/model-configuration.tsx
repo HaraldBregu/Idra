@@ -118,8 +118,8 @@ export function ModelProviderConfiguration({
 							disabled={
 								configState.loading || configState.saving || configState.modelGroups.length === 0
 							}
-						labels={{
-							label: selectLabel,
+							labels={{
+								label: selectLabel,
 								placeholder: configState.loadingModels
 									? t('settings.modelServices.modelsLoading')
 									: undefined,
