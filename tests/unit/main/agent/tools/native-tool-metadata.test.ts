@@ -2,9 +2,9 @@ import { completeBootstrapTool } from '../../../../../src/main/agent/tools/assis
 import { editTool } from '../../../../../src/main/agent/tools/core/edit_file';
 import { updateHealthCheeckSettingsTool } from '../../../../../src/main/agent/tools/health_check/update_health_cheeck_settings';
 import { updateHealthCheeckTool } from '../../../../../src/main/agent/tools/health_check/update_health_cheeck';
-import { createImageTool } from '../../../../../src/main/agent/tools/media/image_create';
-import { createSoundTool } from '../../../../../src/main/agent/tools/media/sound_create';
-import { createVideoTool } from '../../../../../src/main/agent/tools/media/video_create';
+import { createImageTool } from '../../../../../src/main/agent/tools/media/create_image';
+import { createSoundTool } from '../../../../../src/main/agent/tools/media/create_sound';
+import { createVideoTool } from '../../../../../src/main/agent/tools/media/create_video';
 import { forgetMemoryTool } from '../../../../../src/main/agent/tools/memory/forget';
 import { saveMemoryTool } from '../../../../../src/main/agent/tools/memory/save';
 import { cameraRecorderTool } from '../../../../../src/main/agent/tools/system/camera_recorder';

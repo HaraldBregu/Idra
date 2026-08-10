@@ -8,9 +8,9 @@ jest.mock('../../../../../src/main/models/video', () => ({ createVideo }));
 jest.mock('../../../../../src/main/models/sound', () => ({ createSound }));
 jest.mock('../../../../../src/main/agent/tools/media/save', () => ({ saveMedia }));
 
-import { createImageTool } from '../../../../../src/main/agent/tools/media/image_create';
-import { createSoundTool } from '../../../../../src/main/agent/tools/media/sound_create';
-import { createVideoTool } from '../../../../../src/main/agent/tools/media/video_create';
+import { createImageTool } from '../../../../../src/main/agent/tools/media/create_image';
+import { createSoundTool } from '../../../../../src/main/agent/tools/media/create_sound';
+import { createVideoTool } from '../../../../../src/main/agent/tools/media/create_video';
 
 beforeEach(() => {
 	jest.clearAllMocks();
