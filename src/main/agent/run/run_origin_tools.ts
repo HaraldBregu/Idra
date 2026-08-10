@@ -11,10 +11,10 @@ export function selectOriginTools(
 		origin === 'main' || origin === 'bot'
 			? tools
 			: origin === 'subagent'
-					? tools.filter((tool) => tool.name !== 'subagent')
-					: origin === 'task' && allow
-						? tools
-						: [];
+				? tools.filter((tool) => tool.name !== 'subagent')
+				: origin === 'task' && allow
+					? tools
+					: [];
 	const allowed = allow ? new Set(allow) : undefined;
 	const denied = new Set(deny);
 	return profile.filter(
