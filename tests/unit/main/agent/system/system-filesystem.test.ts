@@ -2,11 +2,8 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-jest.mock('../../../../../src/main/agent/skills', () => ({
-	listSkills: jest.fn(() => []),
-}));
-
 import { addFilesystemPrompt } from '../../../../../src/main/agent/system/system_add_filesystem_prompt';
+import { buildLoadedSkillPrompt } from '../../../../../src/main/agent/system/system_build_loaded_skill_prompt';
 import { buildSystemPrompt } from '../../../../../src/main/agent/system/system_build_prompt';
 import { buildWorkspaceContext } from '../../../../../src/main/agent/system/system_build_workspace_context';
 
@@ -93,18 +90,29 @@ describe('agent filesystem prompt', () => {
 		expect(profileContext).not.toContain('# Bootstrap questions');
 	});
 
-	it('adds loaded skills to a custom subagent prompt', async () => {
+	it('keeps loaded skills in a protected prompt segment for custom subagents', async () => {
 		const prompt = await buildSystemPrompt(
 			{ location: root },
 			[],
-			[{ name: 'Writer', content: 'Follow this workflow.' }],
+			[],
 			'Subagent rules'
 		);
+		const protectedPrompt = buildLoadedSkillPrompt([
+			{
+				id: 'writer',
+				name: 'Writer',
+				canonicalRoot: '/skills/writer',
+				instructions: 'Follow this workflow.',
+				trust: 'user-controlled',
+				hash: 'hash',
+				resources: [],
+			},
+		]);
 
 		expect(prompt).toContain('Subagent rules');
 		expect(prompt).toContain('## Agent filesystem');
-		expect(prompt).toContain('### Loaded skill: "Writer"');
-		expect(prompt).toContain('Follow this workflow.');
+		expect(protectedPrompt).toContain('"name":"Writer"');
+		expect(protectedPrompt).toContain('Follow this workflow.');
 		expect(prompt).not.toContain('You are a personal AI assistant.');
 	});
 
