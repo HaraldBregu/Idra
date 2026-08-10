@@ -1,7 +1,10 @@
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Layout } from '../../../src/renderer/src/pages/settings/Layout';
-import { SETTINGS_NAVIGATION } from '../../../src/renderer/src/pages/settings/navigation';
+import {
+	SETTINGS_DETAIL_ITEMS,
+	SETTINGS_NAVIGATION,
+} from '../../../src/renderer/src/pages/settings/navigation';
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({ t: (key: string): string => key }),
@@ -33,7 +36,9 @@ it.each([
 	['/settings/channels/permissions', 'settings.permissions.scopes.channelsTitle'],
 	['/settings/assistant/health/permissions', 'settings.permissions.scopes.healthTitle'],
 ])('uses the canonical %s route and breadcrumb', (path, labelKey) => {
-	if (!path.endsWith('/permissions') || path === '/settings/assistant/permissions') {
+	if (path === '/settings/assistant/data') {
+		expect(SETTINGS_DETAIL_ITEMS).toContainEqual(expect.objectContaining({ path, labelKey }));
+	} else if (!path.endsWith('/permissions') || path === '/settings/assistant/permissions') {
 		expect(SETTINGS_NAVIGATION).toContainEqual(expect.objectContaining({ path, labelKey }));
 	}
 
