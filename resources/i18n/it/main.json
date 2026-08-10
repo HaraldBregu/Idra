@@ -1435,6 +1435,7 @@
 		},
 		"dataControls": {
 			"title": "Gestione dati",
+			"description": "Esporta o elimina i dati dell'assistente e la conoscenza locale.",
 			"export": "Esporta",
 			"purge": "Elimina",
 			"memory": "Memoria persistente",

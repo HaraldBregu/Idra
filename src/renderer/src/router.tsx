@@ -51,6 +51,7 @@ const PermissionsPage = lazy(() => import('./pages/settings/pages/permissions/Pa
 const HealthPage = lazy(() => import('./pages/settings/pages/tasks/health/Page'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
 const ChatHistoryPage = lazy(() => import('./pages/settings/pages/assistant/chathistory/Page'));
+const DataPage = lazy(() => import('./pages/settings/pages/assistant/data/Page'));
 const TranscribePage = lazy(() => import('./pages/settings/pages/transcribe/Page'));
 const VoicePage = lazy(() => import('./pages/settings/pages/voice/Page'));
 const ImagePage = lazy(() => import('./pages/settings/pages/image/Page'));
@@ -474,6 +475,14 @@ const routes: RouteObject[] = [
 								element: (
 									<SettingsRouteWrapper>
 										<ChatHistoryPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'data',
+								element: (
+									<SettingsRouteWrapper>
+										<DataPage />
 									</SettingsRouteWrapper>
 								),
 							},

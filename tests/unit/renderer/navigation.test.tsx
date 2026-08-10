@@ -28,6 +28,7 @@ it.each([
 	['/settings/llm-wiki', 'settings.wiki.title'],
 	['/settings/tasks', 'settings.tabs.taskScheduler'],
 	['/settings/assistant/permissions', 'settings.tabs.permissions'],
+	['/settings/assistant/data', 'settings.dataControls.title'],
 	['/settings/tasks/permissions', 'settings.permissions.scopes.tasksTitle'],
 	['/settings/channels/permissions', 'settings.permissions.scopes.channelsTitle'],
 	['/settings/assistant/health/permissions', 'settings.permissions.scopes.healthTitle'],

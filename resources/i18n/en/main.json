@@ -1436,6 +1436,7 @@
 		},
 		"dataControls": {
 			"title": "Data management",
+			"description": "Export or purge assistant data and local knowledge.",
 			"export": "Export",
 			"purge": "Purge",
 			"memory": "Persistent memory",

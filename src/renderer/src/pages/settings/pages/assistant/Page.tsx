@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronDown, ChevronRight, Download, Search, Trash2 } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronRight, Search } from 'lucide-react';
 import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
 import { ModelOptions } from '@/components/model-options';
@@ -34,18 +34,8 @@ import type { ProviderModelGroup } from '../../../start/types';
 import { AgentMediaModelConfiguration } from './media';
 import { SEARCH_ENGINES } from '../search/catalog';
 import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
-import type { DataScope } from '../../../../../../shared/data_types';
-import { Button } from '@/components/ui/button';
 
 type CatalogProvider = PublicProvider;
-type DataControlKind =
-	| 'memory'
-	| 'sessions'
-	| 'wiki'
-	| 'local_index'
-	| 'local_namespace'
-	| 'remote_namespace'
-	| 'remote_all_namespaces';
 
 function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
 	return providers().find((provider) => provider.id === providerId);
@@ -94,9 +84,6 @@ const AssistantPage: React.FC = () => {
 	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
 	const [searchEngineError, setSearchEngineError] = useState<string | null>(null);
 	const [searchSavingEngineId, setSearchSavingEngineId] = useState<SearchEngineId | null>(null);
-	const [dataScopes, setDataScopes] = useState<DataScope[] | null>(null);
-	const [dataAction, setDataAction] = useState<string | null>(null);
-	const [dataError, setDataError] = useState<string | null>(null);
 	const model = modelsFor('llm').find(
 		(item) => item.provider.id === state.providerId && item.id === state.modelId
 	);
@@ -127,23 +114,6 @@ const AssistantPage: React.FC = () => {
 			mounted = false;
 		};
 	}, [t]);
-	useEffect(() => {
-		let mounted = true;
-		void window.dataControls.listScopes().then(
-			(scopes) => {
-				if (!mounted) return;
-				setDataScopes(scopes);
-				setDataError(null);
-			},
-			(error) => {
-				if (mounted) setDataError(firstErrorMessage(error, t('settings.dataControls.loadError')));
-			}
-		);
-		return () => {
-			mounted = false;
-		};
-	}, [t]);
-
 	useEffect(() => {
 		void window.agent.getModelOptions().then(setModelOptions);
 	}, []);
@@ -223,65 +193,6 @@ const AssistantPage: React.FC = () => {
 				setSearchSavingEngineId(null);
 			});
 	};
-
-	const dataScope = (kind: DataControlKind): DataScope | undefined => {
-		return dataScopes?.find((scope) => {
-			if (kind === 'memory' || kind === 'sessions' || kind === 'wiki') {
-				return scope.kind === kind;
-			}
-			return scope.kind === 'rag' && scope.mode === kind;
-		});
-	};
-
-	const handleDataAction = async (
-		kind: DataControlKind,
-		action: 'export' | 'purge'
-	): Promise<void> => {
-		const scope = dataScope(kind);
-		if (!scope) return;
-		setDataAction(`${kind}:${action}`);
-		setDataError(null);
-		try {
-			if (action === 'export') await window.dataControls.export(scope);
-			else {
-				const preview = await window.dataControls.previewPurge(scope);
-				const purged = await window.dataControls.purge(scope, preview.confirmationId);
-				if (purged) setDataScopes(await window.dataControls.listScopes());
-			}
-		} catch (error) {
-			setDataError(firstErrorMessage(error, t('settings.dataControls.actionError')));
-		} finally {
-			setDataAction(null);
-		}
-	};
-
-	const dataActions = (kind: DataControlKind, exportable = true) => (
-		<>
-			{exportable && (
-				<Button
-					variant="outline"
-					size="sm"
-					disabled={!dataScope(kind) || dataAction !== null}
-					onClick={() => void handleDataAction(kind, 'export')}
-				>
-					<Download className="size-3" />
-					{t('settings.dataControls.export')}
-				</Button>
-			)}
-			<Button
-				variant="destructive"
-				size="sm"
-				disabled={!dataScope(kind) || dataAction !== null}
-				onClick={() => void handleDataAction(kind, 'purge')}
-			>
-				<Trash2 className="size-3" />
-				{t('settings.dataControls.purge')}
-			</Button>
-		</>
-	);
-	const sessionDataScope = dataScope('sessions');
-	const sessionCount =
-		sessionDataScope?.kind === 'sessions' ? sessionDataScope.sessionIds.length : 0;
 
 	return (
 		<SettingsPageShell>
@@ -403,53 +314,6 @@ const AssistantPage: React.FC = () => {
 				</SettingsPanel>
 			</SettingsSection>
 
-			<SettingsSection title={t('settings.dataControls.title')}>
-				{dataError && (
-					<SettingsNotice variant="destructive" icon={AlertTriangle}>
-						{dataError}
-					</SettingsNotice>
-				)}
-				<SettingsPanel>
-					<SettingsRow
-						title={t('settings.dataControls.memory')}
-						description={t('settings.dataControls.memoryDescription')}
-						actions={dataActions('memory')}
-					/>
-					<SettingsRow
-						title={t('settings.dataControls.sessions')}
-						description={t('settings.dataControls.sessionsDescription', {
-							count: sessionCount,
-						})}
-						actions={dataActions('sessions')}
-					/>
-					<SettingsRow
-						title={t('settings.dataControls.ragIndex')}
-						description={t('settings.dataControls.ragIndexDescription')}
-						actions={dataActions('local_index')}
-					/>
-					<SettingsRow
-						title={t('settings.dataControls.ragNamespace')}
-						description={t('settings.dataControls.ragNamespaceDescription')}
-						actions={dataActions('local_namespace')}
-					/>
-					<SettingsRow
-						title={t('settings.dataControls.remoteNamespace')}
-						description={t('settings.dataControls.remoteNamespaceDescription')}
-						actions={dataActions('remote_namespace', false)}
-					/>
-					<SettingsRow
-						title={t('settings.dataControls.remoteAllNamespaces')}
-						description={t('settings.dataControls.remoteAllNamespacesDescription')}
-						actions={dataActions('remote_all_namespaces', false)}
-					/>
-					<SettingsRow
-						title={t('settings.dataControls.wiki')}
-						description={t('settings.dataControls.wikiDescription')}
-						actions={dataActions('wiki')}
-					/>
-				</SettingsPanel>
-			</SettingsSection>
-
 			<SettingsPanel>
 				<div
 					role="button"
@@ -486,6 +350,26 @@ const AssistantPage: React.FC = () => {
 					<SettingsRow
 						title={t('settings.tabs.permissions')}
 						description={t('settings.overview.descriptions.permissions')}
+						className="grid-cols-[minmax(0,1fr)_auto]"
+						actionClassName="w-auto justify-end"
+						actions={<ChevronRight className="size-4 text-muted-foreground" />}
+					/>
+				</div>
+				<div
+					role="button"
+					tabIndex={0}
+					className="cursor-pointer hover:bg-muted/40"
+					onClick={() => navigate('/settings/assistant/data')}
+					onKeyDown={(event) => {
+						if (event.key === 'Enter' || event.key === ' ') {
+							event.preventDefault();
+							navigate('/settings/assistant/data');
+						}
+					}}
+				>
+					<SettingsRow
+						title={t('settings.dataControls.title')}
+						description={t('settings.dataControls.description')}
 						className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
 						actionClassName="w-auto justify-end"
 						actions={<ChevronRight className="size-4 text-muted-foreground" />}
