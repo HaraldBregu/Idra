@@ -703,10 +703,10 @@
 				"agent": "Agent prompt",
 				"notSet": "Not set",
 				"capabilities": "Run capabilities",
-				"capabilitiesDescription": "Schedules start disabled and without tools. Enable this schedule and enter only the tool names it may see. Tool policies and hard approvals still apply.",
+				"capabilitiesDescription": "Schedules receive all task-compatible tools by default. Enter tool names only when you want to restrict this schedule. Task permission policies still apply.",
 				"enabled": "Enable schedule",
 				"enabledDescription": "Allow this schedule to run at its configured time.",
-				"toolsPlaceholder": "Allowed tools, comma-separated",
+				"toolsPlaceholder": "All tools, or restrict with comma-separated names",
 				"saveCapabilities": "Save capabilities"
 			},
 			"notFoundTitle": "Scheduled task not found",

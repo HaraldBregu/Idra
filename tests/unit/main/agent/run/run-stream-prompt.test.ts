@@ -231,6 +231,31 @@ describe('run stream system prompt', () => {
 		expect(events[0].tools).toEqual(expect.arrayContaining(['write', 'apply_patch']));
 	});
 
+	it('exposes task-compatible tools when a background task has no allowlist', async () => {
+		const events = [];
+		for await (const event of stream(
+			{ location: '/workspace' },
+			createSessionState(),
+			{
+				runId: 'background-task-tools',
+				task: 'chat',
+				message: 'perform the scheduled work',
+				model: 'test-model',
+				origin: 'task',
+				contextMode: 'minimal',
+			},
+			new AbortController().signal,
+			{ interactive: false }
+		))
+			events.push(event);
+
+		expect(events[0]).toMatchObject({ type: 'run_started' });
+		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
+		expect(events[0].tools).toEqual(
+			expect.arrayContaining(['read', 'write', 'edit', 'apply_patch', 'exec', 'process'])
+		);
+	});
+
 	it('applies main toolsAllow and toolsDeny to the subagent tool', async () => {
 		const noTools = [];
 		for await (const event of stream(

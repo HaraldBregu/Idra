@@ -37,9 +37,24 @@ it('gives bots unrestricted-origin tools and respects tool-specific origin restr
 	).toEqual(['write', 'apply_patch', 'web_search']);
 });
 
-it('gives health no tools and tasks no tools until a trusted allowlist narrows them', () => {
+it('gives tasks all compatible tools by default and keeps a non-empty allowlist as a filter', () => {
 	expect(selectOriginTools(tools, 'health')).toEqual([]);
-	expect(selectOriginTools(tools, 'task')).toEqual([]);
+	expect(selectOriginTools(tools, 'task').map((tool) => tool.name)).toEqual([
+		'read',
+		'write',
+		'apply_patch',
+		'web_search',
+		'web_fetch',
+		'exec',
+	]);
+	expect(selectOriginTools(tools, 'task', []).map((tool) => tool.name)).toEqual([
+		'read',
+		'write',
+		'apply_patch',
+		'web_search',
+		'web_fetch',
+		'exec',
+	]);
 	expect(selectOriginTools(tools, 'task', ['exec']).map((tool) => tool.name)).toEqual(['exec']);
 });
 

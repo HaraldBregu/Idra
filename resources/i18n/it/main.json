@@ -702,10 +702,10 @@
 				"agent": "Prompt agente",
 				"notSet": "Non impostata",
 				"capabilities": "Capacità di esecuzione",
-				"capabilitiesDescription": "Le attività iniziano disabilitate e senza strumenti. Abilita l'attività e inserisci solo i nomi degli strumenti consentiti. Le policy e le approvazioni obbligatorie restano valide.",
+				"capabilitiesDescription": "Le attività ricevono tutti gli strumenti compatibili per impostazione predefinita. Inserisci i nomi solo per limitare questa attività. Le policy dei permessi restano valide.",
 				"enabled": "Abilita attività",
 				"enabledDescription": "Consenti l'esecuzione dell'attività all'orario configurato.",
-				"toolsPlaceholder": "Strumenti consentiti, separati da virgole",
+				"toolsPlaceholder": "Tutti gli strumenti, oppure limita con nomi separati da virgole",
 				"saveCapabilities": "Salva capacità"
 			},
 			"notFoundTitle": "Attivita programmata non trovata",
