@@ -18,7 +18,7 @@ jest.mock('electron-store', () =>
 	})
 );
 
-import { getWebSearchTools } from '../../../../src/main/agent/tools/web/search';
+import { getSearchWebTools } from '../../../../src/main/agent/tools/web/search_web';
 import { searchBrave } from '../../../../src/main/search/adapters/brave';
 import { searchTavily } from '../../../../src/main/search/adapters/tavily';
 import { getSearchKey } from '../../../../src/main/search/search_get_key';
@@ -171,7 +171,7 @@ describe('search adapters', () => {
 describe('generic web search', () => {
 	it('omits web_search when no search API key is stored', () => {
 		process.env.BRAVE_API_KEY = 'environment-key';
-		expect(getWebSearchTools()).toEqual([]);
+		expect(getSearchWebTools()).toEqual([]);
 	});
 
 	it.each([
@@ -179,7 +179,7 @@ describe('generic web search', () => {
 		['tavily', 'tavily-key'],
 	] as const)('includes web_search when the %s API key is stored', (engineId, apiKey) => {
 		saveSearchEngine(engineId, { apiKey });
-		expect(getWebSearchTools().map((searchTool) => searchTool.name)).toEqual(['web_search']);
+		expect(getSearchWebTools().map((searchTool) => searchTool.id)).toEqual(['search_web']);
 	});
 
 	it('dispatches to the selected provider at execution time', async () => {
@@ -201,7 +201,7 @@ describe('generic web search', () => {
 		saveSearchEngine('brave', { apiKey: 'brave-key' });
 		(global.fetch as jest.Mock).mockResolvedValue(response({ web: { results: [] } }));
 
-		const [webSearchTool] = getWebSearchTools();
+		const [webSearchTool] = getSearchWebTools();
 		const output = await webSearchTool.run({ query: 'friday' });
 		expect(JSON.parse(output as string)).toEqual({ query: 'friday', results: [] });
 		const [url] = (global.fetch as jest.Mock).mock.calls[0] as [URL];

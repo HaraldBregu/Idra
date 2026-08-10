@@ -10,9 +10,9 @@ jest.mock('../../../../../src/main/agent/memory', () => ({
 	listMemories,
 }));
 
-import { forgetMemoryTool } from '../../../../../src/main/agent/tools/memory/forget';
-import { memoryListTool } from '../../../../../src/main/agent/tools/memory/list';
-import { saveMemoryTool } from '../../../../../src/main/agent/tools/memory/save';
+import { forgetMemoryTool } from '../../../../../src/main/agent/tools/memory/forget_memory';
+import { listMemoriesTool } from '../../../../../src/main/agent/tools/memory/list_memories';
+import { saveMemoryTool } from '../../../../../src/main/agent/tools/memory/save_memory';
 import type { Config } from '../../../../../src/main/agent/types';
 
 const config = { location: '/workspace' } as Config;
@@ -41,12 +41,12 @@ it('requires an exact ID for deletion', () => {
 	});
 });
 
-it('defines a main-only memory_list read tool', async () => {
+it('defines a main-only list_memories read tool', async () => {
 	listMemories.mockResolvedValue([{ id: 'memory-0123456789abcdef', fact: 'fact' }]);
-	const memoryTool = memoryListTool(config);
+	const memoryTool = listMemoriesTool(config);
 
 	expect(memoryTool).toMatchObject({
-		name: 'memory_list',
+		id: 'list_memories',
 		defaultPermission: 'allow',
 		risk: 'medium',
 		effect: 'read',

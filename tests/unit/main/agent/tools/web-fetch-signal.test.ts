@@ -2,7 +2,7 @@ const lookup = jest.fn();
 
 jest.mock('node:dns/promises', () => ({ lookup }));
 
-import { webFetchTool } from '../../../../../src/main/agent/tools/web/fetch';
+import { fetchWebPageTool } from '../../../../../src/main/agent/tools/web/fetch_web_page';
 
 const originalFetch = global.fetch;
 
@@ -23,7 +23,7 @@ it('combines the run signal with its request timeout', async () => {
 		});
 	}) as typeof fetch;
 	const controller = new AbortController();
-	const result = webFetchTool.run({ url: 'https://example.com' }, controller.signal);
+	const result = fetchWebPageTool.run({ url: 'https://example.com' }, controller.signal);
 	await started;
 	const reason = new Error('cancel fetch');
 	controller.abort(reason);

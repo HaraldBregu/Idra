@@ -5,8 +5,8 @@ import { updateHealthCheeckTool } from '../../../../../src/main/agent/tools/heal
 import { createImageTool } from '../../../../../src/main/agent/tools/media/create_image';
 import { createSoundTool } from '../../../../../src/main/agent/tools/media/create_sound';
 import { createVideoTool } from '../../../../../src/main/agent/tools/media/create_video';
-import { forgetMemoryTool } from '../../../../../src/main/agent/tools/memory/forget';
-import { saveMemoryTool } from '../../../../../src/main/agent/tools/memory/save';
+import { forgetMemoryTool } from '../../../../../src/main/agent/tools/memory/forget_memory';
+import { saveMemoryTool } from '../../../../../src/main/agent/tools/memory/save_memory';
 import { cameraRecorderTool } from '../../../../../src/main/agent/tools/system/camera_recorder';
 import { microphoneRecorderTool } from '../../../../../src/main/agent/tools/system/microphone_recorder';
 import { screenRecorderTool } from '../../../../../src/main/agent/tools/system/screen_recorder';
@@ -27,7 +27,7 @@ import { saveWikiAnalysisTool } from '../../../../../src/main/agent/tools/knowle
 import { searchWikiTool } from '../../../../../src/main/agent/tools/knowledge/search_wiki';
 import { queryWikiTool } from '../../../../../src/main/agent/tools/knowledge/query_wiki';
 import { searchKnowledgeTool } from '../../../../../src/main/agent/tools/knowledge/search_knowledge';
-import { webBrowserTool } from '../../../../../src/main/agent/tools/web/browser';
+import { useWebBrowserTool } from '../../../../../src/main/agent/tools/web/use_web_browser';
 
 it.each([
 	updateHealthCheeckTool({ location: '/workspace' }),
@@ -46,7 +46,7 @@ it.each([
 	screenRecorderTool(),
 	saveMemoryTool({ location: '/workspace' }),
 	forgetMemoryTool({ location: '/workspace' }),
-	webBrowserTool,
+	useWebBrowserTool,
 ])('%s uses policy permission without forced approval', (tool) => {
 	expect(tool.hardApproval).toBeUndefined();
 	expect(tool.alwaysAsk).toBeUndefined();
