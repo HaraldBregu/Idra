@@ -43,8 +43,8 @@ import { saveMemoryTool } from '../tools/memory/save_memory';
 import { forgetMemoryTool } from '../tools/memory/forget_memory';
 import { listMemoriesTool } from '../tools/memory/list_memories';
 import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
-import { updateHealthCheeckTool } from '../tools/health_check/update_health_cheeck';
-import { updateHealthCheeckSettingsTool } from '../tools/health_check/update_health_cheeck_settings';
+import { updateHealthTool } from '../tools/health/update_health';
+import { updateHealthSettingsTool } from '../tools/health/update_health_settings';
 import { loadSkillTool } from '../tools/skills/load_skill';
 import { createTaskTool } from '../tools/tasks/create_task';
 import { updateTaskTool } from '../tools/tasks/update_task';
@@ -194,8 +194,8 @@ async function* loop(
 				listMemoriesTool(config),
 				...getKnowledgeTools(origin),
 				...getWikiTools(origin),
-				updateHealthCheeckTool(config),
-				updateHealthCheeckSettingsTool,
+				updateHealthTool(config),
+				updateHealthSettingsTool,
 				createTaskTool,
 				updateTaskTool,
 				pauseTaskTool,

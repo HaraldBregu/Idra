@@ -1,7 +1,7 @@
 import { completeBootstrapTool } from '../../../../../src/main/agent/tools/assistant/complete_bootstrap';
 import { editTool } from '../../../../../src/main/agent/tools/core/edit_file';
-import { updateHealthCheeckSettingsTool } from '../../../../../src/main/agent/tools/health_check/update_health_cheeck_settings';
-import { updateHealthCheeckTool } from '../../../../../src/main/agent/tools/health_check/update_health_cheeck';
+import { updateHealthSettingsTool } from '../../../../../src/main/agent/tools/health/update_health_settings';
+import { updateHealthTool } from '../../../../../src/main/agent/tools/health/update_health';
 import { createImageTool } from '../../../../../src/main/agent/tools/media/create_image';
 import { createSoundTool } from '../../../../../src/main/agent/tools/media/create_sound';
 import { createVideoTool } from '../../../../../src/main/agent/tools/media/create_video';
@@ -30,8 +30,8 @@ import { searchKnowledgeTool } from '../../../../../src/main/agent/tools/knowled
 import { useWebBrowserTool } from '../../../../../src/main/agent/tools/web/use_web_browser';
 
 it.each([
-	updateHealthCheeckTool({ location: '/workspace' }),
-	updateHealthCheeckSettingsTool,
+	updateHealthTool({ location: '/workspace' }),
+	updateHealthSettingsTool,
 	completeBootstrapTool,
 	ingestWikiSourceTool,
 	saveWikiAnalysisTool,
