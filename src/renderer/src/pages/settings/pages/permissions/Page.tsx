@@ -1,7 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, FolderOpen, FolderX, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import {
+	AlertTriangle,
+	FolderOpen,
+	FolderX,
+	Pencil,
+	Plus,
+	RotateCcw,
+	Trash2,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { Label } from '@/components/ui/label';
@@ -53,17 +70,22 @@ const PermissionsPage: React.FC = () => {
 	const [saving, setSaving] = useState(false);
 	const savingRef = useRef(false);
 	const [workspaceDirectory, setWorkspaceDirectory] = useState('');
+	const [editingDirectory, setEditingDirectory] = useState<string | null>(null);
 	const [newDirectory, setNewDirectory] = useState('');
 	const [newDirectoryTools, setNewDirectoryTools] = useState('*');
+	const [newDirectoryEnabled, setNewDirectoryEnabled] = useState(true);
 	const [newDirectoryRecursive, setNewDirectoryRecursive] = useState(true);
 
-	const apply = (operation: () => Promise<Permissions>): void => {
+	const apply = (operation: () => Promise<Permissions>, onSuccess?: () => void): void => {
 		if (savingRef.current) return;
 		savingRef.current = true;
 		setSaving(true);
 		setError(null);
 		operation()
-			.then(setPermissions)
+			.then((nextPermissions) => {
+				setPermissions(nextPermissions);
+				onSuccess?.();
+			})
 			.catch((err: unknown) => {
 				setError(err instanceof Error ? err.message : t('settings.permissions.saveFailed'));
 			})
@@ -78,7 +100,6 @@ const PermissionsPage: React.FC = () => {
 			.then(([loadedPermissions, workspaceLocation]) => {
 				setPermissions(loadedPermissions);
 				setWorkspaceDirectory(workspaceLocation);
-				setNewDirectory(workspaceLocation);
 			})
 			.catch((err: unknown) => {
 				setError(err instanceof Error ? err.message : String(err));
@@ -91,31 +112,58 @@ const PermissionsPage: React.FC = () => {
 		apply(() => window.agent.policySetTool(toolName, { ...permission, default: mode }));
 	};
 
-	const addDirectory = (): void => {
+	const saveDirectory = (): void => {
 		const directory = newDirectory.trim();
 		const directoryTools = directoryToolsFor(newDirectoryTools);
 		if (!permissions || !directory || (directoryTools !== '*' && directoryTools.length === 0))
 			return;
-		apply(() =>
-			window.agent.policySetDirectories([
-				...permissions.directories.filter((permission) => permission.path !== directory),
-				{
-					path: directory,
-					enabled: true,
-					recoursive: newDirectoryRecursive,
-					tools: directoryTools,
-				},
-			])
+		apply(
+			() =>
+				window.agent.policySetDirectories([
+					...permissions.directories.filter(
+						(permission) => permission.path !== directory && permission.path !== editingDirectory
+					),
+					{
+						path: directory,
+						enabled: newDirectoryEnabled,
+						recoursive: newDirectoryRecursive,
+						tools: directoryTools,
+					},
+				]),
+			() => {
+				setEditingDirectory(null);
+				setNewDirectory('');
+				setNewDirectoryTools('*');
+				setNewDirectoryEnabled(true);
+				setNewDirectoryRecursive(true);
+			}
 		);
+	};
+
+	const editDirectory = (permission: Permissions['directories'][number]): void => {
+		setEditingDirectory(permission.path);
+		setNewDirectory(permission.path);
+		setNewDirectoryTools(permission.tools === '*' ? '*' : permission.tools.join(', '));
+		setNewDirectoryEnabled(permission.enabled);
+		setNewDirectoryRecursive(permission.recoursive);
+	};
+
+	const cancelDirectoryEdit = (): void => {
+		setEditingDirectory(null);
 		setNewDirectory('');
+		setNewDirectoryTools('*');
+		setNewDirectoryEnabled(true);
+		setNewDirectoryRecursive(true);
 	};
 
 	const removeDirectory = (directory: string): void => {
 		if (!permissions) return;
-		apply(() =>
-			window.agent.policySetDirectories(
-				permissions.directories.filter((permission) => permission.path !== directory)
-			)
+		apply(
+			() =>
+				window.agent.policySetDirectories(
+					permissions.directories.filter((permission) => permission.path !== directory)
+				),
+			editingDirectory === directory ? cancelDirectoryEdit : undefined
 		);
 	};
 
@@ -134,7 +182,7 @@ const PermissionsPage: React.FC = () => {
 	const tools = permissions ? Object.keys(permissions.tools) : [];
 	const directories = permissions?.directories ?? [];
 	const parsedDirectoryTools = directoryToolsFor(newDirectoryTools);
-	const canAddDirectory =
+	const canSaveDirectory =
 		newDirectory.trim().length > 0 &&
 		(parsedDirectoryTools === '*' || parsedDirectoryTools.length > 0);
 	return (
