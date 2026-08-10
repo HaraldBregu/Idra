@@ -54,6 +54,7 @@ jest.mock('../../../../src/main/agent/runner/run_stream', () => ({
 }));
 
 import { Agent } from '../../../../src/main/agent/agent';
+import type { PermissionsSchema } from '../../../../src/main/agent/permissions';
 import type { WindowFactory } from '../../../../src/main/window_factory';
 
 interface ControlledRun {
@@ -93,7 +94,7 @@ describe('Agent scoped cancellation', () => {
 				(
 					_config: unknown,
 					_session: unknown,
-					input: { runId: string; type: string; agentId: string; sessionId: string },
+					input: { runId: string; origin: string; sessionId: string },
 					signal: AbortSignal
 				) =>
 					(async function* () {
@@ -131,27 +132,25 @@ describe('Agent scoped cancellation', () => {
 		const agent = new Agent({} as WindowFactory);
 		const ui = controlRun(controls, 'ui-run');
 		const bot = controlRun(controls, 'bot-run');
+		const botPermissions: PermissionsSchema = {
+			mode: 'ask',
+			dir: {},
+			web_fetch: { default: 'allow', allow: [], deny: [], ask: [] },
+		};
 		const uiResponse = agent.send('ui', 'main', {
-			type: 'default',
 			runId: 'ui-run',
 			sessionId: 'ui-session',
 			windowId: 11,
 		});
 		const botResponse = agent.send('bot', 'channels', {
-			type: 'background',
-			toolsAllow: ['search_web', 'fetch_web_page'],
 			runId: 'bot-run',
 			sessionId: 'bot-session',
+			permissions: botPermissions,
 		});
 		await Promise.all([ui.started, bot.started]);
 		const botCall = mockStream.mock.calls.find((call) => call[2].runId === 'bot-run');
-		expect(botCall?.[2]).toMatchObject({
-			type: 'background',
-			agentId: 'channels',
-			contextMode: 'minimal',
-			toolsAllow: ['search_web', 'fetch_web_page'],
-		});
-		expect(botCall?.[4]).not.toHaveProperty('permissions');
+		expect(botCall?.[2]).toMatchObject({ origin: 'main', contextMode: 'minimal' });
+		expect(botCall?.[4].permissions).toBe(botPermissions);
 
 		expect(agent.cancel('ui-run', 12)).toBe(false);
 		expect(ui.signal?.aborted).toBe(false);
@@ -174,7 +173,6 @@ describe('Agent scoped cancellation', () => {
 		const active = activeControls.map((control, index) =>
 			agent
 				.send('active', 'main', {
-					type: 'default',
 					runId: `active-${index + 1}`,
 					sessionId: `session-${index + 1}`,
 					windowId: index + 1,
@@ -188,7 +186,6 @@ describe('Agent scoped cancellation', () => {
 
 		controlRun(controls, 'queued');
 		const queued = agent.send('queued', 'main', {
-			type: 'default',
 			runId: 'queued',
 			sessionId: 'queued-session',
 			windowId: 20,
@@ -198,7 +195,6 @@ describe('Agent scoped cancellation', () => {
 
 		const replacement = controlRun(controls, 'replacement');
 		const replacementResponse = agent.send('replacement', 'main', {
-			type: 'default',
 			runId: 'replacement',
 			sessionId: 'queued-session',
 			windowId: 20,
@@ -216,15 +212,8 @@ describe('Agent scoped cancellation', () => {
 		const ui = controlRun(controls, 'ui-run');
 		const bot = controlRun(controls, 'bot-run');
 		const runs = [
-			agent.send('ui', 'main', {
-				type: 'default',
-				runId: 'ui-run',
-				sessionId: 'ui',
-				windowId: 1,
-			}),
+			agent.send('ui', 'main', { runId: 'ui-run', sessionId: 'ui', windowId: 1 }),
 			agent.send('bot', 'channels', {
-				type: 'background',
-				toolsAllow: ['search_web', 'fetch_web_page'],
 				runId: 'bot-run',
 				sessionId: 'bot',
 			}),
