@@ -6,8 +6,8 @@ jest.mock('../../../../../src/main/extensions/extension_index', () => ({
 	loadExtension,
 }));
 
-import { listExtensionsTool } from '../../../../../src/main/agent/tools/extensions/list';
-import { openExtensionsTool } from '../../../../../src/main/agent/tools/extensions/open';
+import { listExtensionsTool } from '../../../../../src/main/agent/tools/extensions/list_extensions';
+import { openExtensionsTool } from '../../../../../src/main/agent/tools/extensions/open_extensions';
 import type { WindowFactory } from '../../../../../src/main/window_factory';
 import type { Extension } from '../../../../../src/shared/extension_types';
 
