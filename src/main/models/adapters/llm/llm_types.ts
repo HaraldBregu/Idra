@@ -12,6 +12,7 @@ export interface LlmRequest {
 	maxTokens: number;
 	tools?: Tool[];
 	signal?: AbortSignal;
+	streaming?: boolean;
 }
 
 export interface LlmResponse {
@@ -153,6 +154,7 @@ export interface LlmStreamRequest {
 	tools: LlmToolSpec[];
 	maxTokens: number;
 	signal?: AbortSignal;
+	streaming?: boolean;
 }
 
 export interface LlmAdapter {

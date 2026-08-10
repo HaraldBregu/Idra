@@ -7,17 +7,19 @@ import { systemPermissionAllows } from './permissions_system';
 import { toolPermissionTargets } from './permissions_targets';
 import { resolveStoredToolPermission } from './permissions_tool';
 import type { PermissionMode } from './permissions_types';
+import type { PermissionsSchema } from './permissions_types';
 
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
 	context?: ToolsContext,
 	reuseContext = true,
-	fallback: PermissionMode = 'ask'
+	fallback: PermissionMode = 'ask',
+	configuredPermissions?: PermissionsSchema
 ): PermissionMode {
 	const targets = toolPermissionTargets(toolName, args, AGENT_DIRECTORY);
 	const directoryTargets = directoryPermissionTargets(toolName, args, AGENT_DIRECTORY);
-	const permissions = getPermissions();
+	const permissions = configuredPermissions ?? getPermissions();
 	const configuredEntry = permissions[toolName];
 	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
 	const directories = permissions.dir ?? {};

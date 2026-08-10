@@ -69,10 +69,13 @@ import { selectSkillTools } from './run_skill_tools';
 import { hasPrivateInput } from './run_has_private_input';
 import { activateSkill, createSkillRegistrySnapshot } from '../skills';
 import type { SkillLoadResult } from '../../../shared/skills_types';
+import type { PermissionsSchema } from '../permissions';
 
 export interface StreamOptions {
 	tools?: Tool[];
 	interactive?: boolean;
+	streaming?: boolean;
+	permissions?: PermissionsSchema;
 	windowFactory?: WindowFactory;
 }
 
@@ -148,7 +151,8 @@ async function* loop(
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
-	const permissionMode: AgentPermissionMode = origin === 'main' ? getPermissionMode() : 'ask';
+	const permissionMode: AgentPermissionMode =
+		options.permissions?.mode ?? (origin === 'main' ? getPermissionMode() : 'ask');
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
 	session.context.subagents = undefined;
@@ -295,7 +299,8 @@ async function* loop(
 				modelOptions,
 				undefined,
 				protectedSkillPrompt,
-				runtimeContext ? [{ role: 'user', content: runtimeContext }] : []
+				runtimeContext ? [{ role: 'user', content: runtimeContext }] : [],
+				options.streaming ?? true
 			);
 
 			recordTurn(session, turn);
@@ -362,7 +367,8 @@ async function* loop(
 					runId,
 					origin,
 					...(input.approvalWindowId === undefined ? {} : { windowId: input.approvalWindowId }),
-				}
+				},
+				options.permissions
 			)) {
 				yield event;
 				if (event.type !== 'tool_call_end') continue;

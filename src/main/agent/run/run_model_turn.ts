@@ -27,7 +27,8 @@ export async function* runModelTurn(
 	modelOptions: Record<string, unknown> = {},
 	llm: ModelTurnStream = llmModel,
 	protectedSystemPrompt = '',
-	contextMessages: Message[] = []
+	contextMessages: Message[] = [],
+	streaming = true
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	const maxRetries = 1;
 	const maxTokens = modelOutputLimit(provider.id, modelId, modelOptions);
@@ -61,6 +62,7 @@ export async function* runModelTurn(
 				maxTokens,
 				options: modelOptions,
 				signal,
+				streaming,
 			})) {
 				if (
 					event.type === 'model_call_delta' ||

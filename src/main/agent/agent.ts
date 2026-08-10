@@ -38,6 +38,7 @@ import type {
 import { toError } from '../ipc/core/error';
 import { AgentRunScheduler } from './agent_scheduler';
 import type { WindowFactory } from '../window_factory';
+import type { PermissionsSchema } from './permissions';
 
 interface ActiveAgentRun {
 	agentId: string;
@@ -48,6 +49,8 @@ interface ActiveAgentRun {
 
 export interface AgentSendOptions extends AgentRunOptions {
 	interactive?: boolean;
+	streaming?: boolean;
+	permissions?: PermissionsSchema;
 	category?: SessionCategory;
 	modelId?: string;
 	approvalWindowId?: number;
@@ -186,6 +189,8 @@ export class Agent {
 			const runSignal = AbortSignal.any([controller.signal, timeoutSignal]);
 			const events = stream(this.config, session, input, runSignal, {
 				interactive: options.interactive ?? true,
+				streaming: options.streaming ?? true,
+				...(options.permissions ? { permissions: options.permissions } : {}),
 				windowFactory: this.windowFactory,
 			});
 

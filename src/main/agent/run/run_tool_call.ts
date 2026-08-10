@@ -9,6 +9,7 @@ import {
 	setToolPermission,
 	toolApprovalTargets,
 	waitForToolPermission,
+	type PermissionsSchema,
 } from '../permissions';
 import { inputFingerprint } from '../permissions/permissions_fingerprint';
 import { redactApprovalInput } from '../permissions/permissions_redact_input';
@@ -29,7 +30,8 @@ export async function* runToolCall(
 	signal?: AbortSignal,
 	context?: ToolsContext,
 	permissionMode: AgentPermissionMode = 'ask',
-	security: ToolCallSecurityContext = { runId: 'internal', origin: 'main' }
+	security: ToolCallSecurityContext = { runId: 'internal', origin: 'main' },
+	permissions?: PermissionsSchema
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 	let canonicalInput = toolCall.args;
@@ -74,7 +76,8 @@ export async function* runToolCall(
 			canonicalInput,
 			context,
 			interactive,
-			tool.defaultPermission
+			tool.defaultPermission,
+			permissions
 		);
 		let permission =
 			permissionMode === 'bypass' && policyPermission !== 'deny' ? 'allow' : policyPermission;

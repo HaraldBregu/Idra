@@ -2,6 +2,7 @@ import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import type { ToolsContext } from '../context';
 import type { AgentPermissionMode } from '../../../shared/agent_types';
 import { runToolCall, type ToolCallSecurityContext } from './run_tool_call';
+import type { PermissionsSchema } from '../permissions';
 
 export async function* runToolCalls(
 	tools: Tool[],
@@ -10,7 +11,8 @@ export async function* runToolCalls(
 	signal?: AbortSignal,
 	context?: ToolsContext,
 	permissionMode: AgentPermissionMode = 'ask',
-	security?: ToolCallSecurityContext
+	security?: ToolCallSecurityContext,
+	permissions?: PermissionsSchema
 ): AsyncGenerator<RuntimeEvent, void> {
 	for (const toolCall of toolCalls) {
 		yield* runToolCall(
@@ -20,7 +22,8 @@ export async function* runToolCalls(
 			signal,
 			context,
 			permissionMode,
-			security
+			security,
+			permissions
 		);
 	}
 }
