@@ -52,6 +52,7 @@ const PermissionsPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
 	const savingRef = useRef(false);
+	const [workspaceDirectory, setWorkspaceDirectory] = useState('');
 	const [newDirectory, setNewDirectory] = useState('');
 	const [newDirectoryTools, setNewDirectoryTools] = useState('*');
 	const [newDirectoryRecursive, setNewDirectoryRecursive] = useState(true);
@@ -76,6 +77,7 @@ const PermissionsPage: React.FC = () => {
 		Promise.all([window.agent.policyGet(), window.agent.getWorkspaceLocation()])
 			.then(([loadedPermissions, workspaceLocation]) => {
 				setPermissions(loadedPermissions);
+				setWorkspaceDirectory(workspaceLocation);
 				setNewDirectory(workspaceLocation);
 			})
 			.catch((err: unknown) => {
@@ -285,7 +287,7 @@ const PermissionsPage: React.FC = () => {
 										</span>
 										<Select
 											value={permissionFor(permissions, toolName)!.default}
-											disabled={saving}
+											disabled={saving || directory === workspaceDirectory}
 											onValueChange={(value) => {
 												if (value) setDefault(toolName, value as PermissionMode);
 											}}

@@ -12,6 +12,7 @@ import { normalizeDirectoryPermissions } from './permissions/normalize_directory
 import { normalizePermissionsSchema } from './permissions/normalize_permissions_schema';
 import {
 	DEFAULT_PERMISSIONS,
+	type DirectoryPermission,
 	type DirectoryPermissions,
 	type PermissionBucket,
 	type PermissionsSchema,
@@ -36,6 +37,16 @@ type AgentStoreSchema = {
 
 const AGENT_STORE_NAME = 'agent';
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
+export const AGENT_DIRECTORY = path.resolve(agentLocation());
+const WORKSPACE_DIRECTORY_PERMISSION: DirectoryPermission = {
+	path: AGENT_DIRECTORY,
+	recoursive: true,
+	tools: '*',
+};
+const DEFAULT_AGENT_PERMISSIONS: PermissionsSchema = {
+	...DEFAULT_PERMISSIONS,
+	directories: [WORKSPACE_DIRECTORY_PERMISSION],
+};
 const UNKNOWN_TOOL_PERMISSION: ToolPermission = {
 	default: 'ask',
 	allow: [],
@@ -55,10 +66,8 @@ const DEFAULT_AGENT_STORE: AgentStoreSchema = {
 	image_model: EMPTY_MEDIA_MODEL,
 	audio_model: EMPTY_MEDIA_MODEL,
 	video_model: EMPTY_MEDIA_MODEL,
-	permissions: DEFAULT_PERMISSIONS,
+	permissions: DEFAULT_AGENT_PERMISSIONS,
 };
-
-export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 const store = new Store<AgentStoreSchema>({
 	name: AGENT_STORE_NAME,
@@ -108,7 +117,13 @@ export function setMediaModel(kind: AgentMediaModelKind, settings: AgentMediaMod
 }
 
 export function getPermissions(): PermissionsSchema {
-	return normalizePermissionsSchema(store.get('permissions'));
+	const permissions = normalizePermissionsSchema(store.get('permissions'));
+	if (permissions.directories.some((permission) => permission.path === AGENT_DIRECTORY))
+		return permissions;
+	return {
+		...permissions,
+		directories: [...permissions.directories, { ...WORKSPACE_DIRECTORY_PERMISSION }],
+	};
 }
 
 export function getDirectoryPermissions(): DirectoryPermissions {
@@ -133,9 +148,12 @@ export function setToolPermission(toolName: string, permission: ToolPermission):
 }
 
 export function setDirectoryPermissions(directories: DirectoryPermissions): PermissionsSchema {
+	const normalizedDirectories = normalizeDirectoryPermissions(directories);
+	if (!normalizedDirectories.some((permission) => permission.path === AGENT_DIRECTORY))
+		normalizedDirectories.push({ ...WORKSPACE_DIRECTORY_PERMISSION });
 	store.set('permissions', {
 		...getPermissions(),
-		directories: normalizeDirectoryPermissions(directories),
+		directories: normalizedDirectories,
 	});
 	return getPermissions();
 }
@@ -150,6 +168,6 @@ export function addPermissionRule(toolName: string, bucket: PermissionBucket, ru
 }
 
 export function resetPermissions(): PermissionsSchema {
-	store.set('permissions', DEFAULT_PERMISSIONS);
+	store.set('permissions', DEFAULT_AGENT_PERMISSIONS);
 	return getPermissions();
 }

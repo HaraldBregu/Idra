@@ -166,6 +166,7 @@ The Permissions screen provides persistent controls for sensitive tools:
 
 - Every tool owns a policy object under `tools` with `default`, `allow`, `ask`, and `deny` fields.
 - The top-level `directories` array assigns directory-scoped tool allow-lists using `{ "path": string, "recoursive": boolean, "tools": "*" | string[] }` entries.
+- The agent workspace is always present as a recursive wildcard directory permission and cannot be removed.
 - `read`, `write`, and `process` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
 - Other built-in tools retain independent **Allow** defaults.
 - An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
