@@ -18,7 +18,7 @@ jest.mock('@/components/text-editor', () => {
 						if (!element) return;
 						Object.defineProperty(element, 'scrollHeight', {
 							configurable: true,
-							value: value && value.length > 80 ? 64 : 28,
+							value: value && value.length > 40 ? 48 : 28,
 						});
 						onEditorReady?.({ view: { dom: element } });
 					},
@@ -42,6 +42,7 @@ describe('PromptEditor', () => {
 
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
 		expect(prompt).toHaveClass('min-h-10');
+		expect(prompt).toHaveClass('rounded-full');
 
 		rerender(
 			<PromptEditor
@@ -52,6 +53,7 @@ describe('PromptEditor', () => {
 		);
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'true'));
 		expect(prompt).toHaveClass('min-h-24');
+		expect(prompt).toHaveClass('rounded-xl');
 
 		rerender(
 			<PromptEditor
@@ -62,5 +64,6 @@ describe('PromptEditor', () => {
 		);
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
 		expect(prompt).toHaveClass('min-h-10');
+		expect(prompt).toHaveClass('rounded-full');
 	});
 });

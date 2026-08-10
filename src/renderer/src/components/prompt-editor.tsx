@@ -38,9 +38,14 @@ function PromptEditorArea({
 	);
 }
 
-function PromptEditor({ placeholder, ariaLabel, ...props }: PromptEditorProps): ReactElement {
+function PromptEditor({
+	placeholder,
+	ariaLabel,
+	expandedThreshold = 28,
+	...props
+}: PromptEditorProps): ReactElement {
 	return (
-		<PromptInput {...props}>
+		<PromptInput expandedThreshold={expandedThreshold} {...props}>
 			<PromptEditorArea placeholder={placeholder} ariaLabel={ariaLabel} />
 		</PromptInput>
 	);
