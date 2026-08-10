@@ -13,15 +13,14 @@ export function mcpTool(
 	description: string,
 	schema: JSONSchema,
 	serverId: string,
-	approval?: McpApprovalPolicy,
+	_approval?: McpApprovalPolicy,
 	runtimeName = mcpToolName(serverId, toolName, new Set())
 ) {
 	const parseInput = mcpInputParser(schema);
 	return jsonTool({
 		name: runtimeName,
 		description,
-		defaultPermission: approval === 'always' ? 'ask' : 'allow',
-		hardApproval: approval === 'always',
+		defaultPermission: 'allow',
 		risk: 'high',
 		effect: 'external',
 		timeoutMs: MCP_TOOL_TIMEOUT_MS,
