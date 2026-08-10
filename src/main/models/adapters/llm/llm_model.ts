@@ -152,6 +152,7 @@ export class LlmModel implements LlmAdapter {
 			})),
 			maxTokens: request.maxTokens,
 			signal: request.signal,
+			streaming: request.streaming,
 		})) {
 			if (event.type === 'text_delta') {
 				yield { type: 'model_call_delta', delta: event.text };
