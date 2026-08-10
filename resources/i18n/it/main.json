@@ -840,7 +840,7 @@
 			"directoryPath": "Percorso cartella",
 			"directoryPlaceholder": "/percorso/della/cartella",
 			"directoryTools": "Strumenti consentiti",
-			"directoryToolsPlaceholder": "* o read, write",
+			"directoryToolsPlaceholder": "* o read_file, write_file",
 			"allTools": "Tutti gli strumenti",
 			"recursive": "Ricorsiva",
 			"currentDirectory": "Solo cartella corrente",

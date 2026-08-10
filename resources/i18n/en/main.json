@@ -841,7 +841,7 @@
 			"directoryPath": "Directory path",
 			"directoryPlaceholder": "/path/to/directory",
 			"directoryTools": "Allowed tools",
-			"directoryToolsPlaceholder": "* or read, write",
+			"directoryToolsPlaceholder": "* or read_file, write_file",
 			"allTools": "All tools",
 			"recursive": "Recursive",
 			"currentDirectory": "Current directory only",

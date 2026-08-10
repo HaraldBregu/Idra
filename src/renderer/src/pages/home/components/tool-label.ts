@@ -43,7 +43,7 @@ export function toolPartLabel(tool: AgentToolPart): string {
 	const task = TASK_TOOL_LABELS[type];
 	if (task) return isToolRunning(tool) ? task.running : task.done;
 
-	if (type === 'read_file') {
+	if (type === 'read_file' || type === 'read') {
 		const path = stringArg(input, 'path', 'file_path', 'filepath');
 		if (path) return `Read ${basename(path)}`;
 	}
@@ -75,11 +75,11 @@ type GroupVerbs = { readonly running: string; readonly done: string; readonly no
 
 function groupVerbs(type: string): GroupVerbs {
 	const t = type.toLowerCase();
-	if (t === 'read_file') return { running: 'Reading', done: 'Read', noun: 'file' };
+	if (t === 'read_file' || t === 'read') return { running: 'Reading', done: 'Read', noun: 'file' };
 	if (t === 'edit_file' || t === 'apply_patch')
 		return { running: 'Editing', done: 'Edited', noun: 'file' };
-	if (t === 'write_file') return { running: 'Writing', done: 'Wrote', noun: 'file' };
-	if (t === 'exec_command' || t === 'process')
+	if (t === 'write_file' || t === 'write') return { running: 'Writing', done: 'Wrote', noun: 'file' };
+	if (t === 'exec_command' || t === 'exec' || t === 'process')
 		return { running: 'Running', done: 'Ran', noun: 'command' };
 	if (t === 'grep' || t === 'search') return { running: 'Searching', done: 'Searched', noun: 'pattern' };
 	if (t === 'list_dir') return { running: 'Listing', done: 'Listed', noun: 'folder' };
@@ -96,15 +96,18 @@ function toolRunningDetail(tool: AgentToolPart): string | undefined {
 	const t = tool.type.toLowerCase();
 	if (
 		t === 'read_file' ||
+		t === 'read' ||
 		t === 'edit_file' ||
 		t === 'write_file' ||
+		t === 'write' ||
 		t === 'apply_patch' ||
 		t === 'list_dir'
 	) {
 		const path = stringArg(input, 'path', 'file_path', 'filepath');
 		return path ? basename(path) : undefined;
 	}
-	if (t === 'exec_command' || t === 'process') return stringArg(input, 'command', 'name');
+	if (t === 'exec_command' || t === 'exec' || t === 'process')
+		return stringArg(input, 'command', 'name');
 	if (t === 'grep' || t === 'search') return stringArg(input, 'pattern', 'query');
 	if (t === 'load_skill') return stringArg(input, 'name');
 	if (t === 'web_browser' || t === 'web_fetch' || t === 'web_search') {
