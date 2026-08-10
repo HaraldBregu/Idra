@@ -17,7 +17,7 @@ export function tool<T extends z.ZodType>({
 	execute,
 }: ToolConfig<T>): Tool {
 	return {
-		id: id ?? name,
+		id,
 		name,
 		description,
 		timeoutMs,
@@ -43,7 +43,7 @@ export function jsonTool({
 	execute,
 }: JsonToolConfig): Tool {
 	return {
-		id: id ?? name,
+		id,
 		name,
 		description,
 		timeoutMs,
