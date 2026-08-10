@@ -9,7 +9,7 @@ import type { SandboxStatus } from '@shared/sandbox';
 const Sandbox: React.FC = () => {
 	const { t } = useTranslation();
 	const [status, setStatus] = useState<SandboxStatus | null>(null);
-	const [busy, setBusy] = useState(false);
+	const [busy, setBusy] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
 	const check = useCallback(async (): Promise<void> => {
@@ -25,8 +25,22 @@ const Sandbox: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		void check();
-	}, [check]);
+		let active = true;
+		window.app
+			.getSandboxStatus()
+			.then((nextStatus) => {
+				if (active) setStatus(nextStatus);
+			})
+			.catch((cause: unknown) => {
+				if (active) setError(cause instanceof Error ? cause.message : String(cause));
+			})
+			.finally(() => {
+				if (active) setBusy(false);
+			});
+		return () => {
+			active = false;
+		};
+	}, []);
 
 	const setup = async (): Promise<void> => {
 		setBusy(true);
