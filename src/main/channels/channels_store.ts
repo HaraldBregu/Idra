@@ -7,12 +7,9 @@ import type {
 } from '../../shared';
 import { userDataLocation } from '../shared/user_data_location';
 import { getModelId, getProviderId } from '../models/models_store';
-import { getPermissions } from '../agent/agent_store';
 import { normalizePermissionsSchema } from '../agent/permissions/permissions_normalize_schema';
-import {
-	DEFAULT_PERMISSIONS,
-	type PermissionsSchema,
-} from '../agent/permissions/permissions_types';
+import type { PermissionsSchema } from '../agent/permissions/permissions_types';
+import { DEFAULT_CHANNEL_PERMISSIONS } from './permissions';
 
 type ChannelModelKeys = {
 	providerId: keyof ChannelsStoreState;
@@ -124,7 +121,7 @@ export function setChannelModelSelections(
 
 export function getChannelPermissions(): PermissionsSchema {
 	const permissions = normalizePermissionsSchema(
-		store.has('permissions') ? store.get('permissions') : getPermissions()
+		store.has('permissions') ? store.get('permissions') : DEFAULT_CHANNEL_PERMISSIONS
 	);
 	if (!store.has('permissions')) store.set('permissions', permissions);
 	return permissions;
@@ -137,5 +134,5 @@ export function saveChannelPermissions(value: unknown): PermissionsSchema {
 }
 
 export function resetChannelPermissions(): PermissionsSchema {
-	return saveChannelPermissions(DEFAULT_PERMISSIONS);
+	return saveChannelPermissions(DEFAULT_CHANNEL_PERMISSIONS);
 }
