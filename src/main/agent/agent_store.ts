@@ -24,7 +24,6 @@ export type SearchEngineSettings = {
 	enabled: boolean;
 };
 type AgentStoreSchema = {
-	permissionsVersion: number | undefined;
 	providerId: string | undefined;
 	modelId: string | undefined;
 	modelOptions: Record<string, unknown>;
@@ -36,7 +35,6 @@ type AgentStoreSchema = {
 };
 
 const AGENT_STORE_NAME = 'agent';
-const PERMISSIONS_VERSION = 1;
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
 export const AGENT_DIRECTORY = path.resolve(agentLocation());
 const UNKNOWN_TOOL_PERMISSION: ToolPermission = {
@@ -51,7 +49,6 @@ const EMPTY_MEDIA_MODEL: AgentMediaModelSettings = {
 	options: {},
 };
 const DEFAULT_AGENT_STORE: AgentStoreSchema = {
-	permissionsVersion: undefined,
 	providerId: undefined,
 	modelId: undefined,
 	modelOptions: {},
@@ -110,25 +107,7 @@ export function setMediaModel(kind: AgentMediaModelKind, settings: AgentMediaMod
 }
 
 export function getPermissions(): PermissionsSchema {
-	const permissions = normalizePermissionsSchema(store.get('permissions'));
-	if (store.get('permissionsVersion') === PERMISSIONS_VERSION) return permissions;
-	const migrated = {
-		...permissions,
-		directories: permissions.directories.filter(
-			(permission) =>
-				permission.path !== AGENT_DIRECTORY ||
-				permission.enabled !== true ||
-				permission.recoursive !== true ||
-				permission.tools !== '*'
-		),
-	};
-	store.set('permissions', migrated);
-	store.set('permissionsVersion', PERMISSIONS_VERSION);
-	return migrated;
-}
-
-export function getDirectoryPermissions(): DirectoryPermissions {
-	return getPermissions().directories;
+	return normalizePermissionsSchema(store.get('permissions'));
 }
 
 export function getToolPermission(toolName: string): ToolPermission {

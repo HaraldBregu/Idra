@@ -23,67 +23,8 @@ export interface PermissionsSchema {
 	directories: DirectoryPermissions;
 }
 
-export const PERMISSION_TOOLS = [
-	'read_file',
-	'write_file',
-	'edit_file',
-	'apply_patch',
-	'exec_command',
-	'process',
-	'microphone_recorder',
-	'microphone_recorder_status',
-	'microphone_recorder_stop',
-	'camera_recorder',
-	'camera_recorder_status',
-	'camera_recorder_stop',
-	'screen_recorder',
-	'screen_recorder_status',
-	'screen_recorder_stop',
-	'search_web',
-	'fetch_web_page',
-	'use_web_browser',
-	'create_image',
-	'create_video',
-	'create_sound',
-	'save_memory',
-	'forget_memory',
-	'list_memories',
-	'query_knowledge',
-	'ingest_wiki_source',
-	'save_wiki_analysis',
-	'lint_wiki',
-	'review_wiki_changes',
-	'rebuild_wiki_index',
-	'get_recent_wiki_activity',
-	'update_health',
-	'update_health_settings',
-	'load_skill',
-	'create_task',
-	'update_task',
-	'pause_task',
-	'resume_task',
-	'delete_task',
-	'get_task',
-	'list_tasks',
-	'run_task_now',
-	'list_extensions',
-	'open_extensions',
-	'complete_bootstrap',
-	'subagent',
-	'subagents',
-] as const;
-
 const allow = (): ToolPermission => ({ default: 'allow', allow: [], deny: [], ask: [] });
 const ask = (): ToolPermission => ({ default: 'ask', allow: [], deny: [], ask: [] });
-
-const ALL_ALLOWED_TOOL_PERMISSIONS = Object.fromEntries(
-	PERMISSION_TOOLS.map((toolName) => [toolName, allow()])
-) as Record<string, ToolPermission>;
-
-export const ALL_ALLOWED_PERMISSIONS: PermissionsSchema = {
-	tools: ALL_ALLOWED_TOOL_PERMISSIONS,
-	directories: [],
-};
 
 export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 	read_file: allow(),
