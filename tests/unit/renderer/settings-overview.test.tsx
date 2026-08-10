@@ -50,28 +50,15 @@ it('lists Channels once outside the providers group', () => {
 	expect(screen.getAllByText('settings.tabs.channels')).toHaveLength(1);
 });
 
-it('uses the LLM Wiki identity on the overview', () => {
+it('keeps Agent knowledge pages off the overview', () => {
 	render(
 		<MemoryRouter initialEntries={['/settings']}>
 			<OverviewPage />
 		</MemoryRouter>
 	);
 
-	const wiki = screen.getByRole('button', { name: /settings\.wiki\.title/ });
-	expect(wiki).toHaveTextContent('settings.wiki.title');
-	expect(wiki.querySelector('.lucide-brain-circuit')).toBeInTheDocument();
-});
-
-it('uses the Knowledge Base title on the overview', () => {
-	render(
-		<MemoryRouter initialEntries={['/settings']}>
-			<OverviewPage />
-		</MemoryRouter>
-	);
-
-	expect(screen.getByRole('button', { name: /settings\.rag\.title/ })).toHaveTextContent(
-		'settings.rag.title'
-	);
+	expect(screen.queryByRole('button', { name: /settings\.rag\.title/ })).not.toBeInTheDocument();
+	expect(screen.queryByRole('button', { name: /settings\.wiki\.title/ })).not.toBeInTheDocument();
 });
 
 it('uses the Background tasks label on the overview', () => {

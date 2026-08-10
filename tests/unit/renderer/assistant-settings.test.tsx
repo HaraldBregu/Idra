@@ -53,6 +53,10 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.history': 'History',
 		'settings.dataControls.title': 'Data management',
 		'settings.dataControls.description': 'Export or purge assistant data',
+		'settings.rag.title': 'Knowledge Base',
+		'settings.rag.description': 'Index and search local documents',
+		'settings.wiki.title': 'LLM Wiki',
+		'settings.wiki.description': 'Build a persistent Markdown wiki',
 	};
 	const t = (key: string): string => translations[key] ?? key;
 	return { useTranslation: () => ({ t }) };
@@ -138,17 +142,21 @@ it('shows image, audio, and video defaults on the Agent settings page', async ()
 	expect(await screen.findByRole('button', { name: /Video.*Veo/ })).toBeInTheDocument();
 });
 
-it('opens Data management from the Agent settings page', async () => {
+it.each([
+	['Data management', '/settings/assistant/data'],
+	['Knowledge Base', '/settings/knowledge-base'],
+	['LLM Wiki', '/settings/llm-wiki'],
+])('opens %s from the Agent settings page', async (label, path) => {
 	const user = userEvent.setup();
 	render(
 		<MemoryRouter initialEntries={['/settings/assistant']}>
 			<Routes>
 				<Route path="/settings/assistant" element={<AssistantPage />} />
-				<Route path="/settings/assistant/data" element={<p>Data management page</p>} />
+				<Route path={path} element={<p>{label} page</p>} />
 			</Routes>
 		</MemoryRouter>
 	);
 
-	await user.click(screen.getByRole('button', { name: /Data management/ }));
-	expect(await screen.findByText('Data management page')).toBeInTheDocument();
+	await user.click(screen.getByRole('button', { name: new RegExp(label) }));
+	expect(await screen.findByText(`${label} page`)).toBeInTheDocument();
 });

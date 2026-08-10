@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import SearchPage from '../../../src/renderer/src/pages/settings/pages/search/Page';
@@ -72,12 +72,7 @@ describe('Settings overview', () => {
 		).not.toBeInTheDocument();
 		expect(screen.queryByText('settings.tabs.database')).not.toBeInTheDocument();
 		expect(screen.getByText('Search engine')).toBeInTheDocument();
-		const assistantGroup = screen
-			.getByText('settings.overview.groups.assistant')
-			.closest('section');
-		expect(assistantGroup).not.toBeNull();
-		expect(
-			within(assistantGroup as HTMLElement).getByText('settings.wiki.title')
-		).toBeInTheDocument();
+		expect(screen.queryByText('settings.rag.title')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.wiki.title')).not.toBeInTheDocument();
 	});
 });

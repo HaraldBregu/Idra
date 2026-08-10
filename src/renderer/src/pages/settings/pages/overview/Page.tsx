@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { BrainCircuit, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import {
@@ -28,8 +28,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: [
 			'/settings/assistant',
 			'/settings/skills',
-			'/settings/knowledge-base',
-			'/settings/llm-wiki',
 			'/settings/tasks',
 			'/settings/providers/mcp',
 		],
@@ -73,7 +71,6 @@ function SettingsOverviewCard({
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const unavailable = disabled || ('comingSoon' in item && item.comingSoon === true);
-	const isWiki = item.path === '/settings/llm-wiki';
 	const labelKey = item.labelKey;
 	const handleActivate = (): void => {
 		if (unavailable) return;
@@ -81,7 +78,7 @@ function SettingsOverviewCard({
 	};
 	const content = (
 		<>
-			<ItemIcon icon={isWiki ? BrainCircuit : item.icon} className="size-8 [&_svg]:size-4" />
+			<ItemIcon icon={item.icon} className="size-8 [&_svg]:size-4" />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 					{t(labelKey)}
