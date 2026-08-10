@@ -1,10 +1,8 @@
 export {
 	addPermissionRule,
 	getPermissions,
-	getToolPermission,
 	resetPermissions,
-	setDirectoryPermissions,
-	setToolPermission,
+	setPermissions,
 } from '../agent_store';
 export { toolApprovalTargets } from './tool_approval_targets';
 export { resolveToolPermission } from './resolve_tool_permission';
@@ -14,7 +12,7 @@ export {
 	waitForToolPermission,
 } from './permissions_pending';
 export {
-	type DirectoryPermissions,
+	type PermissionKind,
+	type PermissionRules,
 	type PermissionsSchema,
-	type ToolPermission,
 } from './permissions_types';

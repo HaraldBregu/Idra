@@ -6,17 +6,11 @@ import type {
 } from '../../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
-import { isToolPermission } from './permissions/is_tool_permission';
-import { normalizeToolPermission } from './permissions/normalize_tool_permission';
-import { normalizeDirectoryPermissions } from './permissions/normalize_directory_permissions';
 import { normalizePermissionsSchema } from './permissions/normalize_permissions_schema';
 import {
-	DEFAULT_PERMISSIONS,
-	type DirectoryPermission,
-	type DirectoryPermissions,
 	type PermissionBucket,
+	type PermissionKind,
 	type PermissionsSchema,
-	type ToolPermission,
 } from './permissions/permissions_types';
 
 export type SearchEngineSettings = {
@@ -38,21 +32,11 @@ type AgentStoreSchema = {
 const AGENT_STORE_NAME = 'agent';
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
 export const AGENT_DIRECTORY = path.resolve(agentLocation());
-const WORKSPACE_DIRECTORY_PERMISSION: DirectoryPermission = {
-	path: AGENT_DIRECTORY,
-	enabled: true,
-	recoursive: true,
-	tools: '*',
-};
+const workspacePattern = `${AGENT_DIRECTORY.replaceAll(path.sep, '/')}/**`;
 const DEFAULT_AGENT_PERMISSIONS: PermissionsSchema = {
-	tools: DEFAULT_PERMISSIONS.tools,
-	directories: [WORKSPACE_DIRECTORY_PERMISSION],
-};
-const UNKNOWN_TOOL_PERMISSION: ToolPermission = {
-	default: 'ask',
-	allow: [],
-	deny: [],
-	ask: [],
+	read: { allow: [workspacePattern], deny: [] },
+	write: { allow: [workspacePattern], deny: [] },
+	exec: { allow: ['*'], deny: [] },
 };
 const EMPTY_MEDIA_MODEL: AgentMediaModelSettings = {
 	providerId: '',
@@ -118,41 +102,19 @@ export function setMediaModel(kind: AgentMediaModelKind, settings: AgentMediaMod
 }
 
 export function getPermissions(): PermissionsSchema {
-	return normalizePermissionsSchema(store.get('permissions'));
+	return normalizePermissionsSchema(store.get('permissions'), DEFAULT_AGENT_PERMISSIONS);
 }
 
-export function getToolPermission(toolName: string): ToolPermission {
-	const permission = getPermissions().tools[toolName];
-	return isToolPermission(permission) ? permission : { ...UNKNOWN_TOOL_PERMISSION };
+export function setPermissions(permissions: PermissionsSchema): PermissionsSchema {
+	store.set('permissions', normalizePermissionsSchema(permissions, DEFAULT_AGENT_PERMISSIONS));
+	return getPermissions();
 }
 
-export function setToolPermission(toolName: string, permission: ToolPermission): PermissionsSchema {
+export function addPermissionRule(kind: PermissionKind, bucket: PermissionBucket, rule: string): void {
 	const permissions = getPermissions();
-	store.set('permissions', {
-		...permissions,
-		tools: {
-			...permissions.tools,
-			[toolName]: normalizeToolPermission(permission, UNKNOWN_TOOL_PERMISSION),
-		},
-	});
-	return getPermissions();
-}
-
-export function setDirectoryPermissions(directories: DirectoryPermissions): PermissionsSchema {
-	store.set('permissions', {
-		...getPermissions(),
-		directories: normalizeDirectoryPermissions(directories),
-	});
-	return getPermissions();
-}
-
-export function addPermissionRule(toolName: string, bucket: PermissionBucket, rule: string): void {
-	const permission = getToolPermission(toolName);
+	const permission = permissions[kind];
 	if (permission[bucket].includes(rule)) return;
-	setToolPermission(toolName, {
-		...permission,
-		[bucket]: [...permission[bucket], rule],
-	});
+	setPermissions({ ...permissions, [kind]: { ...permission, [bucket]: [...permission[bucket], rule] } });
 }
 
 export function resetPermissions(): PermissionsSchema {

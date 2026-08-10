@@ -1,40 +1,24 @@
-import { isToolPermission } from './is_tool_permission';
-import { normalizeToolPermission } from './normalize_tool_permission';
-import { normalizeDirectoryPermissions } from './normalize_directory_permissions';
-import {
-	DEFAULT_TOOL_PERMISSIONS,
-	type PermissionsSchema,
-	type ToolPermission,
-} from './permissions_types';
+import type { PermissionRules, PermissionsSchema } from './permissions_types';
 
-export function normalizePermissionsSchema(value: unknown): PermissionsSchema {
-	const storedValue =
-		value && typeof value === 'object' && !Array.isArray(value)
-			? (value as Record<string, unknown>)
+export function normalizePermissionsSchema(
+	value: unknown,
+	fallback: PermissionsSchema
+): PermissionsSchema {
+	const stored = value && typeof value === 'object' && !Array.isArray(value)
+		? value as Record<string, unknown>
+		: {};
+	const rules = (candidate: unknown, otherwise: PermissionRules): PermissionRules => {
+		const entry = candidate && typeof candidate === 'object' && !Array.isArray(candidate)
+			? candidate as Record<string, unknown>
 			: {};
-	const unknownPermission: ToolPermission = {
-		default: 'ask',
-		allow: [],
-		deny: [],
-		ask: [],
+		const list = (items: unknown, defaults: string[]): string[] => Array.isArray(items)
+			? [...new Set(items.filter((item): item is string => typeof item === 'string').map((item) => item.trim()).filter(Boolean))]
+			: [...defaults];
+		return { allow: list(entry.allow, otherwise.allow), deny: list(entry.deny, otherwise.deny) };
 	};
-	const storedTools =
-		storedValue.tools && typeof storedValue.tools === 'object' && !Array.isArray(storedValue.tools)
-			? (storedValue.tools as Record<string, unknown>)
-			: {};
-	const result: PermissionsSchema = {
-		tools: {},
-		directories: normalizeDirectoryPermissions(storedValue.directories),
+	return {
+		read: rules(stored.read, fallback.read),
+		write: rules(stored.write, fallback.write),
+		exec: rules(stored.exec, fallback.exec),
 	};
-	for (const [toolName, fallback] of Object.entries(DEFAULT_TOOL_PERMISSIONS)) {
-		result.tools[toolName] = normalizeToolPermission(storedTools[toolName], fallback);
-	}
-	for (const [toolName, entry] of Object.entries(storedTools)) {
-		if (!isToolPermission(entry)) continue;
-		result.tools[toolName] = normalizeToolPermission(
-			entry,
-			result.tools[toolName] ?? unknownPermission
-		);
-	}
-	return result;
 }

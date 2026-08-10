@@ -1,13 +1,19 @@
 import { contextAllowsTool, type ToolsContext } from '../context';
-import { directoryPermissionAllows } from './directory_permission_allows';
-import { directoryPermissionTargets } from './directory_permission_targets';
-import { isToolPermission } from './is_tool_permission';
 import { AGENT_DIRECTORY, getPermissions } from '../agent_store';
+import { registry } from '../tools/core/process';
+import { directoryPermissionTargets } from './directory_permission_targets';
+import { permissionFor } from './permission_for';
 import { toolPermissionTargets } from './tool_permission_targets';
-import { resolveStoredToolPermission } from './resolve_stored_tool_permission';
-import type { PermissionMode } from './permissions_types';
-import type { PermissionsSchema } from './permissions_types';
-import { elevatedPermissionFor } from './elevated_permission_for';
+import type { PermissionKind, PermissionMode, PermissionsSchema } from './permissions_types';
+
+const WRITE_TOOLS = new Set([
+	'write_file',
+	'edit_file',
+	'apply_patch',
+	'create_image',
+	'create_video',
+	'create_sound',
+]);
 
 export function resolveToolPermission(
 	toolName: string,
@@ -17,35 +23,30 @@ export function resolveToolPermission(
 	fallback: PermissionMode = 'ask',
 	configuredPermissions?: PermissionsSchema
 ): PermissionMode {
-	const targets = toolPermissionTargets(toolName, args, AGENT_DIRECTORY);
-	const directoryTargets = directoryPermissionTargets(toolName, args, AGENT_DIRECTORY);
-	const permissions = configuredPermissions ?? getPermissions();
-	if (toolName === 'exec_command' && args.elevated === true) {
-		const command = typeof args.command === 'string' ? args.command : '';
-		const configuredEntry = permissions.tools[toolName];
-		const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
-		return elevatedPermissionFor(command, configured, fallback);
-	}
+	let kind: PermissionKind | undefined;
+	if (toolName === 'read_file') kind = 'read';
+	else if (WRITE_TOOLS.has(toolName)) kind = 'write';
+	else if (toolName === 'exec_command' || toolName === 'process') kind = 'exec';
+	if (!kind) return 'allow';
+
 	if (toolName === 'process') {
-		const target = targets[0];
-		if (target) {
-			const configuredEntry = permissions.tools[toolName];
-			const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
-			return elevatedPermissionFor(target, configured, fallback);
-		}
+		const session = typeof args.sessionId === 'string' ? registry.get(args.sessionId) : undefined;
+		if (session?.executionMode === 'sandbox') return 'allow';
 	}
-	if (directoryPermissionAllows(permissions.directories, toolName, directoryTargets)) return 'allow';
-	const configuredEntry = permissions.tools[toolName];
-	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
-	const stored = resolveStoredToolPermission(toolName, targets, configured, fallback);
-	if (stored.explicit === 'deny' || stored.explicit === 'ask') return stored.explicit;
-	if (stored.explicit === 'allow') return 'allow';
+
+	const permissions = configuredPermissions ?? getPermissions();
+	const targets = kind === 'write'
+		? directoryPermissionTargets(toolName, args, AGENT_DIRECTORY)
+		: toolPermissionTargets(toolName, args, AGENT_DIRECTORY);
+	const decisions = targets.map((target) =>
+		permissionFor(permissions[kind], target, kind, args.elevated === true)
+	);
+	if (decisions.includes('deny')) return 'deny';
+	if (targets.length > 0 && decisions.every((decision) => decision === 'allow')) return 'allow';
 	if (
-		stored.permission === 'ask' &&
+		kind === 'read' &&
 		reuseContext &&
-		stored.contextCanAllow &&
 		contextAllowsTool(context, toolName, args, AGENT_DIRECTORY)
-	)
-		return 'allow';
-	return stored.permission;
+	) return 'allow';
+	return fallback;
 }

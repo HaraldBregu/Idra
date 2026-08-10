@@ -12,9 +12,7 @@ import type { ChildProcess } from 'node:child_process';
 import type { SandboxStatus } from '../../shared/sandbox';
 import { getPermissions } from './agent_store';
 import { userDataLocation } from '../shared/user_data_location';
-import { realPath } from '../shared/real_path';
 import { resolveUserPath } from '../shared/user_path';
-import { isPathWithin } from './permissions/permissions_path';
 
 export interface SandboxedCommand {
 	command: string;
@@ -166,29 +164,12 @@ export class ExecSandbox {
 		config: SandboxRuntimeConfig;
 		fingerprint: string;
 	}> {
-		const candidates = getPermissions().directories
-			.filter(
-				(permission) =>
-					permission.enabled &&
-					permission.recoursive &&
-					(permission.tools === '*' || permission.tools.includes('exec_command'))
-			)
-			.map((permission) => realPath(resolveUserPath(permission.path, os.homedir())));
-		const existing = await Promise.all(
-			candidates.map(async (candidate) => {
-				try {
-					return (await fs.stat(candidate)).isDirectory() ? candidate : undefined;
-				} catch {
-					return undefined;
-				}
-			})
-		);
-		const roots = [...new Set(existing.filter((value): value is string => !!value))]
-			.sort((a, b) => a.length - b.length)
-			.filter((candidate, index, values) =>
-				values.slice(0, index).every((parent) => !isPathWithin(parent, candidate))
-			);
-		const allowWrite = [...roots, this.temporaryDirectory];
+		const permissions = getPermissions();
+		const resolveRules = (rules: string[]): string[] =>
+			rules.map((rule) => resolveUserPath(rule, os.homedir()));
+		const allowWrite = [...resolveRules(permissions.write.allow), this.temporaryDirectory];
+		const denyWrite = resolveRules(permissions.write.deny);
+		const denyRead = resolveRules(permissions.read.deny);
 		const windowsPath = this.vendoredWindowsPath();
 		const seccompPath = this.vendoredSeccompPath();
 		const config: SandboxRuntimeConfig = {
@@ -200,10 +181,10 @@ export class ExecSandbox {
 				allowAllUnixSockets: false,
 			},
 			filesystem: {
-				denyRead: [],
+				denyRead,
 				allowRead: [],
 				allowWrite,
-				denyWrite: [],
+				denyWrite,
 			},
 			enableWeakerNestedSandbox: false,
 			enableWeakerNetworkIsolation: false,
@@ -214,7 +195,7 @@ export class ExecSandbox {
 				: {}),
 			...(process.platform === 'linux' ? { seccomp: { applyPath: seccompPath } } : {}),
 		};
-		return { config, fingerprint: JSON.stringify(allowWrite) };
+		return { config, fingerprint: JSON.stringify({ allowWrite, denyWrite, denyRead }) };
 	}
 
 	private vendoredWindowsPath(): string {

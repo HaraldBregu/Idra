@@ -3,9 +3,7 @@ import { fileToolState, isFileCreation, rememberTool, type ToolsContext } from '
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
-	getToolPermission,
 	resolveToolPermission,
-	setToolPermission,
 	toolApprovalTargets,
 	waitForToolPermission,
 } from '../permissions';
@@ -106,12 +104,12 @@ export async function* runToolCall(
 			);
 			permissionOutcome = decision;
 			if (decision === 'approve_always') {
-				if (targets.length === 0) {
-					const configured = getToolPermission(toolCall.name);
-					setToolPermission(toolCall.name, { ...configured, default: 'allow' });
-				} else {
-					for (const target of targets) addPermissionRule(toolCall.name, 'allow', target);
-				}
+				const kind = toolCall.name === 'read_file'
+					? 'read'
+					: toolCall.name === 'exec_command' || toolCall.name === 'process'
+						? 'exec'
+						: 'write';
+				for (const target of targets) addPermissionRule(kind, 'allow', target);
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}
