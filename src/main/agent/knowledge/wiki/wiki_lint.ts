@@ -269,7 +269,7 @@ export async function lintWiki(
 						id: String(page.data.id),
 						path: page.path,
 						title: page.title,
-						pageType: String(page.data.page_type) as import('./wiki_types').WikiPageType,
+						pageType: String(page.data.page_type) as import('./types').WikiPageType,
 						updatedAt: String(page.data.updated_at ?? page.data.updated ?? ''),
 						sourceIds: Array.isArray(page.data.source_ids) ? page.data.source_ids.map(String) : [],
 					},

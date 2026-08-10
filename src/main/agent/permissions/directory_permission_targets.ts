@@ -6,7 +6,7 @@ import { healthStorePath } from '../health/health_store';
 import { skillsRoot } from '../skills/skills_root';
 import { registry } from '../tools/core/process';
 import { toolPermissionTargets } from './tool_permission_targets';
-import { getWikiSettings } from '../../wiki/wiki_get_settings';
+import { getWikiSettings } from '../knowledge/wiki/wiki_get_settings';
 
 const AGENT_FILES: Record<string, string> = {
 	memory_save: 'MEMORY.md',
