@@ -17,6 +17,7 @@ export function createLoadSkillTool(
 	if (names.length === 0) return undefined;
 	return tool({
 		name: 'load_skill',
+		defaultPermission: 'allow',
 		description:
 			'Activate an Agent Skill for this run. The harness injects its protected instructions and canonical resource root on the next model turn.',
 		inputSchema: z.object({

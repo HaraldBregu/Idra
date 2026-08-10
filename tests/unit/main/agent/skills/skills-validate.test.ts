@@ -37,7 +37,7 @@ describe('validateSkill', () => {
 	});
 
 	it('passes a well-formed skill', () => {
-		readMock.mockReturnValue(withFrontmatter({ name: 'my-skill', description: 'does things' }));
+		readMock.mockReturnValue(withFrontmatter({ name: 'x', description: 'does things' }));
 		expect(validateSkill('/skills/x')).toEqual({ valid: true, issues: [] });
 	});
 
@@ -70,12 +70,22 @@ describe('validateSkill', () => {
 		expect(validateSkill('/skills/x').issues[0].code).toBe('skill-too-large');
 	});
 
-	it('rejects malformed allowedTools capabilities', () => {
+	it('accepts standard allowed-tools and rejects camelCase capabilities', () => {
 		readMock.mockReturnValue(
-			withFrontmatter({ name: 'my-skill', description: 'does things', allowedTools: 'write' })
+			withFrontmatter({ name: 'x', description: 'does things', 'allowed-tools': 'read write' })
 		);
+		expect(validateSkill('/skills/x')).toEqual({ valid: true, issues: [] });
+		readMock.mockReturnValue(withFrontmatter({ name: 'x', description: 'does things', allowedTools: 'write' }));
 		expect(validateSkill('/skills/x').issues.map((issue) => issue.code)).toContain(
-			'invalid-allowed-tools'
+			'unknown-field'
 		);
+	});
+
+	it('validates parent directory, compatibility, and string-only metadata', () => {
+		readMock.mockReturnValue(withFrontmatter({ name: 'other', description: 'ok' }));
+		expect(validateSkill('/skills/x').issues.map((issue) => issue.code)).toContain('name-folder-mismatch');
+		readMock.mockReturnValue(`---\nname: x\ndescription: ok\ncompatibility: ${'x'.repeat(501)}\nmetadata:\n  version: 1\n---\nbody`);
+		const codes = validateSkill('/skills/x').issues.map((issue) => issue.code);
+		expect(codes).toEqual(expect.arrayContaining(['invalid-compatibility', 'invalid-metadata']));
 	});
 });

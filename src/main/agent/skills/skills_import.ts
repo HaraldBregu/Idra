@@ -39,20 +39,23 @@ export async function importSkills(): Promise<SkillImportResult | undefined> {
 			});
 			continue;
 		}
-		const temporary = path.join(skillsRoot, `.import-${id}-${crypto.randomUUID()}`);
+		const temporaryParent = path.join(skillsRoot, `.import-${id}-${crypto.randomUUID()}`);
+		const temporary = path.join(temporaryParent, id);
 		try {
 			validateSkillPackage(source);
+			fs.mkdirSync(temporaryParent);
 			fs.cpSync(source, temporary, { recursive: true, errorOnExist: true });
 			validateSkillPackage(temporary);
 			const stagedValidation = validateSkill(temporary);
 			if (!stagedValidation.valid) throw new Error(stagedValidation.issues.map((issue) => issue.message).join('; '));
 			setSkillPolicy(id, { enabled: false, trusted: false, invocationPolicy: 'explicit', origin: source });
 			fs.renameSync(temporary, destination);
+			fs.rmSync(temporaryParent, { recursive: true, force: true });
 			const info = readSkill(destination, id);
 			if (!info) throw new Error('Imported skill could not be read after installation.');
 			imported.push(info);
 		} catch (error) {
-			fs.rmSync(temporary, { recursive: true, force: true });
+			fs.rmSync(temporaryParent, { recursive: true, force: true });
 			skipped.push({
 				name: id,
 				sourcePath: source,

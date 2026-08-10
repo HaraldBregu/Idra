@@ -4,8 +4,10 @@ const readSkill = jest.fn();
 const mkdirSync = jest.fn();
 const existsSync = jest.fn();
 const cpSync = jest.fn();
+const renameSync = jest.fn();
+const rmSync = jest.fn();
 
-jest.mock('node:fs', () => ({ mkdirSync, existsSync, cpSync }));
+jest.mock('node:fs', () => ({ mkdirSync, existsSync, cpSync, renameSync, rmSync }));
 jest.mock('../../../../../src/main/agent/skills/skills_root', () => ({
 	skillsRoot: '/installed-skills',
 }));
@@ -14,6 +16,12 @@ jest.mock('../../../../../src/main/agent/skills/skills_pick_directories', () => 
 }));
 jest.mock('../../../../../src/main/agent/skills/skills_validate', () => ({ validateSkill }));
 jest.mock('../../../../../src/main/agent/skills/skills_read', () => ({ readSkill }));
+jest.mock('../../../../../src/main/agent/skills/skills_validate_package', () => ({
+	validateSkillPackage: jest.fn(),
+}));
+jest.mock('../../../../../src/main/agent/skills/skills_policy_set', () => ({
+	setSkillPolicy: jest.fn(),
+}));
 
 import { importSkills } from '../../../../../src/main/agent/skills/skills_import';
 

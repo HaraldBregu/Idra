@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import type { SkillLoadResult, SkillRegistrySnapshot } from '../../../shared/skills_types';
+import type { SkillDiagnostic, SkillLoadResult, SkillRegistrySnapshot } from '../../../shared/skills_types';
 import { SKILL_FILE, SKILL_MAX_BYTES, SKILL_RECOMMENDED_LINES, SKILL_RECOMMENDED_TOKENS } from './skills_limits';
 import { stripFrontmatter } from './skills_strip_frontmatter';
 import { listSkillResources } from './skills_resources';
@@ -28,7 +28,7 @@ export async function activateSkill(snapshot: SkillRegistrySnapshot, name: strin
 	const instructions = stripFrontmatter(source);
 	const lineCount = instructions.split(/\r?\n/).length;
 	const estimatedTokens = Math.ceil(Buffer.byteLength(instructions, 'utf8') / 3);
-	const warnings = [];
+	const warnings: SkillDiagnostic[] = [];
 	if (lineCount > SKILL_RECOMMENDED_LINES || estimatedTokens > SKILL_RECOMMENDED_TOKENS) {
 		warnings.push({
 			level: 'warning' as const,

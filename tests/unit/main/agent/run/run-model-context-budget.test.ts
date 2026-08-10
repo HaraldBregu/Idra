@@ -114,4 +114,30 @@ describe('fitModelContext', () => {
 			})
 		).toThrow('current user turn');
 	});
+
+	it('preserves protected active skill instructions while trimming optional context', () => {
+		const protectedSkill = `ACTIVE-SKILL-${'s'.repeat(900)}`;
+		const result = fitModelContext({
+			systemPrompt: `Base policy ${'b'.repeat(1_200)}`,
+			protectedSystemPrompt: protectedSkill,
+			contextMessages: [{ role: 'user', content: `optional catalog ${'c'.repeat(1_000)}` }],
+			messages: [{ role: 'user', content: 'current request' }],
+			tools: [],
+			maxInputTokens: 850,
+		});
+
+		expect(result.systemPrompt).toContain(protectedSkill);
+		expect(JSON.stringify(result.messages)).toContain('current request');
+		expect(result.estimatedTokens).toBeLessThanOrEqual(850);
+	});
+
+	it('fails visibly when protected skill instructions cannot fit', () => {
+		expect(() => fitModelContext({
+			systemPrompt: 'Base policy.',
+			protectedSystemPrompt: 'skill'.repeat(1_000),
+			messages: [{ role: 'user', content: 'current request' }],
+			tools: [],
+			maxInputTokens: 500,
+		})).toThrow('active skill instructions');
+	});
 });

@@ -30,7 +30,7 @@ jest.mock('../../../../src/main/agent/permissions', () => ({
 	rejectPendingToolPermissions: jest.fn(),
 }));
 jest.mock('../../../../src/main/agent/skills', () => ({
-	resolveSkillCommand: (message: string) => message,
+	parseSkillCommand: (message: string) => ({ message }),
 }));
 jest.mock('../../../../src/main/agent/session', () => ({
 	clearMessages,

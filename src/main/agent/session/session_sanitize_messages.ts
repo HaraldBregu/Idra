@@ -14,7 +14,13 @@ export function sanitizeMessages(messages: Message[]): Message[] {
 		let changed = false;
 		const toolCalls: ToolCall[] = [];
 		for (const toolCall of message.toolCalls) {
-			if (toolCall.name !== 'load_skill' || !toolCall.result) {
+			if (
+				toolCall.name !== 'load_skill' ||
+				!toolCall.result ||
+				toolCall.result.isError ||
+				(typeof toolCall.result.content === 'string' &&
+					toolCall.result.content.includes('"activated":true'))
+			) {
 				toolCalls.push(toolCall);
 				continue;
 			}
