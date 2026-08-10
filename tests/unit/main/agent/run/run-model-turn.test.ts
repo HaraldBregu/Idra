@@ -123,6 +123,7 @@ describe('runModelTurn', () => {
 		const error = { status: 503, headers: { 'retry-after': '0' } };
 		const stream = jest.fn(() =>
 			(async function* () {
+				yield* [];
 				throw error;
 			})()
 		);
