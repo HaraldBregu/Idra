@@ -144,7 +144,12 @@ async function* loop(
 	const modelOptions = getModelOptions();
 	const contextMode = input.contextMode;
 	const runId = input.runId ?? session.id;
-	const skillSnapshot = createSkillRegistrySnapshot();
+	const skillEnabled =
+		(input.toolsAllow === undefined || input.toolsAllow.includes('load_skill')) &&
+		!input.toolsDeny?.includes('load_skill');
+	const skillSnapshot = skillEnabled
+		? createSkillRegistrySnapshot()
+		: { skills: [], diagnostics: [] };
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
@@ -219,7 +224,7 @@ async function* loop(
 		);
 		session.context.toolsContext.hasPrivateContext = true;
 	};
-	if (!options.tools) {
+	if (!options.tools && skillEnabled) {
 		const activationTool = loadSkillTool(skillSnapshot, applyActivatedSkill);
 		if (activationTool) tools.push(activationTool);
 	}
@@ -227,8 +232,15 @@ async function* loop(
 	let closeMcp: (() => Promise<void>) | undefined;
 	let mcpDiscovery: McpDiscoveryDiagnostics | undefined;
 	if (!options.tools) {
-		const mcp = await loadMcpTools(signal);
-		tools.push(...mcp.tools);
+		if (
+			input.toolsAllow === undefined ||
+			input.toolsAllow.some((toolId) => toolId.startsWith('mcp__'))
+		) {
+			const mcp = await loadMcpTools(signal);
+			tools.push(...mcp.tools);
+			closeMcp = mcp.close;
+			mcpDiscovery = mcp.diagnostics;
+		}
 		const childTools = filterTools(tools, input.toolsAllow, input.toolsDeny);
 		const childRuntime = {
 			type: input.type,
@@ -240,10 +252,10 @@ async function* loop(
 			subagentTool(config, childTools, session.context, childRuntime),
 			subagentsTool(config, childTools, session.context, childRuntime, options.subagentLimiter)
 		);
-		closeMcp = mcp.close;
-		mcpDiscovery = mcp.diagnostics;
 	}
 	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
+	if (input.explicitSkill && !skillEnabled)
+		throw new Error('Skill loading is unavailable for this run.');
 	if (input.explicitSkill)
 		applyActivatedSkill(await activateSkill(skillSnapshot, input.explicitSkill));
 

@@ -117,10 +117,7 @@ type RuntimeInputBase = Pick<
 };
 
 export type RuntimeInput = RuntimeInputBase &
-	(
-		| { type: Extract<AgentRunType, 'default'>; toolsAllow?: string[] }
-		| { type: Extract<AgentRunType, 'background'>; toolsAllow: string[] }
-	);
+	({ type: 'default'; toolsAllow?: string[] } | { type: 'background'; toolsAllow: string[] });
 
 export interface RuntimeModelRoute {
 	task: string;

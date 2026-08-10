@@ -75,8 +75,8 @@ type AgentSendBaseOptions = Omit<AgentRunOptions, 'toolsAllow'> & {
 };
 
 export type AgentSendOptions =
-	| (AgentSendBaseOptions & { type: Extract<AgentRunType, 'default'>; toolsAllow?: string[] })
-	| (AgentSendBaseOptions & { type: Extract<AgentRunType, 'background'>; toolsAllow: string[] });
+	| (AgentSendBaseOptions & { type: 'default'; toolsAllow?: string[] })
+	| (AgentSendBaseOptions & { type: 'background'; toolsAllow: string[] });
 
 type InternalAgentSendOptions = AgentSendOptions & { legacySessionId?: string };
 

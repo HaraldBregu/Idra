@@ -22,7 +22,7 @@ export async function runChild(
 	task: string,
 	instructions: string,
 	signal: AbortSignal,
-	runtime: ChildRuntime = { type: 'default' }
+	runtime: ChildRuntime
 ): Promise<string> {
 	const baseInput = {
 		runId: randomUUID(),
@@ -79,7 +79,7 @@ export function subagentTool(
 	config: Config,
 	tools: Tool[],
 	parent: AgentContext,
-	runtime: ChildRuntime = { type: 'default' }
+	runtime: ChildRuntime
 ): Tool {
 	return tool({
 		id: 'subagent',
@@ -110,7 +110,7 @@ export function subagentsTool(
 	config: Config,
 	tools: Tool[],
 	parent: AgentContext,
-	runtime: ChildRuntime = { type: 'default' },
+	runtime: ChildRuntime,
 	pool: KeyedLimiter = fallbackPool
 ): Tool {
 	return tool({
