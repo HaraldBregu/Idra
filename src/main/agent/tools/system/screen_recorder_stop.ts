@@ -5,7 +5,7 @@ import { tool } from '../tool';
 
 export const screenRecorderStopTool: Tool = tool({
 	id: 'screen_recorder_stop',
-	name: 'Screen Recorder Stop',
+	name: 'Screen recorder stop',
 	description: 'Stop an active screen recording and begin saving its captured data.',
 	inputSchema: z.object({ id: z.string().uuid() }),
 	execute: ({ id }) => {

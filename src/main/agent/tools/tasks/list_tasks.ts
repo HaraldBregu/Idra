@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 export const listTasksTool = tool({
 	id: 'list_tasks',
-	name: 'List Tasks',
+	name: 'List tasks',
 	description: 'List all tasks.',
 	inputSchema: z.object({}),
 	execute: () => listTasks(),

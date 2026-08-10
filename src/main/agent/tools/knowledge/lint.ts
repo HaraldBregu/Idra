@@ -4,7 +4,7 @@ import { tool } from '../tool';
 
 export const wikiLintTool = tool({
 	id: 'wiki_lint',
-	name: 'Wiki Lint',
+	name: 'Wiki lint',
 	description:
 		'Inspect wiki structure, provenance, contradictions, coverage, links, aliases, and quality. Automatic fixing is limited to deterministic index repair.',
 	inputSchema: z.object({ autoFix: z.boolean().optional() }),

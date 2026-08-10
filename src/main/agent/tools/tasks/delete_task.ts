@@ -4,7 +4,7 @@ import { taskIdSchema } from './schema';
 
 export const deleteTaskTool = tool({
 	id: 'delete_task',
-	name: 'Delete Task',
+	name: 'Delete task',
 	description: 'Delete a task by id.',
 	inputSchema: taskIdSchema,
 	execute: ({ taskId }) => {

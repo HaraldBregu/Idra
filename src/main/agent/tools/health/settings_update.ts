@@ -4,7 +4,7 @@ import { tool } from '../tool';
 
 export const updateHealthSettingsTool = tool({
 	id: 'health_settings_update',
-	name: 'Health Settings Update',
+	name: 'Health settings update',
 	description:
 		'Update the health check run configuration. Only the provided fields change; the run schedule is refreshed automatically. Returns the resulting settings.',
 	inputSchema: z.object({

@@ -5,7 +5,7 @@ import { createTaskRequestSchema } from './schema';
 
 export const createTaskTool = tool({
 	id: 'create_task',
-	name: 'Create Task',
+	name: 'Create task',
 	description: 'Create a new task from a task definition request.',
 	inputSchema: z.object({
 		request: createTaskRequestSchema.describe('Task definition to create.'),

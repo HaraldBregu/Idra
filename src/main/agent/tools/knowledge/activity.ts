@@ -4,7 +4,7 @@ import { tool } from '../tool';
 
 export const wikiActivityTool = tool({
 	id: 'wiki_get_recent_activity',
-	name: 'Wiki Get Recent Activity',
+	name: 'Wiki get recent activity',
 	description: 'Read recent append-only wiki operations and pending human-review item IDs.',
 	inputSchema: z.object({ count: z.number().int().min(1).max(50).optional() }),
 	execute: async ({ count }) => getRecentWikiActivity(count),

@@ -4,7 +4,7 @@ import { taskIdSchema, updateTaskRequestSchema } from './schema';
 
 export const updateTaskTool = tool({
 	id: 'update_task',
-	name: 'Update Task',
+	name: 'Update task',
 	description: 'Update an existing task by id.',
 	inputSchema: taskIdSchema.extend({
 		request: updateTaskRequestSchema.describe('Fields to update on the task.'),
