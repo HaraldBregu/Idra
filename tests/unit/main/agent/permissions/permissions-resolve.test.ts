@@ -44,16 +44,16 @@ describe('resolveToolPermission', () => {
 	it('uses an injected run policy without mutating or consulting the global policy', () => {
 		const injected = { ...defaults(), read: entry('deny') };
 		expect(
-			resolveToolPermission('read', { path: '/outside/a.txt' }, undefined, true, 'ask', injected)
+			resolveToolPermission('read_file', { path: '/outside/a.txt' }, undefined, true, 'ask', injected)
 		).toBe('deny');
 		expect(getPermissions).not.toHaveBeenCalled();
 	});
 
 	it('uses the default owned by each tool', () => {
-		expect(resolveToolPermission('read', { path: '/outside/a.txt' })).toBe('allow');
-		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('allow');
-		expect(resolveToolPermission('edit', { path: '/outside/a.txt' })).toBe('ask');
-		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/outside' })).toBe(
+		expect(resolveToolPermission('read_file', { path: '/outside/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('write_file', { path: '/outside/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit_file', { path: '/outside/a.txt' })).toBe('ask');
+		expect(resolveToolPermission('exec_command', { command: 'rm -rf build', workdir: '/outside' })).toBe(
 			'ask'
 		);
 		expect(resolveToolPermission('apply_patch', { input: '*** Update File: /outside/a.ts' })).toBe(
@@ -72,15 +72,15 @@ describe('resolveToolPermission', () => {
 			memory_save: entry('deny'),
 			create_task: entry('deny'),
 		});
-		expect(resolveToolPermission('read', { path: '/appdata/agent/a.txt' })).toBe('allow');
-		expect(resolveToolPermission('edit', { path: '/appdata/agent/nested/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('read_file', { path: '/appdata/agent/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit_file', { path: '/appdata/agent/nested/a.txt' })).toBe('deny');
 		expect(
 			resolveToolPermission('apply_patch', {
 				input: '*** Update File: /appdata/agent/a.ts',
 			})
 		).toBe('deny');
 		expect(
-			resolveToolPermission('exec', { command: 'npm test', workdir: '/appdata/agent/app' })
+			resolveToolPermission('exec_command', { command: 'npm test', workdir: '/appdata/agent/app' })
 		).toBe('deny');
 		expect(resolveToolPermission('mcp__files__inspect', { path: '/appdata/agent/a.txt' })).toBe(
 			'deny'
@@ -105,7 +105,7 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			web_search: entry('deny'),
 		});
-		expect(resolveToolPermission('web_search', { query: 'Friday' })).toBe('deny');
+		expect(resolveToolPermission('search_web', { query: 'Friday' })).toBe('deny');
 	});
 
 	it('asks for unconfigured tools whether or not they expose a path', () => {
@@ -127,8 +127,8 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			read: entry('allow', { deny: ['/secret'] }),
 		});
-		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
-		expect(resolveToolPermission('write', { path: '/secret/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('read_file', { path: '/secret/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('write_file', { path: '/secret/a.txt' })).toBe('allow');
 	});
 
 	it('reuses a stored read-folder approval for another file in that folder', () => {
@@ -136,8 +136,8 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			read: entry('ask', { allow: ['/approved'] }),
 		});
-		expect(resolveToolPermission('read', { path: '/approved/next.txt' })).toBe('allow');
-		expect(resolveToolPermission('read', { path: '/other/next.txt' })).toBe('ask');
+		expect(resolveToolPermission('read_file', { path: '/approved/next.txt' })).toBe('allow');
+		expect(resolveToolPermission('read_file', { path: '/other/next.txt' })).toBe('ask');
 	});
 
 	it('matches an exact read-file rule without affecting its sibling', () => {
@@ -145,8 +145,8 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			read: entry('allow', { deny: ['/secret/a.txt'] }),
 		});
-		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
-		expect(resolveToolPermission('read', { path: '/secret/b.txt' })).toBe('allow');
+		expect(resolveToolPermission('read_file', { path: '/secret/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('read_file', { path: '/secret/b.txt' })).toBe('allow');
 	});
 
 	it('allows every tool in a recursive wildcard directory', () => {
@@ -154,17 +154,17 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			dir: { '/shared': { recoursive: true, tools: '*' } },
 		});
-		expect(resolveToolPermission('edit', { path: '/shared/nested/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit_file', { path: '/shared/nested/file.txt' })).toBe('allow');
 	});
 
 	it('falls through to the tool permission when a matching directory omits the tool', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
-			dir: { '/shared': { recoursive: true, tools: ['read'] } },
+			dir: { '/shared': { recoursive: true, tools: ['read_file'] } },
 			write: entry('ask'),
 		});
-		expect(resolveToolPermission('read', { path: '/shared/file.txt' })).toBe('allow');
-		expect(resolveToolPermission('write', { path: '/shared/file.txt' })).toBe('ask');
+		expect(resolveToolPermission('read_file', { path: '/shared/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('write_file', { path: '/shared/file.txt' })).toBe('ask');
 	});
 
 	it('limits non-recursive entries to direct files', () => {
@@ -172,18 +172,18 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			dir: { '/shared': { recoursive: false, tools: '*' } },
 		});
-		expect(resolveToolPermission('edit', { path: '/shared/file.txt' })).toBe('allow');
-		expect(resolveToolPermission('edit', { path: '/shared/nested/file.txt' })).toBe('ask');
+		expect(resolveToolPermission('edit_file', { path: '/shared/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit_file', { path: '/shared/nested/file.txt' })).toBe('ask');
 	});
 
 	it('limits non-recursive read entries to files directly in that folder', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
 			read: entry('ask'),
-			dir: { '/shared': { recoursive: false, tools: ['read'] } },
+			dir: { '/shared': { recoursive: false, tools: ['read_file'] } },
 		});
-		expect(resolveToolPermission('read', { path: '/shared/file.txt' })).toBe('allow');
-		expect(resolveToolPermission('read', { path: '/shared/nested/file.txt' })).toBe('ask');
+		expect(resolveToolPermission('read_file', { path: '/shared/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('read_file', { path: '/shared/nested/file.txt' })).toBe('ask');
 	});
 
 	it('uses the most-specific matching directory entry', () => {
@@ -191,36 +191,36 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			dir: {
 				'/shared': { recoursive: true, tools: '*' },
-				'/shared/read-only': { recoursive: true, tools: ['read'] },
+				'/shared/read-only': { recoursive: true, tools: ['read_file'] },
 			},
 		});
-		expect(resolveToolPermission('edit', { path: '/shared/file.txt' })).toBe('allow');
-		expect(resolveToolPermission('edit', { path: '/shared/read-only/file.txt' })).toBe('ask');
+		expect(resolveToolPermission('edit_file', { path: '/shared/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit_file', { path: '/shared/read-only/file.txt' })).toBe('ask');
 	});
 
 	it('keeps explicit tool rules ahead of directory allowances', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
-			dir: { '/shared': { recoursive: true, tools: ['edit'] } },
+			dir: { '/shared': { recoursive: true, tools: ['edit_file'] } },
 			edit: entry('ask', {
 				ask: ['/shared/review'],
 				deny: ['/shared/blocked'],
 			}),
 		});
-		expect(resolveToolPermission('edit', { path: '/shared/allowed/file.txt' })).toBe('allow');
-		expect(resolveToolPermission('edit', { path: '/shared/review/file.txt' })).toBe('ask');
-		expect(resolveToolPermission('edit', { path: '/shared/blocked/file.txt' })).toBe('deny');
+		expect(resolveToolPermission('edit_file', { path: '/shared/allowed/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit_file', { path: '/shared/review/file.txt' })).toBe('ask');
+		expect(resolveToolPermission('edit_file', { path: '/shared/blocked/file.txt' })).toBe('deny');
 	});
 
 	it('applies directory permissions to exec by working directory', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
-			dir: { '/shared': { recoursive: true, tools: ['exec'] } },
+			dir: { '/shared': { recoursive: true, tools: ['exec_command'] } },
 		});
-		expect(resolveToolPermission('exec', { command: 'npm test', workdir: '/shared/app' })).toBe(
+		expect(resolveToolPermission('exec_command', { command: 'npm test', workdir: '/shared/app' })).toBe(
 			'allow'
 		);
-		expect(resolveToolPermission('exec', { command: 'npm test', workdir: '/outside' })).toBe('ask');
+		expect(resolveToolPermission('exec_command', { command: 'npm test', workdir: '/outside' })).toBe('ask');
 	});
 
 	it('resolves process calls through explicit permission and directory scope', () => {
@@ -253,9 +253,9 @@ describe('resolveToolPermission', () => {
 	it('uses exec permission when a matching working directory omits it', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
-			dir: { '/shared': { recoursive: true, tools: ['read'] } },
+			dir: { '/shared': { recoursive: true, tools: ['read_file'] } },
 		});
-		expect(resolveToolPermission('exec', { command: 'npm test', workdir: '/shared/app' })).toBe(
+		expect(resolveToolPermission('exec_command', { command: 'npm test', workdir: '/shared/app' })).toBe(
 			'ask'
 		);
 	});
@@ -265,7 +265,7 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			dir: {
 				'/shared': { recoursive: true, tools: '*' },
-				'/shared/read-only': { recoursive: true, tools: ['read'] },
+				'/shared/read-only': { recoursive: true, tools: ['read_file'] },
 			},
 		});
 		const input = ['*** Update File: /shared/a.ts', '*** Update File: /shared/read-only/b.ts'].join(
@@ -279,8 +279,8 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			read: entry('ask', { deny: ['/repo'], allow: ['/repo/public'] }),
 		});
-		expect(resolveToolPermission('read', { path: '/repo/private.txt' })).toBe('deny');
-		expect(resolveToolPermission('read', { path: '/repo/public/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('read_file', { path: '/repo/private.txt' })).toBe('deny');
+		expect(resolveToolPermission('read_file', { path: '/repo/public/a.txt' })).toBe('allow');
 	});
 
 	it('uses deny over ask over allow when equally specific rules overlap', () => {
@@ -292,7 +292,7 @@ describe('resolveToolPermission', () => {
 				deny: ['/watched'],
 			}),
 		});
-		expect(resolveToolPermission('read', { path: '/watched/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('read_file', { path: '/watched/a.txt' })).toBe('deny');
 	});
 
 	it('resolves relative permission paths from the user home', () => {
@@ -301,7 +301,7 @@ describe('resolveToolPermission', () => {
 			read: entry('deny', { allow: ['Desktop'] }),
 		});
 		expect(
-			resolveToolPermission('read', {
+			resolveToolPermission('read_file', {
 				path: path.join(os.homedir(), 'Desktop', 'example.txt'),
 			})
 		).toBe('allow');
@@ -315,13 +315,13 @@ describe('resolveToolPermission', () => {
 				deny: ['git push:*'],
 			}),
 		});
-		expect(resolveToolPermission('exec', { command: 'git status', workdir: '/outside' })).toBe(
+		expect(resolveToolPermission('exec_command', { command: 'git status', workdir: '/outside' })).toBe(
 			'allow'
 		);
 		expect(
-			resolveToolPermission('exec', { command: 'git push origin main', workdir: '/outside' })
+			resolveToolPermission('exec_command', { command: 'git push origin main', workdir: '/outside' })
 		).toBe('deny');
-		expect(resolveToolPermission('exec', { command: 'git-evil push', workdir: '/outside' })).toBe(
+		expect(resolveToolPermission('exec_command', { command: 'git-evil push', workdir: '/outside' })).toBe(
 			'ask'
 		);
 	});
@@ -340,6 +340,6 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			edit: entry('ask', { deny: ['/appdata/agent'] }),
 		});
-		expect(resolveToolPermission('edit', { path: '/appdata/agent/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('edit_file', { path: '/appdata/agent/a.txt' })).toBe('deny');
 	});
 });
