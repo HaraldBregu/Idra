@@ -7,7 +7,6 @@ export const runScheduleNowTool = tool({
 	defaultPermission: 'allow',
 	risk: 'high',
 	effect: 'execute',
-	hardApproval: true,
 	description: 'Trigger a tasks schedule to run immediately by id.',
 	inputSchema: scheduleIdSchema,
 	execute: ({ scheduleId }) => runScheduleNow(scheduleId),

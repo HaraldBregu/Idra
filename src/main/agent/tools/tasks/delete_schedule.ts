@@ -7,7 +7,6 @@ export const deleteScheduleTool = tool({
 	defaultPermission: 'allow',
 	risk: 'critical',
 	effect: 'persistence',
-	hardApproval: true,
 	description: 'Delete a tasks schedule by id.',
 	inputSchema: scheduleIdSchema,
 	execute: ({ scheduleId }) => {

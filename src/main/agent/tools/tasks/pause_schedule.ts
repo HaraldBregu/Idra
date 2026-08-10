@@ -7,8 +7,6 @@ export const pauseScheduleTool = tool({
 	defaultPermission: 'allow',
 	risk: 'high',
 	effect: 'persistence',
-	hardApproval: true,
-	allowedOrigins: ['main'],
 	description: 'Pause an active tasks schedule by id.',
 	inputSchema: scheduleIdSchema,
 	execute: ({ scheduleId }) => {

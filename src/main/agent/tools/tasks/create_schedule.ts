@@ -12,6 +12,5 @@ export const createScheduleTool = tool({
 	}),
 	risk: 'high',
 	effect: 'persistence',
-	hardApproval: true,
 	execute: ({ request }) => createSchedule({ ...request, enabled: false }),
 });

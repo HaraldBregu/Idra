@@ -2,7 +2,12 @@ import { completeBootstrapTool } from '../../../../../src/main/agent/tools/assis
 import { editTool } from '../../../../../src/main/agent/tools/core/edit';
 import { updateHealthSettingsTool } from '../../../../../src/main/agent/tools/health/settings_update';
 import { updateHealthTool } from '../../../../../src/main/agent/tools/health/update';
+import { createScheduleTool } from '../../../../../src/main/agent/tools/tasks/create_schedule';
+import { deleteScheduleTool } from '../../../../../src/main/agent/tools/tasks/delete_schedule';
 import { pauseScheduleTool } from '../../../../../src/main/agent/tools/tasks/pause_schedule';
+import { resumeScheduleTool } from '../../../../../src/main/agent/tools/tasks/resume_schedule';
+import { runScheduleNowTool } from '../../../../../src/main/agent/tools/tasks/run_schedule_now';
+import { updateScheduleTool } from '../../../../../src/main/agent/tools/tasks/update_schedule';
 import { wikiIngestTool } from '../../../../../src/main/agent/tools/knowledge/ingest';
 import { wikiLintTool } from '../../../../../src/main/agent/tools/knowledge/lint';
 import { wikiRebuildTool } from '../../../../../src/main/agent/tools/knowledge/rebuild';
@@ -10,7 +15,6 @@ import { wikiReviewTool } from '../../../../../src/main/agent/tools/knowledge/re
 import { wikiSaveTool } from '../../../../../src/main/agent/tools/knowledge/save';
 
 it.each([
-	[pauseScheduleTool, 'high', 'persistence', ['main']],
 	[updateHealthTool({ location: '/workspace' }), 'high', 'persistence', ['main']],
 	[updateHealthSettingsTool, 'high', 'persistence', ['main']],
 	[completeBootstrapTool, 'critical', 'persistence', ['main']],
@@ -24,6 +28,19 @@ it.each([
 		expect(tool).toMatchObject({ risk, effect, hardApproval: true, allowedOrigins: origins });
 	}
 );
+
+it.each([
+	createScheduleTool,
+	updateScheduleTool,
+	deleteScheduleTool,
+	pauseScheduleTool,
+	resumeScheduleTool,
+	runScheduleNowTool,
+])('%s uses its scoped permission without forced approval', (tool) => {
+	expect(tool.defaultPermission).toBe('allow');
+	expect(tool.hardApproval).not.toBe(true);
+	expect(tool.allowedOrigins).toBeUndefined();
+});
 
 it('uses ordinary policy approval for focused text edits', () => {
 	expect(editTool).toMatchObject({ risk: 'high', effect: 'write' });

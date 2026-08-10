@@ -7,7 +7,6 @@ export const updateScheduleTool = tool({
 	defaultPermission: 'allow',
 	risk: 'high',
 	effect: 'persistence',
-	hardApproval: true,
 	description: 'Update an existing tasks schedule by id.',
 	inputSchema: scheduleIdSchema.extend({
 		request: updateScheduleRequestSchema.describe('Fields to update on the schedule.'),
