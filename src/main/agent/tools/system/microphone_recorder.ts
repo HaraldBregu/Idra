@@ -6,15 +6,15 @@ import { resolveUserPath } from '../../../shared/user_path';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
-export function recorderMicrophoneTool(): Tool {
+export function microphoneRecorderTool(): Tool {
 	return tool({
-		name: 'recorder_microphone',
+		name: 'microphone_recorder',
 		defaultPermission: 'allow',
 		risk: 'critical',
 		effect: 'sensor',
 		allowedOrigins: ['main'],
 		description:
-			'Start recording audio from the user microphone for a given duration. Requires an open app window. The recording runs in the background: this returns immediately with a recording id and the destination path, and the file is written when the recording finishes. Use recorder_microphone_status to check progress or wait for completion before using the file.',
+			'Start recording audio from the user microphone for a given duration. Requires an open app window. The recording runs in the background: this returns immediately with a recording id and the destination path, and the file is written when the recording finishes. Use microphone_recorder_status to check progress or wait for completion before using the file.',
 		inputSchema: z.object({
 			duration: z.number().min(1).max(600).describe('Recording duration in seconds (max 600).'),
 			directory: z

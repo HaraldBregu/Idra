@@ -3,8 +3,8 @@ import { camera } from '../../../recorder';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
-export const recorderCameraStopTool: Tool = tool({
-	name: 'recorder_camera_stop',
+export const cameraRecorderStopTool: Tool = tool({
+	name: 'camera_recorder_stop',
 	defaultPermission: 'allow',
 	risk: 'low',
 	effect: 'sensor',

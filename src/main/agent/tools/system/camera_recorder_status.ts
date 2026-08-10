@@ -3,13 +3,13 @@ import { camera } from '../../../recorder';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
-export const recorderCameraStatusTool: Tool = tool({
-	name: 'recorder_camera_status',
+export const cameraRecorderStatusTool: Tool = tool({
+	name: 'camera_recorder_status',
 	defaultPermission: 'allow',
 	description:
-		'Check the status of a background camera recording started with recorder_camera. With wait=true it blocks until the recording finishes and returns the final result. The recorded file exists only once status is "completed".',
+		'Check the status of a background camera recording started with camera_recorder. With wait=true it blocks until the recording finishes and returns the final result. The recorded file exists only once status is "completed".',
 	inputSchema: z.object({
-		id: z.string().min(1).describe('Recording id returned by recorder_camera.'),
+		id: z.string().min(1).describe('Recording id returned by camera_recorder.'),
 		wait: z
 			.boolean()
 			.optional()

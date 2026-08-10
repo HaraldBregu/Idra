@@ -3,8 +3,8 @@ import { microphone } from '../../../recorder';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
-export const recorderMicrophoneStopTool: Tool = tool({
-	name: 'recorder_microphone_stop',
+export const microphoneRecorderStopTool: Tool = tool({
+	name: 'microphone_recorder_stop',
 	defaultPermission: 'allow',
 	risk: 'low',
 	effect: 'sensor',

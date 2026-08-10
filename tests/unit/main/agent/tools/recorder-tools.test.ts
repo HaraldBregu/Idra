@@ -10,12 +10,12 @@ jest.mock('../../../../../src/main/shared/user_path', () => ({
 	resolveUserPath: () => '/workspace',
 }));
 
-import { recorderCameraTool } from '../../../../../src/main/agent/tools/os/recorder_camera';
-import { recorderCameraStopTool } from '../../../../../src/main/agent/tools/os/recorder_camera_stop';
-import { recorderMicrophoneTool } from '../../../../../src/main/agent/tools/os/recorder_microphone';
-import { recorderMicrophoneStopTool } from '../../../../../src/main/agent/tools/os/recorder_microphone_stop';
-import { recorderScreenTool } from '../../../../../src/main/agent/tools/os/recorder_screen';
-import { recorderScreenStopTool } from '../../../../../src/main/agent/tools/os/recorder_screen_stop';
+import { cameraRecorderTool } from '../../../../../src/main/agent/tools/system/camera_recorder';
+import { cameraRecorderStopTool } from '../../../../../src/main/agent/tools/system/camera_recorder_stop';
+import { microphoneRecorderTool } from '../../../../../src/main/agent/tools/system/microphone_recorder';
+import { microphoneRecorderStopTool } from '../../../../../src/main/agent/tools/system/microphone_recorder_stop';
+import { screenRecorderTool } from '../../../../../src/main/agent/tools/system/screen_recorder';
+import { screenRecorderStopTool } from '../../../../../src/main/agent/tools/system/screen_recorder_stop';
 
 const id = '123e4567-e89b-12d3-a456-426614174000';
 
@@ -28,9 +28,9 @@ beforeEach(() => {
 });
 
 it.each([
-	['microphone', recorderMicrophoneTool, microphone],
-	['camera', recorderCameraTool, camera],
-	['screen', recorderScreenTool, screen],
+	['microphone', microphoneRecorderTool, microphone],
+	['camera', cameraRecorderTool, camera],
+	['screen', screenRecorderTool, screen],
 ] as const)('allows and cancels an owned %s recording with the run', async (_name, createTool, recorder) => {
 	const controller = new AbortController();
 	const captureTool = createTool();
@@ -48,9 +48,9 @@ it.each([
 });
 
 it.each([
-	['recorder_microphone_stop', recorderMicrophoneStopTool, microphone],
-	['recorder_camera_stop', recorderCameraStopTool, camera],
-	['recorder_screen_stop', recorderScreenStopTool, screen],
+	['microphone_recorder_stop', microphoneRecorderStopTool, microphone],
+	['camera_recorder_stop', cameraRecorderStopTool, camera],
+	['screen_recorder_stop', screenRecorderStopTool, screen],
 ] as const)('provides the explicit %s tool', async (name, stopTool, recorder) => {
 	await expect(stopTool.run({ id })).resolves.toMatchObject({ id, status: 'recording' });
 	expect(stopTool.name).toBe(name);

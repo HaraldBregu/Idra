@@ -3,13 +3,13 @@ import { microphone } from '../../../recorder';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
-export const recorderMicrophoneStatusTool: Tool = tool({
-	name: 'recorder_microphone_status',
+export const microphoneRecorderStatusTool: Tool = tool({
+	name: 'microphone_recorder_status',
 	defaultPermission: 'allow',
 	description:
-		'Check the status of a background microphone recording started with recorder_microphone. With wait=true it blocks until the recording finishes and returns the final result. The recorded file exists only once status is "completed".',
+		'Check the status of a background microphone recording started with microphone_recorder. With wait=true it blocks until the recording finishes and returns the final result. The recorded file exists only once status is "completed".',
 	inputSchema: z.object({
-		id: z.string().min(1).describe('Recording id returned by recorder_microphone.'),
+		id: z.string().min(1).describe('Recording id returned by microphone_recorder.'),
 		wait: z
 			.boolean()
 			.optional()

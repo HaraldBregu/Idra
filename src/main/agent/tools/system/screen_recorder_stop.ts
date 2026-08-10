@@ -3,8 +3,8 @@ import { screen } from '../../../recorder';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
-export const recorderScreenStopTool: Tool = tool({
-	name: 'recorder_screen_stop',
+export const screenRecorderStopTool: Tool = tool({
+	name: 'screen_recorder_stop',
 	defaultPermission: 'allow',
 	risk: 'low',
 	effect: 'sensor',

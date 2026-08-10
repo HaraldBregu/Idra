@@ -1,20 +1,20 @@
 import path from 'node:path';
 import { z } from 'zod';
-import { camera } from '../../../recorder';
+import { screen } from '../../../recorder';
 import { agentLocation } from '../../../shared/agent_location';
 import { resolveUserPath } from '../../../shared/user_path';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 
-export function recorderCameraTool(): Tool {
+export function screenRecorderTool(): Tool {
 	return tool({
-		name: 'recorder_camera',
+		name: 'screen_recorder',
 		defaultPermission: 'allow',
 		risk: 'critical',
 		effect: 'sensor',
 		allowedOrigins: ['main'],
 		description:
-			'Start recording video (with audio) from the user camera for a given duration. Requires an open app window. The recording runs in the background: this returns immediately with a recording id and the destination path, and the file is written when the recording finishes. Use recorder_camera_status to check progress or wait for completion before using the file.',
+			'Start recording the user screen (video only) for a given duration. Requires an open app window and macOS Screen Recording permission. The recording runs in the background: this returns immediately with a recording id and the destination path, and the file is written when the recording finishes. Use screen_recorder_status to check progress or wait for completion before using the file.',
 		inputSchema: z.object({
 			duration: z.number().min(1).max(600).describe('Recording duration in seconds (max 600).'),
 			directory: z
@@ -27,14 +27,14 @@ export function recorderCameraTool(): Tool {
 				.string()
 				.optional()
 				.describe(
-					'Optional file name for the recording, including the .webm extension (recordings are always WebM). Any directory part is ignored; use directory instead. Defaults to camera-<timestamp>.webm.'
+					'Optional file name for the recording, including the .webm extension (recordings are always WebM). Any directory part is ignored; use directory instead. Defaults to screen-<timestamp>.webm.'
 				),
 		}),
 		execute: async ({ duration, directory, filename }, signal) => {
 			const targetDir = resolveUserPath(directory ?? '.', agentLocation());
-			const url = path.join(targetDir, path.basename(filename ?? `camera-${Date.now()}.webm`));
-			const recording = camera.start({ url, duration: duration * 1000 });
-			signal?.addEventListener('abort', () => camera.cancel(recording.id), { once: true });
+			const url = path.join(targetDir, path.basename(filename ?? `screen-${Date.now()}.webm`));
+			const recording = screen.start({ url, duration: duration * 1000 });
+			signal?.addEventListener('abort', () => screen.cancel(recording.id), { once: true });
 			return {
 				id: recording.id,
 				path: recording.url,

@@ -30,15 +30,15 @@ import { webBrowserTool } from '../tools/web/browser';
 import { createImageTool } from '../tools/media/image_create';
 import { createVideoTool } from '../tools/media/video_create';
 import { createSoundTool } from '../tools/media/sound_create';
-import { recorderMicrophoneTool } from '../tools/os/recorder_microphone';
-import { recorderMicrophoneStatusTool } from '../tools/os/recorder_microphone_status';
-import { recorderMicrophoneStopTool } from '../tools/os/recorder_microphone_stop';
-import { recorderCameraTool } from '../tools/os/recorder_camera';
-import { recorderCameraStatusTool } from '../tools/os/recorder_camera_status';
-import { recorderCameraStopTool } from '../tools/os/recorder_camera_stop';
-import { recorderScreenTool } from '../tools/os/recorder_screen';
-import { recorderScreenStatusTool } from '../tools/os/recorder_screen_status';
-import { recorderScreenStopTool } from '../tools/os/recorder_screen_stop';
+import { microphoneRecorderTool } from '../tools/system/microphone_recorder';
+import { microphoneRecorderStatusTool } from '../tools/system/microphone_recorder_status';
+import { microphoneRecorderStopTool } from '../tools/system/microphone_recorder_stop';
+import { cameraRecorderTool } from '../tools/system/camera_recorder';
+import { cameraRecorderStatusTool } from '../tools/system/camera_recorder_status';
+import { cameraRecorderStopTool } from '../tools/system/camera_recorder_stop';
+import { screenRecorderTool } from '../tools/system/screen_recorder';
+import { screenRecorderStatusTool } from '../tools/system/screen_recorder_status';
+import { screenRecorderStopTool } from '../tools/system/screen_recorder_stop';
 import { saveMemoryTool } from '../tools/memory/save';
 import { forgetMemoryTool } from '../tools/memory/forget';
 import { memoryListTool } from '../tools/memory/list';
@@ -181,15 +181,15 @@ async function* loop(
 				createImageTool(),
 				createVideoTool(),
 				createSoundTool(),
-				recorderMicrophoneTool(),
-				recorderMicrophoneStatusTool,
-				recorderMicrophoneStopTool,
-				recorderCameraTool(),
-				recorderCameraStatusTool,
-				recorderCameraStopTool,
-				recorderScreenTool(),
-				recorderScreenStatusTool,
-				recorderScreenStopTool,
+				microphoneRecorderTool(),
+				microphoneRecorderStatusTool,
+				microphoneRecorderStopTool,
+				cameraRecorderTool(),
+				cameraRecorderStatusTool,
+				cameraRecorderStopTool,
+				screenRecorderTool(),
+				screenRecorderStatusTool,
+				screenRecorderStopTool,
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
 				memoryListTool(config),

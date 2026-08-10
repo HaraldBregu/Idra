@@ -7,9 +7,9 @@ import { createSoundTool } from '../../../../../src/main/agent/tools/media/sound
 import { createVideoTool } from '../../../../../src/main/agent/tools/media/video_create';
 import { forgetMemoryTool } from '../../../../../src/main/agent/tools/memory/forget';
 import { saveMemoryTool } from '../../../../../src/main/agent/tools/memory/save';
-import { recorderCameraTool } from '../../../../../src/main/agent/tools/os/recorder_camera';
-import { recorderMicrophoneTool } from '../../../../../src/main/agent/tools/os/recorder_microphone';
-import { recorderScreenTool } from '../../../../../src/main/agent/tools/os/recorder_screen';
+import { cameraRecorderTool } from '../../../../../src/main/agent/tools/system/camera_recorder';
+import { microphoneRecorderTool } from '../../../../../src/main/agent/tools/system/microphone_recorder';
+import { screenRecorderTool } from '../../../../../src/main/agent/tools/system/screen_recorder';
 import { createScheduleTool } from '../../../../../src/main/agent/tools/tasks/create_schedule';
 import { deleteScheduleTool } from '../../../../../src/main/agent/tools/tasks/delete_schedule';
 import { pauseScheduleTool } from '../../../../../src/main/agent/tools/tasks/pause_schedule';
@@ -39,9 +39,9 @@ it.each([
 	createImageTool(),
 	createVideoTool(),
 	createSoundTool(),
-	recorderMicrophoneTool(),
-	recorderCameraTool(),
-	recorderScreenTool(),
+	microphoneRecorderTool(),
+	cameraRecorderTool(),
+	screenRecorderTool(),
 	saveMemoryTool({ location: '/workspace' }),
 	forgetMemoryTool({ location: '/workspace' }),
 	webBrowserTool,
