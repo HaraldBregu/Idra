@@ -149,12 +149,8 @@ it('renders each provider setting in a separate card', async () => {
 	const video = await screen.findByRole('combobox', { name: 'Video' });
 	const search = await screen.findByRole('combobox', { name: 'Search Engine' });
 	expect(model).toHaveTextContent('OpenAI / GPT');
-	expect(image).toHaveTextContent(
-		'Google / Gemini Image'
-	);
-	expect(audio).toHaveTextContent(
-		'ElevenLabs / Eleven Music'
-	);
+	expect(image).toHaveTextContent('Google / Gemini Image');
+	expect(audio).toHaveTextContent('ElevenLabs / Eleven Music');
 	expect(video).toHaveTextContent('Google / Veo');
 	expect(search).toHaveTextContent('Brave');
 
