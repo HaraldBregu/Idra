@@ -7,12 +7,11 @@ import type {
 } from '../../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
-import { isToolPermission } from './permissions/permissions_is_tool_permission';
 import { normalizeToolPermission } from './permissions/permissions_normalize';
 import { normalizeDirectoryPermissions } from './permissions/permissions_normalize_directories';
+import { normalizePermissionsSchema } from './permissions/permissions_normalize_schema';
 import {
 	DEFAULT_PERMISSIONS,
-	DEFAULT_TOOL_PERMISSIONS,
 	type DirectoryPermissions,
 	type PermissionBucket,
 	type PermissionsSchema,
@@ -109,19 +108,7 @@ export function setMediaModel(kind: AgentMediaModelKind, settings: AgentMediaMod
 }
 
 export function getPermissions(): PermissionsSchema {
-	const stored = store.get('permissions') as Record<string, unknown>;
-	const result: PermissionsSchema = {
-		dir: normalizeDirectoryPermissions(stored.dir),
-		mode: stored.mode === 'bypass' ? 'bypass' : 'ask',
-	};
-	for (const [toolName, fallback] of Object.entries(DEFAULT_TOOL_PERMISSIONS))
-		result[toolName] = normalizeToolPermission(stored[toolName], fallback);
-	for (const [toolName, value] of Object.entries(stored)) {
-		if (toolName === 'dir' || toolName === 'mode' || result[toolName] || !isToolPermission(value))
-			continue;
-		result[toolName] = normalizeToolPermission(value, UNKNOWN_TOOL_PERMISSION);
-	}
-	return result;
+	return normalizePermissionsSchema(store.get('permissions'));
 }
 
 export function getDirectoryPermissions(): DirectoryPermissions {

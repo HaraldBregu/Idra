@@ -19,6 +19,7 @@ export { toolPermissionTargets } from './permissions_targets';
 export { toolPermissionFor } from './permissions_override';
 export { resolveStoredToolPermission } from './permissions_tool';
 export { resolveToolPermission } from './permissions_resolve';
+export { normalizePermissionsSchema } from './permissions_normalize_schema';
 export {
 	rejectPendingToolPermissions,
 	respondToolPermission,
