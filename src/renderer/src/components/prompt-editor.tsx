@@ -40,7 +40,7 @@ function PromptEditorArea({
 
 function PromptEditor({ placeholder, ariaLabel, ...props }: PromptEditorProps): ReactElement {
 	return (
-		<PromptInput expanded {...props}>
+		<PromptInput {...props}>
 			<PromptEditorArea placeholder={placeholder} ariaLabel={ariaLabel} />
 		</PromptInput>
 	);
