@@ -7,6 +7,7 @@ import type {
 } from '../../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
+import { isToolPermission } from './permissions/permissions_is_tool_permission';
 import { normalizeToolPermission } from './permissions/permissions_normalize';
 import { normalizeDirectoryPermissions } from './permissions/permissions_normalize_directories';
 import { normalizePermissionsSchema } from './permissions/permissions_normalize_schema';
