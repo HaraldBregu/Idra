@@ -244,13 +244,13 @@ const PermissionsPage: React.FC = () => {
 										/>
 										<div className="flex h-7 items-center gap-2 px-1">
 											<Switch
-											id="directory-recursive"
+												id="directory-recursive"
 												size="sm"
 												checked={newDirectoryRecursive}
 												onCheckedChange={setNewDirectoryRecursive}
 												aria-label={t('settings.permissions.recursive')}
 											/>
-										<Label htmlFor="directory-recursive" className="text-xs">
+											<Label htmlFor="directory-recursive" className="text-xs">
 												{t('settings.permissions.recursive')}
 											</Label>
 										</div>
