@@ -432,7 +432,7 @@ function PromptInput({
                   ? "flex min-h-10 items-center gap-2 rounded-full p-1.5 focus-within:ring-0"
                   : isPromptExpanded
                   ? "flex max-h-[min(48vh,30rem)] min-h-24 flex-col rounded-xl px-4 py-3"
-                  : "flex min-h-10 items-center gap-2 rounded-full p-1.5",
+                  : "flex min-h-14 items-center gap-2 rounded-full p-2",
                 disabled && "cursor-not-allowed opacity-60",
                 className
               )}
@@ -481,8 +481,8 @@ function PromptInput({
                     className={cn(
                       isPromptExpanded
                         ? "mt-3 flex items-center justify-between gap-2"
-                        : "flex shrink-0 items-center gap-1.5",
-                      footerClassName
+                        : "flex shrink-0 self-center items-center justify-center gap-1.5",
+                      isPromptExpanded && footerClassName
                     )}
                   >
                     <AnimatePresence initial={false}>

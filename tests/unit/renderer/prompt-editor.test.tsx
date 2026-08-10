@@ -46,7 +46,7 @@ describe('PromptEditor', () => {
 		const prompt = container.querySelector('[data-expanded]');
 
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
-		expect(prompt).toHaveClass('min-h-10');
+		expect(prompt).toHaveClass('min-h-14');
 		expect(prompt).toHaveClass('rounded-full');
 		expect(prompt).toHaveStyle({ borderRadius: '9999px' });
 
@@ -70,7 +70,7 @@ describe('PromptEditor', () => {
 			/>
 		);
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
-		expect(prompt).toHaveClass('min-h-10');
+		expect(prompt).toHaveClass('min-h-14');
 		expect(prompt).toHaveClass('rounded-full');
 		expect(prompt).toHaveStyle({ borderRadius: '9999px' });
 	});
