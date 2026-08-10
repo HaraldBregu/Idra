@@ -177,17 +177,17 @@ Permissions use this top-level structure:
 
 ```json
 {
-  "tools": {
-    "read_file": { "default": "allow", "allow": [], "ask": [], "deny": [] }
-  },
-  "directories": [
-    { "path": "/path/to/folder", "recoursive": true, "tools": "*" },
-    {
-      "path": "/path/to/another/folder",
-      "recoursive": true,
-      "tools": ["read_file"]
-    }
-  ]
+	"tools": {
+		"read_file": { "default": "allow", "allow": [], "ask": [], "deny": [] }
+	},
+	"directories": [
+		{ "path": "/path/to/folder", "recoursive": true, "tools": "*" },
+		{
+			"path": "/path/to/another/folder",
+			"recoursive": true,
+			"tools": ["read_file"]
+		}
+	]
 }
 ```
 

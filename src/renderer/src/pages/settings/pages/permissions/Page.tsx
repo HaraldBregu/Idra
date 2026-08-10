@@ -30,10 +30,8 @@ type PermissionMode = Permission['default'];
 const PERMISSION_MODES: PermissionMode[] = ['allow', 'ask', 'deny'];
 const ROW_CLASS = 'border-b border-border/60 last:border-b-0';
 
-const permissionFor = (
-	permissions: Permissions | null,
-	toolName: string
-): Permission | undefined => permissions?.tools[toolName];
+const permissionFor = (permissions: Permissions | null, toolName: string): Permission | undefined =>
+	permissions?.tools[toolName];
 
 const directoryToolsFor = (value: string): '*' | string[] => {
 	const normalized = value.trim();
