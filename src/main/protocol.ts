@@ -82,7 +82,7 @@ export function setupMediaPermissionHandlers(extensionRegistry: ExtensionRegistr
 						isTrustedMediaRequestSource(
 							undefined,
 							details.requestingUrl,
-							details.securityOrigin
+							undefined
 						)
 					)
 				);
