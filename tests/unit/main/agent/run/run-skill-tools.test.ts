@@ -29,4 +29,11 @@ describe('selectSkillTools', () => {
 		const tools = [fakeTool('read')];
 		expect(selectSkillTools(tools, undefined)).toBe(tools);
 	});
+
+	it('composes multiple restrictions without expanding the current runtime set', () => {
+		const tools = [fakeTool('read'), fakeTool('write'), fakeTool('exec'), fakeTool('load_skill')];
+		const first = selectSkillTools(tools, ['read', 'write']);
+		const second = selectSkillTools(first, ['read', 'exec']);
+		expect(second.map((tool) => tool.name)).toEqual(['read', 'load_skill']);
+	});
 });

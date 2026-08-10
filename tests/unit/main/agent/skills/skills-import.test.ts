@@ -6,6 +6,8 @@ const existsSync = jest.fn();
 const cpSync = jest.fn();
 const renameSync = jest.fn();
 const rmSync = jest.fn();
+const validateSkillPackage = jest.fn();
+const setSkillPolicy = jest.fn();
 
 jest.mock('node:fs', () => ({ mkdirSync, existsSync, cpSync, renameSync, rmSync }));
 jest.mock('../../../../../src/main/agent/skills/skills_root', () => ({
@@ -17,19 +19,24 @@ jest.mock('../../../../../src/main/agent/skills/skills_pick_directories', () => 
 jest.mock('../../../../../src/main/agent/skills/skills_validate', () => ({ validateSkill }));
 jest.mock('../../../../../src/main/agent/skills/skills_read', () => ({ readSkill }));
 jest.mock('../../../../../src/main/agent/skills/skills_validate_package', () => ({
-	validateSkillPackage: jest.fn(),
+	validateSkillPackage,
 }));
 jest.mock('../../../../../src/main/agent/skills/skills_policy_set', () => ({
-	setSkillPolicy: jest.fn(),
+	setSkillPolicy,
 }));
 
 import { importSkills } from '../../../../../src/main/agent/skills/skills_import';
 
 describe('importSkills replacement safety', () => {
-	it('refuses to overwrite an installed skill without a confirmation flow', async () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
 		pickDirectories.mockResolvedValue(['/incoming/example']);
 		validateSkill.mockReturnValue({ valid: true, issues: [] });
 		readSkill.mockReturnValue({ name: 'example' });
+		existsSync.mockReturnValue(false);
+	});
+
+	it('refuses to overwrite an installed skill without a confirmation flow', async () => {
 		existsSync.mockReturnValue(true);
 
 		const result = await importSkills();
@@ -42,5 +49,34 @@ describe('importSkills replacement safety', () => {
 			}),
 		]);
 		expect(cpSync).not.toHaveBeenCalled();
+	});
+
+	it('stages, validates, disables, and atomically renames a new import', async () => {
+		const result = await importSkills();
+
+		expect(validateSkillPackage).toHaveBeenCalledTimes(2);
+		expect(setSkillPolicy).toHaveBeenCalledWith('example', expect.objectContaining({ enabled: false, trusted: false, invocationPolicy: 'explicit' }));
+		expect(renameSync).toHaveBeenCalledWith(expect.stringMatching(/\/\.import-example-.+\/example$/), '/installed-skills/example');
+		expect(result?.imported).toEqual([{ name: 'example' }]);
+	});
+
+	it('removes staging after a partial copy failure', async () => {
+		cpSync.mockImplementationOnce(() => {
+			throw new Error('copy failed');
+		});
+		const result = await importSkills();
+
+		expect(renameSync).not.toHaveBeenCalled();
+		expect(rmSync).toHaveBeenCalledWith(expect.stringMatching(/\/\.import-example-.+$/), { recursive: true, force: true });
+		expect(result?.skipped[0].reason).toContain('copy failed');
+	});
+
+	it('rolls back the final directory if post-rename verification fails', async () => {
+		readSkill.mockReturnValueOnce({ name: 'example' }).mockReturnValueOnce(undefined);
+		const result = await importSkills();
+
+		expect(renameSync).toHaveBeenCalled();
+		expect(rmSync).toHaveBeenCalledWith('/installed-skills/example', { recursive: true, force: true });
+		expect(result?.imported).toEqual([]);
 	});
 });
