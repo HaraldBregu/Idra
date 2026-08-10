@@ -1,4 +1,4 @@
-import { createSchedule } from '../../../tasks';
+import { createTask } from '../../../tasks';
 import { tool } from '../tool';
 import { z } from 'zod';
 import { createTaskRequestSchema } from './schema';
@@ -12,5 +12,5 @@ export const createTaskTool = tool({
 	}),
 	risk: 'high',
 	effect: 'persistence',
-	execute: ({ request }) => createSchedule({ ...request, enabled: false }),
+	execute: ({ request }) => createTask({ ...request, enabled: false }),
 });

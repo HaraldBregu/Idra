@@ -1,4 +1,4 @@
-import { runScheduleNow } from '../../../tasks';
+import { runTaskNow } from '../../../tasks';
 import { tool } from '../tool';
 import { taskIdSchema } from './schema';
 import { taskStorePath } from '../../../tasks/tasks_store';
@@ -12,5 +12,5 @@ export const runTaskNowTool = tool({
 	exclusiveTargets: () => [realPath(taskStorePath)],
 	description: 'Trigger a task to run immediately by id.',
 	inputSchema: taskIdSchema,
-	execute: ({ taskId }) => runScheduleNow(taskId),
+	execute: ({ taskId }) => runTaskNow(taskId),
 });

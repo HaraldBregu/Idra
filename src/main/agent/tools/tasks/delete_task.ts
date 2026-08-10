@@ -1,4 +1,4 @@
-import { deleteSchedule } from '../../../tasks';
+import { deleteTask } from '../../../tasks';
 import { tool } from '../tool';
 import { taskIdSchema } from './schema';
 
@@ -10,6 +10,6 @@ export const deleteTaskTool = tool({
 	description: 'Delete a task by id.',
 	inputSchema: taskIdSchema,
 	execute: ({ taskId }) => {
-		deleteSchedule(taskId);
+		deleteTask(taskId);
 	},
 });

@@ -15,7 +15,7 @@ const AGENT_FILES: Record<string, string> = {
 	complete_bootstrap: 'BOOTSTRAP.md',
 };
 const MEDIA_TOOLS = new Set(['create_image', 'create_video', 'create_sound']);
-const SCHEDULE_TOOLS = new Set([
+const TASK_TOOLS = new Set([
 	'create_task',
 	'update_task',
 	'pause_task',
@@ -59,7 +59,7 @@ export function directoryPermissionTargets(
 		const directory = typeof args.directory === 'string' && args.directory ? args.directory : '.';
 		return [realPath(resolveUserPath(directory, baseDir))];
 	}
-	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(taskStorePath)];
+	if (TASK_TOOLS.has(toolName)) return [realPath(taskStorePath)];
 	if (WIKI_TOOLS.has(toolName)) {
 		return [realPath(path.resolve(getWikiSettings().targetPath, 'index.md'))];
 	}

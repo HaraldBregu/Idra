@@ -8,6 +8,14 @@ export const TASK_TOOL_LABELS: Record<string, { readonly running: string; readon
 		pause_task: { running: 'Pausing task', done: 'Task paused' },
 		resume_task: { running: 'Resuming task', done: 'Task resumed' },
 		run_task_now: { running: 'Running task', done: 'Task started' },
+		create_schedule: { running: 'Scheduling task', done: 'Task scheduled' },
+		update_schedule: { running: 'Updating task', done: 'Task updated' },
+		delete_schedule: { running: 'Deleting task', done: 'Task deleted' },
+		get_schedule: { running: 'Loading task', done: 'Task loaded' },
+		list_schedules: { running: 'Loading tasks', done: 'Tasks loaded' },
+		pause_schedule: { running: 'Pausing task', done: 'Task paused' },
+		resume_schedule: { running: 'Resuming task', done: 'Task resumed' },
+		run_schedule_now: { running: 'Running task', done: 'Task started' },
 	};
 
 export function isTaskToolType(type: string): boolean {

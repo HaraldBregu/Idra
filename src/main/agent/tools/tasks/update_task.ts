@@ -1,4 +1,4 @@
-import { updateSchedule } from '../../../tasks';
+import { updateTask } from '../../../tasks';
 import { tool } from '../tool';
 import { taskIdSchema, updateTaskRequestSchema } from './schema';
 
@@ -11,5 +11,5 @@ export const updateTaskTool = tool({
 	inputSchema: taskIdSchema.extend({
 		request: updateTaskRequestSchema.describe('Fields to update on the task.'),
 	}),
-	execute: ({ taskId, request }) => updateSchedule(taskId, request),
+	execute: ({ taskId, request }) => updateTask(taskId, request),
 });

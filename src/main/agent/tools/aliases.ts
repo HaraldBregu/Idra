@@ -1,4 +1,9 @@
 const TOOL_ALIASES: Readonly<Record<string, string>> = {
+	create_schedule: 'create_task',
+	delete_schedule: 'delete_task',
+	get_schedule: 'get_task',
+	list_schedules: 'list_tasks',
+	pause_schedule: 'pause_task',
 	recorder_camera: 'camera_recorder',
 	recorder_camera_status: 'camera_recorder_status',
 	recorder_camera_stop: 'camera_recorder_stop',
@@ -8,6 +13,9 @@ const TOOL_ALIASES: Readonly<Record<string, string>> = {
 	recorder_screen: 'screen_recorder',
 	recorder_screen_status: 'screen_recorder_status',
 	recorder_screen_stop: 'screen_recorder_stop',
+	resume_schedule: 'resume_task',
+	run_schedule_now: 'run_task_now',
+	update_schedule: 'update_task',
 };
 
 export function currentToolName(name: string): string {

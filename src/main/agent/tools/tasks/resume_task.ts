@@ -1,4 +1,4 @@
-import { resumeSchedule } from '../../../tasks';
+import { resumeTask } from '../../../tasks';
 import { tool } from '../tool';
 import { taskIdSchema } from './schema';
 
@@ -10,6 +10,6 @@ export const resumeTaskTool = tool({
 	description: 'Resume a paused task by id.',
 	inputSchema: taskIdSchema,
 	execute: ({ taskId }) => {
-		resumeSchedule(taskId);
+		resumeTask(taskId);
 	},
 });

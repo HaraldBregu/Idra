@@ -66,4 +66,19 @@ describe('normalizePermissionsSchema', () => {
 		expect(normalized.screen_recorder).toMatchObject({ default: 'ask' });
 		expect(normalized).not.toHaveProperty('recorder_screen');
 	});
+
+	it('migrates legacy task permissions to current tool names', () => {
+		const normalized = normalizePermissionsSchema({
+			create_schedule: { default: 'ask', allow: [], deny: [], ask: [] },
+			dir: {
+				'/tasks': { recoursive: false, tools: ['run_schedule_now'] },
+			},
+		});
+
+		expect(normalized.create_task).toMatchObject({ default: 'ask' });
+		expect(normalized.dir).toEqual({
+			'/tasks': { recoursive: false, tools: ['run_task_now'] },
+		});
+		expect(normalized).not.toHaveProperty('create_schedule');
+	});
 });

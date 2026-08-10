@@ -1,4 +1,4 @@
-import { getSchedule } from '../../../tasks';
+import { getTask } from '../../../tasks';
 import { tool } from '../tool';
 import { taskIdSchema } from './schema';
 
@@ -7,5 +7,5 @@ export const getTaskTool = tool({
 	defaultPermission: 'allow',
 	description: 'Fetch a single task by id.',
 	inputSchema: taskIdSchema,
-	execute: ({ taskId }) => getSchedule(taskId),
+	execute: ({ taskId }) => getTask(taskId),
 });
