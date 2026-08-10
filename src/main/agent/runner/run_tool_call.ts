@@ -76,11 +76,7 @@ export async function* runToolCall(
 		output = `Error: cancelled by user`;
 		isError = true;
 	} else {
-		let permission =
-			type === 'background'
-				? 'allow'
-				: resolveToolPermission(toolCall.name, canonicalInput, context, true, 'ask');
-		if (type === 'background') permissionOutcome = 'bypass';
+		let permission = resolveToolPermission(toolCall.name, canonicalInput, context, true, 'ask');
 
 		if (permission === 'ask' && security.windowId === undefined) permission = 'deny';
 

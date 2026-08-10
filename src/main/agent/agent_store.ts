@@ -12,6 +12,7 @@ import { normalizeDirectoryPermissions } from './permissions/normalize_directory
 import { normalizePermissionsSchema } from './permissions/normalize_permissions_schema';
 import {
 	DEFAULT_PERMISSIONS,
+	type DirectoryPermission,
 	type DirectoryPermissions,
 	type PermissionBucket,
 	type PermissionsSchema,
@@ -37,6 +38,16 @@ type AgentStoreSchema = {
 const AGENT_STORE_NAME = 'agent';
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
 export const AGENT_DIRECTORY = path.resolve(agentLocation());
+const WORKSPACE_DIRECTORY_PERMISSION: DirectoryPermission = {
+	path: AGENT_DIRECTORY,
+	enabled: true,
+	recoursive: true,
+	tools: '*',
+};
+const DEFAULT_AGENT_PERMISSIONS: PermissionsSchema = {
+	tools: DEFAULT_PERMISSIONS.tools,
+	directories: [WORKSPACE_DIRECTORY_PERMISSION],
+};
 const UNKNOWN_TOOL_PERMISSION: ToolPermission = {
 	default: 'ask',
 	allow: [],
@@ -56,7 +67,7 @@ const DEFAULT_AGENT_STORE: AgentStoreSchema = {
 	image_model: EMPTY_MEDIA_MODEL,
 	audio_model: EMPTY_MEDIA_MODEL,
 	video_model: EMPTY_MEDIA_MODEL,
-	permissions: DEFAULT_PERMISSIONS,
+	permissions: DEFAULT_AGENT_PERMISSIONS,
 };
 
 const store = new Store<AgentStoreSchema>({
@@ -145,6 +156,6 @@ export function addPermissionRule(toolName: string, bucket: PermissionBucket, ru
 }
 
 export function resetPermissions(): PermissionsSchema {
-	store.set('permissions', DEFAULT_PERMISSIONS);
+	store.set('permissions', DEFAULT_AGENT_PERMISSIONS);
 	return getPermissions();
 }
