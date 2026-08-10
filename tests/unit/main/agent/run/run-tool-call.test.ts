@@ -1,6 +1,9 @@
 import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
 import type { ToolCall } from '../../../../../src/main/agent/types';
+import { KeyedMutex } from '../../../../../src/main/agent/mutex';
+
+const flush = (): Promise<void> => new Promise((resolve) => setImmediate(resolve));
 
 describe('runToolCall', () => {
 	it('propagates cancellation to the tool and stops waiting', async () => {
@@ -88,5 +91,92 @@ describe('runToolCall', () => {
 
 		expect(run).toHaveBeenCalledTimes(1);
 		expect(call.result).toMatchObject({ content: 'done', isError: undefined });
+	});
+
+	it('serializes matching exclusive targets through the shared resource mutex', async () => {
+		let releaseFirst = () => {};
+		const firstStarted = new Promise<void>((resolve) => {
+			const first = jsonTool({
+				name: 'first_write',
+				description: 'write',
+				effect: 'write',
+				defaultPermission: 'allow',
+				exclusiveTargets: () => ['/workspace/shared.md'],
+				schema: { type: 'object' },
+				execute: async () => {
+					resolve();
+					await new Promise<void>((done) => {
+						releaseFirst = done;
+					});
+				},
+			});
+			(firstStarted as unknown as { tool: typeof first }).tool = first;
+		});
+		const first = (firstStarted as unknown as { tool: ReturnType<typeof jsonTool> }).tool;
+		let secondRan = false;
+		const second = jsonTool({
+			name: 'second_write',
+			description: 'write',
+			effect: 'write',
+			defaultPermission: 'allow',
+			exclusiveTargets: () => ['/workspace/shared.md'],
+			schema: { type: 'object' },
+			execute: () => {
+				secondRan = true;
+			},
+		});
+		const resources = new KeyedMutex();
+		const consume = async (tool: typeof first, id: string): Promise<void> => {
+			for await (const _event of runToolCall(
+				tool,
+				{ id, name: tool.name, args: {} },
+				false,
+				undefined,
+				undefined,
+				'ask',
+				undefined,
+				undefined,
+				resources
+			))
+				void _event;
+		};
+		const firstRun = consume(first, 'first');
+		await firstStarted;
+		const secondRun = consume(second, 'second');
+		await flush();
+		expect(secondRan).toBe(false);
+
+		releaseFirst();
+		await Promise.all([firstRun, secondRun]);
+		expect(secondRan).toBe(true);
+	});
+
+	it('releases exclusive targets after tool failure', async () => {
+		const resources = new KeyedMutex();
+		const failed = jsonTool({
+			name: 'failed_write',
+			description: 'write',
+			effect: 'write',
+			defaultPermission: 'allow',
+			exclusiveTargets: () => ['/workspace/shared.md'],
+			schema: { type: 'object' },
+			execute: () => {
+				throw new Error('disk failed');
+			},
+		});
+		for await (const _event of runToolCall(
+			failed,
+			{ id: 'failed', name: failed.name, args: {} },
+			false,
+			undefined,
+			undefined,
+			'ask',
+			undefined,
+			undefined,
+			resources
+		))
+			void _event;
+		const release = await resources.acquire(['/workspace/shared.md']);
+		release();
 	});
 });
