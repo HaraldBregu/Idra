@@ -1,6 +1,9 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { AgentMediaModelKind, AgentMediaModelSettings } from '../../shared/agent_types';
+import type {
+	AgentMediaModelKind,
+	AgentMediaModelSettings,
+} from '../../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
 import { isToolPermission } from './permissions/is_tool_permission';
