@@ -15,6 +15,7 @@ interface ModelProviderConfigurationProps {
 	readonly triggerTitle?: ReactNode;
 	readonly triggerDescription?: ReactNode;
 	readonly showInlineError?: boolean;
+	readonly showIcon?: boolean;
 	readonly collapsible?: boolean;
 	readonly defaultOpen?: boolean;
 	readonly onChange: (nextProviderId: string, nextModelId: string) => void;
@@ -28,6 +29,7 @@ export function ModelProviderConfiguration({
 	triggerTitle,
 	triggerDescription,
 	showInlineError = false,
+	showIcon = true,
 	collapsible = true,
 	defaultOpen = false,
 	onChange,
@@ -148,19 +150,20 @@ export function ModelProviderConfiguration({
 			className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
 		>
 			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-				{provider ? (
-					<ProviderAvatar
-						providerId={provider.id}
-						name={providerName}
-						iconDarkUrl={provider.iconDarkUrl}
-						iconLightUrl={provider.iconLightUrl}
-						className="size-10"
-					/>
-				) : (
-					<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
-						<Bot className="size-4" aria-hidden="true" />
-					</div>
-				)}
+				{showIcon &&
+					(provider ? (
+						<ProviderAvatar
+							providerId={provider.id}
+							name={providerName}
+							iconDarkUrl={provider.iconDarkUrl}
+							iconLightUrl={provider.iconLightUrl}
+							className="size-10"
+						/>
+					) : (
+						<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+							<Bot className="size-4" aria-hidden="true" />
+						</div>
+					))}
 				<div className="min-w-0 flex-1">
 					<div className="truncate text-[13px] font-medium leading-4 text-foreground">
 						{triggerTitle ?? providerName}

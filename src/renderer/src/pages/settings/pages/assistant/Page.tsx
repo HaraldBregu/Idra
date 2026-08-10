@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
 import { ModelOptions } from '@/components/model-options';
 import { updateModelOptions } from '@/lib/options';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
 	Select,
 	SelectContent,
@@ -205,95 +206,103 @@ const AssistantPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsPanel>
-				<ModelProviderConfiguration
-					collapsible={false}
-					configState={state}
-					idPrefix="assistant"
-					triggerTitle={t('settings.modelServices.model')}
-					description={t('settings.modelServices.modelDescription')}
-					onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
-				>
-					<ModelOptions
-						key={`${state.providerId}:${state.modelId}`}
-						inputs={inputs}
-						values={modelOptions}
-						onChange={updateModelOption}
+			<ModelProviderConfiguration
+				configState={state}
+				idPrefix="assistant"
+				triggerTitle={t('settings.modelServices.model')}
+				description={t('settings.modelServices.modelDescription')}
+				showIcon={false}
+				onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
+			>
+				<ModelOptions
+					key={`${state.providerId}:${state.modelId}`}
+					inputs={inputs}
+					values={modelOptions}
+					onChange={updateModelOption}
+				/>
+			</ModelProviderConfiguration>
+
+			<AgentMediaModelConfiguration
+				api={window.models.image}
+				capability="text-to-image"
+				idPrefix="agent-image"
+				title={t('settings.modelServices.imageAssistantName')}
+				description={t('settings.modelServices.imageModelDescription')}
+				showIcon={false}
+			/>
+
+			<AgentMediaModelConfiguration
+				api={window.models.sound}
+				capability="text-to-audio"
+				idPrefix="agent-audio"
+				title={t('settings.modelServices.musicCreatorName')}
+				description={t('settings.modelServices.musicModelDescription')}
+				showIcon={false}
+			/>
+
+			<AgentMediaModelConfiguration
+				api={window.models.video}
+				capability="text-to-video"
+				idPrefix="agent-video"
+				title={t('settings.modelServices.videoCreatorName')}
+				description={t('settings.modelServices.videoModelDescription')}
+				showIcon={false}
+			/>
+
+			<Collapsible className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+				<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+					<div className="min-w-0 flex-1">
+						<div className="truncate text-[13px] font-medium leading-4 text-foreground">
+							{t('settings.tabs.searchEngine')}
+						</div>
+						<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
+							{selectedSearchEngine?.name ?? selectedSearchEngineDescription}
+						</p>
+					</div>
+					<ChevronDown
+						className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180"
+						aria-hidden="true"
 					/>
-				</ModelProviderConfiguration>
-			</SettingsPanel>
-
-			<SettingsPanel>
-				<AgentMediaModelConfiguration
-					collapsible={false}
-					api={window.models.image}
-					capability="text-to-image"
-					idPrefix="agent-image"
-					title={t('settings.modelServices.imageAssistantName')}
-					description={t('settings.modelServices.imageModelDescription')}
-				/>
-			</SettingsPanel>
-
-			<SettingsPanel>
-				<AgentMediaModelConfiguration
-					collapsible={false}
-					api={window.models.sound}
-					capability="text-to-audio"
-					idPrefix="agent-audio"
-					title={t('settings.modelServices.musicCreatorName')}
-					description={t('settings.modelServices.musicModelDescription')}
-				/>
-			</SettingsPanel>
-
-			<SettingsPanel>
-				<AgentMediaModelConfiguration
-					collapsible={false}
-					api={window.models.video}
-					capability="text-to-video"
-					idPrefix="agent-video"
-					title={t('settings.modelServices.videoCreatorName')}
-					description={t('settings.modelServices.videoModelDescription')}
-				/>
-			</SettingsPanel>
-
-			<SettingsPanel>
-				{searchEngineError && (
-					<SettingsNotice variant="destructive" icon={AlertTriangle} className="mx-3 mt-3">
-						{searchEngineError}
-					</SettingsNotice>
-				)}
-				<SettingsRow
-					title={t('settings.tabs.searchEngine')}
-					description={selectedSearchEngine?.name ?? selectedSearchEngineDescription}
-					actions={
-						<Select
-							value={searchSettings?.engineId ?? null}
-							onValueChange={handleSearchEngineChange}
-							disabled={!searchSettings || searchSavingEngineId !== null}
-						>
-							<SelectTrigger
-								className="w-56 max-w-full text-xs [&_svg]:size-3"
-								aria-label={t('settings.tabs.searchEngine')}
+				</CollapsibleTrigger>
+				<CollapsibleContent className="border-t border-border/60">
+					{searchEngineError && (
+						<SettingsNotice variant="destructive" icon={AlertTriangle} className="mx-3 mt-3">
+							{searchEngineError}
+						</SettingsNotice>
+					)}
+					<SettingsRow
+						title={t('settings.tabs.searchEngine')}
+						description={selectedSearchEngineDescription}
+						actions={
+							<Select
+								value={searchSettings?.engineId ?? null}
+								onValueChange={handleSearchEngineChange}
+								disabled={!searchSettings || searchSavingEngineId !== null}
 							>
-								<SelectValue placeholder={t('settings.searchEngine.defaultTitle')}>
-									{selectedSearchEngine?.name}
-								</SelectValue>
-							</SelectTrigger>
-							<SelectContent>
-								{SEARCH_ENGINES.map((engine) => (
-									<SelectItem
-										key={engine.id}
-										value={engine.id}
-										disabled={!searchSettings?.configured[engine.id]}
-									>
-										{engine.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					}
-				/>
-			</SettingsPanel>
+								<SelectTrigger
+									className="w-56 max-w-full text-xs [&_svg]:size-3"
+									aria-label={t('settings.tabs.searchEngine')}
+								>
+									<SelectValue placeholder={t('settings.searchEngine.defaultTitle')}>
+										{selectedSearchEngine?.name}
+									</SelectValue>
+								</SelectTrigger>
+								<SelectContent>
+									{SEARCH_ENGINES.map((engine) => (
+										<SelectItem
+											key={engine.id}
+											value={engine.id}
+											disabled={!searchSettings?.configured[engine.id]}
+										>
+											{engine.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						}
+					/>
+				</CollapsibleContent>
+			</Collapsible>
 
 			<SettingsPanel>
 				<div

@@ -134,7 +134,8 @@ beforeEach(() => {
 	jest.clearAllMocks();
 });
 
-it('renders each provider setting in a separate card', async () => {
+it('renders each provider setting in a separate collapsible card', async () => {
+	const user = userEvent.setup();
 	render(
 		<MemoryRouter>
 			<AssistantPage />
@@ -143,6 +144,21 @@ it('renders each provider setting in a separate card', async () => {
 
 	expect(screen.queryByRole('heading', { name: 'Configuration' })).not.toBeInTheDocument();
 	expect(screen.queryByRole('heading', { name: 'History' })).not.toBeInTheDocument();
+	const cards = await Promise.all(
+		[
+			[/Model.*GPT/, 'Model'],
+			[/Image.*Gemini Image/, 'Image'],
+			[/Audio.*Eleven Music/, 'Audio'],
+			[/Video.*Veo/, 'Video'],
+			[/Search Engine.*Brave/, 'Search Engine'],
+		].map(async ([name]) => {
+			const trigger = await screen.findByRole('button', { name });
+			expect(trigger).toHaveAttribute('aria-expanded', 'false');
+			await user.click(trigger);
+			expect(trigger).toHaveAttribute('aria-expanded', 'true');
+			return trigger.closest('[data-slot="card"]');
+		})
+	);
 	const model = await screen.findByRole('combobox', { name: 'Model' });
 	const image = await screen.findByRole('combobox', { name: 'Image' });
 	const audio = await screen.findByRole('combobox', { name: 'Audio' });
@@ -154,11 +170,8 @@ it('renders each provider setting in a separate card', async () => {
 	expect(video).toHaveTextContent('Google / Veo');
 	expect(search).toHaveTextContent('Brave');
 
-	const providerCards = [model, image, audio, video, search].map((element) =>
-		element.closest('[data-slot="card"]')
-	);
-	expect(providerCards.every(Boolean)).toBe(true);
-	expect(new Set(providerCards).size).toBe(providerCards.length);
+	expect(cards.every(Boolean)).toBe(true);
+	expect(new Set(cards).size).toBe(cards.length);
 
 	const wiki = screen.getByRole('button', { name: /LLM Wiki/ });
 	const dataManagement = screen.getByRole('button', { name: /Data management/ });
