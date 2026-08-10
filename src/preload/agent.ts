@@ -245,6 +245,15 @@ export const agent: AgentApi = {
 	healthResetSettings: (): Promise<HealthSettings> => {
 		return typedInvokeUnwrap(AgentChannels.healthResetSettings);
 	},
+	healthGetPermissions: (): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.healthPermissionsGet);
+	},
+	healthSavePermissions: (permissions: PermissionsSchema): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.healthPermissionsSave, permissions);
+	},
+	healthResetPermissions: (): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.healthPermissionsReset);
+	},
 	healthGetData: (): Promise<string> => {
 		return typedInvokeUnwrap(AgentChannels.healthData);
 	},
