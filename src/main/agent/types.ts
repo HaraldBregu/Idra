@@ -46,7 +46,7 @@ export interface Tool {
 }
 
 export type ToolConfig<T extends z.ZodType> = {
-	id: string;
+	id?: string;
 	name: string;
 	description: string;
 	exclusiveTargets?: (args: Record<string, unknown>) => string[];
@@ -58,7 +58,7 @@ export type ToolConfig<T extends z.ZodType> = {
 };
 
 export type JsonToolConfig = {
-	id: string;
+	id?: string;
 	name: string;
 	description: string;
 	exclusiveTargets?: (args: Record<string, unknown>) => string[];

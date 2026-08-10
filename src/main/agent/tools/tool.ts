@@ -19,7 +19,7 @@ export function tool<T extends z.ZodType>({
 	execute,
 }: ToolConfig<T>): Tool {
 	return {
-		id,
+		id: id ?? name,
 		name,
 		description,
 		exclusiveTargets,
@@ -49,7 +49,7 @@ export function jsonTool({
 	execute,
 }: JsonToolConfig): Tool {
 	return {
-		id,
+		id: id ?? name,
 		name,
 		description,
 		exclusiveTargets,

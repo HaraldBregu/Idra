@@ -20,9 +20,6 @@ export function mcpTool(
 	return jsonTool({
 		name: runtimeName,
 		description,
-		defaultPermission: 'allow',
-		risk: 'high',
-		effect: 'external',
 		timeoutMs: MCP_TOOL_TIMEOUT_MS,
 		maxOutputBytes: MCP_MAX_OUTPUT_BYTES,
 		parseInput,
