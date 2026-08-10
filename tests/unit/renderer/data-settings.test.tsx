@@ -67,6 +67,8 @@ it('exports and previews a purge for the exact selected data scope', async () =>
 	render(<DataPage />);
 
 	const memoryTitle = await screen.findByText('Persistent memory');
+	expect(screen.queryByText('Full local knowledge index')).not.toBeInTheDocument();
+	expect(screen.queryByText('Managed wiki')).not.toBeInTheDocument();
 	const row = memoryTitle.closest('[class*="grid"]') as HTMLElement;
 	await user.click(within(row).getByRole('button', { name: 'Export' }));
 	await waitFor(() => expect(dataControls.export).toHaveBeenCalledWith({ kind: 'memory' }));

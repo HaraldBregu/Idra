@@ -42,6 +42,17 @@ jest.mock('react-i18next', () => {
 		'settings.vectorDb.empty': 'No database provider is available.',
 		'settings.modelServices.modelPlaceholder': 'Select model',
 		'settings.modelServices.noModels': 'No models are available.',
+		'settings.dataControls.title': 'Data management',
+		'settings.dataControls.export': 'Export',
+		'settings.dataControls.purge': 'Purge',
+		'settings.dataControls.ragIndex': 'Full local knowledge index',
+		'settings.dataControls.ragIndexDescription': 'All local chunks',
+		'settings.dataControls.ragNamespace': 'Active local namespace',
+		'settings.dataControls.ragNamespaceDescription': 'Active local chunks',
+		'settings.dataControls.remoteNamespace': 'Pinecone namespace',
+		'settings.dataControls.remoteNamespaceDescription': 'Exact remote namespace',
+		'settings.dataControls.remoteAllNamespaces': 'All Pinecone namespaces',
+		'settings.dataControls.remoteAllNamespacesDescription': 'All remote namespaces',
 	};
 	const t = (key: string): string => translations[key] ?? key;
 	return { useTranslation: () => ({ t }) };
@@ -82,6 +93,28 @@ const embeddingApi = {
 	setModelId: jest.fn(),
 };
 
+const dataControls = {
+	listScopes: jest.fn().mockResolvedValue([
+		{ kind: 'rag', mode: 'local_index', indexName: 'knowledge-base' },
+		{
+			kind: 'rag',
+			mode: 'local_namespace',
+			indexName: 'knowledge-base',
+			generation: 'friday-generation',
+		},
+		{
+			kind: 'rag',
+			mode: 'remote_namespace',
+			indexName: 'knowledge-base',
+			generation: 'friday-generation',
+		},
+		{ kind: 'rag', mode: 'remote_all_namespaces', indexName: 'knowledge-base' },
+	]),
+	export: jest.fn().mockResolvedValue(undefined),
+	previewPurge: jest.fn().mockResolvedValue({ confirmationId: 'confirmation-id' }),
+	purge: jest.fn().mockResolvedValue(undefined),
+};
+
 beforeEach(() => {
 	jest.clearAllMocks();
 	Object.defineProperty(window, 'PointerEvent', {
@@ -97,6 +130,10 @@ beforeEach(() => {
 	Object.defineProperty(window, 'models', {
 		configurable: true,
 		value: { embedding: embeddingApi },
+	});
+	Object.defineProperty(window, 'dataControls', {
+		configurable: true,
+		value: dataControls,
 	});
 	databaseApi.getConfiguration.mockResolvedValue({
 		providerId: undefined,
@@ -120,6 +157,32 @@ beforeEach(() => {
 	embeddingApi.getModelId.mockResolvedValue('text-embedding-3-small');
 	embeddingApi.setProviderId.mockResolvedValue(undefined);
 	embeddingApi.setModelId.mockResolvedValue(undefined);
+});
+
+it('manages Knowledge Base data from the Knowledge Base page', async () => {
+	const user = userEvent.setup();
+	render(<RagPage />);
+
+	const localIndex = await screen.findByText('Full local knowledge index');
+	const localIndexRow = localIndex.closest('[class*="grid"]') as HTMLElement;
+	await user.click(within(localIndexRow).getByRole('button', { name: 'Export' }));
+	await waitFor(() =>
+		expect(dataControls.export).toHaveBeenCalledWith({
+			kind: 'rag',
+			mode: 'local_index',
+			indexName: 'knowledge-base',
+		})
+	);
+
+	const allRemote = screen.getByText('All Pinecone namespaces');
+	const allRemoteRow = allRemote.closest('[class*="grid"]') as HTMLElement;
+	await user.click(within(allRemoteRow).getByRole('button', { name: 'Purge' }));
+	await waitFor(() =>
+		expect(dataControls.purge).toHaveBeenCalledWith(
+			{ kind: 'rag', mode: 'remote_all_namespaces', indexName: 'knowledge-base' },
+			'confirmation-id'
+		)
+	);
 });
 
 it('loads and saves the embedding model used by RAG', async () => {

@@ -30,6 +30,7 @@ import {
 	SettingsValue,
 } from '../../components';
 import { SETTINGS_SCHEDULES } from '../schedules';
+import { DataControls } from '../../components/data';
 
 const WIKI_ITEM_CLASS = 'flex-nowrap border-b border-border/60 last:border-b-0';
 
@@ -549,6 +550,10 @@ const WikiPage: React.FC = () => {
 					</SettingsSection>
 				</>
 			)}
+
+			<SettingsSection title={t('settings.dataControls.title')}>
+				<DataControls kinds={['wiki']} />
+			</SettingsSection>
 		</SettingsPageShell>
 	);
 };

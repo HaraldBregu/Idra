@@ -42,6 +42,11 @@ jest.mock('react-i18next', () => {
 		'settings.wiki.saved': 'Wiki settings saved.',
 		'settings.wiki.runResult':
 			'Processed {{processed}}, skipped {{skipped}}, created {{created}}, updated {{updated}}.',
+		'settings.dataControls.title': 'Data management',
+		'settings.dataControls.export': 'Export',
+		'settings.dataControls.purge': 'Purge',
+		'settings.dataControls.wiki': 'Managed wiki',
+		'settings.dataControls.wikiDescription': 'Compiled pages',
 	};
 	const t = (key: string, values?: Record<string, string | number>): string =>
 		Object.entries(values ?? {}).reduce(
@@ -84,10 +89,21 @@ const wikiApi = {
 	openDirectory: jest.fn(),
 };
 
+const dataControls = {
+	listScopes: jest.fn().mockResolvedValue([{ kind: 'wiki', targetPath: '/wiki/data' }]),
+	export: jest.fn().mockResolvedValue(undefined),
+	previewPurge: jest.fn().mockResolvedValue({ confirmationId: 'confirmation-id' }),
+	purge: jest.fn().mockResolvedValue(undefined),
+};
+
 beforeEach(() => {
 	Object.defineProperty(window, 'wiki', {
 		configurable: true,
 		value: wikiApi,
+	});
+	Object.defineProperty(window, 'dataControls', {
+		configurable: true,
+		value: dataControls,
 	});
 	wikiApi.getSettings.mockResolvedValue(settings);
 	wikiApi.getStatus.mockResolvedValue({
@@ -108,6 +124,28 @@ beforeEach(() => {
 });
 
 describe('Wiki settings', () => {
+	it('manages wiki data from the LLM Wiki page', async () => {
+		const user = userEvent.setup();
+		render(<WikiPage />);
+
+		const managedWiki = await screen.findByText('Managed wiki');
+		const row = managedWiki.closest('[class*="grid"]') as HTMLElement;
+		await user.click(within(row).getByRole('button', { name: 'Export' }));
+		await waitFor(() =>
+			expect(dataControls.export).toHaveBeenCalledWith({
+					kind: 'wiki',
+					targetPath: '/wiki/data',
+				})
+		);
+		await user.click(within(row).getByRole('button', { name: 'Purge' }));
+		await waitFor(() =>
+			expect(dataControls.purge).toHaveBeenCalledWith(
+					{ kind: 'wiki', targetPath: '/wiki/data' },
+					'confirmation-id'
+				)
+		);
+	});
+
 	it('loads defaults, edits a path and saves through the isolated wiki API', async () => {
 		const user = userEvent.setup();
 		render(<WikiPage />);
