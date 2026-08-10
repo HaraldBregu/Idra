@@ -11,7 +11,7 @@ jest.mock('../../../../../src/main/agent/knowledge/wiki/wiki_answer_context', ()
 
 import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/permissions/permissions_types';
 import { getKnowledgeTools } from '../../../../../src/main/agent/tools/knowledge';
-import { knowledgeQueryTool } from '../../../../../src/main/agent/tools/knowledge/query';
+import { queryKnowledgeTool } from '../../../../../src/main/agent/tools/knowledge/query_knowledge';
 
 beforeEach(() => {
 	jest.clearAllMocks();
@@ -36,13 +36,13 @@ beforeEach(() => {
 it('exposes one main-session knowledge broker and prefers confident compiled wiki evidence', async () => {
 	const controller = new AbortController();
 	const output = JSON.parse(
-		(await knowledgeQueryTool.run({ query: ' leave ' }, controller.signal)) as string
+		(await queryKnowledgeTool.run({ query: ' leave ' }, controller.signal)) as string
 	);
 
-	expect(getKnowledgeTools('main').map((tool) => tool.name)).toEqual(['knowledge_query']);
-	expect(getKnowledgeTools('task').map((tool) => tool.name)).toEqual(['knowledge_query']);
+	expect(getKnowledgeTools('main').map((tool) => tool.id)).toEqual(['query_knowledge']);
+	expect(getKnowledgeTools('task').map((tool) => tool.id)).toEqual(['query_knowledge']);
 	expect(getKnowledgeTools('bot')).toEqual([]);
-	expect(DEFAULT_PERMISSIONS.knowledge_query).toMatchObject({ default: 'allow' });
+	expect(DEFAULT_PERMISSIONS.query_knowledge).toMatchObject({ default: 'allow' });
 	expect(buildWikiAnswerContext).toHaveBeenCalledWith('leave', false, undefined, controller.signal);
 	expect(searchRag).not.toHaveBeenCalled();
 	expect(output).toMatchObject({ route: 'compiled_wiki', abstain: false });
@@ -79,7 +79,7 @@ it('falls back to the configured local index when wiki confidence is low', async
 	]);
 
 	const output = JSON.parse(
-		(await knowledgeQueryTool.run({ query: 'leave', count: 3 }, controller.signal)) as string
+		(await queryKnowledgeTool.run({ query: 'leave', count: 3 }, controller.signal)) as string
 	);
 
 	expect(searchRag).toHaveBeenCalledWith('leave', 'company-knowledge', 3, {
@@ -106,7 +106,7 @@ it('abstains when exact evidence cannot be verified', async () => {
 	});
 
 	const output = JSON.parse(
-		(await knowledgeQueryTool.run({ query: 'quote', exact: true })) as string
+		(await queryKnowledgeTool.run({ query: 'quote', exact: true })) as string
 	);
 
 	expect(output.abstain).toBe(true);

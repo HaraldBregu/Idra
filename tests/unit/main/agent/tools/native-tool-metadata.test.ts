@@ -18,26 +18,26 @@ import { pauseTaskTool } from '../../../../../src/main/agent/tools/tasks/pause_t
 import { resumeTaskTool } from '../../../../../src/main/agent/tools/tasks/resume_task';
 import { runTaskNowTool } from '../../../../../src/main/agent/tools/tasks/run_task_now';
 import { updateTaskTool } from '../../../../../src/main/agent/tools/tasks/update_task';
-import { wikiIngestTool } from '../../../../../src/main/agent/tools/knowledge/ingest';
-import { wikiLintTool } from '../../../../../src/main/agent/tools/knowledge/lint';
-import { wikiReadTool } from '../../../../../src/main/agent/tools/knowledge/read';
-import { wikiRebuildTool } from '../../../../../src/main/agent/tools/knowledge/rebuild';
-import { wikiReviewTool } from '../../../../../src/main/agent/tools/knowledge/review';
-import { wikiSaveTool } from '../../../../../src/main/agent/tools/knowledge/save';
-import { wikiSearchTool } from '../../../../../src/main/agent/tools/knowledge/search';
-import { wikiQueryTool } from '../../../../../src/main/agent/tools/knowledge/wiki';
-import { knowledgeSearchTool } from '../../../../../src/main/agent/tools/knowledge/rag';
+import { ingestWikiSourceTool } from '../../../../../src/main/agent/tools/knowledge/ingest_wiki_source';
+import { lintWikiTool } from '../../../../../src/main/agent/tools/knowledge/lint_wiki';
+import { readWikiPageTool } from '../../../../../src/main/agent/tools/knowledge/read_wiki_page';
+import { rebuildWikiIndexTool } from '../../../../../src/main/agent/tools/knowledge/rebuild_wiki_index';
+import { reviewWikiChangesTool } from '../../../../../src/main/agent/tools/knowledge/review_wiki_changes';
+import { saveWikiAnalysisTool } from '../../../../../src/main/agent/tools/knowledge/save_wiki_analysis';
+import { searchWikiTool } from '../../../../../src/main/agent/tools/knowledge/search_wiki';
+import { queryWikiTool } from '../../../../../src/main/agent/tools/knowledge/query_wiki';
+import { searchKnowledgeTool } from '../../../../../src/main/agent/tools/knowledge/search_knowledge';
 import { webBrowserTool } from '../../../../../src/main/agent/tools/web/browser';
 
 it.each([
 	updateHealthCheeckTool({ location: '/workspace' }),
 	updateHealthCheeckSettingsTool,
 	completeBootstrapTool,
-	wikiIngestTool,
-	wikiSaveTool,
-	wikiLintTool,
-	wikiReviewTool,
-	wikiRebuildTool,
+	ingestWikiSourceTool,
+	saveWikiAnalysisTool,
+	lintWikiTool,
+	reviewWikiChangesTool,
+	rebuildWikiIndexTool,
 	createImageTool(),
 	createVideoTool(),
 	createSoundTool(),
@@ -52,7 +52,7 @@ it.each([
 	expect(tool.alwaysAsk).toBeUndefined();
 });
 
-it.each([knowledgeSearchTool, wikiSearchTool, wikiReadTool, wikiQueryTool])(
+it.each([searchKnowledgeTool, searchWikiTool, readWikiPageTool, queryWikiTool])(
 	'%s has an allow fallback before runtime registration',
 	(tool) => {
 		expect(tool.defaultPermission).toBe('allow');
@@ -96,11 +96,11 @@ it('uses ordinary policy approval for focused text edits', () => {
 });
 
 it('allows wiki lint to use its ordinary policy', () => {
-	expect(wikiLintTool).toMatchObject({
+	expect(lintWikiTool).toMatchObject({
 		defaultPermission: 'allow',
 		risk: 'high',
 		effect: 'persistence',
 		allowedOrigins: ['main'],
 	});
-	expect(wikiLintTool.hardApproval).toBeUndefined();
+	expect(lintWikiTool.hardApproval).toBeUndefined();
 });

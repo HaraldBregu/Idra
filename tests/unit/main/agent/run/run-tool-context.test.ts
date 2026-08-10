@@ -453,7 +453,7 @@ describe('tool context permissions', () => {
 	it('marks non-public tool output private before a later external call', async () => {
 		const context = createContext().toolsContext;
 		const knowledge = jsonTool({
-			name: 'knowledge_query',
+			name: 'query_knowledge',
 			description: 'private knowledge',
 			defaultPermission: 'allow',
 			risk: 'low',

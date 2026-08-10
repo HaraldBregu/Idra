@@ -321,7 +321,7 @@ Friday's optional LLM Wiki is an additive knowledge-compilation layer. It snapsh
 
 The normal main assistant receives wiki tools only while the wiki is enabled. Query tools search exact titles and aliases before metadata, full text, and linked pages. Raw evidence is returned separately for quotations, exact facts, low-confidence matches, or contradictions. Existing Pinecone RAG remains unchanged and independent.
 
-Available tools are `wiki_ingest_source`, `wiki_search`, `wiki_read_page`, `wiki_query`, `wiki_save_analysis`, `wiki_lint`, `wiki_review_changes`, `wiki_rebuild_index`, and `wiki_get_recent_activity`. Wiki tools are not exposed to task, health, or messaging-channel sessions because the current application has one local-user wiki and no per-sender tenancy boundary.
+Available tools are `ingest_wiki_source`, `search_wiki`, `read_wiki_page`, `query_wiki`, `save_wiki_analysis`, `lint_wiki`, `review_wiki_changes`, `rebuild_wiki_index`, and `get_recent_wiki_activity`. Wiki tools are not exposed to task, health, or messaging-channel sessions because the current application has one local-user wiki and no per-sender tenancy boundary.
 
 Major synthesis rewrites and contradiction resolutions enter a persistent review queue. Approval or rejection uses the existing interactive tool-permission flow. Scheduled generation also runs a lint inspection; optional startup lint is configurable.
 

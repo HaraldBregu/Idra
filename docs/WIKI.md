@@ -137,7 +137,7 @@ Claims, evidence, contradictions, relationships, open questions, and change hist
 
 ## Ingest workflow
 
-`wiki_ingest_source` accepts an optional path relative to the configured source folder. Without a path, the compiler processes every pending supported source.
+`ingest_wiki_source` accepts an optional path relative to the configured source folder. Without a path, the compiler processes every pending supported source.
 
 ```text
 register and archive source
@@ -187,7 +187,7 @@ An unchanged source is skipped on later runs without another model call.
 
 ## Query workflow
 
-Use `wiki_query` for grounded answer context. Retrieval order is:
+Use `query_wiki` for grounded answer context. Retrieval order is:
 
 1. exact title;
 2. exact alias;
@@ -195,7 +195,7 @@ Use `wiki_query` for grounded answer context. Retrieval order is:
 4. wiki full text;
 5. linked-page traversal;
 6. immutable raw evidence when requested or confidence is low;
-7. the independent `knowledge_search` RAG tool when the wiki is insufficient;
+7. the independent `search_knowledge` RAG tool when the wiki is insufficient;
 8. external search only when the user permits it.
 
 Tool results distinguish `wiki_page` synthesis from `raw_source` evidence and include unresolved contradictions and limitations.
@@ -215,7 +215,7 @@ Friday can first call:
 }
 ```
 
-After answering, it can call `wiki_save_analysis` with a title, summary, reusable content, page type, and integrated source IDs. The service checks exact titles and aliases before creating a page, so a matching comparison is incrementally updated instead of duplicated.
+After answering, it can call `save_wiki_analysis` with a title, summary, reusable content, page type, and integrated source IDs. The service checks exact titles and aliases before creating a page, so a matching comparison is incrementally updated instead of duplicated.
 
 Automatic answer filing remains off by default. Casual conversation, temporary status, formatting-only output, unsourced speculation, and credential-like content are not valid durable analyses.
 
@@ -229,20 +229,20 @@ Automatic ingest can add or preserve a contradiction only as `unresolved`. It ca
 - `superseded`;
 - `resolved-by-review`.
 
-Major rewrites of established synthesis or comparison pages are staged as review items. Each item records the proposed update, reason, evidence source IDs, affected pages, risk, and rollback note. `wiki_review_changes` always invokes Friday's interactive approval UI before approval or rejection is executed. Approved contradiction changes may transition out of `unresolved`; ordinary ingest may not.
+Major rewrites of established synthesis or comparison pages are staged as review items. Each item records the proposed update, reason, evidence source IDs, affected pages, risk, and rollback note. `review_wiki_changes` always invokes Friday's interactive approval UI before approval or rejection is executed. Approved contradiction changes may transition out of `unresolved`; ordinary ingest may not.
 
-Use `wiki_get_recent_activity` to see recent log entries and pending review IDs.
+Use `get_recent_wiki_activity` to see recent log entries and pending review IDs.
 
 ## Lint and maintenance
 
-`wiki_lint` returns structured critical findings, warnings, suggestions, auto-fixable items, review-required items, and the number fixed. Checks include:
+`lint_wiki` returns structured critical findings, warnings, suggestions, auto-fixable items, review-required items, and the number fixed. Checks include:
 
 - required metadata, page types, duplicate page IDs, aliases, links, reciprocal links, orphans, and index drift;
 - missing or unsupported claim evidence and invalid source IDs;
 - unresolved contradictions and duplicate claim statements;
 - integrated sources without page coverage and oversized pages.
 
-Automatic repair is intentionally narrow: `wiki_rebuild_index` and `wiki_lint` with `autoFix` rebuild `index.md` transactionally. Interpretive merges, renames, deletions, contradiction resolution, and source removal are never automatic.
+Automatic repair is intentionally narrow: `rebuild_wiki_index` and `lint_wiki` with `autoFix` rebuild `index.md` transactionally. Interpretive merges, renames, deletions, contradiction resolution, and source removal are never automatic.
 
 Scheduled generation runs lint after ingest. Startup lint is optional.
 

@@ -15,13 +15,13 @@ describe('wiki tools', () => {
 	});
 
 	it('registers wiki capabilities only for enabled main sessions', () => {
-		expect(getWikiTools('main').map((tool) => tool.name)).toEqual([
-			'wiki_ingest_source',
-			'wiki_save_analysis',
-			'wiki_lint',
-			'wiki_review_changes',
-			'wiki_rebuild_index',
-			'wiki_get_recent_activity',
+		expect(getWikiTools('main').map((tool) => tool.id)).toEqual([
+			'ingest_wiki_source',
+			'save_wiki_analysis',
+			'lint_wiki',
+			'review_wiki_changes',
+			'rebuild_wiki_index',
+			'get_recent_wiki_activity',
 		]);
 		expect(getWikiTools('task')).toEqual([]);
 
@@ -30,11 +30,11 @@ describe('wiki tools', () => {
 	});
 
 	it('allows wiki tools by default', () => {
-		expect(DEFAULT_PERMISSIONS.wiki_ingest_source).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.wiki_save_analysis).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.wiki_lint).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.wiki_review_changes).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.wiki_rebuild_index).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.wiki_get_recent_activity).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.ingest_wiki_source).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.save_wiki_analysis).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.lint_wiki).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.review_wiki_changes).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.rebuild_wiki_index).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.get_recent_wiki_activity).toMatchObject({ default: 'allow' });
 	});
 });
