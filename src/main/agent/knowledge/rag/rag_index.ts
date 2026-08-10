@@ -13,7 +13,6 @@ import type {
 	RagIndexDependencies,
 	RagIndexResult,
 	VectorRecord,
-	VectorStore,
 } from './types';
 
 const BATCH_SIZE = 64;
