@@ -292,6 +292,51 @@ describe('run stream system prompt', () => {
 		}
 	});
 
+	it('denies background ask rules even when the stored mode is bypass', async () => {
+		const execute = jest.fn().mockResolvedValue('done');
+		const webTool = jsonTool({
+			name: 'web_search',
+			description: 'public web search',
+			defaultPermission: 'ask',
+			schema: { type: 'object' },
+			execute,
+		});
+		runModelTurnMock.mockImplementationOnce(async function* () {
+			yield* [];
+			return {
+				content: '',
+				model: 'test-model',
+				toolCalls: [{ id: 'web', name: webTool.name, args: { query: 'news' } }],
+			};
+		});
+
+		for await (const event of stream(
+			{ location: '/workspace' },
+			createSessionState(),
+			{
+				runId: 'background-bypass',
+				task: 'chat',
+				message: 'search',
+				model: 'test-model',
+				origin: 'bot',
+				contextMode: 'minimal',
+			},
+			new AbortController().signal,
+			{
+				tools: [webTool],
+				interactive: false,
+				permissions: {
+					mode: 'bypass',
+					dir: {},
+					web_search: { default: 'ask', allow: [], deny: [], ask: [] },
+				},
+			}
+		))
+			void event;
+
+		expect(execute).not.toHaveBeenCalled();
+	});
+
 	it('caps public web calls only for bot-origin runs', async () => {
 		const calls = Array.from({ length: 9 }, (_, index) => ({
 			id: `web-${index}`,
