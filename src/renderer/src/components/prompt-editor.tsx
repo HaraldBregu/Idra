@@ -18,7 +18,7 @@ function PromptEditorArea({
 	readonly placeholder?: string;
 	readonly ariaLabel?: string;
 }): ReactElement {
-	const { value, setValue, onSubmit, disabled, textareaRef } = usePromptInput();
+	const { value, setValue, onSubmit, disabled, textareaRef, isExpanded } = usePromptInput();
 
 	return (
 		<TextEditor
@@ -32,7 +32,11 @@ function PromptEditorArea({
 				// ponytail: PromptInput uses this ref to focus the editor and locate its container
 				textareaRef.current = editor.view.dom as unknown as HTMLTextAreaElement;
 			}}
-			className="max-h-[34vh] min-h-7 overflow-y-auto text-sm leading-6 text-foreground"
+			className={`min-h-7 text-sm leading-6 text-foreground ${
+				isExpanded
+					? 'max-h-[34vh] overflow-y-auto'
+					: 'h-7 overflow-hidden [&_.tiptap]:h-7 [&_.tiptap]:overflow-hidden'
+			}`}
 		/>
 	);
 }

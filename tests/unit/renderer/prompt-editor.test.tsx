@@ -1,47 +1,31 @@
 import { render, waitFor } from '@testing-library/react';
 import { PromptEditor } from '@/components/prompt-editor';
 
-let observedElement: Element | null = null;
-
-class ResizeObserverMock {
-	readonly callback: ResizeObserverCallback;
-	readonly disconnect = jest.fn();
-
-	constructor(callback: ResizeObserverCallback) {
-		this.callback = callback;
-	}
-
-	observe(target: Element): void {
-		observedElement = target;
-		const height = (target.textContent?.length ?? 0) > 40 ? 48 : 28;
-		this.callback(
-			[{ contentRect: { height } } as ResizeObserverEntry],
-			this as unknown as ResizeObserver
-		);
-	}
-}
-
-Object.defineProperty(globalThis, 'ResizeObserver', {
-	configurable: true,
-	value: ResizeObserverMock,
-});
-
 jest.mock('@/components/text-editor', () => {
 	const React = jest.requireActual<typeof import('react')>('react');
 	return {
 		TextEditor: ({
 			value,
 			onEditorReady,
+			className,
 		}: {
 			value?: string;
 			onEditorReady?: (editor: { view: { dom: HTMLDivElement } }) => void;
+			className?: string;
 		}) =>
 			React.createElement(
 				'div',
+				{ className },
+				React.createElement(
+					'div',
 				{
 					ref: (element: HTMLDivElement | null) => {
 						if (!element) return;
 						Object.defineProperty(element, 'scrollHeight', {
+							configurable: true,
+							value: value && value.length > 40 ? 48 : 28,
+						});
+						Object.defineProperty(element, 'clientHeight', {
 							configurable: true,
 							value: 28,
 						});
@@ -50,6 +34,7 @@ jest.mock('@/components/text-editor', () => {
 					role: 'textbox',
 				},
 				value
+				)
 			),
 	};
 });
@@ -78,7 +63,6 @@ describe('PromptEditor', () => {
 			/>
 		);
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'true'));
-		expect(observedElement).toBe(container.querySelector('[role="textbox"]')?.parentElement);
 		expect(prompt).toHaveClass('min-h-24');
 		expect(prompt).toHaveClass('rounded-xl');
 		expect(prompt).toHaveStyle({ borderRadius: '12px' });
