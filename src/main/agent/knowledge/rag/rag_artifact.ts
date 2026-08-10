@@ -1,21 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { ragLocation } from './rag_location';
-
-export interface RagArtifactRecord {
-	id: string;
-	values: number[];
-	metadata: { path: string; text: string };
-}
-
-export interface RagArtifact {
-	indexName: string;
-	activeNamespace: string;
-	providerId: string;
-	modelId: string;
-	dimensions: number;
-	records: RagArtifactRecord[];
-}
+import type { RagArtifact } from './types';
 
 export function readRagArtifact(fileName: string): RagArtifact | undefined {
 	if (path.basename(fileName) !== fileName || !/^embeddings-friday-[a-f0-9-]+\.json$/.test(fileName)) {

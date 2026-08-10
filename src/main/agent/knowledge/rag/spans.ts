@@ -1,10 +1,5 @@
 import { chunkText } from './rag_chunk';
-
-export interface RagChunkSpan {
-	text: string;
-	lineStart: number;
-	lineEnd: number;
-}
+import type { RagChunkSpan } from './types';
 
 export function chunkSpans(text: string): RagChunkSpan[] {
 	const normalized = text.replace(/\r\n?/g, '\n').trim();

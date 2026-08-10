@@ -2,27 +2,21 @@ import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import type { Pinecone } from '@pinecone-database/pinecone';
 import { ragClient } from './rag_client';
-import { SelectedEmbeddingProvider, type EmbeddingProvider } from './embedding';
+import { SelectedEmbeddingProvider } from './embedding';
 import { normalizeRagIndexName } from './rag_index_name';
 import { collectRagSources } from './source';
 import { writeRagManifest } from './rag_manifest';
 import { getRagConfiguration } from './rag_store';
 import { chunkSpans } from './spans';
 import { ragVectorStore } from './vector';
-import type { VectorRecord, VectorStore } from './vector_store';
+import type {
+	RagIndexDependencies,
+	RagIndexResult,
+	VectorRecord,
+	VectorStore,
+} from './types';
 
 const BATCH_SIZE = 64;
-
-export interface RagIndexResult {
-	files: number;
-	vectors: number;
-}
-
-export interface RagIndexDependencies {
-	embeddings?: EmbeddingProvider;
-	vectors?: VectorStore;
-	signal?: AbortSignal;
-}
 
 export async function indexRag(
 	folders: readonly string[],

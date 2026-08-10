@@ -1,16 +1,6 @@
 import type { EmbeddingResult } from '../../../../shared/embedding_types';
 import { createEmbedding } from '../../../models/embedding';
-
-export interface EmbeddingInput {
-	texts: string[];
-	inputType: 'document' | 'query';
-	providerId: string;
-	modelId: string;
-}
-
-export interface EmbeddingProvider {
-	embed(input: EmbeddingInput, signal?: AbortSignal): Promise<EmbeddingResult>;
-}
+import type { EmbeddingInput, EmbeddingProvider } from './types';
 
 export class SelectedEmbeddingProvider implements EmbeddingProvider {
 	async embed(input: EmbeddingInput, signal?: AbortSignal): Promise<EmbeddingResult> {

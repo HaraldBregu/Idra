@@ -2,16 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { userDataLocation } from '../../../shared/user_data_location';
-
-export interface RagManifest {
-	indexName: string;
-	activeNamespace: string;
-	artifactFile?: string;
-	providerId: string;
-	modelId: string;
-	dimensions: number;
-	completedAt: string;
-}
+import type { RagManifest } from './types';
 
 function manifestPath(): string {
 	return path.join(userDataLocation(), 'rag', 'index.json');

@@ -2,35 +2,14 @@ import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync, type StatementSync } from 'node:sqlite';
 import type {
+	IndexRow,
+	RecordRow,
 	VectorIndex,
 	VectorMatch,
 	VectorPublication,
 	VectorRecord,
 	VectorStore,
-} from './vector_store';
-
-interface IndexRow {
-	index_name: string;
-	active_generation: string;
-	provider_id: string;
-	model_id: string;
-	dimensions: number;
-	completed_at: string;
-}
-
-interface RecordRow {
-	id: string;
-	source_id: string;
-	source_fingerprint: string;
-	path: string;
-	chunk_index: number;
-	line_start: number;
-	line_end: number;
-	text: string;
-	checksum: string;
-	indexed_at: string;
-	vector: Uint8Array;
-}
+} from './types';
 
 export class SqliteVectorStore implements VectorStore {
 	private readonly database: DatabaseSync;

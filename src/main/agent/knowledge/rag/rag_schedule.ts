@@ -1,11 +1,7 @@
 import cron, { type ScheduledTask } from 'node-cron';
 import { indexRag } from './rag_index';
 import { getRagConfiguration } from './rag_store';
-
-export interface RagScheduleLogger {
-	info(source: string, message: string, data?: unknown): void;
-	error(source: string, message: string, data?: unknown): void;
-}
+import type { RagScheduleLogger } from './types';
 
 let task: ScheduledTask | undefined;
 let scheduleLogger: RagScheduleLogger | undefined;

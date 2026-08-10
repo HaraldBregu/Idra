@@ -2,15 +2,9 @@ import { lstat, readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { TextDecoder } from 'node:util';
 import { assertWikiSourceSafe } from '../safety';
+import type { RagSource } from './types';
 
 const UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
-
-export interface RagSource {
-	readonly source: string;
-	readonly sourceIndex: number;
-	readonly file: string;
-	readonly content: string;
-}
 
 export async function* collectRagSources(sources: readonly string[]): AsyncGenerator<RagSource> {
 	for (const [sourceIndex, source] of sources.entries()) {

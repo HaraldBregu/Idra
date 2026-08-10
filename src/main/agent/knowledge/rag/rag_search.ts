@@ -1,26 +1,8 @@
 import { DEFAULT_RAG_INDEX_NAME } from '../../../../shared/rag_types';
-import { SelectedEmbeddingProvider, type EmbeddingProvider } from './embedding';
+import { SelectedEmbeddingProvider } from './embedding';
 import { normalizeRagIndexName } from './rag_index_name';
 import { ragVectorStore } from './vector';
-import type { VectorStore } from './vector_store';
-
-export interface RagMatch {
-	sourceId: string;
-	chunkId: string;
-	path: string;
-	lineStart: number;
-	lineEnd: number;
-	checksum: string;
-	indexedAt: string;
-	text: string;
-	score: number;
-}
-
-export interface RagSearchDependencies {
-	embeddings?: EmbeddingProvider;
-	vectors?: VectorStore;
-	signal?: AbortSignal;
-}
+import type { RagMatch, RagSearchDependencies } from './types';
 
 export async function searchRag(
 	query: string,

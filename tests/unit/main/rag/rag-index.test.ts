@@ -1,6 +1,8 @@
 import path from 'node:path';
-import type { EmbeddingProvider } from '../../../../src/main/agent/knowledge/rag/embedding';
-import type { VectorStore } from '../../../../src/main/agent/knowledge/rag/vector_store';
+import type {
+	EmbeddingProvider,
+	VectorStore,
+} from '../../../../src/main/agent/knowledge/rag/types';
 
 const lstat = jest.fn();
 const readFile = jest.fn();
