@@ -19,7 +19,7 @@ export function mcpTool(
 	const parseInput = mcpInputParser(schema);
 	return jsonTool({
 		id: runtimeName,
-		name: runtimeName,
+		name: toolName.charAt(0).toUpperCase() + toolName.slice(1).replaceAll('_', ' '),
 		description,
 		timeoutMs: MCP_TOOL_TIMEOUT_MS,
 		maxOutputBytes: MCP_MAX_OUTPUT_BYTES,

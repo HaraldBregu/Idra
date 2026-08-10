@@ -1,6 +1,7 @@
 const TOOL_ALIASES: Readonly<Record<string, string>> = {
 	create_schedule: 'create_task',
 	delete_schedule: 'delete_task',
+	edit: 'edit_file',
 	get_schedule: 'get_task',
 	list_schedules: 'list_tasks',
 	pause_schedule: 'pause_task',

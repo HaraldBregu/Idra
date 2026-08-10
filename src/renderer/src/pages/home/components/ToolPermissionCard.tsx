@@ -6,7 +6,7 @@ import type { PendingToolPermission } from '../context';
 
 const TOOL_ACTIONS: Record<string, string> = {
 	write: 'write this file',
-	edit: 'edit this file',
+	edit_file: 'edit this file',
 	apply_patch: 'apply this patch',
 	exec: 'run this command',
 };

@@ -76,7 +76,8 @@ type GroupVerbs = { readonly running: string; readonly done: string; readonly no
 function groupVerbs(type: string): GroupVerbs {
 	const t = type.toLowerCase();
 	if (t === 'read') return { running: 'Reading', done: 'Read', noun: 'file' };
-	if (t === 'edit' || t === 'apply_patch') return { running: 'Editing', done: 'Edited', noun: 'file' };
+	if (t === 'edit_file' || t === 'apply_patch')
+		return { running: 'Editing', done: 'Edited', noun: 'file' };
 	if (t === 'write') return { running: 'Writing', done: 'Wrote', noun: 'file' };
 	if (t === 'exec' || t === 'process') return { running: 'Running', done: 'Ran', noun: 'command' };
 	if (t === 'grep' || t === 'search') return { running: 'Searching', done: 'Searched', noun: 'pattern' };
@@ -92,7 +93,13 @@ function groupVerbs(type: string): GroupVerbs {
 function toolRunningDetail(tool: AgentToolPart): string | undefined {
 	const input = isRecord(tool.input) ? tool.input : {};
 	const t = tool.type.toLowerCase();
-	if (t === 'read' || t === 'edit' || t === 'write' || t === 'apply_patch' || t === 'list_dir') {
+	if (
+		t === 'read' ||
+		t === 'edit_file' ||
+		t === 'write' ||
+		t === 'apply_patch' ||
+		t === 'list_dir'
+	) {
 		const path = stringArg(input, 'path', 'file_path', 'filepath');
 		return path ? basename(path) : undefined;
 	}

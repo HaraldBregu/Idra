@@ -6,8 +6,8 @@ import { tool } from '../tool';
 import { atomicWrite } from '../../../shared/atomic_write';
 
 export const editTool = tool({
-	id: 'edit',
-	name: 'Edit',
+	id: 'edit_file',
+	name: 'Edit file',
 	description:
 		'Edit a UTF-8 text file by replacing one exact text match. Use this for focused changes when the old text appears exactly once.',
 	inputSchema: z.object({

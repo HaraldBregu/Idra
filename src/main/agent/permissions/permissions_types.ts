@@ -27,7 +27,7 @@ export type PermissionsSchema = Record<
 export const PERMISSION_TOOLS = [
 	'read',
 	'write',
-	'edit',
+	'edit_file',
 	'apply_patch',
 	'exec',
 	'process',
@@ -90,7 +90,7 @@ export const ALL_ALLOWED_PERMISSIONS: PermissionsSchema = {
 export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 	read: allow(),
 	write: allow(),
-	edit: ask(),
+	edit_file: ask(),
 	apply_patch: ask(),
 	exec: ask(),
 	process: allow(),

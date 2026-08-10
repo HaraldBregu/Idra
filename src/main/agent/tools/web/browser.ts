@@ -236,7 +236,7 @@ async function runAct(params: {
 
 export const webBrowserTool = tool({
 	id: 'web_browser',
-	name: 'Web browser',
+	name: 'Use web browser',
 	description:
 		'Drive a real Chrome browser for interactive web tasks: login flows, clicking UI, screenshots, PDFs, pages that need JavaScript. Heavier than web_fetch. Typical flow: open → snapshot (get element refs) → act (click/type on refs). The browser uses a persistent profile, so logins survive restarts.',
 	inputSchema: z.object({
