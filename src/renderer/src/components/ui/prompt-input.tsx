@@ -113,8 +113,9 @@ function usePromptInputExpansion({
       setIsExpanded(false)
       return
     }
+    const inputElement: HTMLElement = textarea
     const expansionHeight =
-      textarea instanceof HTMLTextAreaElement ? threshold : textarea.clientHeight
+      inputElement instanceof HTMLTextAreaElement ? threshold : inputElement.clientHeight
 
     // Sticky while non-empty: collapsing widens/narrows the field, so re-measuring
     // after expansion can flip the state back and forth on every keystroke.
@@ -124,8 +125,8 @@ function usePromptInputExpansion({
       (prev) =>
         prev ||
         value.includes("\n") ||
-        textarea.scrollHeight > expansionHeight + 1 ||
-        textarea.scrollWidth > textarea.clientWidth + 1
+        inputElement.scrollHeight > expansionHeight + 1 ||
+        inputElement.scrollWidth > inputElement.clientWidth + 1
     )
   }, [enabled, threshold, textareaRef, value])
 
