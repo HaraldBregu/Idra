@@ -30,7 +30,6 @@ import type {
 	AgentRunOptions,
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
-	AgentRunType,
 	AgentResponseEvent,
 	AgentRunStopReason,
 	AgentSessionSummary,

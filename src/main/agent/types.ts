@@ -1,6 +1,5 @@
 import type { z } from 'zod';
 import type { LlmEvent } from '../models/adapters/llm';
-import type { AgentRunType } from '../../shared/agent_types';
 import type { SkillDiagnostic, SkillTrust } from '../../shared/skills_types';
 
 export interface Config {
