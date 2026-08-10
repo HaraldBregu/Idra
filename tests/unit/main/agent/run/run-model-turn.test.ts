@@ -37,6 +37,34 @@ describe('runModelTurn', () => {
 			durationMs: expect.any(Number),
 			firstTokenLatencyMs: expect.any(Number),
 		});
+		expect(stream).toHaveBeenCalledWith(expect.objectContaining({ streaming: true }));
+	});
+
+	it('forwards non-streaming transport mode without changing the event contract', async () => {
+		const stream = jest.fn(() =>
+			(async function* () {
+				yield { type: 'model_call_start' as const, model: 'model' };
+				yield { type: 'model_call_delta' as const, delta: 'answer' };
+				yield { type: 'model_call_end' as const, model: 'model', stopReason: 'end_turn' };
+			})()
+		);
+		const events = runModelTurn(
+			{ task: 'chat', message: 'hello' },
+			{ id: 'test', apiKey: 'key' } as ResolvedProvider,
+			'model',
+			'system',
+			[{ role: 'user', content: 'hello' }],
+			[],
+			new AbortController().signal,
+			{},
+			{ stream } as ModelTurnStream,
+			'',
+			[],
+			false
+		);
+		for await (const _event of events) void _event;
+
+		expect(stream).toHaveBeenCalledWith(expect.objectContaining({ streaming: false }));
 	});
 
 	it('does not retry an unchanged request after context overflow', async () => {
