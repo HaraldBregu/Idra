@@ -241,6 +241,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 			) {
 				event.preventDefault();
 				setSessionId(crypto.randomUUID());
+				switchToTyping();
 				return;
 			}
 			if ((event.metaKey || event.ctrlKey) && event.key === '/') {

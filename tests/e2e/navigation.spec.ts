@@ -80,6 +80,7 @@ test('the platform shortcut creates a new chat session', async () => {
 	await expect
 		.poll(() => page.evaluate(() => localStorage.getItem('chat-session-id')))
 		.not.toBe(previousSessionId);
+	await expect(page.getByRole('textbox', { name: 'Message Friday' })).toBeFocused();
 });
 
 test('wiki settings renders the complete configuration workflow', async ({}, testInfo) => {
