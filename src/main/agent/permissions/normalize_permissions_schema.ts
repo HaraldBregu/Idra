@@ -6,39 +6,31 @@ import {
 	type PermissionsSchema,
 	type ToolPermission,
 } from './permissions_types';
-import { currentToolName } from '../tools/aliases';
 
 export function normalizePermissionsSchema(value: unknown): PermissionsSchema {
 	const storedValue =
 		value && typeof value === 'object' && !Array.isArray(value)
 			? (value as Record<string, unknown>)
 			: {};
-	const stored = { ...storedValue };
-	for (const [toolName, entry] of Object.entries(storedValue)) {
-		const currentName = currentToolName(toolName);
-		if (currentName === toolName) continue;
-		if (!Object.hasOwn(stored, currentName)) stored[currentName] = entry;
-		delete stored[toolName];
-	}
 	const unknownPermission: ToolPermission = {
 		default: 'ask',
 		allow: [],
 		deny: [],
 		ask: [],
 	};
-	const directories = normalizeDirectoryPermissions(stored.dir);
+	const directories = normalizeDirectoryPermissions(storedValue.dir);
 	for (const permission of Object.values(directories)) {
 		if (permission.tools === '*') continue;
-		permission.tools = [...new Set(permission.tools.map(currentToolName))];
+		permission.tools = [...new Set(permission.tools)];
 	}
 	const result: PermissionsSchema = {
 		dir: directories,
-		mode: stored.mode === 'bypass' ? 'bypass' : 'ask',
+		mode: storedValue.mode === 'bypass' ? 'bypass' : 'ask',
 	};
 	for (const [toolName, fallback] of Object.entries(DEFAULT_TOOL_PERMISSIONS)) {
-		result[toolName] = normalizeToolPermission(stored[toolName], fallback);
+		result[toolName] = normalizeToolPermission(storedValue[toolName], fallback);
 	}
-	for (const [toolName, entry] of Object.entries(stored)) {
+	for (const [toolName, entry] of Object.entries(storedValue)) {
 		if (toolName === 'dir' || toolName === 'mode' || result[toolName] || !isToolPermission(entry)) {
 			continue;
 		}
