@@ -4,8 +4,10 @@ import { stream, type StreamOptions } from '../../run/run_stream';
 import { createSessionState } from '../../session';
 import type { Config, RuntimeInput, Tool } from '../../types';
 
-export interface ChildRuntime
-	extends Pick<StreamOptions, 'resources' | 'providerLimiter' | 'subagentLimiter'> {}
+export interface ChildRuntime extends Pick<
+	StreamOptions,
+	'resources' | 'providerLimiter' | 'subagentLimiter'
+> {}
 
 export async function runChild(
 	config: Config,

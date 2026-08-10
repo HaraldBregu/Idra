@@ -54,10 +54,9 @@ describe('AgentIpc run ownership', () => {
 		const cancel = jest.fn();
 		const agent = { cancel, config: { location: '/agent' } } as unknown as Agent;
 		(BrowserWindow.fromWebContents as jest.Mock).mockReturnValue(null);
-		new AgentIpc().register(
-			{ logger: { info: jest.fn() } as unknown as LoggerService, agent },
-			{ sendTo: jest.fn() } as unknown as EventBus
-		);
+		new AgentIpc().register({ logger: { info: jest.fn() } as unknown as LoggerService, agent }, {
+			sendTo: jest.fn(),
+		} as unknown as EventBus);
 		const cancelHandler = (ipcMain.handle as jest.Mock).mock.calls.find(
 			([channel]) => channel === AgentChannels.cancel
 		)?.[1];

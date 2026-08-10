@@ -87,42 +87,44 @@ describe('Agent scoped cancellation', () => {
 	beforeEach(() => {
 		controls = new Map();
 		mockRejectPendingToolPermissions.mockReset();
-		mockStream.mockReset().mockImplementation(
-			(
-				_config: unknown,
-				_session: unknown,
-				input: { runId: string; origin: string; sessionId: string },
-				signal: AbortSignal
-			) =>
-				(async function* () {
-					const control = controls.get(input.runId) as ControlledRun & {
-						markStarted: () => void;
-						wait: Promise<void>;
-					};
-					control.signal = signal;
-					control.markStarted();
-					await Promise.race([
-						control.wait,
-						new Promise<void>((resolve) => {
-							if (signal.aborted) resolve();
-							else signal.addEventListener('abort', () => resolve(), { once: true });
-						}),
-					]);
-					if (signal.aborted) return;
-					yield {
-						type: 'run_finished',
-						result: {
-							text: `${input.origin} reply`,
-							model: 'model',
-							toolCalls: [],
-							numTurns: 1,
-							subtype: 'success',
-							sessionId: input.sessionId,
-							stopReason: 'end_turn',
-						},
-					};
-				})()
-		);
+		mockStream
+			.mockReset()
+			.mockImplementation(
+				(
+					_config: unknown,
+					_session: unknown,
+					input: { runId: string; origin: string; sessionId: string },
+					signal: AbortSignal
+				) =>
+					(async function* () {
+						const control = controls.get(input.runId) as ControlledRun & {
+							markStarted: () => void;
+							wait: Promise<void>;
+						};
+						control.signal = signal;
+						control.markStarted();
+						await Promise.race([
+							control.wait,
+							new Promise<void>((resolve) => {
+								if (signal.aborted) resolve();
+								else signal.addEventListener('abort', () => resolve(), { once: true });
+							}),
+						]);
+						if (signal.aborted) return;
+						yield {
+							type: 'run_finished',
+							result: {
+								text: `${input.origin} reply`,
+								model: 'model',
+								toolCalls: [],
+								numTurns: 1,
+								subtype: 'success',
+								sessionId: input.sessionId,
+								stopReason: 'end_turn',
+							},
+						};
+					})()
+			);
 	});
 
 	it('cancels only the owned UI run and leaves a simultaneous bot reply running', async () => {
@@ -160,14 +162,16 @@ describe('Agent scoped cancellation', () => {
 			controlRun(controls, runId)
 		);
 		const active = activeControls.map((control, index) =>
-			agent.send('active', 'main', {
-				runId: `active-${index + 1}`,
-				sessionId: `session-${index + 1}`,
-				windowId: index + 1,
-			}).then((value) => {
-				control.release();
-				return value;
-			})
+			agent
+				.send('active', 'main', {
+					runId: `active-${index + 1}`,
+					sessionId: `session-${index + 1}`,
+					windowId: index + 1,
+				})
+				.then((value) => {
+					control.release();
+					return value;
+				})
 		);
 		await Promise.all(activeControls.map((control) => control.started));
 

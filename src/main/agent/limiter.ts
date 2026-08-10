@@ -23,7 +23,9 @@ export class KeyedLimiter {
 
 	acquire(key: string, signal?: AbortSignal): Promise<LimiterLease> {
 		if (signal?.aborted) {
-			return Promise.reject(signal.reason ?? new DOMException('Operation cancelled.', 'AbortError'));
+			return Promise.reject(
+				signal.reason ?? new DOMException('Operation cancelled.', 'AbortError')
+			);
 		}
 		const normalizedKey = key.trim();
 		const state = this.states.get(normalizedKey) ?? { active: 0, waiters: [] };

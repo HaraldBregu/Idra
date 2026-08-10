@@ -36,7 +36,10 @@ describe('saveMemory', () => {
 
 		expect(result).toMatchObject({
 			saved: true,
-			memory: { id: expect.stringMatching(/^memory-[a-f0-9]{16}$/), fact: 'prefers concise answers' },
+			memory: {
+				id: expect.stringMatching(/^memory-[a-f0-9]{16}$/),
+				fact: 'prefers concise answers',
+			},
 		});
 		expect(writeFile).toHaveBeenCalledWith(
 			expect.stringMatching(/^\/mem\/\.MEMORY\.md\..+\.tmp$/),
@@ -57,9 +60,9 @@ describe('saveMemory', () => {
 		await expect(saveMemory(config, 'x'.repeat(MAX_MEMORY_FACT_LENGTH + 1))).rejects.toThrow(
 			'characters or fewer'
 		);
-		await expect(
-			saveMemory(config, 'api_key=abcdefghijklmnopqrstuvwxyz123456')
-		).rejects.toThrow('credential-like content');
+		await expect(saveMemory(config, 'api_key=abcdefghijklmnopqrstuvwxyz123456')).rejects.toThrow(
+			'credential-like content'
+		);
 		expect(writeFile).not.toHaveBeenCalled();
 	});
 });

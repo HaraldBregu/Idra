@@ -172,11 +172,10 @@ it('cancels the IPC UI run without interrupting the channel registry bot run', a
 	await registry.start('telegram');
 	const handler = (channel: string) =>
 		(ipcMain.handle as jest.Mock).mock.calls.find(([registered]) => registered === channel)?.[1];
-	const uiResponse = handler(AgentChannels.send)(
-		{ sender: uiSender },
-		'ui request',
-		{ runId: 'ui-run', sessionId: 'ui-session' }
-	);
+	const uiResponse = handler(AgentChannels.send)({ sender: uiSender }, 'ui request', {
+		runId: 'ui-run',
+		sessionId: 'ui-session',
+	});
 	mockInboundHandler?.({
 		channel: 'telegram',
 		accountId: 'account-1',

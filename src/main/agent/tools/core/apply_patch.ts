@@ -86,7 +86,7 @@ function parseHunk(lines: string[], lineNumber: number): { hunk: Hunk; consumed:
 			const { chunk, consumed: chunkLines } = parseUpdateChunk(
 				remaining,
 				lineNumber + consumed,
-				chunks.length === 0,
+				chunks.length === 0
 			);
 			chunks.push(chunk);
 			remaining = remaining.slice(chunkLines);
@@ -94,20 +94,20 @@ function parseHunk(lines: string[], lineNumber: number): { hunk: Hunk; consumed:
 		}
 		if (chunks.length === 0)
 			throw new Error(
-				`Invalid patch hunk at line ${lineNumber}: Update file hunk for path '${targetPath}' is empty`,
+				`Invalid patch hunk at line ${lineNumber}: Update file hunk for path '${targetPath}' is empty`
 			);
 		return { hunk: { kind: 'update', path: targetPath, movePath, chunks }, consumed };
 	}
 
 	throw new Error(
-		`Invalid patch hunk at line ${lineNumber}: '${lines[0]}' is not a valid hunk header. Valid hunk headers: '*** Add File: {path}', '*** Delete File: {path}', '*** Update File: {path}'`,
+		`Invalid patch hunk at line ${lineNumber}: '${lines[0]}' is not a valid hunk header. Valid hunk headers: '*** Add File: {path}', '*** Delete File: {path}', '*** Update File: {path}'`
 	);
 }
 
 function parseUpdateChunk(
 	lines: string[],
 	lineNumber: number,
-	allowMissingContext: boolean,
+	allowMissingContext: boolean
 ): { chunk: UpdateChunk; consumed: number } {
 	let changeContext: string | undefined;
 	let startIndex = 0;
@@ -118,7 +118,7 @@ function parseUpdateChunk(
 		startIndex = 1;
 	} else if (!allowMissingContext) {
 		throw new Error(
-			`Invalid patch hunk at line ${lineNumber}: Expected update hunk to start with a @@ context marker, got: '${lines[0]}'`,
+			`Invalid patch hunk at line ${lineNumber}: Expected update hunk to start with a @@ context marker, got: '${lines[0]}'`
 		);
 	}
 
@@ -144,7 +144,7 @@ function parseUpdateChunk(
 		} else {
 			if (parsedLines === 0)
 				throw new Error(
-					`Invalid patch hunk at line ${lineNumber}: Unexpected line found in update hunk: '${line}'. Every line should start with ' ' (context line), '+' (added line), or '-' (removed line)`,
+					`Invalid patch hunk at line ${lineNumber}: Unexpected line found in update hunk: '${line}'. Every line should start with ' ' (context line), '+' (added line), or '-' (removed line)`
 				);
 			break;
 		}
@@ -152,12 +152,17 @@ function parseUpdateChunk(
 	}
 	if (parsedLines === 0)
 		throw new Error(
-			`Invalid patch hunk at line ${lineNumber}: Update hunk does not contain any lines`,
+			`Invalid patch hunk at line ${lineNumber}: Update hunk does not contain any lines`
 		);
 	return { chunk, consumed: parsedLines + startIndex };
 }
 
-function seekSequence(lines: string[], pattern: string[], start: number, eof: boolean): number | null {
+function seekSequence(
+	lines: string[],
+	pattern: string[],
+	start: number,
+	eof: boolean
+): number | null {
 	if (pattern.length === 0) return start;
 	if (pattern.length > lines.length) return null;
 	const maxStart = lines.length - pattern.length;
@@ -165,11 +170,7 @@ function seekSequence(lines: string[], pattern: string[], start: number, eof: bo
 	if (searchStart > maxStart) return null;
 
 	// ponytail: fuzzy fallbacks (trimEnd, then trim) tolerate whitespace drift in model output
-	for (const normalize of [
-		(v: string) => v,
-		(v: string) => v.trimEnd(),
-		(v: string) => v.trim(),
-	]) {
+	for (const normalize of [(v: string) => v, (v: string) => v.trimEnd(), (v: string) => v.trim()]) {
 		for (let i = searchStart; i <= maxStart; i += 1) {
 			if (pattern.every((p, idx) => normalize(lines[i + idx]) === normalize(p))) return i;
 		}
@@ -208,7 +209,9 @@ function applyUpdateChunks(filePath: string, contents: string, chunks: UpdateChu
 			found = seekSequence(lines, pattern, lineIndex, chunk.isEndOfFile);
 		}
 		if (found === null)
-			throw new Error(`Failed to find expected lines in ${filePath}:\n${chunk.oldLines.join('\n')}`);
+			throw new Error(
+				`Failed to find expected lines in ${filePath}:\n${chunk.oldLines.join('\n')}`
+			);
 		replacements.push([found, pattern.length, newSlice]);
 		lineIndex = found + pattern.length;
 	}
@@ -230,10 +233,7 @@ export const applyPatchTool = tool({
 	description:
 		'Apply a multi-file patch using the *** Begin Patch/*** End Patch format. Supports Add File, Delete File, and Update File (with optional Move to) hunks.',
 	inputSchema: z.object({
-		input: z
-			.string()
-			.min(1)
-			.describe('Patch content using the *** Begin Patch/End Patch format.'),
+		input: z.string().min(1).describe('Patch content using the *** Begin Patch/End Patch format.'),
 	}),
 	execute: async ({ input }) => {
 		const hunks = parsePatch(input);

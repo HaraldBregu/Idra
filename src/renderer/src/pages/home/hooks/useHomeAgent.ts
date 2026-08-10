@@ -86,7 +86,10 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
 		setIsLoading(false);
-		if (runId) void getAgentApi()?.cancel(runId).catch(() => undefined);
+		if (runId)
+			void getAgentApi()
+				?.cancel(runId)
+				.catch(() => undefined);
 		dispatchChat({ type: 'cancel_active', completedAtMs: Date.now() });
 	}, [dispatchChat]);
 

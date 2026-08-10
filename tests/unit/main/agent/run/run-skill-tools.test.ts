@@ -24,10 +24,7 @@ describe('selectSkillTools', () => {
 			fakeTool('subagents'),
 		];
 		expect(
-			selectSkillTools(
-				[...tools, fakeTool('load_skill')],
-				['read', 'subagent', 'subagents']
-			).map(
+			selectSkillTools([...tools, fakeTool('load_skill')], ['read', 'subagent', 'subagents']).map(
 				(tool) => tool.name
 			)
 		).toEqual(['read', 'load_skill']);

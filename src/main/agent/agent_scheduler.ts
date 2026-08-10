@@ -51,7 +51,7 @@ export class AgentRunScheduler {
 					const index = this.queue.indexOf(entry as QueuedRun<unknown>);
 					if (index === -1) return;
 					this.queue.splice(index, 1);
-				reject(options.signal?.reason ?? new DOMException('Run cancelled.', 'AbortError'));
+					reject(options.signal?.reason ?? new DOMException('Run cancelled.', 'AbortError'));
 					this.pump();
 				};
 				options.signal.addEventListener('abort', entry.onAbort, { once: true });

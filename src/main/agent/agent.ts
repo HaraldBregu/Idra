@@ -269,17 +269,25 @@ export class Agent {
 	async clearMessages(sessionId: string): Promise<void> {
 		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
 		await this.cancelSession(resolvedSessionId);
-		await this.scheduler.run(resolvedSessionId, async () => {
-			clearSessionMessages(createSessionState(), this.config, resolvedSessionId);
-		}, { priority: 'high' });
+		await this.scheduler.run(
+			resolvedSessionId,
+			async () => {
+				clearSessionMessages(createSessionState(), this.config, resolvedSessionId);
+			},
+			{ priority: 'high' }
+		);
 	}
 
 	async deleteSession(sessionId: string): Promise<void> {
 		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
 		await this.cancelSession(resolvedSessionId);
-		await this.scheduler.run(resolvedSessionId, async () => {
-			deleteStoredSession(createSessionState(), this.config, resolvedSessionId);
-		}, { priority: 'high' });
+		await this.scheduler.run(
+			resolvedSessionId,
+			async () => {
+				deleteStoredSession(createSessionState(), this.config, resolvedSessionId);
+			},
+			{ priority: 'high' }
+		);
 	}
 
 	cancel(runId: string, windowId?: number): boolean {
@@ -322,9 +330,7 @@ export class Agent {
 			this.cancel(runId);
 		}
 		await Promise.allSettled(
-			matching
-				.map(([, active]) => active.completion)
-				.filter((run): run is Promise<string> => !!run)
+			matching.map(([, active]) => active.completion).filter((run): run is Promise<string> => !!run)
 		);
 	}
 }

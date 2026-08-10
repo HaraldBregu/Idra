@@ -147,7 +147,11 @@ describe('runModelTurn', () => {
 		blocker.release();
 
 		await expect(pending).resolves.toMatchObject({
-			value: { type: 'provider_queue_metrics', providerId: 'test', queueDelayMs: expect.any(Number) },
+			value: {
+				type: 'provider_queue_metrics',
+				providerId: 'test',
+				queueDelayMs: expect.any(Number),
+			},
 		});
 		for await (const _event of events) void _event;
 	});

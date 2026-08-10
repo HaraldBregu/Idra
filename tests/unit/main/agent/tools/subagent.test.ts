@@ -116,7 +116,12 @@ describe('subagentTool', () => {
 		});
 		const tool = subagentsTool({ location: '/agent' }, [safe, unsafe], createContext());
 
-		await tool.run({ tasks: [{ id: 'a', task: 'a' }, { id: 'b', task: 'b' }] });
+		await tool.run({
+			tasks: [
+				{ id: 'a', task: 'a' },
+				{ id: 'b', task: 'b' },
+			],
+		});
 
 		for (const call of mockStream.mock.calls) {
 			expect(call[4].tools.map((candidate: { name: string }) => candidate.name)).toEqual(['read']);

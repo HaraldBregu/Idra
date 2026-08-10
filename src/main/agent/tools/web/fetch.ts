@@ -30,11 +30,8 @@ async function assertPublicHost(hostname: string, signal?: AbortSignal): Promise
 	signal?.throwIfAborted();
 	for (const { address } of addresses) {
 		const v4 = address.replace(/^::ffff:/i, '');
-		const blocked = net.isIPv4(v4)
-			? BLOCKED.check(v4, 'ipv4')
-			: BLOCKED.check(address, 'ipv6');
-		if (blocked)
-			throw new Error(`web_fetch blocked: ${hostname} resolves to a private address`);
+		const blocked = net.isIPv4(v4) ? BLOCKED.check(v4, 'ipv4') : BLOCKED.check(address, 'ipv6');
+		if (blocked) throw new Error(`web_fetch blocked: ${hostname} resolves to a private address`);
 	}
 }
 
@@ -72,7 +69,9 @@ export const webFetchTool = tool({
 			.int()
 			.min(100)
 			.optional()
-			.describe(`Max characters returned (default ${MAX_CHARS_DEFAULT}); longer content is truncated.`),
+			.describe(
+				`Max characters returned (default ${MAX_CHARS_DEFAULT}); longer content is truncated.`
+			),
 	}),
 	execute: async ({ url, maxChars }, signal) => {
 		let current = new URL(url);
@@ -122,7 +121,7 @@ export const webFetchTool = tool({
 		return JSON.stringify(
 			{ url, finalUrl: current.toString(), status: res.status, contentType, truncated, text },
 			null,
-			2,
+			2
 		);
 	},
 });

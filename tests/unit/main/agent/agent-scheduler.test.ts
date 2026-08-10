@@ -65,15 +65,27 @@ it('prioritizes queued UI work while preserving FIFO within a priority', async (
 		order.push('active');
 		await gate.promise;
 	});
-	const normal = scheduler.run('normal', async () => {
-		order.push('normal');
-	}, { priority: 'normal' });
-	const highOne = scheduler.run('high-1', async () => {
-		order.push('high-1');
-	}, { priority: 'high' });
-	const highTwo = scheduler.run('high-2', async () => {
-		order.push('high-2');
-	}, { priority: 'high' });
+	const normal = scheduler.run(
+		'normal',
+		async () => {
+			order.push('normal');
+		},
+		{ priority: 'normal' }
+	);
+	const highOne = scheduler.run(
+		'high-1',
+		async () => {
+			order.push('high-1');
+		},
+		{ priority: 'high' }
+	);
+	const highTwo = scheduler.run(
+		'high-2',
+		async () => {
+			order.push('high-2');
+		},
+		{ priority: 'high' }
+	);
 
 	await flush();
 	gate.resolve();
@@ -88,13 +100,21 @@ it('runs the oldest lower-priority request after three higher-priority dequeues'
 	const blocker = scheduler.run('active', async () => {
 		await gate.promise;
 	});
-	const low = scheduler.run('low', async () => {
-		order.push('low');
-	}, { priority: 'low' });
+	const low = scheduler.run(
+		'low',
+		async () => {
+			order.push('low');
+		},
+		{ priority: 'low' }
+	);
 	const highs = Array.from({ length: 4 }, (_, index) =>
-		scheduler.run(`high-${index}`, async () => {
-			order.push(`high-${index}`);
-		}, { priority: 'high' })
+		scheduler.run(
+			`high-${index}`,
+			async () => {
+				order.push(`high-${index}`);
+			},
+			{ priority: 'high' }
+		)
 	);
 
 	gate.resolve();
@@ -111,9 +131,13 @@ it('removes an aborted queued run without delaying the next run for that session
 		order.push('first');
 		await gate.promise;
 	});
-	const cancelled = scheduler.run('session', async () => {
-		order.push('cancelled');
-	}, { signal: controller.signal });
+	const cancelled = scheduler.run(
+		'session',
+		async () => {
+			order.push('cancelled');
+		},
+		{ signal: controller.signal }
+	);
 	const third = scheduler.run('session', async () => {
 		order.push('third');
 	});

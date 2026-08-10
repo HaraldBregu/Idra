@@ -245,13 +245,7 @@ async function* loop(
 		};
 		tools.push(
 			subagentTool(config, childTools, session.context, childRuntime),
-			subagentsTool(
-				config,
-				childTools,
-				session.context,
-				childRuntime,
-				options.subagentLimiter
-			)
+			subagentsTool(config, childTools, session.context, childRuntime, options.subagentLimiter)
 		);
 		closeMcp = mcp.close;
 		mcpDiscovery = mcp.diagnostics;

@@ -36,9 +36,7 @@ function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
 	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
 }
 
-function normalizeAgentSendRuntimeOptions(
-	options?: AgentRunOptions
-): AgentRunOptions | undefined {
+function normalizeAgentSendRuntimeOptions(options?: AgentRunOptions): AgentRunOptions | undefined {
 	if (!options) return undefined;
 	const files = normalizeAgentInputFiles(options.files);
 	const normalized: AgentRunOptions = {
