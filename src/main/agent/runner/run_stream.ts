@@ -57,27 +57,22 @@ import { runTaskNowTool } from '../tools/tasks/run_task_now';
 import { subagentTool, subagentsTool } from '../tools/core/subagents';
 import { listExtensionsTool } from '../tools/extensions/list_extensions';
 import { openExtensionsTool } from '../tools/extensions/open_extensions';
-import type { AgentPermissionMode } from '../../../shared/agent_types';
 import type { Config, McpDiscoveryDiagnostics, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import type { WindowFactory } from '../../window_factory';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
-import { getPermissionMode } from '../permissions';
-import { selectOriginTools } from './run_origin_tools';
+import { filterTools } from './run_tools';
 import { formatToolOutput } from './run_common';
 import { selectSkillTools } from './run_skill_tools';
 import { hasPrivateInput } from './run_has_private_input';
 import { activateSkill, createSkillRegistrySnapshot } from '../skills';
 import type { SkillLoadResult } from '../../../shared/skills_types';
-import type { PermissionsSchema } from '../permissions';
 import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 
 export interface StreamOptions {
 	tools?: Tool[];
-	interactive?: boolean;
 	streaming?: boolean;
-	permissions?: PermissionsSchema;
 	windowFactory?: WindowFactory;
 	resources?: KeyedMutex;
 	providerLimiter?: KeyedLimiter;
@@ -147,17 +142,12 @@ async function* loop(
 	const provider = getResolvedProvider(input.providerId ?? getProviderId());
 	const modelId = input.model ?? getModelId();
 	const modelOptions = getModelOptions();
-	const origin = input.origin ?? session.category ?? 'main';
-	const contextMode = input.contextMode ?? (origin === 'main' ? 'workspace' : 'minimal');
+	const contextMode = input.contextMode;
 	const runId = input.runId ?? session.id;
-	const skillSnapshot =
-		origin === 'main' ? createSkillRegistrySnapshot() : { skills: [], diagnostics: [] };
+	const skillSnapshot = createSkillRegistrySnapshot();
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
-	const interactive = options.interactive ?? true;
-	const permissionMode: AgentPermissionMode =
-		options.permissions?.mode ?? (!interactive ? 'ask' : getPermissionMode());
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
 	session.context.subagents = undefined;
@@ -192,8 +182,8 @@ async function* loop(
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
 				listMemoriesTool(config),
-				...getKnowledgeTools(origin),
-				...getWikiTools(origin),
+				...getKnowledgeTools(),
+				...getWikiTools(),
 				updateHealthTool(config),
 				updateHealthSettingsTool,
 				createTaskTool,
@@ -222,22 +212,30 @@ async function* loop(
 			resources: skill.resources,
 			warnings: skill.warnings,
 		});
-		tools.splice(0, tools.length, ...selectSkillTools(tools, skill.allowedTools));
+		tools.splice(
+			0,
+			tools.length,
+			...filterTools(
+				selectSkillTools(tools, skill.allowedTools),
+				input.toolsAllow,
+				input.toolsDeny
+			)
+		);
 		session.context.toolsContext.hasPrivateContext = true;
 	};
-	if (!options.tools && origin === 'main') {
+	if (!options.tools) {
 		const activationTool = loadSkillTool(skillSnapshot, applyActivatedSkill);
 		if (activationTool) tools.push(activationTool);
 	}
 
 	let closeMcp: (() => Promise<void>) | undefined;
 	let mcpDiscovery: McpDiscoveryDiagnostics | undefined;
-	if (!options.tools && origin === 'main') {
+	if (!options.tools) {
 		const mcp = await loadMcpTools(signal);
 		tools.push(...mcp.tools);
-		const childTools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
+		const childTools = filterTools(tools, input.toolsAllow, input.toolsDeny);
 		const childRuntime = {
-			...(options.permissions ? { permissions: options.permissions } : {}),
+			type: input.type,
 			...(options.resources ? { resources: options.resources } : {}),
 			...(options.providerLimiter ? { providerLimiter: options.providerLimiter } : {}),
 			...(options.subagentLimiter ? { subagentLimiter: options.subagentLimiter } : {}),
@@ -249,7 +247,7 @@ async function* loop(
 		closeMcp = mcp.close;
 		mcpDiscovery = mcp.diagnostics;
 	}
-	tools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
+	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
 	if (input.explicitSkill)
 		applyActivatedSkill(await activateSkill(skillSnapshot, input.explicitSkill));
 
@@ -287,7 +285,7 @@ async function* loop(
 			);
 			const protectedSkillPrompt = buildLoadedSkillPrompt(session.context.loadedSkills ?? []);
 			const workspaceContext =
-				origin === 'main' && contextMode === 'workspace' && session.context.basePrompt === undefined
+				contextMode === 'workspace' && session.context.basePrompt === undefined
 					? await buildWorkspaceContext(config)
 					: '';
 			const implicitSkills = skillSnapshot.skills.filter(
@@ -350,7 +348,7 @@ async function* loop(
 			}
 			paidToolCalls += requestedPaidCalls;
 			const requestedBotWebCalls =
-				origin === 'bot'
+				input.agentId === 'channels'
 					? turn.toolCalls.filter(
 							(call) => call.name === 'search_web' || call.name === 'fetch_web_page'
 						).length
@@ -373,16 +371,13 @@ async function* loop(
 			for await (const event of runToolCalls(
 				tools,
 				turn.toolCalls,
-				interactive,
+				input.type,
 				signal,
 				session.context.toolsContext,
-				permissionMode,
 				{
 					runId,
-					origin,
 					...(input.approvalWindowId === undefined ? {} : { windowId: input.approvalWindowId }),
 				},
-				options.permissions,
 				options.resources
 			)) {
 				yield event;

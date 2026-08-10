@@ -36,7 +36,7 @@ import type {
 	AgentRunOptions,
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
-	AgentOrigin,
+	AgentRunType,
 	AgentResponseEvent,
 	AgentRunStopReason,
 	AgentSessionSummary,
@@ -44,7 +44,7 @@ import type {
 import { toError } from '../ipc/core/error';
 import { AgentRunScheduler, type AgentRunPriority } from './agent_scheduler';
 import type { WindowFactory } from '../window_factory';
-import type { PermissionsSchema } from './permissions';
+import type { SessionCategory } from './session';
 import { KeyedLimiter } from './limiter';
 import { KeyedMutex } from './mutex';
 
@@ -52,13 +52,13 @@ interface ActiveAgentRun {
 	runId: string;
 	agentId: string;
 	sessionId: string;
-	origin: AgentOrigin;
+	category: SessionCategory;
 	windowId?: number;
 	controller: AbortController;
 	completion?: Promise<string>;
 }
 
-const RUN_PRIORITIES: Record<AgentOrigin, AgentRunPriority> = {
+const RUN_PRIORITIES: Record<SessionCategory, AgentRunPriority> = {
 	main: 'high',
 	bot: 'normal',
 	health: 'low',
@@ -66,25 +66,25 @@ const RUN_PRIORITIES: Record<AgentOrigin, AgentRunPriority> = {
 	subagent: 'low',
 };
 
-const AGENT_CATEGORIES: Record<string, AgentOrigin> = {
+const AGENT_CATEGORIES: Record<string, SessionCategory> = {
 	main: 'main',
 	channels: 'bot',
 	tasks: 'task',
 	health: 'health',
 };
 
-export interface AgentSendOptions extends AgentRunOptions {
-	interactive?: boolean;
+type AgentSendBaseOptions = Omit<AgentRunOptions, 'toolsAllow'> & {
 	streaming?: boolean;
-	permissions?: PermissionsSchema;
 	modelId?: string;
 	windowId?: number;
 	streamEvent?: (event: AgentResponseEvent) => void;
-}
+};
 
-interface InternalAgentSendOptions extends AgentSendOptions {
-	legacySessionId?: string;
-}
+export type AgentSendOptions =
+	| (AgentSendBaseOptions & { type: Extract<AgentRunType, 'default'>; toolsAllow?: string[] })
+	| (AgentSendBaseOptions & { type: Extract<AgentRunType, 'background'>; toolsAllow: string[] });
+
+type InternalAgentSendOptions = AgentSendOptions & { legacySessionId?: string };
 
 export class Agent {
 	private readonly activeRuns = new Map<string, ActiveAgentRun>();
@@ -115,10 +115,10 @@ export class Agent {
 			const runtime = getRuntime();
 			const toolsAllow = schedule.action.toolsAllow ?? [];
 			return this.send(schedule.action.prompt, 'tasks', {
-				interactive: false,
+				type: 'background',
+				toolsAllow,
 				streaming: false,
 				contextMode: 'minimal',
-				...(toolsAllow.length > 0 ? { toolsAllow } : {}),
 				effort: schedule.action.effort,
 				...(runtime ? { providerId: runtime.providerId, modelId: runtime.modelId } : {}),
 			});
@@ -136,7 +136,7 @@ export class Agent {
 		destroyTask();
 	}
 
-	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
+	async send(message: string, agentId: string, options: AgentSendOptions): Promise<string> {
 		const normalizedAgentId = agentId.trim();
 		const category = AGENT_CATEGORIES[normalizedAgentId] ?? 'main';
 		const sessionId = resolveSessionId(options.sessionId, this.config.location, category);
@@ -162,7 +162,7 @@ export class Agent {
 			runId,
 			agentId: command.agentId,
 			sessionId,
-			origin: category,
+			category,
 			...(options.windowId === undefined ? {} : { windowId: options.windowId }),
 			controller,
 		};
@@ -200,19 +200,22 @@ export class Agent {
 				runId: view.id,
 				task: 'chat',
 				message: parsedSkillCommand.message,
-				origin: 'main',
+				type: options.type,
+				agentId: view.agentId,
 				contextMode:
 					options.contextMode ??
 					(options.lightContext === true || category !== 'main' ? 'minimal' : 'workspace'),
 				...(options.effort ? { effort: options.effort } : {}),
-				...(options.toolsAllow ? { toolsAllow: options.toolsAllow } : {}),
+				...(options.toolsAllow === undefined ? {} : { toolsAllow: options.toolsAllow }),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
 				...(options.files?.length ? { files: options.files } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.legacySessionId ? { legacySessionId: options.legacySessionId } : {}),
 				...(options.providerId ? { providerId: options.providerId } : {}),
 				...((options.model ?? options.modelId) ? { model: options.model ?? options.modelId } : {}),
-				...(options.windowId === undefined ? {} : { approvalWindowId: options.windowId }),
+				...(options.windowId === undefined || options.streamEvent === undefined
+					? {}
+					: { approvalWindowId: options.windowId }),
 				...(parsedSkillCommand.explicitSkill
 					? { explicitSkill: parsedSkillCommand.explicitSkill }
 					: {}),
@@ -227,9 +230,7 @@ export class Agent {
 			const timeoutSignal = AbortSignal.timeout(10 * 60_000);
 			const runSignal = AbortSignal.any([controller.signal, timeoutSignal]);
 			const events = stream(this.config, session, input, runSignal, {
-				interactive: options.interactive ?? true,
 				streaming: options.streaming ?? true,
-				...(options.permissions ? { permissions: options.permissions } : {}),
 				windowFactory: this.windowFactory,
 				resources: this.resources,
 				providerLimiter: this.providerLimiter,
@@ -520,7 +521,6 @@ function runtimeEventToAgentEvents(
 				mode: 'ask',
 				targets: event.targets,
 				expiresAt: event.expiresAt,
-				origin: event.origin,
 				inputFingerprint: event.inputFingerprint,
 				agentId,
 				runId,

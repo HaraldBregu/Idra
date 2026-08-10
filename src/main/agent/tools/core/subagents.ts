@@ -5,12 +5,13 @@ import { adoptSubagent, type AgentContext } from '../../context';
 import { stream, type StreamOptions } from '../../runner/run_stream';
 import { createSessionState } from '../../session';
 import type { Config, RuntimeInput, Tool } from '../../types';
+import type { AgentRunType } from '../../../../shared/agent_types';
 import { tool } from '../tool';
 
-export interface ChildRuntime extends Pick<
-	StreamOptions,
-	'permissions' | 'resources' | 'providerLimiter' | 'subagentLimiter'
-> {}
+export interface ChildRuntime
+	extends Pick<StreamOptions, 'resources' | 'providerLimiter' | 'subagentLimiter'> {
+	type: AgentRunType;
+}
 
 export async function runChild(
 	config: Config,
@@ -19,26 +20,30 @@ export async function runChild(
 	task: string,
 	instructions: string,
 	signal: AbortSignal,
-	runtime: ChildRuntime = {}
+	runtime: ChildRuntime = { type: 'default' }
 ): Promise<string> {
-	const input: RuntimeInput = {
+	const baseInput = {
 		runId: randomUUID(),
 		task: 'subagent',
 		message: task,
-		origin: 'subagent',
+		agentId: 'subagent',
 		contextMode: 'minimal',
 		toolsAllow: tools.map((candidate) => candidate.id),
 	};
+	const input: RuntimeInput =
+		runtime.type === 'background'
+			? { ...baseInput, type: 'background' }
+			: { ...baseInput, type: 'default' };
 	const session = createSessionState();
 	session.messages = [{ role: 'user', content: task }];
 	session.context.basePrompt = instructions;
 	adoptSubagent(parent, session.context);
 
 	let text = '';
+	const { type: _type, ...streamOptions } = runtime;
 	const events = stream(config, session, input, signal, {
 		tools,
-		interactive: false,
-		...runtime,
+		...streamOptions,
 	});
 	for await (const event of events) {
 		if (event.type === 'assistant_message') text = event.content;
@@ -72,7 +77,7 @@ export function subagentTool(
 	config: Config,
 	tools: Tool[],
 	parent: AgentContext,
-	runtime: ChildRuntime = {}
+	runtime: ChildRuntime = { type: 'default' }
 ): Tool {
 	return tool({
 		id: 'subagent',
@@ -103,7 +108,7 @@ export function subagentsTool(
 	config: Config,
 	tools: Tool[],
 	parent: AgentContext,
-	runtime: ChildRuntime = {},
+	runtime: ChildRuntime = { type: 'default' },
 	pool: KeyedLimiter = fallbackPool
 ): Tool {
 	return tool({
