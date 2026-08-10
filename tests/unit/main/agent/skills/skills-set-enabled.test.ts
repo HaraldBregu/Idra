@@ -16,6 +16,10 @@ describe('setEnabled', () => {
 		readSkill.mockReturnValueOnce(before).mockReturnValueOnce(after);
 
 		expect(setEnabled('writer', true)).toBe(after);
-		expect(setSkillPolicy).toHaveBeenCalledWith('writer', { enabled: true, trusted: true, reviewedHash: 'hash' });
+		expect(setSkillPolicy).toHaveBeenCalledWith('writer', {
+			enabled: true,
+			trusted: true,
+			reviewedHash: 'hash',
+		});
 	});
 });

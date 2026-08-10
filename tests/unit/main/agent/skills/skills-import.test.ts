@@ -55,8 +55,14 @@ describe('importSkills replacement safety', () => {
 		const result = await importSkills();
 
 		expect(validateSkillPackage).toHaveBeenCalledTimes(2);
-		expect(setSkillPolicy).toHaveBeenCalledWith('example', expect.objectContaining({ enabled: false, trusted: false, invocationPolicy: 'explicit' }));
-		expect(renameSync).toHaveBeenCalledWith(expect.stringMatching(/\/\.import-example-.+\/example$/), '/installed-skills/example');
+		expect(setSkillPolicy).toHaveBeenCalledWith(
+			'example',
+			expect.objectContaining({ enabled: false, trusted: false, invocationPolicy: 'explicit' })
+		);
+		expect(renameSync).toHaveBeenCalledWith(
+			expect.stringMatching(/\/\.import-example-.+\/example$/),
+			'/installed-skills/example'
+		);
 		expect(result?.imported).toEqual([{ name: 'example' }]);
 	});
 
@@ -67,7 +73,10 @@ describe('importSkills replacement safety', () => {
 		const result = await importSkills();
 
 		expect(renameSync).not.toHaveBeenCalled();
-		expect(rmSync).toHaveBeenCalledWith(expect.stringMatching(/\/\.import-example-.+$/), { recursive: true, force: true });
+		expect(rmSync).toHaveBeenCalledWith(expect.stringMatching(/\/\.import-example-.+$/), {
+			recursive: true,
+			force: true,
+		});
 		expect(result?.skipped[0].reason).toContain('copy failed');
 	});
 
@@ -76,7 +85,10 @@ describe('importSkills replacement safety', () => {
 		const result = await importSkills();
 
 		expect(renameSync).toHaveBeenCalled();
-		expect(rmSync).toHaveBeenCalledWith('/installed-skills/example', { recursive: true, force: true });
+		expect(rmSync).toHaveBeenCalledWith('/installed-skills/example', {
+			recursive: true,
+			force: true,
+		});
 		expect(result?.imported).toEqual([]);
 	});
 });
