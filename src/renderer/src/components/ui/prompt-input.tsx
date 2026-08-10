@@ -113,8 +113,11 @@ function usePromptInputExpansion({
       setIsExpanded(false)
       return
     }
+    const inputElement: HTMLElement = textarea
     const measurementElement =
-      textarea instanceof HTMLTextAreaElement ? textarea : textarea.parentElement ?? textarea
+      inputElement instanceof HTMLTextAreaElement
+        ? inputElement
+        : inputElement.parentElement ?? inputElement
 
     // Sticky while non-empty: collapsing widens/narrows the field, so re-measuring
     // after expansion can flip the state back and forth on every keystroke.
