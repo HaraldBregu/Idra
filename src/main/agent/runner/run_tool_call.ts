@@ -58,7 +58,6 @@ export async function* runToolCall(
 		| 'approve'
 		| 'approve_always'
 		| 'reject'
-		| 'bypass'
 		| undefined;
 
 	if (!tool) {
