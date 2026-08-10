@@ -27,6 +27,10 @@ export default class Store<T extends Record<string, unknown> = Record<string, un
 		return this.value[key];
 	}
 
+	has<K extends keyof T>(key: K): boolean {
+		return Object.prototype.hasOwnProperty.call(this.value, key);
+	}
+
 	set<K extends keyof T>(key: K, value: T[K]): void {
 		this.value = { ...this.value, [key]: value };
 	}
