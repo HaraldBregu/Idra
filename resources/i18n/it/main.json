@@ -848,7 +848,6 @@
 			"disabled": "Disabilitata",
 			"recursive": "Ricorsiva",
 			"currentDirectory": "Solo cartella corrente",
-			"workspaceDirectory": "Workspace",
 			"browseDirectory": "Sfoglia cartella",
 			"addDirectory": "Aggiungi permesso cartella",
 			"editDirectory": "Modifica il permesso per {{directory}}",

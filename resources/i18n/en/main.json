@@ -849,7 +849,6 @@
 			"disabled": "Disabled",
 			"recursive": "Recursive",
 			"currentDirectory": "Current directory only",
-			"workspaceDirectory": "Workspace",
 			"browseDirectory": "Browse for directory",
 			"addDirectory": "Add directory permission",
 			"editDirectory": "Edit permission for {{directory}}",

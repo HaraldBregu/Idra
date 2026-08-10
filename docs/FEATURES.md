@@ -166,7 +166,7 @@ The Permissions screen provides persistent controls for sensitive tools:
 
 - Every tool owns a policy object under `tools` with `default`, `allow`, `ask`, and `deny` fields.
 - The top-level `directories` array assigns directory-scoped tool allow-lists using `{ "path": string, "enabled": boolean, "recoursive": boolean, "tools": "*" | string[] }` entries. `enabled` defaults to `true`.
-- The agent workspace is always present as a recursive wildcard directory permission and cannot be removed.
+- Only directories explicitly added in Settings receive directory-level authorization.
 - `read`, `write`, and `process` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
 - Other built-in tools retain independent **Allow** defaults.
 - An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
@@ -195,16 +195,15 @@ Permissions use this top-level structure:
 
 Rule resolution is tool-local:
 
-- The first layer is the built-in system policy: tools targeting the agent directory are allowed recursively, including tools with fixed agent-owned resources such as memory, health, schedules, media, bootstrap, and skills.
-- If the system layer does not allow the whole call, the second layer checks `directories`. The call is allowed when every target is covered by a matching directory entry that lists the tool.
-- If the directory layer does not allow the whole call, resolution continues to the third layer: the named tool's explicit rules and default.
+- The first layer checks `directories`. The call is allowed when every target is covered by a matching directory entry that lists the tool.
+- If the directory layer does not allow the whole call, resolution continues to the named tool's explicit rules and default.
 - A file path matches that file, while a directory path also matches its descendants.
 - The most specific matching path wins; equally specific rules use **Deny**, then **Ask**, then **Allow** precedence.
 - `exec` supports exact command rules and a trailing `:*` prefix form such as `git push:*`.
 - A rule for one tool never changes another tool's decision.
 - A matching `directories` entry allows listed tools early. An unlisted tool falls through to its own policy instead of being denied by the directory layer. `"*"` allows every tool.
 - Nested directory entries use the most-specific match. `recoursive: true` includes descendants; `false` covers direct files only.
-- System and directory approval happen before per-tool path or command rules.
+- Directory authorization happens before per-tool path or command rules.
 
 Important boundaries:
 

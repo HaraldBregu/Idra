@@ -55,7 +55,6 @@ const PermissionsPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
 	const savingRef = useRef(false);
-	const [workspaceDirectory, setWorkspaceDirectory] = useState('');
 	const [editingDirectory, setEditingDirectory] = useState<string | null>(null);
 	const [newDirectory, setNewDirectory] = useState('');
 	const [newDirectoryTools, setNewDirectoryTools] = useState('*');
@@ -82,10 +81,10 @@ const PermissionsPage: React.FC = () => {
 	};
 
 	useEffect(() => {
-		Promise.all([window.agent.policyGet(), window.agent.getWorkspaceLocation()])
-			.then(([loadedPermissions, workspaceLocation]) => {
+		window.agent
+			.policyGet()
+			.then((loadedPermissions) => {
 				setPermissions(loadedPermissions);
-				setWorkspaceDirectory(workspaceLocation);
 			})
 			.catch((err: unknown) => {
 				setError(err instanceof Error ? err.message : String(err));
@@ -242,7 +241,7 @@ const PermissionsPage: React.FC = () => {
 												onChange={(event) => setNewDirectory(event.target.value)}
 												placeholder={t('settings.permissions.directoryPlaceholder')}
 												className="h-8 min-w-0 flex-1 font-mono text-xs"
-												disabled={saving || editingDirectory === workspaceDirectory}
+											disabled={saving}
 											/>
 											<Button
 												type="button"
@@ -250,7 +249,7 @@ const PermissionsPage: React.FC = () => {
 												size="icon-sm"
 												aria-label={t('settings.permissions.browseDirectory')}
 												onClick={() => browseDirectory(setNewDirectory)}
-												disabled={saving || editingDirectory === workspaceDirectory}
+											disabled={saving}
 											>
 												<FolderOpen className="size-3" />
 											</Button>
@@ -338,7 +337,6 @@ const PermissionsPage: React.FC = () => {
 											permission.tools === '*'
 												? t('settings.permissions.allTools')
 												: permission.tools.join(', ');
-										const isWorkspace = directory === workspaceDirectory;
 										return (
 											<Item key={directory} variant="outline" size="md" className={ROW_CLASS}>
 												<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
@@ -360,11 +358,6 @@ const PermissionsPage: React.FC = () => {
 																: 'settings.permissions.disabled'
 														)}
 													</Badge>
-													{isWorkspace && (
-														<Badge variant="outline">
-															{t('settings.permissions.workspaceDirectory')}
-														</Badge>
-													)}
 													<span className="px-1 text-xs text-muted-foreground">
 														{t(
 															permission.recoursive
@@ -382,18 +375,16 @@ const PermissionsPage: React.FC = () => {
 													>
 														<Pencil className="size-3" />
 													</Button>
-													{!isWorkspace && (
-														<Button
-															type="button"
-															variant="ghost"
-															size="icon-sm"
-															aria-label={t('settings.permissions.removeDirectory', { directory })}
-															onClick={() => removeDirectory(directory)}
-															disabled={saving}
-														>
-															<Trash2 className="size-3" />
-														</Button>
-													)}
+													<Button
+														type="button"
+														variant="ghost"
+														size="icon-sm"
+														aria-label={t('settings.permissions.removeDirectory', { directory })}
+														onClick={() => removeDirectory(directory)}
+														disabled={saving}
+													>
+														<Trash2 className="size-3" />
+													</Button>
 												</ItemActions>
 											</Item>
 										);
