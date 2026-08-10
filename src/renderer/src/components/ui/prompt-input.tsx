@@ -91,7 +91,7 @@ function usePromptInputTransition() {
 
   return prefersReducedMotion
     ? { duration: 0 }
-    : { type: "spring" as const, stiffness: 280, damping: 24, mass: 0.5 }
+    : { type: "spring" as const, stiffness: 190, damping: 26, mass: 0.8 }
 }
 
 function usePromptInputExpansion({
