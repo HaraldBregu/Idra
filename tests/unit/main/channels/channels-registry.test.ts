@@ -1,6 +1,5 @@
 const mockGetChannelProvider = jest.fn();
 const mockGetChannelModelSelection = jest.fn();
-const mockGetChannelPermissions = jest.fn();
 const mockAdapterStart = jest.fn();
 const mockAdapterStop = jest.fn();
 const mockAdapterSend = jest.fn();
@@ -11,7 +10,6 @@ let mockInboundHandler: ((message: ChannelInboundMessage) => void) | undefined;
 jest.mock('../../../../src/main/channels/channels_store', () => ({
 	getChannelProvider: (...args: unknown[]) => mockGetChannelProvider(...args),
 	getChannelModelSelection: (...args: unknown[]) => mockGetChannelModelSelection(...args),
-	getChannelPermissions: () => mockGetChannelPermissions(),
 }));
 
 jest.mock('../../../../src/main/models/transcribe', () => ({ toText: jest.fn() }));
@@ -66,7 +64,6 @@ describe('createChannelRegistry', () => {
 			dmPolicy: 'open',
 		});
 		mockGetChannelModelSelection.mockReturnValue({});
-		mockGetChannelPermissions.mockReturnValue({ mode: 'ask', dir: {} });
 		mockAdapterStart.mockResolvedValue(undefined);
 		mockAdapterStop.mockResolvedValue(undefined);
 		mockAdapterSend.mockResolvedValue({
@@ -106,9 +103,9 @@ describe('createChannelRegistry', () => {
 		await new Promise<void>((resolve) => setImmediate(resolve));
 
 		expect(send).toHaveBeenCalledWith('hello', 'channels', {
-			interactive: false,
+			type: 'background',
+			toolsAllow: ['search_web', 'fetch_web_page'],
 			streaming: false,
-			permissions: { mode: 'ask', dir: {} },
 			contextMode: 'minimal',
 			sessionId: 'f3d5954e-564f-51e0-be2f-5058fe95561e',
 		});

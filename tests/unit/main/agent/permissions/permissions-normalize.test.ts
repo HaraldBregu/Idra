@@ -28,6 +28,11 @@ describe('normalizeToolPermission', () => {
 });
 
 describe('normalizePermissionsSchema', () => {
+	it('ignores a legacy top-level permission mode', () => {
+		const normalized = normalizePermissionsSchema({ mode: 'bypass', dir: {} });
+		expect(normalized).not.toHaveProperty('mode');
+	});
+
 	it('migrates legacy recorder permissions and directory tool names', () => {
 		const normalized = normalizePermissionsSchema({
 			mode: 'ask',

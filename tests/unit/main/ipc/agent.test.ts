@@ -28,18 +28,22 @@ describe('AgentIpc run ownership', () => {
 			(ipcMain.handle as jest.Mock).mock.calls.find(([registered]) => registered === channel)?.[1];
 
 		await expect(
-			handler(AgentChannels.send)({ sender }, 'hello', { runId: 'run-1' })
+			handler(AgentChannels.send)({ sender }, 'hello', {
+				runId: 'run-1',
+				type: 'background',
+			})
 		).resolves.toEqual({ success: true, data: 'reply' });
 		expect(send).toHaveBeenCalledWith(
 			'hello',
 			'main',
 			expect.objectContaining({
 				runId: 'run-1',
-				permissions: expect.objectContaining({ mode: expect.any(String), dir: expect.any(Object) }),
+				type: 'default',
 				windowId: 7,
 				streamEvent: expect.any(Function),
 			})
 		);
+		expect(send.mock.calls[0][2]).not.toHaveProperty('permissions');
 		const streamEvent = send.mock.calls[0][2].streamEvent;
 		streamEvent({ type: 'text_delta', delta: 'x', agentId: 'main', runId: 'run-1' });
 		expect(eventBus.sendTo).toHaveBeenCalledWith(

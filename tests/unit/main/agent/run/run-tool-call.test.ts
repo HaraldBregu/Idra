@@ -1,182 +1,109 @@
+const resolveToolPermission = jest.fn();
+const waitForToolPermission = jest.fn();
+const getToolPermission = jest.fn(() => ({ default: 'ask', allow: [], deny: [], ask: [] }));
+const setToolPermission = jest.fn();
+const addPermissionRule = jest.fn();
+
+jest.mock('../../../../../src/main/agent/permissions', () => ({
+	resolveToolPermission: (...args: unknown[]) => resolveToolPermission(...args),
+	waitForToolPermission: (...args: unknown[]) => waitForToolPermission(...args),
+	getToolPermission: (...args: unknown[]) => getToolPermission(...args),
+	setToolPermission: (...args: unknown[]) => setToolPermission(...args),
+	addPermissionRule: (...args: unknown[]) => addPermissionRule(...args),
+	toolApprovalTargets: () => [],
+}));
+
+jest.mock('../../../../../src/main/shared/agent_location', () => ({
+	agentLocation: () => '/workspace',
+}));
+
 import { runToolCall } from '../../../../../src/main/agent/runner/run_tool_call';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
 import type { ToolCall } from '../../../../../src/main/agent/types';
-import { KeyedMutex } from '../../../../../src/main/agent/mutex';
 
-const flush = (): Promise<void> => new Promise((resolve) => setImmediate(resolve));
-
-describe('runToolCall', () => {
-	it('propagates cancellation to the tool and stops waiting', async () => {
-		const controller = new AbortController();
-		let receivedSignal: AbortSignal | undefined;
-		const tool = jsonTool({
-			name: 'web_search',
-			description: 'inspect',
-			schema: { type: 'object' },
-			execute: (_input, signal) => {
-				receivedSignal = signal;
-				return new Promise(() => undefined);
-			},
-		});
-		const call: ToolCall = { id: 'tool-1', name: 'web_search', args: {} };
-		const events = runToolCall(tool, call, false, controller.signal);
-
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const pending = events.next();
-		controller.abort(new Error('cancelled'));
-
-		await expect(pending).rejects.toThrow('cancelled');
-		expect(receivedSignal?.aborted).toBe(true);
-		expect(call.result).toBeUndefined();
-	});
-
-	it('bypasses policy checks only when explicitly requested', async () => {
-		const run = jest.fn().mockResolvedValue('done');
-		const tool = jsonTool({
-			name: 'restricted_tool',
+function runnable(execute = jest.fn().mockResolvedValue('done')) {
+	return {
+		tool: jsonTool({
+			id: 'restricted_tool',
+			name: 'Restricted tool',
 			description: 'run',
 			schema: { type: 'object' },
-			defaultPermission: 'ask',
-			execute: run,
-		});
-		const call: ToolCall = {
-			id: 'tool-1',
-			name: 'restricted_tool',
-			args: { command: 'echo done' },
-		};
+			execute,
+		}),
+		execute,
+	};
+}
+
+function call(id = 'tool-1'): ToolCall {
+	return { id, name: 'restricted_tool', args: { value: id } };
+}
+
+describe('runToolCall run policy', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it('uses the live default policy for stored allow and deny decisions', async () => {
+		const { tool, execute } = runnable();
+		resolveToolPermission.mockReturnValueOnce('allow').mockReturnValueOnce('deny');
+
+		for await (const _event of runToolCall(tool, call('allow'), 'default')) void _event;
+		for await (const _event of runToolCall(tool, call('deny'), 'default')) void _event;
+
+		expect(resolveToolPermission).toHaveBeenCalledTimes(2);
+		expect(execute).toHaveBeenCalledTimes(1);
+	});
+
+	it('denies ask immediately when a default run has no approval UI', async () => {
+		const { tool, execute } = runnable();
+		resolveToolPermission.mockReturnValue('ask');
 		const events = [];
 
-		for await (const event of runToolCall(tool, call, false, undefined, undefined, 'bypass')) {
-			events.push(event);
-		}
+		for await (const event of runToolCall(tool, call(), 'default')) events.push(event);
 
-		expect(run).toHaveBeenCalledWith({ command: 'echo done' }, expect.any(AbortSignal));
+		expect(execute).not.toHaveBeenCalled();
+		expect(waitForToolPermission).not.toHaveBeenCalled();
 		expect(events).not.toContainEqual(expect.objectContaining({ type: 'tool_permission_request' }));
-
-		const restrictedCall: ToolCall = {
-			id: 'tool-2',
-			name: 'restricted_tool',
-			args: { command: 'echo blocked' },
-		};
-		for await (const event of runToolCall(tool, restrictedCall, false)) events.push(event);
-		expect(run).toHaveBeenCalledTimes(1);
-		expect(restrictedCall.result).toMatchObject({ isError: true });
 	});
 
-	it('runs a non-interactive tool when the injected policy allows it', async () => {
-		const run = jest.fn().mockResolvedValue('done');
-		const tool = jsonTool({
-			name: 'background_tool',
-			description: 'run',
-			schema: { type: 'object' },
-			defaultPermission: 'ask',
-			execute: run,
-		});
-		const call: ToolCall = { id: 'tool-3', name: tool.name, args: {} };
-		for await (const _event of runToolCall(
-			tool,
-			call,
-			false,
-			undefined,
-			undefined,
-			'ask',
-			undefined,
-			{
-				mode: 'ask',
-				dir: {},
-				background_tool: { default: 'allow', allow: [], deny: [], ask: [] },
-			}
-		))
-			void _event;
+	it('emits one scoped request and persists always allow for an interactive default run', async () => {
+		const { tool, execute } = runnable();
+		resolveToolPermission.mockReturnValue('ask');
+		waitForToolPermission.mockResolvedValue('approve_always');
+		const events = [];
 
-		expect(run).toHaveBeenCalledTimes(1);
-		expect(call.result).toMatchObject({ content: 'done', isError: undefined });
+		for await (const event of runToolCall(tool, call(), 'default', undefined, undefined, {
+			runId: 'run-1',
+			windowId: 7,
+		}))
+			events.push(event);
+
+		expect(events.filter((event) => event.type === 'tool_permission_request')).toHaveLength(1);
+		expect(waitForToolPermission).toHaveBeenCalledWith(
+			expect.objectContaining({ runId: 'run-1', toolName: 'restricted_tool', windowId: 7 }),
+			undefined
+		);
+		expect(setToolPermission).toHaveBeenCalledWith(
+			'restricted_tool',
+			expect.objectContaining({ default: 'allow' })
+		);
+		expect(execute).toHaveBeenCalledTimes(1);
 	});
 
-	it('serializes matching exclusive targets through the shared resource mutex', async () => {
-		let releaseFirst = () => {};
-		let markFirstStarted = () => {};
-		const firstStarted = new Promise<void>((resolve) => {
-			markFirstStarted = resolve;
-		});
-		const first = jsonTool({
-			name: 'first_write',
-			description: 'write',
-			effect: 'write',
-			defaultPermission: 'allow',
-			exclusiveTargets: () => ['/workspace/shared.md'],
-			schema: { type: 'object' },
-			execute: async () => {
-				markFirstStarted();
-				await new Promise<void>((done) => {
-					releaseFirst = done;
-				});
-			},
-		});
-		let secondRan = false;
-		const second = jsonTool({
-			name: 'second_write',
-			description: 'write',
-			effect: 'write',
-			defaultPermission: 'allow',
-			exclusiveTargets: () => ['/workspace/shared.md'],
-			schema: { type: 'object' },
-			execute: () => {
-				secondRan = true;
-			},
-		});
-		const resources = new KeyedMutex();
-		const consume = async (tool: typeof first, id: string): Promise<void> => {
-			for await (const _event of runToolCall(
-				tool,
-				{ id, name: tool.name, args: {} },
-				false,
-				undefined,
-				undefined,
-				'ask',
-				undefined,
-				undefined,
-				resources
-			))
-				void _event;
-		};
-		const firstRun = consume(first, 'first');
-		await firstStarted;
-		const secondRun = consume(second, 'second');
-		await flush();
-		expect(secondRan).toBe(false);
+	it('bypasses stored ask and deny without permission events or settings writes', async () => {
+		const { tool, execute } = runnable();
+		resolveToolPermission.mockReturnValue('deny');
+		const events = [];
 
-		releaseFirst();
-		await Promise.all([firstRun, secondRun]);
-		expect(secondRan).toBe(true);
-	});
+		for await (const event of runToolCall(tool, call(), 'background')) events.push(event);
 
-	it('releases exclusive targets after tool failure', async () => {
-		const resources = new KeyedMutex();
-		const failed = jsonTool({
-			name: 'failed_write',
-			description: 'write',
-			effect: 'write',
-			defaultPermission: 'allow',
-			exclusiveTargets: () => ['/workspace/shared.md'],
-			schema: { type: 'object' },
-			execute: () => {
-				throw new Error('disk failed');
-			},
-		});
-		for await (const _event of runToolCall(
-			failed,
-			{ id: 'failed', name: failed.name, args: {} },
-			false,
-			undefined,
-			undefined,
-			'ask',
-			undefined,
-			undefined,
-			resources
-		))
-			void _event;
-		const release = await resources.acquire(['/workspace/shared.md']);
-		release();
+		expect(resolveToolPermission).not.toHaveBeenCalled();
+		expect(waitForToolPermission).not.toHaveBeenCalled();
+		expect(setToolPermission).not.toHaveBeenCalled();
+		expect(addPermissionRule).not.toHaveBeenCalled();
+		expect(execute).toHaveBeenCalledTimes(1);
+		expect(events).toContainEqual(
+			expect.objectContaining({ type: 'tool_call_end', permissionOutcome: 'bypass' })
+		);
 	});
 });

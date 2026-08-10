@@ -22,14 +22,12 @@ import {
 	getModelId,
 	getMediaModel,
 	getPermissions,
-	getPermissionMode,
 	getProviderId,
 	getSearchEngine,
 	resetPermissions,
 	setDirectoryPermissions,
 	setModelId,
 	setMediaModel,
-	setPermissionMode,
 	setProviderId,
 	setSearchEngine,
 	setToolPermission,
@@ -43,13 +41,6 @@ beforeEach(() => {
 });
 
 describe('agent store permissions', () => {
-	it('persists the agent permission mode', () => {
-		expect(getPermissionMode()).toBe('ask');
-		setPermissionMode('bypass');
-		expect(getPermissions().mode).toBe('bypass');
-		expect(resetPermissions().mode).toBe('ask');
-	});
-
 	it('preserves normalized directory entries when a tool changes', () => {
 		setDirectoryPermissions({
 			' /shared ': { recoursive: true, tools: [' read ', 'read'] },
@@ -89,7 +80,7 @@ describe('agent store permissions', () => {
 			options: { aspectRatio: '16:9' },
 		});
 
-		setPermissionMode('bypass');
+		setToolPermission('read_file', { default: 'allow', allow: [], deny: [], ask: [] });
 
 		expect(getProviderId()).toBe('provider');
 		expect(getModelId()).toBe('model');
