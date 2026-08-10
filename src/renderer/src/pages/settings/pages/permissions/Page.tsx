@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FolderOpen, FolderX, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -64,15 +64,26 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 	const { t } = useTranslation();
 	const [permissions, setPermissions] = useState<Permissions | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [saving, setSaving] = useState(false);
+	const savingRef = useRef(false);
 	const [newDirectory, setNewDirectory] = useState('');
 	const [newDirectoryTools, setNewDirectoryTools] = useState('*');
 	const [newDirectoryRecursive, setNewDirectoryRecursive] = useState(true);
 
-	const apply = (operation: Promise<Permissions>): void => {
+	const apply = (operation: () => Promise<Permissions>): void => {
+		if (savingRef.current) return;
+		savingRef.current = true;
+		setSaving(true);
 		setError(null);
-		operation.then(setPermissions).catch((err: unknown) => {
-			setError(err instanceof Error ? err.message : t('settings.permissions.saveFailed'));
-		});
+		operation()
+			.then(setPermissions)
+			.catch((err: unknown) => {
+				setError(err instanceof Error ? err.message : t('settings.permissions.saveFailed'));
+			})
+			.finally(() => {
+				savingRef.current = false;
+				setSaving(false);
+			});
 	};
 
 	useEffect(() => {
@@ -95,7 +106,7 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 		const permission = permissionFor(permissions, toolName);
 		if (!permission) return;
 		const next = { ...permission, default: mode };
-		apply(
+		apply(() =>
 			scope === 'tasks'
 				? window.tasks.savePermissions({ ...permissions!, [toolName]: next })
 				: scope === 'health'
@@ -115,7 +126,7 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 			...permissions.dir,
 			[directory]: { recoursive: newDirectoryRecursive, tools: directoryTools },
 		};
-		apply(
+		apply(() =>
 			scope === 'tasks'
 				? window.tasks.savePermissions({ ...permissions, dir: directories })
 				: scope === 'health'
@@ -131,7 +142,7 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 		if (!permissions) return;
 		const directories = { ...permissions.dir };
 		delete directories[directory];
-		apply(
+		apply(() =>
 			scope === 'tasks'
 				? window.tasks.savePermissions({ ...permissions, dir: directories })
 				: scope === 'health'
@@ -199,7 +210,8 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 						type="button"
 						variant="outline"
 						size="sm"
-						onClick={() => apply(reset())}
+						onClick={() => apply(reset)}
+						disabled={saving}
 					>
 						<RotateCcw className="size-3" />
 						{t('settings.permissions.reset')}
@@ -261,7 +273,8 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 													variant="ghost"
 													size="icon-sm"
 													aria-label={t('settings.permissions.removeDirectory')}
-													onClick={() => removeDirectory(directory)}
+												onClick={() => removeDirectory(directory)}
+												disabled={saving}
 												>
 													<Trash2 className="size-3" />
 												</Button>
@@ -319,7 +332,7 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 										type="button"
 										size="icon-sm"
 										aria-label={t('settings.permissions.addDirectory')}
-										disabled={!canAddDirectory}
+										disabled={!canAddDirectory || saving}
 										onClick={addDirectory}
 									>
 										<Plus className="size-3" />
@@ -345,6 +358,7 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 										</span>
 										<Select
 											value={permissionFor(permissions, toolName)!.default}
+											disabled={saving}
 											onValueChange={(value) => {
 												if (value) setDefault(toolName, value as PermissionMode);
 											}}

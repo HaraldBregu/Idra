@@ -152,7 +152,7 @@ async function* loop(
 
 	const interactive = options.interactive ?? true;
 	const permissionMode: AgentPermissionMode =
-		options.permissions?.mode ?? (origin === 'main' ? getPermissionMode() : 'ask');
+		!interactive ? 'ask' : (options.permissions?.mode ?? (origin === 'main' ? getPermissionMode() : 'ask'));
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
 	session.context.subagents = undefined;
