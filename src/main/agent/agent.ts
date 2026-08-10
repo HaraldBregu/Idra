@@ -318,7 +318,7 @@ export class Agent {
 		const matching = [...this.activeRuns.entries()].filter(
 			([, active]) => active.sessionId === sessionId
 		);
-		for (const [runId, active] of matching) {
+		for (const [runId] of matching) {
 			this.cancel(runId);
 		}
 		await Promise.allSettled(
