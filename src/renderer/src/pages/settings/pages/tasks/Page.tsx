@@ -16,6 +16,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { ModelProviderConfiguration } from '../../components/model-configuration';
+import { PermissionsLink } from '../permissions/Link';
 
 type Task = Awaited<ReturnType<typeof window.tasks.list>>[number];
 
@@ -118,6 +119,12 @@ const TasksPage: React.FC = () => {
 					}
 				/>
 			</SettingsSection>
+
+			<PermissionsLink
+				path="/settings/tasks/permissions"
+				title={t('settings.permissions.scopes.tasksTitle')}
+				description={t('settings.permissions.scopes.tasksDescription')}
+			/>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>

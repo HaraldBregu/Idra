@@ -27,6 +27,7 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
+import { PermissionsLink } from '../permissions/Link';
 
 type CatalogProvider = PublicProvider;
 
@@ -378,6 +379,12 @@ const ChannelsPage: React.FC = () => {
 					/>
 				</div>
 			</SettingsSection>
+
+			<PermissionsLink
+				path="/settings/channels/permissions"
+				title={t('settings.permissions.scopes.channelsTitle')}
+				description={t('settings.permissions.scopes.channelsDescription')}
+			/>
 
 			<SettingsSection title={t('settings.channels.available')}>
 				{!channels ? (
