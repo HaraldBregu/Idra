@@ -115,6 +115,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 			const agent = getAgentApi();
 			if (!agent) {
+				activeRunIdRef.current = undefined;
 				requestActiveRef.current = false;
 				setIsLoading(false);
 				dispatchChat({

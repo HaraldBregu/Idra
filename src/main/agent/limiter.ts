@@ -25,7 +25,7 @@ export class KeyedLimiter {
 		if (signal?.aborted) {
 			return Promise.reject(signal.reason ?? new DOMException('Operation cancelled.', 'AbortError'));
 		}
-		const normalizedKey = key.trim().toLowerCase();
+		const normalizedKey = key.trim();
 		const state = this.states.get(normalizedKey) ?? { active: 0, waiters: [] };
 		this.states.set(normalizedKey, state);
 		const queuedAt = Date.now();

@@ -53,14 +53,18 @@ export async function* runModelTurn(
 		let usage: ModelTurn['usage'];
 		const providerItems: MessageContentBlock[] = [];
 		const pending = new Map<string, { name: string; argsText: string }>();
-		const lease = providerLimiter ? await providerLimiter.acquire(provider.id, signal) : undefined;
+		const lease = providerLimiter
+			? await providerLimiter.acquire(provider.id.trim().toLowerCase(), signal)
+			: undefined;
 		let retryDelay: number | undefined;
-		yield {
-			type: 'provider_queue_metrics',
-			providerId: provider.id,
-			queueDelayMs: lease?.queueDelayMs ?? 0,
-			attempt,
-		};
+		if (lease) {
+			yield {
+				type: 'provider_queue_metrics',
+				providerId: provider.id,
+				queueDelayMs: lease.queueDelayMs,
+				attempt,
+			};
+		}
 
 		try {
 			for await (const event of llm.stream({

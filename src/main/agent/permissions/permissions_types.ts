@@ -71,6 +71,7 @@ export const PERMISSION_TOOLS = [
 	'open_extensions',
 	'complete_bootstrap',
 	'subagent',
+	'subagents',
 ] as const;
 
 const allow = (): ToolPermission => ({ default: 'allow', allow: [], deny: [], ask: [] });
@@ -133,6 +134,7 @@ export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 	recorder_screen_stop: allow(),
 	complete_bootstrap: ask(),
 	subagent: allow(),
+	subagents: allow(),
 };
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
