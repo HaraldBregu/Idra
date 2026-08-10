@@ -15,6 +15,9 @@ import type {
 	LlmUsage,
 } from './llm_types';
 import { LlmContextOverflowError, LlmProviderAuthError } from './llm_types';
+import { anthropic as completeAnthropic } from './anthropic';
+import { chat as completeChat } from './chat';
+import { responses as completeResponses } from './responses';
 import {
 	llmBuildAnthropicMessages,
 	llmBuildChatMessages,
@@ -217,6 +220,14 @@ export class LlmModel implements LlmAdapter {
 		req: LlmStreamRequest
 	): AsyncIterable<LlmProviderEvent> {
 		const client = this.createOpenAIClient(provider, 'OpenAI api key not configured');
+		if (req.streaming === false) {
+			try {
+				yield* completeResponses(client, req);
+			} catch (error) {
+				this.throwProviderError(error);
+			}
+			return;
+		}
 		const tools: FunctionTool[] = req.tools.map((tool) => ({
 			type: 'function',
 			name: tool.name,
@@ -460,6 +471,14 @@ export class LlmModel implements LlmAdapter {
 		req: LlmStreamRequest
 	): AsyncIterable<LlmProviderEvent> {
 		const client = this.createAnthropicClient(provider);
+		if (req.streaming === false) {
+			try {
+				yield* completeAnthropic(client, req);
+			} catch (error) {
+				this.throwProviderError(error);
+			}
+			return;
+		}
 		const tools: Anthropic.Messages.Tool[] = req.tools.map((t) => ({
 			name: t.name,
 			description: t.description,
@@ -530,6 +549,18 @@ export class LlmModel implements LlmAdapter {
 		req: LlmStreamRequest
 	): AsyncIterable<LlmProviderEvent> {
 		const client = this.createOpenAIClient(provider, 'API key not configured');
+		if (req.streaming === false) {
+			try {
+				yield* completeChat(client, req, {
+					reasoningContentEnabled: this.reasoningContentEnabled,
+					reasoningEffortEnabled: this.reasoningEffortEnabled,
+					thinkingModeEnabled: this.thinkingModeEnabled,
+				});
+			} catch (error) {
+				this.throwProviderError(error);
+			}
+			return;
+		}
 		const tools: OpenAI.ChatCompletionTool[] = req.tools.map((t) => ({
 			type: 'function' as const,
 			function: {
