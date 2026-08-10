@@ -7,7 +7,6 @@ import type { SttAudioInput } from '../../shared/stt_transcription';
 import type { SpeechSynthesisResult } from '../../shared/speech_types';
 import { getChannelProvider } from './channels_store';
 import { getChannelModelSelection } from './channels_store';
-import { getChannelPermissions } from './channels_store';
 import { canReceive } from './channels_security';
 import { channelSessionId } from './channels_session';
 import { loadChannelVoice } from './channels_voice';
@@ -147,7 +146,6 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			const response = await agentService.send(text, 'channels', {
 				interactive: false,
 				streaming: false,
-				permissions: getChannelPermissions(),
 				contextMode: 'minimal',
 				sessionId: channelSessionId(message),
 				...channelModelSelection('llm'),

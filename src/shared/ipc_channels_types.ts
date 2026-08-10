@@ -394,18 +394,6 @@ export interface AppInvokeChannelMap {
 		args: [kind: ChannelModelKind, providerId: string, modelId: string];
 		result: void;
 	};
-	[AppChannels.getChannelsPermissions]: {
-		args: [];
-		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
-	};
-	[AppChannels.saveChannelsPermissions]: {
-		args: [permissions: import('../main/agent/permissions/permissions_types').PermissionsSchema];
-		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
-	};
-	[AppChannels.resetChannelsPermissions]: {
-		args: [];
-		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
-	};
 	[AppChannels.openVideo]: {
 		args: [path: string];
 		result: void;

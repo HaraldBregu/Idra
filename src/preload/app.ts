@@ -59,15 +59,6 @@ export const app: AppApi = {
 			normalizedModelId ?? ''
 		);
 	},
-	getChannelsPermissions: () => {
-		return typedInvokeUnwrap(AppChannels.getChannelsPermissions);
-	},
-	saveChannelsPermissions: (permissions) => {
-		return typedInvokeUnwrap(AppChannels.saveChannelsPermissions, permissions);
-	},
-	resetChannelsPermissions: () => {
-		return typedInvokeUnwrap(AppChannels.resetChannelsPermissions);
-	},
 	onModelsChanged: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.modelsChanged, callback);
 	},

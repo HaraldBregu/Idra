@@ -26,12 +26,6 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	const extensionDetailMatch = useMatch('/settings/extensions/:extensionId');
 
 	if (location.pathname === '/settings') return [];
-	if (location.pathname === '/settings/channels/permissions') {
-		return [
-			{ label: t('settings.tabs.channels'), path: '/settings/channels' },
-			{ label: t('settings.permissions.scopes.channelsTitle') },
-		];
-	}
 	const assistantSubpageLabelKey = ASSISTANT_SUBPAGE_LABEL_KEYS[location.pathname];
 	if (assistantSubpageLabelKey) {
 		const assistantItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.id === 'assistant');

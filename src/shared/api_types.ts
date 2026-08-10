@@ -378,9 +378,6 @@ export interface AppApi {
 		providerId: string,
 		modelId: string
 	) => Promise<void>;
-	getChannelsPermissions: () => Promise<PermissionsSchema>;
-	saveChannelsPermissions: (permissions: PermissionsSchema) => Promise<PermissionsSchema>;
-	resetChannelsPermissions: () => Promise<PermissionsSchema>;
 	/** Fires when resources/providers changes on disk; returns an unsubscribe function. */
 	onModelsChanged: (callback: () => void) => () => void;
 	getPathForFile: (file: File) => string;

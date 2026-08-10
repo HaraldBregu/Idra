@@ -850,11 +850,6 @@
 			"removeDirectory": "Remove directory permission",
 			"reset": "Reset",
 			"saveFailed": "Could not save the permissions.",
-			"scopes": {
-				"channelsTitle": "Bot permissions",
-				"channelsDescription": "Control tool permissions shared by all connected bot channels.",
-				"nonInteractiveNotice": "Background runs cannot ask for approval. Ask is treated as Deny."
-			},
 			"modes": {
 				"allow": "Allow",
 				"ask": "Ask",

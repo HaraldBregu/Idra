@@ -58,10 +58,7 @@ import { validateProviderManifest } from '../../shared/providers/validation';
 import type { ChannelStatusEvent, ChannelType } from '../../shared';
 import {
 	getChannelModelSelection,
-	getChannelPermissions,
 	loadChannels,
-	resetChannelPermissions,
-	saveChannelPermissions,
 	setChannelModelSelection,
 	type ChannelRegistry,
 } from '../channels';
@@ -489,26 +486,6 @@ export class AppIpc implements IpcModule {
 					modelId: modelId?.trim(),
 				});
 			}, AppChannels.setChannelModelSelection)
-		);
-
-		ipcMain.handle(
-			AppChannels.getChannelsPermissions,
-			wrapSimpleHandler(() => getChannelPermissions(), AppChannels.getChannelsPermissions)
-		);
-
-		ipcMain.handle(
-			AppChannels.saveChannelsPermissions,
-			wrapSimpleHandler((value: unknown) => {
-				if (!value || typeof value !== 'object' || Array.isArray(value)) {
-					throw new Error('Invalid channel permissions.');
-				}
-				return saveChannelPermissions(value);
-			}, AppChannels.saveChannelsPermissions)
-		);
-
-		ipcMain.handle(
-			AppChannels.resetChannelsPermissions,
-			wrapSimpleHandler(() => resetChannelPermissions(), AppChannels.resetChannelsPermissions)
 		);
 
 		// Re-read the catalog and tell renderers when resources/providers changes on disk

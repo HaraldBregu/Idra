@@ -849,11 +849,6 @@
 			"removeDirectory": "Rimuovi permesso cartella",
 			"reset": "Ripristina",
 			"saveFailed": "Impossibile salvare i permessi.",
-			"scopes": {
-				"channelsTitle": "Permessi bot",
-				"channelsDescription": "Controlla i permessi degli strumenti condivisi da tutti i canali bot connessi.",
-				"nonInteractiveNotice": "Le esecuzioni in background non possono richiedere approvazione. Chiedi viene trattato come Nega."
-			},
 			"modes": {
 				"allow": "Consenti",
 				"ask": "Chiedi",
