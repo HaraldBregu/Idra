@@ -329,11 +329,6 @@ export function AppSidebar({
 			workspaceFiles.filter((entry) => entry.type !== 'file' || !agentFilePathSet.has(entry.path)),
 		[workspaceFiles]
 	);
-	const workspaceName = useMemo(() => {
-		if (!workspaceLocation) return 'Workspace';
-		return workspaceLocation.split(/[\\/]/).filter(Boolean).pop() ?? workspaceLocation;
-	}, [workspaceLocation]);
-
 	function toggleDirectory(path: string) {
 		setExpanded((current) => {
 			const next = new Set(current);
@@ -493,16 +488,6 @@ export function AppSidebar({
 				);
 			}}
 		>
-			<header
-				className="flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border/70 px-4"
-				title={workspaceLocation || workspaceName}
-			>
-				<FolderOpen className="h-4 w-4 shrink-0 text-sidebar-muted" strokeWidth={1.8} />
-				<h1 className="min-w-0 flex-1 truncate text-[13px] font-semibold tracking-[-0.01em]">
-					{workspaceName}
-				</h1>
-			</header>
-
 			<nav
 				className="min-h-0 flex-1 overflow-y-auto px-2 py-2 scrollbar-subtle"
 				aria-label="Workspace files"
