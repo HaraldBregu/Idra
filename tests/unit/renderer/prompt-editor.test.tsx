@@ -1,6 +1,25 @@
 import { render, waitFor } from '@testing-library/react';
 import { PromptEditor } from '@/components/prompt-editor';
 
+jest.mock('@/components/text-editor', () => {
+	const React = jest.requireActual<typeof import('react')>('react');
+	return {
+		TextEditor: ({
+			value,
+			onEditorReady,
+		}: {
+			value?: string;
+			onEditorReady?: (editor: { view: { dom: HTMLDivElement } }) => void;
+		}) =>
+			React.createElement('div', {
+				ref: (element: HTMLDivElement | null) =>
+					element && onEditorReady?.({ view: { dom: element } }),
+				role: 'textbox',
+				children: value,
+			}),
+	};
+});
+
 describe('PromptEditor', () => {
 	it('expands for multiline content and collapses when cleared', async () => {
 		const { container, rerender } = render(
