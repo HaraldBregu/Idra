@@ -153,7 +153,12 @@ The Home prompt classifier computes `none`, `medium`, or `high` reasoning effort
 | Bootstrap  | Complete the one-time conversational bootstrap after profile files have been written.                                                                                                                               |
 | Subagents  | Run one independent subagent with a fresh conversation and the same tool set except further subagent spawning.                                                                                                      |
 
-Subagents and scheduled agent tasks are non-interactive. The persisted policy mode defaults to `ask`, which denies any tool that resolves to `ask` because they cannot present a permission card. A caller may persist or explicitly pass `permissionMode: "bypass"` to run a background agent without policy checks.
+Agent runs have one explicit runtime type:
+
+- `default` resolves every tool call against the live global permission policy. Approval is interactive only when the run has both an originating window and an event callback; otherwise `ask` denies immediately.
+- `background` is available only to trusted main-process callers. It bypasses Friday's stored tool policy without reading or changing it, never requests approval, and requires an explicit tool allowlist. An empty allowlist exposes no tools.
+
+Both types still enforce capability filtering, input validation, cancellation, timeouts, resource locks, execution budgets, sandboxing, OS permissions, and authorization implemented inside a tool. Subagents inherit the parent run type and exact filtered tool IDs, but cannot spawn nested subagents.
 
 ### Permissions and execution control
 
@@ -276,6 +281,8 @@ Friday persists cron schedule records with:
 - Startup reconciliation that reloads and reschedules persisted records.
 
 The Tasks settings screen selects the task provider/model and lists each schedule's name, prompt or message, cron expression, and enabled state. Schedule creation and management are driven through the agent and slash commands rather than direct Settings forms.
+
+Scheduled agent actions run as background agents with their persisted tool allowlist. A blank allowlist means the schedule has no tools.
 
 **Partial:** the current cron callback logs debug actions and creates trigger/task metadata, but its agent-action branch is still an empty no-op. Scheduled prompts and **Run now** therefore do not execute an agent request yet.
 
@@ -438,6 +445,7 @@ Friday includes Telegram and Discord bot adapters. Enabled channels with tokens 
 - Long replies are split into platform-sized parts, and delivery receipts distinguish sent, partial, and failed delivery.
 - `/start` returns a fixed connected greeting. Other slash-prefixed channel messages are ignored.
 - All accepted Telegram and Discord messages currently share one fixed bot-session UUID.
+- Channel agent runs use the background type with only `search_web` and `fetch_web_page`, plus an eight-call public-web budget per run.
 
 ### Access policies
 
@@ -550,6 +558,7 @@ Prompts, attachments, tool inputs, and generated content may be sent to configur
 - Renderer windows use Electron sandboxing, context isolation, disabled Node integration, web security, and insecure-content blocking.
 - Production navigation is restricted to local `file://` content.
 - Renderer capabilities are exposed through typed preload APIs rather than direct Node access.
+- Renderer agent requests are always mapped to the `default` run type; renderers cannot request privileged background execution.
 - Media permission requests are limited to trusted app windows and renderer origins.
 - Native media context menus validate that files are inside the agent or media data roots.
 
@@ -560,6 +569,7 @@ Known boundaries:
 - Provider secrets can be read by trusted renderer code through the provider preload API.
 - The local-resource protocol confines `local-resource://agent/...`, while other host/path forms are less restricted.
 - Some MCP behaviors (see [MCP servers](#mcp-servers)) run outside the centralized tool-policy system.
+- Trusted background callers bypass only Friday's stored tool policy. Capability allowlists, sandboxing, OS controls, and tool-internal authorization remain in force.
 - Friday does not claim formal certification for regulated data.
 
 ## 8. Platform and packaging

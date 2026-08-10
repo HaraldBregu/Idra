@@ -264,7 +264,7 @@ In-process counters cover ingest success/failure, created/updated pages, claims,
 - Wiki paths are normalized and generated page paths reject traversal and reserved files.
 - Source and generated content are untrusted model context and cannot override system or tool policy.
 - Credential-like files and high-confidence embedded secrets fail closed.
-- Main-session-only tool registration prevents the single local wiki from leaking into task, health, bot, or messaging-channel sessions.
+- Exact per-run capability allowlists prevent wiki tools from appearing in task, health, or messaging-channel runs unless a trusted caller explicitly grants their tool IDs.
 - Raw archive paths are not returned in query results.
 - Interpretive or destructive knowledge changes continue through the review queue.
 - The current application is scoped to one local OS user. Multi-user or tenant deployments require a separate wiki root and authorization boundary per tenant before enabling these tools.
