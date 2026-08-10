@@ -13,6 +13,7 @@ Rules:
 - You are NOT the main agent: do not converse with the user or spawn more agents.`;
 
 const fallbackPool = new KeyedLimiter(3);
+const PARALLEL_TOOL_IDS = new Set(['read', 'web_search', 'web_fetch', 'knowledge_query']);
 
 export function subagentsTool(
 	config: Config,
@@ -38,7 +39,7 @@ export function subagentsTool(
 		}),
 		execute: async ({ tasks }, signal) => {
 			const parentSignal = signal ?? new AbortController().signal;
-			const childTools = tools.filter((candidate) => candidate.parallelSafe === true);
+			const childTools = tools.filter((candidate) => PARALLEL_TOOL_IDS.has(candidate.id));
 			const settled = await Promise.allSettled(
 				tasks.map(async ({ task }) => {
 					const lease = await pool.acquire('subagents', parentSignal);

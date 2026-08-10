@@ -37,7 +37,6 @@ export interface Tool {
 	readonly name: string;
 	readonly description: string;
 	readonly schema: JSONSchema;
-	readonly parallelSafe?: boolean;
 	readonly timeoutMs: number;
 	readonly maxOutputBytes: number;
 	parseInput(input: unknown): Record<string, unknown>;
@@ -48,7 +47,6 @@ export type ToolConfig<T extends z.ZodType> = {
 	id?: string;
 	name: string;
 	description: string;
-	parallelSafe?: boolean;
 	timeoutMs?: number;
 	maxOutputBytes?: number;
 	inputSchema: T;
@@ -59,7 +57,6 @@ export type JsonToolConfig = {
 	id?: string;
 	name: string;
 	description: string;
-	parallelSafe?: boolean;
 	timeoutMs?: number;
 	maxOutputBytes?: number;
 	parseInput?: (input: unknown) => Record<string, unknown>;

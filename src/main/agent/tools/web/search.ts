@@ -5,7 +5,6 @@ import { tool } from '../tool';
 
 const webSearchTool = tool({
 	name: 'web_search',
-	parallelSafe: true,
 	description:
 		'Search the web for current information using the configured search engine. Returns a list of results with title, url, and description.',
 	inputSchema: z.object({

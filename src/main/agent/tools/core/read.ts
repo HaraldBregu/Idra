@@ -6,7 +6,6 @@ import { tool } from '../tool';
 
 export const readTool = tool({
 	name: 'read',
-	parallelSafe: true,
 	description:
 		'Read the full UTF-8 contents of a single text file. Use this before editing when you need the current file contents.',
 	inputSchema: z.object({
