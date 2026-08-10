@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronDown, ChevronRight, Search } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
 import { ModelOptions } from '@/components/model-options';
@@ -222,87 +222,83 @@ const AssistantPage: React.FC = () => {
 					/>
 				</CollapsibleTrigger>
 				<CollapsibleContent className="border-t border-border/60">
-					<div className="grid min-w-0 gap-3 p-3">
-						<ModelProviderConfiguration
-							configState={state}
-							idPrefix="assistant"
-							description={t('settings.modelServices.modelDescription')}
-							onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
+					<ModelProviderConfiguration
+						collapsible={false}
+						configState={state}
+						idPrefix="assistant"
+						triggerTitle={t('settings.modelServices.assistantName')}
+						description={t('settings.modelServices.modelDescription')}
+						onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
+					>
+						<ModelOptions
+							key={`${state.providerId}:${state.modelId}`}
+							inputs={inputs}
+							values={modelOptions}
+							onChange={updateModelOption}
+						/>
+					</ModelProviderConfiguration>
+					<AgentMediaModelConfiguration
+						collapsible={false}
+						api={window.models.image}
+						capability="text-to-image"
+						idPrefix="agent-image"
+						title={t('settings.modelServices.imageAssistantName')}
+						description={t('settings.modelServices.imageModelDescription')}
+					/>
+					<AgentMediaModelConfiguration
+						collapsible={false}
+						api={window.models.sound}
+						capability="text-to-audio"
+						idPrefix="agent-audio"
+						title={t('settings.modelServices.musicCreatorName')}
+						description={t('settings.modelServices.musicModelDescription')}
+					/>
+					<AgentMediaModelConfiguration
+						collapsible={false}
+						api={window.models.video}
+						capability="text-to-video"
+						idPrefix="agent-video"
+						title={t('settings.modelServices.videoCreatorName')}
+						description={t('settings.modelServices.videoModelDescription')}
+					/>
+					{searchEngineError && (
+						<SettingsNotice
+							variant="destructive"
+							icon={AlertTriangle}
+							className="mx-3 mt-3"
 						>
-							<ModelOptions
-								key={`${state.providerId}:${state.modelId}`}
-								inputs={inputs}
-								values={modelOptions}
-								onChange={updateModelOption}
-							/>
-						</ModelProviderConfiguration>
-						<AgentMediaModelConfiguration
-							api={window.models.image}
-							capability="text-to-image"
-							idPrefix="agent-image"
-							title={t('settings.modelServices.imageAssistantName')}
-							description={t('settings.modelServices.imageModelDescription')}
-						/>
-						<AgentMediaModelConfiguration
-							api={window.models.sound}
-							capability="text-to-audio"
-							idPrefix="agent-audio"
-							title={t('settings.modelServices.musicCreatorName')}
-							description={t('settings.modelServices.musicModelDescription')}
-						/>
-						<AgentMediaModelConfiguration
-							api={window.models.video}
-							capability="text-to-video"
-							idPrefix="agent-video"
-							title={t('settings.modelServices.videoCreatorName')}
-							description={t('settings.modelServices.videoModelDescription')}
-						/>
-						<Collapsible className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
-							<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-								<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
-									<Search className="size-4" aria-hidden="true" />
-								</div>
-								<div className="min-w-0 flex-1">
-									<div className="truncate text-[13px] font-medium leading-4 text-foreground">
-										{t('settings.tabs.searchEngine')}
-									</div>
-									<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-										{selectedSearchEngine?.name ?? selectedSearchEngineDescription}
-									</p>
-								</div>
-								<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-							</CollapsibleTrigger>
-							<CollapsibleContent className="border-t border-border/60">
-								<div className="grid min-w-0 gap-3 px-3 py-3">
-									{searchEngineError && (
-										<SettingsNotice variant="destructive" icon={AlertTriangle}>
-											{searchEngineError}
-										</SettingsNotice>
-									)}
-									<Select
-										value={searchSettings?.engineId ?? null}
-										onValueChange={handleSearchEngineChange}
-										disabled={!searchSettings || searchSavingEngineId !== null}
-									>
-										<SelectTrigger className="w-full text-xs [&_svg]:size-3">
-											<SelectValue placeholder={t('settings.searchEngine.defaultTitle')} />
-										</SelectTrigger>
-										<SelectContent>
-											{SEARCH_ENGINES.map((engine) => (
-												<SelectItem
-													key={engine.id}
-													value={engine.id}
-													disabled={!searchSettings?.configured[engine.id]}
-												>
-													{engine.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-							</CollapsibleContent>
-						</Collapsible>
-					</div>
+							{searchEngineError}
+						</SettingsNotice>
+					)}
+					<SettingsRow
+						title={t('settings.tabs.searchEngine')}
+						description={selectedSearchEngine?.name ?? selectedSearchEngineDescription}
+						actions={
+							<Select
+								value={searchSettings?.engineId ?? null}
+								onValueChange={handleSearchEngineChange}
+								disabled={!searchSettings || searchSavingEngineId !== null}
+							>
+								<SelectTrigger
+									className="w-56 max-w-full text-xs [&_svg]:size-3"
+									aria-label={t('settings.tabs.searchEngine')}
+								>
+									<SelectValue placeholder={t('settings.searchEngine.defaultTitle')} />
+								</SelectTrigger>
+								<SelectContent>
+									{SEARCH_ENGINES.map((engine) => (
+										<SelectItem
+											key={engine.id}
+											value={engine.id}
+											disabled={!searchSettings?.configured[engine.id]}
+										>
+											{engine.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						}
+					/>
 				</CollapsibleContent>
 			</Collapsible>
 
@@ -374,26 +370,6 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/assistant/data')}
-					onKeyDown={(event) => {
-						if (event.key === 'Enter' || event.key === ' ') {
-							event.preventDefault();
-							navigate('/settings/assistant/data');
-						}
-					}}
-				>
-					<SettingsRow
-						title={t('settings.dataControls.title')}
-						description={t('settings.dataControls.description')}
-						className="grid-cols-[minmax(0,1fr)_auto]"
-						actionClassName="w-auto justify-end"
-						actions={<ChevronRight className="size-4 text-muted-foreground" />}
-					/>
-				</div>
-				<div
-					role="button"
-					tabIndex={0}
-					className="cursor-pointer hover:bg-muted/40"
 					onClick={() => navigate('/settings/assistant/knowledge-base')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
@@ -425,6 +401,29 @@ const AssistantPage: React.FC = () => {
 					<SettingsRow
 						title={t('settings.wiki.title')}
 						description={t('settings.wiki.description')}
+						className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
+						actionClassName="w-auto justify-end"
+						actions={<ChevronRight className="size-4 text-muted-foreground" />}
+					/>
+				</div>
+			</SettingsPanel>
+
+			<SettingsPanel>
+				<div
+					role="button"
+					tabIndex={0}
+					className="cursor-pointer hover:bg-muted/40"
+					onClick={() => navigate('/settings/assistant/data')}
+					onKeyDown={(event) => {
+						if (event.key === 'Enter' || event.key === ' ') {
+							event.preventDefault();
+							navigate('/settings/assistant/data');
+						}
+					}}
+				>
+					<SettingsRow
+						title={t('settings.dataControls.title')}
+						description={t('settings.dataControls.description')}
 						className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
 						actionClassName="w-auto justify-end"
 						actions={<ChevronRight className="size-4 text-muted-foreground" />}

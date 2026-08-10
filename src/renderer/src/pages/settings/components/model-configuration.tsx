@@ -5,7 +5,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ModelProviderSelect, toModelProviderGroups } from '@/components/model-provider-select';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { getProviderCatalogItem } from '../../start/constants';
-import { SettingsLoadingRows, SettingsNotice } from './index';
+import { SettingsLoadingRows, SettingsNotice, SettingsRow } from './index';
 import type { ModelConfigurationState } from './model-configuration-state';
 
 interface ModelProviderConfigurationProps {
@@ -89,10 +89,57 @@ export function ModelProviderConfiguration({
 	);
 
 	if (!collapsible) {
+		const rowTitle = triggerTitle ?? providerName;
+		const rowLabel = typeof rowTitle === 'string' ? rowTitle : t('settings.modelServices.model');
 		return (
-			<div className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
-				{configurationBody}
-			</div>
+			<>
+				{showInlineError && configState.error && (
+					<SettingsNotice variant="destructive" icon={AlertTriangle} className="mx-3 mt-3">
+						{configState.error}
+					</SettingsNotice>
+				)}
+				<SettingsRow
+					title={rowTitle}
+					description={triggerDescription ?? description}
+					actions={
+						<ModelProviderSelect
+							inline
+							idPrefix={idPrefix}
+							providerGroups={toModelProviderGroups(configState.modelGroups)}
+							providerId={configState.providerId}
+							modelId={configState.modelId}
+							onChange={onChange}
+							disabled={
+								configState.loading ||
+								configState.saving ||
+								configState.modelGroups.length === 0
+							}
+							labels={{
+								label: rowLabel,
+								placeholder: configState.loadingModels
+									? t('settings.modelServices.modelsLoading')
+									: undefined,
+							}}
+						/>
+					}
+				/>
+				<div className="px-3 pb-3 empty:hidden">{children}</div>
+				{configState.providers.length === 0 && (
+					<p className="px-3 pb-2 text-[11px] leading-4 text-muted-foreground">
+						{t('settings.providers.noProviders')}
+					</p>
+				)}
+				{configState.providers.length > 0 && configState.modelGroups.length === 0 && (
+					<p className="px-3 pb-2 text-[11px] leading-4 text-muted-foreground">
+						{t('settings.modelServices.noModels')}
+					</p>
+				)}
+				{configState.saved && (
+					<p className="px-3 pb-2 text-[11px] leading-4 text-muted-foreground">
+						{t('settings.modelServices.saved')}
+					</p>
+				)}
+			</>
 		);
 	}
 

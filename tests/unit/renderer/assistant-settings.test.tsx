@@ -51,7 +51,9 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.imageModelDescription': 'Image defaults',
 		'settings.modelServices.musicModelDescription': 'Audio defaults',
 		'settings.modelServices.videoModelDescription': 'Video defaults',
+		'settings.modelServices.modelDescription': 'Choose provider and model',
 		'settings.modelServices.history': 'History',
+		'settings.tabs.searchEngine': 'Search Engine',
 		'settings.dataControls.title': 'Data management',
 		'settings.dataControls.description': 'Export or purge assistant data',
 		'settings.rag.title': 'Knowledge Base',
@@ -141,16 +143,37 @@ it('groups provider settings in an expandable Configuration card', async () => {
 
 	expect(screen.queryByRole('heading', { name: 'Configuration' })).not.toBeInTheDocument();
 	expect(screen.queryByRole('heading', { name: 'History' })).not.toBeInTheDocument();
-	expect(screen.queryByRole('button', { name: /Image.*Gemini Image/ })).not.toBeInTheDocument();
+	expect(screen.queryByRole('combobox', { name: 'Image' })).not.toBeInTheDocument();
 	const providersConfigurations = await screen.findByRole('button', {
 		name: /Configuration.*Configure model assignments/,
 	});
 	expect(providersConfigurations).toHaveAttribute('aria-expanded', 'false');
 	await user.click(providersConfigurations);
 	expect(providersConfigurations).toHaveAttribute('aria-expanded', 'true');
-	expect(await screen.findByRole('button', { name: /Image.*Gemini Image/ })).toBeInTheDocument();
-	expect(await screen.findByRole('button', { name: /Audio.*Eleven Music/ })).toBeInTheDocument();
-	expect(await screen.findByRole('button', { name: /Video.*Veo/ })).toBeInTheDocument();
+	expect(await screen.findByRole('combobox', { name: 'Agent' })).toHaveTextContent('OpenAI / GPT');
+	expect(await screen.findByRole('combobox', { name: 'Image' })).toHaveTextContent(
+		'Google / Gemini Image'
+	);
+	expect(await screen.findByRole('combobox', { name: 'Audio' })).toHaveTextContent(
+		'ElevenLabs / Eleven Music'
+	);
+	expect(await screen.findByRole('combobox', { name: 'Video' })).toHaveTextContent('Google / Veo');
+	expect(await screen.findByRole('combobox', { name: 'Search Engine' })).toHaveTextContent('Brave');
+});
+
+it('places Data management last in a separate card', () => {
+	render(
+		<MemoryRouter>
+			<AssistantPage />
+		</MemoryRouter>
+	);
+
+	const wiki = screen.getByRole('button', { name: /LLM Wiki/ });
+	const dataManagement = screen.getByRole('button', { name: /Data management/ });
+	expect(wiki.compareDocumentPosition(dataManagement) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+	expect(dataManagement.closest('[data-slot="card"]')).not.toBe(
+		wiki.closest('[data-slot="card"]')
+	);
 });
 
 it.each([

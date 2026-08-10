@@ -66,6 +66,7 @@ interface ModelProviderSelectProps {
 	readonly modelId: string;
 	readonly onChange: (nextProviderId: string, nextModelId: string) => void;
 	readonly disabled?: boolean;
+	readonly inline?: boolean;
 	readonly labels?: ModelProviderSelectLabels;
 }
 
@@ -76,6 +77,7 @@ export function ModelProviderSelect({
 	modelId,
 	onChange,
 	disabled = false,
+	inline = false,
 	labels,
 }: ModelProviderSelectProps): React.JSX.Element {
 	const { t } = useTranslation();
@@ -83,42 +85,52 @@ export function ModelProviderSelect({
 	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
 	const selectedLabel = selectedModel ? modelLabel(providerId, selectedModel) : undefined;
 
+	const select = (
+		<Select
+			value={selectedModel ? `${providerId}${VALUE_SEPARATOR}${modelId}` : null}
+			onValueChange={(value) => {
+				if (!value) return;
+				const [nextProviderId = '', nextModelId = ''] = value.split(VALUE_SEPARATOR);
+				onChange(nextProviderId, nextModelId);
+			}}
+			disabled={disabled || providerGroups.length === 0}
+		>
+			<SelectTrigger
+				id={`${idPrefix}-model`}
+				className={inline ? 'w-56 max-w-full text-xs' : 'w-full min-w-0 max-w-full text-xs'}
+				aria-label={inline ? labels?.label ?? t('settings.modelServices.model') : undefined}
+			>
+				<SelectValue
+					className="min-w-0 overflow-hidden"
+					placeholder={labels?.placeholder ?? t('settings.modelServices.modelPlaceholder')}
+				>
+					{selectedLabel}
+				</SelectValue>
+			</SelectTrigger>
+			<SelectContent>
+				{providerGroups.flatMap((group) =>
+					group.models.map((model) => (
+						<SelectItem
+							key={`${group.id}${VALUE_SEPARATOR}${model.id}`}
+							value={`${group.id}${VALUE_SEPARATOR}${model.id}`}
+						>
+							{modelLabel(group.id, model)}
+						</SelectItem>
+					))
+				)}
+			</SelectContent>
+		</Select>
+	);
+
+	if (inline) return select;
+
 	return (
 		<SettingsField
 			id={`${idPrefix}-model`}
 			label={labels?.label ?? t('settings.modelServices.model')}
 			description={labels?.description}
 		>
-			<Select
-				value={selectedModel ? `${providerId}${VALUE_SEPARATOR}${modelId}` : null}
-				onValueChange={(value) => {
-					if (!value) return;
-					const [nextProviderId = '', nextModelId = ''] = value.split(VALUE_SEPARATOR);
-					onChange(nextProviderId, nextModelId);
-				}}
-				disabled={disabled || providerGroups.length === 0}
-			>
-				<SelectTrigger id={`${idPrefix}-model`} className="w-full min-w-0 max-w-full text-xs">
-					<SelectValue
-						className="min-w-0 overflow-hidden"
-						placeholder={labels?.placeholder ?? t('settings.modelServices.modelPlaceholder')}
-					>
-						{selectedLabel}
-					</SelectValue>
-				</SelectTrigger>
-				<SelectContent>
-					{providerGroups.flatMap((group) =>
-						group.models.map((model) => (
-							<SelectItem
-								key={`${group.id}${VALUE_SEPARATOR}${model.id}`}
-								value={`${group.id}${VALUE_SEPARATOR}${model.id}`}
-							>
-								{modelLabel(group.id, model)}
-							</SelectItem>
-						))
-					)}
-				</SelectContent>
-			</Select>
+			{select}
 		</SettingsField>
 	);
 }
