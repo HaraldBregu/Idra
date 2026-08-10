@@ -6,12 +6,9 @@ export const wikiReviewTool = tool({
 	name: 'wiki_review_changes',
 	risk: 'critical',
 	effect: 'persistence',
-	hardApproval: true,
 	allowedOrigins: ['main'],
-	description:
-		'Approve or reject one pending high-risk wiki change. Applying either decision always requires interactive human approval.',
-	defaultPermission: 'ask',
-	alwaysAsk: true,
+	description: 'Approve or reject one pending high-risk wiki change.',
+	defaultPermission: 'allow',
 	stopOnReject: true,
 	inputSchema: z.object({
 		reviewId: z.string().trim().min(1),

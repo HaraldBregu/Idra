@@ -29,12 +29,12 @@ describe('wiki tools', () => {
 		expect(getWikiTools('main')).toEqual([]);
 	});
 
-	it('keeps status reads automatic and mutations approval-gated', () => {
-		expect(DEFAULT_PERMISSIONS.wiki_ingest_source).toMatchObject({ default: 'ask' });
-		expect(DEFAULT_PERMISSIONS.wiki_save_analysis).toMatchObject({ default: 'ask' });
-		expect(DEFAULT_PERMISSIONS.wiki_lint).toMatchObject({ default: 'ask' });
-		expect(DEFAULT_PERMISSIONS.wiki_review_changes).toMatchObject({ default: 'ask' });
-		expect(DEFAULT_PERMISSIONS.wiki_rebuild_index).toMatchObject({ default: 'ask' });
+	it('allows wiki tools by default', () => {
+		expect(DEFAULT_PERMISSIONS.wiki_ingest_source).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.wiki_save_analysis).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.wiki_lint).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.wiki_review_changes).toMatchObject({ default: 'allow' });
+		expect(DEFAULT_PERMISSIONS.wiki_rebuild_index).toMatchObject({ default: 'allow' });
 		expect(DEFAULT_PERMISSIONS.wiki_get_recent_activity).toMatchObject({ default: 'allow' });
 	});
 });

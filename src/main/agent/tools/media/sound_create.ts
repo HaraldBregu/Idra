@@ -9,7 +9,6 @@ export function createSoundTool(): Tool {
 		name: 'create_sound',
 		risk: 'critical',
 		effect: 'paid',
-		hardApproval: true,
 		allowedOrigins: ['main'],
 		description:
 			'Generate music or a sound effect from a text prompt using the configured text-to-audio provider. Saves the audio in your agent workspace directory and returns its absolute path. If you reference it in markdown, use the returned path.',

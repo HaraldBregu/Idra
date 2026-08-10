@@ -458,59 +458,6 @@ describe('run stream system prompt', () => {
 		expect(search).toHaveBeenCalledTimes(9);
 	});
 
-	it('hard-gates web egress when the main minimal-context input has an attachment', async () => {
-		const session = createSessionState();
-		session.messages = [
-			{
-				role: 'user',
-				content: [{ type: 'file', name: 'private.txt', attachment: { id: 'a', bytes: 1 } }],
-			},
-		];
-		const search = jest.fn().mockResolvedValue('public result');
-		const webTool = jsonTool({
-			name: 'web_search',
-			description: 'public web search',
-			defaultPermission: 'allow',
-			risk: 'medium',
-			effect: 'external',
-			schema: { type: 'object' },
-			execute: search,
-		});
-		runModelTurnMock.mockImplementationOnce(async function* () {
-			yield* [];
-			return {
-				content: '',
-				model: 'test-model',
-				toolCalls: [{ id: 'egress', name: 'web_search', args: { query: 'private code' } }],
-			};
-		});
-		const events = stream(
-			{ location: '/workspace' },
-			session,
-			{
-				runId: 'private-main',
-				task: 'chat',
-				message: 'private',
-				model: 'test-model',
-				origin: 'main',
-				contextMode: 'minimal',
-			},
-			new AbortController().signal,
-			{ tools: [webTool], interactive: true }
-		);
-		expect((await events.next()).value).toMatchObject({ type: 'run_started' });
-		expect((await events.next()).value).toMatchObject({ type: 'assistant_message' });
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const request = (await events.next()).value;
-		expect(request).toMatchObject({ type: 'tool_permission_request', hardApproval: true });
-		if (!request || request.type !== 'tool_permission_request')
-			throw new Error('Expected approval');
-		const end = events.next();
-		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
-		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(search).not.toHaveBeenCalled();
-	});
-
 	it('emits exactly one terminal event when cancelled', async () => {
 		const session = createSessionState();
 		session.id = 'session';

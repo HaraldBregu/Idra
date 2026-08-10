@@ -12,7 +12,6 @@ export function recorderMicrophoneTool(): Tool {
 		defaultPermission: 'allow',
 		risk: 'critical',
 		effect: 'sensor',
-		hardApproval: true,
 		allowedOrigins: ['main'],
 		description:
 			'Start recording audio from the user microphone for a given duration. Requires an open app window. The recording runs in the background: this returns immediately with a recording id and the destination path, and the file is written when the recording finishes. Use recorder_microphone_status to check progress or wait for completion before using the file.',

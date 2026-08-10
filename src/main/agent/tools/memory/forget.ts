@@ -8,8 +8,6 @@ export function forgetMemoryTool(config: Config): Tool {
 		name: 'memory_forget',
 		description: 'Remove exactly one persistent memory by the stable ID returned by memory_list.',
 		defaultPermission: 'allow',
-		alwaysAsk: true,
-		hardApproval: true,
 		stopOnReject: true,
 		risk: 'high',
 		effect: 'persistence',

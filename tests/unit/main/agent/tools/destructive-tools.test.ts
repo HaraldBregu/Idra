@@ -14,6 +14,8 @@ function requiresHardApproval(tool: Tool, input: Record<string, unknown>): boole
 
 it('classifies process termination as a hard approval', () => {
 	expect(requiresHardApproval(processTool, { action: 'kill', sessionId: 'session' })).toBe(true);
+	expect(requiresHardApproval(processTool, { action: 'clear', sessionId: 'session' })).toBe(true);
+	expect(requiresHardApproval(processTool, { action: 'remove', sessionId: 'session' })).toBe(true);
 	expect(requiresHardApproval(processTool, { action: 'log', sessionId: 'session' })).toBe(false);
 });
 
@@ -32,6 +34,12 @@ it('classifies file deletion and overwrite as hard approvals', () => {
 			input: '*** Begin Patch\n*** Add File: /tmp/example\n+content\n*** End Patch',
 		})
 	).toBe(false);
+	expect(
+		requiresHardApproval(applyPatchTool, {
+			input:
+				'*** Begin Patch\n*** Update File: /tmp/example\n*** Move to: /tmp/moved\n@@\n-content\n+updated\n*** End Patch',
+		})
+	).toBe(true);
 	expect(requiresHardApproval(writeTool, { path: existing, content: 'replacement' })).toBe(true);
 	expect(
 		requiresHardApproval(writeTool, { path: path.join(directory, 'new.txt'), content: 'new' })

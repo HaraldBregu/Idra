@@ -4,22 +4,15 @@ import {
 } from '../../../../../src/main/agent/permissions/permissions_types';
 
 const ASK_BY_DEFAULT = [
-	'write',
 	'edit',
 	'apply_patch',
 	'exec',
-	'process',
-	'web_browser',
-	'wiki_ingest_source',
-	'wiki_save_analysis',
-	'wiki_lint',
-	'wiki_review_changes',
-	'wiki_rebuild_index',
-	'complete_bootstrap',
 ] as const;
 
 const ALLOW_BY_DEFAULT = [
 	'read',
+	'write',
+	'process',
 	'recorder_microphone',
 	'recorder_microphone_status',
 	'recorder_microphone_stop',
@@ -31,6 +24,7 @@ const ALLOW_BY_DEFAULT = [
 	'recorder_screen_stop',
 	'web_search',
 	'web_fetch',
+	'web_browser',
 	'create_image',
 	'create_video',
 	'create_sound',
@@ -38,6 +32,11 @@ const ALLOW_BY_DEFAULT = [
 	'memory_forget',
 	'memory_list',
 	'knowledge_query',
+	'wiki_ingest_source',
+	'wiki_save_analysis',
+	'wiki_lint',
+	'wiki_review_changes',
+	'wiki_rebuild_index',
 	'wiki_get_recent_activity',
 	'load_skill',
 	'health_update',
@@ -52,6 +51,7 @@ const ALLOW_BY_DEFAULT = [
 	'run_schedule_now',
 	'list_extensions',
 	'open_extensions',
+	'complete_bootstrap',
 	'subagent',
 	'subagents',
 ] as const;
@@ -68,7 +68,7 @@ describe('DEFAULT_PERMISSIONS', () => {
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultPermissions');
 	});
 
-	it('asks only for editing and destructive capabilities by default', () => {
+	it('asks only for destructive core capabilities by default', () => {
 		const classified = [...ASK_BY_DEFAULT, ...ALLOW_BY_DEFAULT];
 		expect(new Set(classified).size).toBe(classified.length);
 		expect([...classified].sort()).toEqual([...PERMISSION_TOOLS].sort());

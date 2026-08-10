@@ -9,7 +9,6 @@ export function createVideoTool(): Tool {
 		name: 'create_video',
 		risk: 'critical',
 		effect: 'paid',
-		hardApproval: true,
 		allowedOrigins: ['main'],
 		description:
 			'Generate a video from a text prompt using the configured text-to-video provider. Saves the video in your agent workspace directory and returns its absolute path. Video generation can take several minutes; if you reference it in markdown, use the returned path.',

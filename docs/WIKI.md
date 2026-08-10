@@ -266,7 +266,7 @@ In-process counters cover ingest success/failure, created/updated pages, claims,
 - Credential-like files and high-confidence embedded secrets fail closed.
 - Main-session-only tool registration prevents the single local wiki from leaking into task, health, bot, or messaging-channel sessions.
 - Raw archive paths are not returned in query results.
-- Review approval is required for interpretive or destructive knowledge changes.
+- Interpretive or destructive knowledge changes continue through the review queue.
 - The current application is scoped to one local OS user. Multi-user or tenant deployments require a separate wiki root and authorization boundary per tenant before enabling these tools.
 
 ## Migration

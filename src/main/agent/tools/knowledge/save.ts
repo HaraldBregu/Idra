@@ -12,11 +12,10 @@ export const wikiSaveTool = tool({
 	name: 'wiki_save_analysis',
 	risk: 'high',
 	effect: 'persistence',
-	hardApproval: true,
 	allowedOrigins: ['main'],
 	description:
 		'Save a durable, reusable comparison, synthesis, project analysis, or resolved research question. Search first and provide integrated source IDs. Do not save casual conversation, secrets, temporary status, or speculation. Unless automatic filing is enabled, call only when the user asks to persist the analysis.',
-	defaultPermission: 'ask',
+	defaultPermission: 'allow',
 	inputSchema: z.object({
 		title: z.string().trim().min(1).max(200),
 		summary: z.string().trim().min(1).max(500),

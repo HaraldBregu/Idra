@@ -85,16 +85,11 @@ export async function* runToolCall(
 		let permission =
 			permissionMode === 'bypass' && policyPermission !== 'deny' ? 'allow' : policyPermission;
 
-		const carriesPrivateContext =
-			(tool.effect === 'external' || tool.effect === 'paid') && context?.hasPrivateContext === true;
 		const hardApproval =
 			(typeof tool.hardApproval === 'function'
 				? tool.hardApproval(canonicalInput)
-				: tool.hardApproval === true) ||
-			tool.alwaysAsk === true ||
-			carriesPrivateContext;
-		if (permission !== 'deny' && (hardApproval || (tool.alwaysAsk && permissionMode !== 'bypass')))
-			permission = 'ask';
+				: tool.hardApproval === true) || tool.alwaysAsk === true;
+		if (permission !== 'deny' && hardApproval) permission = 'ask';
 		if (permission === 'ask' && !interactive) permission = 'deny';
 
 		if (permission === 'ask') {

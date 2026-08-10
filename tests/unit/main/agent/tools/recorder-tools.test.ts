@@ -31,14 +31,19 @@ it.each([
 	['microphone', recorderMicrophoneTool, microphone],
 	['camera', recorderCameraTool, camera],
 	['screen', recorderScreenTool, screen],
-] as const)('requires hard consent and cancels an owned %s recording with the run', async (_name, createTool, recorder) => {
+] as const)('allows and cancels an owned %s recording with the run', async (_name, createTool, recorder) => {
 	const controller = new AbortController();
 	const captureTool = createTool();
 
 	await captureTool.run({ duration: 1, filename: 'capture.webm' }, controller.signal);
 	controller.abort();
 
-	expect(captureTool).toMatchObject({ risk: 'critical', effect: 'sensor', hardApproval: true });
+	expect(captureTool).toMatchObject({
+		defaultPermission: 'allow',
+		risk: 'critical',
+		effect: 'sensor',
+	});
+	expect(captureTool.hardApproval).toBeUndefined();
 	expect(recorder.cancel).toHaveBeenCalledWith(id);
 });
 

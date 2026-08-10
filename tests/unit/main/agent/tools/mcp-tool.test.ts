@@ -20,7 +20,7 @@ describe('mcpTool', () => {
 		callToolMock.mockReset();
 	});
 
-	it('maps server approval settings to a fail-safe tool fallback', () => {
+	it('allows tools unless the server explicitly requires approval', () => {
 		expect(mcpTool(client, 'lookup', '', schema, 'safe', 'never')).toMatchObject({
 			defaultPermission: 'allow',
 			hardApproval: false,
@@ -30,7 +30,7 @@ describe('mcpTool', () => {
 			hardApproval: true,
 		});
 		expect(mcpTool(client, 'unknown', '', schema, 'safe')).toMatchObject({
-			defaultPermission: 'ask',
+			defaultPermission: 'allow',
 			hardApproval: false,
 		});
 	});

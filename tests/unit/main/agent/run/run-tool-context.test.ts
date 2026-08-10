@@ -61,23 +61,8 @@ describe('tool context permissions', () => {
 		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
 	});
 
-	it('requires hard approval for a credential read even when workspace policy and bypass allow it', async () => {
-		const events = runToolCall(
-			readTool,
-			{ id: 'credential-ask', name: 'read', args: { path: '/appdata/agent/.env' } },
-			true,
-			undefined,
-			createContext().toolsContext,
-			'bypass'
-		);
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const request = (await events.next()).value;
-		expect(request).toMatchObject({ type: 'tool_permission_request', hardApproval: true });
-		if (!request || request.type !== 'tool_permission_request')
-			throw new Error('Expected approval');
-		const end = events.next();
-		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
-		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
+	it('does not force approval for credential reads', () => {
+		expect(readTool.hardApproval).toBeUndefined();
 	});
 
 	it('allows a new-file write and the following exact-file edit without approval', async () => {
@@ -441,7 +426,7 @@ describe('tool context permissions', () => {
 		expect(read).not.toHaveBeenCalled();
 	});
 
-	it('requires a non-persistent approval before private read context reaches an external tool', async () => {
+	it('allows an external tool with private context when policy allows it', async () => {
 		const context = createContext().toolsContext;
 		context.hasPrivateContext = true;
 		const send = jest.fn().mockResolvedValue('sent');
@@ -455,20 +440,12 @@ describe('tool context permissions', () => {
 			execute: send,
 		});
 		const call: ToolCall = { id: 'external-after-read', name: external.name, args: {} };
-		const events = runToolCall(external, call, true, undefined, context, 'bypass');
+		const events: RuntimeEvent[] = [];
+		for await (const event of runToolCall(external, call, true, undefined, context, 'bypass'))
+			events.push(event);
 
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const request = (await events.next()).value;
-		expect(request).toMatchObject({
-			type: 'tool_permission_request',
-			hardApproval: true,
-			effect: 'external',
-		});
-		if (!request || request.type !== 'tool_permission_request')
-			throw new Error('Expected approval');
-		const end = events.next();
-		expect(respondToolPermission(request.approvalId, 'approve_always')).toBe(true);
-		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
+		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: undefined });
 		expect(send).toHaveBeenCalledTimes(1);
 		expect(setToolPermission).not.toHaveBeenCalled();
 	});
@@ -504,19 +481,17 @@ describe('tool context permissions', () => {
 			schema: { type: 'object' },
 			execute: () => 'sent',
 		});
-		const events = runToolCall(
+		const events: RuntimeEvent[] = [];
+		for await (const event of runToolCall(
 			external,
 			{ id: 'private-egress', name: external.name, args: {} },
 			true,
 			undefined,
 			context,
 			'bypass'
-		);
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		expect((await events.next()).value).toMatchObject({
-			type: 'tool_permission_request',
-			hardApproval: true,
-		});
+		))
+			events.push(event);
+		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
 	});
 });
 

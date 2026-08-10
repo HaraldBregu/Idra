@@ -20,7 +20,7 @@ export function mcpTool(
 	return jsonTool({
 		name: runtimeName,
 		description,
-		defaultPermission: approval === 'never' ? 'allow' : 'ask',
+		defaultPermission: approval === 'always' ? 'ask' : 'allow',
 		hardApproval: approval === 'always',
 		risk: 'high',
 		effect: 'external',

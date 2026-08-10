@@ -20,16 +20,16 @@ const config = { location: '/workspace' } as Config;
 it.each([
 	['save', saveMemoryTool(config)],
 	['delete', forgetMemoryTool(config)],
-])('marks memory %s as a hard-approved main-only persistence action', (_label, memoryTool) => {
+])('allows the main-only memory %s action by default', (_label, memoryTool) => {
 	expect(memoryTool).toMatchObject({
 		defaultPermission: 'allow',
-		alwaysAsk: true,
-		hardApproval: true,
 		stopOnReject: true,
 		risk: 'high',
 		effect: 'persistence',
 		allowedOrigins: ['main'],
 	});
+	expect(memoryTool.alwaysAsk).toBeUndefined();
+	expect(memoryTool.hardApproval).toBeUndefined();
 	expect(memoryTool.targets?.({})).toEqual(['/workspace/MEMORY.md']);
 });
 

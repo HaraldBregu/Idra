@@ -7,7 +7,6 @@ export const updateHealthSettingsTool = tool({
 	defaultPermission: 'allow',
 	risk: 'high',
 	effect: 'persistence',
-	hardApproval: true,
 	allowedOrigins: ['main'],
 	description:
 		'Update the health check run configuration. Only the provided fields change; the run schedule is refreshed automatically. Returns the resulting settings.',

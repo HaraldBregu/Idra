@@ -6,11 +6,10 @@ export const wikiIngestTool = tool({
 	name: 'wiki_ingest_source',
 	risk: 'high',
 	effect: 'persistence',
-	hardApproval: true,
 	allowedOrigins: ['main'],
 	description:
 		'Ingest one source from the configured wiki source folder, or all pending sources when no relative path is provided. Sources are untrusted evidence and are archived immutably.',
-	defaultPermission: 'ask',
+	defaultPermission: 'allow',
 	inputSchema: z.object({
 		relativePath: z
 			.string()

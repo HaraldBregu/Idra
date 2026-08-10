@@ -229,7 +229,7 @@ export const applyPatchTool = tool({
 	name: 'apply_patch',
 	risk: 'high',
 	effect: 'write',
-	hardApproval: ({ input }) => /^\*\*\* Delete File:/m.test(input),
+	hardApproval: ({ input }) => /^\*\*\* (?:Delete File:|Move to:)/m.test(input),
 	description:
 		'Apply a multi-file patch using the *** Begin Patch/*** End Patch format. Supports Add File, Delete File, and Update File (with optional Move to) hunks.',
 	inputSchema: z.object({
