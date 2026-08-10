@@ -22,14 +22,12 @@ import {
 	getModelId,
 	getMediaModel,
 	getPermissions,
-	getPermissionMode,
 	getProviderId,
 	getSearchEngine,
 	resetPermissions,
 	setDirectoryPermissions,
 	setModelId,
 	setMediaModel,
-	setPermissionMode,
 	setProviderId,
 	setSearchEngine,
 	setToolPermission,
@@ -43,40 +41,44 @@ beforeEach(() => {
 });
 
 describe('agent store permissions', () => {
-	it('persists the agent permission mode', () => {
-		expect(getPermissionMode()).toBe('ask');
-		setPermissionMode('bypass');
-		expect(getPermissions().mode).toBe('bypass');
-		expect(resetPermissions().mode).toBe('ask');
-	});
-
 	it('preserves normalized directory entries when a tool changes', () => {
-		setDirectoryPermissions({
-			' /shared ': { recoursive: true, tools: [' read ', 'read'] },
-		});
-		const permission = setToolPermission('read', {
+		setDirectoryPermissions([
+			{
+				path: ' /shared ',
+				enabled: true,
+				recoursive: true,
+				tools: [' read_file ', 'read_file'],
+			},
+		]);
+		const permission = setToolPermission('read_file', {
 			default: 'ask',
 			allow: [],
 			deny: [],
 			ask: [],
 		});
 
-		expect(permission.dir).toEqual({
-			'/shared': { recoursive: true, tools: ['read'] },
+		expect(permission.directories).toEqual([
+			{
+				path: '/shared',
+				enabled: true,
+				recoursive: true,
+				tools: ['read_file'],
+			},
+		]);
+		expect(permission.tools.read_file).toEqual({
+			default: 'ask',
+			allow: [],
+			deny: [],
+			ask: [],
 		});
-		expect(permission.read).toEqual({ default: 'ask', allow: [], deny: [], ask: [] });
 	});
 
-	it('reserves dir from tool updates', () => {
-		expect(() =>
-			setToolPermission('dir', { default: 'allow', allow: [], deny: [], ask: [] })
-		).toThrow("'dir' is reserved for permission settings.");
-	});
-
-	it('resets directory permissions to an empty map', () => {
-		setDirectoryPermissions({ '/shared': { recoursive: true, tools: '*' } });
-		expect(getPermissions().dir).not.toEqual({});
-		expect(resetPermissions().dir).toEqual({});
+	it('resets directory permissions to an empty list', () => {
+		setDirectoryPermissions([
+			{ path: '/shared', enabled: true, recoursive: true, tools: '*' },
+		]);
+		expect(getPermissions().directories).not.toEqual([]);
+		expect(resetPermissions().directories).toEqual([]);
 	});
 
 	it('preserves the other agent settings when permissions change', () => {
@@ -88,8 +90,6 @@ describe('agent store permissions', () => {
 			modelId: 'gemini-image',
 			options: { aspectRatio: '16:9' },
 		});
-
-		setPermissionMode('bypass');
 
 		expect(getProviderId()).toBe('provider');
 		expect(getModelId()).toBe('model');
