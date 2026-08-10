@@ -51,7 +51,7 @@ describe('toResult', () => {
 	});
 });
 
-	describe('stringifyRunEntry', () => {
+describe('stringifyRunEntry', () => {
 	it('wraps an event with a timestamp', () => {
 		const parsed = JSON.parse(stringifyRunEntry({ type: 'x' })!);
 		expect(parsed.event).toEqual({ type: 'x' });
@@ -64,7 +64,9 @@ describe('toResult', () => {
 		expect(parsed.event).toEqual({ type: 'invalid_event' });
 	});
 	it('omits raw deltas and provider payloads', () => {
-		expect(stringifyRunEntry({ type: 'model_call_delta', delta: 'private answer' })).toBeUndefined();
+		expect(
+			stringifyRunEntry({ type: 'model_call_delta', delta: 'private answer' })
+		).toBeUndefined();
 		expect(
 			stringifyRunEntry({ type: 'model_provider_item', item: { secret: 'provider payload' } })
 		).toBeUndefined();
@@ -90,8 +92,9 @@ describe('toResult', () => {
 		});
 	});
 	it('keeps queue, model, retry, and permission metrics without content', () => {
-		expect(JSON.parse(stringifyRunEntry({ type: 'run_queue_metrics', queueDelayMs: 7 })!).event)
-			.toEqual({ type: 'run_queue_metrics', queueDelayMs: 7 });
+		expect(
+			JSON.parse(stringifyRunEntry({ type: 'run_queue_metrics', queueDelayMs: 7 })!).event
+		).toEqual({ type: 'run_queue_metrics', queueDelayMs: 7 });
 		expect(
 			JSON.parse(
 				stringifyRunEntry({
