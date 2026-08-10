@@ -36,6 +36,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+	jest.clearAllMocks();
 	Object.defineProperty(window, 'agent', { configurable: true, value: agentApi });
 	Object.defineProperty(window, 'tasks', { configurable: true, value: tasksApi });
 	agentApi.policyGet.mockResolvedValue(permissions);
