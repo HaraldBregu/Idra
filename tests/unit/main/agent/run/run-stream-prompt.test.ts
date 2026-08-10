@@ -9,6 +9,8 @@ const successfulTurn = async function* () {
 const runModelTurnMock = jest.fn(successfulTurn);
 const appendRunMock = jest.fn();
 const closeMcpMock = jest.fn();
+const createSkillRegistrySnapshotMock = jest.fn(() => ({ skills: [], diagnostics: [] }));
+const activateSkillMock = jest.fn();
 
 jest.mock('../../../../../src/main/settings_store', () => ({
 	getModelId: jest.fn(() => 'test-model'),
@@ -28,7 +30,8 @@ jest.mock('../../../../../src/main/agent/tools/mcp/loader', () => ({
 }));
 
 jest.mock('../../../../../src/main/agent/skills', () => ({
-	listSkills: jest.fn(() => []),
+	createSkillRegistrySnapshot: () => createSkillRegistrySnapshotMock(),
+	activateSkill: (...args: unknown[]) => activateSkillMock(...args),
 }));
 
 import { stream } from '../../../../../src/main/agent/run/run_stream';
@@ -42,6 +45,115 @@ describe('run stream system prompt', () => {
 		runModelTurnMock.mockReset().mockImplementation(successfulTurn);
 		appendRunMock.mockReset();
 		closeMcpMock.mockReset();
+		createSkillRegistrySnapshotMock.mockReset().mockReturnValue({ skills: [], diagnostics: [] });
+		activateSkillMock.mockReset();
+	});
+
+	const registrySkill = {
+		id: 'writer',
+		name: 'writer',
+		description: 'Draft polished documents',
+		location: '/canonical/skills/writer',
+		folderPath: '/canonical/skills/writer',
+		manifest: { name: 'writer', description: 'Draft polished documents', allowedTools: ['read'] },
+		enabled: true,
+		invocationPolicy: 'implicit',
+		source: 'local-filesystem',
+		trust: 'user-controlled',
+		hash: 'writer-hash',
+	} as const;
+	const activatedSkill = {
+		id: 'writer',
+		name: 'writer',
+		canonicalRoot: '/canonical/skills/writer',
+		instructions: 'EXACT WRITER INSTRUCTIONS',
+		source: 'local-filesystem',
+		trust: 'user-controlled',
+		hash: 'writer-hash',
+		allowedTools: ['read'],
+		resources: ['references/style.md'],
+		warnings: [],
+	} as const;
+
+	it.each(['minimal', 'workspace'] as const)(
+		'injects an explicitly selected skill before the first %s model turn',
+		async (contextMode) => {
+			createSkillRegistrySnapshotMock.mockReturnValue({ skills: [registrySkill], diagnostics: [] });
+			activateSkillMock.mockResolvedValue(activatedSkill);
+			const session = createSessionState();
+			session.messages = [{ role: 'user', content: 'Draft this' }];
+			for await (const event of stream(
+				{ location: '/workspace' },
+				session,
+				{ runId: `explicit-${contextMode}`, task: 'chat', message: 'Draft this', model: 'test-model', origin: 'main', contextMode, explicitSkill: 'writer' },
+				new AbortController().signal,
+				{ tools: [] }
+			)) void event;
+
+			expect(activateSkillMock).toHaveBeenCalledWith(expect.objectContaining({ skills: [registrySkill] }), 'writer');
+			const protectedPrompt = runModelTurnMock.mock.calls[0][9] as string;
+			expect(protectedPrompt).toContain('EXACT WRITER INSTRUCTIONS');
+			expect(protectedPrompt).toContain('"canonicalRoot":"/canonical/skills/writer"');
+			expect(protectedPrompt).toContain('references/style.md');
+		}
+	);
+
+	it('loads an implicit skill in minimal mode without transporting its body through tool output', async () => {
+		createSkillRegistrySnapshotMock.mockReturnValue({ skills: [registrySkill], diagnostics: [] });
+		activateSkillMock.mockResolvedValue(activatedSkill);
+		runModelTurnMock
+			.mockImplementationOnce(async function* () {
+				yield* [];
+				return { content: '', model: 'test-model', toolCalls: [{ id: 'load', name: 'load_skill', args: { name: 'writer' } }] };
+			})
+			.mockImplementationOnce(successfulTurn);
+		const session = createSessionState();
+		session.messages = [{ role: 'user', content: 'Draft this' }];
+		for await (const event of stream(
+			{ location: '/workspace' },
+			session,
+			{ runId: 'implicit-minimal', task: 'chat', message: 'Draft this', model: 'test-model', origin: 'main', contextMode: 'minimal' },
+			new AbortController().signal,
+			{ interactive: false }
+		)) void event;
+
+		expect(runModelTurnMock.mock.calls[0][10]).toEqual([
+			expect.objectContaining({ content: expect.stringContaining('Draft polished documents') }),
+		]);
+		expect(runModelTurnMock.mock.calls[1][9]).toContain('EXACT WRITER INSTRUCTIONS');
+		const receipt = session.messages.find((message) => message.toolCalls?.[0]?.name === 'load_skill')?.toolCalls?.[0]?.result?.content;
+		expect(receipt).toContain('"activated": true');
+		expect(receipt).not.toContain('EXACT WRITER INSTRUCTIONS');
+	});
+
+	it('surfaces explicit activation errors before model inference', async () => {
+		createSkillRegistrySnapshotMock.mockReturnValue({ skills: [], diagnostics: [] });
+		activateSkillMock.mockRejectedValue(new Error('Skill "missing" was not found in this run\'s registry.'));
+		const events = [];
+		await expect(async () => {
+			for await (const event of stream(
+				{ location: '/workspace' },
+				createSessionState(),
+				{ runId: 'missing', task: 'chat', message: 'request', model: 'test-model', origin: 'main', contextMode: 'minimal', explicitSkill: 'missing' },
+				new AbortController().signal,
+				{ tools: [] }
+			)) events.push(event);
+		}).rejects.toThrow('not found');
+		expect(events).toContainEqual(expect.objectContaining({ type: 'run_error', message: expect.stringContaining('not found') }));
+		expect(runModelTurnMock).not.toHaveBeenCalled();
+	});
+
+	it('omits the activation tool when the registry has no implicit skills', async () => {
+		const events = [];
+		for await (const event of stream(
+			{ location: '/workspace' },
+			createSessionState(),
+			{ runId: 'empty-skills', task: 'chat', message: 'request', model: 'test-model', origin: 'main', contextMode: 'minimal' },
+			new AbortController().signal
+		)) events.push(event);
+		expect(events[0]).toMatchObject({ type: 'run_started' });
+		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
+		expect(events[0].tools).not.toContain('load_skill');
 	});
 
 	it('applies main toolsAllow and toolsDeny to the subagent tool', async () => {

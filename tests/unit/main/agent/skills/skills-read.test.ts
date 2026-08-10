@@ -10,9 +10,11 @@ jest.mock('../../../../../src/main/agent/skills/skills_policy_read', () => ({
 
 describe('readSkill', () => {
 	it('records the validated local source, trust, and exact content hash', () => {
-		const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-skill-'));
+		const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-skill-'));
+		const folder = path.join(parent, 'safe-skill');
 		const source = '---\nname: safe-skill\ndescription: Safe\nallowed-tools: read write\n---\nBody';
 		try {
+			fs.mkdirSync(folder);
 			fs.writeFileSync(path.join(folder, 'SKILL.md'), source);
 			const skill = readSkill(folder, 'safe-skill');
 			expect(skill).toEqual(
@@ -25,7 +27,7 @@ describe('readSkill', () => {
 			expect(skill?.manifest.allowedTools).toEqual(['read', 'write']);
 			expect(skill).toEqual(expect.objectContaining({ enabled: true, invocationPolicy: 'implicit' }));
 		} finally {
-			fs.rmSync(folder, { recursive: true, force: true });
+			fs.rmSync(parent, { recursive: true, force: true });
 		}
 	});
 });
