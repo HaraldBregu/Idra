@@ -201,9 +201,9 @@ const PermissionsPage: React.FC = () => {
 													type="button"
 													variant="ghost"
 													size="icon-sm"
-													aria-label={t('settings.permissions.removeDirectory')}
-													onClick={() => removeDirectory(directory)}
-													disabled={saving}
+											aria-label={t('settings.permissions.removeDirectory')}
+											onClick={() => removeDirectory(directory)}
+											disabled={saving || directory === workspaceDirectory}
 												>
 													<Trash2 className="size-3" />
 												</Button>
@@ -287,7 +287,7 @@ const PermissionsPage: React.FC = () => {
 										</span>
 										<Select
 											value={permissionFor(permissions, toolName)!.default}
-											disabled={saving || directory === workspaceDirectory}
+											disabled={saving}
 											onValueChange={(value) => {
 												if (value) setDefault(toolName, value as PermissionMode);
 											}}
