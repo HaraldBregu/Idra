@@ -12,9 +12,9 @@ export function selectOriginTools(
 		origin === 'main' || origin === 'task'
 			? tools
 			: origin === 'bot'
-				? tools.filter((tool) => tool.name === 'web_search' || tool.name === 'web_fetch')
+				? tools.filter((tool) => tool.id === 'web_search' || tool.id === 'web_fetch')
 				: origin === 'subagent'
-					? tools.filter((tool) => tool.name !== 'subagent' && tool.name !== 'subagents')
+					? tools.filter((tool) => tool.id !== 'subagent' && tool.id !== 'subagents')
 					: [];
 	const allowed =
 		allow && (origin !== 'task' || allow.length > 0)
@@ -22,6 +22,6 @@ export function selectOriginTools(
 			: undefined;
 	const denied = new Set(deny.map(currentToolName));
 	return profile.filter(
-		(tool) => (!allowed || allowed.has(tool.name)) && !denied.has(tool.name)
+		(tool) => (!allowed || allowed.has(tool.id)) && !denied.has(tool.id)
 	);
 }

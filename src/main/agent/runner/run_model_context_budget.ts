@@ -22,7 +22,7 @@ export interface ModelContextBudgetResult {
 export function fitModelContext(input: ModelContextBudgetInput): ModelContextBudgetResult {
 	const maxInputTokens = Math.max(256, Math.floor(input.maxInputTokens));
 	const toolView = input.tools.map((tool) => ({
-		name: tool.name,
+		name: tool.id,
 		description: tool.description,
 		schema: tool.schema,
 	}));

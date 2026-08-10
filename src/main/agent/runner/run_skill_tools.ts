@@ -6,7 +6,7 @@ export function selectSkillTools(tools: Tool[], allowedTools: string[] | undefin
 	const allowed = new Set(allowedTools.map(currentToolName));
 	return tools.filter(
 		(tool) =>
-			tool.name === 'load_skill' ||
-			(tool.name !== 'subagent' && tool.name !== 'subagents' && allowed.has(tool.name))
+			tool.id === 'load_skill' ||
+			(tool.id !== 'subagent' && tool.id !== 'subagents' && allowed.has(tool.id))
 	);
 }

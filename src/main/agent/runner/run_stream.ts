@@ -259,7 +259,7 @@ async function* loop(
 		sessionId: session.id,
 		model: modelId,
 		providerId: provider.id,
-		tools: tools.map((tool) => tool.name),
+		tools: tools.map((tool) => tool.id),
 		skillDiagnostics: skillSnapshot.diagnostics,
 		skillActivations: ((session.context.loadedSkills as LoadedSkill[] | undefined) ?? []).map(
 			(skill) => ({
@@ -284,7 +284,7 @@ async function* loop(
 				session.context.loadedSkills,
 				session.context.basePrompt,
 				contextMode,
-				tools.some((tool) => tool.name === 'load_skill')
+				tools.some((tool) => tool.id === 'load_skill')
 			);
 			const protectedSkillPrompt = buildLoadedSkillPrompt(session.context.loadedSkills ?? []);
 			const workspaceContext =
@@ -297,7 +297,7 @@ async function* loop(
 					skill.trust === 'user-controlled' &&
 					skill.invocationPolicy === 'implicit'
 			);
-			const skillContext = tools.some((tool) => tool.name === 'load_skill')
+			const skillContext = tools.some((tool) => tool.id === 'load_skill')
 				? buildSkillContext(implicitSkills)
 				: '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');

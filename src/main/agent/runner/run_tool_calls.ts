@@ -18,7 +18,7 @@ export async function* runToolCalls(
 ): AsyncGenerator<RuntimeEvent, void> {
 	for (const toolCall of toolCalls) {
 		yield* runToolCall(
-			tools.find((tool) => tool.name === toolCall.name),
+			tools.find((tool) => tool.id === toolCall.name),
 			toolCall,
 			interactive,
 			signal,

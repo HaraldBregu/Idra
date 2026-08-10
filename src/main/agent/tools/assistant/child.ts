@@ -24,7 +24,7 @@ export async function runChild(
 		message: task,
 		origin: 'subagent',
 		contextMode: 'minimal',
-		toolsAllow: tools.map((candidate) => candidate.name),
+		toolsAllow: tools.map((candidate) => candidate.id),
 	};
 	const session = createSessionState();
 	session.messages = [{ role: 'user', content: task }];

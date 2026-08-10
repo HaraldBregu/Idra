@@ -145,7 +145,7 @@ export async function* runToolCall(
 					? AbortSignal.any([signal, timeoutController.signal])
 					: timeoutController.signal;
 				const resourceTargets = directoryPermissionTargets(
-					tool.name,
+					tool.id,
 					canonicalInput,
 					agentLocation()
 				);

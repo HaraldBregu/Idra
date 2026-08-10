@@ -29,7 +29,7 @@ export function subagentTool(
 		}),
 		execute: async ({ task }, signal) => {
 			const childTools = tools.filter(
-				(candidate) => candidate.name !== 'subagent' && candidate.name !== 'subagents'
+				(candidate) => candidate.id !== 'subagent' && candidate.id !== 'subagents'
 			);
 			return runChild(
 				config,
