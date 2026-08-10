@@ -208,6 +208,29 @@ describe('run stream system prompt', () => {
 		expect(events[0].tools).not.toContain('load_skill');
 	});
 
+	it('exposes file creation tools to bot runs', async () => {
+		const events = [];
+		for await (const event of stream(
+			{ location: '/workspace' },
+			createSessionState(),
+			{
+				runId: 'bot-file-tools',
+				task: 'chat',
+				message: 'create a file',
+				model: 'test-model',
+				origin: 'bot',
+				contextMode: 'minimal',
+			},
+			new AbortController().signal,
+			{ interactive: false }
+		))
+			events.push(event);
+
+		expect(events[0]).toMatchObject({ type: 'run_started' });
+		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
+		expect(events[0].tools).toEqual(expect.arrayContaining(['write', 'apply_patch']));
+	});
+
 	it('applies main toolsAllow and toolsDeny to the subagent tool', async () => {
 		const noTools = [];
 		for await (const event of stream(
