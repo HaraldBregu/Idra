@@ -405,13 +405,13 @@ export const SETTINGS_NAVIGATION: readonly SettingsNavigationItem[] = [
 		icon: Bot,
 	},
 	{
-		path: '/settings/knowledge-base',
+		path: '/settings/assistant/knowledge-base',
 		labelKey: 'settings.rag.title',
 		descriptionKey: 'settings.overview.descriptions.rag',
 		icon: Library,
 	},
 	{
-		path: '/settings/llm-wiki',
+		path: '/settings/assistant/llm-wiki',
 		labelKey: 'settings.wiki.title',
 		descriptionKey: 'settings.overview.descriptions.wiki',
 		icon: BookOpenText,

@@ -379,11 +379,11 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/knowledge-base')}
+					onClick={() => navigate('/settings/assistant/knowledge-base')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
 							event.preventDefault();
-							navigate('/settings/knowledge-base');
+							navigate('/settings/assistant/knowledge-base');
 						}
 					}}
 				>
@@ -399,11 +399,11 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/llm-wiki')}
+					onClick={() => navigate('/settings/assistant/llm-wiki')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
 							event.preventDefault();
-							navigate('/settings/llm-wiki');
+							navigate('/settings/assistant/llm-wiki');
 						}
 					}}
 				>

@@ -144,8 +144,8 @@ it('shows image, audio, and video defaults on the Agent settings page', async ()
 
 it.each([
 	['Data management', '/settings/assistant/data'],
-	['Knowledge Base', '/settings/knowledge-base'],
-	['LLM Wiki', '/settings/llm-wiki'],
+	['Knowledge Base', '/settings/assistant/knowledge-base'],
+	['LLM Wiki', '/settings/assistant/llm-wiki'],
 ])('opens %s from the Agent settings page', async (label, path) => {
 	const user = userEvent.setup();
 	render(
