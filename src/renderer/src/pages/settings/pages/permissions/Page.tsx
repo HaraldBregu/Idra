@@ -58,7 +58,7 @@ const directoryToolsFor = (value: string): '*' | string[] => {
 	];
 };
 
-type PermissionsScope = 'agent' | 'tasks' | 'health' | 'channels';
+type PermissionsScope = 'agent' | 'channels';
 
 const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scope = 'agent' }) => {
 	const { t } = useTranslation();
@@ -88,13 +88,7 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 
 	useEffect(() => {
 		const operation =
-			scope === 'tasks'
-				? window.tasks.getPermissions()
-				: scope === 'health'
-					? window.agent.healthGetPermissions()
-					: scope === 'channels'
-						? window.app.getChannelsPermissions()
-						: window.agent.policyGet();
+			scope === 'channels' ? window.app.getChannelsPermissions() : window.agent.policyGet();
 		operation.then(setPermissions).catch((err: unknown) => {
 			setError(err instanceof Error ? err.message : String(err));
 		});
@@ -105,13 +99,9 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 		if (!permission) return;
 		const next = { ...permission, default: mode };
 		apply(() =>
-			scope === 'tasks'
-				? window.tasks.savePermissions({ ...permissions!, [toolName]: next })
-				: scope === 'health'
-					? window.agent.healthSavePermissions({ ...permissions!, [toolName]: next })
-					: scope === 'channels'
-						? window.app.saveChannelsPermissions({ ...permissions!, [toolName]: next })
-						: window.agent.policySetTool(toolName, next)
+			scope === 'channels'
+				? window.app.saveChannelsPermissions({ ...permissions!, [toolName]: next })
+				: window.agent.policySetTool(toolName, next)
 		);
 	};
 
@@ -125,13 +115,9 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 			[directory]: { recoursive: newDirectoryRecursive, tools: directoryTools },
 		};
 		apply(() =>
-			scope === 'tasks'
-				? window.tasks.savePermissions({ ...permissions, dir: directories })
-				: scope === 'health'
-					? window.agent.healthSavePermissions({ ...permissions, dir: directories })
-					: scope === 'channels'
-						? window.app.saveChannelsPermissions({ ...permissions, dir: directories })
-						: window.agent.policySetDirectories(directories)
+			scope === 'channels'
+				? window.app.saveChannelsPermissions({ ...permissions, dir: directories })
+				: window.agent.policySetDirectories(directories)
 		);
 		setNewDirectory('');
 	};
@@ -141,13 +127,9 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 		const directories = { ...permissions.dir };
 		delete directories[directory];
 		apply(() =>
-			scope === 'tasks'
-				? window.tasks.savePermissions({ ...permissions, dir: directories })
-				: scope === 'health'
-					? window.agent.healthSavePermissions({ ...permissions, dir: directories })
-					: scope === 'channels'
-						? window.app.saveChannelsPermissions({ ...permissions, dir: directories })
-						: window.agent.policySetDirectories(directories)
+			scope === 'channels'
+				? window.app.saveChannelsPermissions({ ...permissions, dir: directories })
+				: window.agent.policySetDirectories(directories)
 		);
 	};
 
@@ -174,29 +156,15 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 		newDirectory.trim().length > 0 &&
 		(parsedDirectoryTools === '*' || parsedDirectoryTools.length > 0);
 	const title =
-		scope === 'tasks'
-			? t('settings.permissions.scopes.tasksTitle')
-			: scope === 'health'
-				? t('settings.permissions.scopes.healthTitle')
-				: scope === 'channels'
-					? t('settings.permissions.scopes.channelsTitle')
-					: t('settings.tabs.permissions');
+		scope === 'channels'
+			? t('settings.permissions.scopes.channelsTitle')
+			: t('settings.tabs.permissions');
 	const description =
-		scope === 'tasks'
-			? t('settings.permissions.scopes.tasksDescription')
-			: scope === 'health'
-				? t('settings.permissions.scopes.healthDescription')
-				: scope === 'channels'
-					? t('settings.permissions.scopes.channelsDescription')
-					: t('settings.overview.descriptions.permissions');
+		scope === 'channels'
+			? t('settings.permissions.scopes.channelsDescription')
+			: t('settings.overview.descriptions.permissions');
 	const reset = (): Promise<Permissions> =>
-		scope === 'tasks'
-			? window.tasks.resetPermissions()
-			: scope === 'health'
-				? window.agent.healthResetPermissions()
-				: scope === 'channels'
-					? window.app.resetChannelsPermissions()
-					: window.agent.policyReset();
+		scope === 'channels' ? window.app.resetChannelsPermissions() : window.agent.policyReset();
 
 	return (
 		<SettingsPageShell>

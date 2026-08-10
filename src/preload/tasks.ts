@@ -12,15 +12,6 @@ export const tasks: TaskApi = {
 	setRuntime: (providerId: string, modelId: string) => {
 		return typedInvokeUnwrap(TaskChannels.setRuntime, providerId, modelId);
 	},
-	getPermissions: () => {
-		return typedInvokeUnwrap(TaskChannels.permissionsGet);
-	},
-	savePermissions: (permissions) => {
-		return typedInvokeUnwrap(TaskChannels.permissionsSave, permissions);
-	},
-	resetPermissions: () => {
-		return typedInvokeUnwrap(TaskChannels.permissionsReset);
-	},
 	configureCapabilities: (scheduleId: string, enabled: boolean, toolsAllow: string[]) => {
 		return typedInvokeUnwrap(
 			TaskChannels.configureCapabilities,

@@ -33,10 +33,7 @@ import {
 } from '../agent/permissions';
 import {
 	getHealthSettings,
-	getHealthPermissions,
-	resetHealthPermissions,
 	resetHealthSettings,
-	saveHealthPermissions,
 	updateHealthSettings,
 } from '../agent/health/health_store';
 import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
@@ -570,24 +567,6 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				rescheduleHealth();
 				return next;
 			}, AgentChannels.healthResetSettings)
-		);
-
-		ipcMain.handle(
-			AgentChannels.healthPermissionsGet,
-			wrapSimpleHandler(() => getHealthPermissions(), AgentChannels.healthPermissionsGet)
-		);
-
-		ipcMain.handle(
-			AgentChannels.healthPermissionsSave,
-			wrapSimpleHandler((value: unknown) => {
-				if (!isRecord(value)) throw new Error('Invalid health permissions.');
-				return saveHealthPermissions(value);
-			}, AgentChannels.healthPermissionsSave)
-		);
-
-		ipcMain.handle(
-			AgentChannels.healthPermissionsReset,
-			wrapSimpleHandler(() => resetHealthPermissions(), AgentChannels.healthPermissionsReset)
 		);
 
 		ipcMain.handle(

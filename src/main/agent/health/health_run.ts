@@ -1,6 +1,6 @@
 import type { Agent } from '../agent';
 import { getHealthData } from './health_data';
-import { getHealthPermissions, getHealthSettings } from './health_store';
+import { getHealthSettings } from './health_store';
 import type { HealthActiveHours, HealthLogger } from './health_types';
 
 const HEALTH_AGENT_ID = 'health';
@@ -35,7 +35,6 @@ export async function runHealthCheck(agent: Agent, logger: HealthLogger): Promis
 	const response = await agent.send(message, HEALTH_AGENT_ID, {
 		interactive: false,
 		streaming: false,
-		permissions: getHealthPermissions(),
 		contextMode: 'minimal',
 		...(settings.isolatedSession ? { sessionId: HEALTH_SESSION_ID } : {}),
 		...(settings.providerId ? { providerId: settings.providerId } : {}),

@@ -295,18 +295,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		keywords: 'permissions permission directory recursive tool write edit exec allow deny ask',
 	},
 	{
-		path: '/settings/tasks/permissions',
-		labelKey: 'settings.permissions.scopes.tasksTitle',
-		descriptionKey: 'settings.permissions.scopes.tasksDescription',
-		keywords: 'background task permissions tools allow deny ask',
-	},
-	{
-		path: '/settings/assistant/health/permissions',
-		labelKey: 'settings.permissions.scopes.healthTitle',
-		descriptionKey: 'settings.permissions.scopes.healthDescription',
-		keywords: 'health check permissions tools allow deny ask',
-	},
-	{
 		path: '/settings/channels/permissions',
 		labelKey: 'settings.permissions.scopes.channelsTitle',
 		descriptionKey: 'settings.permissions.scopes.channelsDescription',

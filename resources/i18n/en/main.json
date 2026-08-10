@@ -851,10 +851,6 @@
 			"reset": "Reset",
 			"saveFailed": "Could not save the permissions.",
 			"scopes": {
-				"tasksTitle": "Background task permissions",
-				"tasksDescription": "Control which allowed task tools can run without user approval.",
-				"healthTitle": "Health check permissions",
-				"healthDescription": "Control tool permissions for automated health checks.",
 				"channelsTitle": "Bot permissions",
 				"channelsDescription": "Control tool permissions shared by all connected bot channels.",
 				"nonInteractiveNotice": "Background runs cannot ask for approval. Ask is treated as Deny."

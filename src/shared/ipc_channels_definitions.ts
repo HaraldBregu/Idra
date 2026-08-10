@@ -33,9 +33,6 @@ export const AgentChannels = {
 	healthSettings: 'agent:health:settings',
 	healthSaveSettings: 'agent:health:settings:save',
 	healthResetSettings: 'agent:health:settings:reset',
-	healthPermissionsGet: 'agent:health:permissions:get',
-	healthPermissionsSave: 'agent:health:permissions:save',
-	healthPermissionsReset: 'agent:health:permissions:reset',
 	healthData: 'agent:health:data',
 	healthSaveData: 'agent:health:data:save',
 	ragIndex: 'agent:rag:index',
@@ -80,9 +77,6 @@ export const TaskChannels = {
 	getRuntime: 'tasks:runtime:get',
 	setRuntime: 'tasks:runtime:set',
 	configureCapabilities: 'tasks:capabilities:configure',
-	permissionsGet: 'tasks:permissions:get',
-	permissionsSave: 'tasks:permissions:save',
-	permissionsReset: 'tasks:permissions:reset',
 } as const;
 
 export const SkillsChannels = {

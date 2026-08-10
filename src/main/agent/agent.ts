@@ -17,7 +17,6 @@ import { agentLocation } from '../shared/agent_location';
 import {
 	destroyTask,
 	getRuntime,
-	getTaskPermissions,
 	initTask,
 	setTaskRunner,
 	startTask,
@@ -118,7 +117,6 @@ export class Agent {
 			return this.send(schedule.action.prompt, 'tasks', {
 				interactive: false,
 				streaming: false,
-				permissions: getTaskPermissions(),
 				contextMode: 'minimal',
 				...(toolsAllow.length > 0 ? { toolsAllow } : {}),
 				effort: schedule.action.effort,

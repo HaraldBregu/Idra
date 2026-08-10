@@ -150,9 +150,6 @@ export interface AgentApi {
 	healthGetSettings: () => Promise<HealthSettings>;
 	healthSaveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
 	healthResetSettings: () => Promise<HealthSettings>;
-	healthGetPermissions: () => Promise<PermissionsSchema>;
-	healthSavePermissions: (permissions: PermissionsSchema) => Promise<PermissionsSchema>;
-	healthResetPermissions: () => Promise<PermissionsSchema>;
 	healthGetData: () => Promise<string>;
 	healthSaveData: (content: string) => Promise<string>;
 	ragIndex: () => Promise<RagIndexResult>;
@@ -166,9 +163,6 @@ export interface TaskApi {
 	list: () => Promise<TaskSchedule[]>;
 	getRuntime: () => Promise<TaskRuntime | undefined>;
 	setRuntime: (providerId: string, modelId: string) => Promise<TaskRuntime>;
-	getPermissions: () => Promise<PermissionsSchema>;
-	savePermissions: (permissions: PermissionsSchema) => Promise<PermissionsSchema>;
-	resetPermissions: () => Promise<PermissionsSchema>;
 	configureCapabilities: (
 		scheduleId: string,
 		enabled: boolean,

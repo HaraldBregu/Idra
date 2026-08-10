@@ -25,7 +25,6 @@ import {
 	SettingsSection,
 } from '../../../components';
 import { ModelProviderConfiguration } from '../../../components/model-configuration';
-import { PermissionsLink } from '../../permissions/Link';
 
 function llmModelGroups(): ProviderModelGroup[] {
 	return providerIdsFor('llm').flatMap((providerId) => {
@@ -378,12 +377,6 @@ const HealthPage: React.FC = () => {
 							</SettingsPanel>
 						</div>
 					</SettingsSection>
-
-					<PermissionsLink
-						path="/settings/assistant/health/permissions"
-						title={t('settings.permissions.scopes.healthTitle')}
-						description={t('settings.permissions.scopes.healthDescription')}
-					/>
 
 					<SettingsSection
 						title={t('settings.health.checklistTitle')}
