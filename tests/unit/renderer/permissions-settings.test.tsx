@@ -135,6 +135,7 @@ describe('Permissions settings', () => {
 
 		expect(await screen.findByText('tasksTitle')).toBeInTheDocument();
 		expect(screen.getByText('nonInteractiveNotice')).toBeInTheDocument();
+		await screen.findByText('/tmp');
 		const readDefault = screen.getAllByRole('combobox')[0];
 		readDefault.focus();
 		await user.keyboard('{ArrowDown}');
