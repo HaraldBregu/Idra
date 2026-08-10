@@ -33,6 +33,8 @@ it('gives bots unrestricted-origin tools and respects tool-specific origin restr
 	expect(selectOriginTools(tools, 'bot', ['exec', 'memory_list'])).toEqual([]);
 	expect(selectOriginTools(tools, 'bot', ['write']).map((tool) => tool.name)).toEqual(['write']);
 	expect(selectOriginTools(tools, 'bot', undefined, ['web_fetch']).map((tool) => tool.name)).toEqual([
+		'write',
+		'apply_patch',
 		'web_search',
 	]);
 });
@@ -46,6 +48,8 @@ it('gives health no tools and tasks no tools until a trusted allowlist narrows t
 it('prevents nested subagents and respects per-tool origin restrictions', () => {
 	expect(selectOriginTools(tools, 'subagent').map((tool) => tool.name)).toEqual([
 		'read',
+		'write',
+		'apply_patch',
 		'web_search',
 		'web_fetch',
 		'exec',
