@@ -138,7 +138,6 @@ export interface AgentApi {
 	getModelOptions: () => Promise<Record<string, unknown>>;
 	setModelOptions: (options: Record<string, unknown>) => Promise<Record<string, unknown>>;
 	policyGet: () => Promise<PermissionsSchema>;
-	policyPickDirectory: () => Promise<string | undefined>;
 	policySet: (permissions: PermissionsSchema) => Promise<PermissionsSchema>;
 	policyReset: () => Promise<PermissionsSchema>;
 	healthGetSettings: () => Promise<HealthSettings>;

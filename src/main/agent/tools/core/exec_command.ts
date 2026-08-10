@@ -68,12 +68,6 @@ const execInputSchema = z.object({
 		.describe(
 			'Ignored for normal calls; exec security is set by tools.exec.security and host approvals.'
 		),
-	ask: z
-		.string()
-		.optional()
-		.describe(
-			'Baseline ask comes from tools.exec.ask and host approvals; channel-origin calls ignore per-call ask when effective host ask is off.'
-		),
 	node: z.string().optional().describe('Node id/name for host=node.'),
 });
 
@@ -357,8 +351,8 @@ export function execTool(sandbox: ExecSandbox) {
 		id: 'exec_command',
 		name: 'Execute command',
 		description:
-			'Run a shell command in a filesystem sandbox. Reads are allowed outside configured directories, but writes are limited to enabled recursive directories that allow exec_command. ' +
-			'For an intentional write outside those directories, retry with elevated: true to request host execution. Set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
+			'Run a shell command in a filesystem sandbox. The read and write permission globs define its filesystem boundary, while exec allow and deny rules control commands. ' +
+			'For an intentional host operation, retry with elevated: true to request approval. Set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
 		inputSchema: execInputSchema,
 		execute: (input, signal) => runExec(sandbox, input, signal),
 	});

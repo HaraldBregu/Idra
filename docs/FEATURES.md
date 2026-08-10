@@ -164,55 +164,49 @@ Both types still enforce capability filtering, input validation, cancellation, t
 
 The Permissions screen provides persistent controls for sensitive tools:
 
-- Every tool owns a policy object under `tools` with `default`, `allow`, `ask`, and `deny` fields.
-- The top-level `directories` array assigns directory-scoped tool allow-lists using `{ "path": string, "enabled": boolean, "recoursive": boolean, "tools": "*" | string[] }` entries.
-- The agent workspace is present by default as an enabled recursive entry for all tools. It can be edited or removed like any other directory entry.
-- `read`, sandboxed `exec`, and `process` default to **Allow**. `write`, `edit`, `apply_patch`, and media creation default to **Ask**.
-- Other built-in tools retain independent **Allow** defaults.
+- The policy has three buckets: `read`, `write`, and `exec`.
+- Each bucket contains only `allow` and `deny` rule arrays. There is no persisted `ask` property.
+- Read and write entries are absolute or home-relative path globs. Exec entries are command rules.
+- The default policy allows reads and writes below the agent workspace and allows sandboxed commands. Unmatched sensitive operations resolve to an interactive **Ask** decision.
+- Tools unrelated to filesystem reads, filesystem mutations, or command execution remain allowed.
 - An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
-- An always-allow decision stores the containing folder for `read`, the exact target for other file and patch tools, and the raw command for `exec`.
-- Always-allow decisions persist path or command rules in the owning tool's `allow` list.
-- Resetting restores the default tool policies and agent-workspace directory entry.
+- An always-allow decision stores a containing-folder glob for reads, the exact target for writes, or the command for exec.
+- Resetting restores the default workspace path globs and sandboxed command rule.
 
 Permissions use this top-level structure:
 
 ```json
 {
-	"tools": {
-		"read_file": { "default": "allow", "allow": [], "ask": [], "deny": [] }
+	"read": {
+		"allow": ["/workspace/**", "/tmp/**"],
+		"deny": ["/workspace/.env", "/workspace/secrets/**"]
 	},
-	"directories": [
-		{ "path": "/path/to/folder", "enabled": true, "recoursive": true, "tools": "*" },
-		{
-			"path": "/path/to/another/folder",
-			"enabled": true,
-			"recoursive": true,
-			"tools": ["read_file"]
-		}
-	]
+	"write": {
+		"allow": ["/workspace/src/**", "/workspace/tests/**"],
+		"deny": ["/workspace/.git/**", "/workspace/config/prod/**"]
+	},
+	"exec": {
+		"allow": ["python", "pytest", "npm test", "git status"],
+		"deny": ["sudo", "rm -rf", "curl", "wget", "ssh"]
+	}
 }
 ```
 
-Rule resolution is tool-local:
+Rule resolution is deny-first:
 
-- The first layer checks `directories`. The call is allowed when every target is covered by a matching directory entry that lists the tool.
-- If the directory layer does not allow the whole call, resolution continues to the named tool's explicit rules and default.
-- A file path matches that file, while a directory path also matches its descendants.
-- The most specific matching path wins; equally specific rules use **Deny**, then **Ask**, then **Allow** precedence.
-- `exec` supports exact command rules and a trailing `:*` prefix form such as `git push:*`.
-- A rule for one tool never changes another tool's decision.
-- A matching `directories` entry allows listed tools early. An unlisted tool falls through to its own policy instead of being denied by the directory layer. `"*"` allows every tool.
-- Nested directory entries use the most-specific match. `recoursive: true` includes descendants; `false` covers direct files only.
-- Directory authorization happens before per-tool path or command rules.
+- Any matching deny rule denies the operation, even when an allow rule also matches.
+- If no deny matches, a matching allow rule allows the operation.
+- If neither matches, the runtime requests approval when interactive and denies non-interactive background calls.
+- A single-word exec allow rule such as `python` includes its arguments. A multi-word allow rule such as `npm test` is exact. Deny command rules match the command and its arguments.
+- Compound commands are allowed automatically only when every segment is allowed. Commands using substitutions or redirections require approval.
 
 Important boundaries:
 
-- Normal `exec` calls run inside the operating-system command sandbox. They may read outside configured directories, but may write only inside enabled recursive directory entries that allow `exec_command`.
-- A command that intentionally needs to write elsewhere must retry with `elevated: true`. Elevated execution runs on the host only after an interactive approval, and an **Always allow** decision applies to that exact command rather than a command prefix.
-- Directory policy resolves `exec` from its working directory; the command sandbox independently enforces its write boundary even when command operands reference other paths.
+- Normal `exec` calls run inside the operating-system command sandbox. Read deny rules and both write rule arrays are also applied at the OS boundary.
+- A command that intentionally needs host execution must use `elevated: true`. The wildcard `*` does not authorize elevated execution; a non-wildcard exec allow rule or interactive approval is required.
 - Background calls never bypass stored permissions. Because they cannot display an approval request, an **Ask** result is denied.
-- Relative policy paths such as `Desktop` resolve from the user home directory.
-- Tool defaults and directory pre-authorizations are editable from Settings.
+- Relative policy paths such as `Desktop/**` resolve from the user home directory.
+- Permission rules are editable from Settings, one rule per line.
 
 ### Skills
 

@@ -25,7 +25,6 @@ export const AgentChannels = {
 	getModelOptions: 'agent:get-model-options',
 	setModelOptions: 'agent:set-model-options',
 	policyGet: 'agent:policy:get',
-	policyPickDirectory: 'agent:policy:permission:pick',
 	policySet: 'agent:policy:set',
 	policyReset: 'agent:policy:reset',
 	healthSettings: 'agent:health:settings',

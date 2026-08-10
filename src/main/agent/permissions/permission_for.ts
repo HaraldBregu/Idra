@@ -27,6 +27,9 @@ export function permissionFor(
 	}
 	const matches = (rule: string): boolean => {
 		const pattern = resolveUserPath(rule, os.homedir());
+		const recursiveRoot = pattern.endsWith(`${path.sep}**`) ? pattern.slice(0, -3) : undefined;
+		if (recursiveRoot && (target === recursiveRoot || target.startsWith(`${recursiveRoot}${path.sep}`)))
+			return true;
 		try {
 			return target === pattern || path.matchesGlob(target, pattern);
 		} catch {
