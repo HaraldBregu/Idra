@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { agentLocation } from '../../../shared/agent_location';
 import { resolveUserPath } from '../../../shared/user_path';
 import { tool } from '../tool';
+import { atomicWrite } from '../../../shared/atomic_write';
 
 export const editTool = tool({
 	name: 'edit',
@@ -32,7 +33,7 @@ export const editTool = tool({
 			throw new Error('edit oldText matched multiple locations.');
 		}
 
-		await fs.writeFile(resolved, content.replace(oldText, newText), 'utf8');
+		await atomicWrite(resolved, content.replace(oldText, newText));
 		return { path: resolved };
 	},
 });

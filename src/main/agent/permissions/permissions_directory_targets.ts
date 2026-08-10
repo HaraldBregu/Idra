@@ -6,6 +6,7 @@ import { healthStorePath } from '../health/health_store';
 import { skillsRoot } from '../skills/skills_root';
 import { registry } from '../tools/core/process';
 import { toolPermissionTargets } from './permissions_targets';
+import { getWikiSettings } from '../../wiki/wiki_get_settings';
 
 const AGENT_FILES: Record<string, string> = {
 	memory_save: 'MEMORY.md',
@@ -23,6 +24,13 @@ const SCHEDULE_TOOLS = new Set([
 	'get_schedule',
 	'list_schedules',
 	'run_schedule_now',
+]);
+const WIKI_TOOLS = new Set([
+	'wiki_ingest_source',
+	'wiki_save_analysis',
+	'wiki_lint',
+	'wiki_review_changes',
+	'wiki_rebuild_index',
 ]);
 
 export function directoryPermissionTargets(
@@ -52,6 +60,9 @@ export function directoryPermissionTargets(
 		return [realPath(resolveUserPath(directory, baseDir))];
 	}
 	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(taskStorePath)];
+	if (WIKI_TOOLS.has(toolName)) {
+		return [realPath(path.resolve(getWikiSettings().targetPath, 'index.md'))];
+	}
 	if (toolName === 'load_skill') return [realPath(path.join(skillsRoot, String(args.name ?? '')))];
 	return [];
 }

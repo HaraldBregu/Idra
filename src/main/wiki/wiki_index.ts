@@ -1,6 +1,7 @@
-import { readFile, readdir, writeFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
+import { atomicWrite } from '../shared/atomic_write';
 
 export async function rebuildWikiIndex(targetPath: string): Promise<void> {
 	const entries = await readdir(targetPath, { recursive: true });
@@ -47,5 +48,5 @@ export async function rebuildWikiIndex(targetPath: string): Promise<void> {
 		})
 		.join('\n\n');
 	const markdown = `# Wiki index\n\n${sections || '_No pages have been generated yet._'}\n`;
-	await writeFile(path.resolve(targetPath, 'index.md'), markdown, 'utf8');
+	await atomicWrite(path.resolve(targetPath, 'index.md'), markdown);
 }

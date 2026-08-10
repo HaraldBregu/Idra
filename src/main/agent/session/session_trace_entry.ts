@@ -134,6 +134,14 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 			...(typeof event.queueDelayMs === 'number' ? { queueDelayMs: event.queueDelayMs } : {}),
 		};
 	}
+	if (event.type === 'provider_queue_metrics') {
+		return {
+			type: event.type,
+			...(typeof event.providerId === 'string' ? { providerId: event.providerId } : {}),
+			...(typeof event.queueDelayMs === 'number' ? { queueDelayMs: event.queueDelayMs } : {}),
+			...(typeof event.attempt === 'number' ? { attempt: event.attempt } : {}),
+		};
+	}
 	if (event.type === 'tool_permission_request') {
 		return {
 			type: event.type,

@@ -4,6 +4,7 @@ import { memoryPath } from './memory_path';
 import { parseMemories } from './memory_parse';
 import { memoryRecord } from './memory_record';
 import type { MemoryFact } from './memory_types';
+import { atomicWrite } from '../../shared/atomic_write';
 
 export async function saveMemory(
 	config: Config,
@@ -17,6 +18,6 @@ export async function saveMemory(
 	}
 	const entry = `- [${memory.id}] ${memory.fact}`;
 	const separator = text.endsWith('\n') ? '' : '\n';
-	await fs.writeFile(filePath, `${text}${separator}${entry}\n`, 'utf8');
+	await atomicWrite(filePath, `${text}${separator}${entry}\n`);
 	return { saved: true, memory };
 }

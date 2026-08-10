@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { agentLocation } from '../../../shared/agent_location';
 import { resolveUserPath } from '../../../shared/user_path';
 import { tool } from '../tool';
+import { atomicWrite } from '../../../shared/atomic_write';
 
 const BEGIN_PATCH_MARKER = '*** Begin Patch';
 const END_PATCH_MARKER = '*** End Patch';
@@ -244,7 +245,7 @@ export const applyPatchTool = tool({
 			const target = resolveUserPath(hunk.path, agentLocation());
 			if (hunk.kind === 'add') {
 				await fs.mkdir(path.dirname(target), { recursive: true });
-				await fs.writeFile(target, hunk.contents, 'utf8');
+				await atomicWrite(target, hunk.contents);
 				added.push(target);
 			} else if (hunk.kind === 'delete') {
 				await fs.rm(target);
@@ -255,11 +256,11 @@ export const applyPatchTool = tool({
 				if (hunk.movePath) {
 					const moveTarget = resolveUserPath(hunk.movePath, agentLocation());
 					await fs.mkdir(path.dirname(moveTarget), { recursive: true });
-					await fs.writeFile(moveTarget, applied, 'utf8');
+					await atomicWrite(moveTarget, applied);
 					if (moveTarget !== target) await fs.rm(target);
 					modified.push(moveTarget);
 				} else {
-					await fs.writeFile(target, applied, 'utf8');
+					await atomicWrite(target, applied);
 					modified.push(target);
 				}
 			}

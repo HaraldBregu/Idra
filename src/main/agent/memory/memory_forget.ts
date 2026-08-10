@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import type { Config } from '../types';
 import { parseMemories } from './memory_parse';
 import { memoryPath } from './memory_path';
+import { atomicWrite } from '../../shared/atomic_write';
 
 export async function forgetMemory(
 	config: Config,
@@ -19,6 +20,6 @@ export async function forgetMemory(
 	if (matchingLines.size === 0) return { removed: false, id: memoryId };
 	const lines = text.split('\n');
 	const kept = lines.filter((_line, lineIndex) => !matchingLines.has(lineIndex));
-	await fs.writeFile(filePath, kept.join('\n'), 'utf8');
+	await atomicWrite(filePath, kept.join('\n'));
 	return { removed: true, id: memoryId };
 }

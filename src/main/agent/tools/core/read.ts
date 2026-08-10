@@ -11,6 +11,7 @@ export const readTool = tool({
 	risk: 'high',
 	effect: 'read',
 	allowedOrigins: ['main', 'task', 'subagent'],
+	parallelSafe: true,
 	hardApproval: ({ path: filePath }) => {
 		const resolved = resolveUserPath(filePath, agentLocation());
 		return isCredentialReference(filePath) || isCredentialReference(realPath(resolved));

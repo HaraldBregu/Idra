@@ -1,10 +1,8 @@
 import { z } from 'zod';
-import { randomUUID } from 'node:crypto';
 import { tool } from '../tool';
-import { createSessionState } from '../../session';
-import { adoptSubagent, type AgentContext } from '../../context';
-import { stream } from '../../run/run_stream';
-import type { Config, RuntimeInput, Tool } from '../../types';
+import type { AgentContext } from '../../context';
+import type { Config, Tool } from '../../types';
+import { runChild, type ChildRuntime } from './child';
 
 const instructions = `You are a subagent spawned by the main agent to complete one specific task.
 
@@ -15,7 +13,12 @@ Rules:
 
 When you finish, your final response is reported back to the main agent. Include what you accomplished or found and any details the main agent needs. Keep it concise but informative.`;
 
-export function subagentTool(config: Config, tools: Tool[], parent: AgentContext): Tool {
+export function subagentTool(
+	config: Config,
+	tools: Tool[],
+	parent: AgentContext,
+	runtime: ChildRuntime = {}
+): Tool {
 	return tool({
 		name: 'subagent',
 		description:
@@ -25,31 +28,18 @@ export function subagentTool(config: Config, tools: Tool[], parent: AgentContext
 		}),
 		allowedOrigins: ['main'],
 		execute: async ({ task }, signal) => {
-			const childTools = tools.filter((candidate) => candidate.name !== 'subagent');
-			const input: RuntimeInput = {
-				runId: randomUUID(),
-				task: 'subagent',
-				message: task,
-				origin: 'subagent',
-				contextMode: 'minimal',
-				toolsAllow: childTools.map((candidate) => candidate.name),
-			};
-			const session = createSessionState();
-			session.messages = [{ role: 'user', content: task }];
-			session.context.basePrompt = instructions;
-			adoptSubagent(parent, session.context);
-
-			let text = '';
-			const events = stream(config, session, input, signal ?? new AbortController().signal, {
-				tools: childTools,
-				interactive: false,
-			});
-			for await (const event of events) {
-				if (event.type === 'assistant_message') text = event.content;
-				if (event.type === 'run_finished' && event.result.subtype === 'error_max_turns')
-					text = text || 'Subagent stopped: reached max iterations without a final answer.';
-			}
-			return text;
+			const childTools = tools.filter(
+				(candidate) => candidate.name !== 'subagent' && candidate.name !== 'subagents'
+			);
+			return runChild(
+				config,
+				childTools,
+				parent,
+				task,
+				instructions,
+				signal ?? new AbortController().signal,
+				runtime
+			);
 		},
 	});
 }

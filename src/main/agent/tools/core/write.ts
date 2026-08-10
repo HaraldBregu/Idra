@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { agentLocation } from '../../../shared/agent_location';
 import { resolveUserPath } from '../../../shared/user_path';
 import { tool } from '../tool';
+import { atomicWrite } from '../../../shared/atomic_write';
 
 export const writeTool = tool({
 	name: 'write',
@@ -25,7 +26,7 @@ export const writeTool = tool({
 	execute: async ({ path: filePath, content }) => {
 		const resolved = resolveUserPath(filePath, agentLocation());
 		await fs.mkdir(path.dirname(resolved), { recursive: true });
-		await fs.writeFile(resolved, content, 'utf8');
+		await atomicWrite(resolved, content);
 		return { path: resolved };
 	},
 });

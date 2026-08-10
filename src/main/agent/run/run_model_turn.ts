@@ -9,6 +9,8 @@ import { isTransientModelError } from './run_is_transient_model_error';
 import { modelOutputLimit } from './run_model_output_limit';
 import { modelInputLimit } from './run_model_input_limit';
 import { fitModelContext } from './run_model_context_budget';
+import type { KeyedLimiter } from '../limiter';
+import { retryAfterMs } from './run_retry_after';
 
 export interface ModelTurnStream {
 	stream(request: LlmRequest): AsyncIterable<LlmEvent>;
@@ -28,9 +30,10 @@ export async function* runModelTurn(
 	llm: ModelTurnStream = llmModel,
 	protectedSystemPrompt = '',
 	contextMessages: Message[] = [],
-	streaming = true
+	streaming = true,
+	providerLimiter?: KeyedLimiter
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
-	const maxRetries = 1;
+	const maxRetries = 2;
 	const maxTokens = modelOutputLimit(provider.id, modelId, modelOptions);
 	const context = fitModelContext({
 		systemPrompt,
@@ -50,6 +53,14 @@ export async function* runModelTurn(
 		let usage: ModelTurn['usage'];
 		const providerItems: MessageContentBlock[] = [];
 		const pending = new Map<string, { name: string; argsText: string }>();
+		const lease = providerLimiter ? await providerLimiter.acquire(provider.id, signal) : undefined;
+		let retryDelay: number | undefined;
+		yield {
+			type: 'provider_queue_metrics',
+			providerId: provider.id,
+			queueDelayMs: lease?.queueDelayMs ?? 0,
+			attempt,
+		};
 
 		try {
 			for await (const event of llm.stream({
@@ -123,8 +134,11 @@ export async function* runModelTurn(
 				attempt >= maxRetries
 			)
 				throw error;
-			await wait(250 * 2 ** attempt, undefined, { signal });
+			retryDelay = retryAfterMs(error) ?? Math.min(250 * 2 ** attempt, 2_000);
+		} finally {
+			lease?.release();
 		}
+		if (retryDelay !== undefined) await wait(retryDelay, undefined, { signal });
 	}
 
 	return { content: '', model: modelId, toolCalls: [] };

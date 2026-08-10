@@ -16,6 +16,8 @@ import { redactApprovalInput } from '../permissions/permissions_redact_input';
 import { formatToolOutput } from './run_common';
 import { limitToolOutput } from './run_limit_output';
 import type { AgentOrigin } from '../../../shared/agent_types';
+import type { KeyedMutex } from '../mutex';
+import { directoryPermissionTargets } from '../permissions/permissions_directory_targets';
 
 export interface ToolCallSecurityContext {
 	runId: string;
@@ -31,7 +33,8 @@ export async function* runToolCall(
 	context?: ToolsContext,
 	permissionMode: AgentPermissionMode = 'ask',
 	security: ToolCallSecurityContext = { runId: 'internal', origin: 'main' },
-	permissions?: PermissionsSchema
+	permissions?: PermissionsSchema,
+	resources?: KeyedMutex
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 	let canonicalInput = toolCall.args;
@@ -160,12 +163,20 @@ export async function* runToolCall(
 				const toolSignal = signal
 					? AbortSignal.any([signal, timeoutController.signal])
 					: timeoutController.signal;
-				let abort: ((reason?: unknown) => void) | undefined;
-				const aborted = new Promise<never>((_, reject) => {
-					abort = () => reject(toolSignal.reason ?? new Error('Tool call aborted.'));
-					toolSignal.addEventListener('abort', abort, { once: true });
-				});
+				const exclusiveTargets =
+					tool.exclusiveTargets?.(canonicalInput) ??
+					(tool.effect === 'write' || tool.effect === 'persistence'
+						? directoryPermissionTargets(tool.name, canonicalInput, agentLocation())
+						: []);
+				const release = resources
+					? await resources.acquire(exclusiveTargets, toolSignal)
+					: () => undefined;
+				let abort: (() => void) | undefined;
 				try {
+					const aborted = new Promise<never>((_, reject) => {
+						abort = () => reject(toolSignal.reason ?? new Error('Tool call aborted.'));
+						toolSignal.addEventListener('abort', abort, { once: true });
+					});
 					output = await Promise.race([
 						Promise.resolve(tool.run(canonicalInput, toolSignal)),
 						aborted,
@@ -174,6 +185,7 @@ export async function* runToolCall(
 					if (toolCall.name === 'read' && state) rememberTool(context, state);
 					if (createsFile && state) rememberTool(context, state);
 				} finally {
+					release();
 					clearTimeout(timeoutTimer);
 					if (abort) toolSignal.removeEventListener('abort', abort);
 				}

@@ -43,6 +43,8 @@ export interface Tool {
 	readonly risk: AgentToolRisk;
 	readonly effect: AgentToolEffect;
 	readonly allowedOrigins?: readonly AgentOrigin[];
+	readonly exclusiveTargets?: (args: Record<string, unknown>) => string[];
+	readonly parallelSafe?: boolean;
 	readonly timeoutMs: number;
 	readonly maxOutputBytes: number;
 	readonly confirmDetail?: (args: Record<string, unknown>) => string | undefined;
@@ -61,6 +63,8 @@ export type ToolConfig<T extends z.ZodType> = {
 	risk?: AgentToolRisk;
 	effect?: AgentToolEffect;
 	allowedOrigins?: readonly AgentOrigin[];
+	exclusiveTargets?: (args: Record<string, unknown>) => string[];
+	parallelSafe?: boolean;
 	timeoutMs?: number;
 	maxOutputBytes?: number;
 	confirmDetail?: (args: Record<string, unknown>) => string | undefined;
@@ -77,6 +81,8 @@ export type JsonToolConfig = {
 	risk?: AgentToolRisk;
 	effect?: AgentToolEffect;
 	allowedOrigins?: readonly AgentOrigin[];
+	exclusiveTargets?: (args: Record<string, unknown>) => string[];
+	parallelSafe?: boolean;
 	timeoutMs?: number;
 	maxOutputBytes?: number;
 	targets?: (args: Record<string, unknown>) => string[];
@@ -178,6 +184,7 @@ export interface McpDiscoveryDiagnostics {
 
 export type RuntimeEvent =
 	| RuntimeModelEvent
+	| { type: 'provider_queue_metrics'; providerId: string; queueDelayMs: number; attempt: number }
 	| { type: 'run_error'; message: string }
 	| {
 			type: 'run_started';

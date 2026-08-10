@@ -8,10 +8,12 @@ export function selectOriginTools(
 	deny: readonly string[] = []
 ): Tool[] {
 	const profile =
-		origin === 'main' || origin === 'bot' || origin === 'task'
+		origin === 'main' || origin === 'task'
 			? tools
+			: origin === 'bot'
+				? tools.filter((tool) => tool.allowedOrigins?.includes('bot'))
 			: origin === 'subagent'
-				? tools.filter((tool) => tool.name !== 'subagent')
+				? tools.filter((tool) => tool.name !== 'subagent' && tool.name !== 'subagents')
 				: [];
 	const allowed = allow && (origin !== 'task' || allow.length > 0) ? new Set(allow) : undefined;
 	const denied = new Set(deny);

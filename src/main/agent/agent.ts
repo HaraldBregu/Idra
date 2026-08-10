@@ -47,6 +47,8 @@ import { toError } from '../ipc/core/error';
 import { AgentRunScheduler, type AgentRunPriority } from './agent_scheduler';
 import type { WindowFactory } from '../window_factory';
 import type { PermissionsSchema } from './permissions';
+import { KeyedLimiter } from './limiter';
+import { KeyedMutex } from './mutex';
 
 interface ActiveAgentRun {
 	runId: string;
@@ -84,6 +86,9 @@ export class Agent {
 	private readonly activeRuns = new Map<string, ActiveAgentRun>();
 	private readonly activeSessions = new Map<string, SessionState>();
 	private readonly scheduler = new AgentRunScheduler(3);
+	private readonly resources = new KeyedMutex();
+	private readonly providerLimiter = new KeyedLimiter(3);
+	private readonly subagentLimiter = new KeyedLimiter(3);
 	private readonly lastMessagesLimit = 50;
 	private isStarted = false;
 	readonly config: Config;
@@ -222,6 +227,9 @@ export class Agent {
 				streaming: options.streaming ?? true,
 				...(options.permissions ? { permissions: options.permissions } : {}),
 				windowFactory: this.windowFactory,
+				resources: this.resources,
+				providerLimiter: this.providerLimiter,
+				subagentLimiter: this.subagentLimiter,
 			});
 
 			const streamingToolArgs = new Map<string, { name: string; argsText: string }>();

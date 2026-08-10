@@ -55,6 +55,7 @@ import { getScheduleTool } from '../tools/tasks/get_schedule';
 import { listSchedulesTool } from '../tools/tasks/list_schedules';
 import { runScheduleNowTool } from '../tools/tasks/run_schedule_now';
 import { subagentTool } from '../tools/assistant/subagent';
+import { subagentsTool } from '../tools/assistant/subagents';
 import { listExtensionsTool } from '../tools/extensions/list';
 import { openExtensionsTool } from '../tools/extensions/open';
 import type { AgentPermissionMode } from '../../../shared/agent_types';
@@ -70,6 +71,8 @@ import { hasPrivateInput } from './run_has_private_input';
 import { activateSkill, createSkillRegistrySnapshot } from '../skills';
 import type { SkillLoadResult } from '../../../shared/skills_types';
 import type { PermissionsSchema } from '../permissions';
+import type { KeyedLimiter } from '../limiter';
+import type { KeyedMutex } from '../mutex';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -77,6 +80,9 @@ export interface StreamOptions {
 	streaming?: boolean;
 	permissions?: PermissionsSchema;
 	windowFactory?: WindowFactory;
+	resources?: KeyedMutex;
+	providerLimiter?: KeyedLimiter;
+	subagentLimiter?: KeyedLimiter;
 }
 
 const MAX_TOOL_CALLS = 100;
@@ -232,7 +238,21 @@ async function* loop(
 		const mcp = await loadMcpTools(signal);
 		tools.push(...mcp.tools);
 		const childTools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
-		tools.push(subagentTool(config, childTools, session.context));
+		const childRuntime = {
+			...(options.resources ? { resources: options.resources } : {}),
+			...(options.providerLimiter ? { providerLimiter: options.providerLimiter } : {}),
+			...(options.subagentLimiter ? { subagentLimiter: options.subagentLimiter } : {}),
+		};
+		tools.push(
+			subagentTool(config, childTools, session.context, childRuntime),
+			subagentsTool(
+				config,
+				childTools,
+				session.context,
+				childRuntime,
+				options.subagentLimiter
+			)
+		);
 		closeMcp = mcp.close;
 		mcpDiscovery = mcp.diagnostics;
 	}
@@ -301,7 +321,8 @@ async function* loop(
 				undefined,
 				protectedSkillPrompt,
 				runtimeContext ? [{ role: 'user', content: runtimeContext }] : [],
-				options.streaming ?? true
+				options.streaming ?? true,
+				options.providerLimiter
 			);
 
 			recordTurn(session, turn);
@@ -369,7 +390,8 @@ async function* loop(
 					origin,
 					...(input.approvalWindowId === undefined ? {} : { windowId: input.approvalWindowId }),
 				},
-				options.permissions
+				options.permissions,
+				options.resources
 			)) {
 				yield event;
 				if (event.type !== 'tool_call_end') continue;
