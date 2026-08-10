@@ -1,4 +1,16 @@
+import { ArrowRight, Copy, Dices, LogOut, Users, Wifi } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 interface SessionProps {
 	roomId: string | null;
@@ -25,11 +37,18 @@ export default function Session({ roomId, onJoin, onLeave }: SessionProps) {
 
 	if (roomId) {
 		return (
-			<div className="session-panel" role="status">
-				<span className="session-live" aria-hidden="true" />
-				<span className="session-room" title={roomId}>Temporary room: {roomId}</span>
-				<button
+			<section
+				aria-label="Temporary collaboration room"
+				className="session-shell flex max-w-[calc(100%-2rem)] items-center gap-1 rounded-lg border border-border bg-background p-1 text-foreground shadow-md"
+			>
+				<div className="flex min-w-0 items-center gap-2 px-2 text-xs font-medium">
+					<Wifi aria-hidden="true" className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+					<span className="max-w-48 truncate" title={roomId}>{roomId}</span>
+				</div>
+				<Button
 					type="button"
+					variant="ghost"
+					size="sm"
 					onClick={() => {
 						void navigator.clipboard
 							.writeText(roomId)
@@ -37,43 +56,79 @@ export default function Session({ roomId, onJoin, onLeave }: SessionProps) {
 							.catch(() => setMessage('Could not copy the room ID.'));
 					}}
 				>
-					Copy ID
-				</button>
-				<button type="button" onClick={onLeave}>Leave</button>
-				<span className="session-message" aria-live="polite">{message}</span>
-			</div>
+					<Copy aria-hidden="true" />
+					Copy
+				</Button>
+				<Button type="button" variant="ghost" size="sm" onClick={onLeave}>
+					<LogOut aria-hidden="true" />
+					Leave
+				</Button>
+				<span className="sr-only" aria-live="polite">{message}</span>
+			</section>
 		);
 	}
 
 	return (
-		<div className="session-panel">
-			<button type="button" onClick={() => setOpen((current) => !current)}>
-				Temporary collaboration
-			</button>
-			{open && (
-				<form className="session-dialog" onSubmit={join}>
-					<strong>Join a temporary tldraw room</strong>
-					<p>
-						This opens a separate canvas. Rooms are public to anyone with the ID, expire after
-						about 24 hours, and tldraw disables media uploads on its demo service.
-					</p>
-					<label htmlFor="room-id">Room ID</label>
-					<input
-						autoFocus
-						id="room-id"
-						value={value}
-						onChange={(event) => setValue(event.target.value)}
-						placeholder="friday-team-room"
-					/>
-					<span className="session-error" aria-live="polite">{message}</span>
-					<div className="session-actions">
-						<button type="button" onClick={() => setValue(`friday-${crypto.randomUUID()}`)}>
-							Generate ID
-						</button>
-						<button type="submit">Join room</button>
-					</div>
-				</form>
-			)}
+		<div className="session-shell">
+			<Dialog open={open} onOpenChange={setOpen}>
+				<DialogTrigger asChild>
+					<Button type="button" variant="outline" size="sm" className="shadow-md">
+						<Users aria-hidden="true" />
+						Collaborate
+					</Button>
+				</DialogTrigger>
+				<DialogContent>
+					<form className="grid gap-4" onSubmit={join}>
+						<DialogHeader>
+							<DialogTitle>
+								<Users aria-hidden="true" className="size-5" />
+								Temporary collaboration
+							</DialogTitle>
+							<DialogDescription>
+								This opens a separate public canvas. Anyone with the room ID can join. Demo
+								rooms expire after about 24 hours and do not support media uploads.
+							</DialogDescription>
+						</DialogHeader>
+						<div className="grid gap-2">
+							<label className="text-sm font-medium" htmlFor="room-id">Room ID</label>
+							<Input
+								autoFocus
+								aria-describedby={message ? 'room-error' : undefined}
+								aria-invalid={Boolean(message)}
+								id="room-id"
+								value={value}
+								onChange={(event) => {
+									setValue(event.target.value);
+									setMessage('');
+								}}
+								placeholder="friday-team-room"
+							/>
+							{message && (
+								<p id="room-error" className="text-xs text-destructive" aria-live="polite">
+									{message}
+								</p>
+							)}
+						</div>
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="secondary"
+								onClick={() => {
+									setValue(`friday-${crypto.randomUUID()}`);
+									setMessage('');
+								}}
+							>
+								<Dices aria-hidden="true" />
+								Generate ID
+							</Button>
+							<Button type="submit">
+								Join room
+								<ArrowRight aria-hidden="true" />
+							</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

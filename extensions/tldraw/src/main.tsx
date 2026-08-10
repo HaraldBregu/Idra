@@ -1,9 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import 'tldraw/tldraw.css';
 
 import App from './App';
 import './styles.css';
+import 'tldraw/tldraw.css';
 
 createRoot(document.getElementById('root') as HTMLElement).render(
 	<StrictMode>
