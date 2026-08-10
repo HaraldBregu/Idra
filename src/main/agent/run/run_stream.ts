@@ -242,12 +242,14 @@ async function* loop(
 		providerId: provider.id,
 		tools: tools.map((tool) => tool.name),
 		skillDiagnostics: skillSnapshot.diagnostics,
-		skillActivations: (session.context.loadedSkills as LoadedSkill[] | undefined ?? []).map((skill) => ({
-			id: skill.id,
-			name: skill.name,
-			hash: skill.hash,
-			trust: skill.trust,
-		})),
+		skillActivations: ((session.context.loadedSkills as LoadedSkill[] | undefined) ?? []).map(
+			(skill) => ({
+				id: skill.id,
+				name: skill.name,
+				hash: skill.hash,
+				trust: skill.trust,
+			})
+		),
 		...(mcpDiscovery ? { mcpDiscovery } : {}),
 	};
 
