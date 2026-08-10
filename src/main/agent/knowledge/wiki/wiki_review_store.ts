@@ -1,11 +1,6 @@
 import Store from 'electron-store';
-import type { WikiReviewItem } from './types';
+import type { WikiReviewQueue } from './types';
 import { wikiPaths } from './wiki_paths';
-
-export interface WikiReviewQueue {
-	version: 1;
-	items: WikiReviewItem[];
-}
 
 export const wikiReviewStore = new Store<WikiReviewQueue>({
 	name: 'pending-review',

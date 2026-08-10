@@ -1,16 +1,8 @@
 import { cp, mkdir, mkdtemp, rename, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { getWikiRepository, type WikiRepository } from './wiki_repository';
+import { getWikiRepository } from './wiki_repository';
+import type { WikiTransactionInput } from './types';
 import { validateWiki } from './wiki_validate';
-
-export interface WikiTransactionInput<T> {
-	targetPath: string;
-	operationId: string;
-	repository?: WikiRepository;
-	signal?: AbortSignal;
-	apply(stagedPath: string): Promise<T>;
-	validate?(stagedPath: string): Promise<string[]>;
-}
 
 export async function transactWiki<T>(input: WikiTransactionInput<T>): Promise<T> {
 	input.signal?.throwIfAborted();

@@ -1,8 +1,8 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { getWikiRepository, type WikiRepository } from './wiki_repository';
-import type { WikiClaim, WikiContradiction } from './types';
+import { getWikiRepository } from './wiki_repository';
+import type { WikiClaim, WikiContradiction, WikiRepository } from './types';
 import { verifyWikiEvidence } from './wiki_verify_evidence';
 
 const PAGE_TYPES = new Set([

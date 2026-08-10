@@ -3,9 +3,7 @@ import cron from 'node-cron';
 import type { WikiSettings } from '../../../../shared/wiki_types';
 import { realPath } from '../../../shared/real_path';
 import { DEFAULT_WIKI_SETTINGS } from './wiki_settings_store';
-
-type WikiSettingsInput = Partial<WikiSettings> &
-	Pick<WikiSettings, 'providerId' | 'modelId' | 'sourcePath' | 'targetPath' | 'schedule'>;
+import type { WikiSettingsInput } from './types';
 
 export function normalizeWikiSettings(input: WikiSettingsInput): WikiSettings {
 	const providerId = input.providerId?.trim() ?? '';

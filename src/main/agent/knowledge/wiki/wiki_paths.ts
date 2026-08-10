@@ -2,13 +2,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { realPath } from '../../../shared/real_path';
 import { wikiLocation } from './wiki_location';
-
-export interface WikiPaths {
-	root: string;
-	evidence: string;
-	state: string;
-	config: string;
-}
+import type { WikiPaths } from './types';
 
 export function wikiPaths(targetPath?: string): WikiPaths {
 	const defaultRoot = wikiLocation();

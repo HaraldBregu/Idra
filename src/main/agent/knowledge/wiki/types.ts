@@ -1,4 +1,6 @@
+import type Store from 'electron-store';
 import type { WikiRunResult } from '../../../../shared/wiki_types';
+import type { WikiSettings } from '../../../../shared/wiki_types';
 
 export type WikiPageType =
 	| 'source'
@@ -107,7 +109,7 @@ export interface WikiApplyOptions {
 	operationId?: string;
 	requireReviewForMajorChanges?: boolean;
 	allowContradictionResolution?: boolean;
-	repository?: import('./wiki_repository').WikiRepository;
+	repository?: WikiRepository;
 	signal?: AbortSignal;
 }
 
@@ -254,4 +256,84 @@ export interface WikiSaveAnalysisResult {
 	updated: boolean;
 	status: 'completed' | 'awaiting_review';
 	reviewIds: string[];
+}
+
+export interface WikiFailureRegistry {
+	version: 1;
+	operations: WikiOperationRecord[];
+}
+
+export interface WikiPageManifest {
+	version: 1;
+	pages: Record<string, WikiPageManifestEntry>;
+}
+
+export type WikiMetricName =
+	| 'wiki_ingest_total'
+	| 'wiki_ingest_failed_total'
+	| 'wiki_pages_created_total'
+	| 'wiki_pages_updated_total'
+	| 'wiki_claims_added_total'
+	| 'wiki_contradictions_detected_total'
+	| 'wiki_queries_total'
+	| 'wiki_query_fallback_to_raw_total'
+	| 'wiki_lint_findings_total'
+	| 'wiki_review_pending_total'
+	| 'wiki_rollback_total';
+
+export type WikiSettingsInput = Partial<WikiSettings> &
+	Pick<WikiSettings, 'providerId' | 'modelId' | 'sourcePath' | 'targetPath' | 'schedule'>;
+
+export interface WikiOperationRegistry {
+	version: 1;
+	operations: Record<string, WikiOperationRecord>;
+}
+
+export interface WikiPaths {
+	root: string;
+	evidence: string;
+	state: string;
+	config: string;
+}
+
+export interface WikiRepository {
+	targetPath: string;
+	paths: WikiPaths;
+	sources: Store<WikiSourceRegistry>;
+	reviews: Store<WikiReviewQueue>;
+	operations: Store<WikiOperationRegistry>;
+	failures: Store<WikiFailureRegistry>;
+	manifest: Store<WikiPageManifest>;
+	state: Store<WikiState>;
+}
+
+export interface WikiReviewQueue {
+	version: 1;
+	items: WikiReviewItem[];
+}
+
+export interface WikiService {
+	ingestSource(relativePath?: string): Promise<WikiRunResult>;
+	search(query: string, count?: number): Promise<WikiSearchResult[]>;
+	readPage(page: string): Promise<WikiSearchResult>;
+	answerContext(query: string, includeRaw?: boolean): Promise<WikiAnswerContext>;
+	saveAnalysis(input: WikiSaveAnalysisInput): Promise<WikiSaveAnalysisResult>;
+	lint(autoFix?: boolean): Promise<WikiLintResult>;
+	rebuildIndex(): Promise<void>;
+	getRecentActivity(count?: number): Promise<string>;
+	review(reviewId: string, action: 'approve' | 'reject'): Promise<WikiReviewItem>;
+}
+
+export interface WikiSourceRegistry {
+	version: 1;
+	sources: Record<string, WikiSourceRecord>;
+}
+
+export interface WikiTransactionInput<T> {
+	targetPath: string;
+	operationId: string;
+	repository?: WikiRepository;
+	signal?: AbortSignal;
+	apply(stagedPath: string): Promise<T>;
+	validate?(stagedPath: string): Promise<string[]>;
 }

@@ -1,11 +1,6 @@
 import Store from 'electron-store';
-import type { WikiOperationRecord } from './types';
+import type { WikiOperationRegistry } from './types';
 import { wikiPaths } from './wiki_paths';
-
-export interface WikiOperationRegistry {
-	version: 1;
-	operations: Record<string, WikiOperationRecord>;
-}
 
 export const wikiOperationStore = new Store<WikiOperationRegistry>({
 	name: 'operations',

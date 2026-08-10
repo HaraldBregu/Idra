@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { WikiRepository } from './wiki_repository';
+import type { WikiRepository } from './types';
 import { readWikiArchive } from './wiki_read_archive';
 import type { WikiEvidence } from './types';
 

@@ -1,24 +1,21 @@
 import Store from 'electron-store';
 import { realPath } from '../../../shared/real_path';
-import { wikiFailureStore, type WikiFailureRegistry } from './wiki_failure_store';
-import { wikiManifestStore, type WikiPageManifest } from './wiki_manifest_store';
-import { wikiOperationStore, type WikiOperationRegistry } from './wiki_operation_store';
-import { wikiPaths, type WikiPaths } from './wiki_paths';
-import { wikiReviewStore, type WikiReviewQueue } from './wiki_review_store';
-import { wikiSourceStore, type WikiSourceRegistry } from './wiki_source_store';
+import { wikiFailureStore } from './wiki_failure_store';
+import { wikiManifestStore } from './wiki_manifest_store';
+import { wikiOperationStore } from './wiki_operation_store';
+import { wikiPaths } from './wiki_paths';
+import { wikiReviewStore } from './wiki_review_store';
+import { wikiSourceStore } from './wiki_source_store';
 import { wikiStateStore } from './wiki_state_store';
-import type { WikiState } from './types';
-
-export interface WikiRepository {
-	targetPath: string;
-	paths: WikiPaths;
-	sources: Store<WikiSourceRegistry>;
-	reviews: Store<WikiReviewQueue>;
-	operations: Store<WikiOperationRegistry>;
-	failures: Store<WikiFailureRegistry>;
-	manifest: Store<WikiPageManifest>;
-	state: Store<WikiState>;
-}
+import type {
+	WikiFailureRegistry,
+	WikiOperationRegistry,
+	WikiPageManifest,
+	WikiRepository,
+	WikiReviewQueue,
+	WikiSourceRegistry,
+	WikiState,
+} from './types';
 
 const defaultTargetPath = realPath(wikiPaths().root + '/data');
 const defaultRepository: WikiRepository = {
