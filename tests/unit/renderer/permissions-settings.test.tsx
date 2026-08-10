@@ -67,9 +67,7 @@ describe('Permissions settings', () => {
 	it('prefills the workspace location for a new directory permission', async () => {
 		render(<PermissionsPage />);
 
-		expect(await screen.findByRole('textbox', { name: 'directoryPath' })).toHaveValue(
-			'/workspace'
-		);
+		expect(await screen.findByRole('textbox', { name: 'directoryPath' })).toHaveValue('/workspace');
 		expect(agentApi.getWorkspaceLocation).toHaveBeenCalledTimes(1);
 	});
 
@@ -96,7 +94,9 @@ describe('Permissions settings', () => {
 		render(<PermissionsPage />);
 		await screen.findByText('/tmp');
 
-		await user.type(screen.getByRole('textbox', { name: 'directoryPath' }), '/workspace');
+		const directory = screen.getByRole('textbox', { name: 'directoryPath' });
+		await user.clear(directory);
+		await user.type(directory, '/workspace');
 		const tools = screen.getByRole('textbox', { name: 'directoryTools' });
 		await user.clear(tools);
 		await user.type(tools, 'read, write, read');
