@@ -4,7 +4,7 @@ import { taskIdSchema } from './schema';
 
 export const runTaskNowTool = tool({
 	id: 'run_task_now',
-	name: 'run_task_now',
+	name: 'Run Task Now',
 	description: 'Trigger a task to run immediately by id.',
 	inputSchema: taskIdSchema,
 	execute: ({ taskId }) => runTaskNow(taskId),

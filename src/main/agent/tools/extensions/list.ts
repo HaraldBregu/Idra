@@ -4,7 +4,7 @@ import { tool } from '../tool';
 
 export const listExtensionsTool = tool({
 	id: 'list_extensions',
-	name: 'list_extensions',
+	name: 'List Extensions',
 	description: 'List the installed Friday extensions available to open.',
 	inputSchema: z.object({}).strict(),
 	execute: () => ({ extensions: listExtensions() }),

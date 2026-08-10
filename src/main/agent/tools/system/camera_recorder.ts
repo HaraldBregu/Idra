@@ -9,7 +9,7 @@ import { tool } from '../tool';
 export function cameraRecorderTool(): Tool {
 	return tool({
 		id: 'camera_recorder',
-		name: 'camera_recorder',
+		name: 'Camera Recorder',
 		description:
 			'Start recording video (with audio) from the user camera for a given duration. Requires an open app window. The recording runs in the background: this returns immediately with a recording id and the destination path, and the file is written when the recording finishes. Use camera_recorder_status to check progress or wait for completion before using the file.',
 		inputSchema: z.object({

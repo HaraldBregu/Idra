@@ -4,7 +4,7 @@ import { tool } from '../tool';
 
 export const wikiSearchTool = tool({
 	id: 'wiki_search',
-	name: 'wiki_search',
+	name: 'Wiki Search',
 	description:
 		'Search compiled wiki pages by exact title, alias, metadata, full text, and linked-page relevance. Returns wiki synthesis, never primary evidence.',
 	inputSchema: z.object({

@@ -4,7 +4,7 @@ import { tool } from '../tool';
 
 export const wikiQueryTool = tool({
 	id: 'wiki_query',
-	name: 'wiki_query',
+	name: 'Wiki Query',
 	description:
 		'Build grounded answer context from the compiled wiki first. Set includeRaw for quotations, exact numbers or dates, low confidence, primary evidence requests, or disagreements. Results separate synthesis, raw evidence, contradictions, and limitations.',
 	inputSchema: z.object({

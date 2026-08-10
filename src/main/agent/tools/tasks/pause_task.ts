@@ -4,7 +4,7 @@ import { taskIdSchema } from './schema';
 
 export const pauseTaskTool = tool({
 	id: 'pause_task',
-	name: 'pause_task',
+	name: 'Pause Task',
 	description: 'Pause an active task by id.',
 	inputSchema: taskIdSchema,
 	execute: ({ taskId }) => {

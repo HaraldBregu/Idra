@@ -21,7 +21,7 @@ export function subagentTool(
 ): Tool {
 	return tool({
 		id: 'subagent',
-		name: 'subagent',
+		name: 'Subagent',
 		description:
 			'Spawn a subagent to complete a task in its own isolated context and return a summary. It has the same tools as you, except spawning subagents. Use it for work that takes many steps, produces large intermediate output, or is independent of the conversation. Give it a clear objective and the expected output.',
 		inputSchema: z.object({

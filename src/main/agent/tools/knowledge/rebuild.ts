@@ -4,7 +4,7 @@ import { tool } from '../tool';
 
 export const wikiRebuildTool = tool({
 	id: 'wiki_rebuild_index',
-	name: 'wiki_rebuild_index',
+	name: 'Wiki Rebuild Index',
 	description:
 		'Transactionally rebuild index.md from current wiki page metadata and record the maintenance run.',
 	inputSchema: z.object({}),

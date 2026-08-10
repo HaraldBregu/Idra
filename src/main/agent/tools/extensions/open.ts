@@ -6,7 +6,7 @@ import { tool } from '../tool';
 export function openExtensionsTool(windowFactory: WindowFactory) {
 	return tool({
 		id: 'open_extensions',
-		name: 'open_extensions',
+		name: 'Open Extensions',
 		description: 'Open one or more installed Friday extensions by exact ID.',
 		inputSchema: z.object({
 			ids: z

@@ -4,7 +4,7 @@ import { tool } from '../tool';
 
 export const wikiReviewTool = tool({
 	id: 'wiki_review_changes',
-	name: 'wiki_review_changes',
+	name: 'Wiki Review Changes',
 	description: 'Approve or reject one pending high-risk wiki change.',
 	inputSchema: z.object({
 		reviewId: z.string().trim().min(1),

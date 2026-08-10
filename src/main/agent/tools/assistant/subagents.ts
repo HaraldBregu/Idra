@@ -24,7 +24,7 @@ export function subagentsTool(
 ): Tool {
 	return tool({
 		id: 'subagents',
-		name: 'subagents',
+		name: 'Subagents',
 		description:
 			'Spawn two or three independent read-only subagents concurrently. Each task must have a stable id. Results preserve input order, and one failed child does not cancel its siblings.',
 		inputSchema: z.object({

@@ -9,7 +9,7 @@ import { tool } from '../tool';
 export function microphoneRecorderTool(): Tool {
 	return tool({
 		id: 'microphone_recorder',
-		name: 'microphone_recorder',
+		name: 'Microphone Recorder',
 		description:
 			'Start recording audio from the user microphone for a given duration. Requires an open app window. The recording runs in the background: this returns immediately with a recording id and the destination path, and the file is written when the recording finishes. Use microphone_recorder_status to check progress or wait for completion before using the file.',
 		inputSchema: z.object({

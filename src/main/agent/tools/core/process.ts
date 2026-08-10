@@ -274,7 +274,7 @@ async function runProcess(
 
 export const processTool: Tool = tool({
 	id: 'process',
-	name: 'process',
+	name: 'Process',
 	description:
 		'Manage running exec sessions for commands already started: list, poll, log, write, send-keys, submit, paste, kill. ' +
 		'Use poll/log when you need status, logs, quiet-success confirmation, or completion confirmation. ' +
