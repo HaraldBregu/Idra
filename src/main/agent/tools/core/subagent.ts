@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { tool } from '../tool';
 import type { AgentContext } from '../../context';
 import type { Config, Tool } from '../../types';
-import { runChild, type ChildRuntime } from './child';
+import { runChild, type ChildRuntime } from '../assistant/child';
 
 const instructions = `You are a subagent spawned by the main agent to complete one specific task.
 

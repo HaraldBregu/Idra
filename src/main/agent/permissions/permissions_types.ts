@@ -25,11 +25,11 @@ export type PermissionsSchema = Record<
 };
 
 export const PERMISSION_TOOLS = [
-	'read',
-	'write',
+	'read_file',
+	'write_file',
 	'edit_file',
 	'apply_patch',
-	'exec',
+	'exec_command',
 	'process',
 	'microphone_recorder',
 	'microphone_recorder_status',
@@ -88,11 +88,11 @@ export const ALL_ALLOWED_PERMISSIONS: PermissionsSchema = {
 };
 
 export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
-	read: allow(),
-	write: allow(),
+	read_file: allow(),
+	write_file: allow(),
 	edit_file: ask(),
 	apply_patch: ask(),
-	exec: ask(),
+	exec_command: ask(),
 	process: allow(),
 	web_search: allow(),
 	web_fetch: allow(),

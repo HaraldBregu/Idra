@@ -11,7 +11,7 @@ export function directoryPermissionFor(
 	target: string
 ): PermissionMode | undefined {
 	const targetDirectory =
-		toolName === 'read' || toolName === 'exec' || toolName === 'process'
+		toolName === 'read_file' || toolName === 'exec_command' || toolName === 'process'
 			? target
 			: path.dirname(target);
 	let best: { specificity: number; decision: PermissionMode } | undefined;

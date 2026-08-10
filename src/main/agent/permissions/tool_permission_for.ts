@@ -26,7 +26,7 @@ export function toolPermissionFor(
 	for (const decision of ['allow', 'ask', 'deny'] as const) {
 		for (const rule of permission[decision]) {
 			const matches =
-				toolName === 'exec'
+				toolName === 'exec_command'
 					? commandMatches(rule, target)
 					: isPathWithin(realPath(resolveUserPath(rule, os.homedir())), target);
 			if (!matches) continue;

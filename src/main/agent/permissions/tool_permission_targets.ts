@@ -20,7 +20,7 @@ export function toolPermissionTargets(
 ): string[] {
 	if (toolName === 'apply_patch')
 		return typeof args.input === 'string' ? patchTargets(args.input, baseDir) : [];
-	if (toolName === 'exec')
+	if (toolName === 'exec_command')
 		return typeof args.command === 'string' && args.command.length > 0 ? [args.command] : [];
 	if (typeof args.path === 'string' && args.path.length > 0) {
 		const target = realPath(resolveUserPath(args.path, baseDir));

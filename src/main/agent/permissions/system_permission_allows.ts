@@ -6,7 +6,7 @@ export function systemPermissionAllows(
 	targets: string[],
 	agentDirectory: string
 ): boolean {
-	if (toolName !== 'read') return false;
+	if (toolName !== 'read_file') return false;
 	const root = realPath(agentDirectory);
 	return targets.length > 0 && targets.every((target) => isPathWithin(root, target));
 }

@@ -163,7 +163,7 @@ export async function* runToolCall(
 						aborted,
 					]);
 					output = limitToolOutput(output, tool.maxOutputBytes);
-					if (toolCall.name === 'read' && state) rememberTool(context, state);
+					if (toolCall.name === 'read_file' && state) rememberTool(context, state);
 					if (createsFile && state) rememberTool(context, state);
 				} finally {
 					release();

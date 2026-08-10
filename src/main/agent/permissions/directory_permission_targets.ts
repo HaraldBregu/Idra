@@ -38,7 +38,7 @@ export function directoryPermissionTargets(
 	args: Record<string, unknown>,
 	baseDir: string
 ): string[] {
-	if (toolName === 'exec') {
+	if (toolName === 'exec_command') {
 		if (typeof args.command !== 'string' || args.command.length === 0) return [];
 		const workdir =
 			typeof args.workdir === 'string' && args.workdir.length > 0 ? args.workdir : '.';
@@ -50,7 +50,7 @@ export function directoryPermissionTargets(
 	}
 	if (typeof args.path === 'string' || toolName === 'apply_patch') {
 		const targets = toolPermissionTargets(toolName, args, baseDir);
-		return toolName === 'read' ? targets.map((target) => path.dirname(target)) : targets;
+		return toolName === 'read_file' ? targets.map((target) => path.dirname(target)) : targets;
 	}
 	const fileName = AGENT_FILES[toolName];
 	if (fileName) return [realPath(path.join(baseDir, fileName))];

@@ -7,5 +7,5 @@ export function toolApprovalTargets(
 	baseDir: string
 ): string[] {
 	const targets = toolPermissionTargets(toolName, args, baseDir);
-	return toolName === 'read' ? targets.map((target) => path.dirname(target)) : targets;
+	return toolName === 'read_file' ? targets.map((target) => path.dirname(target)) : targets;
 }
