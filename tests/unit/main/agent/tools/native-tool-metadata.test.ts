@@ -1,5 +1,5 @@
 import { completeBootstrapTool } from '../../../../../src/main/agent/tools/assistant/bootstrap_complete';
-import { editTool } from '../../../../../src/main/agent/tools/core/edit';
+import { editTool } from '../../../../../src/main/agent/tools/core/edit_file';
 import { updateHealthSettingsTool } from '../../../../../src/main/agent/tools/health/settings_update';
 import { updateHealthTool } from '../../../../../src/main/agent/tools/health/update';
 import { createImageTool } from '../../../../../src/main/agent/tools/media/image_create';
