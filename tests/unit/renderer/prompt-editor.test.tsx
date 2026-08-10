@@ -48,7 +48,7 @@ describe('PromptEditor', () => {
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'false'));
 		expect(prompt).toHaveClass('min-h-14');
 		expect(prompt).toHaveClass('rounded-full');
-	await waitFor(() => expect(prompt).toHaveStyle({ borderRadius: '28px' }));
+		await waitFor(() => expect(prompt).toHaveStyle({ borderRadius: '28px' }));
 
 		rerender(
 			<PromptEditor
