@@ -15,7 +15,14 @@ import {
 } from './session';
 import { stream } from './run/run_stream';
 import { agentLocation } from '../shared/agent_location';
-import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../tasks';
+import {
+	destroyTask,
+	getRuntime,
+	getTaskPermissions,
+	initTask,
+	setTaskRunner,
+	startTask,
+} from '../tasks';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './permissions';
 import { parseSkillCommand } from './skills';
@@ -88,6 +95,8 @@ export class Agent {
 			return this.send(schedule.action.prompt, 'tasks', {
 				category: 'task',
 				interactive: false,
+				streaming: false,
+				permissions: getTaskPermissions(),
 				contextMode: 'minimal',
 				toolsAllow: schedule.action.toolsAllow,
 				effort: schedule.action.effort,

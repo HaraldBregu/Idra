@@ -1,4 +1,5 @@
 import type { ModelReasoningEffort } from '../../shared/agent_types';
+import type { PermissionsSchema } from '../agent/permissions/permissions_types';
 
 export interface TaskJobInfo {
 	readonly id: string;
@@ -82,6 +83,7 @@ export interface PersistedTaskState {
 	enabled?: boolean;
 	providerId?: string;
 	modelId?: string;
+	permissions?: PermissionsSchema;
 	schedules: TaskSchedule[];
 }
 
