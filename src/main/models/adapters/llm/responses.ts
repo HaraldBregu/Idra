@@ -101,7 +101,8 @@ export async function* responses(
 		}
 	}
 
-	if (response.status === 'failed') throw new Error(response.error?.message ?? 'OpenAI response failed.');
+	if (response.status === 'failed')
+		throw new Error(response.error?.message ?? 'OpenAI response failed.');
 	const stopReason =
 		response.status === 'incomplete'
 			? response.incomplete_details?.reason === 'max_output_tokens'

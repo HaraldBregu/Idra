@@ -8,9 +8,10 @@ import {
 } from './permissions_types';
 
 export function normalizePermissionsSchema(value: unknown): PermissionsSchema {
-	const stored = value && typeof value === 'object' && !Array.isArray(value)
-		? (value as Record<string, unknown>)
-		: {};
+	const stored =
+		value && typeof value === 'object' && !Array.isArray(value)
+			? (value as Record<string, unknown>)
+			: {};
 	const unknownPermission: ToolPermission = {
 		default: 'ask',
 		allow: [],

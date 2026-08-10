@@ -151,8 +151,9 @@ async function* loop(
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
-	const permissionMode: AgentPermissionMode =
-		!interactive ? 'ask' : (options.permissions?.mode ?? (origin === 'main' ? getPermissionMode() : 'ask'));
+	const permissionMode: AgentPermissionMode = !interactive
+		? 'ask'
+		: (options.permissions?.mode ?? (origin === 'main' ? getPermissionMode() : 'ask'));
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
 	session.context.subagents = undefined;

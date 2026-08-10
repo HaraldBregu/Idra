@@ -1,10 +1,7 @@
 import OpenAI from 'openai';
 import type { ModelReasoningEffort } from '../../../../shared/agent_types';
 import type { LlmProviderEvent, LlmStreamRequest } from './llm_types';
-import {
-	llmBuildChatMessages,
-	llmToDeepSeekReasoningEffort,
-} from './llm_shared';
+import { llmBuildChatMessages, llmToDeepSeekReasoningEffort } from './llm_shared';
 
 export async function* chat(
 	client: OpenAI,

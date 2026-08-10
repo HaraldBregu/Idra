@@ -95,11 +95,9 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 					: scope === 'channels'
 						? window.app.getChannelsPermissions()
 						: window.agent.policyGet();
-		operation
-			.then(setPermissions)
-			.catch((err: unknown) => {
-				setError(err instanceof Error ? err.message : String(err));
-			});
+		operation.then(setPermissions).catch((err: unknown) => {
+			setError(err instanceof Error ? err.message : String(err));
+		});
 	}, [scope]);
 
 	const setDefault = (toolName: string, mode: PermissionMode): void => {
@@ -273,8 +271,8 @@ const PermissionsPage: React.FC<{ readonly scope?: PermissionsScope }> = ({ scop
 													variant="ghost"
 													size="icon-sm"
 													aria-label={t('settings.permissions.removeDirectory')}
-												onClick={() => removeDirectory(directory)}
-												disabled={saving}
+													onClick={() => removeDirectory(directory)}
+													disabled={saving}
 												>
 													<Trash2 className="size-3" />
 												</Button>
