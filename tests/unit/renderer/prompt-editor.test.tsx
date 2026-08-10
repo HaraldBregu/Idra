@@ -7,10 +7,12 @@ jest.mock('@/components/text-editor', () => {
 		TextEditor: ({
 			value,
 			onEditorReady,
+			onVisualLineChange,
 			className,
 		}: {
 			value?: string;
 			onEditorReady?: (editor: { view: { dom: HTMLDivElement } }) => void;
+			onVisualLineChange?: (hasMultipleLines: boolean) => void;
 			className?: string;
 		}) =>
 			React.createElement(
@@ -21,15 +23,8 @@ jest.mock('@/components/text-editor', () => {
 					{
 						ref: (element: HTMLDivElement | null) => {
 							if (!element) return;
-							Object.defineProperty(element, 'scrollHeight', {
-								configurable: true,
-								value: value && value.length > 40 ? 48 : 28,
-							});
-							Object.defineProperty(element, 'clientHeight', {
-								configurable: true,
-								value: 28,
-							});
 							onEditorReady?.({ view: { dom: element } });
+							onVisualLineChange?.(Boolean(value && value.length > 40));
 						},
 						role: 'textbox',
 					},
@@ -40,7 +35,7 @@ jest.mock('@/components/text-editor', () => {
 });
 
 describe('PromptEditor', () => {
-	it('expands for overflowing content and collapses when cleared', async () => {
+	it('expands when text wraps to another visual line and collapses when cleared', async () => {
 		const { container, rerender } = render(
 			<PromptEditor
 				value=""

@@ -14,6 +14,7 @@ export type TextEditorProps = {
 	readonly className?: string;
 	readonly ariaLabel?: string;
 	readonly onEditorReady?: (editor: Editor) => void;
+	readonly onVisualLineChange?: (hasMultipleLines: boolean) => void;
 };
 
 function TextEditor({
@@ -25,20 +26,39 @@ function TextEditor({
 	className,
 	ariaLabel,
 	onEditorReady,
+	onVisualLineChange,
 }: TextEditorProps): ReactElement {
 	const onValueChangeRef = useRef(onValueChange);
 	const onSubmitRef = useRef(onSubmit);
+	const onVisualLineChangeRef = useRef(onVisualLineChange);
 	onValueChangeRef.current = onValueChange;
 	onSubmitRef.current = onSubmit;
+	onVisualLineChangeRef.current = onVisualLineChange;
+
+	const reportVisualLineChange = (updatedEditor: Editor): void => {
+		const range = updatedEditor.view.dom.ownerDocument.createRange();
+		range.selectNodeContents(updatedEditor.view.dom);
+		const lineTops = new Set(
+			Array.from(range.getClientRects())
+				.filter((rect) => rect.width > 0 && rect.height > 0)
+				.map((rect) => Math.round(rect.top))
+		);
+		onVisualLineChangeRef.current?.(lineTops.size > 1);
+	};
 
 	const editor = useEditor({
 		extensions: [StarterKit, Placeholder.configure({ placeholder }), Markdown],
 		content: value ?? '',
 		contentType: 'markdown',
 		editable: !disabled,
-		onCreate: ({ editor: createdEditor }) => onEditorReady?.(createdEditor),
-		onUpdate: ({ editor: updatedEditor }) =>
-			onValueChangeRef.current?.(updatedEditor.getMarkdown()),
+		onCreate: ({ editor: createdEditor }) => {
+			onEditorReady?.(createdEditor);
+			reportVisualLineChange(createdEditor);
+		},
+		onUpdate: ({ editor: updatedEditor }) => {
+			onValueChangeRef.current?.(updatedEditor.getMarkdown());
+			reportVisualLineChange(updatedEditor);
+		},
 		editorProps: {
 			attributes: {
 				role: 'textbox',

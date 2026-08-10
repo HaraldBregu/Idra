@@ -1,4 +1,4 @@
-import { type ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import {
 	PromptInput,
 	usePromptInput,
@@ -14,11 +14,13 @@ export type PromptEditorProps = Omit<PromptInputProps, 'children'> & {
 function PromptEditorArea({
 	placeholder,
 	ariaLabel,
+	onVisualLineChange,
 }: {
 	readonly placeholder?: string;
 	readonly ariaLabel?: string;
+	readonly onVisualLineChange: (hasMultipleLines: boolean) => void;
 }): ReactElement {
-	const { value, setValue, onSubmit, disabled, textareaRef, isExpanded } = usePromptInput();
+	const { value, setValue, onSubmit, disabled, textareaRef } = usePromptInput();
 
 	return (
 		<TextEditor
@@ -28,15 +30,12 @@ function PromptEditorArea({
 			disabled={disabled}
 			placeholder={placeholder}
 			ariaLabel={ariaLabel}
+			onVisualLineChange={onVisualLineChange}
 			onEditorReady={(editor) => {
 				// ponytail: PromptInput uses this ref to focus the editor and locate its container
 				textareaRef.current = editor.view.dom as unknown as HTMLTextAreaElement;
 			}}
-			className={`min-h-7 text-sm leading-6 text-foreground ${
-				isExpanded
-					? 'max-h-[34vh] overflow-y-auto'
-					: 'h-7 overflow-hidden [&_.tiptap]:h-7 [&_.tiptap]:overflow-hidden'
-			}`}
+			className="max-h-[34vh] min-h-7 overflow-y-auto text-sm leading-6 text-foreground"
 		/>
 	);
 }
@@ -44,12 +43,23 @@ function PromptEditorArea({
 function PromptEditor({
 	placeholder,
 	ariaLabel,
-	expandedThreshold = 28,
+	expanded,
+	value,
 	...props
 }: PromptEditorProps): ReactElement {
+	const [hasMultipleVisualLines, setHasMultipleVisualLines] = useState(false);
+
 	return (
-		<PromptInput expandedThreshold={expandedThreshold} {...props}>
-			<PromptEditorArea placeholder={placeholder} ariaLabel={ariaLabel} />
+		<PromptInput
+			expanded={expanded || (value !== '' && hasMultipleVisualLines)}
+			value={value}
+			{...props}
+		>
+			<PromptEditorArea
+				placeholder={placeholder}
+				ariaLabel={ariaLabel}
+				onVisualLineChange={setHasMultipleVisualLines}
+			/>
 		</PromptInput>
 	);
 }
