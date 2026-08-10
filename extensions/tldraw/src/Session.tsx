@@ -30,7 +30,12 @@ export default function Session({ roomId, onJoin, onLeave }: SessionProps) {
 				<span className="session-room" title={roomId}>Temporary room: {roomId}</span>
 				<button
 					type="button"
-					onClick={() => void navigator.clipboard.writeText(roomId).then(() => setMessage('Room ID copied.'))}
+					onClick={() => {
+						void navigator.clipboard
+							.writeText(roomId)
+							.then(() => setMessage('Room ID copied.'))
+							.catch(() => setMessage('Could not copy the room ID.'));
+					}}
 				>
 					Copy ID
 				</button>
@@ -48,7 +53,10 @@ export default function Session({ roomId, onJoin, onLeave }: SessionProps) {
 			{open && (
 				<form className="session-dialog" onSubmit={join}>
 					<strong>Join a temporary tldraw room</strong>
-					<p>Rooms are public to anyone with the ID and are deleted after about 24 hours.</p>
+					<p>
+						This opens a separate canvas. Rooms are public to anyone with the ID, expire after
+						about 24 hours, and tldraw disables media uploads on its demo service.
+					</p>
 					<label htmlFor="room-id">Room ID</label>
 					<input
 						autoFocus

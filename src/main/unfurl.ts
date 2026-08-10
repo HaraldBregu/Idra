@@ -1,5 +1,6 @@
 import { net } from 'electron';
 import type { UrlMetadata } from '../shared/app_types';
+import { responseText } from './body';
 import { metadata } from './metadata';
 import { publicUrl } from './public';
 
@@ -17,9 +18,13 @@ export async function unfurlUrl(value: string): Promise<UrlMetadata> {
 			continue;
 		}
 		if (!response.ok) throw new Error(`URL returned ${response.status}.`);
+		const contentType = response.headers.get('content-type') ?? '';
+		if (!contentType.includes('text/html') && !contentType.includes('application/xhtml+xml')) {
+			throw new Error('URL did not return an HTML page.');
+		}
 		const length = Number(response.headers.get('content-length') ?? 0);
 		if (length > 1_000_000) throw new Error('Page is too large.');
-		const html = (await response.text()).slice(0, 1_000_000);
+		const html = await responseText(response, 1_000_000);
 		return metadata(html, url);
 	}
 	throw new Error('Unable to load URL.');

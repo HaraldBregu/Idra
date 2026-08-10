@@ -4,6 +4,7 @@ import { privateAddress } from './private';
 export async function publicUrl(value: string): Promise<URL> {
 	const url = new URL(value);
 	if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error('Unsupported URL.');
+	if (url.username || url.password) throw new Error('URL credentials are not allowed.');
 	const hostname = url.hostname.toLowerCase();
 	if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
 		throw new Error('Private URLs are not allowed.');
