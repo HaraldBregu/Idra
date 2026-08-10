@@ -849,6 +849,15 @@
 			"removeDirectory": "Rimuovi permesso cartella",
 			"reset": "Ripristina",
 			"saveFailed": "Impossibile salvare i permessi.",
+			"scopes": {
+				"tasksTitle": "Permessi attività in background",
+				"tasksDescription": "Controlla quali strumenti consentiti delle attività possono essere eseguiti senza approvazione.",
+				"healthTitle": "Permessi controllo integrità",
+				"healthDescription": "Controlla i permessi degli strumenti per i controlli automatici di integrità.",
+				"channelsTitle": "Permessi bot",
+				"channelsDescription": "Controlla i permessi degli strumenti condivisi da tutti i canali bot connessi.",
+				"nonInteractiveNotice": "Le esecuzioni in background non possono richiedere approvazione. Chiedi viene trattato come Nega."
+			},
 			"modes": {
 				"allow": "Consenti",
 				"ask": "Chiedi",
