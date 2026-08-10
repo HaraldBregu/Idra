@@ -12,7 +12,6 @@ const TOOL_ACTIONS: Record<string, string> = {
 };
 
 function toolDetail(permission: PendingToolPermission): string | undefined {
-	if (permission.detail) return permission.detail;
 	if (!permission.input || typeof permission.input !== 'object') return undefined;
 	const { path, command } = permission.input as Record<string, unknown>;
 	const value = permission.toolName === 'exec' ? command : path;
