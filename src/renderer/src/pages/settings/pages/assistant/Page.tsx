@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronDown, ChevronRight, Search, Settings2 } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronRight, Search } from 'lucide-react';
 import { modelsFor, providers } from '@/lib/providers';
 import { providerIdsFor, providerModels } from '@/lib/providers';
 import { ModelOptions } from '@/components/model-options';
@@ -208,9 +208,6 @@ const AssistantPage: React.FC = () => {
 
 			<Collapsible className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
 				<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-					<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
-						<Settings2 className="size-4" aria-hidden="true" />
-					</div>
 					<div className="min-w-0 flex-1">
 						<div className="truncate text-[13px] font-medium leading-4 text-foreground">
 							{t('settings.modelServices.providersConfigurations')}
