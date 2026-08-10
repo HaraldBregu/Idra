@@ -5,12 +5,14 @@ import {
 	type PendingToolApproval,
 } from '../../../../../src/main/agent/permissions/permissions_pending';
 
-const approval = (approvalId: string): PendingToolApproval => ({
+const approval = (approvalId: string, hardApproval = false): PendingToolApproval => ({
 	approvalId,
 	runId: 'run-1',
+	origin: 'main',
 	toolName: 'inspect',
 	inputFingerprint: 'fingerprint',
 	expiresAtMs: Date.now() + 10_000,
+	hardApproval,
 });
 
 describe('tool permission pending registry', () => {
@@ -42,12 +44,19 @@ describe('tool permission pending registry', () => {
 		expect(respondToolPermission('a', 'approve')).toBe(false);
 	});
 
+	it('does not persist an always-allow decision for a hard approval', async () => {
+		const promise = waitForToolPermission(approval('hard', true));
+		expect(respondToolPermission('hard', 'approve_always')).toBe(true);
+		await expect(promise).resolves.toBe('approve');
+	});
+
 	it('accepts a response only from the originating window with the exact approval scope', async () => {
 		const request = { ...approval('window-bound'), windowId: 41 };
 		const promise = waitForToolPermission(request);
 		const scope = {
 			approvalId: request.approvalId,
 			runId: request.runId,
+			origin: request.origin,
 			toolName: request.toolName,
 			inputFingerprint: request.inputFingerprint,
 		};
