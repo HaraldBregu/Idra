@@ -2,6 +2,14 @@ import { completeBootstrapTool } from '../../../../../src/main/agent/tools/assis
 import { editTool } from '../../../../../src/main/agent/tools/core/edit';
 import { updateHealthSettingsTool } from '../../../../../src/main/agent/tools/health/settings_update';
 import { updateHealthTool } from '../../../../../src/main/agent/tools/health/update';
+import { createImageTool } from '../../../../../src/main/agent/tools/media/image_create';
+import { createSoundTool } from '../../../../../src/main/agent/tools/media/sound_create';
+import { createVideoTool } from '../../../../../src/main/agent/tools/media/video_create';
+import { forgetMemoryTool } from '../../../../../src/main/agent/tools/memory/forget';
+import { saveMemoryTool } from '../../../../../src/main/agent/tools/memory/save';
+import { recorderCameraTool } from '../../../../../src/main/agent/tools/os/recorder_camera';
+import { recorderMicrophoneTool } from '../../../../../src/main/agent/tools/os/recorder_microphone';
+import { recorderScreenTool } from '../../../../../src/main/agent/tools/os/recorder_screen';
 import { createScheduleTool } from '../../../../../src/main/agent/tools/tasks/create_schedule';
 import { deleteScheduleTool } from '../../../../../src/main/agent/tools/tasks/delete_schedule';
 import { pauseScheduleTool } from '../../../../../src/main/agent/tools/tasks/pause_schedule';
@@ -13,21 +21,30 @@ import { wikiLintTool } from '../../../../../src/main/agent/tools/knowledge/lint
 import { wikiRebuildTool } from '../../../../../src/main/agent/tools/knowledge/rebuild';
 import { wikiReviewTool } from '../../../../../src/main/agent/tools/knowledge/review';
 import { wikiSaveTool } from '../../../../../src/main/agent/tools/knowledge/save';
+import { webBrowserTool } from '../../../../../src/main/agent/tools/web/browser';
 
 it.each([
-	[updateHealthTool({ location: '/workspace' }), 'high', 'persistence', ['main']],
-	[updateHealthSettingsTool, 'high', 'persistence', ['main']],
-	[completeBootstrapTool, 'critical', 'persistence', ['main']],
-	[wikiIngestTool, 'high', 'persistence', ['main']],
-	[wikiSaveTool, 'high', 'persistence', ['main']],
-	[wikiReviewTool, 'critical', 'persistence', ['main']],
-	[wikiRebuildTool, 'high', 'persistence', ['main']],
-] as const)(
-	'%s cannot mutate persistently through trusted-main bypass',
-	(tool, risk, effect, origins) => {
-		expect(tool).toMatchObject({ risk, effect, hardApproval: true, allowedOrigins: origins });
-	}
-);
+	updateHealthTool({ location: '/workspace' }),
+	updateHealthSettingsTool,
+	completeBootstrapTool,
+	wikiIngestTool,
+	wikiSaveTool,
+	wikiLintTool,
+	wikiReviewTool,
+	wikiRebuildTool,
+	createImageTool(),
+	createVideoTool(),
+	createSoundTool(),
+	recorderMicrophoneTool(),
+	recorderCameraTool(),
+	recorderScreenTool(),
+	saveMemoryTool({ location: '/workspace' }),
+	forgetMemoryTool({ location: '/workspace' }),
+	webBrowserTool,
+])('%s uses policy permission without forced approval', (tool) => {
+	expect(tool.hardApproval).toBeUndefined();
+	expect(tool.alwaysAsk).toBeUndefined();
+});
 
 it.each([
 	createScheduleTool,
@@ -47,14 +64,12 @@ it('uses ordinary policy approval for focused text edits', () => {
 	expect(editTool.hardApproval).not.toBe(true);
 });
 
-it('hard-approves wiki lint only when deterministic auto-fix is requested', () => {
+it('allows wiki lint to use its ordinary policy', () => {
 	expect(wikiLintTool).toMatchObject({
+		defaultPermission: 'allow',
 		risk: 'high',
 		effect: 'persistence',
 		allowedOrigins: ['main'],
 	});
-	expect(typeof wikiLintTool.hardApproval).toBe('function');
-	if (typeof wikiLintTool.hardApproval !== 'function') throw new Error('Expected dynamic approval');
-	expect(wikiLintTool.hardApproval({ autoFix: true })).toBe(true);
-	expect(wikiLintTool.hardApproval({ autoFix: false })).toBe(false);
+	expect(wikiLintTool.hardApproval).toBeUndefined();
 });
