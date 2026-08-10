@@ -11,10 +11,13 @@ jest.mock('../../../../../src/main/shared/user_path', () => ({
 }));
 
 import { cameraRecorderTool } from '../../../../../src/main/agent/tools/system/camera_recorder';
+import { cameraRecorderStatusTool } from '../../../../../src/main/agent/tools/system/camera_recorder_status';
 import { cameraRecorderStopTool } from '../../../../../src/main/agent/tools/system/camera_recorder_stop';
 import { microphoneRecorderTool } from '../../../../../src/main/agent/tools/system/microphone_recorder';
+import { microphoneRecorderStatusTool } from '../../../../../src/main/agent/tools/system/microphone_recorder_status';
 import { microphoneRecorderStopTool } from '../../../../../src/main/agent/tools/system/microphone_recorder_stop';
 import { screenRecorderTool } from '../../../../../src/main/agent/tools/system/screen_recorder';
+import { screenRecorderStatusTool } from '../../../../../src/main/agent/tools/system/screen_recorder_status';
 import { screenRecorderStopTool } from '../../../../../src/main/agent/tools/system/screen_recorder_stop';
 
 const id = '123e4567-e89b-12d3-a456-426614174000';
@@ -25,6 +28,20 @@ beforeEach(() => {
 		recorder.start.mockReturnValue({ id, url: '/workspace/capture.webm', status: 'recording', duration: 1_000 });
 		recorder.get.mockReturnValue({ id, url: '/workspace/capture.webm', status: 'recording', duration: 1_000 });
 	}
+});
+
+it.each([
+	['microphone_recorder', microphoneRecorderTool()],
+	['microphone_recorder_status', microphoneRecorderStatusTool],
+	['microphone_recorder_stop', microphoneRecorderStopTool],
+	['camera_recorder', cameraRecorderTool()],
+	['camera_recorder_status', cameraRecorderStatusTool],
+	['camera_recorder_stop', cameraRecorderStopTool],
+	['screen_recorder', screenRecorderTool()],
+	['screen_recorder_status', screenRecorderStatusTool],
+	['screen_recorder_stop', screenRecorderStopTool],
+] as const)('exports the %s tool from its matching module', (name, recorderTool) => {
+	expect(recorderTool.name).toBe(name);
 });
 
 it.each([

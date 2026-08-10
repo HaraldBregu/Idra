@@ -35,6 +35,11 @@ describe('selectSkillTools', () => {
 		expect(selectSkillTools(tools, undefined)).toBe(tools);
 	});
 
+	it('maps legacy recorder capability names to current runtime tools', () => {
+		const recorder = fakeTool('microphone_recorder_status');
+		expect(selectSkillTools([recorder], ['recorder_microphone_status'])).toEqual([recorder]);
+	});
+
 	it('composes multiple restrictions without expanding the current runtime set', () => {
 		const tools = [fakeTool('read'), fakeTool('write'), fakeTool('exec'), fakeTool('load_skill')];
 		const first = selectSkillTools(tools, ['read', 'write']);

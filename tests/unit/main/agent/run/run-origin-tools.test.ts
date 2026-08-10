@@ -62,6 +62,12 @@ it('gives tasks all compatible tools by default and keeps a non-empty allowlist 
 	expect(selectOriginTools(tools, 'task', ['exec']).map((tool) => tool.name)).toEqual(['exec']);
 });
 
+it('maps legacy recorder capability names to current runtime tools', () => {
+	const recorder = namedTool('camera_recorder', ['main', 'task']);
+	expect(selectOriginTools([recorder], 'task', ['recorder_camera'])).toEqual([recorder]);
+	expect(selectOriginTools([recorder], 'task', undefined, ['recorder_camera'])).toEqual([]);
+});
+
 it('prevents nested subagents and respects per-tool origin restrictions', () => {
 	expect(selectOriginTools(tools, 'subagent').map((tool) => tool.name)).toEqual([
 		'read',

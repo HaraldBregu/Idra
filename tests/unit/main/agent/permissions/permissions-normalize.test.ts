@@ -1,4 +1,5 @@
 import { normalizeToolPermission } from '../../../../../src/main/agent/permissions/normalize_tool_permission';
+import { normalizePermissionsSchema } from '../../../../../src/main/agent/permissions/normalize_permissions_schema';
 import type { ToolPermission } from '../../../../../src/main/agent/permissions/permissions_types';
 
 const fallback: ToolPermission = { default: 'ask', allow: [], deny: [], ask: [] };
@@ -23,5 +24,46 @@ describe('normalizeToolPermission', () => {
 		const normalized = normalizeToolPermission(null, fallback);
 		normalized.allow.push('/tmp');
 		expect(fallback.allow).toEqual([]);
+	});
+});
+
+describe('normalizePermissionsSchema', () => {
+	it('migrates legacy recorder permissions and directory tool names', () => {
+		const normalized = normalizePermissionsSchema({
+			mode: 'ask',
+			dir: {
+				'/captures': {
+					recoursive: true,
+					tools: ['recorder_camera_stop', 'camera_recorder_stop'],
+				},
+			},
+			recorder_camera: {
+				default: 'deny',
+				allow: ['/captures'],
+				deny: [],
+				ask: [],
+			},
+		});
+
+		expect(normalized.camera_recorder).toEqual({
+			default: 'deny',
+			allow: ['/captures'],
+			deny: [],
+			ask: [],
+		});
+		expect(normalized.dir).toEqual({
+			'/captures': { recoursive: true, tools: ['camera_recorder_stop'] },
+		});
+		expect(normalized).not.toHaveProperty('recorder_camera');
+	});
+
+	it('keeps an explicit current recorder permission ahead of its legacy alias', () => {
+		const normalized = normalizePermissionsSchema({
+			recorder_screen: { default: 'deny', allow: [], deny: [], ask: [] },
+			screen_recorder: { default: 'ask', allow: [], deny: [], ask: [] },
+		});
+
+		expect(normalized.screen_recorder).toMatchObject({ default: 'ask' });
+		expect(normalized).not.toHaveProperty('recorder_screen');
 	});
 });
