@@ -1,14 +1,15 @@
 let state: PersistedTaskState;
-const getPermissions = jest.fn();
 const getTaskState = jest.fn(() => state);
 const setTaskState = jest.fn((value: PersistedTaskState) => {
 	state = value;
 });
 
-jest.mock('../../../../../src/main/agent/agent_store', () => ({ getPermissions }));
 jest.mock('../../../../../src/main/tasks/tasks_store', () => ({ getTaskState, setTaskState }));
 
-import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/permissions/permissions_types';
+import {
+	DEFAULT_PERMISSIONS,
+	PERMISSION_TOOLS,
+} from '../../../../../src/main/agent/permissions/permissions_types';
 import { getTaskPermissions } from '../../../../../src/main/tasks/tasks_permissions_get';
 import { resetTaskPermissions } from '../../../../../src/main/tasks/tasks_permissions_reset';
 import { saveTaskPermissions } from '../../../../../src/main/tasks/tasks_permissions_save';
@@ -16,17 +17,14 @@ import type { PersistedTaskState } from '../../../../../src/main/tasks/tasks_typ
 
 beforeEach(() => {
 	state = { schedules: [] };
-	getPermissions.mockReturnValue({
-		...DEFAULT_PERMISSIONS,
-		read: { default: 'deny', allow: [], deny: [], ask: [] },
-	});
 });
 
-it('copies the main policy once and then keeps the task policy independent', () => {
-	expect(getTaskPermissions().read).toMatchObject({ default: 'deny' });
+it('initializes every background-task tool as allowed', () => {
+	const permissions = getTaskPermissions();
+	for (const toolName of PERMISSION_TOOLS) {
+		expect(permissions[toolName]).toMatchObject({ default: 'allow' });
+	}
 	expect(setTaskState).toHaveBeenCalledWith(expect.objectContaining({ permissions: expect.any(Object) }));
-	getPermissions.mockReturnValue(DEFAULT_PERMISSIONS);
-	expect(getTaskPermissions().read).toMatchObject({ default: 'deny' });
 });
 
 it('saves and resets permissions without replacing schedules or runtime settings', () => {
@@ -57,5 +55,7 @@ it('saves and resets permissions without replacing schedules or runtime settings
 
 	resetTaskPermissions();
 	expect(state.schedules).toHaveLength(1);
-	expect(state.permissions?.write).toMatchObject({ default: 'ask' });
+	for (const toolName of PERMISSION_TOOLS) {
+		expect(state.permissions?.[toolName]).toMatchObject({ default: 'allow' });
+	}
 });

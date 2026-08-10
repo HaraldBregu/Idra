@@ -76,6 +76,16 @@ export const PERMISSION_TOOLS = [
 const allow = (): ToolPermission => ({ default: 'allow', allow: [], deny: [], ask: [] });
 const ask = (): ToolPermission => ({ default: 'ask', allow: [], deny: [], ask: [] });
 
+const ALL_ALLOWED_TOOL_PERMISSIONS = Object.fromEntries(
+	PERMISSION_TOOLS.map((toolName) => [toolName, allow()])
+) as Record<string, ToolPermission>;
+
+export const ALL_ALLOWED_PERMISSIONS: PermissionsSchema = {
+	dir: {},
+	mode: 'ask',
+	...ALL_ALLOWED_TOOL_PERMISSIONS,
+};
+
 export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 	read: allow(),
 	write: ask(),
