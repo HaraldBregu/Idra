@@ -24,26 +24,10 @@ export function normalizePermissionsSchema(value: unknown): PermissionsSchema {
 			: {};
 	const result: PermissionsSchema = {
 		tools: {},
-		directories: normalizeDirectoryPermissions(storedValue.directories ?? storedValue.dir),
+		directories: normalizeDirectoryPermissions(storedValue.directories),
 	};
 	for (const [toolName, fallback] of Object.entries(DEFAULT_TOOL_PERMISSIONS)) {
-		const value = Object.prototype.hasOwnProperty.call(storedTools, toolName)
-			? storedTools[toolName]
-			: storedValue[toolName];
-		result.tools[toolName] = normalizeToolPermission(value, fallback);
-	}
-	for (const [toolName, entry] of Object.entries(storedValue)) {
-		if (
-			toolName === 'dir' ||
-			toolName === 'directories' ||
-			toolName === 'mode' ||
-			toolName === 'tools' ||
-			result.tools[toolName] ||
-			!isToolPermission(entry)
-		) {
-			continue;
-		}
-		result.tools[toolName] = normalizeToolPermission(entry, unknownPermission);
+		result.tools[toolName] = normalizeToolPermission(storedTools[toolName], fallback);
 	}
 	for (const [toolName, entry] of Object.entries(storedTools)) {
 		if (!isToolPermission(entry)) continue;

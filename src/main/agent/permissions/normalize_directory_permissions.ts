@@ -1,22 +1,13 @@
 import type { DirectoryPermissions } from './permissions_types';
 
 export function normalizeDirectoryPermissions(value: unknown): DirectoryPermissions {
-	if (!value || typeof value !== 'object') return [];
-	const candidates = Array.isArray(value)
-		? value
-		: Object.entries(value).map(([path, permission]) => ({
-				...(permission && typeof permission === 'object' && !Array.isArray(permission)
-					? permission
-					: {}),
-				path,
-			}));
+	if (!Array.isArray(value)) return [];
 	const result: DirectoryPermissions = [];
-	for (const candidate of candidates) {
+	for (const candidate of value) {
 		if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) continue;
 		const entry = candidate as Record<string, unknown>;
 		const directory = typeof entry.path === 'string' ? entry.path.trim() : '';
-		if (!directory || !candidate || typeof candidate !== 'object' || Array.isArray(candidate))
-			continue;
+		if (!directory) continue;
 		if (typeof entry.recoursive !== 'boolean') continue;
 		let tools: '*' | string[];
 		if (entry.tools === '*') {

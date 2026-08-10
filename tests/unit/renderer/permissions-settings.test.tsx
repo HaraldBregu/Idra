@@ -7,16 +7,14 @@ jest.mock('react-i18next', () => ({
 }));
 
 const permissions = {
-	directories: [{ path: '/tmp', recoursive: true, tools: ['read'] }],
-	tools: {
-		read: { default: 'allow' as const, allow: ['Desktop'], deny: [], ask: [] },
-		write: { default: 'allow' as const, allow: [], deny: [], ask: [] },
-		edit: {
-			default: 'ask' as const,
-			allow: ['Desktop/file.txt'],
-			deny: [],
-			ask: [],
-		},
+	dir: { '/tmp': { recoursive: true, tools: ['read'] } },
+	read: { default: 'allow' as const, allow: ['Desktop'], deny: [], ask: [] },
+	write: { default: 'allow' as const, allow: [], deny: [], ask: [] },
+	edit: {
+		default: 'ask' as const,
+		allow: ['Desktop/file.txt'],
+		deny: [],
+		ask: [],
 	},
 };
 
@@ -85,7 +83,7 @@ describe('Permissions settings', () => {
 
 		await waitFor(() =>
 			expect(agentApi.policySetTool).toHaveBeenCalledWith('read', {
-				...permissions.tools.read,
+				...permissions.read,
 				default: 'ask',
 			})
 		);
@@ -106,10 +104,10 @@ describe('Permissions settings', () => {
 		await user.click(screen.getByRole('button', { name: 'addDirectory' }));
 
 		await waitFor(() =>
-			expect(agentApi.policySetDirectories).toHaveBeenCalledWith([
-				...permissions.directories,
-				{ path: '/workspace', recoursive: false, tools: ['read', 'write'] },
-			])
+			expect(agentApi.policySetDirectories).toHaveBeenCalledWith({
+				...permissions.dir,
+				'/workspace': { recoursive: false, tools: ['read', 'write'] },
+			})
 		);
 	});
 
@@ -126,10 +124,10 @@ describe('Permissions settings', () => {
 		await user.click(screen.getByRole('button', { name: 'addDirectory' }));
 
 		await waitFor(() =>
-			expect(agentApi.policySetDirectories).toHaveBeenCalledWith([
-				...permissions.directories,
-				{ path: '/picked', recoursive: true, tools: '*' },
-			])
+			expect(agentApi.policySetDirectories).toHaveBeenCalledWith({
+				...permissions.dir,
+				'/picked': { recoursive: true, tools: '*' },
+			})
 		);
 	});
 
@@ -140,7 +138,7 @@ describe('Permissions settings', () => {
 
 		await user.click(screen.getByRole('button', { name: 'removeDirectory' }));
 
-		await waitFor(() => expect(agentApi.policySetDirectories).toHaveBeenCalledWith([]));
+		await waitFor(() => expect(agentApi.policySetDirectories).toHaveBeenCalledWith({}));
 	});
 
 	it('loads and saves the task policy without changing the main policy', async () => {
