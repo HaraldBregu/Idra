@@ -157,9 +157,8 @@ async function* loop(
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
-	const permissionMode: AgentPermissionMode = !interactive
-		? 'ask'
-		: (options.permissions?.mode ?? (origin === 'main' ? getPermissionMode() : 'ask'));
+	const permissionMode: AgentPermissionMode =
+		options.permissions?.mode ?? (!interactive ? 'ask' : getPermissionMode());
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
 	session.context.subagents = undefined;
@@ -239,6 +238,7 @@ async function* loop(
 		tools.push(...mcp.tools);
 		const childTools = selectOriginTools(tools, origin, input.toolsAllow, input.toolsDeny);
 		const childRuntime = {
+			...(options.permissions ? { permissions: options.permissions } : {}),
 			...(options.resources ? { resources: options.resources } : {}),
 			...(options.providerLimiter ? { providerLimiter: options.providerLimiter } : {}),
 			...(options.subagentLimiter ? { subagentLimiter: options.subagentLimiter } : {}),

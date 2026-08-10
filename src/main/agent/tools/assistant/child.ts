@@ -6,7 +6,7 @@ import type { Config, RuntimeInput, Tool } from '../../types';
 
 export interface ChildRuntime extends Pick<
 	StreamOptions,
-	'resources' | 'providerLimiter' | 'subagentLimiter'
+	'permissions' | 'resources' | 'providerLimiter' | 'subagentLimiter'
 > {}
 
 export async function runChild(

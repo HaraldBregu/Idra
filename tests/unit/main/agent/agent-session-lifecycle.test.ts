@@ -90,7 +90,6 @@ it.each([
 		const agent = new Agent({} as WindowFactory);
 		const running = started();
 		const send = agent.send('health check', 'health', {
-			category: 'health',
 			sessionId: 'health',
 		});
 		await running;

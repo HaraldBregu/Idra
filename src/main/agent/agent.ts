@@ -68,11 +68,17 @@ const RUN_PRIORITIES: Record<AgentOrigin, AgentRunPriority> = {
 	subagent: 'low',
 };
 
+const AGENT_CATEGORIES: Record<string, AgentOrigin> = {
+	main: 'main',
+	channels: 'bot',
+	tasks: 'task',
+	health: 'health',
+};
+
 export interface AgentSendOptions extends AgentRunOptions {
 	interactive?: boolean;
 	streaming?: boolean;
 	permissions?: PermissionsSchema;
-	category?: SessionCategory;
 	modelId?: string;
 	windowId?: number;
 	streamEvent?: (event: AgentResponseEvent) => void;
@@ -110,12 +116,13 @@ export class Agent {
 			if (schedule.action.type !== 'agent') return Promise.resolve('');
 			const runtime = getRuntime();
 			return this.send(schedule.action.prompt, 'tasks', {
-				category: 'task',
 				interactive: false,
 				streaming: false,
 				permissions: getTaskPermissions(),
 				contextMode: 'minimal',
-				toolsAllow: schedule.action.toolsAllow,
+				...(schedule.action.toolsAllow.length > 0
+					? { toolsAllow: schedule.action.toolsAllow }
+					: {}),
 				effort: schedule.action.effort,
 				...(runtime ? { providerId: runtime.providerId, modelId: runtime.modelId } : {}),
 			});
@@ -134,7 +141,7 @@ export class Agent {
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
-		const category = options.category ?? 'main';
+		const category = AGENT_CATEGORIES[agentId] ?? 'main';
 		const sessionId = resolveSessionId(options.sessionId, this.config.location, category);
 		const runId = options.runId ?? randomUUID();
 		if (this.activeRuns.has(runId)) throw new Error(`Agent run '${runId}' is already active.`);
@@ -183,7 +190,7 @@ export class Agent {
 		this.state.pending = this.state.pending.filter((candidate) => candidate !== command);
 		const view = { id: command.id, agentId: command.agentId, message: command.message };
 		const { options } = command;
-		const origin = options.category ?? 'main';
+		const category = AGENT_CATEGORIES[command.agentId] ?? 'main';
 		const session = createSessionState();
 		this.activeSessions.set(command.id, session);
 
@@ -196,10 +203,10 @@ export class Agent {
 				runId: view.id,
 				task: 'chat',
 				message: parsedSkillCommand.message,
-				origin,
+				origin: 'main',
 				contextMode:
 					options.contextMode ??
-					(options.lightContext === true || origin !== 'main' ? 'minimal' : 'workspace'),
+					(options.lightContext === true || category !== 'main' ? 'minimal' : 'workspace'),
 				...(options.effort ? { effort: options.effort } : {}),
 				...(options.toolsAllow ? { toolsAllow: options.toolsAllow } : {}),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
@@ -214,7 +221,7 @@ export class Agent {
 					: {}),
 			} satisfies RuntimeInput;
 
-			init(session, this.config, input, options.category);
+			init(session, this.config, input, category);
 			tryAppendRun(session, {
 				type: 'run_queue_metrics',
 				queueDelayMs: Date.now() - command.queuedAt,

@@ -114,7 +114,7 @@ describe('Agent scoped cancellation', () => {
 						yield {
 							type: 'run_finished',
 							result: {
-								text: `${input.origin} reply`,
+								text: `${input.runId.startsWith('bot') ? 'bot' : 'main'} reply`,
 								model: 'model',
 								toolCalls: [],
 								numTurns: 1,
@@ -139,7 +139,6 @@ describe('Agent scoped cancellation', () => {
 		const botResponse = agent.send('bot', 'channels', {
 			runId: 'bot-run',
 			sessionId: 'bot-session',
-			category: 'bot',
 		});
 		await Promise.all([ui.started, bot.started]);
 
@@ -207,7 +206,6 @@ describe('Agent scoped cancellation', () => {
 			agent.send('bot', 'channels', {
 				runId: 'bot-run',
 				sessionId: 'bot',
-				category: 'bot',
 			}),
 		];
 		await Promise.all([ui.started, bot.started]);

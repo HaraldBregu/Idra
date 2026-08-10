@@ -106,10 +106,10 @@ describe('createChannelRegistry', () => {
 		await new Promise<void>((resolve) => setImmediate(resolve));
 
 		expect(send).toHaveBeenCalledWith('hello', 'channels', {
-			category: 'bot',
 			interactive: false,
 			streaming: false,
 			permissions: { mode: 'ask', dir: {} },
+			contextMode: 'minimal',
 			sessionId: 'f3d5954e-564f-51e0-be2f-5058fe95561e',
 		});
 	});

@@ -104,11 +104,11 @@ it('cancels the IPC UI run without interrupting the channel registry bot run', a
 		(
 			_config: unknown,
 			_session: unknown,
-			input: { origin: string; sessionId: string },
+			input: { runId: string; origin: string; sessionId: string },
 			signal: AbortSignal
 		) =>
 			(async function* () {
-				if (input.origin === 'main') {
+				if (input.runId === 'ui-run') {
 					uiStarted.resolve();
 					await new Promise<void>((resolve) => {
 						if (signal.aborted) resolve();

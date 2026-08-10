@@ -269,6 +269,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				if (!window) throw new Error('Assistant request requires an originating window.');
 				return agent.send(message, 'main', {
 					...normalizeAgentSendRuntimeOptions(options),
+					permissions: getPermissions(),
 					windowId: window.id,
 					streamEvent: (responseEvent) =>
 						eventBus.sendTo(window.id, AgentChannels.response, responseEvent),

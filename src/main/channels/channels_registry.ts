@@ -145,10 +145,10 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				chatType: message.chatType,
 			});
 			const response = await agentService.send(text, 'channels', {
-				category: 'bot',
 				interactive: false,
 				streaming: false,
 				permissions: getChannelPermissions(),
+				contextMode: 'minimal',
 				sessionId: channelSessionId(message),
 				...channelModelSelection('llm'),
 			});
