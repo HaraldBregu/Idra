@@ -164,8 +164,8 @@ Both types still enforce capability filtering, input validation, cancellation, t
 
 The Permissions screen provides persistent controls for sensitive tools:
 
-- Every tool owns a top-level policy object with `default`, `allow`, `ask`, and `deny` fields.
-- The top-level `dir` map assigns directory-scoped tool allow-lists using `{ "recoursive": boolean, "tools": "*" | string[] }` entries.
+- Every tool owns a policy object under `tools` with `default`, `allow`, `ask`, and `deny` fields.
+- The top-level `directories` array assigns directory-scoped tool allow-lists using `{ "path": string, "recoursive": boolean, "tools": "*" | string[] }` entries.
 - `read`, `write`, and `process` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
 - Other built-in tools retain independent **Allow** defaults.
 - An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
@@ -173,25 +173,34 @@ The Permissions screen provides persistent controls for sensitive tools:
 - Always-allow decisions persist path or command rules in the owning tool's `allow` list.
 - The policy can be reset to defaults.
 
-Directory permissions use this top-level structure:
+Permissions use this top-level structure:
 
 ```json
-"dir": {
-  "/path/to/folder": { "recoursive": true, "tools": "*" },
-  "/path/to/another/folder": { "recoursive": true, "tools": ["read"] }
+{
+  "tools": {
+    "read_file": { "default": "allow", "allow": [], "ask": [], "deny": [] }
+  },
+  "directories": [
+    { "path": "/path/to/folder", "recoursive": true, "tools": "*" },
+    {
+      "path": "/path/to/another/folder",
+      "recoursive": true,
+      "tools": ["read_file"]
+    }
+  ]
 }
 ```
 
 Rule resolution is tool-local:
 
 - The first layer is the built-in system policy: tools targeting the agent directory are allowed recursively, including tools with fixed agent-owned resources such as memory, health, schedules, media, bootstrap, and skills.
-- If the system layer does not allow the whole call, the second layer checks `dir`. The call is allowed when every target is covered by a matching directory entry that lists the tool.
+- If the system layer does not allow the whole call, the second layer checks `directories`. The call is allowed when every target is covered by a matching directory entry that lists the tool.
 - If the directory layer does not allow the whole call, resolution continues to the third layer: the named tool's explicit rules and default.
 - A file path matches that file, while a directory path also matches its descendants.
 - The most specific matching path wins; equally specific rules use **Deny**, then **Ask**, then **Allow** precedence.
 - `exec` supports exact command rules and a trailing `:*` prefix form such as `git push:*`.
 - A rule for one tool never changes another tool's decision.
-- A matching `dir` entry allows listed tools early. An unlisted tool falls through to its own policy instead of being denied by the directory layer. `"*"` allows every tool.
+- A matching `directories` entry allows listed tools early. An unlisted tool falls through to its own policy instead of being denied by the directory layer. `"*"` allows every tool.
 - Nested directory entries use the most-specific match. `recoursive: true` includes descendants; `false` covers direct files only.
 - System and directory approval happen before per-tool path or command rules.
 

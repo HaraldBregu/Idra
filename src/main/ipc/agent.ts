@@ -132,10 +132,10 @@ function toToolPermission(value: unknown): ToolPermission {
 }
 
 function toDirectoryPermissions(value: unknown): DirectoryPermissions {
-	if (!isRecord(value)) throw new Error('Invalid directory permissions.');
-	const result: DirectoryPermissions = {};
-	for (const [rawDirectory, candidate] of Object.entries(value)) {
-		const directory = optionalTrimmedString(rawDirectory);
+	if (!Array.isArray(value)) throw new Error('Invalid directory permissions.');
+	const result: DirectoryPermissions = [];
+	for (const candidate of value) {
+		const directory = isRecord(candidate) ? optionalTrimmedString(candidate.path) : undefined;
 		if (!directory || !isRecord(candidate) || typeof candidate.recoursive !== 'boolean')
 			throw new Error('Invalid directory permission.');
 		let tools: '*' | string[];
@@ -147,7 +147,7 @@ function toDirectoryPermissions(value: unknown): DirectoryPermissions {
 				),
 			];
 		else throw new Error('Invalid directory tools.');
-		result[directory] = { recoursive: candidate.recoursive, tools };
+		result.push({ path: directory, recoursive: candidate.recoursive, tools });
 	}
 	return result;
 }

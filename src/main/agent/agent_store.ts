@@ -112,20 +112,22 @@ export function getPermissions(): PermissionsSchema {
 }
 
 export function getDirectoryPermissions(): DirectoryPermissions {
-	return getPermissions().dir;
+	return getPermissions().directories;
 }
 
 export function getToolPermission(toolName: string): ToolPermission {
-	const permission = getPermissions()[toolName];
+	const permission = getPermissions().tools[toolName];
 	return isToolPermission(permission) ? permission : { ...UNKNOWN_TOOL_PERMISSION };
 }
 
 export function setToolPermission(toolName: string, permission: ToolPermission): PermissionsSchema {
-	if (toolName === 'dir' || toolName === 'mode')
-		throw new Error(`'${toolName}' is reserved for permission settings.`);
+	const permissions = getPermissions();
 	store.set('permissions', {
-		...getPermissions(),
-		[toolName]: normalizeToolPermission(permission, UNKNOWN_TOOL_PERMISSION),
+		...permissions,
+		tools: {
+			...permissions.tools,
+			[toolName]: normalizeToolPermission(permission, UNKNOWN_TOOL_PERMISSION),
+		},
 	});
 	return getPermissions();
 }
@@ -133,7 +135,7 @@ export function setToolPermission(toolName: string, permission: ToolPermission):
 export function setDirectoryPermissions(directories: DirectoryPermissions): PermissionsSchema {
 	store.set('permissions', {
 		...getPermissions(),
-		dir: normalizeDirectoryPermissions(directories),
+		directories: normalizeDirectoryPermissions(directories),
 	});
 	return getPermissions();
 }

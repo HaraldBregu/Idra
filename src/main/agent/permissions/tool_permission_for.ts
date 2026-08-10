@@ -20,7 +20,7 @@ export function toolPermissionFor(
 	target: string,
 	configured?: ToolPermission
 ): PermissionMode | undefined {
-	const permission = configured ?? getPermissions()[toolName];
+	const permission = configured ?? getPermissions().tools[toolName];
 	if (!isToolPermission(permission)) return undefined;
 	let best: { specificity: number; decision: PermissionMode } | undefined;
 	for (const decision of ['allow', 'ask', 'deny'] as const) {

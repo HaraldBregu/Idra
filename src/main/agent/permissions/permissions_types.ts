@@ -10,15 +10,17 @@ export interface ToolPermission {
 }
 
 export interface DirectoryPermission {
+	path: string;
 	recoursive: boolean;
 	tools: '*' | string[];
 }
 
-export type DirectoryPermissions = Record<string, DirectoryPermission>;
+export type DirectoryPermissions = DirectoryPermission[];
 
-export type PermissionsSchema = Record<string, ToolPermission | DirectoryPermissions> & {
-	dir: DirectoryPermissions;
-};
+export interface PermissionsSchema {
+	tools: Record<string, ToolPermission>;
+	directories: DirectoryPermissions;
+}
 
 export const PERMISSION_TOOLS = [
 	'read_file',
@@ -78,8 +80,8 @@ const ALL_ALLOWED_TOOL_PERMISSIONS = Object.fromEntries(
 ) as Record<string, ToolPermission>;
 
 export const ALL_ALLOWED_PERMISSIONS: PermissionsSchema = {
-	dir: {},
-	...ALL_ALLOWED_TOOL_PERMISSIONS,
+	tools: ALL_ALLOWED_TOOL_PERMISSIONS,
+	directories: [],
 };
 
 export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
@@ -133,6 +135,6 @@ export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 };
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
-	dir: {},
-	...DEFAULT_TOOL_PERMISSIONS,
+	tools: DEFAULT_TOOL_PERMISSIONS,
+	directories: [],
 };

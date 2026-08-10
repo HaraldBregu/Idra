@@ -18,22 +18,39 @@ export function normalizePermissionsSchema(value: unknown): PermissionsSchema {
 		deny: [],
 		ask: [],
 	};
-	const directories = normalizeDirectoryPermissions(storedValue.dir);
-	for (const permission of Object.values(directories)) {
-		if (permission.tools === '*') continue;
-		permission.tools = [...new Set(permission.tools)];
-	}
+	const storedTools =
+		storedValue.tools && typeof storedValue.tools === 'object' && !Array.isArray(storedValue.tools)
+			? (storedValue.tools as Record<string, unknown>)
+			: {};
 	const result: PermissionsSchema = {
-		dir: directories,
+		tools: {},
+		directories: normalizeDirectoryPermissions(storedValue.directories ?? storedValue.dir),
 	};
 	for (const [toolName, fallback] of Object.entries(DEFAULT_TOOL_PERMISSIONS)) {
-		result[toolName] = normalizeToolPermission(storedValue[toolName], fallback);
+		const value = Object.prototype.hasOwnProperty.call(storedTools, toolName)
+			? storedTools[toolName]
+			: storedValue[toolName];
+		result.tools[toolName] = normalizeToolPermission(value, fallback);
 	}
 	for (const [toolName, entry] of Object.entries(storedValue)) {
-		if (toolName === 'dir' || toolName === 'mode' || result[toolName] || !isToolPermission(entry)) {
+		if (
+			toolName === 'dir' ||
+			toolName === 'directories' ||
+			toolName === 'mode' ||
+			toolName === 'tools' ||
+			result.tools[toolName] ||
+			!isToolPermission(entry)
+		) {
 			continue;
 		}
-		result[toolName] = normalizeToolPermission(entry, unknownPermission);
+		result.tools[toolName] = normalizeToolPermission(entry, unknownPermission);
+	}
+	for (const [toolName, entry] of Object.entries(storedTools)) {
+		if (!isToolPermission(entry)) continue;
+		result.tools[toolName] = normalizeToolPermission(
+			entry,
+			result.tools[toolName] ?? unknownPermission
+		);
 	}
 	return result;
 }

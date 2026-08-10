@@ -24,26 +24,16 @@ import {
 } from '../../components';
 
 type Permissions = Awaited<ReturnType<typeof window.agent.policyGet>>;
-type Permission = Extract<Permissions[string], { default: unknown }>;
+type Permission = Permissions['tools'][string];
 type PermissionMode = Permission['default'];
 
 const PERMISSION_MODES: PermissionMode[] = ['allow', 'ask', 'deny'];
 const ROW_CLASS = 'border-b border-border/60 last:border-b-0';
 
-const isPermission = (entry: Permissions[string]): entry is Permission =>
-	typeof entry === 'object' &&
-	entry !== null &&
-	!Array.isArray(entry) &&
-	'default' in entry &&
-	(entry.default === 'allow' || entry.default === 'ask' || entry.default === 'deny');
-
 const permissionFor = (
 	permissions: Permissions | null,
 	toolName: string
-): Permission | undefined => {
-	const entry = permissions?.[toolName];
-	return entry && isPermission(entry) ? entry : undefined;
-};
+): Permission | undefined => permissions?.tools[toolName];
 
 const directoryToolsFor = (value: string): '*' | string[] => {
 	const normalized = value.trim();
@@ -107,19 +97,21 @@ const PermissionsPage: React.FC = () => {
 		if (!permissions || !directory || (directoryTools !== '*' && directoryTools.length === 0))
 			return;
 		apply(() =>
-			window.agent.policySetDirectories({
-				...permissions.dir,
-				[directory]: { recoursive: newDirectoryRecursive, tools: directoryTools },
-			})
+			window.agent.policySetDirectories([
+				...permissions.directories.filter((permission) => permission.path !== directory),
+				{ path: directory, recoursive: newDirectoryRecursive, tools: directoryTools },
+			])
 		);
 		setNewDirectory('');
 	};
 
 	const removeDirectory = (directory: string): void => {
 		if (!permissions) return;
-		const directories = { ...permissions.dir };
-		delete directories[directory];
-		apply(() => window.agent.policySetDirectories(directories));
+		apply(() =>
+			window.agent.policySetDirectories(
+				permissions.directories.filter((permission) => permission.path !== directory)
+			)
+		);
 	};
 
 	const browseDirectory = (onPicked: (directory: string) => void): void => {
@@ -134,12 +126,8 @@ const PermissionsPage: React.FC = () => {
 			});
 	};
 
-	const tools = permissions
-		? Object.keys(permissions).filter(
-				(toolName) => permissionFor(permissions, toolName) !== undefined
-			)
-		: [];
-	const directories = permissions ? Object.entries(permissions.dir) : [];
+	const tools = permissions ? Object.keys(permissions.tools) : [];
+	const directories = permissions?.directories ?? [];
 	const parsedDirectoryTools = directoryToolsFor(newDirectoryTools);
 	const canAddDirectory =
 		newDirectory.trim().length > 0 &&
@@ -184,7 +172,8 @@ const PermissionsPage: React.FC = () => {
 									title={t('settings.permissions.directoriesEmpty')}
 								/>
 							) : (
-								directories.map(([directory, permission]) => {
+								directories.map((permission) => {
+									const directory = permission.path;
 									const tools =
 										permission.tools === '*'
 											? t('settings.permissions.allTools')
