@@ -1,10 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type {
-	ChannelModelKind,
-	ChannelModelSelection,
-	StoredBotProvider,
-} from '../../shared';
+import type { ChannelModelKind, ChannelModelSelection, StoredBotProvider } from '../../shared';
 import { userDataLocation } from '../shared/user_data_location';
 import { getModelId, getProviderId } from '../models/models_store';
 import { normalizePermissionsSchema } from '../agent/permissions/permissions_normalize_schema';
@@ -94,7 +90,10 @@ export function getChannelModelSelection(kind: ChannelModelKind): ChannelModelSe
 	};
 }
 
-export function setChannelModelSelection(kind: ChannelModelKind, selection: ChannelModelSelection): void {
+export function setChannelModelSelection(
+	kind: ChannelModelKind,
+	selection: ChannelModelSelection
+): void {
 	const keys = CHANNEL_MODEL_KEYS[kind];
 	store.set(keys.providerId, trimValue(selection.providerId) ?? '');
 	store.set(keys.modelId, trimValue(selection.modelId) ?? '');
