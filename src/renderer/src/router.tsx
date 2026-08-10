@@ -211,6 +211,14 @@ const routes: RouteObject[] = [
 									</SettingsRouteWrapper>
 								),
 							},
+							{
+								path: 'permissions',
+								element: (
+									<SettingsRouteWrapper>
+										<PermissionsPage scope="tasks" />
+									</SettingsRouteWrapper>
+								),
+							},
 						],
 					},
 					{
@@ -266,6 +274,14 @@ const routes: RouteObject[] = [
 								element: (
 									<SettingsRouteWrapper>
 										<ChannelDetailPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'permissions',
+								element: (
+									<SettingsRouteWrapper>
+										<PermissionsPage scope="channels" />
 									</SettingsRouteWrapper>
 								),
 							},
@@ -463,11 +479,24 @@ const routes: RouteObject[] = [
 							},
 							{
 								path: 'health',
-								element: (
-									<SettingsRouteWrapper>
-										<HealthPage />
-									</SettingsRouteWrapper>
-								),
+								children: [
+									{
+										index: true,
+										element: (
+											<SettingsRouteWrapper>
+												<HealthPage />
+											</SettingsRouteWrapper>
+										),
+									},
+									{
+										path: 'permissions',
+										element: (
+											<SettingsRouteWrapper>
+												<PermissionsPage scope="health" />
+											</SettingsRouteWrapper>
+										),
+									},
+								],
 							},
 							{
 								path: 'permissions',
