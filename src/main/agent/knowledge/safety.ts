@@ -1,9 +1,5 @@
 import path from 'node:path';
-
-interface SourceSafetyInput {
-	readonly relativePath: string;
-	readonly content: string;
-}
+import type { SourceSafetyInput } from './types';
 
 const SECRET_FILE = /(^|\/)(\.env(?:\.|$)|credentials\.json$|id_rsa$|[^/]+\.(?:pem|key|p12|pfx)$)/i;
 const PRIVATE_KEY = /-----BEGIN [A-Z ]*PRIVATE KEY-----/;
