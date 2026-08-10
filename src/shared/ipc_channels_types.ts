@@ -133,15 +133,8 @@ export interface AgentInvokeChannelMap {
 		args: [];
 		result: string | undefined;
 	};
-	[AgentChannels.policySetTool]: {
-		args: [
-			toolName: string,
-			permission: import('../main/agent/permissions/permissions_types').ToolPermission,
-		];
-		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
-	};
-	[AgentChannels.policySetDirectories]: {
-		args: [directories: import('../main/agent/permissions/permissions_types').DirectoryPermissions];
+	[AgentChannels.policySet]: {
+		args: [permissions: import('../main/agent/permissions/permissions_types').PermissionsSchema];
 		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
 	};
 	[AgentChannels.policyReset]: {

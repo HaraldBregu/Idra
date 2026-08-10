@@ -24,11 +24,9 @@ import {
 	getPermissions,
 	resetPermissions,
 	respondToolPermission,
-	setDirectoryPermissions,
-	setToolPermission,
-	type DirectoryPermissions,
+	setPermissions,
+	type PermissionRules,
 	type PermissionsSchema,
-	type ToolPermission,
 } from '../agent/permissions';
 import {
 	getHealthSettings,
@@ -115,51 +113,22 @@ function optionalTrimmedString(value: unknown): string | undefined {
 	return trimmed || undefined;
 }
 
-function toToolPermission(value: unknown): ToolPermission {
-	if (!isRecord(value)) throw new Error('Invalid tool permission.');
-	if (value.default !== 'allow' && value.default !== 'ask' && value.default !== 'deny')
-		throw new Error('Invalid default permission.');
+function toPermissionRules(value: unknown): PermissionRules {
+	if (!isRecord(value)) throw new Error('Invalid permission rules.');
 	const list = (input: unknown): string[] => {
 		if (!Array.isArray(input)) throw new Error('Invalid permission rules.');
 		return [...new Set(input.map(optionalTrimmedString).filter((item): item is string => !!item))];
 	};
-	return {
-		default: value.default,
-		allow: list(value.allow),
-		deny: list(value.deny),
-		ask: list(value.ask),
-	};
+	return { allow: list(value.allow), deny: list(value.deny) };
 }
 
-function toDirectoryPermissions(value: unknown): DirectoryPermissions {
-	if (!Array.isArray(value)) throw new Error('Invalid directory permissions.');
-	const result: DirectoryPermissions = [];
-	for (const candidate of value) {
-		const directory = isRecord(candidate) ? optionalTrimmedString(candidate.path) : undefined;
-		if (
-			!directory ||
-			!isRecord(candidate) ||
-			typeof candidate.enabled !== 'boolean' ||
-			typeof candidate.recoursive !== 'boolean'
-		)
-			throw new Error('Invalid directory permission.');
-		let tools: '*' | string[];
-		if (candidate.tools === '*') tools = '*';
-		else if (Array.isArray(candidate.tools))
-			tools = [
-				...new Set(
-					candidate.tools.map(optionalTrimmedString).filter((tool): tool is string => !!tool)
-				),
-			];
-		else throw new Error('Invalid directory tools.');
-		result.push({
-			path: directory,
-			enabled: candidate.enabled,
-			recoursive: candidate.recoursive,
-			tools,
-		});
-	}
-	return result;
+function toPermissions(value: unknown): PermissionsSchema {
+	if (!isRecord(value)) throw new Error('Invalid permissions.');
+	return {
+		read: toPermissionRules(value.read),
+		write: toPermissionRules(value.write),
+		exec: toPermissionRules(value.exec),
+	};
 }
 
 function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
@@ -514,21 +483,12 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
-			AgentChannels.policySetTool,
-			wrapSimpleHandler((toolName: unknown, value: unknown): PermissionsSchema => {
-				const tool = optionalTrimmedString(toolName);
-				if (!tool) throw new Error('Invalid tool name.');
-				return setToolPermission(tool, toToolPermission(value));
-			}, AgentChannels.policySetTool)
-		);
-
-		ipcMain.handle(
-			AgentChannels.policySetDirectories,
+			AgentChannels.policySet,
 			wrapSimpleHandler(async (value: unknown): Promise<PermissionsSchema> => {
-				const permissions = setDirectoryPermissions(toDirectoryPermissions(value));
+				const permissions = setPermissions(toPermissions(value));
 				await agent.sandbox.invalidate();
 				return permissions;
-			}, AgentChannels.policySetDirectories)
+			}, AgentChannels.policySet)
 		);
 
 		ipcMain.handle(

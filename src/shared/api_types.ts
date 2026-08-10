@@ -33,11 +33,7 @@ import type { TaskRuntime, TaskSchedule } from '../main/tasks/tasks_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { RagIndexResult, RagMatch } from '../main/agent/knowledge/rag';
 import type { RagConfiguration } from './rag_types';
-import type {
-	DirectoryPermissions,
-	PermissionsSchema,
-	ToolPermission,
-} from '../main/agent/permissions/permissions_types';
+import type { PermissionsSchema } from '../main/agent/permissions/permissions_types';
 import type {
 	AgentHistoryMessage,
 	AgentRunOptions,
@@ -143,8 +139,7 @@ export interface AgentApi {
 	setModelOptions: (options: Record<string, unknown>) => Promise<Record<string, unknown>>;
 	policyGet: () => Promise<PermissionsSchema>;
 	policyPickDirectory: () => Promise<string | undefined>;
-	policySetTool: (toolName: string, permission: ToolPermission) => Promise<PermissionsSchema>;
-	policySetDirectories: (directories: DirectoryPermissions) => Promise<PermissionsSchema>;
+	policySet: (permissions: PermissionsSchema) => Promise<PermissionsSchema>;
 	policyReset: () => Promise<PermissionsSchema>;
 	healthGetSettings: () => Promise<HealthSettings>;
 	healthSaveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;

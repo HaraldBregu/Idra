@@ -15,11 +15,7 @@ import { normalizeAgentInputFiles } from '../shared/agent_files';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { RagIndexResult, RagMatch } from '../main/agent/knowledge/rag';
 import type { RagConfiguration } from '../shared/rag_types';
-import type {
-	DirectoryPermissions,
-	PermissionsSchema,
-	ToolPermission,
-} from '../main/agent/permissions/permissions_types';
+import type { PermissionsSchema } from '../main/agent/permissions/permissions_types';
 import { optionalStringList, optionalTrimmedString } from './normalize';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
@@ -221,11 +217,8 @@ export const agent: AgentApi = {
 	policyPickDirectory: (): Promise<string | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.policyPickDirectory);
 	},
-	policySetTool: (toolName: string, permission: ToolPermission): Promise<PermissionsSchema> => {
-		return typedInvokeUnwrap(AgentChannels.policySetTool, toolName, permission);
-	},
-	policySetDirectories: (directories: DirectoryPermissions): Promise<PermissionsSchema> => {
-		return typedInvokeUnwrap(AgentChannels.policySetDirectories, directories);
+	policySet: (permissions: PermissionsSchema): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.policySet, permissions);
 	},
 	policyReset: (): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyReset);
