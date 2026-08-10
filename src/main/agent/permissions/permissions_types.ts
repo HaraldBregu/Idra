@@ -16,12 +16,8 @@ export interface DirectoryPermission {
 
 export type DirectoryPermissions = Record<string, DirectoryPermission>;
 
-export type PermissionsSchema = Record<
-	string,
-	ToolPermission | DirectoryPermissions | AgentPermissionMode
-> & {
+export type PermissionsSchema = Record<string, ToolPermission | DirectoryPermissions> & {
 	dir: DirectoryPermissions;
-	mode: AgentPermissionMode;
 };
 
 export const PERMISSION_TOOLS = [
@@ -83,7 +79,6 @@ const ALL_ALLOWED_TOOL_PERMISSIONS = Object.fromEntries(
 
 export const ALL_ALLOWED_PERMISSIONS: PermissionsSchema = {
 	dir: {},
-	mode: 'ask',
 	...ALL_ALLOWED_TOOL_PERMISSIONS,
 };
 
@@ -139,7 +134,5 @@ export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	dir: {},
-	mode: 'ask',
 	...DEFAULT_TOOL_PERMISSIONS,
 };
-import type { AgentPermissionMode } from '../../../shared/agent_types';

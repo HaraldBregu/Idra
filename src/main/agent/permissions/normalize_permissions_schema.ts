@@ -25,7 +25,6 @@ export function normalizePermissionsSchema(value: unknown): PermissionsSchema {
 	}
 	const result: PermissionsSchema = {
 		dir: directories,
-		mode: storedValue.mode === 'bypass' ? 'bypass' : 'ask',
 	};
 	for (const [toolName, fallback] of Object.entries(DEFAULT_TOOL_PERMISSIONS)) {
 		result[toolName] = normalizeToolPermission(storedValue[toolName], fallback);

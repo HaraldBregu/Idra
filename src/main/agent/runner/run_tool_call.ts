@@ -1,6 +1,6 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import { fileToolState, isFileCreation, rememberTool, type ToolsContext } from '../context';
-import type { AgentPermissionMode } from '../../../shared/agent_types';
+import type { AgentRunType } from '../../../shared/agent_types';
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
@@ -9,31 +9,26 @@ import {
 	setToolPermission,
 	toolApprovalTargets,
 	waitForToolPermission,
-	type PermissionsSchema,
 } from '../permissions';
 import { inputFingerprint } from '../permissions/input_fingerprint';
 import { redactApprovalInput } from '../permissions/redact_approval_input';
 import { formatToolOutput } from './run_common';
 import { limitToolOutput } from './run_limit_output';
-import type { AgentOrigin } from '../../../shared/agent_types';
 import type { KeyedMutex } from '../mutex';
 import { directoryPermissionTargets } from '../permissions/directory_permission_targets';
 
 export interface ToolCallSecurityContext {
 	runId: string;
-	origin: AgentOrigin;
 	windowId?: number;
 }
 
 export async function* runToolCall(
 	tool: Tool | undefined,
 	toolCall: ToolCall,
-	interactive = true,
+	type: AgentRunType,
 	signal?: AbortSignal,
 	context?: ToolsContext,
-	permissionMode: AgentPermissionMode = 'ask',
-	security: ToolCallSecurityContext = { runId: 'internal', origin: 'main' },
-	permissions?: PermissionsSchema,
+	security: ToolCallSecurityContext = { runId: 'internal' },
 	resources?: KeyedMutex
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
@@ -74,18 +69,13 @@ export async function* runToolCall(
 		output = `Error: cancelled by user`;
 		isError = true;
 	} else {
-		const policyPermission = resolveToolPermission(
-			toolCall.name,
-			canonicalInput,
-			context,
-			interactive,
-			'ask',
-			permissions
-		);
 		let permission =
-			permissionMode === 'bypass' && policyPermission !== 'deny' ? 'allow' : policyPermission;
+			type === 'background'
+				? 'allow'
+				: resolveToolPermission(toolCall.name, canonicalInput, context, true, 'ask');
+		if (type === 'background') permissionOutcome = 'bypass';
 
-		if (permission === 'ask' && !interactive) permission = 'deny';
+		if (permission === 'ask' && security.windowId === undefined) permission = 'deny';
 
 		if (permission === 'ask') {
 			const targets = toolApprovalTargets(toolCall.name, canonicalInput, agentLocation());
@@ -101,14 +91,12 @@ export async function* runToolCall(
 				mode: 'ask',
 				targets,
 				expiresAt: new Date(expiresAtMs).toISOString(),
-				origin: security.origin,
 				inputFingerprint: fingerprint,
 			};
 			const decision = await waitForToolPermission(
 				{
 					approvalId,
 					runId: security.runId,
-					origin: security.origin,
 					toolName: toolCall.name,
 					inputFingerprint: fingerprint,
 					expiresAtMs,

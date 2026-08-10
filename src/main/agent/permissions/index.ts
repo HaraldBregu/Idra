@@ -1,12 +1,10 @@
 export {
 	addPermissionRule,
 	getDirectoryPermissions,
-	getPermissionMode,
 	getPermissions,
 	getToolPermission,
 	resetPermissions,
 	setDirectoryPermissions,
-	setPermissionMode,
 	setToolPermission,
 } from '../agent_store';
 export { isPathWithin, toolPathDir } from './permissions_path';

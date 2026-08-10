@@ -3,7 +3,6 @@ import Store from 'electron-store';
 import type {
 	AgentMediaModelKind,
 	AgentMediaModelSettings,
-	AgentPermissionMode,
 } from '../../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
@@ -116,10 +115,6 @@ export function getDirectoryPermissions(): DirectoryPermissions {
 	return getPermissions().dir;
 }
 
-export function getPermissionMode(): AgentPermissionMode {
-	return getPermissions().mode;
-}
-
 export function getToolPermission(toolName: string): ToolPermission {
 	const permission = getPermissions()[toolName];
 	return isToolPermission(permission) ? permission : { ...UNKNOWN_TOOL_PERMISSION };
@@ -132,11 +127,6 @@ export function setToolPermission(toolName: string, permission: ToolPermission):
 		...getPermissions(),
 		[toolName]: normalizeToolPermission(permission, UNKNOWN_TOOL_PERMISSION),
 	});
-	return getPermissions();
-}
-
-export function setPermissionMode(mode: AgentPermissionMode): PermissionsSchema {
-	store.set('permissions', { ...getPermissions(), mode });
 	return getPermissions();
 }
 

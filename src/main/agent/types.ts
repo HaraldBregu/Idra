@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import type { LlmEvent } from '../models/adapters/llm';
-import type { AgentOrigin } from '../../shared/agent_types';
+import type { AgentRunType } from '../../shared/agent_types';
 import type { SkillDiagnostic, SkillTrust } from '../../shared/skills_types';
 
 export interface Config {
@@ -100,7 +100,7 @@ export type RuntimeModelEvent = LlmEvent;
 
 export type RuntimeOutput = SessionResult;
 
-export interface RuntimeInput extends Pick<
+type RuntimeInputBase = Pick<
 	SessionInput,
 	'sessionId' | 'messages' | 'model' | 'effort' | 'maxTurns' | 'maxIterations' | 'files'
 > {
@@ -109,13 +109,18 @@ export interface RuntimeInput extends Pick<
 	task: string;
 	message: string;
 	providerId?: string;
-	origin: AgentOrigin;
+	agentId: string;
 	contextMode: 'minimal' | 'workspace';
-	toolsAllow?: string[];
 	toolsDeny?: string[];
 	approvalWindowId?: number;
 	explicitSkill?: string;
-}
+};
+
+export type RuntimeInput = RuntimeInputBase &
+	(
+		| { type: Extract<AgentRunType, 'default'>; toolsAllow?: string[] }
+		| { type: Extract<AgentRunType, 'background'>; toolsAllow: string[] }
+	);
 
 export interface RuntimeModelRoute {
 	task: string;
@@ -185,7 +190,6 @@ export type RuntimeEvent =
 			mode: 'ask';
 			targets: string[];
 			expiresAt: string;
-			origin: AgentOrigin;
 			inputFingerprint: string;
 	  }
 	| {
@@ -196,6 +200,6 @@ export type RuntimeEvent =
 			output: unknown;
 			isError?: boolean;
 			durationMs: number;
-			permissionOutcome?: 'allow' | 'deny' | 'approve' | 'approve_always' | 'reject';
+			permissionOutcome?: 'allow' | 'deny' | 'approve' | 'approve_always' | 'reject' | 'bypass';
 	  }
 	| { type: 'run_finished'; result: RuntimeOutput };

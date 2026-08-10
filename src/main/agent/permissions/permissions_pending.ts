@@ -56,7 +56,6 @@ export function respondToolPermission(
 		(typeof scope === 'string' ||
 			windowId !== entry.request.windowId ||
 			scope.runId !== entry.request.runId ||
-			scope.origin !== entry.request.origin ||
 			scope.toolName !== entry.request.toolName ||
 			scope.inputFingerprint !== entry.request.inputFingerprint)
 	)

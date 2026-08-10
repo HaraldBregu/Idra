@@ -29,14 +29,11 @@ export type AgentToolPermissionDecision = 'approve' | 'reject' | 'approve_always
 export interface AgentToolPermissionScope {
 	approvalId: string;
 	runId: string;
-	origin: AgentOrigin;
 	toolName: string;
 	inputFingerprint: string;
 }
 
-export type AgentPermissionMode = 'ask' | 'bypass';
-
-export type AgentOrigin = 'main' | 'bot' | 'health' | 'task' | 'subagent';
+export type AgentRunType = 'default' | 'background';
 
 export type AgentContextMode = 'minimal' | 'workspace';
 
@@ -243,7 +240,6 @@ export type AgentRunStreamEvent =
 			mode: 'ask';
 				targets: string[];
 				expiresAt: string;
-				origin: AgentOrigin;
 				inputFingerprint: string;
 				detail?: string;
 		  }
