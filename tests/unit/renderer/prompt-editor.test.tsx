@@ -1,6 +1,8 @@
 import { render, waitFor } from '@testing-library/react';
 import { PromptEditor } from '@/components/prompt-editor';
 
+let observedElement: Element | null = null;
+
 class ResizeObserverMock {
 	readonly callback: ResizeObserverCallback;
 	readonly disconnect = jest.fn();
@@ -10,6 +12,7 @@ class ResizeObserverMock {
 	}
 
 	observe(target: Element): void {
+		observedElement = target;
 		const height = (target.textContent?.length ?? 0) > 40 ? 48 : 28;
 		this.callback(
 			[{ contentRect: { height } } as ResizeObserverEntry],
@@ -75,6 +78,7 @@ describe('PromptEditor', () => {
 			/>
 		);
 		await waitFor(() => expect(prompt).toHaveAttribute('data-expanded', 'true'));
+		expect(observedElement).toBe(container.querySelector('[role="textbox"]')?.parentElement);
 		expect(prompt).toHaveClass('min-h-24');
 		expect(prompt).toHaveClass('rounded-xl');
 		expect(prompt).toHaveStyle({ borderRadius: '12px' });
