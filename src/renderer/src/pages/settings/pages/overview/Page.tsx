@@ -130,10 +130,10 @@ const OverviewPage: React.FC = () => {
 							const item = getSettingsOverviewItem(path);
 							return (
 								<SettingsOverviewCard
-								key={path}
-								item={item}
-								disabled={disabledOverviewPaths.has(path)}
-							/>
+									key={path}
+									item={item}
+									disabled={disabledOverviewPaths.has(path)}
+								/>
 							);
 						})}
 					</SettingsPanel>
