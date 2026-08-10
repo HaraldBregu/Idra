@@ -18,9 +18,13 @@ import { runScheduleNowTool } from '../../../../../src/main/agent/tools/tasks/ru
 import { updateScheduleTool } from '../../../../../src/main/agent/tools/tasks/update_schedule';
 import { wikiIngestTool } from '../../../../../src/main/agent/tools/knowledge/ingest';
 import { wikiLintTool } from '../../../../../src/main/agent/tools/knowledge/lint';
+import { wikiReadTool } from '../../../../../src/main/agent/tools/knowledge/read';
 import { wikiRebuildTool } from '../../../../../src/main/agent/tools/knowledge/rebuild';
 import { wikiReviewTool } from '../../../../../src/main/agent/tools/knowledge/review';
 import { wikiSaveTool } from '../../../../../src/main/agent/tools/knowledge/save';
+import { wikiSearchTool } from '../../../../../src/main/agent/tools/knowledge/search';
+import { wikiQueryTool } from '../../../../../src/main/agent/tools/knowledge/wiki';
+import { knowledgeSearchTool } from '../../../../../src/main/agent/tools/memory/search';
 import { webBrowserTool } from '../../../../../src/main/agent/tools/web/browser';
 
 it.each([
@@ -45,6 +49,13 @@ it.each([
 	expect(tool.hardApproval).toBeUndefined();
 	expect(tool.alwaysAsk).toBeUndefined();
 });
+
+it.each([knowledgeSearchTool, wikiSearchTool, wikiReadTool, wikiQueryTool])(
+	'%s has an allow fallback before runtime registration',
+	(tool) => {
+		expect(tool.defaultPermission).toBe('allow');
+	}
+);
 
 it.each([
 	createScheduleTool,
