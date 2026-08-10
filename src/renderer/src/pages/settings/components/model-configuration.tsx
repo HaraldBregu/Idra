@@ -16,6 +16,7 @@ interface ModelProviderConfigurationProps {
 	readonly triggerDescription?: ReactNode;
 	readonly showInlineError?: boolean;
 	readonly showIcon?: boolean;
+	readonly grouped?: boolean;
 	readonly collapsible?: boolean;
 	readonly defaultOpen?: boolean;
 	readonly onChange: (nextProviderId: string, nextModelId: string) => void;
@@ -30,6 +31,7 @@ export function ModelProviderConfiguration({
 	triggerDescription,
 	showInlineError = false,
 	showIcon = true,
+	grouped = false,
 	collapsible = true,
 	defaultOpen = false,
 	onChange,
@@ -149,7 +151,11 @@ export function ModelProviderConfiguration({
 		<Collapsible
 			open={isOpen}
 			onOpenChange={setIsOpen}
-			className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
+			className={
+				grouped
+					? 'min-w-0 max-w-full overflow-hidden border-b border-border/60 last:border-b-0'
+					: 'min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10'
+			}
 		>
 			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 				{showIcon &&

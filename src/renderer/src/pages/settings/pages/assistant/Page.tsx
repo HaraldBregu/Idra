@@ -206,50 +206,55 @@ const AssistantPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<ModelProviderConfiguration
-				configState={state}
-				idPrefix="assistant"
-				triggerTitle={t('settings.modelServices.model')}
-				description={t('settings.modelServices.modelDescription')}
-				showIcon={false}
-				onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
-			>
-				<ModelOptions
-					key={`${state.providerId}:${state.modelId}`}
-					inputs={inputs}
-					values={modelOptions}
-					onChange={updateModelOption}
+			<SettingsPanel>
+				<ModelProviderConfiguration
+					configState={state}
+					idPrefix="assistant"
+					triggerTitle={t('settings.modelServices.model')}
+					description={t('settings.modelServices.modelDescription')}
+					showIcon={false}
+					grouped
+					onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
+				>
+					<ModelOptions
+						key={`${state.providerId}:${state.modelId}`}
+						inputs={inputs}
+						values={modelOptions}
+						onChange={updateModelOption}
+					/>
+				</ModelProviderConfiguration>
+
+				<AgentMediaModelConfiguration
+					api={window.models.image}
+					capability="text-to-image"
+					idPrefix="agent-image"
+					title={t('settings.modelServices.imageAssistantName')}
+					description={t('settings.modelServices.imageModelDescription')}
+					showIcon={false}
+					grouped
 				/>
-			</ModelProviderConfiguration>
 
-			<AgentMediaModelConfiguration
-				api={window.models.image}
-				capability="text-to-image"
-				idPrefix="agent-image"
-				title={t('settings.modelServices.imageAssistantName')}
-				description={t('settings.modelServices.imageModelDescription')}
-				showIcon={false}
-			/>
+				<AgentMediaModelConfiguration
+					api={window.models.sound}
+					capability="text-to-audio"
+					idPrefix="agent-audio"
+					title={t('settings.modelServices.musicCreatorName')}
+					description={t('settings.modelServices.musicModelDescription')}
+					showIcon={false}
+					grouped
+				/>
 
-			<AgentMediaModelConfiguration
-				api={window.models.sound}
-				capability="text-to-audio"
-				idPrefix="agent-audio"
-				title={t('settings.modelServices.musicCreatorName')}
-				description={t('settings.modelServices.musicModelDescription')}
-				showIcon={false}
-			/>
+				<AgentMediaModelConfiguration
+					api={window.models.video}
+					capability="text-to-video"
+					idPrefix="agent-video"
+					title={t('settings.modelServices.videoCreatorName')}
+					description={t('settings.modelServices.videoModelDescription')}
+					showIcon={false}
+					grouped
+				/>
 
-			<AgentMediaModelConfiguration
-				api={window.models.video}
-				capability="text-to-video"
-				idPrefix="agent-video"
-				title={t('settings.modelServices.videoCreatorName')}
-				description={t('settings.modelServices.videoModelDescription')}
-				showIcon={false}
-			/>
-
-			<Collapsible className="min-w-0 max-w-full overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+				<Collapsible className="min-w-0 max-w-full overflow-hidden">
 				<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 					<div className="min-w-0 flex-1">
 						<div className="truncate text-[13px] font-medium leading-4 text-foreground">
@@ -302,7 +307,8 @@ const AssistantPage: React.FC = () => {
 						}
 					/>
 				</CollapsibleContent>
-			</Collapsible>
+				</Collapsible>
+			</SettingsPanel>
 
 			<SettingsPanel>
 				<div

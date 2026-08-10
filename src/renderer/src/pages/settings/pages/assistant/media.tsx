@@ -33,6 +33,7 @@ interface AgentMediaModelConfigurationProps {
 	readonly description: ReactNode;
 	readonly collapsible?: boolean;
 	readonly showIcon?: boolean;
+	readonly grouped?: boolean;
 }
 
 const MEDIA_CONTENT_INPUTS = new Set([
@@ -70,6 +71,7 @@ export function AgentMediaModelConfiguration({
 	description,
 	collapsible = true,
 	showIcon = true,
+	grouped = false,
 }: AgentMediaModelConfigurationProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
@@ -174,6 +176,7 @@ export function AgentMediaModelConfiguration({
 			idPrefix={idPrefix}
 			collapsible={collapsible}
 			showIcon={showIcon}
+			grouped={grouped}
 			triggerTitle={title}
 			description={description}
 			showInlineError

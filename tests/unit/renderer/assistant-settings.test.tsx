@@ -134,7 +134,7 @@ beforeEach(() => {
 	jest.clearAllMocks();
 });
 
-it('renders each provider setting in a separate collapsible card', async () => {
+it('groups independently collapsible provider settings in one card', async () => {
 	const user = userEvent.setup();
 	render(
 		<MemoryRouter>
@@ -170,7 +170,7 @@ it('renders each provider setting in a separate collapsible card', async () => {
 	expect(search).toHaveTextContent('Brave');
 
 	expect(cards.every(Boolean)).toBe(true);
-	expect(new Set(cards).size).toBe(cards.length);
+	expect(new Set(cards).size).toBe(1);
 
 	const wiki = screen.getByRole('button', { name: /LLM Wiki/ });
 	const dataManagement = screen.getByRole('button', { name: /Data management/ });
