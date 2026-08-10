@@ -113,6 +113,8 @@ function usePromptInputExpansion({
       setIsExpanded(false)
       return
     }
+    const measurementElement =
+      textarea instanceof HTMLTextAreaElement ? textarea : textarea.parentElement ?? textarea
 
     // Sticky while non-empty: collapsing widens/narrows the field, so re-measuring
     // after expansion can flip the state back and forth on every keystroke.
@@ -122,8 +124,8 @@ function usePromptInputExpansion({
       (prev) =>
         prev ||
         value.includes("\n") ||
-        textarea.scrollHeight > threshold ||
-        textarea.scrollWidth > textarea.clientWidth + 1
+        measurementElement.scrollHeight > threshold ||
+        measurementElement.scrollWidth > measurementElement.clientWidth + 1
     )
 
     if (typeof ResizeObserver === "undefined") return
@@ -131,7 +133,7 @@ function usePromptInputExpansion({
     const observer = new ResizeObserver(([entry]) => {
       if (entry.contentRect.height > threshold) setIsExpanded(true)
     })
-    observer.observe(textarea)
+    observer.observe(measurementElement)
 
     return () => observer.disconnect()
   }, [enabled, threshold, textareaRef, value])

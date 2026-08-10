@@ -29,8 +29,7 @@ function PromptEditorArea({
 			placeholder={placeholder}
 			ariaLabel={ariaLabel}
 			onEditorReady={(editor) => {
-				// ponytail: PromptInput only uses this ref for focus() and scrollHeight,
-				// both of which the contenteditable element supports
+				// ponytail: PromptInput uses this ref to focus the editor and locate its container
 				textareaRef.current = editor.view.dom as unknown as HTMLTextAreaElement;
 			}}
 			className="max-h-[34vh] min-h-7 overflow-y-auto text-sm leading-6 text-foreground"
