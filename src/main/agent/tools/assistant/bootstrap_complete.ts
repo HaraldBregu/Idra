@@ -6,6 +6,7 @@ import { BOOTSTRAP_FILE } from '../../system/system_types';
 import { tool } from '../tool';
 
 export const completeBootstrapTool = tool({
+	id: 'complete_bootstrap',
 	name: 'complete_bootstrap',
 	description:
 		'Complete the one-time bootstrap by deleting BOOTSTRAP.md from the workspace. Call this only after IDENTITY.md, USER.md, and SOUL.md have been updated.',

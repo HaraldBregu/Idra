@@ -3,6 +3,7 @@ import { reviewWikiChange } from '../../knowledge/wiki/wiki_review';
 import { tool } from '../tool';
 
 export const wikiReviewTool = tool({
+	id: 'wiki_review_changes',
 	name: 'wiki_review_changes',
 	description: 'Approve or reject one pending high-risk wiki change.',
 	inputSchema: z.object({

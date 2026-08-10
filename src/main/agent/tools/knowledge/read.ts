@@ -3,6 +3,7 @@ import { readWikiPage } from '../../knowledge/wiki/wiki_read_page';
 import { tool } from '../tool';
 
 export const wikiReadTool = tool({
+	id: 'wiki_read_page',
 	name: 'wiki_read_page',
 	description: 'Read one compiled wiki page by path, page ID, exact title, or alias.',
 	inputSchema: z.object({ page: z.string().trim().min(1) }),

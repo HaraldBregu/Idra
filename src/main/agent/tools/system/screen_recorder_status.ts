@@ -4,6 +4,7 @@ import type { Tool } from '../../types';
 import { tool } from '../tool';
 
 export const screenRecorderStatusTool: Tool = tool({
+	id: 'screen_recorder_status',
 	name: 'screen_recorder_status',
 	description:
 		'Check the status of a background screen recording started with screen_recorder. With wait=true it blocks until the recording finishes and returns the final result. The recorded file exists only once status is "completed".',

@@ -55,6 +55,7 @@ function htmlToText(html: string): string {
 }
 
 export const webFetchTool = tool({
+	id: 'web_fetch',
 	name: 'web_fetch',
 	description:
 		'Fetch an HTTP(S) URL and return its readable text content. HTML is converted to plain text; JSON is pretty-printed.',

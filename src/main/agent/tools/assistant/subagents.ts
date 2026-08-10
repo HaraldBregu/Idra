@@ -23,6 +23,7 @@ export function subagentsTool(
 	pool: KeyedLimiter = fallbackPool
 ): Tool {
 	return tool({
+		id: 'subagents',
 		name: 'subagents',
 		description:
 			'Spawn two or three independent read-only subagents concurrently. Each task must have a stable id. Results preserve input order, and one failed child does not cancel its siblings.',

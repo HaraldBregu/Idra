@@ -306,6 +306,7 @@ async function runExec(
 }
 
 export const execTool = tool({
+	id: 'exec',
 	name: 'exec',
 	description:
 		'Run a shell command from the workspace or a chosen working directory. ' +

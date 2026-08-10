@@ -5,6 +5,7 @@ import { tool } from '../tool';
 
 export function forgetMemoryTool(config: Config): Tool {
 	return tool({
+		id: 'memory_forget',
 		name: 'memory_forget',
 		description: 'Remove exactly one persistent memory by the stable ID returned by memory_list.',
 		inputSchema: z.object({

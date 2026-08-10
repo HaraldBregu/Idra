@@ -5,6 +5,7 @@ import { tool } from '../tool';
 
 export function saveMemoryTool(config: Config): Tool {
 	return tool({
+		id: 'memory_save',
 		name: 'memory_save',
 		description:
 			'Save one durable fact to persistent memory after the user explicitly asks for it. Do not save secrets or transient conversation details.',

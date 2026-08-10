@@ -4,6 +4,7 @@ import type { Tool } from '../../types';
 import { tool } from '../tool';
 
 export const microphoneRecorderStopTool: Tool = tool({
+	id: 'microphone_recorder_stop',
 	name: 'microphone_recorder_stop',
 	description: 'Stop an active microphone recording and begin saving its captured data.',
 	inputSchema: z.object({ id: z.string().uuid() }),

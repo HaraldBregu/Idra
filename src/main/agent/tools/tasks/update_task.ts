@@ -3,6 +3,7 @@ import { tool } from '../tool';
 import { taskIdSchema, updateTaskRequestSchema } from './schema';
 
 export const updateTaskTool = tool({
+	id: 'update_task',
 	name: 'update_task',
 	description: 'Update an existing task by id.',
 	inputSchema: taskIdSchema.extend({

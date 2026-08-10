@@ -4,6 +4,7 @@ import type { Tool } from '../../types';
 import { tool } from '../tool';
 
 export const microphoneRecorderStatusTool: Tool = tool({
+	id: 'microphone_recorder_status',
 	name: 'microphone_recorder_status',
 	description:
 		'Check the status of a background microphone recording started with microphone_recorder. With wait=true it blocks until the recording finishes and returns the final result. The recorded file exists only once status is "completed".',

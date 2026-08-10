@@ -4,6 +4,7 @@ import type { Tool } from '../../types';
 import { tool } from '../tool';
 
 const webSearchTool = tool({
+	id: 'web_search',
 	name: 'web_search',
 	description:
 		'Search the web for current information using the configured search engine. Returns a list of results with title, url, and description.',

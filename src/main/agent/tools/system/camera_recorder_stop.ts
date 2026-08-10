@@ -4,6 +4,7 @@ import type { Tool } from '../../types';
 import { tool } from '../tool';
 
 export const cameraRecorderStopTool: Tool = tool({
+	id: 'camera_recorder_stop',
 	name: 'camera_recorder_stop',
 	description: 'Stop an active camera recording and begin saving its captured data.',
 	inputSchema: z.object({ id: z.string().uuid() }),

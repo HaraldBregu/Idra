@@ -16,6 +16,7 @@ export function createLoadSkillTool(
 		.map((skill) => skill.name);
 	if (names.length === 0) return undefined;
 	return tool({
+		id: 'load_skill',
 		name: 'load_skill',
 		description:
 			'Activate an Agent Skill for this run. The harness injects its protected instructions and canonical resource root on the next model turn.',

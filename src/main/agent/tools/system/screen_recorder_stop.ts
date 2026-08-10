@@ -4,6 +4,7 @@ import type { Tool } from '../../types';
 import { tool } from '../tool';
 
 export const screenRecorderStopTool: Tool = tool({
+	id: 'screen_recorder_stop',
 	name: 'screen_recorder_stop',
 	description: 'Stop an active screen recording and begin saving its captured data.',
 	inputSchema: z.object({ id: z.string().uuid() }),

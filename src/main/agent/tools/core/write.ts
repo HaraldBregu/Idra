@@ -7,6 +7,7 @@ import { tool } from '../tool';
 import { atomicWrite } from '../../../shared/atomic_write';
 
 export const writeTool = tool({
+	id: 'write',
 	name: 'write',
 	description:
 		'Create or overwrite a UTF-8 text file with exact content, creating parent directories when needed.',

@@ -3,6 +3,7 @@ import { tool } from '../tool';
 import { taskIdSchema } from './schema';
 
 export const getTaskTool = tool({
+	id: 'get_task',
 	name: 'get_task',
 	description: 'Fetch a single task by id.',
 	inputSchema: taskIdSchema,

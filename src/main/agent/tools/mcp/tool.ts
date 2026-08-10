@@ -18,6 +18,7 @@ export function mcpTool(
 ) {
 	const parseInput = mcpInputParser(schema);
 	return jsonTool({
+		id: runtimeName,
 		name: runtimeName,
 		description,
 		timeoutMs: MCP_TOOL_TIMEOUT_MS,
