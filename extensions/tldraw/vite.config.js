@@ -4,10 +4,14 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
 	base: './',
+	build: {
+		assetsInlineLimit: (filePath) => /[/\\]@tldraw[/\\]assets[/\\]/.test(filePath),
+	},
 	plugins: [react()],
 	publicDir: false,
 	resolve: {
 		alias: {
+			'@': path.resolve(import.meta.dirname, './src'),
 			'@friday/sdk': path.resolve(import.meta.dirname, '../../packages/sdk/index.ts'),
 		},
 	},
