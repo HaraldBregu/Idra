@@ -2,7 +2,7 @@ import os from 'node:os';
 import { resolveUserPath } from '../../shared/user_path';
 import { realPath } from '../../shared/real_path';
 import { isPathWithin } from './permissions_path';
-import { isToolPermission } from './permissions_is_tool_permission';
+import { isToolPermission } from './is_tool_permission';
 import { getPermissions } from '../agent_store';
 import type { PermissionMode, ToolPermission } from './permissions_types';
 

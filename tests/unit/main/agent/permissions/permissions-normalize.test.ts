@@ -1,4 +1,4 @@
-import { normalizeToolPermission } from '../../../../../src/main/agent/permissions/permissions_normalize';
+import { normalizeToolPermission } from '../../../../../src/main/agent/permissions/normalize_tool_permission';
 import type { ToolPermission } from '../../../../../src/main/agent/permissions/permissions_types';
 
 const fallback: ToolPermission = { default: 'ask', allow: [], deny: [], ask: [] };

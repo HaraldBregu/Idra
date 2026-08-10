@@ -3,7 +3,7 @@ import Store from 'electron-store';
 import { userDataLocation } from '../../shared/user_data_location';
 import { DEFAULT_HEALTH_SETTINGS, type HealthSettings } from './health_types';
 import { getPermissions } from '../agent_store';
-import { normalizePermissionsSchema } from '../permissions/permissions_normalize_schema';
+import { normalizePermissionsSchema } from '../permissions/normalize_permissions_schema';
 import {
 	DEFAULT_PERMISSIONS,
 	type PermissionsSchema,

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { toolPermissionTargets } from './permissions_targets';
+import { toolPermissionTargets } from './tool_permission_targets';
 
 export function toolApprovalTargets(
 	toolName: string,

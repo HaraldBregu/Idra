@@ -1,4 +1,4 @@
-import { redactApprovalInput } from '../../../../../src/main/agent/permissions/permissions_redact_input';
+import { redactApprovalInput } from '../../../../../src/main/agent/permissions/redact_approval_input';
 
 it('redacts nested credential fields without changing ordinary approval scope', () => {
 	expect(

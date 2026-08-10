@@ -10,16 +10,16 @@ export {
 	setToolPermission,
 } from '../agent_store';
 export { isPathWithin, toolPathDir } from './permissions_path';
-export { directoryPermissionFor } from './permissions_directory';
-export { directoryPermissionAllows } from './permissions_directories';
-export { directoryPermissionTargets } from './permissions_directory_targets';
-export { systemPermissionAllows } from './permissions_system';
-export { toolApprovalTargets } from './permissions_approval_targets';
-export { toolPermissionTargets } from './permissions_targets';
-export { toolPermissionFor } from './permissions_override';
-export { resolveStoredToolPermission } from './permissions_tool';
-export { resolveToolPermission } from './permissions_resolve';
-export { normalizePermissionsSchema } from './permissions_normalize_schema';
+export { directoryPermissionFor } from './directory_permission_for';
+export { directoryPermissionAllows } from './directory_permission_allows';
+export { directoryPermissionTargets } from './directory_permission_targets';
+export { systemPermissionAllows } from './system_permission_allows';
+export { toolApprovalTargets } from './tool_approval_targets';
+export { toolPermissionTargets } from './tool_permission_targets';
+export { toolPermissionFor } from './tool_permission_for';
+export { resolveStoredToolPermission } from './resolve_stored_tool_permission';
+export { resolveToolPermission } from './resolve_tool_permission';
+export { normalizePermissionsSchema } from './normalize_permissions_schema';
 export {
 	rejectPendingToolPermissions,
 	respondToolPermission,

@@ -1,4 +1,4 @@
-import { normalizePermissionsSchema } from '../agent/permissions/permissions_normalize_schema';
+import { normalizePermissionsSchema } from '../agent/permissions/normalize_permissions_schema';
 import type { PermissionsSchema } from '../agent/permissions/permissions_types';
 import { getTaskState, setTaskState } from './tasks_store';
 

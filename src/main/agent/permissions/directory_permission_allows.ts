@@ -1,4 +1,4 @@
-import { directoryPermissionFor } from './permissions_directory';
+import { directoryPermissionFor } from './directory_permission_for';
 import type { DirectoryPermissions } from './permissions_types';
 
 export function directoryPermissionAllows(

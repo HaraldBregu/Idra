@@ -11,13 +11,13 @@ import {
 	waitForToolPermission,
 	type PermissionsSchema,
 } from '../permissions';
-import { inputFingerprint } from '../permissions/permissions_fingerprint';
-import { redactApprovalInput } from '../permissions/permissions_redact_input';
+import { inputFingerprint } from '../permissions/input_fingerprint';
+import { redactApprovalInput } from '../permissions/redact_approval_input';
 import { formatToolOutput } from './run_common';
 import { limitToolOutput } from './run_limit_output';
 import type { AgentOrigin } from '../../../shared/agent_types';
 import type { KeyedMutex } from '../mutex';
-import { directoryPermissionTargets } from '../permissions/permissions_directory_targets';
+import { directoryPermissionTargets } from '../permissions/directory_permission_targets';
 
 export interface ToolCallSecurityContext {
 	runId: string;

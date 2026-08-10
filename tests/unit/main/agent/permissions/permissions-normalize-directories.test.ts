@@ -1,4 +1,4 @@
-import { normalizeDirectoryPermissions } from '../../../../../src/main/agent/permissions/permissions_normalize_directories';
+import { normalizeDirectoryPermissions } from '../../../../../src/main/agent/permissions/normalize_directory_permissions';
 
 describe('normalizeDirectoryPermissions', () => {
 	it('keeps valid wildcard and tool-list entries', () => {

@@ -3,7 +3,7 @@ import Store from 'electron-store';
 import type { ChannelModelKind, ChannelModelSelection, StoredBotProvider } from '../../shared';
 import { userDataLocation } from '../shared/user_data_location';
 import { getModelId, getProviderId } from '../models/models_store';
-import { normalizePermissionsSchema } from '../agent/permissions/permissions_normalize_schema';
+import { normalizePermissionsSchema } from '../agent/permissions/normalize_permissions_schema';
 import type { PermissionsSchema } from '../agent/permissions/permissions_types';
 import { DEFAULT_CHANNEL_PERMISSIONS } from './permissions';
 

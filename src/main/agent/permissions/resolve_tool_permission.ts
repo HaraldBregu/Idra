@@ -1,11 +1,11 @@
 import { contextAllowsTool, type ToolsContext } from '../context';
-import { directoryPermissionAllows } from './permissions_directories';
-import { directoryPermissionTargets } from './permissions_directory_targets';
-import { isToolPermission } from './permissions_is_tool_permission';
+import { directoryPermissionAllows } from './directory_permission_allows';
+import { directoryPermissionTargets } from './directory_permission_targets';
+import { isToolPermission } from './is_tool_permission';
 import { AGENT_DIRECTORY, getPermissions } from '../agent_store';
-import { systemPermissionAllows } from './permissions_system';
-import { toolPermissionTargets } from './permissions_targets';
-import { resolveStoredToolPermission } from './permissions_tool';
+import { systemPermissionAllows } from './system_permission_allows';
+import { toolPermissionTargets } from './tool_permission_targets';
+import { resolveStoredToolPermission } from './resolve_stored_tool_permission';
 import type { PermissionMode } from './permissions_types';
 import type { PermissionsSchema } from './permissions_types';
 

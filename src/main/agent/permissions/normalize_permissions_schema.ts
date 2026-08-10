@@ -1,6 +1,6 @@
-import { isToolPermission } from './permissions_is_tool_permission';
-import { normalizeToolPermission } from './permissions_normalize';
-import { normalizeDirectoryPermissions } from './permissions_normalize_directories';
+import { isToolPermission } from './is_tool_permission';
+import { normalizeToolPermission } from './normalize_tool_permission';
+import { normalizeDirectoryPermissions } from './normalize_directory_permissions';
 import {
 	DEFAULT_TOOL_PERMISSIONS,
 	type PermissionsSchema,

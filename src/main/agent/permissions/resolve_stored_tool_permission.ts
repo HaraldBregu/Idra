@@ -1,4 +1,4 @@
-import { toolPermissionFor } from './permissions_override';
+import { toolPermissionFor } from './tool_permission_for';
 import type { PermissionMode, ToolPermission } from './permissions_types';
 
 export interface ToolPermissionResolution {
