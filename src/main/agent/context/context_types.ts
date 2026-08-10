@@ -8,6 +8,7 @@ export interface LoadedSkill {
 	hash: string;
 	allowedTools?: string[];
 	resources: string[];
+	warnings?: { code: string; message: string }[];
 }
 
 export interface ToolContextState {

@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 import type { LlmEvent } from '../models/adapters/llm';
 import type { AgentOrigin, AgentToolEffect, AgentToolRisk } from '../../shared/agent_types';
+import type { SkillDiagnostic, SkillTrust } from '../../shared/skills_types';
 
 export interface Config {
 	location: string;
@@ -185,6 +186,8 @@ export type RuntimeEvent =
 			providerId: string;
 			tools: string[];
 			mcpDiscovery?: McpDiscoveryDiagnostics;
+			skillDiagnostics?: readonly SkillDiagnostic[];
+			skillActivations?: { id: string; name: string; hash: string; trust: SkillTrust }[];
 	  }
 	| { type: 'assistant_message'; content: string; toolCalls: ToolCall[] }
 	| {

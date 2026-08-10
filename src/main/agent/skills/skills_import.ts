@@ -57,7 +57,7 @@ export async function importSkills(): Promise<SkillImportResult | undefined> {
 			setSkillPolicy(id, {
 				enabled: false,
 				trusted: false,
-				invocationPolicy: 'explicit',
+				invocationPolicy: 'implicit',
 				origin: source,
 			});
 			fs.renameSync(temporary, destination);

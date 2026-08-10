@@ -57,7 +57,7 @@ describe('importSkills replacement safety', () => {
 		expect(validateSkillPackage).toHaveBeenCalledTimes(2);
 		expect(setSkillPolicy).toHaveBeenCalledWith(
 			'example',
-			expect.objectContaining({ enabled: false, trusted: false, invocationPolicy: 'explicit' })
+			expect.objectContaining({ enabled: false, trusted: false, invocationPolicy: 'implicit' })
 		);
 		expect(renameSync).toHaveBeenCalledWith(
 			expect.stringMatching(/\/\.import-example-.+\/example$/),

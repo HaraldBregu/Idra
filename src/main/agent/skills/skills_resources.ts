@@ -22,7 +22,10 @@ export function listSkillResources(canonicalRoot: string): string[] {
 			if (!entry.isFile() && !entry.isSymbolicLink()) continue;
 			resolveSkillResource(canonicalRoot, relativePath);
 			resources.push(relativePath.split(path.sep).join('/'));
-			if (resources.length >= SKILL_RESOURCE_LIST_LIMIT) break;
+			if (resources.length >= SKILL_RESOURCE_LIST_LIMIT) {
+				resources[resources.length - 1] = '[additional resources omitted]';
+				break;
+			}
 		}
 	}
 	return resources.sort();

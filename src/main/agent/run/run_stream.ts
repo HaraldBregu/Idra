@@ -211,6 +211,7 @@ async function* loop(
 			hash: skill.hash,
 			allowedTools: skill.allowedTools,
 			resources: skill.resources,
+			warnings: skill.warnings,
 		});
 		tools.splice(0, tools.length, ...selectSkillTools(tools, skill.allowedTools));
 		session.context.toolsContext.hasPrivateContext = true;
@@ -240,6 +241,13 @@ async function* loop(
 		model: modelId,
 		providerId: provider.id,
 		tools: tools.map((tool) => tool.name),
+		skillDiagnostics: skillSnapshot.diagnostics,
+		skillActivations: (session.context.loadedSkills ?? []).map((skill) => ({
+			id: skill.id,
+			name: skill.name,
+			hash: skill.hash,
+			trust: skill.trust,
+		})),
 		...(mcpDiscovery ? { mcpDiscovery } : {}),
 	};
 
