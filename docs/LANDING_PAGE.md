@@ -430,7 +430,7 @@ Use these repository sources to validate final copy and product visuals:
 - [Skills settings](../src/renderer/src/pages/settings/pages/skills/Page.tsx)
 - [Skill loading](../src/main/agent/tools/skill_load.ts)
 - [Knowledge Base settings](../src/renderer/src/pages/settings/pages/rag/Page.tsx)
-- [Knowledge search tool](../src/main/agent/tools/memory/search.ts)
+- [Knowledge search tool](../src/main/agent/tools/knowledge/rag.ts)
 - [LLM Wiki settings](../src/renderer/src/pages/settings/pages/wiki/Page.tsx)
 - [Extensions settings](../src/renderer/src/pages/settings/pages/extensions/Page.tsx)
 - [Extension window](../src/main/extensions/extension_render.ts)
