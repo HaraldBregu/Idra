@@ -25,6 +25,7 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../components';
+import Sandbox from './Sandbox';
 
 type Permissions = Awaited<ReturnType<typeof window.agent.policyGet>>;
 type Permission = Permissions['tools'][string];
@@ -194,6 +195,8 @@ const PermissionsPage: React.FC = () => {
 					{error}
 				</SettingsNotice>
 			)}
+
+			<Sandbox />
 
 			{!permissions ? (
 				<SettingsLoadingRows rows={4} />

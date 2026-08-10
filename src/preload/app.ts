@@ -107,6 +107,12 @@ export const app: AppApi = {
 	getThemeData: () => {
 		return typedInvokeUnwrap(AppChannels.getThemeData);
 	},
+	getSandboxStatus: () => {
+		return typedInvokeUnwrap(AppChannels.getSandboxStatus);
+	},
+	setupSandbox: () => {
+		return typedInvokeUnwrap(AppChannels.setupSandbox);
+	},
 	onThemeModeChanged: (callback: (theme: AppThemeData) => void): (() => void) => {
 		return typedOn(AppChannels.themeModeChanged, callback);
 	},

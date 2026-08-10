@@ -122,6 +122,8 @@ export const AppChannels = {
 	getTheme: 'app:get-theme',
 	getThemeData: 'app:get-theme-data',
 	themeModeChanged: 'app:theme-mode-changed',
+	getSandboxStatus: 'app:sandbox:status:get',
+	setupSandbox: 'app:sandbox:setup',
 	getMicrophonePermission: 'app:get-microphone-permission',
 	setMicrophoneEnabled: 'app:set-microphone-enabled',
 	requestMicrophonePermission: 'app:request-microphone-permission',

@@ -524,14 +524,20 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.policySetDirectories,
-			wrapSimpleHandler((value: unknown): PermissionsSchema => {
-				return setDirectoryPermissions(toDirectoryPermissions(value));
+			wrapSimpleHandler(async (value: unknown): Promise<PermissionsSchema> => {
+				const permissions = setDirectoryPermissions(toDirectoryPermissions(value));
+				await agent.sandbox.invalidate();
+				return permissions;
 			}, AgentChannels.policySetDirectories)
 		);
 
 		ipcMain.handle(
 			AgentChannels.policyReset,
-			wrapSimpleHandler((): PermissionsSchema => resetPermissions(), AgentChannels.policyReset)
+			wrapSimpleHandler(async (): Promise<PermissionsSchema> => {
+				const permissions = resetPermissions();
+				await agent.sandbox.invalidate();
+				return permissions;
+			}, AgentChannels.policyReset)
 		);
 
 		ipcMain.handle(

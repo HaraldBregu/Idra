@@ -94,6 +94,7 @@ import type { WikiRunResult, WikiSettings, WikiStatus } from './wiki_types';
 import type { ContextMenuDescriptor } from './window_types';
 import type { WorkspaceAsset } from './workspace';
 import type { ExtensionStoreValue } from './extension_store_types';
+import type { SandboxStatus } from './sandbox';
 export type { DataApi } from './data_types';
 
 export interface WindowApi {
@@ -393,6 +394,8 @@ export interface AppApi {
 	setTheme: (theme: AppTheme) => Promise<void>;
 	getTheme: () => Promise<AppTheme>;
 	getThemeData: () => Promise<AppThemeData>;
+	getSandboxStatus: () => Promise<SandboxStatus>;
+	setupSandbox: () => Promise<SandboxStatus>;
 	/**
 	 * Fires when theme mode or resolved dark-mode state changes.
 	 * Returns a cleanup function to remove the listener.

@@ -823,6 +823,20 @@
 			}
 		},
 		"permissions": {
+			"sandboxTitle": "Command sandbox",
+			"sandboxDescription": "OS-level isolation keeps command writes inside approved directories.",
+			"sandboxChecking": "Checking…",
+			"sandboxUnavailable": "Unavailable",
+			"sandboxSetup": "Set up sandbox",
+			"sandboxSettingUp": "Setting up…",
+			"sandboxRecheck": "Check again",
+			"sandboxSetupHint": "Windows will request administrator approval once.",
+			"sandboxSetupFailed": "Could not set up the sandbox.",
+			"sandboxStates": {
+				"ready": "Ready",
+				"setup_required": "Setup required",
+				"unavailable": "Unavailable"
+			},
 			"microphone": "Microphone",
 			"camera": "Camera",
 			"request": "Request",

@@ -67,12 +67,14 @@ import type { ExtensionStorage } from '../extensions/extension_store';
 import { registerExtensionStoreIpc } from './extension_store';
 import { externalUrl } from '../external';
 import { unfurlUrl } from '../unfurl';
+import type { ExecSandbox } from '../agent/sandbox';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
 	channelRegistry: ChannelRegistry;
 	extensionRegistry: ExtensionRegistry;
 	extensionStorage: ExtensionStorage;
+	sandbox: ExecSandbox;
 }
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
@@ -388,7 +390,7 @@ export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
 	register(
-		{ logger, channelRegistry, extensionRegistry, extensionStorage }: AppIpcDeps,
+		{ logger, channelRegistry, extensionRegistry, extensionStorage, sandbox }: AppIpcDeps,
 		eventBus: EventBus
 	): void {
 		registerExtensionStoreIpc({ extensionRegistry, extensionStorage });
@@ -573,6 +575,16 @@ export class AppIpc implements IpcModule {
 			wrapSimpleHandler((): AppThemeData => {
 				return getThemeData();
 			}, AppChannels.getThemeData)
+		);
+
+		ipcMain.handle(
+			AppChannels.getSandboxStatus,
+			wrapSimpleHandler(() => sandbox.status(), AppChannels.getSandboxStatus)
+		);
+
+		ipcMain.handle(
+			AppChannels.setupSandbox,
+			wrapSimpleHandler(() => sandbox.setup(), AppChannels.setupSandbox)
 		);
 
 		ipcMain.handle(

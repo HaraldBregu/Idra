@@ -822,6 +822,20 @@
 			}
 		},
 		"permissions": {
+			"sandboxTitle": "Sandbox dei comandi",
+			"sandboxDescription": "L'isolamento a livello di sistema operativo limita le scritture dei comandi alle cartelle approvate.",
+			"sandboxChecking": "Verifica in corso…",
+			"sandboxUnavailable": "Non disponibile",
+			"sandboxSetup": "Configura sandbox",
+			"sandboxSettingUp": "Configurazione in corso…",
+			"sandboxRecheck": "Verifica di nuovo",
+			"sandboxSetupHint": "Windows richiederà una sola autorizzazione come amministratore.",
+			"sandboxSetupFailed": "Impossibile configurare la sandbox.",
+			"sandboxStates": {
+				"ready": "Pronta",
+				"setup_required": "Configurazione richiesta",
+				"unavailable": "Non disponibile"
+			},
 			"microphone": "Microfono",
 			"camera": "Fotocamera",
 			"request": "Richiedi",

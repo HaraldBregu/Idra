@@ -36,7 +36,13 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 
 	safeRegister('app', () =>
 		new AppIpc().register(
-			{ logger, channelRegistry, extensionRegistry, extensionStorage },
+			{
+				logger,
+				channelRegistry,
+				extensionRegistry,
+				extensionStorage,
+				sandbox: agentService.sandbox,
+			},
 			eventBus
 		)
 	);

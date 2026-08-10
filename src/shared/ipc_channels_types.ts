@@ -334,6 +334,14 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: import('./app_types').AppThemeData;
 	};
+	[AppChannels.getSandboxStatus]: {
+		args: [];
+		result: import('./sandbox').SandboxStatus;
+	};
+	[AppChannels.setupSandbox]: {
+		args: [];
+		result: import('./sandbox').SandboxStatus;
+	};
 	[AppChannels.getMicrophonePermission]: {
 		args: [];
 		result: import('./app_types').MicrophonePermissionSettings;
