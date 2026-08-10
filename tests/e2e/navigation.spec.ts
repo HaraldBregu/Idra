@@ -25,6 +25,7 @@ const routes = [
 	'/settings/cloud',
 	'/settings/system',
 	'/settings/channels',
+	'/settings/channels/permissions',
 	'/settings/skills',
 	'/settings/providers',
 	'/settings/providers/keys',
@@ -40,9 +41,11 @@ const routes = [
 	'/settings/rag',
 	'/settings/wiki',
 	'/settings/tasks',
+	'/settings/tasks/permissions',
 	'/settings/tasks/health',
 	'/settings/assistant',
 	'/settings/assistant/chathistory',
+	'/settings/assistant/health/permissions',
 ];
 
 for (const route of routes) {
