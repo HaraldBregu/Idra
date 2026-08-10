@@ -49,7 +49,6 @@ it('gives tasks all compatible tools by default and keeps a non-empty allowlist 
 		'apply_patch',
 		'web_search',
 		'web_fetch',
-		'bot_write',
 		'exec',
 	]);
 	expect(selectOriginTools(tools, 'task', []).map((tool) => tool.name)).toEqual([
@@ -58,7 +57,6 @@ it('gives tasks all compatible tools by default and keeps a non-empty allowlist 
 		'apply_patch',
 		'web_search',
 		'web_fetch',
-		'bot_write',
 		'exec',
 	]);
 	expect(selectOriginTools(tools, 'task', ['exec']).map((tool) => tool.name)).toEqual(['exec']);
