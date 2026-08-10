@@ -114,4 +114,25 @@ describe('toResult', () => {
 			).event
 		).toEqual({ type: 'tool_call_end', toolName: 'web_fetch', permissionOutcome: 'approve' });
 	});
+	it('records skill activation identity and hash without instruction content', () => {
+		const started = stringifyRunEntry({
+			type: 'run_started',
+			tools: ['read'],
+			skillDiagnostics: [{ level: 'error', code: 'invalid', message: 'private path' }],
+			skillActivations: [{ id: 'writer', name: 'writer', hash: 'abc', trust: 'user-controlled' }],
+		});
+		expect(JSON.parse(started!).event).toMatchObject({
+			skillDiagnosticCount: 1,
+			skillActivations: [{ id: 'writer', name: 'writer', hash: 'abc', trust: 'user-controlled' }],
+		});
+		expect(started).not.toContain('private path');
+
+		const loaded = stringifyRunEntry({
+			type: 'tool_call_end',
+			toolName: 'load_skill',
+			output: { activated: true, id: 'writer', hash: 'abc', instructions: 'private body' },
+		});
+		expect(JSON.parse(loaded!).event.skillActivation).toEqual({ id: 'writer', hash: 'abc' });
+		expect(loaded).not.toContain('private body');
+	});
 });
