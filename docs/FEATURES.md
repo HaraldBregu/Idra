@@ -165,7 +165,7 @@ Both types still enforce capability filtering, input validation, cancellation, t
 The Permissions screen provides persistent controls for sensitive tools:
 
 - Every tool owns a policy object under `tools` with `default`, `allow`, `ask`, and `deny` fields.
-- The top-level `directories` array assigns directory-scoped tool allow-lists using `{ "path": string, "recoursive": boolean, "tools": "*" | string[] }` entries.
+- The top-level `directories` array assigns directory-scoped tool allow-lists using `{ "path": string, "enabled": boolean, "recoursive": boolean, "tools": "*" | string[] }` entries. `enabled` defaults to `true`.
 - The agent workspace is always present as a recursive wildcard directory permission and cannot be removed.
 - `read`, `write`, and `process` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
 - Other built-in tools retain independent **Allow** defaults.
@@ -182,9 +182,10 @@ Permissions use this top-level structure:
 		"read_file": { "default": "allow", "allow": [], "ask": [], "deny": [] }
 	},
 	"directories": [
-		{ "path": "/path/to/folder", "recoursive": true, "tools": "*" },
+		{ "path": "/path/to/folder", "enabled": true, "recoursive": true, "tools": "*" },
 		{
 			"path": "/path/to/another/folder",
+			"enabled": true,
 			"recoursive": true,
 			"tools": ["read_file"]
 		}

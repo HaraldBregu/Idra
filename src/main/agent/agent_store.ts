@@ -40,6 +40,7 @@ const settingsDirectory = path.resolve(userDataLocation(), 'settings');
 export const AGENT_DIRECTORY = path.resolve(agentLocation());
 const WORKSPACE_DIRECTORY_PERMISSION: DirectoryPermission = {
 	path: AGENT_DIRECTORY,
+	enabled: true,
 	recoursive: true,
 	tools: '*',
 };

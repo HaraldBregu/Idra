@@ -16,6 +16,7 @@ export function directoryPermissionFor(
 			: path.dirname(target);
 	let best: { specificity: number; decision: PermissionMode } | undefined;
 	for (const permission of directories) {
+		if (!permission.enabled) continue;
 		const root = realPath(resolveUserPath(permission.path, os.homedir()));
 		const matches = permission.recoursive
 			? isPathWithin(root, targetDirectory)

@@ -11,6 +11,7 @@ export interface ToolPermission {
 
 export interface DirectoryPermission {
 	path: string;
+	enabled: boolean;
 	recoursive: boolean;
 	tools: '*' | string[];
 }

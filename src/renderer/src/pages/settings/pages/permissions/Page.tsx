@@ -99,7 +99,12 @@ const PermissionsPage: React.FC = () => {
 		apply(() =>
 			window.agent.policySetDirectories([
 				...permissions.directories.filter((permission) => permission.path !== directory),
-				{ path: directory, recoursive: newDirectoryRecursive, tools: directoryTools },
+				{
+					path: directory,
+					enabled: true,
+					recoursive: newDirectoryRecursive,
+					tools: directoryTools,
+				},
 			])
 		);
 		setNewDirectory('');

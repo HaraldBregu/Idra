@@ -8,6 +8,7 @@ export function normalizeDirectoryPermissions(value: unknown): DirectoryPermissi
 		const entry = candidate as Record<string, unknown>;
 		const directory = typeof entry.path === 'string' ? entry.path.trim() : '';
 		if (!directory) continue;
+		const enabled = typeof entry.enabled === 'boolean' ? entry.enabled : true;
 		if (typeof entry.recoursive !== 'boolean') continue;
 		let tools: '*' | string[];
 		if (entry.tools === '*') {
@@ -24,7 +25,7 @@ export function normalizeDirectoryPermissions(value: unknown): DirectoryPermissi
 		} else continue;
 		const existingIndex = result.findIndex((permission) => permission.path === directory);
 		if (existingIndex >= 0) result.splice(existingIndex, 1);
-		result.push({ path: directory, recoursive: entry.recoursive, tools });
+		result.push({ path: directory, enabled, recoursive: entry.recoursive, tools });
 	}
 	return result;
 }
