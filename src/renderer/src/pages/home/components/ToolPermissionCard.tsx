@@ -6,18 +6,15 @@ import type { PendingToolPermission } from '../context';
 
 const TOOL_ACTIONS: Record<string, string> = {
 	write_file: 'write this file',
-	write: 'write this file',
 	edit_file: 'edit this file',
 	apply_patch: 'apply this patch',
 	exec_command: 'run this command',
-	exec: 'run this command',
 };
 
 function toolDetail(permission: PendingToolPermission): string | undefined {
 	if (!permission.input || typeof permission.input !== 'object') return undefined;
 	const { path, command } = permission.input as Record<string, unknown>;
-	const value =
-		permission.toolName === 'exec_command' || permission.toolName === 'exec' ? command : path;
+	const value = permission.toolName === 'exec_command' ? command : path;
 	return typeof value === 'string' && value.length > 0 ? value : undefined;
 }
 

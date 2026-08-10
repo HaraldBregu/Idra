@@ -84,8 +84,8 @@ export function toolIcon(toolPart: ToolPart): typeof Wrench {
 	if (type.startsWith('microphone_recorder') || type.startsWith('recorder_microphone')) return Mic;
 	if (type.startsWith('camera_recorder') || type.startsWith('recorder_camera')) return Camera;
 	if (type.startsWith('screen_recorder') || type.startsWith('recorder_screen')) return Monitor;
-	if (type === 'exec_command' || type === 'exec') return Terminal;
-	if (type === 'write_file' || type === 'write') return PenLine;
+	if (type === 'exec_command') return Terminal;
+	if (type === 'write_file') return PenLine;
 	return Wrench;
 }
 
