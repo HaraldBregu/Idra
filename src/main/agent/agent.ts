@@ -196,17 +196,15 @@ export class Agent {
 			if (controller.signal.aborted) return '';
 			const parsedSkillCommand = parseSkillCommand(view.message);
 
-			const input = {
+			const baseInput = {
 				runId: view.id,
 				task: 'chat',
 				message: parsedSkillCommand.message,
-				type: options.type,
 				agentId: view.agentId,
 				contextMode:
 					options.contextMode ??
 					(options.lightContext === true || category !== 'main' ? 'minimal' : 'workspace'),
 				...(options.effort ? { effort: options.effort } : {}),
-				...(options.toolsAllow === undefined ? {} : { toolsAllow: options.toolsAllow }),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
 				...(options.files?.length ? { files: options.files } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
@@ -219,7 +217,15 @@ export class Agent {
 				...(parsedSkillCommand.explicitSkill
 					? { explicitSkill: parsedSkillCommand.explicitSkill }
 					: {}),
-			} satisfies RuntimeInput;
+			};
+			const input: RuntimeInput =
+				options.type === 'background'
+					? { ...baseInput, type: 'background', toolsAllow: options.toolsAllow }
+					: {
+							...baseInput,
+							type: 'default',
+							...(options.toolsAllow === undefined ? {} : { toolsAllow: options.toolsAllow }),
+						};
 
 			init(session, this.config, input, category);
 			tryAppendRun(session, {

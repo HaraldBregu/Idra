@@ -54,7 +54,14 @@ export async function* runToolCall(
 
 	let output: unknown;
 	let isError: boolean | undefined;
-	let permissionOutcome: 'allow' | 'deny' | 'approve' | 'approve_always' | 'reject' | undefined;
+	let permissionOutcome:
+		| 'allow'
+		| 'deny'
+		| 'approve'
+		| 'approve_always'
+		| 'reject'
+		| 'bypass'
+		| undefined;
 
 	if (!tool) {
 		output = `Error: unknown tool '${toolCall.name}'`;

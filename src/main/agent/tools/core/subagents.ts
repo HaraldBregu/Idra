@@ -27,7 +27,7 @@ export async function runChild(
 		task: 'subagent',
 		message: task,
 		agentId: 'subagent',
-		contextMode: 'minimal',
+		contextMode: 'minimal' as const,
 		toolsAllow: tools.map((candidate) => candidate.id),
 	};
 	const input: RuntimeInput =
