@@ -119,6 +119,29 @@ describe('runModelTurn', () => {
 		expect(emitted.at(-1)).toMatchObject({ type: 'model_call_end', retryCount: 2 });
 	});
 
+	it('stops after the second retry when transient failures continue', async () => {
+		const error = { status: 503, headers: { 'retry-after': '0' } };
+		const stream = jest.fn(() =>
+			(async function* () {
+				throw error;
+			})()
+		);
+		const events = runModelTurn(
+			{ task: 'chat', message: 'hello' },
+			{ id: 'test', apiKey: 'key' } as ResolvedProvider,
+			'model',
+			'system',
+			[{ role: 'user', content: 'hello' }],
+			[],
+			new AbortController().signal,
+			{},
+			{ stream } as ModelTurnStream
+		);
+
+		await expect(events.next()).rejects.toBe(error);
+		expect(stream).toHaveBeenCalledTimes(3);
+	});
+
 	it('records provider queue delay after acquiring the shared provider limiter', async () => {
 		const limiter = new KeyedLimiter(1);
 		const blocker = await limiter.acquire('test');

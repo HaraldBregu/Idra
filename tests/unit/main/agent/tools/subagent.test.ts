@@ -163,6 +163,46 @@ describe('subagentTool', () => {
 		expect(signals.every((signal) => signal.aborted)).toBe(true);
 	});
 
+	it('caps child concurrency across simultaneous batches with the shared pool', async () => {
+		const releases: Array<() => void> = [];
+		let active = 0;
+		let peak = 0;
+		mockStream.mockImplementation(
+			(_config: unknown, _session: unknown, input: { message: string }) =>
+				(async function* () {
+					active += 1;
+					peak = Math.max(peak, active);
+					await new Promise<void>((resolve) => releases.push(resolve));
+					active -= 1;
+					yield { type: 'assistant_message', content: input.message, toolCalls: [] };
+				})()
+		);
+		const pool = new KeyedLimiter(3);
+		const tool = subagentsTool({ location: '/agent' }, [], createContext(), {}, pool);
+		const first = tool.run({
+			tasks: [
+				{ id: 'a', task: 'a' },
+				{ id: 'b', task: 'b' },
+			],
+		}) as Promise<unknown>;
+		const second = tool.run({
+			tasks: [
+				{ id: 'c', task: 'c' },
+				{ id: 'd', task: 'd' },
+			],
+		}) as Promise<unknown>;
+
+		await flush();
+		expect(releases).toHaveLength(3);
+		expect(peak).toBe(3);
+		releases[0]();
+		await flush();
+		expect(releases).toHaveLength(4);
+		for (const release of releases.slice(1)) release();
+		await Promise.all([first, second]);
+		expect(peak).toBe(3);
+	});
+
 	it('requires two or three independent tasks', async () => {
 		const tool = subagentsTool({ location: '/agent' }, [], createContext());
 		await expect(tool.run({ tasks: [{ id: 'one', task: 'one' }] })).rejects.toThrow();
