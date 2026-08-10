@@ -3,6 +3,7 @@ import { PromptEditor } from '@/components/prompt-editor';
 
 class ResizeObserverMock {
 	readonly callback: ResizeObserverCallback;
+	readonly disconnect = jest.fn();
 
 	constructor(callback: ResizeObserverCallback) {
 		this.callback = callback;
@@ -10,11 +11,11 @@ class ResizeObserverMock {
 
 	observe(target: Element): void {
 		const height = (target.textContent?.length ?? 0) > 40 ? 48 : 28;
-		this.callback([{ contentRect: { height } } as ResizeObserverEntry], this as ResizeObserver);
+		this.callback(
+			[{ contentRect: { height } } as ResizeObserverEntry],
+			this as unknown as ResizeObserver
+		);
 	}
-
-	disconnect(): void {}
-	unobserve(): void {}
 }
 
 Object.defineProperty(globalThis, 'ResizeObserver', {
