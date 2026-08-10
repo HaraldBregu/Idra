@@ -41,6 +41,14 @@ beforeEach(() => {
 });
 
 describe('resolveToolPermission', () => {
+	it('uses an injected run policy without mutating or consulting the global policy', () => {
+		const injected = { ...defaults(), read: entry('deny') };
+		expect(
+			resolveToolPermission('read', { path: '/outside/a.txt' }, undefined, true, 'ask', injected)
+		).toBe('deny');
+		expect(getPermissions).not.toHaveBeenCalled();
+	});
+
 	it('uses the default owned by each tool', () => {
 		expect(resolveToolPermission('read', { path: '/outside/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('allow');

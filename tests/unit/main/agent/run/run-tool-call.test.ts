@@ -59,4 +59,34 @@ describe('runToolCall', () => {
 		expect(run).toHaveBeenCalledTimes(1);
 		expect(restrictedCall.result).toMatchObject({ isError: true });
 	});
+
+	it('runs a non-interactive tool when the injected policy allows it', async () => {
+		const run = jest.fn().mockResolvedValue('done');
+		const tool = jsonTool({
+			name: 'background_tool',
+			description: 'run',
+			schema: { type: 'object' },
+			defaultPermission: 'ask',
+			execute: run,
+		});
+		const call: ToolCall = { id: 'tool-3', name: tool.name, args: {} };
+		for await (const _event of runToolCall(
+			tool,
+			call,
+			false,
+			undefined,
+			undefined,
+			'ask',
+			undefined,
+			{
+				mode: 'ask',
+				dir: {},
+				background_tool: { default: 'allow', allow: [], deny: [], ask: [] },
+			}
+		))
+			void _event;
+
+		expect(run).toHaveBeenCalledTimes(1);
+		expect(call.result).toMatchObject({ content: 'done', isError: undefined });
+	});
 });
