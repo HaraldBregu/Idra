@@ -13,7 +13,7 @@ export function selectOriginTools(
 			: origin === 'subagent'
 				? tools.filter((tool) => tool.name !== 'subagent')
 				: [];
-	const allowed = allow && allow.length > 0 ? new Set(allow) : undefined;
+	const allowed = allow && (origin !== 'task' || allow.length > 0) ? new Set(allow) : undefined;
 	const denied = new Set(deny);
 	return profile.filter(
 		(tool) =>
