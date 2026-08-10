@@ -4,7 +4,7 @@ import { activateSkill } from '../../skills';
 import type { SkillLoadResult, SkillRegistrySnapshot } from '../../../../shared/skills_types';
 import type { Tool } from '../../types';
 
-export function createLoadSkillTool(
+export function loadSkillTool(
 	snapshot: SkillRegistrySnapshot,
 	onActivate: (skill: SkillLoadResult) => void
 ): Tool | undefined {

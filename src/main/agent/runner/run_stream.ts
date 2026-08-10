@@ -45,7 +45,7 @@ import { memoryListTool } from '../tools/memory/list';
 import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
 import { updateHealthTool } from '../tools/health/update';
 import { updateHealthSettingsTool } from '../tools/health/settings_update';
-import { createLoadSkillTool } from '../tools/skills/load_skill';
+import { loadSkillTool } from '../tools/skills/load_skill';
 import { createTaskTool } from '../tools/tasks/create_task';
 import { updateTaskTool } from '../tools/tasks/update_task';
 import { pauseTaskTool } from '../tools/tasks/pause_task';
@@ -226,7 +226,7 @@ async function* loop(
 		session.context.toolsContext.hasPrivateContext = true;
 	};
 	if (!options.tools && origin === 'main') {
-		const activationTool = createLoadSkillTool(skillSnapshot, applyActivatedSkill);
+		const activationTool = loadSkillTool(skillSnapshot, applyActivatedSkill);
 		if (activationTool) tools.push(activationTool);
 	}
 
