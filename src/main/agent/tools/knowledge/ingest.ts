@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { runWiki } from '../../../wiki/wiki_run';
+import { runWiki } from '../../knowledge/wiki/wiki_run';
 import { tool } from '../tool';
 
 export const wikiIngestTool = tool({

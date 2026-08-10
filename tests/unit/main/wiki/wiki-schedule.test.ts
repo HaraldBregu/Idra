@@ -9,16 +9,16 @@ jest.mock('node-cron', () => ({
 	},
 }));
 
-jest.mock('../../../../src/main/wiki/wiki_get_settings', () => ({
+jest.mock('../../../../src/main/agent/knowledge/wiki/wiki_get_settings', () => ({
 	getWikiSettings,
 }));
 
-jest.mock('../../../../src/main/wiki/wiki_run', () => ({
+jest.mock('../../../../src/main/agent/knowledge/wiki/wiki_run', () => ({
 	runWiki,
 }));
 
-import { rescheduleWiki } from '../../../../src/main/wiki/wiki_reschedule';
-import { wikiRuntime } from '../../../../src/main/wiki/wiki_runtime';
+import { rescheduleWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_reschedule';
+import { wikiRuntime } from '../../../../src/main/agent/knowledge/wiki/wiki_runtime';
 
 describe('wiki scheduling', () => {
 	beforeEach(() => {

@@ -24,7 +24,7 @@ import { wikiReviewTool } from '../../../../../src/main/agent/tools/knowledge/re
 import { wikiSaveTool } from '../../../../../src/main/agent/tools/knowledge/save';
 import { wikiSearchTool } from '../../../../../src/main/agent/tools/knowledge/search';
 import { wikiQueryTool } from '../../../../../src/main/agent/tools/knowledge/wiki';
-import { knowledgeSearchTool } from '../../../../../src/main/agent/tools/memory/search';
+import { knowledgeSearchTool } from '../../../../../src/main/agent/tools/knowledge/rag';
 import { webBrowserTool } from '../../../../../src/main/agent/tools/web/browser';
 
 it.each([

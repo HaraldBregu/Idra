@@ -3,9 +3,9 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { getWikiSettings } from './wiki_get_settings';
 import { getWikiRepository, type WikiRepository } from './wiki_repository';
-import type { WikiRegisteredSource, WikiSource } from './wiki_types';
+import type { WikiRegisteredSource, WikiSource } from './types';
 import { MAX_WIKI_SOURCE_BYTES } from './wiki_source_limits';
-import { assertWikiSourceSafe } from './wiki_source_safety';
+import { assertWikiSourceSafe } from '../safety';
 import { readWikiArchive } from './wiki_read_archive';
 
 export async function registerWikiSource(

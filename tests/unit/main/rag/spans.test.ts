@@ -1,4 +1,4 @@
-import { chunkSpans } from '../../../../src/main/rag/spans';
+import { chunkSpans } from '../../../../src/main/agent/knowledge/rag/spans';
 
 it('keeps source-relative line ranges for citation metadata', () => {
 	expect(chunkSpans('Heading\r\n\r\nFirst detail\r\nSecond detail')).toEqual([

@@ -14,7 +14,7 @@ import type {
 } from '../shared/agent_types';
 import { normalizeAgentInputFiles } from '../shared/agent_files';
 import type { HealthSettings } from '../main/agent/health/health_types';
-import type { RagIndexResult, RagMatch } from '../main/rag';
+import type { RagIndexResult, RagMatch } from '../main/agent/knowledge/rag';
 import type { RagConfiguration } from '../shared/rag_types';
 import type {
 	DirectoryPermissions,

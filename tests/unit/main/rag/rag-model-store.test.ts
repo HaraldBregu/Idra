@@ -25,7 +25,7 @@ jest.mock('../../../../src/main/providers/providers_index', () => ({
 	getModelProvidersState: () => [],
 	setModelProvidersState: jest.fn(),
 }));
-jest.mock('../../../../src/main/rag/rag_store', () => ({
+jest.mock('../../../../src/main/agent/knowledge/rag/rag_store', () => ({
 	getRagConfiguration,
 	saveRagConfiguration,
 }));

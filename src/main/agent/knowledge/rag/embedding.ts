@@ -1,5 +1,5 @@
-import type { EmbeddingResult } from '../../shared/embedding_types';
-import { createEmbedding } from '../models/embedding';
+import type { EmbeddingResult } from '../../../../shared/embedding_types';
+import { createEmbedding } from '../../../models/embedding';
 
 export interface EmbeddingInput {
 	texts: string[];

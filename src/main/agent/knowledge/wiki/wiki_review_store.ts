@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import type { WikiReviewItem } from './wiki_types';
+import type { WikiReviewItem } from './types';
 import { wikiPaths } from './wiki_paths';
 
 export interface WikiReviewQueue {

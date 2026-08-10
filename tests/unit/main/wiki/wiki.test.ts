@@ -2,17 +2,17 @@ import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
-import { collectWikiSources } from '../../../../src/main/wiki/wiki_collect_sources';
-import { rebuildWikiIndex } from '../../../../src/main/wiki/wiki_index';
-import { appendWikiLog } from '../../../../src/main/wiki/wiki_log';
-import { normalizeWikiSettings } from '../../../../src/main/wiki/wiki_normalize_settings';
-import { parseWikiUpdate } from '../../../../src/main/wiki/wiki_parse_update';
-import { ensureWikiSchema } from '../../../../src/main/wiki/wiki_schema';
-import { wikiSourcePage } from '../../../../src/main/wiki/wiki_source_page';
-import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
-import { MAX_WIKI_SOURCE_BYTES } from '../../../../src/main/wiki/wiki_source_limits';
-import { wikiSettingsStore } from '../../../../src/main/wiki/wiki_settings_store';
+import { applyWikiUpdate } from '../../../../src/main/agent/knowledge/wiki/wiki_apply_update';
+import { collectWikiSources } from '../../../../src/main/agent/knowledge/wiki/wiki_collect_sources';
+import { rebuildWikiIndex } from '../../../../src/main/agent/knowledge/wiki/wiki_index';
+import { appendWikiLog } from '../../../../src/main/agent/knowledge/wiki/wiki_log';
+import { normalizeWikiSettings } from '../../../../src/main/agent/knowledge/wiki/wiki_normalize_settings';
+import { parseWikiUpdate } from '../../../../src/main/agent/knowledge/wiki/wiki_parse_update';
+import { ensureWikiSchema } from '../../../../src/main/agent/knowledge/wiki/wiki_schema';
+import { wikiSourcePage } from '../../../../src/main/agent/knowledge/wiki/wiki_source_page';
+import type { WikiSource } from '../../../../src/main/agent/knowledge/wiki/types';
+import { MAX_WIKI_SOURCE_BYTES } from '../../../../src/main/agent/knowledge/wiki/wiki_source_limits';
+import { wikiSettingsStore } from '../../../../src/main/agent/knowledge/wiki/wiki_settings_store';
 
 describe('wiki settings', () => {
 	it('stores settings at settings/wiki.json with a wiki/data default target', () => {

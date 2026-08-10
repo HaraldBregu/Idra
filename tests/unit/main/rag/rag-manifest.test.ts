@@ -11,7 +11,7 @@ jest.mock('../../../../src/main/shared/user_data_location', () => ({
 	userDataLocation: () => '/user/data',
 }));
 
-import { readRagManifest, writeRagManifest } from '../../../../src/main/rag/rag_manifest';
+import { readRagManifest, writeRagManifest } from '../../../../src/main/agent/knowledge/rag/rag_manifest';
 
 const manifest = {
 	indexName: 'friday',

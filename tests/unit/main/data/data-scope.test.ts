@@ -1,6 +1,6 @@
 const getWikiSettings = jest.fn(() => ({ targetPath: '/wiki/current' }));
 
-jest.mock('../../../../src/main/wiki', () => ({ getWikiSettings }));
+jest.mock('../../../../src/main/agent/knowledge/wiki', () => ({ getWikiSettings }));
 
 import { normalizeDataScope } from '../../../../src/main/data/data_scope';
 

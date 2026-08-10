@@ -17,7 +17,7 @@ import {
 	type ModelsStoreState,
 } from '../settings_store';
 import { getModelProvidersState, setModelProvidersState } from '../providers/providers_index';
-import { getRagConfiguration, saveRagConfiguration } from '../rag/rag_store';
+import { getRagConfiguration, saveRagConfiguration } from '../agent/knowledge/rag/rag_store';
 
 export type { ModelKind, ModelSelection, ModelsStoreState } from '../settings_store';
 

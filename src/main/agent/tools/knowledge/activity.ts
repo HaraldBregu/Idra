@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getRecentWikiActivity } from '../../../wiki/wiki_recent_activity';
+import { getRecentWikiActivity } from '../../knowledge/wiki/wiki_recent_activity';
 import { tool } from '../tool';
 
 export const wikiActivityTool = tool({

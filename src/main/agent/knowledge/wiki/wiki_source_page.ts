@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
-import type { WikiSource } from './wiki_types';
+import type { WikiSource } from './types';
 
 export function wikiSourcePage(source: WikiSource): string {
 	const stem = source.relativePath

@@ -10,7 +10,7 @@ import { migrateMcpStoreFromProviders } from './mcp/mcp_store_state';
 import type { PersistedTaskState } from './tasks/tasks_types';
 import type { AppLanguage, AppTheme } from '../shared/app_types';
 import { getModelProvidersState, setModelProvidersState, getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from './providers/providers_index';
-import { getRagConfiguration, saveRagConfiguration } from './rag/rag_store';
+import { getRagConfiguration, saveRagConfiguration } from './agent/knowledge/rag/rag_store';
 
 export type ModelKind =
 	| 'text'

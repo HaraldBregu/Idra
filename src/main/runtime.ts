@@ -30,9 +30,9 @@ import { setupEventLogging, setupProcessSafetyNet } from './shared/error_reporte
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 import { startStorageSync, stopStorageSync } from './storage';
-import { startRagSchedule, stopRagSchedule } from './rag';
+import { startRagSchedule, stopRagSchedule } from './agent/knowledge/rag';
 import { CHANNEL_PROVIDER_IDS } from '../shared';
-import { startWiki, stopWiki } from './wiki';
+import { startWiki, stopWiki } from './agent/knowledge/wiki';
 
 // // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // // exception 0xE0000008) come from the V8/JS heap or from native/C++

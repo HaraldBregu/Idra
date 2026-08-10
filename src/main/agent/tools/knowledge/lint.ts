@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { lintWiki } from '../../../wiki/wiki_lint';
+import { lintWiki } from '../../knowledge/wiki/wiki_lint';
 import { tool } from '../tool';
 
 export const wikiLintTool = tool({

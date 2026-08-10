@@ -12,7 +12,7 @@ import type {
 	WikiSaveAnalysisResult,
 	WikiSource,
 	WikiUpdate,
-} from './wiki_types';
+} from './types';
 
 export async function saveWikiAnalysis(
 	input: WikiSaveAnalysisInput

@@ -241,7 +241,7 @@ corresponding runtime factory; adding only a manifest makes the service catalog 
 - Catalog loading and local overrides: [`src/main/models.ts`](../src/main/models.ts)
 - Runtime adapters: [`src/main/models/adapters`](../src/main/models/adapters)
 - Search integrations: [`src/main/search`](../src/main/search)
-- Pinecone RAG integration: [`src/main/rag`](../src/main/rag)
+- Pinecone RAG integration: [`src/main/agent/knowledge/rag`](../src/main/agent/knowledge/rag)
 - S3-compatible storage integration: [`src/main/storage`](../src/main/storage)
 
 When a manifest changes, update this page in the same change and run `npm run quality:check`.

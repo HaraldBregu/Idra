@@ -1,4 +1,4 @@
-import type { WikiRunResult } from '../../shared/wiki_types';
+import type { WikiRunResult } from '../../../../shared/wiki_types';
 
 export type WikiPageType =
 	| 'source'

@@ -1,7 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { atomicWrite } from '../shared/atomic_write';
+import { atomicWrite } from '../../../shared/atomic_write';
 
 export async function rebuildWikiIndex(targetPath: string): Promise<void> {
 	const entries = await readdir(targetPath, { recursive: true });

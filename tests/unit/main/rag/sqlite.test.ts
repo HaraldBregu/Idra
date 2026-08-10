@@ -1,5 +1,5 @@
-import { SqliteVectorStore } from '../../../../src/main/rag/sqlite';
-import type { VectorPublication } from '../../../../src/main/rag/vector_store';
+import { SqliteVectorStore } from '../../../../src/main/agent/knowledge/rag/sqlite';
+import type { VectorPublication } from '../../../../src/main/agent/knowledge/rag/vector_store';
 
 const publication: VectorPublication = {
 	indexName: 'knowledge-base',

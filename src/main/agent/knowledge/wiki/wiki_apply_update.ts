@@ -10,7 +10,7 @@ import type {
 	WikiReviewItem,
 	WikiSource,
 	WikiUpdate,
-} from './wiki_types';
+} from './types';
 import { verifyWikiEvidence } from './wiki_verify_evidence';
 
 export async function applyWikiUpdate(

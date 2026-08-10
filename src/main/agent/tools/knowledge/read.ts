@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { readWikiPage } from '../../../wiki/wiki_read_page';
+import { readWikiPage } from '../../knowledge/wiki/wiki_read_page';
 import { tool } from '../tool';
 
 export const wikiReadTool = tool({

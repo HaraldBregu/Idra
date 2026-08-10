@@ -10,7 +10,7 @@ import { SearchIpc } from '../search';
 import { StorageIpc } from '../storage';
 import { DatabaseIpc } from '../database';
 import { ExtensionsIpc } from '../extensions';
-import { WikiIpc } from '../wiki';
+import { WikiIpc } from '../agent/knowledge/wiki';
 import { WindowIpc } from '../window';
 import { DataIpc } from '../data';
 import type { EventBus } from '../../event_bus';

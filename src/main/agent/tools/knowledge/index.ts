@@ -1,5 +1,5 @@
-import { getRagConfiguration } from '../../../rag';
-import { getWikiSettings } from '../../../wiki/wiki_get_settings';
+import { getRagConfiguration } from '../../knowledge/rag';
+import { getWikiSettings } from '../../knowledge/wiki/wiki_get_settings';
 import type { SessionCategory } from '../../session';
 import type { Tool } from '../../types';
 import { knowledgeQueryTool } from './query';

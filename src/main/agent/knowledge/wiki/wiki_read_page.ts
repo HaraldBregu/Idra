@@ -2,7 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { getWikiSettings } from './wiki_get_settings';
-import type { WikiSearchResult } from './wiki_types';
+import type { WikiSearchResult } from './types';
 
 export async function readWikiPage(
 	page: string,

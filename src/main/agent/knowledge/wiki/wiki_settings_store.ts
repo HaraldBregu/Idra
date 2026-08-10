@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import Store from 'electron-store';
-import type { WikiSettings } from '../../shared/wiki_types';
-import { userDataLocation } from '../shared/user_data_location';
+import type { WikiSettings } from '../../../../shared/wiki_types';
+import { userDataLocation } from '../../../shared/user_data_location';
 import { wikiLocation } from './wiki_location';
 
 export const DEFAULT_WIKI_SETTINGS: WikiSettings = {

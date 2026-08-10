@@ -1,9 +1,9 @@
-import { LlmModel } from '../models/adapters/llm';
-import { getProvider } from '../settings_store';
-import type { WikiSettings } from '../../shared/wiki_types';
+import { LlmModel } from '../../../models/adapters/llm';
+import { getProvider } from '../../../settings_store';
+import type { WikiSettings } from '../../../../shared/wiki_types';
 import { parseWikiUpdate } from './wiki_parse_update';
 import { wikiSourcePage } from './wiki_source_page';
-import type { WikiSource, WikiUpdate } from './wiki_types';
+import type { WikiSource, WikiUpdate } from './types';
 import { loadWikiPolicy } from './wiki_policy';
 
 const wikiModel = new LlmModel();

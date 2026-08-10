@@ -576,7 +576,7 @@ The main implementation areas behind this reference are:
 - [Chat and renderer UI](../src/renderer/src/pages/home/)
 - [Settings pages](../src/renderer/src/pages/settings/)
 - [Agent runtime and tools](../src/main/agent/)
-- [LLM Wiki](../src/main/wiki/)
+- [LLM Wiki](../src/main/agent/knowledge/wiki/)
 - [Extensions](../src/main/extensions/)
 - [Cloud storage sync](../src/renderer/src/pages/settings/pages/storage/)
 - [Provider catalog declarations](../resources/providers/)

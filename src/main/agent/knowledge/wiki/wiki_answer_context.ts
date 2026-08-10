@@ -4,7 +4,7 @@ import matter from 'gray-matter';
 import { getWikiSettings } from './wiki_get_settings';
 import { getWikiRepository } from './wiki_repository';
 import { searchWiki } from './wiki_search';
-import type { WikiAnswerContext, WikiContradiction, WikiRawEvidenceResult } from './wiki_types';
+import type { WikiAnswerContext, WikiContradiction, WikiRawEvidenceResult } from './types';
 import { incrementWikiMetric } from './wiki_metrics';
 import { readWikiArchive } from './wiki_read_archive';
 

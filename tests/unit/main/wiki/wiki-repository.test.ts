@@ -1,17 +1,17 @@
 import { mkdtemp } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { wikiFailureStore } from '../../../../src/main/wiki/wiki_failure_store';
-import { wikiLocation } from '../../../../src/main/wiki/wiki_location';
-import { wikiManifestStore } from '../../../../src/main/wiki/wiki_manifest_store';
-import { wikiOperationStore } from '../../../../src/main/wiki/wiki_operation_store';
-import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
-import { wikiReviewStore } from '../../../../src/main/wiki/wiki_review_store';
+import { wikiFailureStore } from '../../../../src/main/agent/knowledge/wiki/wiki_failure_store';
+import { wikiLocation } from '../../../../src/main/agent/knowledge/wiki/wiki_location';
+import { wikiManifestStore } from '../../../../src/main/agent/knowledge/wiki/wiki_manifest_store';
+import { wikiOperationStore } from '../../../../src/main/agent/knowledge/wiki/wiki_operation_store';
+import { getWikiRepository } from '../../../../src/main/agent/knowledge/wiki/wiki_repository';
+import { wikiReviewStore } from '../../../../src/main/agent/knowledge/wiki/wiki_review_store';
 import {
 	DEFAULT_WIKI_SETTINGS,
-} from '../../../../src/main/wiki/wiki_settings_store';
-import { wikiSourceStore } from '../../../../src/main/wiki/wiki_source_store';
-import { wikiStateStore } from '../../../../src/main/wiki/wiki_state_store';
+} from '../../../../src/main/agent/knowledge/wiki/wiki_settings_store';
+import { wikiSourceStore } from '../../../../src/main/agent/knowledge/wiki/wiki_source_store';
+import { wikiStateStore } from '../../../../src/main/agent/knowledge/wiki/wiki_state_store';
 
 describe('target-scoped wiki repository', () => {
 	it('preserves every legacy store only for the default target', () => {

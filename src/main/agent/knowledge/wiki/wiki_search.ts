@@ -3,8 +3,8 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { getWikiSettings } from './wiki_get_settings';
 import { getWikiRepository } from './wiki_repository';
-import type { WikiSearchResult } from './wiki_types';
-import type { WikiClaim } from './wiki_types';
+import type { WikiSearchResult } from './types';
+import type { WikiClaim } from './types';
 import { verifyWikiEvidence } from './wiki_verify_evidence';
 
 export async function searchWiki(

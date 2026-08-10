@@ -169,7 +169,7 @@ npm run test:renderer -- tests/unit/renderer/wiki-settings.test.tsx
 Run the complete focused LLM Wiki matrix without selecting unrelated main-process suites:
 
 ```sh
-npx jest --config jest.config.cjs --selectProjects main --runInBand tests/unit/main/wiki tests/unit/main/agent/tools/wiki-tools.test.ts
+npx jest --config jest.config.cjs --selectProjects main --runInBand tests/unit/main/agent/knowledge/wiki tests/unit/main/agent/tools/wiki-tools.test.ts
 npx jest --config jest.config.cjs --selectProjects renderer --runInBand tests/unit/renderer/wiki-settings.test.tsx
 ```
 

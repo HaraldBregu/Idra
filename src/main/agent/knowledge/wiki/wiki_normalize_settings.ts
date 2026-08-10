@@ -1,7 +1,7 @@
 import path from 'node:path';
 import cron from 'node-cron';
-import type { WikiSettings } from '../../shared/wiki_types';
-import { realPath } from '../shared/real_path';
+import type { WikiSettings } from '../../../../shared/wiki_types';
+import { realPath } from '../../../shared/real_path';
 import { DEFAULT_WIKI_SETTINGS } from './wiki_settings_store';
 
 type WikiSettingsInput = Partial<WikiSettings> &

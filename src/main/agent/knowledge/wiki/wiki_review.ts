@@ -6,7 +6,7 @@ import { rebuildWikiIndex } from './wiki_index';
 import { appendWikiLog } from './wiki_log';
 import { getWikiRepository } from './wiki_repository';
 import { transactWiki } from './wiki_transaction';
-import type { WikiOperationRecord, WikiReviewItem, WikiSource } from './wiki_types';
+import type { WikiOperationRecord, WikiReviewItem, WikiSource } from './types';
 
 export async function reviewWikiChange(
 	reviewId: string,

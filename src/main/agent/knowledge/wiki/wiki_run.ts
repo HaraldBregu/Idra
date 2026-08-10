@@ -1,5 +1,5 @@
 import { mkdir } from 'node:fs/promises';
-import type { WikiRunResult } from '../../shared/wiki_types';
+import type { WikiRunResult } from '../../../../shared/wiki_types';
 import { applyWikiUpdate } from './wiki_apply_update';
 import { collectWikiSources } from './wiki_collect_sources';
 import { buildWikiContext } from './wiki_context';
@@ -14,7 +14,7 @@ import { saveWikiState } from './wiki_save_state';
 import { registerWikiSource } from './wiki_register_source';
 import { getWikiRepository } from './wiki_repository';
 import { transactWiki } from './wiki_transaction';
-import type { WikiOperationRecord } from './wiki_types';
+import type { WikiOperationRecord } from './types';
 import { incrementWikiMetric } from './wiki_metrics';
 import { commitWikiSourceLineage } from './wiki_commit_lineage';
 import { markStaleWikiClaims } from './wiki_mark_stale_claims';

@@ -180,7 +180,7 @@ export interface AgentInvokeChannelMap {
 	[AgentChannels.healthSaveData]: { args: [content: string]; result: string };
 	[AgentChannels.ragIndex]: {
 		args: [];
-		result: import('../main/rag/rag_index').RagIndexResult;
+		result: import('../main/agent/knowledge/rag/rag_index').RagIndexResult;
 	};
 	[AgentChannels.ragGetConfiguration]: { args: []; result: import('./rag_types').RagConfiguration };
 	[AgentChannels.ragSaveConfiguration]: {
@@ -189,7 +189,7 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.ragSearch]: {
 		args: [query: string, topK?: number];
-		result: import('../main/rag/rag_search').RagMatch[];
+		result: import('../main/agent/knowledge/rag/rag_search').RagMatch[];
 	};
 	[AgentChannels.ragPickFolder]: { args: []; result: string | undefined };
 }

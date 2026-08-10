@@ -1,5 +1,5 @@
 import { Pinecone } from '@pinecone-database/pinecone';
-import { getProvider } from '../settings_store';
+import { getProvider } from '../../../settings_store';
 
 export function ragClient(): Pinecone {
 	const apiKey = getProvider('pinecone')?.apiKey.trim() ?? '';

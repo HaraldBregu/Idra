@@ -1,7 +1,7 @@
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
-import type { WikiClaim } from './wiki_types';
+import type { WikiClaim } from './types';
 
 export async function markStaleWikiClaims(
 	targetPath: string,

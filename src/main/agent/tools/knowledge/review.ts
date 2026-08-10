@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { reviewWikiChange } from '../../../wiki/wiki_review';
+import { reviewWikiChange } from '../../knowledge/wiki/wiki_review';
 import { tool } from '../tool';
 
 export const wikiReviewTool = tool({

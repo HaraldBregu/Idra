@@ -1,4 +1,4 @@
-import { chunkText } from '../../../../src/main/rag/rag_chunk';
+import { chunkText } from '../../../../src/main/agent/knowledge/rag/rag_chunk';
 
 describe('chunkText', () => {
 	it('keeps paragraphs together when they fit in a chunk', () => {

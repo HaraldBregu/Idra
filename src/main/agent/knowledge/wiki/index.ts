@@ -31,4 +31,4 @@ export type {
 	WikiSaveAnalysisInput,
 	WikiSaveAnalysisResult,
 	WikiSearchResult,
-} from './wiki_types';
+} from './types';

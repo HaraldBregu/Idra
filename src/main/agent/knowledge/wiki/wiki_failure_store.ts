@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import type { WikiOperationRecord } from './wiki_types';
+import type { WikiOperationRecord } from './types';
 import { wikiPaths } from './wiki_paths';
 
 export interface WikiFailureRegistry {

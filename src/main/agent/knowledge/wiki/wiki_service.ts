@@ -6,7 +6,7 @@ import { reviewWikiChange } from './wiki_review';
 import { runWiki } from './wiki_run';
 import { saveWikiAnalysis } from './wiki_save_analysis';
 import { searchWiki } from './wiki_search';
-import type { WikiRunResult } from '../../shared/wiki_types';
+import type { WikiRunResult } from '../../../../shared/wiki_types';
 import type {
 	WikiAnswerContext,
 	WikiLintResult,
@@ -14,7 +14,7 @@ import type {
 	WikiSaveAnalysisInput,
 	WikiSaveAnalysisResult,
 	WikiSearchResult,
-} from './wiki_types';
+} from './types';
 
 export interface WikiService {
 	ingestSource(relativePath?: string): Promise<WikiRunResult>;

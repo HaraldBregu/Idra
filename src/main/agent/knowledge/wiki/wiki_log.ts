@@ -1,6 +1,6 @@
 import { appendFile, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { WikiApplyResult, WikiSource } from './wiki_types';
+import type { WikiApplyResult, WikiSource } from './types';
 
 export async function appendWikiLog(
 	targetPath: string,

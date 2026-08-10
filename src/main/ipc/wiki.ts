@@ -2,7 +2,7 @@ import { BrowserWindow, dialog, shell } from 'electron';
 import { mkdir } from 'node:fs/promises';
 import type { EventBus } from '../event_bus';
 import { WikiChannels } from '../../shared/ipc_channels_definitions';
-import { cancelWiki, getWikiSettings, getWikiStatus, runWiki, saveWikiSettings } from '../wiki';
+import { cancelWiki, getWikiSettings, getWikiStatus, runWiki, saveWikiSettings } from '../agent/knowledge/wiki';
 import { registerCommand, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 

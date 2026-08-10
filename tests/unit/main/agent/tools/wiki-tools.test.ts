@@ -3,7 +3,7 @@ import { getWikiTools } from '../../../../../src/main/agent/tools/knowledge';
 import {
 	DEFAULT_WIKI_SETTINGS,
 	wikiSettingsStore,
-} from '../../../../../src/main/wiki/wiki_settings_store';
+} from '../../../../../src/main/agent/knowledge/wiki/wiki_settings_store';
 
 describe('wiki tools', () => {
 	it('is disabled by default', () => {

@@ -3,7 +3,7 @@ const listNamespaces = jest.fn();
 const index = jest.fn(() => ({ deleteNamespace, listNamespaces }));
 const ragClient = jest.fn(() => ({ index }));
 
-jest.mock('../../../../src/main/rag/rag_client', () => ({ ragClient }));
+jest.mock('../../../../src/main/agent/knowledge/rag/rag_client', () => ({ ragClient }));
 
 import { DataController } from '../../../../src/main/data/data_controller';
 

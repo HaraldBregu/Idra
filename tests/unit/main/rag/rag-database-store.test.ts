@@ -3,7 +3,7 @@ const saveRagConfiguration = jest.fn();
 const getDatabaseProvidersState = jest.fn();
 const setDatabaseProvidersState = jest.fn();
 
-jest.mock('../../../../src/main/rag/rag_store', () => ({
+jest.mock('../../../../src/main/agent/knowledge/rag/rag_store', () => ({
 	getRagConfiguration,
 	ragConfigurationStorePath: '/settings/rag.json',
 	saveRagConfiguration,

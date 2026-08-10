@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { searchWiki } from '../../../wiki/wiki_search';
+import { searchWiki } from '../../knowledge/wiki/wiki_search';
 import { tool } from '../tool';
 
 export const wikiSearchTool = tool({

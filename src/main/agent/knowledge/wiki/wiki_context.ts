@@ -1,7 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
-import type { WikiSource } from './wiki_types';
+import type { WikiSource } from './types';
 
 const MAX_CONTEXT_PAGES = 8;
 const MAX_CONTEXT_CHARACTERS = 60_000;

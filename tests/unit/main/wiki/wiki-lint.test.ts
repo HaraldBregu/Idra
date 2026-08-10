@@ -2,8 +2,8 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { lintWiki } from '../../../../src/main/wiki/wiki_lint';
-import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
+import { lintWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_lint';
+import { getWikiRepository } from '../../../../src/main/agent/knowledge/wiki/wiki_repository';
 
 describe('wiki lint', () => {
 	it('reports structural and provenance findings and safely rebuilds a drifted index', async () => {

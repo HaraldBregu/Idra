@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getRagConfiguration, searchRag } from '../../../rag';
+import { getRagConfiguration, searchRag } from '../../knowledge/rag';
 import type { SessionCategory } from '../../session';
 import type { Tool } from '../../types';
 import { tool } from '../tool';

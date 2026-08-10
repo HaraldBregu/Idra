@@ -3,9 +3,9 @@ const searchRag = jest.fn();
 const getWikiSettings = jest.fn();
 const buildWikiAnswerContext = jest.fn();
 
-jest.mock('../../../../../src/main/rag', () => ({ getRagConfiguration, searchRag }));
-jest.mock('../../../../../src/main/wiki/wiki_get_settings', () => ({ getWikiSettings }));
-jest.mock('../../../../../src/main/wiki/wiki_answer_context', () => ({
+jest.mock('../../../../../src/main/agent/knowledge/rag', () => ({ getRagConfiguration, searchRag }));
+jest.mock('../../../../../src/main/agent/knowledge/wiki/wiki_get_settings', () => ({ getWikiSettings }));
+jest.mock('../../../../../src/main/agent/knowledge/wiki/wiki_answer_context', () => ({
 	buildWikiAnswerContext,
 }));
 

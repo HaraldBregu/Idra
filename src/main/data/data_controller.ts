@@ -12,10 +12,10 @@ import type { Config } from '../agent/types';
 import { memoryPath } from '../agent/memory';
 import { MEMORY_FILE, resolveTemplatePath } from '../agent/system';
 import { sessionPath, sessionsRoot } from '../agent/session';
-import { purgeRagManifest } from '../rag';
-import { getRagConfiguration } from '../rag/rag_store';
-import { ragVectorStore } from '../rag/vector';
-import { getWikiRepository, getWikiSettings } from '../wiki';
+import { purgeRagManifest } from '../agent/knowledge/rag';
+import { getRagConfiguration } from '../agent/knowledge/rag/rag_store';
+import { ragVectorStore } from '../agent/knowledge/rag/vector';
+import { getWikiRepository, getWikiSettings } from '../agent/knowledge/wiki';
 import { DataArchive } from './data_archive';
 import { purgeRemoteRagNamespaces } from './data_purge_remote';
 

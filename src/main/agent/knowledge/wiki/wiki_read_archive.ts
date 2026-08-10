@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import type { WikiSourceRecord } from './wiki_types';
+import type { WikiSourceRecord } from './types';
 
 export async function readWikiArchive(
 	record: WikiSourceRecord,

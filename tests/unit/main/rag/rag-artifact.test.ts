@@ -3,11 +3,11 @@ import path from 'node:path';
 const readFileSync = jest.fn();
 
 jest.mock('node:fs', () => ({ readFileSync }));
-jest.mock('../../../../src/main/rag/rag_location', () => ({
+jest.mock('../../../../src/main/agent/knowledge/rag/rag_location', () => ({
 	ragLocation: () => '/user/data/rag',
 }));
 
-import { readRagArtifact } from '../../../../src/main/rag/rag_artifact';
+import { readRagArtifact } from '../../../../src/main/agent/knowledge/rag/rag_artifact';
 
 beforeEach(() => {
 	readFileSync.mockReset();

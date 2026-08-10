@@ -1,4 +1,4 @@
-import { ragClient } from '../rag/rag_client';
+import { ragClient } from '../agent/knowledge/rag/rag_client';
 
 export async function purgeRemoteRagNamespaces(
 	indexName: string,

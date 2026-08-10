@@ -1,4 +1,4 @@
-import type { WikiStatus } from '../../shared/wiki_types';
+import type { WikiStatus } from '../../../../shared/wiki_types';
 import { getWikiState } from './wiki_get_state';
 import { getWikiRepository } from './wiki_repository';
 import { wikiRuntime } from './wiki_runtime';

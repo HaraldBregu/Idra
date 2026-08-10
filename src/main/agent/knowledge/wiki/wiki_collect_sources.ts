@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
 import { lstat, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
-import type { WikiSource } from './wiki_types';
-import { assertWikiSourceSafe } from './wiki_source_safety';
+import type { WikiSource } from './types';
+import { assertWikiSourceSafe } from '../safety';
 import { MAX_WIKI_SOURCE_BYTES } from './wiki_source_limits';
 
 const WIKI_SOURCE_EXTENSIONS = new Set(['.txt', '.md', '.markdown', '.json', '.csv', '.log']);

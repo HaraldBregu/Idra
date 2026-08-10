@@ -9,14 +9,14 @@ jest.mock('node-cron', () => ({
 	default: { schedule, validate },
 }));
 
-jest.mock('../../../../src/main/rag/rag_store', () => ({ getRagConfiguration }));
-jest.mock('../../../../src/main/rag/rag_index', () => ({ indexRag }));
+jest.mock('../../../../src/main/agent/knowledge/rag/rag_store', () => ({ getRagConfiguration }));
+jest.mock('../../../../src/main/agent/knowledge/rag/rag_index', () => ({ indexRag }));
 
 import {
 	rescheduleRagIndexing,
 	startRagSchedule,
 	stopRagSchedule,
-} from '../../../../src/main/rag/rag_schedule';
+} from '../../../../src/main/agent/knowledge/rag/rag_schedule';
 
 describe('RAG indexing schedule', () => {
 	const logger = { info: jest.fn(), error: jest.fn() };

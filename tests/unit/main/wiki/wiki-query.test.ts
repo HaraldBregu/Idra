@@ -3,12 +3,12 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
-import { buildWikiAnswerContext } from '../../../../src/main/wiki/wiki_answer_context';
-import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
-import { readWikiPage } from '../../../../src/main/wiki/wiki_read_page';
-import { searchWiki } from '../../../../src/main/wiki/wiki_search';
-import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
+import { applyWikiUpdate } from '../../../../src/main/agent/knowledge/wiki/wiki_apply_update';
+import { buildWikiAnswerContext } from '../../../../src/main/agent/knowledge/wiki/wiki_answer_context';
+import { getWikiRepository } from '../../../../src/main/agent/knowledge/wiki/wiki_repository';
+import { readWikiPage } from '../../../../src/main/agent/knowledge/wiki/wiki_read_page';
+import { searchWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_search';
+import type { WikiSource } from '../../../../src/main/agent/knowledge/wiki/types';
 
 const source: WikiSource = {
 	absolutePath: '/tmp/raw/memory.md',

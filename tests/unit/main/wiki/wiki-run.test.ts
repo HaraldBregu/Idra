@@ -4,20 +4,20 @@ import path from 'node:path';
 
 const generateWikiUpdate = jest.fn();
 
-jest.mock('../../../../src/main/wiki/wiki_location', () => ({
+jest.mock('../../../../src/main/agent/knowledge/wiki/wiki_location', () => ({
 	wikiLocation: () => '/tmp/friday-wiki-test-data',
 }));
 
-jest.mock('../../../../src/main/wiki/wiki_generate', () => ({
+jest.mock('../../../../src/main/agent/knowledge/wiki/wiki_generate', () => ({
 	generateWikiUpdate,
 }));
 
-import { runWiki } from '../../../../src/main/wiki/wiki_run';
-import { cancelWiki } from '../../../../src/main/wiki/wiki_cancel';
-import { wikiRuntime } from '../../../../src/main/wiki/wiki_runtime';
-import { wikiSettingsStore } from '../../../../src/main/wiki/wiki_settings_store';
-import { wikiSourcePage } from '../../../../src/main/wiki/wiki_source_page';
-import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
+import { runWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_run';
+import { cancelWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_cancel';
+import { wikiRuntime } from '../../../../src/main/agent/knowledge/wiki/wiki_runtime';
+import { wikiSettingsStore } from '../../../../src/main/agent/knowledge/wiki/wiki_settings_store';
+import { wikiSourcePage } from '../../../../src/main/agent/knowledge/wiki/wiki_source_page';
+import { getWikiRepository } from '../../../../src/main/agent/knowledge/wiki/wiki_repository';
 
 describe('runWiki', () => {
 	beforeEach(() => {

@@ -1,6 +1,6 @@
 import { rmSync } from 'node:fs';
 import path from 'node:path';
-import { userDataLocation } from '../shared/user_data_location';
+import { userDataLocation } from '../../../shared/user_data_location';
 import { readRagManifest } from './rag_manifest';
 
 export function purgeRagManifest(indexName: string, generation?: string): boolean {

@@ -8,7 +8,7 @@ jest.mock('../../../../src/main/settings_store', () => ({
 	getProvider: jest.fn(() => ({ apiKey: 'test-key', baseUrl: 'https://example.test' })),
 }));
 
-jest.mock('../../../../src/main/wiki/wiki_policy', () => ({
+jest.mock('../../../../src/main/agent/knowledge/wiki/wiki_policy', () => ({
 	loadWikiPolicy: jest.fn().mockResolvedValue('Test policy'),
 }));
 
@@ -16,9 +16,9 @@ import type { WikiSettings } from '../../../../src/shared/wiki_types';
 import {
 	generateWikiUpdate,
 	WIKI_MAX_OUTPUT_TOKENS,
-} from '../../../../src/main/wiki/wiki_generate';
-import { wikiSourcePage } from '../../../../src/main/wiki/wiki_source_page';
-import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
+} from '../../../../src/main/agent/knowledge/wiki/wiki_generate';
+import { wikiSourcePage } from '../../../../src/main/agent/knowledge/wiki/wiki_source_page';
+import type { WikiSource } from '../../../../src/main/agent/knowledge/wiki/types';
 
 const settings: WikiSettings = {
 	enabled: true,

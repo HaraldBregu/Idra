@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import type { WikiSourceRecord } from './wiki_types';
+import type { WikiSourceRecord } from './types';
 import { wikiPaths } from './wiki_paths';
 
 export interface WikiSourceRegistry {

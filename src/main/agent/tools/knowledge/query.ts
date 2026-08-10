@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
-import { getRagConfiguration, searchRag } from '../../../rag';
-import { buildWikiAnswerContext } from '../../../wiki/wiki_answer_context';
-import { getWikiSettings } from '../../../wiki/wiki_get_settings';
+import { getRagConfiguration, searchRag } from '../../knowledge/rag';
+import { buildWikiAnswerContext } from '../../knowledge/wiki/wiki_answer_context';
+import { getWikiSettings } from '../../knowledge/wiki/wiki_get_settings';
 import { tool } from '../tool';
 
 export const knowledgeQueryTool = tool({

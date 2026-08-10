@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { WikiRepository } from './wiki_repository';
 import { readWikiArchive } from './wiki_read_archive';
-import type { WikiEvidence } from './wiki_types';
+import type { WikiEvidence } from './types';
 
 export async function verifyWikiEvidence(
 	evidence: WikiEvidence,

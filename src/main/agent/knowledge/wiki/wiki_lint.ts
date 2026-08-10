@@ -13,7 +13,7 @@ import type {
 	WikiLintResult,
 	WikiOperationRecord,
 	WikiSource,
-} from './wiki_types';
+} from './types';
 import { verifyWikiEvidence } from './wiki_verify_evidence';
 
 const PAGE_TYPES = new Set([

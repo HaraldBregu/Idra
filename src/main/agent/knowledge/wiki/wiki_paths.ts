@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
-import { realPath } from '../shared/real_path';
+import { realPath } from '../../../shared/real_path';
 import { wikiLocation } from './wiki_location';
 
 export interface WikiPaths {

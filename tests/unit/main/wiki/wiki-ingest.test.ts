@@ -3,13 +3,13 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-jest.mock('../../../../src/main/wiki/wiki_location', () => ({
+jest.mock('../../../../src/main/agent/knowledge/wiki/wiki_location', () => ({
 	wikiLocation: () => '/tmp/friday-wiki-test-data',
 }));
 
-import { collectWikiSources } from '../../../../src/main/wiki/wiki_collect_sources';
-import { registerWikiSource } from '../../../../src/main/wiki/wiki_register_source';
-import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
+import { collectWikiSources } from '../../../../src/main/agent/knowledge/wiki/wiki_collect_sources';
+import { registerWikiSource } from '../../../../src/main/agent/knowledge/wiki/wiki_register_source';
+import { getWikiRepository } from '../../../../src/main/agent/knowledge/wiki/wiki_repository';
 
 describe('immutable wiki source registration', () => {
 	it('archives exact bytes without changing the source and deduplicates repeated ingest', async () => {

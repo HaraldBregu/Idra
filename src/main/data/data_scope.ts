@@ -1,6 +1,6 @@
 import { realPath } from '../shared/real_path';
-import { getWikiSettings } from '../wiki';
-import { normalizeRagIndexName } from '../rag/rag_index_name';
+import { getWikiSettings } from '../agent/knowledge/wiki';
+import { normalizeRagIndexName } from '../agent/knowledge/rag/rag_index_name';
 import { requireUuidSessionId } from '../agent/session';
 import type { DataScope } from '../../shared/data_types';
 

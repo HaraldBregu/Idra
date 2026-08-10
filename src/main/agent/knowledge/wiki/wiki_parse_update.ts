@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
-import type { WikiUpdate } from './wiki_types';
+import type { WikiUpdate } from './types';
 
 const evidenceSchema = z.object({
 	sourceId: z.string().trim().min(1),

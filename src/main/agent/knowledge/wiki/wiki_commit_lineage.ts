@@ -1,5 +1,5 @@
 import type { WikiRepository } from './wiki_repository';
-import type { WikiRegisteredSource } from './wiki_types';
+import type { WikiRegisteredSource } from './types';
 
 export function commitWikiSourceLineage(
 	registered: WikiRegisteredSource,

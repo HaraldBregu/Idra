@@ -1,6 +1,6 @@
-import type { EmbeddingProvider } from '../../../../src/main/rag/embedding';
-import type { VectorStore } from '../../../../src/main/rag/vector_store';
-import { searchRag } from '../../../../src/main/rag/rag_search';
+import type { EmbeddingProvider } from '../../../../src/main/agent/knowledge/rag/embedding';
+import type { VectorStore } from '../../../../src/main/agent/knowledge/rag/vector_store';
+import { searchRag } from '../../../../src/main/agent/knowledge/rag/rag_search';
 
 const embed = jest.fn();
 const embeddings: EmbeddingProvider = { embed };

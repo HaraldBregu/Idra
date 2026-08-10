@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { saveWikiAnalysis } from '../../../wiki/wiki_save_analysis';
+import { saveWikiAnalysis } from '../../knowledge/wiki/wiki_save_analysis';
 import { tool } from '../tool';
 
 const evidence = z.object({

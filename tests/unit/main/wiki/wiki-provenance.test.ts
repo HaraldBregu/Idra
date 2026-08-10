@@ -4,22 +4,22 @@ import os from 'node:os';
 import path from 'node:path';
 import matter from 'gray-matter';
 
-jest.mock('../../../../src/main/wiki/wiki_location', () => ({
+jest.mock('../../../../src/main/agent/knowledge/wiki/wiki_location', () => ({
 	wikiLocation: () => '/tmp/friday-wiki-provenance-data',
 }));
 
-import { applyWikiUpdate } from '../../../../src/main/wiki/wiki_apply_update';
-import { buildWikiAnswerContext } from '../../../../src/main/wiki/wiki_answer_context';
-import { commitWikiSourceLineage } from '../../../../src/main/wiki/wiki_commit_lineage';
-import { lintWiki } from '../../../../src/main/wiki/wiki_lint';
-import { markStaleWikiClaims } from '../../../../src/main/wiki/wiki_mark_stale_claims';
-import { registerWikiSource } from '../../../../src/main/wiki/wiki_register_source';
-import { getWikiRepository } from '../../../../src/main/wiki/wiki_repository';
-import { searchWiki } from '../../../../src/main/wiki/wiki_search';
-import { transactWiki } from '../../../../src/main/wiki/wiki_transaction';
-import type { WikiSource } from '../../../../src/main/wiki/wiki_types';
-import { validateWiki } from '../../../../src/main/wiki/wiki_validate';
-import { verifyWikiEvidence } from '../../../../src/main/wiki/wiki_verify_evidence';
+import { applyWikiUpdate } from '../../../../src/main/agent/knowledge/wiki/wiki_apply_update';
+import { buildWikiAnswerContext } from '../../../../src/main/agent/knowledge/wiki/wiki_answer_context';
+import { commitWikiSourceLineage } from '../../../../src/main/agent/knowledge/wiki/wiki_commit_lineage';
+import { lintWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_lint';
+import { markStaleWikiClaims } from '../../../../src/main/agent/knowledge/wiki/wiki_mark_stale_claims';
+import { registerWikiSource } from '../../../../src/main/agent/knowledge/wiki/wiki_register_source';
+import { getWikiRepository } from '../../../../src/main/agent/knowledge/wiki/wiki_repository';
+import { searchWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_search';
+import { transactWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_transaction';
+import type { WikiSource } from '../../../../src/main/agent/knowledge/wiki/types';
+import { validateWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_validate';
+import { verifyWikiEvidence } from '../../../../src/main/agent/knowledge/wiki/wiki_verify_evidence';
 
 describe('wiki evidence provenance', () => {
 	it('computes excerpt hashes and rejects locator, hash, and archive tampering durably', async () => {

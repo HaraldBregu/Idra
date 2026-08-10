@@ -1,5 +1,5 @@
 import type { ScheduledTask } from 'node-cron';
-import type { WikiProgress, WikiRunResult } from '../../shared/wiki_types';
+import type { WikiProgress, WikiRunResult } from '../../../../shared/wiki_types';
 
 export const wikiRuntime: {
 	task?: ScheduledTask;

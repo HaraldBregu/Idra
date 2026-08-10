@@ -6,7 +6,7 @@ import {
 	getRagConfiguration,
 	ragConfigurationStorePath,
 	saveRagConfiguration,
-} from '../rag/rag_store';
+} from '../agent/knowledge/rag/rag_store';
 
 const DEFAULT_CONFIGURATION: DatabaseConfiguration = {
 	providerId: undefined,

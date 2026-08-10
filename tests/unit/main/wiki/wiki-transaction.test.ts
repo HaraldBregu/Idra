@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { transactWiki } from '../../../../src/main/wiki/wiki_transaction';
+import { transactWiki } from '../../../../src/main/agent/knowledge/wiki/wiki_transaction';
 
 describe('wiki transactions', () => {
 	it('leaves the current wiki untouched when validation fails', async () => {

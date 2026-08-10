@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import type { WikiPageManifestEntry } from './wiki_types';
+import type { WikiPageManifestEntry } from './types';
 import { wikiPaths } from './wiki_paths';
 
 export interface WikiPageManifest {

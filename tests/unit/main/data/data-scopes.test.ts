@@ -10,9 +10,9 @@ const getRagConfiguration = jest.fn(() => ({
 }));
 const getWikiSettings = jest.fn(() => ({ targetPath: '/wiki' }));
 
-jest.mock('../../../../src/main/rag/vector', () => ({ ragVectorStore }));
-jest.mock('../../../../src/main/rag/rag_store', () => ({ getRagConfiguration }));
-jest.mock('../../../../src/main/wiki', () => ({ getWikiSettings }));
+jest.mock('../../../../src/main/agent/knowledge/rag/vector', () => ({ ragVectorStore }));
+jest.mock('../../../../src/main/agent/knowledge/rag/rag_store', () => ({ getRagConfiguration }));
+jest.mock('../../../../src/main/agent/knowledge/wiki', () => ({ getWikiSettings }));
 
 import { DataController } from '../../../../src/main/data/data_controller';
 

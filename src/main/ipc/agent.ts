@@ -57,7 +57,7 @@ import {
 	searchRag,
 	type RagIndexResult,
 	type RagMatch,
-} from '../rag';
+} from '../agent/knowledge/rag';
 import type { RagConfiguration } from '../../shared/rag_types';
 import type { WorkspaceAsset } from '../../shared/workspace';
 import { readWorkspaceAsset } from './asset';

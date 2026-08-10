@@ -4,7 +4,7 @@ const runWiki = jest.fn();
 const cancelWiki = jest.fn();
 const saveWikiSettings = jest.fn();
 
-jest.mock('../../../../src/main/wiki', () => ({
+jest.mock('../../../../src/main/agent/knowledge/wiki', () => ({
 	getWikiSettings,
 	getWikiStatus,
 	runWiki,

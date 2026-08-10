@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const getWikiRepository = jest.fn();
 
-jest.mock('../../../../src/main/wiki', () => ({ getWikiRepository }));
+jest.mock('../../../../src/main/agent/knowledge/wiki', () => ({ getWikiRepository }));
 
 import { DataController } from '../../../../src/main/data/data_controller';
 

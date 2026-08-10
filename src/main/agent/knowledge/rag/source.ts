@@ -1,7 +1,7 @@
 import { lstat, readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { TextDecoder } from 'node:util';
-import { assertWikiSourceSafe } from '../wiki/wiki_source_safety';
+import { assertWikiSourceSafe } from '../safety';
 
 const UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 
