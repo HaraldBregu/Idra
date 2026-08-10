@@ -46,7 +46,7 @@ export function directoryPermissionTargets(
 	}
 	if (toolName === 'process') {
 		const session = typeof args.sessionId === 'string' ? registry.get(args.sessionId) : undefined;
-		return session ? [realPath(session.workdir)] : [];
+		return session && session.executionMode === 'sandbox' ? [realPath(session.workdir)] : [];
 	}
 	if (typeof args.path === 'string' || toolName === 'apply_patch') {
 		const targets = toolPermissionTargets(toolName, args, baseDir);

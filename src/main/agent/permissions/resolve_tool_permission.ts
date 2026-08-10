@@ -26,6 +26,14 @@ export function resolveToolPermission(
 		const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
 		return elevatedPermissionFor(command, configured, fallback);
 	}
+	if (toolName === 'process') {
+		const target = targets[0];
+		if (target) {
+			const configuredEntry = permissions.tools[toolName];
+			const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
+			return elevatedPermissionFor(target, configured, fallback);
+		}
+	}
 	if (directoryPermissionAllows(permissions.directories, toolName, directoryTargets)) return 'allow';
 	const configuredEntry = permissions.tools[toolName];
 	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
