@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { resolveWorkspaceFile } from './ipc/workspace';
 import { agentLocation } from './shared/agent_location';
 import type { LoggerService } from './shared';
+import type { ExtensionRegistry } from './extensions/extension_registry';
 
 const LOCAL_RESOURCE_SCHEME = 'local-resource';
 
@@ -44,13 +45,25 @@ export function registerLocalResourceProtocolHandler(
 	});
 }
 
-export function setupMediaPermissionHandlers(): void {
+export function setupMediaPermissionHandlers(extensionRegistry: ExtensionRegistry): void {
 	session.defaultSession.setPermissionCheckHandler(
 		(webContents, permission, requestingOrigin, details) => {
+			const isAppContents = isAppWindowWebContents(webContents, extensionRegistry);
+			if (permission === 'clipboard-read' || permission === 'clipboard-sanitized-write') {
+				return Boolean(
+					details.isMainFrame &&
+					isAppContents &&
+					isTrustedMediaRequestSource(
+						requestingOrigin,
+						details.requestingUrl,
+						details.securityOrigin
+					)
+				);
+			}
 			if (permission !== 'media') return false;
 			if (details.mediaType !== 'audio' && details.mediaType !== 'video') return false;
 			if (!details.isMainFrame) return false;
-			if (!isAppWindowWebContents(webContents)) return false;
+			if (!isAppContents) return false;
 			return isTrustedMediaRequestSource(
 				requestingOrigin,
 				details.requestingUrl,
@@ -61,6 +74,20 @@ export function setupMediaPermissionHandlers(): void {
 
 	session.defaultSession.setPermissionRequestHandler(
 		(webContents, permission, callback, details) => {
+			if (permission === 'clipboard-read' || permission === 'clipboard-sanitized-write') {
+				callback(
+					Boolean(
+						details.isMainFrame &&
+						isAppWindowWebContents(webContents, extensionRegistry) &&
+						isTrustedMediaRequestSource(
+							undefined,
+							details.requestingUrl,
+							details.securityOrigin
+						)
+					)
+				);
+				return;
+			}
 			if (permission !== 'media') {
 				callback(false);
 				return;
@@ -72,7 +99,7 @@ export function setupMediaPermissionHandlers(): void {
 			const allowed =
 				(requestsAudio || requestsVideo) &&
 				mediaDetails.isMainFrame &&
-				isAppWindowWebContents(webContents) &&
+				isAppWindowWebContents(webContents, extensionRegistry) &&
 				isTrustedMediaRequestSource(
 					undefined,
 					mediaDetails.requestingUrl,
@@ -132,8 +159,14 @@ function isTrustedRendererUrl(url?: string): boolean {
 	}
 }
 
-function isAppWindowWebContents(webContents: Electron.WebContents | null): boolean {
-	return Boolean(webContents && BrowserWindow.fromWebContents(webContents));
+function isAppWindowWebContents(
+	webContents: Electron.WebContents | null,
+	extensionRegistry: ExtensionRegistry
+): boolean {
+	return Boolean(
+		webContents &&
+			(BrowserWindow.fromWebContents(webContents) || extensionRegistry.has(webContents))
+	);
 }
 
 function isTrustedMediaRequestSource(

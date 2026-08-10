@@ -34,6 +34,10 @@ export class ExtensionRegistry {
 		this.extensions.delete(webContents.id);
 	}
 
+	has(webContents: Pick<WebContents, 'id'>): boolean {
+		return this.extensions.get(webContents.id)?.webContents === webContents;
+	}
+
 	resolve(webContents: Pick<WebContents, 'id'>): string {
 		const registered = this.extensions.get(webContents.id);
 		if (!registered || registered.webContents !== webContents) {

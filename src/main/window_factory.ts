@@ -2,6 +2,7 @@ import {
 	app,
 	BrowserWindow,
 	BrowserWindowConstructorOptions,
+	shell,
 	WebContentsView,
 	type WebContents,
 } from 'electron';
@@ -11,6 +12,7 @@ import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from './shared';
 import { setupPdfContextMenu } from './pdf';
 import type { ExtensionRegistry } from './extensions/extension_registry';
+import { externalUrl } from './external';
 
 export interface WindowPreset {
 	name: string;
@@ -67,7 +69,17 @@ export class WindowFactory {
 	}
 
 	private secureNavigation(webContents: WebContents, fileRoot?: string): void {
-		if (fileRoot) webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+		if (fileRoot) {
+			webContents.setWindowOpenHandler(({ url }) => {
+				const target = externalUrl(url);
+				if (target) {
+					void shell.openExternal(target).catch((error) => {
+						this.logger?.warn('WindowFactory', 'Failed to open external URL', { url: target, error });
+					});
+				}
+				return { action: 'deny' };
+			});
+		}
 		webContents.on('will-navigate', (event, url) => {
 			const target = new URL(url);
 			if (target.protocol === 'file:') {
@@ -79,6 +91,15 @@ export class WindowFactory {
 			const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
 			if (is.dev && rendererUrl && target.origin === new URL(rendererUrl).origin) return;
 			event.preventDefault();
+			const externalTarget = fileRoot ? externalUrl(url) : null;
+			if (externalTarget) {
+				void shell.openExternal(externalTarget).catch((error) => {
+					this.logger?.warn('WindowFactory', 'Failed to open external URL', {
+						url: externalTarget,
+						error,
+					});
+				});
+			}
 		});
 	}
 

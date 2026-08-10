@@ -138,7 +138,7 @@ const menuManager = new Menu({
 
 app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
-	setupMediaPermissionHandlers();
+	setupMediaPermissionHandlers(services.extensionRegistry);
 	ensureExtensions();
 	const stopWatchingExtensions = watchExtensions(
 		() => {
