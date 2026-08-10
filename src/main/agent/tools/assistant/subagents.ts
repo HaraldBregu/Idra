@@ -36,7 +36,6 @@ export function subagentsTool(
 				.min(2)
 				.max(3),
 		}),
-		allowedOrigins: ['main'],
 		execute: async ({ tasks }, signal) => {
 			const parentSignal = signal ?? new AbortController().signal;
 			const childTools = tools.filter((candidate) => candidate.parallelSafe === true);

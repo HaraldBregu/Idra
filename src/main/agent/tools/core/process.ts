@@ -274,10 +274,6 @@ async function runProcess(
 
 export const processTool: Tool = tool({
 	name: 'process',
-	defaultPermission: 'allow',
-	risk: 'high',
-	effect: 'execute',
-	allowedOrigins: ['main', 'task', 'subagent'],
 	hardApproval: ({ action }) => action === 'kill' || action === 'clear' || action === 'remove',
 	description:
 		'Manage running exec sessions for commands already started: list, poll, log, write, send-keys, submit, paste, kill. ' +

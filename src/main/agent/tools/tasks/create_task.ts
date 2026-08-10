@@ -5,12 +5,9 @@ import { createTaskRequestSchema } from './schema';
 
 export const createTaskTool = tool({
 	name: 'create_task',
-	defaultPermission: 'allow',
 	description: 'Create a new task from a task definition request.',
 	inputSchema: z.object({
 		request: createTaskRequestSchema.describe('Task definition to create.'),
 	}),
-	risk: 'high',
-	effect: 'persistence',
 	execute: ({ request }) => createTask({ ...request, enabled: false }),
 });

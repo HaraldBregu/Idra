@@ -4,10 +4,6 @@ import { tool } from '../tool';
 
 export const updateHealthSettingsTool = tool({
 	name: 'health_settings_update',
-	defaultPermission: 'allow',
-	risk: 'high',
-	effect: 'persistence',
-	allowedOrigins: ['main'],
 	description:
 		'Update the health check run configuration. Only the provided fields change; the run schedule is refreshed automatically. Returns the resulting settings.',
 	inputSchema: z.object({

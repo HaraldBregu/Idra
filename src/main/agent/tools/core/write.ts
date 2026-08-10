@@ -9,8 +9,6 @@ import { atomicWrite } from '../../../shared/atomic_write';
 
 export const writeTool = tool({
 	name: 'write',
-	risk: 'high',
-	effect: 'write',
 	hardApproval: ({ path: filePath }) => existsSync(resolveUserPath(filePath, agentLocation())),
 	description:
 		'Create or overwrite a UTF-8 text file with exact content, creating parent directories when needed.',

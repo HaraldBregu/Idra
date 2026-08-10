@@ -5,10 +5,6 @@ import { tool } from '../tool';
 
 export const cameraRecorderStopTool: Tool = tool({
 	name: 'camera_recorder_stop',
-	defaultPermission: 'allow',
-	risk: 'low',
-	effect: 'sensor',
-	allowedOrigins: ['main'],
 	description: 'Stop an active camera recording and begin saving its captured data.',
 	inputSchema: z.object({ id: z.string().uuid() }),
 	execute: ({ id }) => {

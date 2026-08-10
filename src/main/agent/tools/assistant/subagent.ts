@@ -26,7 +26,6 @@ export function subagentTool(
 		inputSchema: z.object({
 			task: z.string().describe('The task for the subagent to complete'),
 		}),
-		allowedOrigins: ['main'],
 		execute: async ({ task }, signal) => {
 			const childTools = tools.filter(
 				(candidate) => candidate.name !== 'subagent' && candidate.name !== 'subagents'

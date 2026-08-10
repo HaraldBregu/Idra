@@ -7,10 +7,6 @@ export function openExtensionsTool(windowFactory: WindowFactory) {
 	return tool({
 		name: 'open_extensions',
 		description: 'Open one or more installed Friday extensions by exact ID.',
-		defaultPermission: 'allow',
-		risk: 'medium',
-		effect: 'execute',
-		allowedOrigins: ['main'],
 		inputSchema: z.object({
 			ids: z
 				.union([z.string().trim().min(1), z.array(z.string().trim().min(1)).min(1)])

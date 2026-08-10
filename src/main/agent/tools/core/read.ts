@@ -6,9 +6,6 @@ import { tool } from '../tool';
 
 export const readTool = tool({
 	name: 'read',
-	risk: 'high',
-	effect: 'read',
-	allowedOrigins: ['main', 'task', 'subagent'],
 	parallelSafe: true,
 	description:
 		'Read the full UTF-8 contents of a single text file. Use this before editing when you need the current file contents.',

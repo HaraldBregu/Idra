@@ -5,7 +5,6 @@ import { tool } from '../tool';
 
 export const microphoneRecorderStatusTool: Tool = tool({
 	name: 'microphone_recorder_status',
-	defaultPermission: 'allow',
 	description:
 		'Check the status of a background microphone recording started with microphone_recorder. With wait=true it blocks until the recording finishes and returns the final result. The recorded file exists only once status is "completed".',
 	inputSchema: z.object({

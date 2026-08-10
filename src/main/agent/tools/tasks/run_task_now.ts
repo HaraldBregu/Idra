@@ -6,9 +6,6 @@ import { realPath } from '../../../shared/real_path';
 
 export const runTaskNowTool = tool({
 	name: 'run_task_now',
-	defaultPermission: 'allow',
-	risk: 'high',
-	effect: 'execute',
 	exclusiveTargets: () => [realPath(taskStorePath)],
 	description: 'Trigger a task to run immediately by id.',
 	inputSchema: taskIdSchema,
