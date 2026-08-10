@@ -95,24 +95,23 @@ describe('runToolCall', () => {
 
 	it('serializes matching exclusive targets through the shared resource mutex', async () => {
 		let releaseFirst = () => {};
+		let markFirstStarted = () => {};
 		const firstStarted = new Promise<void>((resolve) => {
-			const first = jsonTool({
-				name: 'first_write',
-				description: 'write',
-				effect: 'write',
-				defaultPermission: 'allow',
-				exclusiveTargets: () => ['/workspace/shared.md'],
-				schema: { type: 'object' },
-				execute: async () => {
-					resolve();
-					await new Promise<void>((done) => {
-						releaseFirst = done;
-					});
-				},
-			});
-			(firstStarted as unknown as { tool: typeof first }).tool = first;
+			markFirstStarted = resolve;
 		});
-		const first = (firstStarted as unknown as { tool: ReturnType<typeof jsonTool> }).tool;
+		const first = jsonTool({
+			name: 'first_write',
+			description: 'write',
+			effect: 'write',
+			defaultPermission: 'allow',
+			exclusiveTargets: () => ['/workspace/shared.md'],
+			schema: { type: 'object' },
+			execute: async () => {
+				markFirstStarted();
+				await new Promise<void>((done) => {
+					releaseFirst = done;
+			});
+		});
 		let secondRan = false;
 		const second = jsonTool({
 			name: 'second_write',
