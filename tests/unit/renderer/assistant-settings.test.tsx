@@ -51,6 +51,7 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.imageModelDescription': 'Image defaults',
 		'settings.modelServices.musicModelDescription': 'Audio defaults',
 		'settings.modelServices.videoModelDescription': 'Video defaults',
+		'settings.modelServices.model': 'Model',
 		'settings.modelServices.modelDescription': 'Choose provider and model',
 		'settings.modelServices.history': 'History',
 		'settings.tabs.searchEngine': 'Search Engine',
@@ -133,8 +134,7 @@ beforeEach(() => {
 	jest.clearAllMocks();
 });
 
-it('groups provider settings in an expandable Configuration card', async () => {
-	const user = userEvent.setup();
+it('renders each provider setting in a separate card', async () => {
 	render(
 		<MemoryRouter>
 			<AssistantPage />
@@ -143,22 +143,26 @@ it('groups provider settings in an expandable Configuration card', async () => {
 
 	expect(screen.queryByRole('heading', { name: 'Configuration' })).not.toBeInTheDocument();
 	expect(screen.queryByRole('heading', { name: 'History' })).not.toBeInTheDocument();
-	expect(screen.queryByRole('combobox', { name: 'Image' })).not.toBeInTheDocument();
-	const providersConfigurations = await screen.findByRole('button', {
-		name: /Configuration.*Configure model assignments/,
-	});
-	expect(providersConfigurations).toHaveAttribute('aria-expanded', 'false');
-	await user.click(providersConfigurations);
-	expect(providersConfigurations).toHaveAttribute('aria-expanded', 'true');
-	expect(await screen.findByRole('combobox', { name: 'Agent' })).toHaveTextContent('OpenAI / GPT');
-	expect(await screen.findByRole('combobox', { name: 'Image' })).toHaveTextContent(
+	const model = await screen.findByRole('combobox', { name: 'Model' });
+	const image = await screen.findByRole('combobox', { name: 'Image' });
+	const audio = await screen.findByRole('combobox', { name: 'Audio' });
+	const video = await screen.findByRole('combobox', { name: 'Video' });
+	const search = await screen.findByRole('combobox', { name: 'Search Engine' });
+	expect(model).toHaveTextContent('OpenAI / GPT');
+	expect(image).toHaveTextContent(
 		'Google / Gemini Image'
 	);
-	expect(await screen.findByRole('combobox', { name: 'Audio' })).toHaveTextContent(
+	expect(audio).toHaveTextContent(
 		'ElevenLabs / Eleven Music'
 	);
-	expect(await screen.findByRole('combobox', { name: 'Video' })).toHaveTextContent('Google / Veo');
-	expect(await screen.findByRole('combobox', { name: 'Search Engine' })).toHaveTextContent('Brave');
+	expect(video).toHaveTextContent('Google / Veo');
+	expect(search).toHaveTextContent('Brave');
+
+	const providerCards = [model, image, audio, video, search].map((element) =>
+		element.closest('[data-slot="card"]')
+	);
+	expect(providerCards.every(Boolean)).toBe(true);
+	expect(new Set(providerCards).size).toBe(providerCards.length);
 
 	const wiki = screen.getByRole('button', { name: /LLM Wiki/ });
 	const dataManagement = screen.getByRole('button', { name: /Data management/ });
