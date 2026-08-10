@@ -13,7 +13,9 @@ function namedTool(name: string, allowedOrigins?: AgentOrigin[]) {
 }
 
 const tools = [
-	namedTool('read'),
+	namedTool('read', ['main', 'task', 'subagent']),
+	namedTool('write'),
+	namedTool('apply_patch'),
 	namedTool('web_search'),
 	namedTool('web_fetch'),
 	namedTool('exec', ['main', 'task', 'subagent']),
@@ -21,12 +23,15 @@ const tools = [
 	namedTool('subagent', ['main']),
 ];
 
-it('keeps bots on public web tools and never lets an allowlist grant private capabilities', () => {
+it('gives bots unrestricted-origin tools and respects tool-specific origin restrictions', () => {
 	expect(selectOriginTools(tools, 'bot').map((tool) => tool.name)).toEqual([
+		'write',
+		'apply_patch',
 		'web_search',
 		'web_fetch',
 	]);
 	expect(selectOriginTools(tools, 'bot', ['exec', 'memory_list'])).toEqual([]);
+	expect(selectOriginTools(tools, 'bot', ['write']).map((tool) => tool.name)).toEqual(['write']);
 	expect(selectOriginTools(tools, 'bot', undefined, ['web_fetch']).map((tool) => tool.name)).toEqual([
 		'web_search',
 	]);

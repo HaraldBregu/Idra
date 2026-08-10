@@ -8,11 +8,9 @@ export function selectOriginTools(
 	deny: readonly string[] = []
 ): Tool[] {
 	const profile =
-		origin === 'main'
+		origin === 'main' || origin === 'bot'
 			? tools
-			: origin === 'bot'
-				? tools.filter((tool) => tool.name === 'web_search' || tool.name === 'web_fetch')
-				: origin === 'subagent'
+			: origin === 'subagent'
 					? tools.filter((tool) => tool.name !== 'subagent')
 					: origin === 'task' && allow
 						? tools
