@@ -8,6 +8,7 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../components';
+} from '../../../components';
 
 const PERSONA_STATES: readonly PersonaState[] = ['idle', 'listening', 'thinking', 'speaking'];
 

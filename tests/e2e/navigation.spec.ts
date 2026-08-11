@@ -22,6 +22,7 @@ const routes = [
 	'/start',
 	'/home',
 	'/settings',
+	'/settings/general/persona',
 	'/settings/cloud',
 	'/settings/system',
 	'/settings/channels',

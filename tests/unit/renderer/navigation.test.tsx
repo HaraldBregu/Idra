@@ -28,6 +28,7 @@ beforeEach(() => {
 
 it.each([
 	['/settings/assistant/rag', 'settings.rag.title'],
+	['/settings/general/persona', 'settings.persona.title'],
 	['/settings/assistant/llm-wiki', 'settings.wiki.title'],
 	['/settings/tasks', 'settings.tabs.taskScheduler'],
 	['/settings/assistant/permissions', 'settings.tabs.permissions'],
@@ -36,7 +37,7 @@ it.each([
 	['/settings/channels/permissions', 'settings.permissions.scopes.channelsTitle'],
 	['/settings/assistant/health/permissions', 'settings.permissions.scopes.healthTitle'],
 ])('uses the canonical %s route and breadcrumb', (path, labelKey) => {
-	if (path === '/settings/assistant/data') {
+	if (path === '/settings/assistant/data' || path === '/settings/general/persona') {
 		expect(SETTINGS_DETAIL_ITEMS).toContainEqual(expect.objectContaining({ path, labelKey }));
 	} else if (!path.endsWith('/permissions') || path === '/settings/assistant/permissions') {
 		expect(SETTINGS_NAVIGATION).toContainEqual(expect.objectContaining({ path, labelKey }));
