@@ -300,7 +300,7 @@ export function Persona({
 				}
 
 				if (activeState === 'speaking') {
-					SPEAKING_RINGS.forEach(({ radius, opacity, width, offsetY }, index) => {
+					SPEAKING_RINGS.forEach(({ radius, opacity, width, offsetY, wobble }, index) => {
 						Object.assign(rings[index].target, {
 							breath: 0.003 + index * 0.001,
 							offsetX: index % 2 ? 0.0025 : -0.002,
@@ -310,10 +310,9 @@ export function Persona({
 							scaleX: 1 + index * 0.004,
 							scaleY: 1 - index * 0.003,
 							width,
-							wobble: 0.0045 + index * 0.0016,
+							wobble,
 						});
-							rings[index].glow = index === 0 ? 0.9 : 0.35;
-							rings[index].glow = index === 0 ? 0.9 : index < 4 ? 0.35 : 0.25;
+						rings[index].glow = index === 0 ? 0.9 : index < 4 ? 0.35 : 0.25;
 						rings[index].lobes = 3 + index;
 						rings[index].speed = 2.4 + index * 0.55;
 					});
