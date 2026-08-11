@@ -22,12 +22,7 @@ export interface RealtimeVoiceSession {
 	readonly output: RealtimeVoiceAudioFormat;
 }
 
-export type RealtimeVoiceState =
-	| 'connecting'
-	| 'listening'
-	| 'thinking'
-	| 'speaking'
-	| 'ending';
+export type RealtimeVoiceState = 'connecting' | 'listening' | 'thinking' | 'speaking' | 'ending';
 
 export type RealtimeVoiceToolEvent =
 	| (Extract<AgentResponseEvent, { type: 'tool_call_start' }> & {

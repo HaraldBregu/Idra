@@ -60,9 +60,7 @@ describe('provider manifests', () => {
 			])
 		);
 		expect(
-			loadModels().find(
-				(model) => model.provider.id === 'luma' && model.type === 'realtime-voice'
-			)
+			loadModels().find((model) => model.provider.id === 'luma' && model.type === 'realtime-voice')
 		).toBeUndefined();
 		expect(loadWebSearches()).toEqual(
 			expect.arrayContaining([
