@@ -18,6 +18,7 @@ export type ModelKind =
 	| 'image'
 	| 'video'
 	| 'voice'
+	| 'realtimeVoice'
 	| 'transcribe'
 	| 'realtime'
 	| 'embedding';
@@ -38,6 +39,7 @@ const DEFAULT_MODEL_SELECTIONS: AppModelSelections = {
 	image: EMPTY_MODEL_SELECTION,
 	video: EMPTY_MODEL_SELECTION,
 	voice: EMPTY_MODEL_SELECTION,
+	realtimeVoice: EMPTY_MODEL_SELECTION,
 	transcribe: EMPTY_MODEL_SELECTION,
 	realtime: EMPTY_MODEL_SELECTION,
 };

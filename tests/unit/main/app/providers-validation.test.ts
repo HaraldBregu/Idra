@@ -21,6 +21,20 @@ describe('provider manifest validation', () => {
 		expect(parseProviderManifest(manifest)).toEqual(manifest);
 		expect(
 			parseProviderManifest({
+				providerId: 'voice',
+				providerName: 'Voice',
+				services: [
+					{
+						id: 'voice-realtime',
+						name: 'Voice Realtime',
+						type: 'realtime-voice-model',
+						url: 'https://api.voice.test/v1',
+					},
+				],
+			})
+		).toBeDefined();
+		expect(
+			parseProviderManifest({
 				providerId: 'notion',
 				providerName: 'Notion',
 				services: [

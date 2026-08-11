@@ -46,6 +46,7 @@ const appSelections = {
 	image: { providerId: '', modelId: '' },
 	video: { providerId: '', modelId: '' },
 	voice: { providerId: '', modelId: '' },
+	realtimeVoice: { providerId: '', modelId: '' },
 	transcribe: { providerId: '', modelId: '' },
 	realtime: { providerId: '', modelId: '' },
 };
@@ -73,6 +74,11 @@ beforeEach(() => {
 		},
 		video: { providerId: 'google', modelId: 'veo-3.1', options: { durationSeconds: 8 } },
 		voice: { providerId: 'openai', modelId: 'gpt-4o-mini-tts', options: { voice: 'cedar' } },
+		realtimeVoice: {
+			providerId: 'openai',
+			modelId: 'gpt-realtime-2.1',
+			options: { voice: 'marin' },
+		},
 	};
 	getAppModelSelections.mockReturnValue(appSelections);
 	getAgentProviderId.mockReturnValue('openai');
@@ -162,6 +168,26 @@ it('reads and writes voice selection and options through the agent store', () =>
 		providerId: 'openai',
 		modelId: 'gpt-4o-mini-tts',
 		options: { voice: 'marin', speed: 1.1 },
+	});
+});
+
+it('reads and writes realtime voice selection and options independently', () => {
+	expect(getProviderId('realtimeVoice')).toBe('openai');
+	expect(getModelId('realtimeVoice')).toBe('gpt-realtime-2.1');
+	expect(getOptions('realtimeVoice')).toEqual({ voice: 'marin' });
+
+	setModelId('realtimeVoice', 'gpt-realtime-2.1-mini');
+	setOptions('realtimeVoice', { voice: 'cedar' });
+
+	expect(setAgentMediaModel).toHaveBeenNthCalledWith(1, 'realtimeVoice', {
+		providerId: 'openai',
+		modelId: 'gpt-realtime-2.1-mini',
+		options: {},
+	});
+	expect(setAgentMediaModel).toHaveBeenNthCalledWith(2, 'realtimeVoice', {
+		providerId: 'openai',
+		modelId: 'gpt-realtime-2.1-mini',
+		options: { voice: 'cedar' },
 	});
 });
 

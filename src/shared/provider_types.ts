@@ -33,7 +33,7 @@ export interface CatalogEntryModel extends ProviderModel {
 	readonly url: string;
 	/** Preferred provider for this model's capability when nothing is configured. */
 	readonly default?: boolean;
-	/** Speech-to-text only: realtime capture sample rate. */
+	/** Realtime audio input sample rate. */
 	readonly sampleRate?: number;
 	/** Provider-documented, model-specific input controls. */
 	readonly metadata?: ModelMetadata;

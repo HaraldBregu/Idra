@@ -9,17 +9,6 @@
     {
       "id": "uni-1.1",
       "name": "Uni 1.1",
-      "type": "realtime-voice-model",
-      "url": "https://api.lumalabs.ai/dream-machine/v1",
-      "metadata": {
-        "documentationUrl": "https://docs.lumalabs.ai",
-        "documentationStatus": "unverified",
-        "inputs": {}
-      }
-    },
-    {
-      "id": "uni-1.1",
-      "name": "Uni 1.1",
       "type": "text-to-image-model",
       "url": "https://api.lumalabs.ai/dream-machine/v1",
       "metadata": {
@@ -52,4 +41,3 @@
     }
   ]
 }
-

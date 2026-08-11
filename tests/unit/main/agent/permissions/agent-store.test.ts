@@ -38,6 +38,7 @@ beforeEach(() => {
 	setMediaModel('image', { providerId: '', modelId: '', options: {} });
 	setMediaModel('audio', { providerId: '', modelId: '', options: {} });
 	setMediaModel('video', { providerId: '', modelId: '', options: {} });
+	setMediaModel('realtimeVoice', { providerId: '', modelId: '', options: {} });
 });
 
 describe('agent store permissions', () => {
@@ -105,7 +106,7 @@ describe('agent store permissions', () => {
 		});
 	});
 
-	it('persists image, audio, and video model settings independently', () => {
+	it('persists media model settings independently', () => {
 		setMediaModel('image', {
 			providerId: 'google',
 			modelId: 'gemini-image',
@@ -120,6 +121,11 @@ describe('agent store permissions', () => {
 			providerId: 'google',
 			modelId: 'veo-3.1',
 			options: { durationSeconds: 8 },
+		});
+		setMediaModel('realtimeVoice', {
+			providerId: 'openai',
+			modelId: 'gpt-realtime-2.1',
+			options: { voice: 'marin' },
 		});
 
 		expect(getMediaModel('image')).toEqual({
@@ -136,6 +142,11 @@ describe('agent store permissions', () => {
 			providerId: 'google',
 			modelId: 'veo-3.1',
 			options: { durationSeconds: 8 },
+		});
+		expect(getMediaModel('realtimeVoice')).toEqual({
+			providerId: 'openai',
+			modelId: 'gpt-realtime-2.1',
+			options: { voice: 'marin' },
 		});
 	});
 });

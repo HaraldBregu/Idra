@@ -22,6 +22,9 @@ describe('provider manifests', () => {
 		const stableImage = loadModels().find(
 			(model) => model.provider.id === 'stability-ai' && model.id === 'stable-image-core'
 		);
+		const openAiRealtime = loadModels().filter(
+			(model) => model.provider.id === 'openai' && model.type === 'realtime-voice'
+		);
 		expect(stableImage?.metadata).toEqual(
 			expect.objectContaining({
 				documentationUrl: 'https://platform.stability.ai/docs/api-reference',
@@ -40,6 +43,27 @@ describe('provider manifests', () => {
 		expect(deepseek?.metadata).toEqual(
 			expect.objectContaining({ contextWindow: 1_048_576, defaultOutputTokens: 32_768 })
 		);
+		expect(openAiRealtime).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					id: 'gpt-realtime-2.1',
+					default: true,
+					sampleRate: 24_000,
+					metadata: expect.objectContaining({
+						documentationStatus: 'verified',
+						inputs: expect.objectContaining({
+							voice: expect.objectContaining({ default: 'marin' }),
+						}),
+					}),
+				}),
+				expect.objectContaining({ id: 'gpt-realtime-2.1-mini', sampleRate: 24_000 }),
+			])
+		);
+		expect(
+			loadModels().find(
+				(model) => model.provider.id === 'luma' && model.type === 'realtime-voice'
+			)
+		).toBeUndefined();
 		expect(loadWebSearches()).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({

@@ -21,7 +21,7 @@ import { getRagConfiguration, saveRagConfiguration } from '../agent/knowledge/ra
 
 export type { ModelKind, ModelSelection, ModelsStoreState } from '../settings_store';
 
-export type MediaModelKind = 'image' | 'sound' | 'video' | 'voice';
+export type MediaModelKind = 'image' | 'sound' | 'video' | 'voice' | 'realtimeVoice';
 
 const EMPTY_SELECTION: ModelSelection = { providerId: '', modelId: '' };
 
@@ -32,13 +32,14 @@ export function getModelsStore(): ModelsStoreState {
 		sound: selection('sound'),
 		video: selection('video'),
 		voice: selection('voice'),
+		realtimeVoice: selection('realtimeVoice'),
 		text: selection('text'),
 		embedding: selection('embedding'),
 	};
 }
 
 export function setModelsStore(value: ModelsStoreState): void {
-	const { embedding, text, image, sound, video, voice, ...appSelections } = value;
+	const { embedding, text, image, sound, video, voice, realtimeVoice, ...appSelections } = value;
 	const currentAppSelections = getAppModelSelections();
 	setAppModelSelections({
 		...appSelections,
@@ -46,6 +47,7 @@ export function setModelsStore(value: ModelsStoreState): void {
 		sound: currentAppSelections.sound,
 		video: currentAppSelections.video,
 		voice: currentAppSelections.voice,
+		realtimeVoice: currentAppSelections.realtimeVoice,
 	} as AppModelSelections);
 	setSelection('text', text.providerId, text.modelId);
 	setSelection('embedding', embedding.providerId, embedding.modelId);
@@ -53,6 +55,7 @@ export function setModelsStore(value: ModelsStoreState): void {
 	setSelection('sound', sound.providerId, sound.modelId);
 	setSelection('video', video.providerId, video.modelId);
 	setSelection('voice', voice.providerId, voice.modelId);
+	setSelection('realtimeVoice', realtimeVoice.providerId, realtimeVoice.modelId);
 }
 
 export function getModelProviders(): StoredProvider[] {
@@ -163,7 +166,13 @@ function selection(kind: ModelKind): ModelSelection {
 }
 
 function isMediaModelKind(kind: ModelKind): kind is MediaModelKind {
-	return kind === 'image' || kind === 'sound' || kind === 'video' || kind === 'voice';
+	return (
+		kind === 'image' ||
+		kind === 'sound' ||
+		kind === 'video' ||
+		kind === 'voice' ||
+		kind === 'realtimeVoice'
+	);
 }
 
 function agentMediaModelKind(kind: MediaModelKind): AgentMediaModelKind {

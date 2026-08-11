@@ -64,7 +64,7 @@ export interface CatalogModel extends ProviderModel {
 	/** Base URL of the API serving this model. */
 	readonly url?: string;
 	readonly provider: PublicProvider;
-	/** Speech-to-text only: realtime capture sample rate, from the provider entry. */
+	/** Realtime audio input sample rate, from the provider entry. */
 	readonly sampleRate?: number;
 	/** The provider is the default choice for this capability. */
 	readonly default?: boolean;

@@ -24,6 +24,7 @@ type AgentStoreSchema = {
 	audio_model: AgentMediaModelSettings;
 	video_model: AgentMediaModelSettings;
 	voice_model: AgentMediaModelSettings;
+	realtime_voice_model: AgentMediaModelSettings;
 	permissions: PermissionsSchema;
 };
 
@@ -50,7 +51,19 @@ const DEFAULT_AGENT_STORE: AgentStoreSchema = {
 	audio_model: EMPTY_MEDIA_MODEL,
 	video_model: EMPTY_MEDIA_MODEL,
 	voice_model: EMPTY_MEDIA_MODEL,
+	realtime_voice_model: EMPTY_MEDIA_MODEL,
 	permissions: DEFAULT_AGENT_PERMISSIONS,
+};
+
+const MEDIA_MODEL_KEYS: Record<
+	AgentMediaModelKind,
+	'image_model' | 'audio_model' | 'video_model' | 'voice_model' | 'realtime_voice_model'
+> = {
+	image: 'image_model',
+	audio: 'audio_model',
+	video: 'video_model',
+	voice: 'voice_model',
+	realtimeVoice: 'realtime_voice_model',
 };
 
 const store = new Store<AgentStoreSchema>({
@@ -93,11 +106,11 @@ export function setSearchEngine(searchEngine: SearchEngineSettings): void {
 }
 
 export function getMediaModel(kind: AgentMediaModelKind): AgentMediaModelSettings {
-	return store.get(`${kind}_model`);
+	return store.get(MEDIA_MODEL_KEYS[kind]);
 }
 
 export function setMediaModel(kind: AgentMediaModelKind, settings: AgentMediaModelSettings): void {
-	store.set(`${kind}_model`, settings);
+	store.set(MEDIA_MODEL_KEYS[kind], settings);
 }
 
 export function getPermissions(): PermissionsSchema {
