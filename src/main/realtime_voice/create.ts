@@ -1,17 +1,20 @@
 import { normalizeProviderId } from '../../shared/provider_types';
+import { RealtimeVoiceChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent } from '../agent/agent';
 import { builtinTools } from '../agent/runner/run_builtin_tools';
 import { buildSystemPrompt } from '../agent/system';
 import type { EventBus } from '../event_bus';
 import { defaultProviderId, loadModels } from '../models';
+import {
+	buildRealtimeVoiceAdapter,
+	realtimeVoiceDefaultVoice,
+	supportsRealtimeVoiceModel,
+} from '../models/adapters/realtime_voice';
 import { getModelId, getOptions, getProviderId } from '../models/models_store';
 import { getProvider } from '../settings_store';
 import type { WindowFactory } from '../window_factory';
 import { realtimeVoiceConversationFactory } from './conversation';
 import { RealtimeVoiceManager } from './manager';
-import { OpenAIRealtimeVoiceAdapter } from './openai';
-import { REALTIME_VOICE_MODELS, type RealtimeVoiceModel } from './types';
-import { RealtimeVoiceChannels } from '../../shared/ipc_channels_definitions';
 
 export function createRealtimeVoiceManager(
 	agent: Agent,
@@ -19,7 +22,7 @@ export function createRealtimeVoiceManager(
 	eventBus: EventBus
 ): RealtimeVoiceManager {
 	const manager = new RealtimeVoiceManager({
-		adapter: new OpenAIRealtimeVoiceAdapter(),
+		createAdapter: buildRealtimeVoiceAdapter,
 		resources: agent.resources,
 		createConversation: realtimeVoiceConversationFactory(agent.config),
 		emit: (windowId, event) => eventBus.sendTo(windowId, RealtimeVoiceChannels.sessionEvent, event),
@@ -28,24 +31,23 @@ export function createRealtimeVoiceManager(
 			const providerId = normalizeProviderId(
 				configuredProviderId ?? defaultProviderId('realtime-voice') ?? ''
 			);
-			if (providerId !== 'openai') {
-				throw new Error('Native realtime voice currently supports only OpenAI.');
-			}
 			const provider = getProvider(providerId);
 			const apiKey = provider?.apiKey.trim() ?? '';
-			if (!apiKey) throw new Error('OpenAI API key is required for realtime voice.');
+			if (!apiKey) {
+				throw new Error(`${provider?.name || providerId || 'Provider'} API key is required for realtime voice.`);
+			}
 
 			const models = loadModels().filter(
 				(model) =>
 					model.provider.id === providerId &&
 					model.type === 'realtime-voice' &&
-					REALTIME_VOICE_MODELS.includes(model.id as RealtimeVoiceModel)
+					supportsRealtimeVoiceModel(providerId, model.id)
 			);
 			const configuredModelId = getModelId('realtimeVoice');
 			const model = configuredModelId
 				? models.find((candidate) => candidate.id === configuredModelId)
 				: models.find((candidate) => candidate.default) ?? models[0];
-			if (!model) throw new Error('Configured OpenAI realtime voice model is not supported.');
+			if (!model) throw new Error('Configured realtime voice model is not supported.');
 
 			const configuredVoice = getOptions('realtimeVoice').voice;
 			const metadataVoice = model.metadata?.inputs.voice?.default;
@@ -61,13 +63,17 @@ export function createRealtimeVoiceManager(
 						metadataVoice.trim() &&
 						supportedVoices.includes(metadataVoice.trim())
 						? metadataVoice.trim()
-						: 'marin';
+						: (realtimeVoiceDefaultVoice(providerId) ?? '');
 			const tools = builtinTools(agent.config, agent.sandbox, windowFactory);
 			const instructions = await buildSystemPrompt(agent.config, tools);
 			return {
-				providerId,
-				apiKey,
-				model: model.id as RealtimeVoiceModel,
+				provider: {
+					id: providerId,
+					name: provider?.name || model.provider.name,
+					apiKey,
+					baseURL: provider?.baseUrl.trim() || model.url,
+				},
+				modelId: model.id,
 				voice,
 				instructions,
 				tools,
