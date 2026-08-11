@@ -4,12 +4,14 @@ import { cn } from '@/lib/utils';
 interface TitleBarContainerProps {
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
+	readonly onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
 	readonly children: ReactNode;
 }
 
 export const TitleBarContainer = memo(function AppTitleBarContainer({
 	className,
 	style,
+	onContextMenu,
 	children,
 }: TitleBarContainerProps): ReactElement {
 	return (
@@ -24,6 +26,7 @@ export const TitleBarContainer = memo(function AppTitleBarContainer({
 					...style,
 				} as React.CSSProperties
 			}
+			onContextMenu={onContextMenu}
 		>
 			{children}
 		</div>

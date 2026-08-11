@@ -11,7 +11,7 @@ import { TitleBarProvider } from './context/TitleBarContext';
 import { NavButton } from './components/NavButton';
 // import { NavigationButtons } from './components/NavigationButtons';
 import { SessionsButton } from './components/SessionsButton';
-import { UserMenu } from './components/UserMenu';
+import { SettingsButtons } from './components/SettingsButtons';
 import { WindowControls } from './components/WindowControls';
 import { useWindowState } from './hooks/useWindowState';
 import { GradientSphere } from '@/components/ui/gradient-sphere';
@@ -52,6 +52,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { isFullScreen } = useWindowState();
+	const [showSettingsButtons, setShowSettingsButtons] = React.useState(false);
 
 	const isHome = location.pathname === '/home';
 	const isStart = location.pathname === '/start';
@@ -70,14 +71,29 @@ export const TitleBar = React.memo(function TitleBar({
 		>
 			<GradientSphere size={18} className="pointer-events-none" />
 		</Button>
-	) : !isStart ? (
-		<UserMenu align={isMac ? 'end' : 'start'} />
+	) : !isStart && showSettingsButtons ? (
+		<SettingsButtons onNavigate={() => setShowSettingsButtons(false)} />
 	) : null;
 	const sessionsButton = isHome ? <SessionsButton /> : null;
 
 	return (
 		<TitleBarProvider value={{ isMac, isFullScreen }}>
-			<TitleBarContainer className={className} style={style}>
+			<TitleBarContainer
+				className={className}
+				style={style}
+				onContextMenu={(event) => {
+					if (
+						isStart ||
+						isSettings ||
+						(event.target instanceof Element && event.target.closest('button'))
+					) {
+						return;
+					}
+
+					event.preventDefault();
+					setShowSettingsButtons(true);
+				}}
+			>
 				{/* ── Left: platform menu + sidebar toggle + nav buttons ── */}
 				<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
 					{!isMac && (
