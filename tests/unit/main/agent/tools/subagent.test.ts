@@ -5,6 +5,7 @@ jest.mock('../../../../../src/main/agent/runner/run_stream', () => ({
 }));
 
 import type { SessionState } from '../../../../../src/main/agent/session';
+import type { RunContext } from '../../../../../src/main/agent/context';
 import {
 	subagentTool,
 	subagentsTool,
@@ -71,11 +72,13 @@ describe('subagentTool', () => {
 
 	it('runs three batch children concurrently, preserves order, and isolates failure', async () => {
 		const releases = new Map<string, () => void>();
+		const contexts: RunContext[] = [];
 		let active = 0;
 		let peak = 0;
 		mockStream.mockImplementation(
-			(_config: unknown, _session: unknown, input: { message: string }) =>
+			(_config: unknown, session: SessionState, input: { message: string }) =>
 				(async function* () {
+					contexts.push(session.runContext);
 					active += 1;
 					peak = Math.max(peak, active);
 					await new Promise<void>((resolve) => releases.set(input.message, resolve));
@@ -95,6 +98,11 @@ describe('subagentTool', () => {
 
 		await flush();
 		expect(peak).toBe(3);
+		expect(new Set(contexts).size).toBe(3);
+		contexts[0].fileAccess.readDirectories.add('/first');
+		expect(contexts.slice(1).every((context) => context.fileAccess.readDirectories.size === 0)).toBe(
+			true
+		);
 		releases.get('fast')?.();
 		releases.get('fail')?.();
 		releases.get('slow')?.();

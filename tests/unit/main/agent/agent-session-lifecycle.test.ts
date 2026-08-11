@@ -166,3 +166,48 @@ it.each([
 		expect(mutate).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), SESSION_ID);
 	}
 );
+
+it('cancels queued same-session work before clear and keeps the replacement behind maintenance', async () => {
+	const agent = new Agent(
+		{} as WindowFactory,
+		{ reset: jest.fn() } as unknown as ExecSandbox
+	);
+	const running = controlRun('running');
+	controlRun('queued');
+	const runningResponse = agent.send('running', 'main', {
+		type: 'default',
+		runId: 'running',
+		sessionId: 'main',
+	});
+	await running.started;
+	const queuedResponse = agent.send('queued', 'main', {
+		type: 'default',
+		runId: 'queued',
+		sessionId: 'main',
+	});
+
+	const maintenance = agent.clearMessages('main');
+	await expect(queuedResponse).resolves.toBe('');
+	expect(order).not.toContain('start:queued');
+	const replacement = controlRun('replacement');
+	const replacementResponse = agent.send('replacement', 'main', {
+		type: 'default',
+		runId: 'replacement',
+		sessionId: 'main',
+	});
+
+	running.release();
+	await runningResponse;
+	await replacement.started;
+	expect(order).toEqual([
+		'init:running',
+		'start:running',
+		'settle:running',
+		'clear',
+		'init:replacement',
+		'start:replacement',
+	]);
+	replacement.release();
+	await maintenance;
+	await expect(replacementResponse).resolves.toBe('replacement reply');
+});
