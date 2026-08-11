@@ -286,7 +286,7 @@ describe('run stream system prompt', () => {
 		if (denied[0]?.type !== 'run_started') throw new Error('Expected run_started');
 		expect(denied[0].tools).toContain('read_file');
 		expect(denied[0].tools).not.toContain('subagent');
-		expect(closeMcpMock).toHaveBeenCalledTimes(2);
+		expect(closeMcpMock).toHaveBeenCalledTimes(1);
 	});
 
 	it('sends workspace files as user context instead of system instructions', async () => {
