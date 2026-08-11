@@ -8,7 +8,7 @@ class MockInputFile {
 	) {}
 }
 
-jest.mock('grammy', () => ({
+jest.mock('grammy/web', () => ({
 	Bot: jest.fn().mockImplementation(() => ({
 		on: mockOn,
 		catch: jest.fn(),
