@@ -81,7 +81,20 @@
           },
           "languageCode": {
             "type": "string",
-            "title": "Language code"
+            "title": "Language code",
+            "enum": ["ar", "fil", "bn", "fi", "nl", "gl", "en", "ka", "fr", "el", "de", "gu", "hi", "ht", "id", "he", "it", "hu", "ja", "is", "ko", "jv", "mr", "kn", "pl", "kok", "pt", "lo", "ro", "la", "ru", "lv", "es", "lt", "ta", "lb", "te", "mk", "th", "mai", "tr", "mg", "uk", "ms", "vi", "ml", "af", "mn", "sq", "ne", "am", "nb", "hy", "nn", "az", "or", "eu", "ps", "be", "fa", "bg", "pa", "my", "sr", "ca", "sd", "ceb", "si", "cmn", "sk", "hr", "sl", "cs", "sw", "da", "sv", "et", "ur"]
+          },
+          "multiSpeakerVoiceConfig": {
+            "type": "object",
+            "title": "Multi-speaker voices",
+            "properties": {
+              "speakerVoiceConfigs": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }

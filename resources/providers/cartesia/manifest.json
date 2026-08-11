@@ -83,6 +83,11 @@
                 "enum": ["neutral", "happy", "excited", "enthusiastic", "elated", "euphoric", "triumphant", "amazed", "surprised", "flirtatious", "curious", "content", "peaceful", "serene", "calm", "grateful", "affectionate", "trust", "sympathetic", "anticipation", "mysterious", "angry", "mad", "outraged", "frustrated", "agitated", "threatened", "disgusted", "contempt", "envious", "sarcastic", "ironic", "sad", "dejected", "melancholic", "disappointed", "hurt", "guilty", "bored", "tired", "rejected", "nostalgic", "wistful", "apologetic", "hesitant", "insecure", "confused", "resigned", "anxious", "panicked", "alarmed", "scared", "proud", "confident", "distant", "skeptical", "contemplative", "determined"]
               }
             }
+          },
+          "speed": {
+            "type": "string",
+            "default": "normal",
+            "enum": ["slow", "normal", "fast"]
           }
         }
       }
@@ -164,6 +169,11 @@
                 "enum": ["neutral", "happy", "excited", "enthusiastic", "elated", "euphoric", "triumphant", "amazed", "surprised", "flirtatious", "curious", "content", "peaceful", "serene", "calm", "grateful", "affectionate", "trust", "sympathetic", "anticipation", "mysterious", "angry", "mad", "outraged", "frustrated", "agitated", "threatened", "disgusted", "contempt", "envious", "sarcastic", "ironic", "sad", "dejected", "melancholic", "disappointed", "hurt", "guilty", "bored", "tired", "rejected", "nostalgic", "wistful", "apologetic", "hesitant", "insecure", "confused", "resigned", "anxious", "panicked", "alarmed", "scared", "proud", "confident", "distant", "skeptical", "contemplative", "determined"]
               }
             }
+          },
+          "speed": {
+            "type": "string",
+            "default": "normal",
+            "enum": ["slow", "normal", "fast"]
           }
         }
       }

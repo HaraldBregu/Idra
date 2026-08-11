@@ -17,10 +17,12 @@ export function createOpenAISpeechAdapter(provider: SpeechProviderSpec): SpeechA
 	return {
 		async synthesize(request: SpeechAdapterRequest): Promise<SpeechSynthesisResult> {
 			const options = request.options ?? {};
+			const customVoiceId = options.custom_voice_id;
 			const responseFormat =
 				typeof options.response_format === 'string' ? options.response_format : 'mp3';
 			const voice =
 				request.voice ??
+				(typeof customVoiceId === 'string' ? { id: customVoiceId } : undefined) ??
 				(typeof options.voice === 'string' ||
 				(options.voice && typeof options.voice === 'object' && !Array.isArray(options.voice))
 					? options.voice

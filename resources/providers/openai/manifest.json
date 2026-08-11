@@ -399,6 +399,10 @@
             "default": "alloy",
             "enum": ["alloy", "ash", "ballad", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse", "marin", "cedar"]
           },
+          "custom_voice_id": {
+            "type": "string",
+            "title": "Custom voice ID"
+          },
           "instructions": {
             "type": "string"
           },
@@ -430,6 +434,10 @@
             "title": "Voice",
             "default": "alloy",
             "enum": ["alloy", "ash", "ballad", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse", "marin", "cedar"]
+          },
+          "custom_voice_id": {
+            "type": "string",
+            "title": "Custom voice ID"
           },
           "response_format": {
             "type": "string",
