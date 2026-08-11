@@ -327,9 +327,7 @@ export function Persona({
 					const pulse = (Math.sin(age * 2.8 - index * 0.9) + 1) * 0.5;
 					const direction = index % 2 === 0 ? 1 : -1;
 					rings[index].target.radius =
-						radius +
-						smoothedLevel * (0.018 + index * 0.008) +
-						pulse * (0.004 + index * 0.003);
+						radius + smoothedLevel * (0.018 + index * 0.008) + pulse * (0.004 + index * 0.003);
 					rings[index].target.opacity = opacity * (0.76 + pulse * 0.24);
 					rings[index].target.rotation = direction * age * (0.05 + index * 0.014);
 					rings[index].target.wobble =
