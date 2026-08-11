@@ -91,11 +91,7 @@ export const TitleBar = React.memo(function TitleBar({
 				className={className}
 				style={style}
 				onContextMenu={(event) => {
-					if (
-						isStart ||
-						isSettings ||
-						(event.target instanceof Element && event.target.closest('button'))
-					) {
+					if (event.target instanceof Element && event.target.closest('button')) {
 						return;
 					}
 

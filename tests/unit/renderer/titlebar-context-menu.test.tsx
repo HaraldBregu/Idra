@@ -73,6 +73,18 @@ it('does not open the titlebar menu from a button', () => {
 	expect(showContextMenu).not.toHaveBeenCalled();
 });
 
+it.each(['/settings', '/start'])('opens the titlebar menu while viewing %s', (path) => {
+	const { container } = render(
+		<MemoryRouter initialEntries={[path]}>
+			<TitleBar />
+		</MemoryRouter>
+	);
+
+	fireEvent.contextMenu(container.querySelector('.app-translucent-surface') as Element);
+
+	expect(showContextMenu).toHaveBeenCalledWith(contextMenuItems);
+});
+
 it('shows the history and user icons on Home', async () => {
 	const user = userEvent.setup();
 
