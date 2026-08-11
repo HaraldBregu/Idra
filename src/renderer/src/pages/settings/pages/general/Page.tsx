@@ -5,7 +5,6 @@ import {
 	FolderOpen,
 	Languages,
 	PanelTop,
-	Sparkles,
 	SunMoon,
 } from 'lucide-react';
 import { ThemeSwitcher } from '@/components/kibo-ui/theme-switcher';
@@ -21,7 +20,6 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
-import type { AppPersona } from '@/contexts';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -33,27 +31,14 @@ interface LanguageOption {
 	readonly labelKey: string;
 }
 
-interface PersonaOption {
-	readonly value: AppPersona;
-	readonly labelKey: string;
-}
-
 const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
 	{ value: 'en', labelKey: 'settings.language.en' },
 	{ value: 'it', labelKey: 'settings.language.it' },
 ] as const;
 
-const PERSONA_OPTIONS: readonly PersonaOption[] = [
-	{ value: 'mana', labelKey: 'settings.persona.mana' },
-	{ value: 'opal', labelKey: 'settings.persona.opal' },
-	{ value: 'halo', labelKey: 'settings.persona.halo' },
-	{ value: 'glint', labelKey: 'settings.persona.glint' },
-	{ value: 'command', labelKey: 'settings.persona.command' },
-] as const;
-
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
-	const { language, setLanguage, persona, setPersona, theme, setTheme } = useApp();
+	const { language, setLanguage, theme, setTheme } = useApp();
 	const [trayEnabled, setTrayEnabled] = useState(true);
 	const [keepAwake, setKeepAwake] = useState(false);
 
@@ -84,13 +69,6 @@ const GeneralPage: React.FC = () => {
 		if (next === null) return;
 		const option = LANGUAGE_OPTIONS.find((o) => o.value === next);
 		if (option) setLanguage(option.value);
-	};
-
-	const handlePersonaChange = (next: string | null): void => {
-		if (next === null) return;
-		const option = PERSONA_OPTIONS.find((candidate) => candidate.value === next);
-		if (!option) return;
-		setPersona(option.value);
 	};
 
 	return (
@@ -173,34 +151,6 @@ const GeneralPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.sections.layout')}>
 				<Card size="sm" className="gap-0! p-0!">
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<Sparkles className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent>
-							<ItemTitle>{t('settings.persona.title')}</ItemTitle>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<Select value={persona} onValueChange={handlePersonaChange}>
-								<SelectTrigger
-									size="sm"
-									className="w-28 text-xs [&_svg]:size-3"
-									aria-label={t('settings.persona.title')}
-								>
-									<SelectValue>
-										{t(PERSONA_OPTIONS.find((option) => option.value === persona)?.labelKey ?? '')}
-									</SelectValue>
-								</SelectTrigger>
-								<SelectContent>
-									{PERSONA_OPTIONS.map((option) => (
-										<SelectItem key={option.value} value={option.value}>
-											{t(option.labelKey)}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</ItemActions>
-					</Item>
 					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemMedia variant="icon">
 							<Languages className="size-3" strokeWidth={1.8} />

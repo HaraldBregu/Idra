@@ -883,14 +883,6 @@
 			"it": "Italiano",
 			"itDescription": "Usa l'italiano come lingua di visualizzazione"
 		},
-		"persona": {
-			"title": "Persona",
-			"mana": "Mana",
-			"opal": "Opal",
-			"halo": "Halo",
-			"glint": "Glint",
-			"command": "Command"
-		},
 		"theme": {
 			"title": "Tema",
 			"light": "Chiaro",

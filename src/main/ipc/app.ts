@@ -26,7 +26,6 @@ import type {
 	CameraSystemPermissionStatus,
 	SystemPreferencePaneId,
 	AppLanguage,
-	AppPersona,
 	AppTheme,
 	AppThemeData,
 	AppThemeColors,
@@ -38,8 +37,6 @@ import {
 	setTrayEnabled as setStoredTrayEnabled,
 	getKeepAwake as getStoredKeepAwake,
 	setKeepAwake as setStoredKeepAwake,
-	getPersona as getStoredPersona,
-	setPersona as setStoredPersona,
 	getLanguage as getStoredLanguage,
 	setLanguage as setStoredLanguage,
 	getTheme as getStoredTheme,
@@ -540,20 +537,6 @@ export class AppIpc implements IpcModule {
 			wrapSimpleHandler(() => {
 				return getStoredKeepAwake();
 			}, AppChannels.getKeepAwake)
-		);
-
-		ipcMain.handle(
-			AppChannels.setPersona,
-			wrapSimpleHandler((persona: AppPersona) => {
-				setStoredPersona(persona);
-			}, AppChannels.setPersona)
-		);
-
-		ipcMain.handle(
-			AppChannels.getPersona,
-			wrapSimpleHandler(() => {
-				return getStoredPersona();
-			}, AppChannels.getPersona)
 		);
 
 		ipcMain.handle(

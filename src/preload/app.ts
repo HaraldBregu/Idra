@@ -92,12 +92,6 @@ export const app: AppApi = {
 	getKeepAwake: (): Promise<boolean> => {
 		return typedInvokeUnwrap(AppChannels.getKeepAwake);
 	},
-	setPersona: (persona) => {
-		return typedInvokeUnwrap(AppChannels.setPersona, persona);
-	},
-	getPersona: () => {
-		return typedInvokeUnwrap(AppChannels.getPersona);
-	},
 	setLanguage: (language) => {
 		return typedInvokeUnwrap(AppChannels.setLanguage, language);
 	},

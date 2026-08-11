@@ -83,7 +83,6 @@ import type {
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
 	AppLanguage,
-	AppPersona,
 	AppThemeData,
 	AppTheme,
 } from './app_types';
@@ -383,8 +382,6 @@ export interface AppApi {
 	getTrayEnabled: () => Promise<boolean>;
 	setKeepAwake: (enabled: boolean) => Promise<void>;
 	getKeepAwake: () => Promise<boolean>;
-	setPersona: (persona: AppPersona) => Promise<void>;
-	getPersona: () => Promise<AppPersona>;
 	setLanguage: (language: AppLanguage) => Promise<void>;
 	getLanguage: () => Promise<AppLanguage>;
 	setTheme: (theme: AppTheme) => Promise<void>;
