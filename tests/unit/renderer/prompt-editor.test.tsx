@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { PromptEditor } from '@/components/prompt-editor';
 
 jest.mock('@/components/ui/bar-wave-animation', () => ({

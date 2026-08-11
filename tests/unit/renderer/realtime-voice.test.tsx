@@ -15,7 +15,11 @@ const mediaStream = {
 	getAudioTracks: () => [track],
 } as unknown as MediaStream;
 
-let processor: { onaudioprocess: ((event: { inputBuffer: { getChannelData: () => Float32Array } }) => void) | null };
+let processor: {
+	onaudioprocess: ((event: { inputBuffer: { getChannelData: () => Float32Array } }) => void) | null;
+	connect: jest.Mock;
+	disconnect: jest.Mock;
+};
 let playedSource: { stop: jest.Mock; onended: (() => void) | null };
 
 class FakeAudioContext {
@@ -24,8 +28,8 @@ class FakeAudioContext {
 	readonly destination = {} as AudioDestinationNode;
 	createMediaStreamSource = jest.fn(() => ({ connect: jest.fn(), disconnect: jest.fn() }));
 	createScriptProcessor = jest.fn(() => {
-		processor = { onaudioprocess: null };
-		return { ...processor, connect: jest.fn(), disconnect: jest.fn() };
+		processor = { onaudioprocess: null, connect: jest.fn(), disconnect: jest.fn() };
+		return processor;
 	});
 	createAnalyser = jest.fn(() => ({
 		fftSize: 512,
