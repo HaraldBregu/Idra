@@ -84,11 +84,12 @@ it('shows OpenAI realtime separately from Read aloud without saving displayed de
 		await screen.findByRole('button', { name: /settings\.modelServices\.realtimeVoiceConfiguration/ })
 	).toBeInTheDocument();
 	expect(screen.getByRole('button', { name: /settings\.modelServices\.readAloudConfiguration/ })).toBeInTheDocument();
-	expect(screen.getByRole('combobox', { name: 'settings.modelServices.model' })).toHaveTextContent(
-		'OpenAI / GPT Realtime 2.1'
-	);
-	expect(screen.getByText('Voice')).toBeInTheDocument();
-	expect(screen.getAllByRole('combobox')[1]).toHaveTextContent('marin');
+	expect(
+		await screen.findByRole('combobox', {
+			name: 'settings.modelServices.realtimeVoiceConfiguration',
+		})
+	).toHaveTextContent('OpenAI / GPT Realtime 2.1');
+	expect(await screen.findByRole('combobox', { name: 'Voice' })).toHaveTextContent('marin');
 	expect(realtimeApi.setProviderId).not.toHaveBeenCalled();
 	expect(realtimeApi.setModelId).not.toHaveBeenCalled();
 	expect(realtimeApi.setOptions).not.toHaveBeenCalled();
@@ -97,8 +98,7 @@ it('shows OpenAI realtime separately from Read aloud without saving displayed de
 it('persists a selected realtime voice with the current model', async () => {
 	const user = userEvent.setup();
 	render(<VoicePage />);
-	await screen.findByText('Voice');
-	const voiceSelect = screen.getAllByRole('combobox')[1];
+	const voiceSelect = await screen.findByRole('combobox', { name: 'Voice' });
 	await user.click(voiceSelect);
 	await user.click(await screen.findByRole('option', { name: 'cedar', hidden: true }));
 
