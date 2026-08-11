@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import AssistantPage from '../../../src/renderer/src/pages/settings/pages/assistant/Page';
@@ -7,6 +7,7 @@ const mockProviders = [
 	{ id: 'openai', name: 'OpenAI', baseUrl: 'https://openai.example' },
 	{ id: 'google', name: 'Google', baseUrl: 'https://google.example' },
 	{ id: 'elevenlabs', name: 'ElevenLabs', baseUrl: 'https://elevenlabs.example' },
+	{ id: 'xai', name: 'xAI', baseUrl: 'https://xai.example' },
 ];
 const mockCatalog = [
 	{
@@ -21,6 +22,36 @@ const mockCatalog = [
 		name: 'Gemini Image',
 		type: 'text-to-image',
 		provider: mockProviders[1],
+		metadata: { documentationStatus: 'verified', documentationUrl: '', inputs: {} },
+	},
+	{
+		id: 'gpt-realtime',
+		name: 'GPT Realtime',
+		type: 'realtime-voice',
+		default: true,
+		provider: mockProviders[0],
+		metadata: {
+			documentationStatus: 'verified',
+			documentationUrl: '',
+			inputs: { voice: { type: 'string', title: 'Voice', enum: ['marin', 'cedar'], default: 'marin' } },
+		},
+	},
+	{
+		id: 'grok-voice',
+		name: 'Grok Voice',
+		type: 'realtime-voice',
+		provider: mockProviders[3],
+		metadata: {
+			documentationStatus: 'verified',
+			documentationUrl: '',
+			inputs: { voice: { type: 'string', title: 'Voice', enum: ['Ara', 'Eve'], default: 'Ara' } },
+		},
+	},
+	{
+		id: 'custom-realtime',
+		name: 'Custom Realtime',
+		type: 'realtime-voice',
+		provider: mockProviders[0],
 		metadata: { documentationStatus: 'verified', documentationUrl: '', inputs: {} },
 	},
 	{
@@ -66,6 +97,10 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.videoModelDescription': 'Video defaults',
 		'settings.modelServices.model': 'Model',
 		'settings.modelServices.modelDescription': 'Choose provider and model',
+		'settings.modelServices.realtimeConversationConfiguration': 'Realtime conversation',
+		'settings.modelServices.realtimeConversationDescription': 'Live model and voice',
+		'settings.modelServices.loadError': 'Unable to load models',
+		'settings.modelServices.saveError': 'Unable to save model',
 		'settings.modelServices.history': 'History',
 		'settings.tabs.searchEngine': 'Search Engine',
 		'settings.tabs.permissions': 'Permissions',
@@ -101,6 +136,8 @@ const mediaApi = (providerId: string, modelId: string) => ({
 	setOptions: jest.fn().mockImplementation(async (options) => options),
 });
 
+const realtimeSetSetup = jest.fn();
+
 beforeEach(() => {
 	Object.defineProperty(window, 'agent', {
 		configurable: true,
@@ -124,6 +161,24 @@ beforeEach(() => {
 	Object.defineProperty(window, 'models', {
 		configurable: true,
 		value: {
+			realtimeVoice: {
+				getSetup: jest.fn().mockResolvedValue({
+					providerId: 'openai',
+					modelId: 'gpt-realtime',
+					options: { voice: 'marin' },
+					supportedModels: [
+						{ providerId: 'openai', modelId: 'gpt-realtime' },
+						{ providerId: 'xai', modelId: 'grok-voice' },
+					],
+				}),
+				setSetup: realtimeSetSetup.mockImplementation(async (request) => ({
+					...request,
+					supportedModels: [
+						{ providerId: 'openai', modelId: 'gpt-realtime' },
+						{ providerId: 'xai', modelId: 'grok-voice' },
+					],
+				})),
+			},
 			voice: mediaApi('elevenlabs', 'eleven_v3'),
 			image: mediaApi('google', 'gemini-image'),
 			sound: mediaApi('elevenlabs', 'eleven-music'),
@@ -163,6 +218,7 @@ it('groups independently collapsible provider settings in one card', async () =>
 	const cards: Array<Element | null> = [];
 	for (const name of [
 		/Model.*GPT/,
+		/Realtime conversation.*GPT Realtime/,
 		/Voice.*Eleven v3/,
 		/Image.*Gemini Image/,
 		/Audio.*Eleven Music/,
@@ -176,12 +232,18 @@ it('groups independently collapsible provider settings in one card', async () =>
 		cards.push(trigger.closest('[data-slot="card"]'));
 	}
 	const model = await screen.findByRole('combobox', { name: 'Model' });
-	const voice = await screen.findByRole('combobox', { name: 'Voice' });
+	const voice = (await screen.findAllByRole('combobox', { name: 'Voice' })).find((entry) =>
+		entry.textContent?.includes('Eleven v3')
+	);
+	const realtimeConversation = await screen.findByRole('combobox', {
+		name: 'Realtime conversation',
+	});
 	const image = await screen.findByRole('combobox', { name: 'Image' });
 	const audio = await screen.findByRole('combobox', { name: 'Audio' });
 	const video = await screen.findByRole('combobox', { name: 'Video' });
 	const search = await screen.findByRole('combobox', { name: 'Search Engine' });
 	expect(model).toHaveTextContent('OpenAI / GPT');
+	expect(realtimeConversation).toHaveTextContent('OpenAI / GPT Realtime');
 	expect(voice).toHaveTextContent('ElevenLabs / Eleven v3');
 	expect(image).toHaveTextContent('Google / Gemini Image');
 	expect(audio).toHaveTextContent('ElevenLabs / Eleven Music');
@@ -201,6 +263,49 @@ it('groups independently collapsible provider settings in one card', async () =>
 	expect(rag.closest('[data-slot="card"]')).toBe(wiki.closest('[data-slot="card"]'));
 	expect(permissions.closest('[data-slot="card"]')).not.toBe(rag.closest('[data-slot="card"]'));
 	expect(dataManagement.closest('[data-slot="card"]')).not.toBe(wiki.closest('[data-slot="card"]'));
+});
+
+it('shows only runtime-supported realtime models and saves model and voice together', async () => {
+	const user = userEvent.setup();
+	render(
+		<MemoryRouter>
+			<AssistantPage />
+		</MemoryRouter>
+	);
+
+	await user.click(
+		await screen.findByRole('button', { name: /Realtime conversation.*GPT Realtime/ })
+	);
+	const selector = await screen.findByRole('combobox', { name: 'Realtime conversation' });
+	await user.click(selector);
+	expect(screen.queryByRole('option', { name: 'OpenAI / Custom Realtime' })).not.toBeInTheDocument();
+	await user.click(await screen.findByRole('option', { name: 'xAI / Grok Voice' }));
+
+	await waitFor(() => {
+		expect(realtimeSetSetup).toHaveBeenCalledWith({
+			providerId: 'xai',
+			modelId: 'grok-voice',
+			options: { voice: 'Ara' },
+		});
+	});
+});
+
+it('announces a realtime conversation setup save error', async () => {
+	const user = userEvent.setup();
+	realtimeSetSetup.mockRejectedValueOnce(new Error('Realtime setup could not be saved.'));
+	render(
+		<MemoryRouter>
+			<AssistantPage />
+		</MemoryRouter>
+	);
+
+	await user.click(
+		await screen.findByRole('button', { name: /Realtime conversation.*GPT Realtime/ })
+	);
+	await user.click(await screen.findByRole('combobox', { name: 'Realtime conversation' }));
+	await user.click(await screen.findByRole('option', { name: 'xAI / Grok Voice' }));
+
+	expect(await screen.findByRole('alert')).toHaveTextContent('Realtime setup could not be saved.');
 });
 
 it.each([

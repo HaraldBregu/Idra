@@ -38,6 +38,27 @@ it('rejects invalid realtime voice audio and selection values', () => {
 	expect(() => models.realtimeVoice.setModelId(' ')).toThrow('Invalid realtime voice model id.');
 });
 
+it('normalizes and validates atomic realtime voice setup requests', async () => {
+	await models.realtimeVoice.setSetup({
+		providerId: ' openai ',
+		modelId: ' gpt-realtime ',
+		options: { voice: 'marin' },
+	});
+
+	expect(invoke).toHaveBeenCalledWith(RealtimeVoiceChannels.setSetup, {
+		providerId: 'openai',
+		modelId: 'gpt-realtime',
+		options: { voice: 'marin' },
+	});
+	expect(() =>
+		models.realtimeVoice.setSetup({
+			providerId: 'openai',
+			modelId: 'gpt-realtime',
+			options: null,
+		} as never)
+	).toThrow('Invalid model options.');
+});
+
 it('subscribes and unsubscribes realtime voice session events', () => {
 	const callback = jest.fn();
 	const unsubscribe = models.realtimeVoice.onSessionEvent(callback);

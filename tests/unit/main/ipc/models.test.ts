@@ -7,6 +7,8 @@ const getProviderId = jest.fn();
 const setModelId = jest.fn();
 const setOptions = jest.fn();
 const setProviderId = jest.fn();
+const getRealtimeVoiceSetup = jest.fn();
+const setRealtimeVoiceSetup = jest.fn();
 
 jest.mock('../../../../src/main/ipc/core/gateway', () => ({
 	registerCommand,
@@ -40,12 +42,20 @@ jest.mock('../../../../src/main/models/adapters/stt', () => ({
 	startRealtime: jest.fn(),
 	transcribe: jest.fn(),
 }));
+jest.mock('../../../../src/main/realtime_voice/setup', () => ({
+	getRealtimeVoiceSetup,
+	setRealtimeVoiceSetup,
+}));
 
 import { ModelsIpc } from '../../../../src/main/ipc/models';
 import { RealtimeVoiceChannels } from '../../../../src/shared/ipc_channels_definitions';
 
 function command(channel: string): (...args: unknown[]) => unknown {
 	return registerCommand.mock.calls.find(([registered]) => registered === channel)?.[1];
+}
+
+function query(channel: string): (...args: unknown[]) => unknown {
+	return registerQuery.mock.calls.find(([registered]) => registered === channel)?.[1];
 }
 
 beforeEach(() => {
@@ -63,6 +73,17 @@ it('wires realtime voice selection and options to their distinct model kind', ()
 	expect(setModelId).toHaveBeenCalledWith('realtimeVoice', 'gpt-realtime-2.1');
 	expect(setOptions).toHaveBeenCalledWith('realtimeVoice', { voice: 'cedar' });
 	expect(result).toEqual({ voice: 'marin' });
+});
+
+it('registers the atomic realtime voice setup API', () => {
+	const setup = { options: {}, supportedModels: [] };
+	const request = { providerId: 'openai', modelId: 'gpt-realtime', options: {} };
+	getRealtimeVoiceSetup.mockReturnValue(setup);
+	setRealtimeVoiceSetup.mockReturnValue({ ...setup, ...request });
+
+	expect(query(RealtimeVoiceChannels.getSetup)()).toBe(setup);
+	expect(command(RealtimeVoiceChannels.setSetup)(request)).toEqual({ ...setup, ...request });
+	expect(setRealtimeVoiceSetup).toHaveBeenCalledWith(request);
 });
 
 it('rejects unsafe realtime voice selection inputs in main', () => {
