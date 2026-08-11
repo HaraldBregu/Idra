@@ -6,11 +6,17 @@ export interface RealtimeVoiceProviderSpec {
 	apiKey: string;
 }
 
+export interface RealtimeVoiceHistoryMessage {
+	readonly role: 'user' | 'assistant';
+	readonly text: string;
+}
+
 export interface RealtimeVoiceAdapterRequest {
 	modelId: string;
 	voice: string;
 	instructions: string;
 	tools: Tool[];
+	history: readonly RealtimeVoiceHistoryMessage[];
 }
 
 export type RealtimeVoiceAdapterEvent =
@@ -63,7 +69,18 @@ export type RealtimeVoiceClientEvent =
 	| { type: 'response.cancel' }
 	| {
 			type: 'conversation.item.create';
-			item: { type: 'function_call_output'; call_id: string; output: string };
+			item:
+				| { type: 'function_call_output'; call_id: string; output: string }
+				| {
+						type: 'message';
+						role: 'user';
+						content: [{ type: 'input_text'; text: string }];
+				  }
+				| {
+						type: 'message';
+						role: 'assistant';
+						content: [{ type: 'output_text'; text: string }];
+				  };
 	  }
 	| { type: 'response.create' };
 

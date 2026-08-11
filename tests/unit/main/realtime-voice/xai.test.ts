@@ -64,6 +64,10 @@ describe('XAIRealtimeVoiceAdapter', () => {
 				modelId: 'grok-voice-latest',
 				voice: '',
 				instructions: 'Help the user.',
+				history: [
+					{ role: 'user', text: 'Earlier question.' },
+					{ role: 'assistant', text: 'Earlier answer.' },
+				],
 				tools: [
 					{
 						id: 'read_file',
@@ -100,9 +104,29 @@ describe('XAIRealtimeVoiceAdapter', () => {
 				tools: [{ type: 'function', name: 'read_file' }],
 			},
 		});
+		expect(socket.sent).toHaveLength(1);
 
 		socket.event({ type: 'session.updated' });
 		await connecting;
+		expect(socket.sent.slice(1)).toEqual([
+			{
+				type: 'conversation.item.create',
+				item: {
+					type: 'message',
+					role: 'user',
+					content: [{ type: 'input_text', text: 'Earlier question.' }],
+				},
+			},
+			{
+				type: 'conversation.item.create',
+				item: {
+					type: 'message',
+					role: 'assistant',
+					content: [{ type: 'output_text', text: 'Earlier answer.' }],
+				},
+			},
+		]);
+		expect(socket.sent).not.toContainEqual({ type: 'response.create' });
 		socket.event({
 			type: 'conversation.item.input_audio_transcription.completed',
 			item_id: 'user-item',
@@ -140,6 +164,7 @@ describe('XAIRealtimeVoiceAdapter', () => {
 					modelId: 'grok-voice-preview',
 					voice: 'eve',
 					instructions: '',
+					history: [],
 					tools: [],
 				},
 				() => undefined

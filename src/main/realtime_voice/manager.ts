@@ -20,7 +20,8 @@ import type {
 import type { RealtimeVoiceConversation, RealtimeVoiceConversationFactory } from './conversation';
 import { RealtimeVoiceToolRuntime } from './tool_runtime';
 
-export interface ResolvedRealtimeVoiceConfiguration extends RealtimeVoiceAdapterRequest {
+export interface ResolvedRealtimeVoiceConfiguration
+	extends Omit<RealtimeVoiceAdapterRequest, 'history'> {
 	provider: RealtimeVoiceProviderSpec;
 }
 
@@ -118,7 +119,7 @@ export class RealtimeVoiceManager {
 			const connection = await this.dependencies
 				.createAdapter(configuration.provider)
 				.connect(
-					configuration,
+					{ ...configuration, history: active.conversation.history },
 					(event) => this.handleAdapterEvent(active, event),
 					controller.signal
 				);

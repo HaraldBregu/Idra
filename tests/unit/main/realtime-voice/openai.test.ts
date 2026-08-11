@@ -63,6 +63,10 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 				modelId: 'gpt-realtime-2.1',
 				voice: 'marin',
 				instructions: 'Help the user.',
+				history: [
+					{ role: 'user', text: 'Earlier question.' },
+					{ role: 'assistant', text: 'Earlier answer.' },
+				],
 				tools: [
 					{
 						id: 'read_file',
@@ -94,8 +98,28 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 				tools: [{ type: 'function', name: 'read_file' }],
 			},
 		});
+		expect(socket.sent).toHaveLength(1);
 		socket.event({ type: 'session.updated' });
 		const connection = await connecting;
+		expect(socket.sent.slice(1)).toEqual([
+			{
+				type: 'conversation.item.create',
+				item: {
+					type: 'message',
+					role: 'user',
+					content: [{ type: 'input_text', text: 'Earlier question.' }],
+				},
+			},
+			{
+				type: 'conversation.item.create',
+				item: {
+					type: 'message',
+					role: 'assistant',
+					content: [{ type: 'output_text', text: 'Earlier answer.' }],
+				},
+			},
+		]);
+		expect(socket.sent).not.toContainEqual({ type: 'response.create' });
 		socket.event({
 			type: 'conversation.item.input_audio_transcription.completed',
 			item_id: 'user-item',
@@ -153,6 +177,7 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 				modelId: 'gpt-realtime-2.1-mini',
 				voice: 'marin',
 				instructions: '',
+				history: [],
 				tools: [],
 			},
 			() => undefined
@@ -175,6 +200,7 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 				modelId: 'gpt-realtime-2.1',
 				voice: 'marin',
 				instructions: '',
+				history: [],
 				tools: [],
 			},
 			() => undefined,

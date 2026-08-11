@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { loadMessagesBySessionId } from '../../../../src/main/agent/session/session_load_messages_by_session_id';
 import { realtimeVoiceConversationFactory } from '../../../../src/main/realtime_voice/conversation';
+import { realtimeVoiceHistory } from '../../../../src/main/realtime_voice/history';
 
 const SESSION_ID = '11111111-1111-4111-8111-111111111111';
 
@@ -32,7 +33,29 @@ it('persists only finalized voice transcripts at their reserved turn position', 
 		expect(messages[0].content).toBe('First spoken message.');
 		expect(messages[2].content).toBe('Second spoken message.');
 		expect(JSON.stringify(messages)).not.toContain('Voice message');
+		expect(realtimeVoiceConversationFactory({ location })(SESSION_ID, 'model').history).toEqual([
+			{ role: 'user', text: 'First spoken message.' },
+			{ role: 'assistant', text: 'First answer.' },
+			{ role: 'user', text: 'Second spoken message.' },
+			{ role: 'assistant', text: 'Second answer.' },
+		]);
 	} finally {
 		fs.rmSync(temporaryRoot, { recursive: true, force: true });
 	}
+});
+
+it('bounds replay to the latest 64 messages and 48,000 characters', () => {
+	const messages = Array.from({ length: 80 }, (_, index) => ({
+		role: index % 2 === 0 ? ('user' as const) : ('assistant' as const),
+		content: `message-${index}`,
+	}));
+	const messageBounded = realtimeVoiceHistory(messages);
+	expect(messageBounded).toHaveLength(64);
+	expect(messageBounded[0].text).toBe('message-16');
+	expect(messageBounded.at(-1)?.text).toBe('message-79');
+
+	const characterBounded = realtimeVoiceHistory([
+		{ role: 'user', content: 'A'.repeat(60_000) },
+	]);
+	expect(characterBounded).toEqual([{ role: 'user', text: 'A'.repeat(48_000) }]);
 });

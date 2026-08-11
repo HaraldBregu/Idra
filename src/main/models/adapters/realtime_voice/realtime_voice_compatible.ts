@@ -4,6 +4,7 @@ import type {
 	RealtimeVoiceAdapterEventHandler,
 	RealtimeVoiceAdapterRequest,
 	RealtimeVoiceConnection,
+	RealtimeVoiceHistoryMessage,
 	RealtimeVoiceProviderSpec,
 	RealtimeVoiceServerEvent,
 	RealtimeVoiceSocket,
@@ -37,7 +38,12 @@ export class OpenAICompatibleRealtimeVoiceAdapter implements RealtimeVoiceAdapte
 		}
 		const socket = this.profile.socketFactory(this.profile.provider, request.modelId);
 		const connection = new OpenAICompatibleRealtimeVoiceConnection(socket, emit);
-		await connection.open(this.profile.session(request), this.connectTimeoutMs, signal);
+		await connection.open(
+			this.profile.session(request),
+			request.history,
+			this.connectTimeoutMs,
+			signal
+		);
 		return connection;
 	}
 }
@@ -51,7 +57,12 @@ class OpenAICompatibleRealtimeVoiceConnection implements RealtimeVoiceConnection
 		private readonly emit: RealtimeVoiceAdapterEventHandler
 	) {}
 
-	open(session: Record<string, unknown>, timeoutMs: number, signal?: AbortSignal): Promise<void> {
+	open(
+		session: Record<string, unknown>,
+		history: readonly RealtimeVoiceHistoryMessage[],
+		timeoutMs: number,
+		signal?: AbortSignal
+	): Promise<void> {
 		return new Promise((resolve, reject) => {
 			let settled = false;
 			const settle = (error?: Error): void => {
@@ -81,7 +92,10 @@ class OpenAICompatibleRealtimeVoiceConnection implements RealtimeVoiceConnection
 			timer.unref?.();
 
 			this.realtime.on('event', (event) => {
-				if (event.type === 'session.updated') settle();
+				if (event.type === 'session.updated' && !settled) {
+					this.replayHistory(history);
+					settle();
+				}
 				this.handleEvent(event);
 			});
 			this.realtime.on('error', (error) => {
@@ -99,6 +113,26 @@ class OpenAICompatibleRealtimeVoiceConnection implements RealtimeVoiceConnection
 			signal?.addEventListener('abort', abort, { once: true });
 			if (signal?.aborted) abort();
 		});
+	}
+
+	private replayHistory(history: readonly RealtimeVoiceHistoryMessage[]): void {
+		for (const message of history) {
+			this.realtime.send({
+				type: 'conversation.item.create',
+				item:
+					message.role === 'user'
+						? {
+								type: 'message',
+								role: 'user',
+								content: [{ type: 'input_text', text: message.text }],
+							}
+						: {
+								type: 'message',
+								role: 'assistant',
+								content: [{ type: 'output_text', text: message.text }],
+							},
+			});
+		}
 	}
 
 	async appendAudio(audio: string): Promise<void> {

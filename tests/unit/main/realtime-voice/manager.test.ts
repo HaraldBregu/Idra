@@ -1,10 +1,17 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { KeyedMutex } from '../../../../src/main/agent/mutex';
 import type {
 	RealtimeVoiceAdapterEventHandler,
 	RealtimeVoiceAdapterRequest,
 	RealtimeVoiceConnection,
 } from '../../../../src/main/models/adapters/realtime_voice';
-import { RealtimeVoiceManager } from '../../../../src/main/realtime_voice/manager';
+import { realtimeVoiceConversationFactory } from '../../../../src/main/realtime_voice/conversation';
+import {
+	RealtimeVoiceManager,
+	type ResolvedRealtimeVoiceConfiguration,
+} from '../../../../src/main/realtime_voice/manager';
 
 class FakeConnection implements RealtimeVoiceConnection {
 	readonly audio: string[] = [];
@@ -32,9 +39,7 @@ class FakeConnection implements RealtimeVoiceConnection {
 	}
 }
 
-const configuration: RealtimeVoiceAdapterRequest & {
-	provider: { id: string; name: string; apiKey: string; baseURL: string };
-} = {
+const configuration: ResolvedRealtimeVoiceConfiguration = {
 	provider: {
 		id: 'openai',
 		name: 'OpenAI',
@@ -68,6 +73,7 @@ describe('RealtimeVoiceManager', () => {
 			createAdapter,
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
+				history: [],
 				beginUserTurn: (itemId) => begunUserTurns.push(itemId),
 				finalizeUserTurn: (itemId, transcript) =>
 					finalizedUserTurns.push({ itemId, transcript }),
@@ -125,6 +131,7 @@ describe('RealtimeVoiceManager', () => {
 			createAdapter: () => ({ connect: async () => connection }),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
+				history: [],
 				beginUserTurn: () => undefined,
 				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
@@ -154,6 +161,7 @@ describe('RealtimeVoiceManager', () => {
 			}),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
+				history: [],
 				beginUserTurn: () => undefined,
 				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
@@ -197,6 +205,7 @@ describe('RealtimeVoiceManager', () => {
 			}),
 			resolveConfiguration: () => new Promise((resolve) => resolvers.push(resolve)),
 			createConversation: () => ({
+				history: [],
 				beginUserTurn: () => undefined,
 				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
@@ -224,6 +233,7 @@ describe('RealtimeVoiceManager', () => {
 			createAdapter: () => ({ connect }),
 			resolveConfiguration: () => new Promise((resolve) => (resolveConfiguration = resolve)),
 			createConversation: () => ({
+				history: [],
 				beginUserTurn: () => undefined,
 				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
@@ -252,6 +262,7 @@ describe('RealtimeVoiceManager', () => {
 			}),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
+				history: [],
 				beginUserTurn: () => undefined,
 				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
@@ -266,5 +277,59 @@ describe('RealtimeVoiceManager', () => {
 
 		expect(setupSignal?.aborted).toBe(true);
 		await expect(starting).rejects.toThrow('stopped');
+	});
+
+	it('replays persisted transcripts on restart without leaking another chat history', async () => {
+		const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-voice-manager-'));
+		const requests: RealtimeVoiceAdapterRequest[] = [];
+		const adapterEmits: RealtimeVoiceAdapterEventHandler[] = [];
+		const manager = new RealtimeVoiceManager({
+			createAdapter: () => ({
+				connect: async (request, emit) => {
+					requests.push(request);
+					adapterEmits.push(emit);
+					return new FakeConnection();
+				},
+			}),
+			resolveConfiguration: async () => configuration,
+			createConversation: realtimeVoiceConversationFactory({
+				location: path.join(temporaryRoot, 'agent'),
+			}),
+			resources: new KeyedMutex(),
+			emit: () => undefined,
+		});
+		const firstChat = '11111111-1111-4111-8111-111111111111';
+		const secondChat = '22222222-2222-4222-8222-222222222222';
+		try {
+			const first = await manager.start(11, { chatSessionId: firstChat });
+			expect(requests[0].history).toEqual([]);
+			adapterEmits[0]({ type: 'input_speech_stopped', itemId: 'user-1' });
+			adapterEmits[0]({
+				type: 'user_transcript_final',
+				itemId: 'user-1',
+				transcript: 'Remember this question.',
+			});
+			adapterEmits[0]({
+				type: 'assistant_transcript_final',
+				itemId: 'assistant-1',
+				responseId: 'response-1',
+				transcript: 'I will remember this answer.',
+			});
+			await manager.stop(11, first.id);
+
+			const restarted = await manager.start(11, { chatSessionId: firstChat });
+			expect(requests[1].history).toEqual([
+				{ role: 'user', text: 'Remember this question.' },
+				{ role: 'assistant', text: 'I will remember this answer.' },
+			]);
+			await manager.stop(11, restarted.id);
+
+			const isolated = await manager.start(11, { chatSessionId: secondChat });
+			expect(requests[2].history).toEqual([]);
+			await manager.stop(11, isolated.id);
+		} finally {
+			await manager.stopAll();
+			fs.rmSync(temporaryRoot, { recursive: true, force: true });
+		}
 	});
 });
