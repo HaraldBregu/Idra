@@ -1,4 +1,5 @@
 import type { BrowserWindow, WebContentsView } from 'electron';
+import { closeExtension } from '../../../../src/main/extensions/extension_close';
 import { render } from '../../../../src/main/extensions/extension_render';
 import type { WindowFactory } from '../../../../src/main/window_factory';
 
@@ -173,5 +174,27 @@ describe('extension renderer', () => {
 		expect(closeEvent.preventDefault).toHaveBeenCalledTimes(3);
 		expect(() => harness.handlers.get('closed')?.()).not.toThrow();
 		expect(harness.viewWebContents.close).toHaveBeenCalledTimes(2);
+	});
+
+	it('requests closing a tracked extension and forgets it once closed', () => {
+		const harness = createHarness();
+		render(harness.windowFactory, '/extension/index.html', 'Project', 'project-request-close');
+
+		expect(closeExtension('project-request-close')).toBe(true);
+		expect(harness.win.close).toHaveBeenCalledTimes(1);
+
+		harness.handlers.get('closed')?.();
+		expect(closeExtension('project-request-close')).toBe(false);
+		expect(harness.win.close).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not close missing or destroyed extension windows', () => {
+		const harness = createHarness();
+		render(harness.windowFactory, '/extension/index.html', 'Project', 'project-destroyed');
+		harness.win.isDestroyed = jest.fn(() => true);
+
+		expect(closeExtension('missing')).toBe(false);
+		expect(closeExtension('project-destroyed')).toBe(false);
+		expect(harness.win.close).not.toHaveBeenCalled();
 	});
 });

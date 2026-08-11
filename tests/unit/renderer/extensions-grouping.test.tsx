@@ -8,6 +8,7 @@ it('groups extension tools under one collapsible activity', async () => {
 	const tools = [
 		{ type: 'list_extensions', state: 'output-available', toolCallId: 'list' },
 		{ type: 'open_extensions', state: 'output-available', toolCallId: 'open' },
+		{ type: 'close_extensions', state: 'output-available', toolCallId: 'close' },
 	] satisfies AgentToolPart[];
 
 	render(<ToolActivityGroup tools={tools} />);
@@ -15,4 +16,5 @@ it('groups extension tools under one collapsible activity', async () => {
 	await user.click(screen.getByRole('button', { name: 'Extensions' }));
 	expect(screen.getByRole('button', { name: /List extensions/ })).toBeInTheDocument();
 	expect(screen.getByRole('button', { name: /Open extensions/ })).toBeInTheDocument();
+	expect(screen.getByRole('button', { name: /Close extensions/ })).toBeInTheDocument();
 });

@@ -9,6 +9,8 @@ interface ExtensionWindow {
 }
 
 const windows = new Map<string, ExtensionWindow>();
+export const openExtensionWindows: ReadonlyMap<string, { readonly window: BrowserWindow }> =
+	windows;
 const titleBarHeight = 48;
 
 export function render(

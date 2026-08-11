@@ -8,6 +8,7 @@ import { execTool } from '../tools/core/exec_command';
 import { processTool } from '../tools/core/process';
 import { readTool } from '../tools/core/read_file';
 import { writeTool } from '../tools/core/write_file';
+import { closeExtensionsTool } from '../tools/extensions/close_extensions';
 import { listExtensionsTool } from '../tools/extensions/list_extensions';
 import { openExtensionsTool } from '../tools/extensions/open_extensions';
 import { updateHealthSettingsTool } from '../tools/health/update_health_settings';
@@ -84,6 +85,7 @@ export function builtinTools(
 		runTaskNowTool,
 		listExtensionsTool,
 		...(windowFactory ? [openExtensionsTool(windowFactory)] : []),
+		closeExtensionsTool,
 		completeBootstrapTool,
 	];
 }

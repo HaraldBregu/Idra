@@ -1,4 +1,5 @@
 export { ensureExtensions } from './extension_ensure';
+export { closeExtension } from './extension_close';
 export { deleteExtension } from './extension_delete';
 export { listExtensions } from './extension_list';
 export { loadExtension } from './extension_load';

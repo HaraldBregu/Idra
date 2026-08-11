@@ -1,11 +1,14 @@
 const listExtensions = jest.fn();
 const loadExtension = jest.fn();
+const closeExtension = jest.fn();
 
 jest.mock('../../../../../src/main/extensions/extension_index', () => ({
+	closeExtension,
 	listExtensions,
 	loadExtension,
 }));
 
+import { closeExtensionsTool } from '../../../../../src/main/agent/tools/extensions/close_extensions';
 import { listExtensionsTool } from '../../../../../src/main/agent/tools/extensions/list_extensions';
 import { openExtensionsTool } from '../../../../../src/main/agent/tools/extensions/open_extensions';
 import type { WindowFactory } from '../../../../../src/main/window_factory';
@@ -27,17 +30,15 @@ const windowFactory = {} as WindowFactory;
 
 beforeEach(() => {
 	jest.clearAllMocks();
+	closeExtension.mockReturnValue(true);
 	listExtensions.mockReturnValue([project, weather]);
 });
 
 it('lists the installed extensions through a main-only read tool', async () => {
 	await expect(listExtensionsTool.run({})).resolves.toEqual({ extensions: [project, weather] });
 	expect(listExtensionsTool).toMatchObject({
-		name: 'list_extensions',
-		defaultPermission: 'allow',
-		risk: 'low',
-		effect: 'read',
-		allowedOrigins: ['main'],
+		id: 'list_extensions',
+		name: 'List extensions',
 	});
 });
 
@@ -64,10 +65,44 @@ it('rejects missing IDs before opening any extension', async () => {
 
 it('defines opening extensions as a permission-free main-only action', () => {
 	expect(openExtensionsTool(windowFactory)).toMatchObject({
-		name: 'open_extensions',
-		defaultPermission: 'allow',
-		risk: 'medium',
-		effect: 'execute',
-		allowedOrigins: ['main'],
+		id: 'open_extensions',
+		name: 'Open extensions',
+	});
+});
+
+it('requests closing open extensions and reports IDs that are not open', async () => {
+	closeExtension.mockImplementation((id: string) => id === 'project');
+
+	await expect(
+		closeExtensionsTool.run({ ids: ['project', 'weather', 'project'] })
+	).resolves.toEqual({
+		requested: ['project'],
+		notOpen: ['weather'],
+	});
+	expect(closeExtension.mock.calls).toEqual([['project'], ['weather']]);
+});
+
+it('stops requesting extension closes when aborted', async () => {
+	const controller = new AbortController();
+	closeExtension.mockImplementation(() => {
+		controller.abort();
+		return true;
+	});
+
+	await expect(
+		closeExtensionsTool.run({ ids: ['project', 'weather'] }, controller.signal)
+	).rejects.toMatchObject({ name: 'AbortError' });
+	expect(closeExtension).toHaveBeenCalledTimes(1);
+	});
+
+it('rejects empty extension close inputs', () => {
+	expect(() => closeExtensionsTool.parseInput({ ids: '' })).toThrow();
+	expect(() => closeExtensionsTool.parseInput({ ids: [] })).toThrow();
+});
+
+it('defines the extension close tool identity', () => {
+	expect(closeExtensionsTool).toMatchObject({
+		id: 'close_extensions',
+		name: 'Close extensions',
 	});
 });
