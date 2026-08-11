@@ -60,7 +60,7 @@ beforeEach(() => {
 	upsert.mockResolvedValue(undefined);
 });
 
-it('publishes SQLite as the local source of truth and mirrors opaque vectors to Pinecone', async () => {
+it('publishes SQLite locally and mirrors record fields to Pinecone', async () => {
 	const result = await indexRag(['/documents'], 'knowledge-base', { embeddings, vectors });
 	const publication = publish.mock.calls[0][0];
 
@@ -90,9 +90,14 @@ it('publishes SQLite as the local source of truth and mirrors opaque vectors to 
 		completedAt: publication.completedAt,
 	});
 	expect(upsert).toHaveBeenCalledWith({
-		records: [{ id: publication.records[0].id, values: [0.1, 0.2] }],
+		records: [
+			{
+				id: publication.records[0].id,
+				values: [0.1, 0.2],
+				metadata: { path: path.join('documents', 'guide.md'), text: '# Guide' },
+			},
+		],
 	});
-	expect(upsert.mock.calls[0][0].records[0]).not.toHaveProperty('metadata');
 });
 
 it('reuses unchanged source vectors by fingerprint without another embedding call', async () => {

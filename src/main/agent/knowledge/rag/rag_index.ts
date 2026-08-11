@@ -168,6 +168,7 @@ async function mirrorToPinecone(
 			records: records.slice(start, start + BATCH_SIZE).map((record) => ({
 				id: record.id,
 				values: record.vector,
+				metadata: { path: record.path, text: record.text },
 			})),
 		});
 		signal?.throwIfAborted();
