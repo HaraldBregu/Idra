@@ -6,16 +6,11 @@ jest.mock('@/components/kibo-ui/video-player', () => {
 	return {
 		VideoPlayer: (props: object) => React.createElement('media-controller', props),
 		VideoPlayerContent: (props: object) => React.createElement('video', props),
-		VideoPlayerControlBar: (props: object) =>
-			React.createElement('media-control-bar', props),
-		VideoPlayerMuteButton: (props: object) =>
-			React.createElement('media-mute-button', props),
-		VideoPlayerPlayButton: (props: object) =>
-			React.createElement('media-play-button', props),
-		VideoPlayerTimeDisplay: (props: object) =>
-			React.createElement('media-time-display', props),
-		VideoPlayerTimeRange: (props: object) =>
-			React.createElement('media-time-range', props),
+		VideoPlayerControlBar: (props: object) => React.createElement('media-control-bar', props),
+		VideoPlayerMuteButton: (props: object) => React.createElement('media-mute-button', props),
+		VideoPlayerPlayButton: (props: object) => React.createElement('media-play-button', props),
+		VideoPlayerTimeDisplay: (props: object) => React.createElement('media-time-display', props),
+		VideoPlayerTimeRange: (props: object) => React.createElement('media-time-range', props),
 	};
 });
 
