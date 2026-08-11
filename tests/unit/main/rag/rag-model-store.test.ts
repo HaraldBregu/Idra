@@ -71,6 +71,7 @@ beforeEach(() => {
 			options: { force_instrumental: true },
 		},
 		video: { providerId: 'google', modelId: 'veo-3.1', options: { durationSeconds: 8 } },
+		voice: { providerId: 'openai', modelId: 'gpt-4o-mini-tts', options: { voice: 'cedar' } },
 	};
 	getAppModelSelections.mockReturnValue(appSelections);
 	getAgentProviderId.mockReturnValue('openai');
@@ -145,9 +146,30 @@ it('reads and writes media selections and options through the agent store', () =
 	expect(setAppModelSelections).not.toHaveBeenCalled();
 });
 
+it('reads and writes voice selection and options through the agent store', () => {
+	expect(getProviderId('voice')).toBe('openai');
+	expect(getModelId('voice')).toBe('gpt-4o-mini-tts');
+	expect(getOptions('voice')).toEqual({ voice: 'cedar' });
+
+	setOptions('voice', { voice: 'marin', speed: 1.1 });
+
+	expect(setAgentMediaModel).toHaveBeenCalledWith('voice', {
+		providerId: 'openai',
+		modelId: 'gpt-4o-mini-tts',
+		options: { voice: 'marin', speed: 1.1 },
+	});
+});
+
 it('merges stored media defaults only for their selected model', () => {
 	expect(resolveOptions('image', 'google', 'gemini-image', { imageSize: '2K' })).toEqual({
 		imageSize: '2K',
 	});
 	expect(resolveOptions('image', 'xai', 'grok-imagine-image', { n: 2 })).toEqual({ n: 2 });
+});
+
+it('merges stored voice defaults with request overrides', () => {
+	expect(resolveOptions('voice', 'openai', 'gpt-4o-mini-tts', { speed: 1.25 })).toEqual({
+		voice: 'cedar',
+		speed: 1.25,
+	});
 });
