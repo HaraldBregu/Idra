@@ -16,7 +16,7 @@
       "url": "https://api.elevenlabs.io/v1",
       "sampleRate": 16000,
       "metadata": {
-        "documentationUrl": "https://elevenlabs.io/docs/api-reference/text-to-speech/convert",
+        "documentationUrl": "https://elevenlabs.io/docs/api-reference",
         "documentationStatus": "verified",
         "inputs": {
           "language_code": {
@@ -70,7 +70,7 @@
       "url": "https://api.elevenlabs.io/v1",
       "default": true,
       "metadata": {
-        "documentationUrl": "https://elevenlabs.io/docs/api-reference",
+        "documentationUrl": "https://elevenlabs.io/docs/api-reference/text-to-speech/convert",
         "documentationStatus": "verified",
         "inputs": {
           "voice_id": {
