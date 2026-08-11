@@ -15,7 +15,6 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
 import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
-import { PersonaDemo } from './Demo';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -192,7 +191,6 @@ const GeneralPage: React.FC = () => {
 				</Card>
 			</SettingsSection>
 
-			<PersonaDemo />
 		</SettingsPageShell>
 	);
 };

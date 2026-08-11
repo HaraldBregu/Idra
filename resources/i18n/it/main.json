@@ -288,28 +288,6 @@
 			"dataFolder": "Cartella Dati",
 			"openDataFolder": "Apri Cartella"
 		},
-		"persona": {
-			"title": "Demo Persona",
-			"description": "Visualizza l'assistente animato nei diversi stili e stati di attività.",
-			"variant": "Stile",
-			"state": "Stato",
-			"previewLabel": "Persona {{variant}} nello stato {{state}}",
-			"variants": {
-				"obsidian": "Obsidian",
-				"command": "Command",
-				"glint": "Glint",
-				"halo": "Halo",
-				"mana": "Mana",
-				"opal": "Opal"
-			},
-			"states": {
-				"idle": "Inattiva",
-				"listening": "In ascolto",
-				"thinking": "Sta pensando",
-				"speaking": "Sta parlando",
-				"asleep": "Addormentata"
-			}
-		},
 		"system": {
 			"description": "Gestisci i permessi del sistema operativo.",
 			"actionsDescription": "Apri i pannelli richiesti del sistema operativo e controlla il comportamento energetico in background.",
