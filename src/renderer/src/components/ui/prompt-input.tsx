@@ -257,46 +257,37 @@ function PromptInputVoicePanel({
           </div>
         </PromptInputContext.Provider>
       ) : null}
-      <div
-        className={cn(
-          "flex size-8 shrink-0 items-center justify-center rounded-full",
-          isDictation
-            ? "bg-destructive/10 text-destructive"
-            : isMuted
-            ? "bg-muted text-muted-foreground"
-            : "bg-primary/10 text-primary"
-        )}
-        aria-hidden="true"
-      >
-        <span
-          className={cn(
-            "block rounded-full",
-            isDictation
-              ? "size-2.5 bg-current"
-              : isMuted
-              ? "size-5 bg-current opacity-60"
-              : "size-6 bg-current ring-2 ring-primary/10"
-          )}
-        />
-      </div>
+      {isDictation ? (
+        <div
+          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive"
+          aria-hidden="true"
+        >
+          <span className="block size-2.5 rounded-full bg-current" />
+        </div>
+      ) : null}
       <div className="flex min-w-0 flex-1 items-center gap-2">
         {status ? (
           <span
             role="status"
             aria-live="polite"
-            className="w-20 shrink-0 truncate text-xs font-medium text-muted-foreground"
+            className={cn(
+              "truncate text-xs font-medium text-muted-foreground",
+              isDictation ? "w-20 shrink-0" : "min-w-0 flex-1"
+            )}
           >
             {status}
           </span>
         ) : null}
-        <div className="min-w-20 flex-1">
-          <PromptInputVoiceWaveform
-            muted={isMuted}
-            mediaStream={mediaStream}
-            analyser={analyser}
-            active={waveformActive}
-          />
-        </div>
+        {isDictation ? (
+          <div className="min-w-20 flex-1">
+            <PromptInputVoiceWaveform
+              muted={isMuted}
+              mediaStream={mediaStream}
+              analyser={analyser}
+              active={waveformActive}
+            />
+          </div>
+        ) : null}
         {elapsedMs !== undefined ? (
           <span className="w-10 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
             {formatVoiceDuration(elapsedMs)}
@@ -484,7 +475,13 @@ function PromptInput({
                   >
                     <Persona
                       state={voicePersonaState ?? "idle"}
-                      level={voiceWaveformActive ? 0.72 : 0.18}
+                      level={
+                        voicePersonaState === "speaking"
+                          ? 0.72
+                          : voicePersonaState === "listening"
+                          ? 0.28
+                          : 0.16
+                      }
                       size={176}
                     />
                   </motion.div>
@@ -492,7 +489,6 @@ function PromptInput({
                     <PromptInputVoicePanel
                       mode={voiceMode}
                       disabled={disabled}
-                      leadingAction={leadingAction}
                       elapsedMs={voiceElapsedMs}
                       muted={voiceMuted}
                       mediaStream={voiceMediaStream}

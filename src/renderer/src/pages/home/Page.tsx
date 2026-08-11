@@ -645,7 +645,9 @@ function PageContent(): ReactElement {
 							'mx-auto w-full max-w-4xl gap-5 px-4',
 							showEmptyConversation
 								? 'h-full min-h-0 justify-center overflow-hidden pb-36 pt-12'
-								: 'min-h-full pb-28 pt-6'
+								: voiceMode === 'conversation'
+									? 'min-h-full pb-80 pt-6'
+									: 'min-h-full pb-28 pt-6'
 						)}
 					>
 						{showEmptyConversation ? (
@@ -692,7 +694,12 @@ function PageContent(): ReactElement {
 						)}
 						<ChatContainerScrollAnchor className={showEmptyConversation ? 'h-0' : undefined} />
 					</ChatContainerContent>
-					<div className="pointer-events-none absolute inset-x-0 bottom-24 z-30 flex justify-center">
+					<div
+						className={cn(
+							'pointer-events-none absolute inset-x-0 z-30 flex justify-center',
+							voiceMode === 'conversation' ? 'bottom-80' : 'bottom-24'
+						)}
+					>
 						<ScrollButton
 							type="button"
 							aria-label="Scroll to latest"
@@ -741,7 +748,7 @@ function PageContent(): ReactElement {
 									: undefined
 							}
 							voicePersonaState={
-								realtimeVoice.status === 'listening' ||
+								(realtimeVoice.status === 'listening' && !realtimeVoice.isMuted) ||
 								realtimeVoice.status === 'thinking' ||
 								realtimeVoice.status === 'speaking'
 									? realtimeVoice.status
