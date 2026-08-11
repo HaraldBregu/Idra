@@ -1,505 +1,227 @@
-import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { realPath } from '../../../../../src/main/shared/real_path';
+import fs from 'node:fs';
 
 const getPermissions = jest.fn();
-const addPermissionRule = jest.fn();
-const getToolPermission = jest.fn();
-const setToolPermission = jest.fn();
 
 jest.mock('../../../../../src/main/agent/agent_store', () => ({
 	AGENT_DIRECTORY: '/appdata/agent',
-	addPermissionRule,
+	addPermissionRule: jest.fn(),
 	getPermissions,
-	getToolPermission,
-	setToolPermission,
 }));
 
-import { createContext, fileToolState, rememberTool } from '../../../../../src/main/agent/context';
+import { createRunContext } from '../../../../../src/main/agent/context';
 import { respondToolPermission } from '../../../../../src/main/agent/permissions';
 import { runToolCall } from '../../../../../src/main/agent/runner/run_tool_call';
-import { runToolCalls } from '../../../../../src/main/agent/runner/run_tool_calls';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
-import { readTool } from '../../../../../src/main/agent/tools/core/read_file';
 import type { RuntimeEvent, Tool, ToolCall } from '../../../../../src/main/agent/types';
 
-const asking = { default: 'ask' as const, allow: [], deny: [], ask: [] };
-const askingPermissions = {
-	dir: {},
-	read: asking,
-	write: asking,
-	edit: asking,
-	apply_patch: asking,
-	exec: asking,
+const emptyPermissions = {
+	read: { allow: [], deny: [] },
+	write: { allow: [], deny: [] },
+	exec: { allow: [], deny: [] },
 };
 
 beforeEach(() => {
-	addPermissionRule.mockReset();
-	getToolPermission.mockReset().mockReturnValue(asking);
-	getPermissions.mockReset().mockReturnValue(askingPermissions);
-	setToolPermission.mockReset();
+	getPermissions.mockReset().mockReturnValue(emptyPermissions);
 });
 
-describe('tool context permissions', () => {
-	it('keeps an explicit credential-path deny ahead of trusted-main bypass', async () => {
-		getPermissions.mockReturnValue({
-			...askingPermissions,
-			read: { ...asking, deny: ['/appdata/agent/.env'] },
-		});
-		const events: RuntimeEvent[] = [];
-		for await (const event of runToolCall(
-			readTool,
-			{ id: 'credential-deny', name: 'read', args: { path: '/appdata/agent/.env' } },
-			true,
-			undefined,
-			createContext().toolsContext,
-			'bypass'
-		))
-			events.push(event);
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+describe('per-run file access', () => {
+	it('reuses a successful read directory only in the originating run', async () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-context-'));
+		const read = jest.fn().mockResolvedValue('content');
+		const tool = fakeTool('read_file', read);
+		const first = createRunContext().fileAccess;
+		const second = createRunContext().fileAccess;
+
+		await approveCall(tool, {
+			id: 'first',
+			name: 'read_file',
+			args: { path: path.join(root, 'first.txt') },
+		}, first, 'run-one');
+
+		const reused = await collect(
+			runToolCall(
+				tool,
+				{ id: 'second', name: 'read_file', args: { path: path.join(root, 'second.txt') } },
+				new AbortController().signal,
+				first,
+				{ runId: 'run-one' }
+			)
+		);
+		expect(reused.some((event) => event.type === 'tool_permission_request')).toBe(false);
+
+		const isolated = await collect(
+			runToolCall(
+				tool,
+				{ id: 'third', name: 'read_file', args: { path: path.join(root, 'third.txt') } },
+				new AbortController().signal,
+				second,
+				{ runId: 'run-two' }
+			)
+		);
+		expect(isolated.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+		expect(first.readDirectories).toHaveLength(1);
+		expect(second.readDirectories).toHaveLength(0);
 	});
 
-	it('does not force approval for credential reads', () => {
-		expect(readTool.hardApproval).toBeUndefined();
-	});
-
-	it('allows a new-file write and the following exact-file edit without approval', async () => {
+	it('allows editing only the exact file newly created in the same run', async () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-create-context-'));
+		const target = path.join(root, 'one', 'example.txt');
+		const other = path.join(root, 'two', 'example.txt');
 		getPermissions.mockReturnValue({
-			...askingPermissions,
-			write: { ...asking, default: 'allow' },
+			...emptyPermissions,
+			write: { allow: [target], deny: [] },
 		});
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-tools-'));
-		const target = path.join(root, 'directory', 'example.txt');
 		const write = jest.fn().mockResolvedValue({ path: target });
 		const edit = jest.fn().mockResolvedValue({ path: target });
-		const tools: Tool[] = [fakeTool('write', write), fakeTool('edit', edit)];
-		const calls: ToolCall[] = [
-			{ id: 'write-1', name: 'write', args: { path: target, content: 'one' } },
-			{ id: 'edit-1', name: 'edit', args: { path: target, oldText: 'one', newText: 'two' } },
-		];
-		const context = createContext().toolsContext;
-		const events = runToolCalls(tools, calls, true, undefined, context);
-		const sequence = [
-			(await events.next()).value,
-			(await events.next()).value,
-			(await events.next()).value,
-			(await events.next()).value,
-		];
-
-		expect(sequence.map((event) => event?.type)).toEqual([
-			'tool_call_start',
-			'tool_call_end',
-			'tool_call_start',
-			'tool_call_end',
-		]);
-		expect(write).toHaveBeenCalledTimes(1);
-		expect(edit).toHaveBeenCalledTimes(1);
-		expect(context.tools).toEqual([
-			{
-				toolName: 'write',
-				fileName: 'example.txt',
-				path: realPath(target),
-				folderPath: realPath(path.dirname(target)),
-			},
-		]);
-	});
-
-	it('denies a non-interactive ask instead of auto-allowing a new file', async () => {
-		const target = path.join(os.tmpdir(), 'friday-noninteractive', 'example.txt');
-		const write = jest.fn().mockResolvedValue({ path: target });
-		const call: ToolCall = { id: 'write-background', name: 'write', args: { path: target } };
-		const events: RuntimeEvent[] = [];
-
-		for await (const event of runToolCall(
-			fakeTool('write', write),
-			call,
-			false,
-			undefined,
-			createContext().toolsContext
-		))
-			events.push(event);
-
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(write).not.toHaveBeenCalled();
-	});
-
-	it('persists always-allow as the default for a targetless tool', async () => {
-		const run = jest.fn().mockResolvedValue('done');
-		const call: ToolCall = { id: 'targetless-always', name: 'inspect', args: {} };
-		const events = runToolCall(
-			fakeTool('inspect', run),
-			call,
-			true,
-			undefined,
-			createContext().toolsContext
+		const fileAccess = createRunContext().fileAccess;
+		await collect(
+			runToolCall(
+				fakeTool('write_file', write),
+				{ id: 'write', name: 'write_file', args: { path: target, content: 'one' } },
+				new AbortController().signal,
+				fileAccess,
+				{ runId: 'run' }
+			)
 		);
 
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const request = (await events.next()).value;
-		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request')
-			throw new Error('Expected approval');
-		const end = events.next();
-		expect(respondToolPermission(request.approvalId, 'approve_always')).toBe(true);
-		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
-		expect(setToolPermission).toHaveBeenCalledWith('inspect', {
-			...asking,
-			default: 'allow',
-		});
-		expect(run).toHaveBeenCalledTimes(1);
-	});
-
-	it('asks before editing a file that was not created in the tool context', async () => {
-		const target = path.join(os.tmpdir(), 'friday-untracked', 'example.txt');
-		const edit = jest.fn().mockResolvedValue({ path: target });
-		const call: ToolCall = { id: 'edit-ask', name: 'edit', args: { path: target } };
-		const events = runToolCall(
-			fakeTool('edit', edit),
-			call,
-			true,
-			undefined,
-			createContext().toolsContext
-		);
-
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const request = (await events.next()).value;
-		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request')
-			throw new Error('Expected approval');
-		const end = events.next();
-		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
-		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(edit).not.toHaveBeenCalled();
-	});
-
-	it('asks before overwriting an existing file', async () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-overwrite-'));
-		const target = path.join(root, 'example.txt');
-		fs.writeFileSync(target, 'existing');
-		const write = jest.fn().mockResolvedValue({ path: target });
-		const call: ToolCall = { id: 'write-ask', name: 'write', args: { path: target } };
-		const context = createContext().toolsContext;
-		const events = runToolCall(fakeTool('write', write), call, true, undefined, context);
-
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const request = (await events.next()).value;
-		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request')
-			throw new Error('Expected approval');
-		const end = events.next();
-		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
-		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(write).not.toHaveBeenCalled();
-		expect(context.tools).toBeUndefined();
-	});
-
-	it('does not remember a failed file creation', async () => {
-		getPermissions.mockReturnValue({
-			...askingPermissions,
-			write: { ...asking, default: 'allow' },
-		});
-		const target = path.join(os.tmpdir(), 'friday-failed', 'example.txt');
-		const write = jest.fn().mockRejectedValue(new Error('failed'));
-		const call: ToolCall = { id: 'write-failed', name: 'write', args: { path: target } };
-		const context = createContext().toolsContext;
-		const events = runToolCall(fakeTool('write', write), call, true, undefined, context);
-		const sequence = [(await events.next()).value, (await events.next()).value];
-
-		expect(sequence.map((event) => event?.type)).toEqual(['tool_call_start', 'tool_call_end']);
-		expect(sequence.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(context.tools).toBeUndefined();
-	});
-
-	it('never overrides a deny rule', async () => {
-		const target = path.join(os.tmpdir(), 'friday-denied', 'example.txt');
-		getPermissions.mockReturnValue({
-			...askingPermissions,
-			write: { ...asking, deny: [path.dirname(target)] },
-		});
-		const write = jest.fn().mockResolvedValue({ path: target });
-		const call: ToolCall = { id: 'write-denied', name: 'write', args: { path: target } };
-		const context = createContext().toolsContext;
-		const events: RuntimeEvent[] = [];
-
-		for await (const event of runToolCall(fakeTool('write', write), call, true, undefined, context))
-			events.push(event);
-
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(write).not.toHaveBeenCalled();
-		expect(context.tools).toBeUndefined();
-	});
-
-	it('falls through to an allowing tool policy when a directory omits the tool', async () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-dir-denied-'));
-		const target = path.join(root, 'example.txt');
-		getPermissions.mockReturnValue({
-			...askingPermissions,
-			dir: { [root]: { recoursive: true, tools: ['read'] } },
-			write: { ...asking, default: 'allow' },
-		});
-		const write = jest.fn().mockResolvedValue({ path: target });
-		const call: ToolCall = { id: 'write-dir-denied', name: 'write', args: { path: target } };
-		const events: RuntimeEvent[] = [];
-
-		for await (const event of runToolCall(fakeTool('write', write), call, true)) events.push(event);
-
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: undefined });
-		expect(write).toHaveBeenCalledTimes(1);
-	});
-
-	it('does not let the system directory override a stored deny', async () => {
-		const target = '/appdata/agent/nested/example.txt';
-		getPermissions.mockReturnValue({
-			...askingPermissions,
-			write: { ...asking, default: 'deny', deny: ['/appdata/agent'] },
-		});
-		const write = jest.fn().mockResolvedValue({ path: target });
-		const call: ToolCall = { id: 'write-system-allowed', name: 'write', args: { path: target } };
-		const events: RuntimeEvent[] = [];
-
-		for await (const event of runToolCall(fakeTool('write', write), call, true)) events.push(event);
-
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(write).not.toHaveBeenCalled();
-	});
-
-	it('runs a tool allowed by a matching directory', async () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-dir-allowed-'));
-		const target = path.join(root, 'example.txt');
-		getPermissions.mockReturnValue({
-			...askingPermissions,
-			dir: { [root]: { recoursive: true, tools: ['edit'] } },
-		});
-		const edit = jest.fn().mockResolvedValue({ path: target });
-		const call: ToolCall = { id: 'edit-dir-allowed', name: 'edit', args: { path: target } };
-		const events: RuntimeEvent[] = [];
-
-		for await (const event of runToolCall(fakeTool('edit', edit), call, true)) events.push(event);
-
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: undefined });
-		expect(edit).toHaveBeenCalledTimes(1);
-	});
-
-	it.each(['approve', 'approve_always'] as const)(
-		'remembers an %s read folder for the next read in that folder',
-		async (decision) => {
-			const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-folder-'));
-			const firstPath = path.join(root, 'first.txt');
-			const secondPath = path.join(root, 'second.txt');
-			const read = jest.fn().mockResolvedValue('content');
-			const context = createContext().toolsContext;
-			const firstCall: ToolCall = { id: 'read-first', name: 'read', args: { path: firstPath } };
-			const firstEvents = runToolCall(fakeTool('read', read), firstCall, true, undefined, context);
-
-			expect((await firstEvents.next()).value).toMatchObject({ type: 'tool_call_start' });
-			const request = (await firstEvents.next()).value;
-			expect(request).toMatchObject({ type: 'tool_permission_request' });
-			if (!request || request.type !== 'tool_permission_request')
-				throw new Error('Expected approval');
-			const firstEnd = firstEvents.next();
-			expect(respondToolPermission(request.approvalId, decision)).toBe(true);
-			expect((await firstEnd).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
-			expect(context.tools).toEqual([
+		getPermissions.mockReturnValue(emptyPermissions);
+		const exact = await collect(
+			runToolCall(
+				fakeTool('edit_file', edit),
 				{
-					toolName: 'read',
-					fileName: 'first.txt',
-					path: realPath(firstPath),
-					folderPath: realPath(root),
+					id: 'edit',
+					name: 'edit_file',
+					args: { path: target, oldText: 'one', newText: 'two' },
 				},
-			]);
+				new AbortController().signal,
+				fileAccess,
+				{ runId: 'run' }
+			)
+		);
+		expect(exact.at(-1)).toMatchObject({ type: 'tool_call_end', isError: undefined });
+		expect(edit).toHaveBeenCalledTimes(1);
 
-			const secondCall: ToolCall = { id: 'read-second', name: 'read', args: { path: secondPath } };
-			const secondEvents = runToolCall(
-				fakeTool('read', read),
-				secondCall,
-				true,
-				undefined,
-				context
-			);
-			const sequence = [(await secondEvents.next()).value, (await secondEvents.next()).value];
-
-			expect(sequence.map((event) => event?.type)).toEqual(['tool_call_start', 'tool_call_end']);
-			expect(read).toHaveBeenCalledTimes(2);
-			if (decision === 'approve_always')
-				expect(addPermissionRule).toHaveBeenCalledWith('read', 'allow', realPath(root));
-		}
-	);
-
-	it('asks again when the next read is in a different folder', async () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-other-'));
-		const approvedFolder = path.join(root, 'approved');
-		const otherFolder = path.join(root, 'other');
-		const read = jest.fn().mockResolvedValue('content');
-		const context = createContext().toolsContext;
-		context.tools = [
-			{
-				toolName: 'read',
-				fileName: 'approved.txt',
-				path: realPath(path.join(approvedFolder, 'approved.txt')),
-				folderPath: realPath(approvedFolder),
-			},
-		];
-		const call: ToolCall = {
-			id: 'read-other',
-			name: 'read',
-			args: { path: path.join(otherFolder, 'example.txt') },
-		};
-		const events = runToolCall(fakeTool('read', read), call, true, undefined, context);
-
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const request = (await events.next()).value;
-		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request')
-			throw new Error('Expected approval');
-		const end = events.next();
-		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
-		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(read).not.toHaveBeenCalled();
+		const differentPath = await collect(
+			runToolCall(
+				fakeTool('edit_file', edit),
+				{
+					id: 'other',
+					name: 'edit_file',
+					args: { path: other, oldText: 'one', newText: 'two' },
+				},
+				new AbortController().signal,
+				fileAccess,
+				{ runId: 'run' }
+			)
+		);
+		expect(differentPath.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+		expect(fileAccess.createdFiles).toEqual(new Set([target]));
 	});
 
-	it('does not remember a rejected read folder', async () => {
-		const target = path.join(os.tmpdir(), 'friday-read-rejected', 'example.txt');
-		const read = jest.fn().mockResolvedValue('content');
-		const call: ToolCall = { id: 'read-rejected', name: 'read', args: { path: target } };
-		const context = createContext().toolsContext;
-		const events = runToolCall(fakeTool('read', read), call, true, undefined, context);
-
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const request = (await events.next()).value;
-		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request')
-			throw new Error('Expected approval');
-		const end = events.next();
-		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
-		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(context.tools).toBeUndefined();
-	});
-
-	it('does not override a read deny with an allowed folder context', async () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-denied-'));
-		const target = path.join(root, 'example.txt');
+	it('does not remember failed reads or failed file creation', async () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-failed-context-'));
+		const readPath = path.join(root, 'read.txt');
+		const writePath = path.join(root, 'write.txt');
 		getPermissions.mockReturnValue({
-			...askingPermissions,
-			read: { ...asking, deny: [root] },
+			read: { allow: [readPath], deny: [] },
+			write: { allow: [writePath], deny: [] },
+			exec: { allow: [], deny: [] },
+		});
+		const fileAccess = createRunContext().fileAccess;
+
+		await collect(
+			runToolCall(
+				fakeTool('read_file', jest.fn().mockRejectedValue(new Error('read failed'))),
+				{ id: 'read', name: 'read_file', args: { path: readPath } },
+				new AbortController().signal,
+				fileAccess,
+				{ runId: 'run' }
+			)
+		);
+		await collect(
+			runToolCall(
+				fakeTool('write_file', jest.fn().mockRejectedValue(new Error('write failed'))),
+				{ id: 'write', name: 'write_file', args: { path: writePath } },
+				new AbortController().signal,
+				fileAccess,
+				{ runId: 'run' }
+			)
+		);
+
+		expect(fileAccess.readDirectories).toHaveLength(0);
+		expect(fileAccess.createdFiles).toHaveLength(0);
+	});
+
+	it('does not let a contextual grant override a configured deny', async () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-deny-context-'));
+		const target = path.join(root, 'example.txt');
+		const fileAccess = createRunContext().fileAccess;
+		fileAccess.readDirectories.add(root);
+		getPermissions.mockReturnValue({
+			...emptyPermissions,
+			read: { allow: [], deny: [target] },
 		});
 		const read = jest.fn().mockResolvedValue('content');
-		const call: ToolCall = { id: 'read-denied', name: 'read', args: { path: target } };
-		const context = createContext().toolsContext;
-		rememberTool(context, fileToolState('read', call.args, '/appdata/agent')!);
-		const events: RuntimeEvent[] = [];
 
-		for await (const event of runToolCall(fakeTool('read', read), call, true, undefined, context))
-			events.push(event);
-
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		const events = await collect(
+			runToolCall(
+				fakeTool('read_file', read),
+				{ id: 'deny', name: 'read_file', args: { path: target } },
+				new AbortController().signal,
+				fileAccess,
+				{ runId: 'run' }
+			)
+		);
 		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(read).not.toHaveBeenCalled();
 	});
-
-	it('does not override an explicit ask with an allowed folder context', async () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-explicit-ask-'));
-		const target = path.join(root, 'example.txt');
-		getPermissions.mockReturnValue({
-			...askingPermissions,
-			read: { ...asking, ask: [target] },
-		});
-		const read = jest.fn().mockResolvedValue('content');
-		const call: ToolCall = { id: 'read-explicit-ask', name: 'read', args: { path: target } };
-		const context = createContext().toolsContext;
-		rememberTool(context, fileToolState('read', call.args, '/appdata/agent')!);
-		const events = runToolCall(fakeTool('read', read), call, true, undefined, context);
-
-		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
-		const request = (await events.next()).value;
-		expect(request).toMatchObject({ type: 'tool_permission_request' });
-		if (!request || request.type !== 'tool_permission_request')
-			throw new Error('Expected approval');
-		const end = events.next();
-		expect(respondToolPermission(request.approvalId, 'reject')).toBe(true);
-		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(read).not.toHaveBeenCalled();
-	});
-
-	it('allows an external tool with private context when policy allows it', async () => {
-		const context = createContext().toolsContext;
-		context.hasPrivateContext = true;
-		const send = jest.fn().mockResolvedValue('sent');
-		const external = jsonTool({
-			name: 'external_send',
-			description: 'send externally',
-			defaultPermission: 'allow',
-			risk: 'medium',
-			effect: 'external',
-			schema: { type: 'object' },
-			execute: send,
-		});
-		const call: ToolCall = { id: 'external-after-read', name: external.name, args: {} };
-		const events: RuntimeEvent[] = [];
-		for await (const event of runToolCall(external, call, true, undefined, context, 'bypass'))
-			events.push(event);
-
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: undefined });
-		expect(send).toHaveBeenCalledTimes(1);
-		expect(setToolPermission).not.toHaveBeenCalled();
-	});
-
-	it('marks non-public tool output private before a later external call', async () => {
-		const context = createContext().toolsContext;
-		const knowledge = jsonTool({
-			name: 'query_knowledge',
-			description: 'private knowledge',
-			defaultPermission: 'allow',
-			risk: 'low',
-			effect: 'read',
-			schema: { type: 'object' },
-			execute: () => 'private result',
-		});
-		for await (const event of runToolCall(
-			knowledge,
-			{ id: 'private-source', name: knowledge.name, args: {} },
-			true,
-			undefined,
-			context,
-			'bypass'
-		))
-			void event;
-		expect(context.hasPrivateContext).toBe(true);
-
-		const external = jsonTool({
-			name: 'external_send',
-			description: 'send externally',
-			defaultPermission: 'allow',
-			risk: 'medium',
-			effect: 'external',
-			schema: { type: 'object' },
-			execute: () => 'sent',
-		});
-		const events: RuntimeEvent[] = [];
-		for await (const event of runToolCall(
-			external,
-			{ id: 'private-egress', name: external.name, args: {} },
-			true,
-			undefined,
-			context,
-			'bypass'
-		))
-			events.push(event);
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-	});
 });
 
-function fakeTool(name: string, run: jest.Mock): Tool {
+async function approveCall(
+	tool: Tool,
+	call: ToolCall,
+	fileAccess: ReturnType<typeof createRunContext>['fileAccess'],
+	runId: string
+): Promise<void> {
+	const events = runToolCall(
+		tool,
+		call,
+		new AbortController().signal,
+		fileAccess,
+		{ runId, windowId: 1 }
+	);
+	expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
+	const request = (await events.next()).value;
+	if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+	const end = events.next();
+	expect(
+		respondToolPermission(
+			{
+				approvalId: request.approvalId,
+				runId,
+				toolName: request.toolName,
+				inputFingerprint: request.inputFingerprint,
+			},
+			'approve',
+			1
+		)
+	).toBe(true);
+	expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
+}
+
+async function collect(events: AsyncGenerator<RuntimeEvent, void>): Promise<RuntimeEvent[]> {
+	const collected: RuntimeEvent[] = [];
+	for await (const event of events) collected.push(event);
+	return collected;
+}
+
+function fakeTool(id: string, run: jest.Mock): Tool {
 	return jsonTool({
-		name,
-		description: name,
-		effect: 'read',
+		id,
+		name: id,
+		description: id,
 		schema: { type: 'object' },
 		execute: run,
 	});
