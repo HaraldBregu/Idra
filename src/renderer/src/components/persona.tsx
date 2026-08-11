@@ -25,6 +25,14 @@ const LISTENING_RINGS = [
 	{ radius: 0.535, opacity: 0.35, width: 0.6 },
 	{ radius: 0.58, opacity: 0.24, width: 0.55 },
 ] as const;
+const SPEAKING_RINGS = [
+	{ radius: 0.405, opacity: 0.98, width: 1.25, offsetY: 0, wobble: 0.004, response: 0.012 },
+	{ radius: 0.414, opacity: 0.68, width: 0.82, offsetY: 0.004, wobble: 0.005, response: 0.017 },
+	{ radius: 0.422, opacity: 0.46, width: 0.72, offsetY: -0.004, wobble: 0.006, response: 0.019 },
+	{ radius: 0.43, opacity: 0.26, width: 0.62, offsetY: 0.003, wobble: 0.006, response: 0.022 },
+	{ radius: 0.438, opacity: 0.17, width: 0.56, offsetY: -0.003, wobble: 0.007, response: 0.024 },
+	{ radius: 0.446, opacity: 0.11, width: 0.5, offsetY: 0.002, wobble: 0.0075, response: 0.026 },
+] as const;
 
 export function Persona({
 	className,
@@ -292,13 +300,7 @@ export function Persona({
 				}
 
 				if (activeState === 'speaking') {
-					const specs = [
-						[0.405, 0.98, 1.25, 0],
-						[0.414, 0.68, 0.82, 0.004],
-						[0.422, 0.46, 0.72, -0.004],
-						[0.43, 0.26, 0.62, 0.003],
-					];
-					specs.forEach(([radius, opacity, width, offsetY], index) => {
+					SPEAKING_RINGS.forEach(({ radius, opacity, width, offsetY }, index) => {
 						Object.assign(rings[index].target, {
 							breath: 0.003 + index * 0.001,
 							offsetX: index % 2 ? 0.0025 : -0.002,
@@ -310,7 +312,8 @@ export function Persona({
 							width,
 							wobble: 0.0045 + index * 0.0016,
 						});
-						rings[index].glow = index === 0 ? 0.9 : 0.35;
+							rings[index].glow = index === 0 ? 0.9 : 0.35;
+							rings[index].glow = index === 0 ? 0.9 : index < 4 ? 0.35 : 0.25;
 						rings[index].lobes = 3 + index;
 						rings[index].speed = 2.4 + index * 0.55;
 					});
@@ -345,9 +348,8 @@ export function Persona({
 			if (activeState === 'speaking') {
 				const syntheticLevel = 0.22 + 0.14 * Math.sin(now * 3.1) + 0.08 * Math.sin(now * 7.7);
 				const energy = Math.max(smoothedLevel, syntheticLevel);
-				const wobbleBase = [0.004, 0.005, 0.006, 0.006];
-				[0.012, 0.017, 0.019, 0.022].forEach((scale, index) => {
-					rings[index].target.wobble = wobbleBase[index] + energy * scale;
+				SPEAKING_RINGS.forEach(({ wobble, response }, index) => {
+					rings[index].target.wobble = wobble + energy * response;
 				});
 			}
 
