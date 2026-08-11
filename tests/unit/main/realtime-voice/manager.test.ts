@@ -140,4 +140,51 @@ describe('RealtimeVoiceManager', () => {
 		await manager.stop(3, second.id);
 		expect(current.stops).toBe(1);
 	});
+
+	it('lets the latest invocation win when configurations resolve out of order', async () => {
+		const resolvers: Array<(value: typeof configuration) => void> = [];
+		const connections: FakeConnection[] = [];
+		const manager = new RealtimeVoiceManager({
+			adapter: {
+				connect: async () => {
+					const connection = new FakeConnection();
+					connections.push(connection);
+					return connection;
+				},
+			},
+			resolveConfiguration: () => new Promise((resolve) => resolvers.push(resolve)),
+			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
+			resources: new KeyedMutex(),
+			emit: () => undefined,
+		});
+
+		const first = manager.start(8, { chatSessionId: 'first' });
+		const second = manager.start(8, { chatSessionId: 'second' });
+		expect(resolvers).toHaveLength(2);
+		resolvers[1](configuration);
+		const current = await second;
+		resolvers[0](configuration);
+		await expect(first).rejects.toThrow('superseded');
+		expect(connections).toHaveLength(1);
+
+		await manager.stop(8, current.id);
+	});
+
+	it('invalidates a pending start when its window closes before configuration resolves', async () => {
+		let resolveConfiguration = (_value: typeof configuration): void => undefined;
+		const connect = jest.fn(async () => new FakeConnection());
+		const manager = new RealtimeVoiceManager({
+			adapter: { connect },
+			resolveConfiguration: () => new Promise((resolve) => (resolveConfiguration = resolve)),
+			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
+			resources: new KeyedMutex(),
+			emit: () => undefined,
+		});
+
+		const starting = manager.start(9, { chatSessionId: 'chat' });
+		await manager.stopWindow(9);
+		resolveConfiguration(configuration);
+		await expect(starting).rejects.toThrow('superseded');
+		expect(connect).not.toHaveBeenCalled();
+	});
 });

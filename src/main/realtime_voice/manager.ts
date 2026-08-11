@@ -48,18 +48,23 @@ interface ActiveRealtimeVoiceSession {
 export class RealtimeVoiceManager {
 	private readonly byWindow = new Map<number, ActiveRealtimeVoiceSession>();
 	private readonly byId = new Map<string, ActiveRealtimeVoiceSession>();
+	private readonly generations = new Map<number, number>();
 
 	constructor(private readonly dependencies: RealtimeVoiceManagerDependencies) {}
 
 	async start(windowId: number, request: RealtimeVoiceStartRequest): Promise<RealtimeVoiceSession> {
 		const chatSessionId = request?.chatSessionId?.trim();
 		if (!chatSessionId) throw new Error('Realtime voice chat session id is required.');
+		const generation = (this.generations.get(windowId) ?? 0) + 1;
+		this.generations.set(windowId, generation);
 		const previous = this.byWindow.get(windowId);
-		if (previous) await this.stop(windowId, previous.info.id);
+		if (previous) await this.close(previous, true);
 
 		const configuration = await this.dependencies.resolveConfiguration();
+		this.requireCurrentGeneration(windowId, generation);
 		const displaced = this.byWindow.get(windowId);
 		if (displaced) await this.close(displaced, true);
+		this.requireCurrentGeneration(windowId, generation);
 		const info: RealtimeVoiceSession = {
 			id: randomUUID(),
 			providerId: configuration.providerId,
@@ -102,7 +107,11 @@ export class RealtimeVoiceManager {
 			const connection = await this.dependencies.adapter.connect(configuration, (event) =>
 				this.handleAdapterEvent(active, event)
 			);
-			if (active.closed || this.byId.get(info.id) !== active) {
+			if (
+				active.closed ||
+				this.byId.get(info.id) !== active ||
+				this.generations.get(windowId) !== generation
+			) {
 				await connection.stop();
 				throw new Error('Realtime voice session was stopped during connection.');
 			}
@@ -162,16 +171,27 @@ export class RealtimeVoiceManager {
 	async stop(windowId: number, sessionId: string): Promise<void> {
 		const active = this.owned(windowId, sessionId);
 		if (!active) return;
+		this.generations.set(windowId, (this.generations.get(windowId) ?? 0) + 1);
 		await this.close(active, true);
 	}
 
 	async stopWindow(windowId: number): Promise<void> {
+		this.generations.set(windowId, (this.generations.get(windowId) ?? 0) + 1);
 		const active = this.byWindow.get(windowId);
 		if (active) await this.close(active, true);
 	}
 
 	async stopAll(): Promise<void> {
+		for (const [windowId, generation] of this.generations) {
+			this.generations.set(windowId, generation + 1);
+		}
 		await Promise.allSettled([...this.byId.values()].map((active) => this.close(active, true)));
+	}
+
+	private requireCurrentGeneration(windowId: number, generation: number): void {
+		if (this.generations.get(windowId) !== generation) {
+			throw new Error('Realtime voice session start was superseded.');
+		}
 	}
 
 	private owned(windowId: number, sessionId: string): ActiveRealtimeVoiceSession | undefined {
