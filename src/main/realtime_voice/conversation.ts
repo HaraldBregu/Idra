@@ -22,12 +22,7 @@ export function realtimeVoiceConversationFactory(config: Config): RealtimeVoiceC
 	return (chatSessionId, modelId) => {
 		const state = createSessionState();
 		const userTurnIndexes = new Map<string, number>();
-		init(
-			state,
-			config,
-			{ task: 'chat', message: '', sessionId: chatSessionId, model: modelId },
-			'main'
-		);
+		init(state, config, { task: 'chat', message: '', sessionId: chatSessionId, model: modelId }, 'main');
 		return {
 			addUserTurn: (itemId) => {
 				if (userTurnIndexes.has(itemId)) return;
