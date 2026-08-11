@@ -156,3 +156,30 @@ it('preserves the existing permission request identity and returns rejected tool
 	);
 	expect(await toolResult).toContain('permission denied');
 });
+
+it('keeps file-access memory isolated between realtime voice runs', () => {
+	const dependencies = {
+		windowId: 1,
+		tools: [],
+		signal: new AbortController().signal,
+		resources: new KeyedMutex(),
+		connection: () => undefined,
+		emit: () => undefined,
+		onThinking: () => undefined,
+		onError: () => undefined,
+	};
+	const first = new RealtimeVoiceToolRuntime({ sessionId: 'first', ...dependencies });
+	const second = new RealtimeVoiceToolRuntime({ sessionId: 'second', ...dependencies });
+	type RuntimeAccess = {
+		fileAccess: { readDirectories: Set<string>; createdFiles: Set<string> };
+	};
+	const firstAccess = (first as unknown as RuntimeAccess).fileAccess;
+	const secondAccess = (second as unknown as RuntimeAccess).fileAccess;
+
+	firstAccess.readDirectories.add('/private/first');
+	firstAccess.createdFiles.add('/private/first/file.txt');
+
+	expect(secondAccess.readDirectories).toEqual(new Set());
+	expect(secondAccess.createdFiles).toEqual(new Set());
+	expect(firstAccess).not.toBe(secondAccess);
+});
