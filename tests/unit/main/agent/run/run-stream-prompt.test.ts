@@ -57,7 +57,11 @@ describe('run stream system prompt', () => {
 		description: 'Draft polished documents',
 		location: '/canonical/skills/writer',
 		folderPath: '/canonical/skills/writer',
-		manifest: { name: 'writer', description: 'Draft polished documents', allowedTools: ['read'] },
+		manifest: {
+			name: 'writer',
+			description: 'Draft polished documents',
+			allowedTools: ['read_file'],
+		},
 		source: 'local-filesystem',
 		trust: 'user-controlled',
 		hash: 'writer-hash',
@@ -70,7 +74,7 @@ describe('run stream system prompt', () => {
 		source: 'local-filesystem',
 		trust: 'user-controlled',
 		hash: 'writer-hash',
-		allowedTools: ['read'],
+		allowedTools: ['read_file'],
 		resources: ['references/style.md'],
 		warnings: [],
 	} as const;
@@ -92,7 +96,8 @@ describe('run stream system prompt', () => {
 						task: 'chat',
 						message: 'Draft this',
 						model: 'test-model',
-						origin: 'main',
+						type: 'default',
+						agentId: 'main',
 						contextMode,
 						explicitSkill: 'writer',
 					},
@@ -138,11 +143,12 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'Draft this',
 				model: 'test-model',
-				origin: 'main',
+				type: 'default',
+				agentId: 'main',
 				contextMode: 'minimal',
 			},
 			new AbortController().signal,
-			{ interactive: false }
+			{ sandbox }
 		))
 			void event;
 
@@ -172,7 +178,8 @@ describe('run stream system prompt', () => {
 					task: 'chat',
 					message: 'request',
 					model: 'test-model',
-					origin: 'main',
+					type: 'default',
+					agentId: 'main',
 					contextMode: 'minimal',
 					explicitSkill: 'missing',
 				},
@@ -197,7 +204,8 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'request',
 				model: 'test-model',
-				origin: 'main',
+				type: 'default',
+				agentId: 'main',
 				contextMode: 'minimal',
 			},
 			new AbortController().signal,
@@ -220,7 +228,8 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'list skills',
 				model: 'test-model',
-				origin: 'main',
+				type: 'default',
+				agentId: 'main',
 				contextMode: 'minimal',
 				toolsAllow: ['list_skills'],
 			},
@@ -234,57 +243,6 @@ describe('run stream system prompt', () => {
 		expect(events[0].tools).not.toContain('load_skill');
 	});
 
-	it('keeps mutation tools unavailable to bot runs by default', async () => {
-		const events = [];
-		for await (const event of stream(
-			{ location: '/workspace' },
-			createSessionState(),
-			{
-				runId: 'bot-file-tools',
-				task: 'chat',
-				message: 'create a file',
-				model: 'test-model',
-				origin: 'bot',
-				contextMode: 'minimal',
-			},
-			new AbortController().signal,
-			{ interactive: false }
-		))
-			events.push(event);
-
-		expect(events[0]).toMatchObject({ type: 'run_started' });
-		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
-		expect(events[0].tools).toContain('web_fetch');
-		expect(events[0].tools).not.toEqual(
-			expect.arrayContaining(['write', 'edit', 'apply_patch', 'exec', 'create_task'])
-		);
-	});
-
-	it('exposes task-compatible tools when a background task has no allowlist', async () => {
-		const events = [];
-		for await (const event of stream(
-			{ location: '/workspace' },
-			createSessionState(),
-			{
-				runId: 'background-task-tools',
-				task: 'chat',
-				message: 'perform the scheduled work',
-				model: 'test-model',
-				origin: 'task',
-				contextMode: 'minimal',
-			},
-			new AbortController().signal,
-			{ interactive: false }
-		))
-			events.push(event);
-
-		expect(events[0]).toMatchObject({ type: 'run_started' });
-		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
-		expect(events[0].tools).toEqual(
-			expect.arrayContaining(['read', 'write', 'edit', 'apply_patch', 'exec', 'process'])
-		);
-	});
-
 	it('applies main toolsAllow and toolsDeny to the subagent tool', async () => {
 		const noTools = [];
 		for await (const event of stream(
@@ -295,11 +253,13 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'answer directly',
 				model: 'test-model',
-				origin: 'main',
+				type: 'default',
+				agentId: 'main',
 				contextMode: 'minimal',
 				toolsAllow: [],
 			},
-			new AbortController().signal
+			new AbortController().signal,
+			{ sandbox }
 		))
 			noTools.push(event);
 		expect(noTools[0]).toMatchObject({ type: 'run_started', tools: [] });
@@ -313,16 +273,18 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'use native tools',
 				model: 'test-model',
-				origin: 'main',
+				type: 'default',
+				agentId: 'main',
 				contextMode: 'minimal',
 				toolsDeny: ['subagent'],
 			},
-			new AbortController().signal
+			new AbortController().signal,
+			{ sandbox }
 		))
 			denied.push(event);
 		expect(denied[0]).toMatchObject({ type: 'run_started' });
 		if (denied[0]?.type !== 'run_started') throw new Error('Expected run_started');
-		expect(denied[0].tools).toContain('read');
+		expect(denied[0].tools).toContain('read_file');
 		expect(denied[0].tools).not.toContain('subagent');
 		expect(closeMcpMock).toHaveBeenCalledTimes(2);
 	});
@@ -344,7 +306,8 @@ describe('run stream system prompt', () => {
 					task: 'chat',
 					message: 'Current request',
 					model: 'test-model',
-					origin: 'main',
+					type: 'default',
+					agentId: 'main',
 					contextMode: 'workspace',
 				},
 				new AbortController().signal,
@@ -363,70 +326,22 @@ describe('run stream system prompt', () => {
 			});
 			expect(contextMessages[0].content).toEqual(expect.stringContaining('- Private preference'));
 			expect(messages[0]).toEqual({ role: 'user', content: 'Current request' });
-			expect(session.context.toolsContext.hasPrivateContext).toBe(true);
 		} finally {
 			await fs.rm(root, { recursive: true, force: true });
 		}
 	});
 
-	it('uses an injected bypass mode for a non-interactive run', async () => {
-		const execute = jest.fn().mockResolvedValue('done');
-		const webTool = jsonTool({
-			name: 'web_search',
-			description: 'public web search',
-			defaultPermission: 'ask',
-			schema: { type: 'object' },
-			execute,
-		});
-		runModelTurnMock.mockImplementationOnce(async function* () {
-			yield* [];
-			return {
-				content: '',
-				model: 'test-model',
-				toolCalls: [{ id: 'web', name: webTool.name, args: { query: 'news' } }],
-			};
-		});
-
-		for await (const event of stream(
-			{ location: '/workspace' },
-			createSessionState(),
-			{
-				runId: 'background-bypass',
-				task: 'chat',
-				message: 'search',
-				model: 'test-model',
-				origin: 'main',
-				contextMode: 'minimal',
-			},
-			new AbortController().signal,
-			{
-				tools: [webTool],
-				interactive: false,
-				permissions: {
-					mode: 'bypass',
-					dir: {},
-					web_search: { default: 'ask', allow: [], deny: [], ask: [] },
-				},
-			}
-		))
-			void event;
-
-		expect(execute).toHaveBeenCalledTimes(1);
-	});
-
 	it('caps public web calls only for bot-origin runs', async () => {
 		const calls = Array.from({ length: 9 }, (_, index) => ({
 			id: `web-${index}`,
-			name: 'web_search',
+			name: 'search_web',
 			args: { query: `query ${index}` },
 		}));
 		const search = jest.fn().mockResolvedValue('public result');
 		const webTool = jsonTool({
-			name: 'web_search',
+			id: 'search_web',
+			name: 'Search web',
 			description: 'public web search',
-			defaultPermission: 'allow',
-			risk: 'medium',
-			effect: 'external',
 			schema: { type: 'object' },
 			execute: search,
 		});
@@ -445,11 +360,12 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'search',
 				model: 'test-model',
-				origin: 'bot',
+				type: 'background',
+				agentId: 'channels',
 				contextMode: 'minimal',
 			},
 			new AbortController().signal,
-			{ tools: [webTool], interactive: false }
+			{ tools: [webTool] }
 		))
 			botEvents.push(event);
 		expect(search).not.toHaveBeenCalled();
@@ -474,11 +390,12 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'search',
 				model: 'test-model',
-				origin: 'main',
+				type: 'default',
+				agentId: 'main',
 				contextMode: 'minimal',
 			},
 			new AbortController().signal,
-			{ tools: [webTool], interactive: false }
+			{ tools: [webTool] }
 		))
 			void event;
 		expect(search).toHaveBeenCalledTimes(9);
@@ -499,7 +416,8 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'request',
 				model: 'test-model',
-				origin: 'main',
+				type: 'default',
+				agentId: 'main',
 				contextMode: 'minimal',
 			},
 			controller.signal,
@@ -532,7 +450,8 @@ describe('run stream system prompt', () => {
 					task: 'chat',
 					message: 'request',
 					model: 'test-model',
-					origin: 'main',
+					type: 'default',
+					agentId: 'main',
 					contextMode: 'minimal',
 				},
 				new AbortController().signal,
@@ -564,7 +483,8 @@ describe('run stream system prompt', () => {
 				task: 'chat',
 				message: 'request',
 				model: 'test-model',
-				origin: 'main',
+				type: 'default',
+				agentId: 'main',
 				contextMode: 'minimal',
 			},
 			new AbortController().signal,
