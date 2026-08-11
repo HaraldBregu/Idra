@@ -5,10 +5,10 @@ import {
 	FolderOpen,
 	Languages,
 	PanelTop,
+	Sparkles,
 	SunMoon,
 } from 'lucide-react';
 import { ThemeSwitcher } from '@/components/kibo-ui/theme-switcher';
-import { Persona } from '@/components/ai-elements/persona';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
@@ -175,7 +175,7 @@ const GeneralPage: React.FC = () => {
 				<Card size="sm" className="gap-0! p-0!">
 					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemMedia variant="icon">
-							<Persona variant={persona} state="idle" className="size-6" />
+							<Sparkles className="size-3" strokeWidth={1.8} />
 						</ItemMedia>
 						<ItemContent>
 							<ItemTitle>{t('settings.persona.title')}</ItemTitle>
