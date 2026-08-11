@@ -25,6 +25,9 @@ describe('provider manifests', () => {
 		const openAiRealtime = loadModels().filter(
 			(model) => model.provider.id === 'openai' && model.type === 'realtime-voice'
 		);
+		const realtimeVoiceModels = loadModels().filter(
+			(model) => model.type === 'realtime-voice'
+		);
 		expect(stableImage?.metadata).toEqual(
 			expect.objectContaining({
 				documentationUrl: 'https://platform.stability.ai/docs/api-reference',
@@ -57,6 +60,35 @@ describe('provider manifests', () => {
 					}),
 				}),
 				expect.objectContaining({ id: 'gpt-realtime-2.1-mini', sampleRate: 24_000 }),
+			])
+		);
+		expect(
+			realtimeVoiceModels.map((model) => ({ id: model.id, providerId: model.provider.id }))
+		).toEqual([
+			{ id: 'gpt-realtime-2.1', providerId: 'openai' },
+			{ id: 'gpt-realtime-2.1-mini', providerId: 'openai' },
+			{ id: 'grok-voice-latest', providerId: 'xai' },
+		]);
+		expect(realtimeVoiceModels).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					id: 'grok-voice-latest',
+					sampleRate: 24_000,
+					metadata: expect.objectContaining({
+						documentationStatus: 'verified',
+						inputs: expect.objectContaining({
+							voice: expect.objectContaining({ default: 'eve' }),
+						}),
+					}),
+				}),
+			])
+		);
+		expect(loadModels().map((model) => model.id)).not.toEqual(
+			expect.arrayContaining([
+				'gemini-3.1-flash-live-preview',
+				'qwen-omni-realtime',
+				'qwen3.5-omni',
+				'qwen3-omni-flash',
 			])
 		);
 		expect(
