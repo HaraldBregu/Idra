@@ -103,7 +103,10 @@ describe('createSessionState', () => {
 		expect(s.model).toBe('default');
 		expect(s.messages).toEqual([]);
 		expect(s.usage).toEqual({ inputTokens: 0, outputTokens: 0 });
-		expect(s.context).toEqual({ toolsContext: {} });
+		expect(s.runContext).toEqual({
+			loadedSkills: [],
+			fileAccess: { readDirectories: new Set(), createdFiles: new Set() },
+		});
 	});
 	it('returns a new object each call', () => {
 		expect(createSessionState()).not.toBe(createSessionState());
