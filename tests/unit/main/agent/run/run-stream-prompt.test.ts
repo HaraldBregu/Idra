@@ -186,7 +186,7 @@ describe('run stream system prompt', () => {
 		expect(runModelTurnMock).not.toHaveBeenCalled();
 	});
 
-	it('omits the activation tool when the registry has no implicit skills', async () => {
+	it('lists skills even when the registry is empty and omits the unavailable activation tool', async () => {
 		const events = [];
 		for await (const event of stream(
 			{ location: '/workspace' },
@@ -204,6 +204,30 @@ describe('run stream system prompt', () => {
 			events.push(event);
 		expect(events[0]).toMatchObject({ type: 'run_started' });
 		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
+		expect(events[0].tools).toContain('list_skills');
+		expect(events[0].tools).not.toContain('load_skill');
+	});
+
+	it('can expose skill listing without exposing skill loading', async () => {
+		const events = [];
+		for await (const event of stream(
+			{ location: '/workspace' },
+			createSessionState(),
+			{
+				runId: 'list-only-skills',
+				task: 'chat',
+				message: 'list skills',
+				model: 'test-model',
+				origin: 'main',
+				contextMode: 'minimal',
+				toolsAllow: ['list_skills'],
+			},
+			new AbortController().signal
+		))
+			events.push(event);
+		expect(events[0]).toMatchObject({ type: 'run_started' });
+		if (events[0]?.type !== 'run_started') throw new Error('Expected run_started');
+		expect(events[0].tools).toContain('list_skills');
 		expect(events[0].tools).not.toContain('load_skill');
 	});
 

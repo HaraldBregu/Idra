@@ -45,6 +45,7 @@ import { listMemoriesTool } from '../tools/memory/list_memories';
 import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
 import { updateHealthTool } from '../tools/health/update_health';
 import { updateHealthSettingsTool } from '../tools/health/update_health_settings';
+import { listSkillsTool } from '../tools/skills/list_skills';
 import { loadSkillTool } from '../tools/skills/load_skill';
 import { createTaskTool } from '../tools/tasks/create_task';
 import { updateTaskTool } from '../tools/tasks/update_task';
@@ -146,10 +147,13 @@ async function* loop(
 	const modelOptions = getModelOptions();
 	const contextMode = input.contextMode;
 	const runId = input.runId ?? session.id;
-	const skillEnabled =
+	const skillLoadingEnabled =
 		(input.toolsAllow === undefined || input.toolsAllow.includes('load_skill')) &&
 		!input.toolsDeny?.includes('load_skill');
-	const skillSnapshot = skillEnabled
+	const skillListingEnabled =
+		(input.toolsAllow === undefined || input.toolsAllow.includes('list_skills')) &&
+		!input.toolsDeny?.includes('list_skills');
+	const skillSnapshot = skillLoadingEnabled || skillListingEnabled
 		? createSkillRegistrySnapshot()
 		: { skills: [], diagnostics: [] };
 
@@ -227,7 +231,8 @@ async function* loop(
 		);
 		session.context.toolsContext.hasPrivateContext = true;
 	};
-	if (!options.tools && skillEnabled) {
+	if (!options.tools && skillListingEnabled) tools.push(listSkillsTool(skillSnapshot));
+	if (!options.tools && skillLoadingEnabled) {
 		const activationTool = loadSkillTool(skillSnapshot, applyActivatedSkill);
 		if (activationTool) tools.push(activationTool);
 	}
@@ -257,7 +262,7 @@ async function* loop(
 		);
 	}
 	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
-	if (input.explicitSkill && !skillEnabled)
+	if (input.explicitSkill && !skillLoadingEnabled)
 		throw new Error('Skill loading is unavailable for this run.');
 	if (input.explicitSkill)
 		applyActivatedSkill(await activateSkill(skillSnapshot, input.explicitSkill));
