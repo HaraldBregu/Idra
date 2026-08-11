@@ -1,7 +1,6 @@
 import { useState, type ReactElement, type ReactNode } from 'react';
 import { defaultUrlTransform } from 'react-markdown';
 import { VideoPlayer } from '@/components/video-player';
-import { AudioPlayer } from '@/components/audio-player';
 import { SoundPlayer } from '@/components/sound-player';
 import { Copy, Reply, Volume2 } from 'lucide-react';
 import { Markdown } from '@/components/prompt-kit/markdown';
