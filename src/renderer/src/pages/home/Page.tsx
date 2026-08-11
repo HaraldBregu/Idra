@@ -22,7 +22,7 @@ import {
 import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
 import { ScrollButton } from '@/components/ui/scroll-button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useChatMode } from '@/contexts/chat-mode';
+import { useChatMode, type ChatMode } from '@/contexts/chat-mode';
 import { useChatSession } from '@/contexts/chat-session';
 import { cn } from '@/lib/utils';
 import { AssistantMessage } from './components/AssistantMessage';
@@ -393,12 +393,20 @@ function PageContent(): ReactElement {
 	const navigate = useNavigate();
 	const [voiceMode, setVoiceMode] = useState<PromptInputVoiceMode | null>(null);
 	const [activeDictationMode, setActiveDictationMode] = useState<VoiceButtonMode | null>(null);
+	const updateMode = useCallback(
+		(nextMode: ChatMode): void => {
+			if (nextMode === 'chat') {
+				setActiveDictationMode(null);
+				setVoiceMode(null);
+			}
+			setMode(nextMode);
+		},
+		[setMode]
+	);
 	const closeVoiceUi = useCallback((): void => {
-		setActiveDictationMode(null);
-		setVoiceMode(null);
-		setMode('chat');
-	}, [setMode]);
-	const agent = useHomeAgent({ setMode });
+		updateMode('chat');
+	}, [updateMode]);
+	const agent = useHomeAgent({ setMode: updateMode });
 	const realtimeVoice = useRealtimeVoice({ chatSessionId, onClosed: closeVoiceUi });
 	const realtimeVoiceActive = realtimeVoice.isActive;
 	const endRealtimeVoice = realtimeVoice.end;
@@ -466,8 +474,6 @@ function PageContent(): ReactElement {
 
 	useEffect(() => {
 		if (mode !== 'chat') return;
-		setVoiceMode(null);
-		setActiveDictationMode(null);
 		if (realtimeVoiceActive) void endRealtimeVoice(false);
 		if (
 			dictationStatus === 'checking-permission' ||
@@ -531,7 +537,7 @@ function PageContent(): ReactElement {
 
 	const startVoiceConversation = async (): Promise<void> => {
 		setVoiceMode('conversation');
-		setMode('voice');
+		updateMode('voice');
 		const started = await realtimeVoice.start();
 		if (!started) closeVoiceUi();
 	};
@@ -549,23 +555,23 @@ function PageContent(): ReactElement {
 		if (voiceButtonMode === 'record') {
 			const started = await recorder.start();
 			if (!started) {
-				setMode('chat');
+				updateMode('chat');
 				return;
 			}
 			setActiveDictationMode('record');
 			setVoiceMode('dictation');
-			setMode('voice');
+			updateMode('voice');
 			return;
 		}
 
 		const started = await dictation.start();
 		if (!started) {
-			setMode('chat');
+			updateMode('chat');
 			return;
 		}
 		setActiveDictationMode('dictate');
 		setVoiceMode('dictation');
-		setMode('voice');
+		updateMode('voice');
 	};
 
 	const cancelDictation = async (): Promise<void> => {
