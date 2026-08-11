@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Coffee, FolderOpen, Languages, PanelTop, SunMoon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { AudioWaveform, ChevronRight, Coffee, FolderOpen, Languages, PanelTop, SunMoon } from 'lucide-react';
 import { ThemeSwitcher } from '@/components/kibo-ui/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -28,6 +29,7 @@ const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
 
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { language, setLanguage, theme, setTheme } = useApp();
 	const [trayEnabled, setTrayEnabled] = useState(true);
 	const [keepAwake, setKeepAwake] = useState(false);
@@ -149,6 +151,24 @@ const GeneralPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.sections.layout')}>
 				<Card size="sm" className="gap-0! p-0!">
+					<Item
+						as="button"
+						type="button"
+						variant="outline"
+						size="md"
+						className="cursor-pointer border-b border-border/60 hover:bg-muted/40"
+						onClick={() => navigate('/settings/general/persona')}
+					>
+						<ItemMedia variant="icon">
+							<AudioWaveform className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.persona.title')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<ChevronRight className="size-4 text-muted-foreground" strokeWidth={1.8} />
+						</ItemActions>
+					</Item>
 					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemMedia variant="icon">
 							<Languages className="size-3" strokeWidth={1.8} />

@@ -229,6 +229,18 @@
 			"overview": "Panoramica",
 			"general": "Generale"
 		},
+		"persona": {
+			"title": "Persona",
+			"description": "Visualizza in anteprima la persona vocale animata di Friday.",
+			"preview": "Anteprima",
+			"previewDescription": "Scegli uno stato per visualizzarne il movimento e la risposta.",
+			"states": {
+				"idle": "Inattiva",
+				"listening": "In ascolto",
+				"thinking": "Elaborazione",
+				"speaking": "In conversazione"
+			}
+		},
 		"sections": {
 			"permissions": "Autorizzazioni",
 			"workspace": "Area di Lavoro",

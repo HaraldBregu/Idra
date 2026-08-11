@@ -33,6 +33,7 @@ const CloudPage = lazy(() => import('./pages/settings/pages/cloud/Page'));
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const TaskDetailsPage = lazy(() => import('./pages/settings/pages/tasks/detail/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
+const PersonaPage = lazy(() => import('./pages/settings/pages/persona/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const SystemMediaDetailPage = lazy(() => import('./pages/settings/pages/system/detail/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
@@ -214,11 +215,24 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'general',
-						element: (
-							<SettingsRouteWrapper>
-								<GeneralPage />
-							</SettingsRouteWrapper>
-						),
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<GeneralPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'persona',
+								element: (
+									<SettingsRouteWrapper>
+										<PersonaPage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
 					},
 					{
 						path: 'system',

@@ -25,6 +25,12 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	const extensionDetailMatch = useMatch('/settings/extensions/:extensionId');
 
 	if (location.pathname === '/settings') return [];
+	if (location.pathname === '/settings/general/persona') {
+		return [
+			{ label: t('settings.tabs.general'), path: '/settings/general' },
+			{ label: t('settings.persona.title') },
+		];
+	}
 	const assistantSubpageLabelKey = ASSISTANT_SUBPAGE_LABEL_KEYS[location.pathname];
 	if (assistantSubpageLabelKey) {
 		const assistantItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.id === 'assistant');

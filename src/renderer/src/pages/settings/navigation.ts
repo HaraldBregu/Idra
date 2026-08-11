@@ -160,6 +160,12 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		labelKey: 'settings.theme.title',
 		keywords: 'appearance dark light system mode',
 	},
+	{
+		path: '/settings/general/persona',
+		labelKey: 'settings.persona.title',
+		descriptionKey: 'settings.persona.description',
+		keywords: 'persona voice orb appearance idle listening thinking speaking',
+	},
 	// System — permissions
 	{
 		path: '/settings/system',

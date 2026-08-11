@@ -229,6 +229,18 @@
 			"overview": "Overview",
 			"general": "General"
 		},
+		"persona": {
+			"title": "Persona",
+			"description": "Preview Friday's animated voice persona.",
+			"preview": "Preview",
+			"previewDescription": "Choose a state to preview its motion and response.",
+			"states": {
+				"idle": "Idle",
+				"listening": "Listening",
+				"thinking": "Thinking",
+				"speaking": "Speaking"
+			}
+		},
 		"sections": {
 			"permissions": "Permissions",
 			"workspace": "Workspace",

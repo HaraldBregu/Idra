@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import GeneralPage from '../../../src/renderer/src/pages/settings/pages/general/Page';
 
 const mockSetTheme = jest.fn();
@@ -35,7 +36,11 @@ beforeEach(() => {
 
 it('changes the application theme from General settings', async () => {
 	const user = userEvent.setup();
-	render(<GeneralPage />);
+	render(
+		<MemoryRouter>
+			<GeneralPage />
+		</MemoryRouter>
+	);
 
 	expect(screen.getByRole('button', { name: 'System theme' })).toHaveAttribute(
 		'aria-pressed',
@@ -44,4 +49,20 @@ it('changes the application theme from General settings', async () => {
 	await user.click(screen.getByRole('button', { name: 'Dark theme' }));
 
 	expect(mockSetTheme).toHaveBeenCalledWith('dark');
+});
+
+it('opens Persona settings from General settings', async () => {
+	const user = userEvent.setup();
+	render(
+		<MemoryRouter initialEntries={['/settings/general']}>
+			<Routes>
+				<Route path="/settings/general" element={<GeneralPage />} />
+				<Route path="/settings/general/persona" element={<p>Persona page</p>} />
+			</Routes>
+		</MemoryRouter>
+	);
+
+	await user.click(screen.getByRole('button', { name: 'settings.persona.title' }));
+
+	expect(screen.getByText('Persona page')).toBeInTheDocument();
 });

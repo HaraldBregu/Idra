@@ -1,0 +1,25 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import PersonaPage from '../../../src/renderer/src/pages/settings/pages/persona/Page';
+
+jest.mock('react-i18next', () => ({
+	useTranslation: () => ({ t: (key: string): string => key }),
+}));
+
+jest.mock('@/components/persona', () => ({
+	Persona: ({ state }: { state: string }) => (
+		<div role="img" aria-label="Persona preview" data-state={state} />
+	),
+}));
+
+it('previews each persona state', async () => {
+	const user = userEvent.setup();
+	render(<PersonaPage />);
+
+	const preview = screen.getByRole('img', { name: 'Persona preview' });
+	expect(preview).toHaveAttribute('data-state', 'idle');
+
+	await user.click(screen.getByRole('button', { name: 'settings.persona.states.speaking' }));
+
+	expect(preview).toHaveAttribute('data-state', 'speaking');
+});
