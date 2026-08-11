@@ -8,6 +8,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { JsonOption } from '@/components/json';
 import type { ModelInputSchema } from '@shared/model_types';
 import { SettingsRow } from '@pages/settings/components';
 import { ChevronDown } from 'lucide-react';
@@ -16,6 +17,7 @@ interface ModelOptionsProps {
 	readonly inputs: Readonly<Record<string, ModelInputSchema>>;
 	readonly values: Readonly<Record<string, unknown>>;
 	readonly excludedInputs?: ReadonlySet<string>;
+	readonly allowComplex?: boolean;
 	readonly onChange: (path: readonly string[], value: unknown) => void;
 }
 
@@ -33,13 +35,18 @@ export function ModelOptions({
 	inputs,
 	values,
 	excludedInputs,
+	allowComplex = false,
 	onChange,
 }: ModelOptionsProps): React.JSX.Element | null {
 	const entries: Array<{ path: string[]; schema: ModelInputSchema }> = [];
 	const pending = Object.entries(inputs).map(([key, schema]) => ({ path: [key], schema }));
 	while (pending.length > 0) {
 		const entry = pending.shift();
-		if (!entry || RESERVED_INPUTS.has(entry.path[0]) || excludedInputs?.has(entry.path[0]))
+		if (
+			!entry ||
+			(RESERVED_INPUTS.has(entry.path[0]) && !(allowComplex && entry.path[0] === 'metadata')) ||
+			excludedInputs?.has(entry.path[0])
+		)
 			continue;
 		if (entry.schema.type === 'object' && entry.schema.properties) {
 			pending.unshift(
@@ -56,6 +63,8 @@ export function ModelOptions({
 			entry.schema.type === 'integer' ||
 			entry.schema.type === 'boolean'
 		) {
+			entries.push(entry);
+		} else if (allowComplex && (entry.schema.type === 'array' || entry.schema.type === 'object')) {
 			entries.push(entry);
 		}
 	}
@@ -124,6 +133,16 @@ export function ModelOptions({
 					}
 				/>
 			);
+		} else if (schema.type === 'array' || schema.type === 'object') {
+			node = (
+				<SettingsRow
+					key={key}
+					title={label}
+					description={schema.description}
+					actionClassName="sm:max-w-[60%]"
+					actions={<JsonOption label={label} value={value} onChange={(next) => onChange(path, next)} />}
+				/>
+			);
 		} else {
 			const numeric = schema.type === 'number' || schema.type === 'integer';
 			const displayedValue = value === undefined ? schema.default : value;
@@ -159,7 +178,14 @@ export function ModelOptions({
 			);
 		}
 		return {
-			primary: path.some((part) => part.includes('effort') || part.includes('thinking')),
+			primary: path.some(
+				(part) =>
+					part.includes('effort') ||
+					part.includes('thinking') ||
+					part.toLowerCase() === 'voice' ||
+					part.toLowerCase() === 'voice_id' ||
+					part.toLowerCase() === 'voicename'
+			),
 			node,
 		};
 	});

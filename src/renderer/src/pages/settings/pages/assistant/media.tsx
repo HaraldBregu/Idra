@@ -26,7 +26,7 @@ interface AgentMediaModelConfigurationProps {
 	readonly api: MediaModelApi;
 	readonly capability: Extract<
 		ModelCapability,
-		'text-to-image' | 'text-to-audio' | 'text-to-video'
+		'text-to-image' | 'text-to-audio' | 'text-to-video' | 'text-to-speech'
 	>;
 	readonly idPrefix: string;
 	readonly title: ReactNode;
@@ -50,6 +50,7 @@ const MEDIA_CONTENT_INPUTS = new Set([
 	'last_frame',
 	'last_frame_image',
 	'lyrics',
+	'model_id',
 	'prompt',
 	'promptImage',
 	'promptText',
@@ -60,6 +61,7 @@ const MEDIA_CONTENT_INPUTS = new Set([
 	'session',
 	'style_reference_images',
 	'text',
+	'transcript',
 	'video',
 ]);
 
@@ -187,6 +189,7 @@ export function AgentMediaModelConfiguration({
 				inputs={inputs}
 				values={options}
 				excludedInputs={MEDIA_CONTENT_INPUTS}
+				allowComplex={capability === 'text-to-speech'}
 				onChange={handleOptionChange}
 			/>
 		</ModelProviderConfiguration>

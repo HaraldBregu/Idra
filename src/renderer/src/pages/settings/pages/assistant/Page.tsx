@@ -225,6 +225,16 @@ const AssistantPage: React.FC = () => {
 				</ModelProviderConfiguration>
 
 				<AgentMediaModelConfiguration
+					api={window.models.voice}
+					capability="text-to-speech"
+					idPrefix="agent-voice"
+					title={t('settings.modelServices.voiceName')}
+					description={t('settings.modelServices.textToSpeechModelDescription')}
+					showIcon={false}
+					grouped
+				/>
+
+				<AgentMediaModelConfiguration
 					api={window.models.image}
 					capability="text-to-image"
 					idPrefix="agent-image"
