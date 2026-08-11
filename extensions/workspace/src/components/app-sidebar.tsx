@@ -58,7 +58,6 @@ export function AppSidebar({
 	workspaceLocation,
 }: AppSidebarProps) {
 	const [expanded, setExpanded] = useState<Set<string>>(new Set());
-	const [agentExpanded, setAgentExpanded] = useState(false);
 	const [draggedEntry, setDraggedEntry] = useState<WorkspaceTreeEntry | null>(null);
 	const [dropTargetPath, setDropTargetPath] = useState<string | null>(null);
 	const [dropError, setDropError] = useState('');
@@ -79,6 +78,7 @@ export function AppSidebar({
 			workspaceFiles.filter((entry) => entry.type !== 'file' || !agentFilePathSet.has(entry.path)),
 		[workspaceFiles]
 	);
+	const agentExpanded = expanded.has(agentNodeId);
 	function toggleDirectory(path: string) {
 		setExpanded((current) => {
 			const next = new Set(current);
@@ -213,7 +213,7 @@ export function AppSidebar({
 						{
 							id: 'collapse-all',
 							label: 'Collapse All',
-							enabled: expanded.size > 0 || agentExpanded,
+							enabled: expanded.size > 0,
 						},
 						{ type: 'separator' },
 						{
@@ -226,13 +226,11 @@ export function AppSidebar({
 						'new-file': () => onCreateRequest('', 'file'),
 						'new-folder': () => onCreateRequest('', 'directory'),
 						'expand-all': () => {
-							setExpanded(collectDirectoryPaths(regularFiles));
-							setAgentExpanded(agentFiles.length > 0);
+							const paths = collectDirectoryPaths(regularFiles);
+							if (agentFiles.length > 0) paths.add(agentNodeId);
+							setExpanded(paths);
 						},
-						'collapse-all': () => {
-							setExpanded(new Set());
-							setAgentExpanded(false);
-						},
+						'collapse-all': () => setExpanded(new Set()),
 						'copy-workspace-path': () => navigator.clipboard.writeText(workspaceLocation),
 					}
 				);
@@ -245,104 +243,129 @@ export function AppSidebar({
 				<p id="workspace-drag-instructions" className="sr-only">
 					Drag files and folders onto a folder or an empty sidebar area to move them.
 				</p>
-				{!workspaceLoading && !workspaceError && agentFiles.length > 0 ? (
-					<Collapsible open={agentExpanded} onOpenChange={setAgentExpanded} className="mb-1">
-						<CollapsibleTrigger asChild>
-							<Button
-								data-workspace-entry
-								type="button"
-								variant="ghost"
-								size="sm"
-								className="h-7 w-full justify-start gap-1.5 rounded-md px-2 text-[12px] font-semibold text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-sidebar-ring focus-visible:ring-offset-0"
-								onContextMenu={(event) => {
-									showNativeContextMenu(
-										event,
-										[
-											{
-												id: 'toggle-agent',
-												label: agentExpanded ? 'Collapse Agent' : 'Expand Agent',
-											},
-										],
-										{ 'toggle-agent': () => setAgentExpanded((current) => !current) }
-									);
-								}}
-							>
-								<ChevronRight
-									className={cn(
-										'h-3.5 w-3.5 shrink-0 transition-transform',
-										agentExpanded && 'rotate-90'
-									)}
-									strokeWidth={1.8}
-								/>
-								<Bot className="h-3.5 w-3.5 shrink-0 text-sidebar-muted" strokeWidth={1.8} />
-								<span className="min-w-0 flex-1 truncate text-left">Agent</span>
-								<Badge
-									variant="secondary"
-									className="h-4 border-0 bg-sidebar-accent px-1.5 text-[10px] text-sidebar-foreground"
+				<TreeProvider
+					animateExpand={false}
+					expandedIds={[...expanded]}
+					indent={14}
+					onExpandedChange={(ids) => setExpanded(new Set(ids))}
+					selectedIds={selectedWorkspacePath ? [selectedWorkspacePath] : []}
+					showLines={false}
+				>
+					<TreeView className="p-0" role="tree">
+						{!workspaceLoading && !workspaceError && agentFiles.length > 0 ? (
+							<TreeNode nodeId={agentNodeId}>
+								<TreeNodeTrigger
+									data-workspace-entry
+									expandOnClick
+									role="treeitem"
+									tabIndex={0}
+									aria-expanded={agentExpanded}
+									className="mx-0 h-7 gap-1.5 rounded-md px-0 py-0 pr-2 text-[12px] font-semibold text-sidebar-foreground outline-none hover:bg-sidebar-accent focus-visible:ring-1 focus-visible:ring-sidebar-ring"
+									onContextMenu={(event) => {
+										showNativeContextMenu(
+											event,
+											[
+												{
+													id: 'toggle-agent',
+													label: agentExpanded ? 'Collapse Agent' : 'Expand Agent',
+												},
+											],
+											{ 'toggle-agent': () => toggleDirectory(agentNodeId) }
+										);
+									}}
+									onKeyDown={(event) => {
+										if (event.key === 'Enter' || event.key === ' ') {
+											event.preventDefault();
+											toggleDirectory(agentNodeId);
+										}
+									}}
 								>
-									{agentFiles.length}
-								</Badge>
-							</Button>
-						</CollapsibleTrigger>
-						<CollapsibleContent>
-							<ul className="space-y-1">
-								{agentFiles.map((entry) => (
-									<WorkspaceTreeItem
-										key={entry.path}
-										depth={1}
-										draggedPath={draggedEntry?.path ?? null}
-										dropError={dropError}
-										dropTargetPath={dropTargetPath}
-										entry={entry}
-										expanded={expanded}
-										movingPath={movingPath}
-										onCreateRequest={onCreateRequest}
-										onDeleteRequest={onDeleteRequest}
-										onRenameRequest={onRenameRequest}
-										onDragEnd={endDrag}
-										onDragLeave={dragLeaveTarget}
-										onDragOver={dragOverEntry}
-										onDragStart={startDrag}
-										onDrop={(event, destination) => {
-											if (destination.type === 'directory') {
-												void moveEntry(event, destination.path, destination.children ?? []);
-											}
-										}}
-										onToggle={toggleDirectory}
-										onSelect={onWorkspaceSelect}
-										selectedPath={selectedWorkspacePath}
+									<TreeExpander hasChildren className="mr-0 shrink-0" />
+									<TreeIcon
+										hasChildren
+										icon={<Bot className="h-3.5 w-3.5" strokeWidth={1.8} />}
+										className="mr-0 shrink-0 text-sidebar-muted"
 									/>
-								))}
-							</ul>
-						</CollapsibleContent>
-					</Collapsible>
-				) : null}
-				<WorkspaceTree
-					draggedPath={draggedEntry?.path ?? null}
-					dropError={dropError}
-					dropTargetPath={dropTargetPath}
-					expanded={expanded}
-					onCreateRequest={onCreateRequest}
-					files={regularFiles}
-					loading={workspaceLoading}
-					movingPath={movingPath}
-					error={workspaceError}
-					onDeleteRequest={onDeleteRequest}
-					onRenameRequest={onRenameRequest}
-					onDragEnd={endDrag}
-					onDragLeave={dragLeaveTarget}
-					onDragOver={dragOverEntry}
-					onDragStart={startDrag}
-					onDrop={(event, destination) => {
-						if (destination.type === 'directory') {
-							void moveEntry(event, destination.path, destination.children ?? []);
-						}
-					}}
-					onToggle={toggleDirectory}
-					onSelect={onWorkspaceSelect}
-					selectedPath={selectedWorkspacePath}
-					showEmpty={agentFiles.length === 0}
-				/>
+									<TreeLabel className="text-[12px] font-semibold">Agent</TreeLabel>
+									<Badge
+										variant="secondary"
+										className="h-4 border-0 bg-sidebar-accent px-1.5 text-[10px] text-sidebar-foreground"
+									>
+										{agentFiles.length}
+									</Badge>
+								</TreeNodeTrigger>
+								<TreeNodeContent hasChildren>
+									{agentFiles.map((entry, index) => (
+										<WorkspaceTreeItem
+											key={entry.path}
+											depth={1}
+											draggedPath={draggedEntry?.path ?? null}
+											dropError={dropError}
+											dropTargetPath={dropTargetPath}
+											entry={entry}
+											expanded={expanded}
+											isLast={index === agentFiles.length - 1}
+											movingPath={movingPath}
+											onCreateRequest={onCreateRequest}
+											onDeleteRequest={onDeleteRequest}
+											onRenameRequest={onRenameRequest}
+											onDragEnd={endDrag}
+											onDragLeave={dragLeaveTarget}
+											onDragOver={dragOverEntry}
+											onDragStart={startDrag}
+											onDrop={(event, destination) => {
+												if (destination.type === 'directory') {
+													void moveEntry(event, destination.path, destination.children ?? []);
+												}
+											}}
+											onSelect={onWorkspaceSelect}
+											onToggle={toggleDirectory}
+											selectedPath={selectedWorkspacePath}
+										/>
+									))}
+								</TreeNodeContent>
+							</TreeNode>
+						) : null}
+						{workspaceLoading ? (
+							<div className="px-3 py-2 text-[12px] text-sidebar-muted">Loading files...</div>
+						) : workspaceError ? (
+							<div className="px-3 py-2 text-[12px] leading-5 text-sidebar-muted">
+								{workspaceError}
+							</div>
+						) : regularFiles.length === 0 && agentFiles.length === 0 ? (
+							<div className="px-3 py-2 text-[12px] text-sidebar-muted">No files</div>
+						) : (
+							regularFiles.map((entry, index) => (
+								<WorkspaceTreeItem
+									key={entry.path}
+									depth={0}
+									draggedPath={draggedEntry?.path ?? null}
+									dropError={dropError}
+									dropTargetPath={dropTargetPath}
+									entry={entry}
+									expanded={expanded}
+									isLast={index === regularFiles.length - 1}
+									movingPath={movingPath}
+									onCreateRequest={onCreateRequest}
+									onDeleteRequest={onDeleteRequest}
+									onRenameRequest={onRenameRequest}
+									onDragEnd={endDrag}
+									onDragLeave={dragLeaveTarget}
+									onDragOver={dragOverEntry}
+									onDragStart={startDrag}
+									onDrop={(event, destination) => {
+										if (destination.type === 'directory') {
+											void moveEntry(event, destination.path, destination.children ?? []);
+										}
+									}}
+									onSelect={onWorkspaceSelect}
+									onToggle={toggleDirectory}
+									selectedPath={selectedWorkspacePath}
+								/>
+							))
+						)}
+					</TreeView>
+				</TreeProvider>
 				{draggedEntry || dragMessage ? (
 					<p
 						role="status"
