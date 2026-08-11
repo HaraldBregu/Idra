@@ -10,7 +10,6 @@ import { readSkill } from './skills_read';
 import { pickDirectories } from './skills_pick_directories';
 import { validateSkill } from './skills_validate';
 import { validateSkillPackage } from './skills_validate_package';
-import { setSkillPolicy } from './skills_policy_set';
 
 export async function importSkills(): Promise<SkillImportResult | undefined> {
 	const sources = await pickDirectories({
@@ -54,12 +53,6 @@ export async function importSkills(): Promise<SkillImportResult | undefined> {
 			const stagedValidation = validateSkill(temporary);
 			if (!stagedValidation.valid)
 				throw new Error(stagedValidation.issues.map((issue) => issue.message).join('; '));
-			setSkillPolicy(id, {
-				enabled: false,
-				trusted: false,
-				invocationPolicy: 'implicit',
-				origin: source,
-			});
 			fs.renameSync(temporary, destination);
 			installed = true;
 			fs.rmSync(temporaryParent, { recursive: true, force: true });

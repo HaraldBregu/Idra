@@ -8,12 +8,7 @@ export function loadSkillTool(
 	snapshot: SkillRegistrySnapshot,
 	onActivate: (skill: SkillLoadResult) => void
 ): Tool | undefined {
-	const names = snapshot.skills
-		.filter(
-			(skill) =>
-				skill.enabled && skill.trust === 'user-controlled' && skill.invocationPolicy === 'implicit'
-		)
-		.map((skill) => skill.name);
+	const names = snapshot.skills.map((skill) => skill.name);
 	if (names.length === 0) return undefined;
 	return tool({
 		id: 'load_skill',

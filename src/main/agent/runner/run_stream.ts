@@ -218,7 +218,7 @@ async function* loop(
 			canonicalRoot: skill.canonicalRoot,
 			instructions: skill.instructions,
 			source: skill.source,
-			trust: 'user-controlled',
+			trust: skill.trust,
 			hash: skill.hash,
 			allowedTools: skill.allowedTools,
 			resources: skill.resources,
@@ -304,14 +304,8 @@ async function* loop(
 				contextMode === 'workspace' && session.context.basePrompt === undefined
 					? await buildWorkspaceContext(config)
 					: '';
-			const implicitSkills = skillSnapshot.skills.filter(
-				(skill) =>
-					skill.enabled &&
-					skill.trust === 'user-controlled' &&
-					skill.invocationPolicy === 'implicit'
-			);
 			const skillContext = tools.some((tool) => tool.id === 'load_skill')
-				? buildSkillContext(implicitSkills)
+				? buildSkillContext(skillSnapshot.skills)
 				: '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
 			if (runtimeContext) session.context.toolsContext.hasPrivateContext = true;

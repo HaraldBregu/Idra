@@ -13,9 +13,6 @@ export class SkillsIpc implements IpcModule {
 		registerCommand(SkillsChannels.import, () => skills.importSkills());
 		registerCommand(SkillsChannels.download, (name: string) => skills.downloadSkill(name));
 		registerCommand(SkillsChannels.delete, (name: string) => skills.deleteSkill(name));
-		registerCommand(SkillsChannels.setEnabled, (id: string, enabled: boolean) => {
-			return skills.setEnabled(id, enabled);
-		});
 		registerCommand(SkillsChannels.openRoot, () => skills.openRoot());
 		registerQuery(SkillsChannels.getRoot, () => skills.getRoot());
 	}

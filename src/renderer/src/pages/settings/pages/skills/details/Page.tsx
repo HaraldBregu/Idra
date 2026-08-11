@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AlertTriangle, Download, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { SkillInfo, SkillLoadResult } from '../../../../../../../shared/skills_types';
 import {
@@ -41,7 +40,6 @@ const SkillDetailsPage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [downloading, setDownloading] = useState(false);
 	const [deleting, setDeleting] = useState(false);
-	const [toggling, setToggling] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
 	const loadErrorFallback = t('settings.skills.loadError');
@@ -66,23 +64,6 @@ const SkillDetailsPage: React.FC = () => {
 	useEffect(() => {
 		void loadSkill();
 	}, [loadSkill]);
-
-	const handleToggleEnabled = useCallback(
-		async (next: boolean): Promise<void> => {
-			if (!skill) return;
-			setToggling(true);
-			setErrorMessage('');
-			try {
-				const updated = await window.skills.setEnabled(skill.id, next);
-				setSkill(updated);
-			} catch (error) {
-				setErrorMessage(getErrorMessage(error, t('settings.skills.enableError')));
-			} finally {
-				setToggling(false);
-			}
-		},
-		[skill, t]
-	);
 
 	const handleDownload = useCallback(async (): Promise<void> => {
 		if (!skill) return;
@@ -163,14 +144,6 @@ const SkillDetailsPage: React.FC = () => {
 				description={skill.manifest.description || t('settings.skills.noDescription')}
 				action={
 					<div className="flex flex-wrap items-center gap-1.5">
-						<label className="mr-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-							<Switch
-								checked={skill.enabled}
-								onCheckedChange={(value) => void handleToggleEnabled(value)}
-								disabled={toggling || downloading || deleting}
-							/>
-							{skill.enabled ? t('settings.skills.enabled') : t('settings.skills.disabled')}
-						</label>
 						<Button
 							variant="outline"
 							size="xs"
@@ -207,11 +180,6 @@ const SkillDetailsPage: React.FC = () => {
 					<SkillDetail label={t('settings.skills.detailTrust')} value={skill.trust} />
 					<SkillDetail label={t('settings.skills.detailHash')} value={skill.hash} mono />
 					<SkillDetail
-						label={t('settings.skills.detailOrigin')}
-						value={skill.origin || t('settings.skills.localOrigin')}
-						mono
-					/>
-					<SkillDetail
 						label={t('settings.skills.detailFormat')}
 						value={skill.structure?.standard || t('settings.skills.none')}
 					/>
@@ -227,14 +195,6 @@ const SkillDetailsPage: React.FC = () => {
 					<SkillDetail
 						label={t('settings.skills.detailTools')}
 						value={compactList(skill.manifest.allowedTools, t('settings.skills.none'))}
-					/>
-					<SkillDetail
-						label={t('settings.skills.detailModel')}
-						value={
-							skill.invocationPolicy === 'explicit'
-								? t('settings.skills.modelHidden')
-								: t('settings.skills.modelVisible')
-						}
 					/>
 					<SkillDetail label={t('settings.skills.detailFolder')} value={skill.folderPath} mono />
 					<SkillDetail

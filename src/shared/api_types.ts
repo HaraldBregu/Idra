@@ -169,7 +169,6 @@ export interface SkillsApi {
 	import: () => Promise<SkillImportResult | undefined>;
 	download: (name: string) => Promise<SkillDownloadResult | undefined>;
 	delete: (name: string) => Promise<SkillDeleteResult>;
-	setEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
 	openRoot: () => Promise<void>;
 	getRoot: () => Promise<string>;
 }

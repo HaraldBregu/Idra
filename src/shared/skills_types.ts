@@ -1,8 +1,6 @@
 export type SkillSource = 'local-filesystem';
 
-export type SkillTrust = 'user-controlled' | 'unreviewed';
-
-export type SkillInvocationPolicy = 'implicit' | 'explicit';
+export type SkillTrust = 'user-controlled';
 
 export interface SkillManifest {
 	id?: string;
@@ -22,9 +20,6 @@ export interface SkillInfo {
 	folderPath: string;
 	skillPath?: string;
 	manifest: SkillManifest;
-	enabled: boolean;
-	invocationPolicy: SkillInvocationPolicy;
-	origin?: string;
 	source: SkillSource;
 	trust: SkillTrust;
 	hash: string;
@@ -58,18 +53,6 @@ export interface SkillFrontmatter {
 	compatibility?: string;
 	metadata?: Record<string, string>;
 	allowedTools?: string[];
-}
-
-export interface SkillPolicy {
-	enabled?: boolean;
-	trusted?: boolean;
-	invocationPolicy?: SkillInvocationPolicy;
-	reviewedHash?: string;
-	origin?: string;
-}
-
-export interface SkillPolicyState {
-	skills: Record<string, SkillPolicy>;
 }
 
 export interface SkillRegistrySnapshot {

@@ -4,12 +4,7 @@ import type { Tool } from '../../types';
 import { tool } from '../tool';
 
 export function listSkillsTool(snapshot: SkillRegistrySnapshot): Tool {
-	const skills = snapshot.skills
-		.filter(
-			(skill) =>
-				skill.enabled && skill.trust === 'user-controlled' && skill.invocationPolicy === 'implicit'
-		)
-		.map(({ name, description }) => ({ name, description }));
+	const skills = snapshot.skills.map(({ name, description }) => ({ name, description }));
 
 	return tool({
 		id: 'list_skills',

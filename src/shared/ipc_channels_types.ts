@@ -228,10 +228,6 @@ export interface SkillsInvokeChannelMap {
 		args: [name: string];
 		result: import('./skills_types').SkillDeleteResult;
 	};
-	[SkillsChannels.setEnabled]: {
-		args: [id: string, enabled: boolean];
-		result: import('./skills_types').SkillInfo;
-	};
 	[SkillsChannels.openRoot]: { args: []; result: void };
 	[SkillsChannels.getRoot]: { args: []; result: string };
 }

@@ -82,7 +82,6 @@ export const SkillsChannels = {
 	import: 'skills:import',
 	download: 'skills:download',
 	delete: 'skills:delete',
-	setEnabled: 'skills:set-enabled',
 	openRoot: 'skills:open-root',
 	getRoot: 'skills:get-root',
 } as const;

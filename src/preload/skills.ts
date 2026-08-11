@@ -18,9 +18,6 @@ export const skills: SkillsApi = {
 	delete: (name: string) => {
 		return typedInvokeUnwrap(SkillsChannels.delete, name);
 	},
-	setEnabled: (id: string, enabled: boolean) => {
-		return typedInvokeUnwrap(SkillsChannels.setEnabled, id, enabled);
-	},
 	openRoot: () => {
 		return typedInvokeUnwrap(SkillsChannels.openRoot);
 	},

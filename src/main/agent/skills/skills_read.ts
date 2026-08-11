@@ -5,7 +5,6 @@ import matter from 'gray-matter';
 import type { SkillInfo, SkillManifest } from '../../../shared/skills_types';
 import { SKILL_FILE, SKILL_MAX_BYTES } from './skills_limits';
 import { validateSkill } from './skills_validate';
-import { readSkillPolicyState } from './skills_policy_read';
 
 export { SKILL_FILE } from './skills_limits';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
@@ -39,10 +38,7 @@ export function readSkill(folder: string, id: string): SkillInfo | undefined {
 			: {}),
 		...(allowedTools ? { allowedTools } : {}),
 	};
-	const policy = readSkillPolicyState().skills[id];
 	const hash = createHash('sha256').update(source).digest('hex');
-	const trusted =
-		policy?.trusted !== false && (!policy?.reviewedHash || policy.reviewedHash === hash);
 	return {
 		id,
 		name,
@@ -51,11 +47,8 @@ export function readSkill(folder: string, id: string): SkillInfo | undefined {
 		folderPath: folder,
 		skillPath: canonicalSkillPath,
 		manifest,
-		enabled: policy?.enabled !== false,
-		invocationPolicy: policy?.invocationPolicy ?? 'implicit',
-		...(policy?.origin ? { origin: policy.origin } : {}),
 		source: 'local-filesystem',
-		trust: trusted ? 'user-controlled' : 'unreviewed',
+		trust: 'user-controlled',
 		hash,
 		structure: {
 			format: 'agent-skill',
