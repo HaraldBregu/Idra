@@ -286,6 +286,8 @@ const RagPage: React.FC = () => {
 					<SettingsRow
 						title={t('settings.rag.enabled')}
 						description={t('settings.rag.enabledDescription')}
+						className="grid-cols-[minmax(0,1fr)_auto]"
+						actionClassName="ml-auto w-auto justify-end"
 						actions={
 							<Switch
 								checked={ragConfiguration?.enabled === true}
@@ -298,6 +300,8 @@ const RagPage: React.FC = () => {
 					<SettingsRow
 						title={t('settings.rag.embeddingConsent')}
 						description={t('settings.rag.embeddingConsentDescription')}
+						className="grid-cols-[minmax(0,1fr)_auto]"
+						actionClassName="ml-auto w-auto justify-end"
 						actions={
 							<Switch
 								checked={embeddingConsentMatches}
