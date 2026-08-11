@@ -27,9 +27,11 @@ it('does not reapply the dynamic color when only the persona state changes', asy
 	const { rerender } = render(<Persona variant="halo" state="idle" />);
 
 	await waitFor(() => expect(mockSetRgb).toHaveBeenCalledTimes(1));
-	expect(mockUseRive).toHaveBeenLastCalledWith(
-		expect.anything(),
-		expect.objectContaining({ useOffscreenRenderer: false })
+	await waitFor(() =>
+		expect(mockUseRive).toHaveBeenLastCalledWith(
+			expect.objectContaining({ src: expect.any(String) }),
+			expect.objectContaining({ useOffscreenRenderer: false })
+		)
 	);
 	rerender(<Persona variant="halo" state="listening" />);
 
