@@ -3,7 +3,6 @@
 import {
 	MediaControlBar,
 	MediaController,
-	MediaFullscreenButton,
 	MediaMuteButton,
 	MediaPlayButton,
 	MediaSeekBackwardButton,
@@ -91,15 +90,6 @@ export type VideoPlayerMuteButtonProps = ComponentProps<typeof MediaMuteButton>;
 
 export const VideoPlayerMuteButton = ({ className, ...props }: VideoPlayerMuteButtonProps) => (
 	<MediaMuteButton className={cn('p-2.5', className)} {...props} />
-);
-
-export type VideoPlayerFullscreenButtonProps = ComponentProps<typeof MediaFullscreenButton>;
-
-export const VideoPlayerFullscreenButton = ({
-	className,
-	...props
-}: VideoPlayerFullscreenButtonProps) => (
-	<MediaFullscreenButton className={cn('p-2.5', className)} {...props} />
 );
 
 export type VideoPlayerContentProps = ComponentProps<'video'>;
