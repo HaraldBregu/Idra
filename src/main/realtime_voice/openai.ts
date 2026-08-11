@@ -54,7 +54,14 @@ class OpenAIRealtimeVoiceConnection implements RealtimeVoiceConnection {
 			};
 			const abort = (): void => {
 				const reason = signal?.reason;
-				settle(reason instanceof Error ? reason : new DOMException('Voice session stopped.', 'AbortError'));
+				const message =
+					typeof reason === 'object' &&
+					reason !== null &&
+					'message' in reason &&
+					typeof reason.message === 'string'
+						? reason.message
+						: 'Voice session stopped.';
+				settle(reason instanceof Error ? reason : new Error(message));
 				void this.stop();
 			};
 			const timer = setTimeout(() => {

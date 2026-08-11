@@ -200,6 +200,7 @@ describe('RealtimeVoiceManager', () => {
 					return new Promise((_resolve, reject) => {
 						signal?.addEventListener('abort', () => reject(signal.reason), { once: true });
 					});
+				},
 			},
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
