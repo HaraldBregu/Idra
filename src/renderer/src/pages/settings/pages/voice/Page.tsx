@@ -22,6 +22,7 @@ import {
 import type { ProviderModelGroup } from '../../../start/types';
 import type { Model, ModelSelection } from '@/lib/compat';
 import VoiceTest from './VoiceTest';
+import RealtimeVoiceConfiguration from './Realtime';
 
 const VOICE_CONTENT_INPUTS = new Set(['input', 'model', 'model_id', 'text', 'transcript']);
 
@@ -201,21 +202,25 @@ const VoicePage: React.FC = () => {
 			)}
 
 			<SettingsSection title={t('settings.modelServices.configuration')}>
-				<ModelProviderConfiguration
-					configState={state}
-					idPrefix="voice"
-					description={t('settings.modelServices.modelDescription')}
-					onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
-				>
-					<ModelOptions
-						key={`${state.providerId}:${state.modelId}`}
-						inputs={inputs}
-						values={options}
-						excludedInputs={VOICE_CONTENT_INPUTS}
-						allowComplex
-						onChange={handleOptionChange}
-					/>
-				</ModelProviderConfiguration>
+				<div className="grid gap-2">
+					<RealtimeVoiceConfiguration />
+					<ModelProviderConfiguration
+						configState={state}
+						idPrefix="voice"
+						triggerTitle={t('settings.modelServices.readAloudConfiguration')}
+						description={t('settings.modelServices.modelDescription')}
+						onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
+					>
+						<ModelOptions
+							key={`${state.providerId}:${state.modelId}`}
+							inputs={inputs}
+							values={options}
+							excludedInputs={VOICE_CONTENT_INPUTS}
+							allowComplex
+							onChange={handleOptionChange}
+						/>
+					</ModelProviderConfiguration>
+				</div>
 			</SettingsSection>
 
 			<SettingsSection
