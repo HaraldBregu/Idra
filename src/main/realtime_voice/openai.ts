@@ -102,6 +102,20 @@ class OpenAIRealtimeVoiceConnection implements RealtimeVoiceConnection {
 	}
 
 	private handleEvent(event: RealtimeServerEvent): void {
+		if (
+			event.type === 'response.output_item.added' &&
+			event.item.type === 'function_call' &&
+			event.item.call_id
+		) {
+			this.emit({
+				type: 'tool_call_start',
+				callId: event.item.call_id,
+				itemId: event.item.id ?? '',
+				responseId: event.response_id,
+				name: event.item.name,
+			});
+			return;
+		}
 		if (event.type === 'input_audio_buffer.speech_started') {
 			this.emit({ type: 'input_speech_started', itemId: event.item_id });
 			return;

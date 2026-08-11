@@ -1,5 +1,6 @@
 export { addAssistantMessage } from './session_add_assistant_message';
 export { addToolResults } from './session_add_tool_results';
+export { addUserMessage } from './session_add_user_message';
 export { appendRun } from './session_append_run';
 export { tryAppendRun } from './session_try_append_run';
 export { clearMessages } from './session_clear_messages';
