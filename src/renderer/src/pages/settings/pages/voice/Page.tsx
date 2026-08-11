@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
 import { providerIdsFor, providerModels, providers } from '@/lib/providers';
+import { ModelOptions } from '@/components/model-options';
+import { updateModelOptions } from '@/lib/options';
 import type { PublicProvider } from '../../../../../../shared';
 import {
 	SettingsNotice,
@@ -20,6 +22,8 @@ import {
 import type { ProviderModelGroup } from '../../../start/types';
 import type { Model, ModelSelection } from '@/lib/compat';
 import VoiceTest from './VoiceTest';
+
+const VOICE_CONTENT_INPUTS = new Set(['input', 'model', 'model_id', 'text', 'transcript']);
 
 type CatalogProvider = PublicProvider;
 
@@ -52,6 +56,14 @@ async function saveVoiceSelection(provider: PublicProvider, model: Model): Promi
 const VoicePage: React.FC = () => {
 	const { t } = useTranslation();
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
+	const [options, setOptions] = useState<Record<string, unknown>>({});
+	const selectedModel = providerModels(state.providerId, 'text-to-speech').find(
+		(model) => model.id === state.modelId
+	);
+	const inputs =
+		selectedModel?.metadata?.documentationStatus === 'verified'
+			? selectedModel.metadata.inputs
+			: {};
 
 	useEffect(() => {
 		let mounted = true;
@@ -66,7 +78,10 @@ const VoicePage: React.FC = () => {
 			}));
 
 			try {
-				const selection = await getVoiceSelection();
+				const [selection, storedOptions] = await Promise.all([
+					getVoiceSelection(),
+					window.models.voice.getOptions(),
+				]);
 				const providers = providerIdsFor('text-to-speech').flatMap((providerId) => {
 					const provider = getCatalogProviderById(providerId);
 					return provider ? [provider] : [];
@@ -111,6 +126,12 @@ const VoicePage: React.FC = () => {
 						? firstErrorMessage(firstModelError, t('settings.modelServices.modelsLoadError'))
 						: null,
 				});
+				setOptions(
+					preferredGroup?.provider.id === selection?.provider.id &&
+						preferredModel?.id === selection?.model.id
+						? storedOptions
+						: {}
+				);
 			} catch (error) {
 				if (!mounted) return;
 				setState({
@@ -132,6 +153,7 @@ const VoicePage: React.FC = () => {
 		const group = state.modelGroups.find((item) => item.provider.id === nextProviderId);
 		const model = group?.models.find((item) => item.id === nextModelId);
 		if (!group || !model) return;
+		setOptions({});
 		setState((current) => ({
 			...current,
 			providerId: nextProviderId,
@@ -143,6 +165,7 @@ const VoicePage: React.FC = () => {
 		try {
 			const didSave = await saveVoiceSelection(group.provider, model);
 			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
+			await window.models.voice.setOptions({});
 			setState((current) => ({ ...current, saving: false, saved: true }));
 		} catch (error) {
 			setState((current) => ({
@@ -151,6 +174,17 @@ const VoicePage: React.FC = () => {
 				error: firstErrorMessage(error, t('settings.modelServices.saveError')),
 			}));
 		}
+	};
+
+	const handleOptionChange = (path: readonly string[], value: unknown): void => {
+		const next = updateModelOptions(options, path, value);
+		setOptions(next);
+		void window.models.voice.setOptions(next).catch((error) => {
+			setState((current) => ({
+				...current,
+				error: firstErrorMessage(error, t('settings.modelServices.saveError')),
+			}));
+		});
 	};
 
 	return (
@@ -172,7 +206,16 @@ const VoicePage: React.FC = () => {
 					idPrefix="voice"
 					description={t('settings.modelServices.modelDescription')}
 					onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
-				/>
+				>
+					<ModelOptions
+						key={`${state.providerId}:${state.modelId}`}
+						inputs={inputs}
+						values={options}
+						excludedInputs={VOICE_CONTENT_INPUTS}
+						allowComplex
+						onChange={handleOptionChange}
+					/>
+				</ModelProviderConfiguration>
 			</SettingsSection>
 
 			<SettingsSection
