@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
-import type { AppPersona } from '@shared/app_types';
+import type { AppPersona } from '@/contexts';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -53,15 +53,13 @@ const PERSONA_OPTIONS: readonly PersonaOption[] = [
 
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
-	const { language, setLanguage, theme, setTheme } = useApp();
+	const { language, setLanguage, persona, setPersona, theme, setTheme } = useApp();
 	const [trayEnabled, setTrayEnabled] = useState(true);
 	const [keepAwake, setKeepAwake] = useState(false);
-	const [persona, setPersona] = useState<AppPersona>('halo');
 
 	useEffect(() => {
 		void window.app.getTrayEnabled().then(setTrayEnabled);
 		void window.app.getKeepAwake().then(setKeepAwake);
-		void window.app.getPersona().then(setPersona);
 	}, []);
 
 	const handleTrayToggle = useCallback((checked: boolean) => {
@@ -93,7 +91,6 @@ const GeneralPage: React.FC = () => {
 		const option = PERSONA_OPTIONS.find((candidate) => candidate.value === next);
 		if (!option) return;
 		setPersona(option.value);
-		void window.app.setPersona(option.value);
 	};
 
 	return (

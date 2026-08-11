@@ -9,17 +9,19 @@ import React, {
 	type ReactNode,
 } from 'react';
 import i18n from '../i18n';
-import type { AppLanguage, AppTheme } from '../../../shared/app_types';
+import type { AppLanguage, AppPersona, AppTheme } from '../../../shared/app_types';
 
 const LANGUAGE_STORAGE_KEY = 'app-language';
 const THEME_STORAGE_KEY = 'app-theme';
 
-export type { AppLanguage, AppTheme };
+export type { AppLanguage, AppPersona, AppTheme };
 export type SidebarState = 'expanded' | 'collapsed';
 
 export interface AppContextValue {
 	language: AppLanguage;
 	setLanguage: (language: AppLanguage) => void;
+	persona: AppPersona;
+	setPersona: (persona: AppPersona) => void;
 	theme: AppTheme;
 	setTheme: (theme: AppTheme) => void;
 	resetState: () => void;
@@ -29,6 +31,7 @@ interface AppProviderProps {
 	children: ReactNode;
 	initialState?: {
 		language?: AppLanguage;
+		persona?: AppPersona;
 		theme?: AppTheme;
 	};
 }
@@ -66,6 +69,7 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 	const [language, setLanguageState] = useState<AppLanguage>(
 		initialState?.language ?? readPersistedLanguage()
 	);
+	const [persona, setPersonaState] = useState<AppPersona>(initialState?.persona ?? 'halo');
 	const [theme, setThemeState] = useState<AppTheme>(
 		initialState?.theme ?? readPersistedTheme()
 	);
@@ -75,15 +79,22 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 	const hydrated = useRef(false);
 
 	const setLanguage = useCallback((next: AppLanguage) => setLanguageState(next), []);
+	const setPersona = useCallback((next: AppPersona) => setPersonaState(next), []);
 	const setTheme = useCallback((next: AppTheme) => setThemeState(next), []);
 	const resetState = useCallback(() => {
 		setLanguageState(readPersistedLanguage());
+		setPersonaState('halo');
 		setThemeState(readPersistedTheme());
 	}, []);
 
 	useEffect(() => {
-		void Promise.all([window.app.getLanguage(), window.app.getTheme()]).then(([lang, th]) => {
+		void Promise.all([
+			window.app.getLanguage(),
+			window.app.getPersona(),
+			window.app.getTheme(),
+		]).then(([lang, storedPersona, th]) => {
 			setLanguageState(lang);
+			setPersonaState(storedPersona);
 			setThemeState(th);
 			hydrated.current = true;
 		});
@@ -98,6 +109,10 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 		}
 		if (hydrated.current) void window.app.setLanguage(language);
 	}, [language]);
+
+	useEffect(() => {
+		if (hydrated.current) void window.app.setPersona(persona);
+	}, [persona]);
 
 	useEffect(() => {
 		applyTheme(theme);
@@ -115,8 +130,8 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 	}, [theme]);
 
 	const value = useMemo<AppContextValue>(
-		() => ({ language, setLanguage, theme, setTheme, resetState }),
-		[language, setLanguage, theme, setTheme, resetState]
+		() => ({ language, setLanguage, persona, setPersona, theme, setTheme, resetState }),
+		[language, setLanguage, persona, setPersona, theme, setTheme, resetState]
 	);
 
 	return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

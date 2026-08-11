@@ -13,6 +13,8 @@ jest.mock('@/contexts', () => ({
 	useApp: () => ({
 		language: 'en',
 		setLanguage: jest.fn(),
+		persona: 'halo',
+		setPersona: mockSetPersona,
 		theme: 'system',
 		setTheme: mockSetTheme,
 	}),
@@ -35,8 +37,6 @@ beforeEach(() => {
 		value: {
 			getTrayEnabled: jest.fn().mockResolvedValue(true),
 			getKeepAwake: jest.fn().mockResolvedValue(false),
-			getPersona: jest.fn().mockResolvedValue('halo'),
-			setPersona: mockSetPersona,
 		},
 	});
 });

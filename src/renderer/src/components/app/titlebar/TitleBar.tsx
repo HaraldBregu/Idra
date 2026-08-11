@@ -14,7 +14,8 @@ import { SessionsButton } from './components/SessionsButton';
 import { UserMenu } from './components/UserMenu';
 import { WindowControls } from './components/WindowControls';
 import { useWindowState } from './hooks/useWindowState';
-import { GradientSphere } from '@/components/ui/gradient-sphere';
+import { Persona } from '@/components/ai-elements/persona';
+import { useApp } from '@/contexts';
 
 // Synchronous platform check — no hooks, no async, no state.
 // macOS uses native traffic-light buttons; every other OS needs custom controls.
@@ -51,6 +52,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const location = useLocation();
+	const { persona } = useApp();
 	const { isFullScreen } = useWindowState();
 
 	const isHome = location.pathname === '/home';
@@ -68,7 +70,7 @@ export const TitleBar = React.memo(function TitleBar({
 			title={homeButtonLabel}
 			aria-label={homeButtonLabel}
 		>
-			<GradientSphere size={18} className="pointer-events-none" />
+			<Persona variant={persona} state="idle" className="pointer-events-none size-[18px]" />
 		</Button>
 	) : !isStart ? (
 		<UserMenu align={isMac ? 'end' : 'start'} />
