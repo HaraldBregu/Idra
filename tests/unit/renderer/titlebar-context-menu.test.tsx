@@ -20,7 +20,7 @@ const contextMenuItems = [
 ];
 
 beforeEach(() => {
-	showContextMenu.mockResolvedValue(null);
+	showContextMenu.mockReset().mockResolvedValue(null);
 	Object.defineProperty(window, 'win', {
 		configurable: true,
 		value: {
