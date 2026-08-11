@@ -158,6 +158,7 @@ export function useRealtimeVoice({
 						agentMessageId: messageId('voice-agent', event.itemId),
 						runId: event.sessionId,
 						content: event.transcript?.trim() || 'Voice message',
+						startedAtMs: Date.now(),
 					});
 					return;
 				}
@@ -297,6 +298,7 @@ export function useRealtimeVoice({
 			startRunRef.current += 1;
 			const sessionId = sessionIdRef.current;
 			sessionIdRef.current = null;
+			sessionChatIdRef.current = null;
 			releaseAudio();
 			if (sessionId) void window.models.realtimeVoice.stopSession(sessionId).catch(() => undefined);
 		};

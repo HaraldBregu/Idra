@@ -18,6 +18,7 @@ export type AgentChatAction =
 			agentMessageId: string;
 			runId: string;
 			content: string;
+			startedAtMs: number;
 	  }
 	| { type: 'apply_response_event'; event: AgentResponseEvent; receivedAtMs: number }
 	| { type: 'complete_active'; response: string; completedAtMs?: number }

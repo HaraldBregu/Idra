@@ -352,12 +352,16 @@ export function agentChatReducer(
 			const messages = previous
 				? state.messages.map((message) =>
 						message.id === previous.id && isAgentMessage(message)
-							? { ...message, state: 'completed' as const, completedAtMs: Date.now() }
+							? { ...message, state: 'completed' as const, completedAtMs: action.startedAtMs }
 							: message
 					)
 				: state.messages;
 			const userMessage = createUserMessage(action.userMessageId, action.content);
-			const agentMessage = createAgentMessage(action.agentMessageId, action.runId, Date.now());
+			const agentMessage = createAgentMessage(
+				action.agentMessageId,
+				action.runId,
+				action.startedAtMs
+			);
 			return {
 				...state,
 				messages: [...messages, userMessage, agentMessage],

@@ -15,7 +15,9 @@ export function usePcmPlayback() {
 		for (const source of sourcesRef.current) {
 			try {
 				source.stop();
-			} catch {}
+			} catch {
+				source.onended = null;
+			}
 		}
 		sourcesRef.current.clear();
 		nextTimeRef.current = contextRef.current?.currentTime ?? 0;
