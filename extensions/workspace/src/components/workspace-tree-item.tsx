@@ -65,6 +65,7 @@ export function WorkspaceTreeItem({
 			<TreeNodeTrigger
 				data-workspace-entry
 				draggable={!movingPath}
+				expandOnClick={isDirectory}
 				role="treeitem"
 				tabIndex={0}
 				title={entry.path}
