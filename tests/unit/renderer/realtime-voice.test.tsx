@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { StrictMode, type ReactNode } from 'react';
 import { Provider } from '../../../src/renderer/src/pages/home/context';
+import { useHomeAgentContext } from '../../../src/renderer/src/pages/home/context';
 import { useRealtimeVoice } from '../../../src/renderer/src/pages/home/hooks/useRealtimeVoice';
 import type { RealtimeVoiceEvent, RealtimeVoiceSession } from '../../../src/shared/realtime_voice';
 
@@ -184,5 +185,35 @@ describe('useRealtimeVoice', () => {
 		expect(result.current.status).toBe('error');
 		expect(api.stopSession).toHaveBeenCalledWith(session.id);
 		expect(onClosed).toHaveBeenCalled();
+	});
+
+	it('replaces the voice marker with the final user transcript', async () => {
+		api.startSession.mockResolvedValue(session);
+		const { result } = renderHook(
+			() => {
+				const voice = useRealtimeVoice({ chatSessionId: 'chat-1', onClosed: jest.fn() });
+				const { chatState } = useHomeAgentContext();
+				return { voice, chatState };
+			},
+			{ wrapper }
+		);
+		await act(async () => result.current.voice.start());
+
+		act(() => emit({ type: 'user_turn', sessionId: session.id, itemId: 'user-1' }));
+		expect(result.current.chatState.messages.filter((message) => message.role === 'user')).toEqual([
+			expect.objectContaining({ content: 'Voice message' }),
+		]);
+
+		act(() =>
+			emit({
+				type: 'user_turn',
+				sessionId: session.id,
+				itemId: 'user-1',
+				transcript: 'Show the message I sent.',
+			})
+		);
+		expect(result.current.chatState.messages.filter((message) => message.role === 'user')).toEqual([
+			expect.objectContaining({ content: 'Show the message I sent.' }),
+		]);
 	});
 });

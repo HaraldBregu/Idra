@@ -12,6 +12,7 @@ export type AgentChatAction =
 			submittedAtMs?: number;
 	  }
 	| { type: 'append_user_message'; messageId: string; content: string }
+	| { type: 'update_user_message'; messageId: string; content: string }
 	| {
 			type: 'start_voice_turn';
 			userMessageId: string;

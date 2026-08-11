@@ -164,6 +164,14 @@ class OpenAICompatibleRealtimeVoiceConnection implements RealtimeVoiceConnection
 			this.emit({ type: 'input_speech_stopped', itemId: event.item_id });
 			return;
 		}
+		if (event.type === 'conversation.item.input_audio_transcription.completed') {
+			this.emit({
+				type: 'user_transcript_final',
+				itemId: event.item_id,
+				transcript: event.transcript,
+			});
+			return;
+		}
 		if (event.type === 'response.output_audio_transcript.delta') {
 			this.emit({
 				type: 'assistant_transcript_delta',

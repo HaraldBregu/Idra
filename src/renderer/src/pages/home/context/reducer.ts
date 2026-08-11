@@ -347,6 +347,15 @@ export function agentChatReducer(
 				...state,
 				messages: [...state.messages, createUserMessage(action.messageId, action.content)],
 			};
+		case 'update_user_message':
+			return {
+				...state,
+				messages: state.messages.map((message) =>
+					message.id === action.messageId && message.role === 'user'
+						? { ...message, content: action.content }
+						: message
+				),
+			};
 		case 'start_voice_turn': {
 			const previous = activeAgent(state);
 			const messages = previous

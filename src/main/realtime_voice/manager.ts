@@ -41,6 +41,7 @@ interface ActiveRealtimeVoiceSession {
 	toolRuntime: RealtimeVoiceToolRuntime;
 	inputTail: Promise<void>;
 	pendingInputCharacters: number;
+	finalUserTranscripts: Set<string>;
 	finalTranscripts: Set<string>;
 	state: RealtimeVoiceState;
 	closed: boolean;
@@ -89,6 +90,7 @@ export class RealtimeVoiceManager {
 			conversation: this.dependencies.createConversation(chatSessionId, configuration.modelId),
 			inputTail: Promise.resolve(),
 			pendingInputCharacters: 0,
+			finalUserTranscripts: new Set(),
 			finalTranscripts: new Set(),
 			state: 'connecting',
 			closed: false,
@@ -224,10 +226,23 @@ export class RealtimeVoiceManager {
 			return;
 		}
 		if (event.type === 'input_speech_stopped') {
-			active.conversation.addUserTurn();
+			active.conversation.addUserTurn(event.itemId);
 			this.emit(active, { type: event.type, sessionId, itemId: event.itemId });
 			this.emit(active, { type: 'user_turn', sessionId, itemId: event.itemId });
 			this.setState(active, 'thinking');
+			return;
+		}
+		if (event.type === 'user_transcript_final') {
+			const transcript = event.transcript.trim();
+			if (!transcript || active.finalUserTranscripts.has(event.itemId)) return;
+			active.finalUserTranscripts.add(event.itemId);
+			active.conversation.updateUserTurn(event.itemId, transcript);
+			this.emit(active, {
+				type: 'user_turn',
+				sessionId,
+				itemId: event.itemId,
+				transcript,
+			});
 			return;
 		}
 		if (event.type === 'assistant_transcript_delta') {

@@ -16,6 +16,7 @@ export interface RealtimeVoiceAdapterRequest {
 export type RealtimeVoiceAdapterEvent =
 	| { type: 'input_speech_started'; itemId: string }
 	| { type: 'input_speech_stopped'; itemId: string }
+	| { type: 'user_transcript_final'; itemId: string; transcript: string }
 	| { type: 'tool_call_start'; callId: string; itemId: string; responseId: string; name: string }
 	| { type: 'assistant_transcript_delta'; itemId: string; responseId: string; delta: string }
 	| { type: 'assistant_transcript_final'; itemId: string; responseId: string; transcript: string }
@@ -77,6 +78,11 @@ export type RealtimeVoiceServerEvent =
 	  }
 	| { type: 'input_audio_buffer.speech_started'; item_id: string }
 	| { type: 'input_audio_buffer.speech_stopped'; item_id: string }
+	| {
+			type: 'conversation.item.input_audio_transcription.completed';
+			item_id: string;
+			transcript: string;
+	  }
 	| {
 			type: 'response.output_audio_transcript.delta';
 			item_id: string;

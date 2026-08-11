@@ -91,7 +91,10 @@ describe('XAIRealtimeVoiceAdapter', () => {
 				voice: 'eve',
 				turn_detection: { type: 'server_vad' },
 				audio: {
-					input: { format: { type: 'audio/pcm', rate: 24_000 } },
+					input: {
+						format: { type: 'audio/pcm', rate: 24_000 },
+						transcription: { model: 'grok-transcribe' },
+					},
 					output: { format: { type: 'audio/pcm', rate: 24_000 } },
 				},
 				tools: [{ type: 'function', name: 'read_file' }],
@@ -100,6 +103,16 @@ describe('XAIRealtimeVoiceAdapter', () => {
 
 		socket.event({ type: 'session.updated' });
 		await connecting;
+		socket.event({
+			type: 'conversation.item.input_audio_transcription.completed',
+			item_id: 'user-item',
+			transcript: 'Open the current file.',
+		});
+		expect(events).toContainEqual({
+			type: 'user_transcript_final',
+			itemId: 'user-item',
+			transcript: 'Open the current file.',
+		});
 		socket.event({
 			type: 'response.output_audio_transcript.delta',
 			response_id: 'response',

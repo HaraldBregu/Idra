@@ -59,7 +59,10 @@ function xaiSession(request: RealtimeVoiceAdapterRequest): Record<string, unknow
 		voice: request.voice.trim() || 'eve',
 		turn_detection: { type: 'server_vad' },
 		audio: {
-			input: { format: { type: 'audio/pcm', rate: 24_000 } },
+			input: {
+				format: { type: 'audio/pcm', rate: 24_000 },
+				transcription: { model: 'grok-transcribe' },
+			},
 			output: { format: { type: 'audio/pcm', rate: 24_000 } },
 		},
 		tools: request.tools.map((tool) => ({

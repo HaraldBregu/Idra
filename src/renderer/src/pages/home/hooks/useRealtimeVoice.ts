@@ -71,7 +71,7 @@ export function useRealtimeVoice({
 	const statusRef = useRef<RealtimeVoiceUiStatus>('idle');
 	const startedAtMsRef = useRef(0);
 	const clockRef = useRef<number | null>(null);
-	const handledTurnIdsRef = useRef<Set<string>>(new Set());
+	const userTurnMessageIdsRef = useRef<Map<string, string>>(new Map());
 
 	const supportedModels = modelsFor('realtime-voice');
 	const isConfigured = supportedModels.length > 0;
@@ -169,15 +169,27 @@ export function useRealtimeVoice({
 					setStatus('thinking');
 					return;
 				case 'user_turn': {
-					const turnKey = event.itemId ?? `turn-${handledTurnIdsRef.current.size}`;
-					if (handledTurnIdsRef.current.has(turnKey)) return;
-					handledTurnIdsRef.current.add(turnKey);
+					const turnKey = event.itemId ?? `turn-${userTurnMessageIdsRef.current.size}`;
+					const transcript = event.transcript?.trim();
+					const existingMessageId = userTurnMessageIdsRef.current.get(turnKey);
+					if (existingMessageId) {
+						if (transcript) {
+							dispatchChat({
+								type: 'update_user_message',
+								messageId: existingMessageId,
+								content: transcript,
+							});
+						}
+						return;
+					}
+					const userMessageId = messageId('voice-user', event.itemId);
+					userTurnMessageIdsRef.current.set(turnKey, userMessageId);
 					dispatchChat({
 						type: 'start_voice_turn',
-						userMessageId: messageId('voice-user', event.itemId),
+						userMessageId,
 						agentMessageId: messageId('voice-agent', event.itemId),
 						runId: event.sessionId,
-						content: event.transcript?.trim() || 'Voice message',
+						content: transcript || 'Voice message',
 						startedAtMs: Date.now(),
 					});
 					return;
@@ -247,7 +259,7 @@ export function useRealtimeVoice({
 		startRunRef.current = runId;
 		setStatus('checking-permission');
 		setElapsedMs(0);
-		handledTurnIdsRef.current = new Set();
+		userTurnMessageIdsRef.current = new Map();
 
 		try {
 			if (!(await getAppMicrophoneEnabled())) {

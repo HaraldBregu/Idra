@@ -48,7 +48,7 @@ const configuration: RealtimeVoiceAdapterRequest & {
 };
 
 describe('RealtimeVoiceManager', () => {
-	it('persists only voice markers and native assistant transcripts while streaming UI events', async () => {
+	it('replaces voice markers with final user transcripts while streaming UI events', async () => {
 		const connection = new FakeConnection();
 		let adapterEmit: RealtimeVoiceAdapterEventHandler = () => undefined;
 		const createAdapter = jest.fn(() => ({
@@ -62,12 +62,14 @@ describe('RealtimeVoiceManager', () => {
 		}));
 		const events: Array<{ type: string; transcript?: string }> = [];
 		const userTurns: string[] = [];
+		const updatedUserTurns: Array<{ itemId: string; transcript: string }> = [];
 		const assistantTurns: string[] = [];
 		const manager = new RealtimeVoiceManager({
 			createAdapter,
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
-				addUserTurn: () => userTurns.push('Voice message'),
+				addUserTurn: (itemId) => userTurns.push(itemId),
+				updateUserTurn: (itemId, transcript) => updatedUserTurns.push({ itemId, transcript }),
 				addAssistantTranscript: (text) => assistantTurns.push(text),
 			}),
 			resources: new KeyedMutex(),
@@ -78,6 +80,16 @@ describe('RealtimeVoiceManager', () => {
 		expect(createAdapter).toHaveBeenCalledWith(configuration.provider);
 		adapterEmit({ type: 'input_speech_stopped', itemId: 'user-1' });
 		adapterEmit({
+			type: 'user_transcript_final',
+			itemId: 'user-1',
+			transcript: '  Show the message I sent.  ',
+		});
+		adapterEmit({
+			type: 'user_transcript_final',
+			itemId: 'user-1',
+			transcript: 'Show the message I sent.',
+		});
+		adapterEmit({
 			type: 'assistant_transcript_final',
 			itemId: 'assistant-1',
 			responseId: 'response-1',
@@ -90,10 +102,18 @@ describe('RealtimeVoiceManager', () => {
 			transcript: 'Hello there.',
 		});
 
-		expect(userTurns).toEqual(['Voice message']);
+		expect(userTurns).toEqual(['user-1']);
+		expect(updatedUserTurns).toEqual([
+			{ itemId: 'user-1', transcript: 'Show the message I sent.' },
+		]);
 		expect(assistantTurns).toEqual(['Hello there.']);
 		expect(events).toContainEqual({ type: 'user_turn', sessionId: session.id, itemId: 'user-1' });
-		expect(events.find((event) => event.type === 'user_turn')).not.toHaveProperty('transcript');
+		expect(events).toContainEqual({
+			type: 'user_turn',
+			sessionId: session.id,
+			itemId: 'user-1',
+			transcript: 'Show the message I sent.',
+		});
 	});
 
 	it('bounds queued input while an adapter send is pending', async () => {
@@ -105,6 +125,7 @@ describe('RealtimeVoiceManager', () => {
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
 				addUserTurn: () => undefined,
+				updateUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),
@@ -133,6 +154,7 @@ describe('RealtimeVoiceManager', () => {
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
 				addUserTurn: () => undefined,
+				updateUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),
@@ -175,6 +197,7 @@ describe('RealtimeVoiceManager', () => {
 			resolveConfiguration: () => new Promise((resolve) => resolvers.push(resolve)),
 			createConversation: () => ({
 				addUserTurn: () => undefined,
+				updateUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),
@@ -201,6 +224,7 @@ describe('RealtimeVoiceManager', () => {
 			resolveConfiguration: () => new Promise((resolve) => (resolveConfiguration = resolve)),
 			createConversation: () => ({
 				addUserTurn: () => undefined,
+				updateUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),
@@ -228,6 +252,7 @@ describe('RealtimeVoiceManager', () => {
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
 				addUserTurn: () => undefined,
+				updateUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),
