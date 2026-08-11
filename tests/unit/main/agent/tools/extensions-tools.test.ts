@@ -82,6 +82,14 @@ it('requests closing open extensions and reports IDs that are not open', async (
 	expect(closeExtension.mock.calls).toEqual([['project'], ['weather']]);
 });
 
+it('accepts one extension ID when requesting a close', async () => {
+	await expect(closeExtensionsTool.run({ ids: 'project' })).resolves.toEqual({
+		requested: ['project'],
+		notOpen: [],
+	});
+	expect(closeExtension).toHaveBeenCalledWith('project');
+});
+
 it('stops requesting extension closes when aborted', async () => {
 	const controller = new AbortController();
 	closeExtension.mockImplementation(() => {
