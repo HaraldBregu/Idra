@@ -9,7 +9,7 @@ import {
 	toResult,
 	type SessionState,
 } from '../session';
-import { rememberSkill, type LoadedSkill } from '../context';
+import { rememberSkill } from '../context';
 import {
 	buildLoadedSkillPrompt,
 	buildSkillContext,
@@ -187,8 +187,7 @@ async function* loop(
 		providerId: provider.id,
 		tools: tools.map((tool) => tool.id),
 		skillDiagnostics: skillSnapshot.diagnostics,
-		skillActivations: (session.runContext.loadedSkills as LoadedSkill[]).map(
-			(skill) => ({
+		skillActivations: session.runContext.loadedSkills.map((skill) => ({
 				id: skill.id,
 				name: skill.name,
 				hash: skill.hash,
@@ -315,7 +314,6 @@ async function* loop(
 				yield { type: 'run_finished', result: toResult(session, 'success') };
 				return;
 			}
-
 		}
 	} finally {
 		await closeMcp?.();
