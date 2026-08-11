@@ -24,6 +24,17 @@ const mockCatalog = [
 		metadata: { documentationStatus: 'verified', documentationUrl: '', inputs: {} },
 	},
 	{
+		id: 'eleven_v3',
+		name: 'Eleven v3',
+		type: 'text-to-speech',
+		provider: mockProviders[2],
+		metadata: {
+			documentationStatus: 'verified',
+			documentationUrl: '',
+			inputs: { voice_id: { type: 'string', title: 'Voice ID' } },
+		},
+	},
+	{
 		id: 'eleven-music',
 		name: 'Eleven Music',
 		type: 'text-to-audio',
@@ -46,6 +57,8 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.configuration': 'Configuration',
 		'settings.modelServices.subtitle': 'Configure model assignments',
 		'settings.modelServices.imageAssistantName': 'Image',
+		'settings.modelServices.voiceName': 'Voice',
+		'settings.modelServices.textToSpeechModelDescription': 'Spoken output defaults',
 		'settings.modelServices.musicCreatorName': 'Audio',
 		'settings.modelServices.videoCreatorName': 'Video',
 		'settings.modelServices.imageModelDescription': 'Image defaults',
@@ -111,6 +124,7 @@ beforeEach(() => {
 	Object.defineProperty(window, 'models', {
 		configurable: true,
 		value: {
+			voice: mediaApi('elevenlabs', 'eleven_v3'),
 			image: mediaApi('google', 'gemini-image'),
 			sound: mediaApi('elevenlabs', 'eleven-music'),
 			video: mediaApi('google', 'veo'),
@@ -149,6 +163,7 @@ it('groups independently collapsible provider settings in one card', async () =>
 	const cards: Array<Element | null> = [];
 	for (const name of [
 		/Model.*GPT/,
+		/Voice.*Eleven v3/,
 		/Image.*Gemini Image/,
 		/Audio.*Eleven Music/,
 		/Video.*Veo/,
@@ -161,11 +176,13 @@ it('groups independently collapsible provider settings in one card', async () =>
 		cards.push(trigger.closest('[data-slot="card"]'));
 	}
 	const model = await screen.findByRole('combobox', { name: 'Model' });
+	const voice = await screen.findByRole('combobox', { name: 'Voice' });
 	const image = await screen.findByRole('combobox', { name: 'Image' });
 	const audio = await screen.findByRole('combobox', { name: 'Audio' });
 	const video = await screen.findByRole('combobox', { name: 'Video' });
 	const search = await screen.findByRole('combobox', { name: 'Search Engine' });
 	expect(model).toHaveTextContent('OpenAI / GPT');
+	expect(voice).toHaveTextContent('ElevenLabs / Eleven v3');
 	expect(image).toHaveTextContent('Google / Gemini Image');
 	expect(audio).toHaveTextContent('ElevenLabs / Eleven Music');
 	expect(video).toHaveTextContent('Google / Veo');

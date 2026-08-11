@@ -106,4 +106,42 @@ describe('ModelOptions', () => {
 
 		expect(container).toBeEmptyDOMElement();
 	});
+
+	it('shows voice selection before advanced options', async () => {
+		const user = userEvent.setup();
+		render(
+			<ModelOptions
+				inputs={{
+					voice: { type: 'string', enum: ['alloy', 'cedar'] },
+					speed: { type: 'number', minimum: 0.25, maximum: 4 },
+				}}
+				values={{ voice: 'cedar' }}
+				onChange={jest.fn()}
+			/>
+		);
+
+		expect(screen.getByText('voice')).toBeInTheDocument();
+		expect(screen.getByRole('combobox')).toHaveTextContent('cedar');
+		expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+		await user.click(screen.getByRole('button', { name: 'Advanced' }));
+		expect(screen.getByRole('spinbutton')).toBeInTheDocument();
+	});
+
+	it('edits provider collection options as JSON when enabled', async () => {
+		const onChange = jest.fn();
+		const user = userEvent.setup();
+		render(
+			<ModelOptions
+				inputs={{ previous_request_ids: { type: 'array', items: { type: 'string' } } }}
+				values={{}}
+				allowComplex
+				onChange={onChange}
+			/>
+		);
+
+		await user.click(screen.getByRole('button', { name: 'Advanced' }));
+		const input = screen.getByRole('textbox', { name: 'previous request ids' });
+		await user.type(input, '["request-1"]');
+		expect(onChange).toHaveBeenLastCalledWith(['previous_request_ids'], ['request-1']);
+	});
 });
