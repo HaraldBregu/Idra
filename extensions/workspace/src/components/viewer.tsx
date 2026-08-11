@@ -3,6 +3,16 @@ import { FileQuestion, LoaderCircle, Music2 } from 'lucide-react';
 import type { WorkspaceFileKind } from '@friday/sdk';
 
 import { TabsContent } from '@/components/ui/tabs';
+import {
+	VideoPlayer,
+	VideoPlayerContent,
+	VideoPlayerControlBar,
+	VideoPlayerFullscreenButton,
+	VideoPlayerMuteButton,
+	VideoPlayerPlayButton,
+	VideoPlayerTimeDisplay,
+	VideoPlayerTimeRange,
+} from '@/components/kibo-ui/video-player';
 import { copyImage } from '@/lib/image';
 import { showMediaContextMenu } from '@/lib/media';
 import { showNativeContextMenu } from '@/lib/menu';
@@ -143,15 +153,25 @@ export function FileViewer({
 						</div>
 						<p className="min-w-0 flex-1 truncate text-sm font-medium">{name}</p>
 					</div>
-					<audio
-						ref={(element) => {
-							mediaRef.current = element;
-						}}
-						src={url}
-						controls
-						preload="metadata"
-						className="w-full"
-					/>
+					<VideoPlayer
+						audio
+						className="block min-w-0 w-full overflow-hidden rounded-md border"
+					>
+						<audio
+							ref={(element) => {
+								mediaRef.current = element;
+							}}
+							src={url}
+							preload="metadata"
+							slot="media"
+						/>
+						<VideoPlayerControlBar className="w-full">
+							<VideoPlayerPlayButton />
+							<VideoPlayerTimeRange />
+							<VideoPlayerTimeDisplay />
+							<VideoPlayerMuteButton />
+						</VideoPlayerControlBar>
+					</VideoPlayer>
 				</div>
 			</div>
 		);
@@ -163,15 +183,24 @@ export function FileViewer({
 				className="flex min-h-full items-center justify-center bg-black/95 p-4 sm:p-8"
 				onContextMenu={(event) => showMediaContextMenu(event, mediaRef.current, path)}
 			>
-				<video
-					ref={(element) => {
-						mediaRef.current = element;
-					}}
-					src={url}
-					controls
-					preload="metadata"
-					className="max-h-[calc(100dvh-8rem)] max-w-full"
-				/>
+				<VideoPlayer className="w-full max-w-5xl overflow-hidden rounded-lg border border-white/10 bg-black shadow-sm">
+					<VideoPlayerContent
+						ref={(element) => {
+							mediaRef.current = element;
+						}}
+						src={url}
+						preload="metadata"
+						slot="media"
+						className="max-h-[calc(100dvh-8rem)] w-full object-contain"
+					/>
+					<VideoPlayerControlBar className="w-full">
+						<VideoPlayerPlayButton />
+						<VideoPlayerTimeRange />
+						<VideoPlayerTimeDisplay />
+						<VideoPlayerMuteButton />
+						<VideoPlayerFullscreenButton />
+					</VideoPlayerControlBar>
+				</VideoPlayer>
 			</div>
 		);
 	}
