@@ -1,7 +1,7 @@
 import { KeyedMutex } from '../../../../src/main/agent/mutex';
 import { respondToolPermission } from '../../../../src/main/agent/permissions';
 import { RealtimeVoiceToolRuntime } from '../../../../src/main/realtime_voice/tool_runtime';
-import type { RealtimeVoiceConnection } from '../../../../src/main/realtime_voice/types';
+import type { RealtimeVoiceConnection } from '../../../../src/main/models/adapters/realtime_voice';
 
 it('runs native Realtime function calls through the existing tool runner and emits normalized lifecycle events', async () => {
 	const events: Array<Record<string, unknown>> = [];

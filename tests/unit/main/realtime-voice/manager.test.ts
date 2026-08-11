@@ -1,10 +1,10 @@
 import { KeyedMutex } from '../../../../src/main/agent/mutex';
-import { RealtimeVoiceManager } from '../../../../src/main/realtime_voice/manager';
 import type {
 	RealtimeVoiceAdapterEventHandler,
 	RealtimeVoiceAdapterRequest,
 	RealtimeVoiceConnection,
-} from '../../../../src/main/realtime_voice/types';
+} from '../../../../src/main/models/adapters/realtime_voice';
+import { RealtimeVoiceManager } from '../../../../src/main/realtime_voice/manager';
 
 class FakeConnection implements RealtimeVoiceConnection {
 	readonly audio: string[] = [];
@@ -32,10 +32,16 @@ class FakeConnection implements RealtimeVoiceConnection {
 	}
 }
 
-const configuration: RealtimeVoiceAdapterRequest & { providerId: string } = {
-	providerId: 'openai',
-	apiKey: 'key',
-	model: 'gpt-realtime-2.1',
+const configuration: RealtimeVoiceAdapterRequest & {
+	provider: { id: string; name: string; apiKey: string; baseURL: string };
+} = {
+	provider: {
+		id: 'openai',
+		name: 'OpenAI',
+		apiKey: 'key',
+		baseURL: 'https://api.openai.com/v1',
+	},
+	modelId: 'gpt-realtime-2.1',
 	voice: 'marin',
 	instructions: 'Help the user.',
 	tools: [],
@@ -49,12 +55,12 @@ describe('RealtimeVoiceManager', () => {
 		const userTurns: string[] = [];
 		const assistantTurns: string[] = [];
 		const manager = new RealtimeVoiceManager({
-			adapter: {
+			createAdapter: () => ({
 				connect: async (_request, emit) => {
 					adapterEmit = emit;
 					return connection;
 				},
-			},
+			}),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
 				addUserTurn: () => userTurns.push('Voice message'),
@@ -90,7 +96,7 @@ describe('RealtimeVoiceManager', () => {
 		let release = (): void => undefined;
 		connection.append = () => new Promise<void>((resolve) => (release = resolve));
 		const manager = new RealtimeVoiceManager({
-			adapter: { connect: async () => connection },
+			createAdapter: () => ({ connect: async () => connection }),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
 			resources: new KeyedMutex(),
@@ -110,12 +116,12 @@ describe('RealtimeVoiceManager', () => {
 			emit: RealtimeVoiceAdapterEventHandler;
 		}> = [];
 		const manager = new RealtimeVoiceManager({
-			adapter: {
+			createAdapter: () => ({
 				connect: (_request, emit) =>
 					new Promise((resolve) => {
 						pending.push({ resolve, emit });
 					}),
-			},
+			}),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
 			resources: new KeyedMutex(),
@@ -148,13 +154,13 @@ describe('RealtimeVoiceManager', () => {
 		const resolvers: Array<(value: typeof configuration) => void> = [];
 		const connections: FakeConnection[] = [];
 		const manager = new RealtimeVoiceManager({
-			adapter: {
+			createAdapter: () => ({
 				connect: async () => {
 					const connection = new FakeConnection();
 					connections.push(connection);
 					return connection;
 				},
-			},
+			}),
 			resolveConfiguration: () => new Promise((resolve) => resolvers.push(resolve)),
 			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
 			resources: new KeyedMutex(),
@@ -177,7 +183,7 @@ describe('RealtimeVoiceManager', () => {
 		let resolveConfiguration = (_value: typeof configuration): void => undefined;
 		const connect = jest.fn(async () => new FakeConnection());
 		const manager = new RealtimeVoiceManager({
-			adapter: { connect },
+			createAdapter: () => ({ connect }),
 			resolveConfiguration: () => new Promise((resolve) => (resolveConfiguration = resolve)),
 			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
 			resources: new KeyedMutex(),
@@ -194,14 +200,14 @@ describe('RealtimeVoiceManager', () => {
 	it('aborts adapter setup immediately when its window closes', async () => {
 		let setupSignal: AbortSignal | undefined;
 		const manager = new RealtimeVoiceManager({
-			adapter: {
+			createAdapter: () => ({
 				connect: (_request, _emit, signal) => {
 					setupSignal = signal;
 					return new Promise((_resolve, reject) => {
 						signal?.addEventListener('abort', () => reject(signal.reason), { once: true });
 					});
 				},
-			},
+			}),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
 			resources: new KeyedMutex(),
