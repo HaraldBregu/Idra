@@ -11,7 +11,12 @@ const realtimeModels = [
 			documentationUrl: 'https://example.com/realtime',
 			documentationStatus: 'verified' as const,
 			inputs: {
-				voice: { type: 'string' as const, default: 'marin', enum: ['marin', 'cedar'] },
+				voice: {
+					type: 'string' as const,
+					title: 'Voice',
+					default: 'marin',
+					enum: ['marin', 'cedar'],
+				},
 			},
 		},
 	},
