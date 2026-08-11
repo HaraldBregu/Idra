@@ -35,9 +35,12 @@ jest.mock('../../../../../src/main/agent/skills', () => ({
 }));
 
 import { stream } from '../../../../../src/main/agent/runner/run_stream';
+import type { ExecSandbox } from '../../../../../src/main/agent/sandbox';
 import { createSessionState } from '../../../../../src/main/agent/session';
 import type { Message } from '../../../../../src/main/agent/types';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
+
+const sandbox = {} as ExecSandbox;
 
 describe('run stream system prompt', () => {
 	beforeEach(() => {
@@ -199,7 +202,8 @@ describe('run stream system prompt', () => {
 				origin: 'main',
 				contextMode: 'minimal',
 			},
-			new AbortController().signal
+			new AbortController().signal,
+			{ sandbox }
 		))
 			events.push(event);
 		expect(events[0]).toMatchObject({ type: 'run_started' });
@@ -222,7 +226,8 @@ describe('run stream system prompt', () => {
 				contextMode: 'minimal',
 				toolsAllow: ['list_skills'],
 			},
-			new AbortController().signal
+			new AbortController().signal,
+			{ sandbox }
 		))
 			events.push(event);
 		expect(events[0]).toMatchObject({ type: 'run_started' });
