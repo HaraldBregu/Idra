@@ -17,47 +17,9 @@ import {
 	buildWorkspaceContext,
 } from '../system';
 import { loadMcpTools } from '../tools/mcp/loader';
-import { completeBootstrapTool } from '../tools/assistant/complete_bootstrap';
-import { readTool } from '../tools/core/read_file';
-import { writeTool } from '../tools/core/write_file';
-import { editTool } from '../tools/core/edit_file';
-import { applyPatchTool } from '../tools/core/apply_patch';
-import { execTool } from '../tools/core/exec_command';
-import { processTool } from '../tools/core/process';
-import { getSearchWebTools } from '../tools/web/search_web';
-import { fetchWebPageTool } from '../tools/web/fetch_web_page';
-import { useWebBrowserTool } from '../tools/web/use_web_browser';
-import { createImageTool } from '../tools/media/create_image';
-import { createVideoTool } from '../tools/media/create_video';
-import { createSoundTool } from '../tools/media/create_sound';
-import { microphoneRecorderTool } from '../tools/system/microphone_recorder';
-import { microphoneRecorderStatusTool } from '../tools/system/microphone_recorder_status';
-import { microphoneRecorderStopTool } from '../tools/system/microphone_recorder_stop';
-import { cameraRecorderTool } from '../tools/system/camera_recorder';
-import { cameraRecorderStatusTool } from '../tools/system/camera_recorder_status';
-import { cameraRecorderStopTool } from '../tools/system/camera_recorder_stop';
-import { screenRecorderTool } from '../tools/system/screen_recorder';
-import { screenRecorderStatusTool } from '../tools/system/screen_recorder_status';
-import { screenRecorderStopTool } from '../tools/system/screen_recorder_stop';
-import { saveMemoryTool } from '../tools/memory/save_memory';
-import { forgetMemoryTool } from '../tools/memory/forget_memory';
-import { listMemoriesTool } from '../tools/memory/list_memories';
-import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
-import { updateHealthTool } from '../tools/health/update_health';
-import { updateHealthSettingsTool } from '../tools/health/update_health_settings';
 import { listSkillsTool } from '../tools/skills/list_skills';
 import { loadSkillTool } from '../tools/skills/load_skill';
-import { createTaskTool } from '../tools/tasks/create_task';
-import { updateTaskTool } from '../tools/tasks/update_task';
-import { pauseTaskTool } from '../tools/tasks/pause_task';
-import { resumeTaskTool } from '../tools/tasks/resume_task';
-import { deleteTaskTool } from '../tools/tasks/delete_task';
-import { getTaskTool } from '../tools/tasks/get_task';
-import { listTasksTool } from '../tools/tasks/list_tasks';
-import { runTaskNowTool } from '../tools/tasks/run_task_now';
 import { subagentTool, subagentsTool } from '../tools/core/subagents';
-import { listExtensionsTool } from '../tools/extensions/list_extensions';
-import { openExtensionsTool } from '../tools/extensions/open_extensions';
 import type { Config, McpDiscoveryDiagnostics, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import type { WindowFactory } from '../../window_factory';
 import { runModelTurn } from './run_model_turn';
@@ -71,6 +33,7 @@ import type { SkillLoadResult } from '../../../shared/skills_types';
 import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 import type { ExecSandbox } from '../sandbox';
+import { builtinTools } from './run_builtin_tools';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -169,47 +132,7 @@ async function* loop(
 
 	let tools: Tool[] = options.tools
 		? [...options.tools]
-		: [
-				readTool,
-				writeTool,
-				editTool,
-				applyPatchTool,
-				execTool(options.sandbox!),
-				processTool,
-				...getSearchWebTools(),
-				fetchWebPageTool,
-				useWebBrowserTool,
-				createImageTool(),
-				createVideoTool(),
-				createSoundTool(),
-				microphoneRecorderTool(),
-				microphoneRecorderStatusTool,
-				microphoneRecorderStopTool,
-				cameraRecorderTool(),
-				cameraRecorderStatusTool,
-				cameraRecorderStopTool,
-				screenRecorderTool(),
-				screenRecorderStatusTool,
-				screenRecorderStopTool,
-				saveMemoryTool(config),
-				forgetMemoryTool(config),
-				listMemoriesTool(config),
-				...getKnowledgeTools(),
-				...getWikiTools(),
-				updateHealthTool(config),
-				updateHealthSettingsTool,
-				createTaskTool,
-				updateTaskTool,
-				pauseTaskTool,
-				resumeTaskTool,
-				deleteTaskTool,
-				getTaskTool,
-				listTasksTool,
-				runTaskNowTool,
-				listExtensionsTool,
-				...(options.windowFactory ? [openExtensionsTool(options.windowFactory)] : []),
-				completeBootstrapTool,
-			];
+		: builtinTools(config, options.sandbox!, options.windowFactory);
 	const applyActivatedSkill = (skill: SkillLoadResult): void => {
 		session.context.skill = skill.name;
 		rememberSkill(session.context, {
