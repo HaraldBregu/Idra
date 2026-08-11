@@ -7,14 +7,12 @@ import type {
 	RealtimeVoiceToolEvent,
 } from '@shared/realtime_voice';
 import {
-	base64ToPcm16,
 	canCaptureAudio,
 	dictationErrorMessage,
 	getAppMicrophoneEnabled,
-	pcm16ToBase64,
-	resampleToPcm16,
-	stopStream,
 } from './audio';
+import { usePcmCapture } from './usePcmCapture';
+import { usePcmPlayback } from './usePcmPlayback';
 
 export type RealtimeVoiceUiStatus =
 	| 'idle'
@@ -22,7 +20,6 @@ export type RealtimeVoiceUiStatus =
 	| RealtimeVoiceState
 	| 'error';
 
-const AUDIO_BUFFER_SIZE = 4096;
 const CLOCK_INTERVAL_MS = 250;
 const HOME_AGENT_ID = 'main';
 
@@ -58,36 +55,24 @@ export function useRealtimeVoice({
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [requiresConfiguration, setRequiresConfiguration] = useState(false);
 	const [elapsedMs, setElapsedMs] = useState(0);
-	const [isMuted, setIsMuted] = useState(false);
-	const [stream, setStream] = useState<MediaStream | null>(null);
-	const [inputAnalyser, setInputAnalyser] = useState<AnalyserNode | null>(null);
-	const [outputAnalyser, setOutputAnalyser] = useState<AnalyserNode | null>(null);
+	const capture = usePcmCapture();
+	const playback = usePcmPlayback();
 
 	const mountedRef = useRef(true);
 	const onClosedRef = useRef(onClosed);
 	const sessionIdRef = useRef<string | null>(null);
 	const sessionChatIdRef = useRef<string | null>(null);
 	const startRunRef = useRef(0);
-	const mutedRef = useRef(false);
 	const statusRef = useRef<RealtimeVoiceUiStatus>('idle');
 	const startedAtMsRef = useRef(0);
 	const clockRef = useRef<number | null>(null);
-	const streamRef = useRef<MediaStream | null>(null);
-	const inputContextRef = useRef<AudioContext | null>(null);
-	const inputSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-	const inputAnalyserRef = useRef<AnalyserNode | null>(null);
-	const inputProcessorRef = useRef<ScriptProcessorNode | null>(null);
-	const outputContextRef = useRef<AudioContext | null>(null);
-	const outputAnalyserRef = useRef<AnalyserNode | null>(null);
-	const outputSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
-	const nextOutputTimeRef = useRef(0);
 	const handledTurnIdsRef = useRef<Set<string>>(new Set());
 
 	const supportedModels = providerModels('openai', 'realtime-voice');
 	const isConfigured = supportedModels.length > 0;
 	const isSupported = canCaptureAudio();
 	const isActive = status !== 'idle' && status !== 'error';
-	const analyser = status === 'speaking' ? outputAnalyser : inputAnalyser;
+	const analyser = status === 'speaking' ? playback.analyser : capture.analyser;
 
 	useEffect(() => {
 		onClosedRef.current = onClosed;
@@ -103,44 +88,12 @@ export function useRealtimeVoice({
 		clockRef.current = null;
 	}, []);
 
-	const stopPlayback = useCallback((): void => {
-		for (const source of outputSourcesRef.current) {
-			try {
-				source.stop();
-			} catch {
-				// The source may already have ended.
-			}
-		}
-		outputSourcesRef.current.clear();
-		nextOutputTimeRef.current = outputContextRef.current?.currentTime ?? 0;
-	}, []);
-
 	const releaseAudio = useCallback((): void => {
 		stopClock();
-		stopPlayback();
-		inputProcessorRef.current?.disconnect();
-		inputSourceRef.current?.disconnect();
-		inputAnalyserRef.current?.disconnect();
-		outputAnalyserRef.current?.disconnect();
-		inputProcessorRef.current = null;
-		inputSourceRef.current = null;
-		inputAnalyserRef.current = null;
-		outputAnalyserRef.current = null;
-		stopStream(streamRef.current);
-		streamRef.current = null;
-		void inputContextRef.current?.close().catch(() => undefined);
-		void outputContextRef.current?.close().catch(() => undefined);
-		inputContextRef.current = null;
-		outputContextRef.current = null;
-		mutedRef.current = false;
-		if (mountedRef.current) {
-			setStream(null);
-			setInputAnalyser(null);
-			setOutputAnalyser(null);
-			setIsMuted(false);
-			setElapsedMs(0);
-		}
-	}, [stopClock, stopPlayback]);
+		capture.stop();
+		playback.release();
+		if (mountedRef.current) setElapsedMs(0);
+	}, [capture.stop, playback.release, stopClock]);
 
 	const closeSession = useCallback(
 		async (notify = true): Promise<void> => {
@@ -164,27 +117,6 @@ export function useRealtimeVoice({
 		[releaseAudio]
 	);
 
-	const playAudio = useCallback((base64: string): void => {
-		const audioContext = outputContextRef.current;
-		const outputNode = outputAnalyserRef.current;
-		if (!audioContext || !outputNode) return;
-		const pcm = base64ToPcm16(base64);
-		if (pcm.length === 0) return;
-		const buffer = audioContext.createBuffer(1, pcm.length, 24_000);
-		const samples = buffer.getChannelData(0);
-		for (let index = 0; index < pcm.length; index += 1) {
-			samples[index] = (pcm[index] ?? 0) / 0x8000;
-		}
-		const source = audioContext.createBufferSource();
-		source.buffer = buffer;
-		source.connect(outputNode);
-		const startAt = Math.max(audioContext.currentTime, nextOutputTimeRef.current);
-		nextOutputTimeRef.current = startAt + buffer.duration;
-		outputSourcesRef.current.add(source);
-		source.onended = () => outputSourcesRef.current.delete(source);
-		source.start(startAt);
-	}, []);
-
 	useEffect(() => {
 		return window.models.realtimeVoice.onSessionEvent((event: RealtimeVoiceEvent) => {
 			const sessionId = sessionIdRef.current;
@@ -207,8 +139,8 @@ export function useRealtimeVoice({
 					setStatus(event.status);
 					return;
 				case 'input_speech_started':
-					if (statusRef.current === 'speaking' || outputSourcesRef.current.size > 0) {
-						stopPlayback();
+					if (statusRef.current === 'speaking') {
+						playback.stop();
 						void window.models.realtimeVoice.interruptSession(sessionId).catch(() => undefined);
 					}
 					setStatus('listening');
@@ -246,12 +178,12 @@ export function useRealtimeVoice({
 					return;
 				case 'assistant_audio_delta':
 					setStatus('speaking');
-					playAudio(event.audio);
+					playback.enqueue(event.audio);
 					return;
 				case 'assistant_audio_done':
 					return;
 				case 'interrupted':
-					stopPlayback();
+					playback.stop();
 					dispatchChat({ type: 'complete_active', response: '', completedAtMs: Date.now() });
 					setStatus('listening');
 					return;
@@ -276,15 +208,7 @@ export function useRealtimeVoice({
 					return;
 			}
 		});
-	}, [dispatchChat, playAudio, releaseAudio, stopPlayback]);
-
-	const setMuted = useCallback((nextMuted: boolean): void => {
-		mutedRef.current = nextMuted;
-		setIsMuted(nextMuted);
-		streamRef.current?.getAudioTracks().forEach((track) => {
-			track.enabled = !nextMuted;
-		});
-	}, []);
+	}, [dispatchChat, playback.enqueue, playback.stop, releaseAudio]);
 
 	const start = useCallback(async (): Promise<boolean> => {
 		if (sessionIdRef.current) return true;
@@ -314,21 +238,14 @@ export function useRealtimeVoice({
 			}
 			if (startRunRef.current !== runId) return false;
 
-			const outputContext = new AudioContext({ sampleRate: 24_000 });
-			const outputNode = outputContext.createAnalyser();
-			outputNode.fftSize = 512;
-			outputNode.smoothingTimeConstant = 0.72;
-			outputNode.connect(outputContext.destination);
-			outputContextRef.current = outputContext;
-			outputAnalyserRef.current = outputNode;
-			setOutputAnalyser(outputNode);
-			await outputContext.resume();
-
-			const mediaStream = await navigator.mediaDevices.getUserMedia({
-				audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 },
+			await playback.start();
+			await capture.start((audio) => {
+				const sessionId = sessionIdRef.current;
+				if (sessionId) {
+					void window.models.realtimeVoice.appendAudio(sessionId, audio).catch(() => undefined);
+				}
 			});
 			if (startRunRef.current !== runId) {
-				stopStream(mediaStream);
 				releaseAudio();
 				return false;
 			}
@@ -336,43 +253,14 @@ export function useRealtimeVoice({
 			setStatus('connecting');
 			const session = await window.models.realtimeVoice.startSession({ chatSessionId });
 			if (startRunRef.current !== runId) {
-				stopStream(mediaStream);
 				await window.models.realtimeVoice.stopSession(session.id).catch(() => undefined);
 				releaseAudio();
 				return false;
 			}
 
-			const inputContext = new AudioContext();
-			const source = inputContext.createMediaStreamSource(mediaStream);
-			const inputNode = inputContext.createAnalyser();
-			inputNode.fftSize = 512;
-			inputNode.smoothingTimeConstant = 0.72;
-			const processor = inputContext.createScriptProcessor(AUDIO_BUFFER_SIZE, 1, 1);
-			processor.onaudioprocess = (event): void => {
-				const activeSessionId = sessionIdRef.current;
-				if (!activeSessionId || mutedRef.current) return;
-				const input = event.inputBuffer.getChannelData(0);
-				const pcm = resampleToPcm16(input, inputContext.sampleRate, session.input.sampleRate);
-				if (pcm.length === 0) return;
-				void window.models.realtimeVoice
-					.appendAudio(activeSessionId, pcm16ToBase64(pcm))
-					.catch(() => undefined);
-			};
-			source.connect(inputNode);
-			source.connect(processor);
-			processor.connect(inputContext.destination);
-			await inputContext.resume();
-
 			sessionIdRef.current = session.id;
 			sessionChatIdRef.current = chatSessionId;
-			streamRef.current = mediaStream;
-			inputContextRef.current = inputContext;
-			inputSourceRef.current = source;
-			inputAnalyserRef.current = inputNode;
-			inputProcessorRef.current = processor;
-			setStream(mediaStream);
-			setInputAnalyser(inputNode);
-			setMuted(false);
+			capture.setMuted(false);
 			setStatus('listening');
 			startedAtMsRef.current = Date.now();
 			clockRef.current = window.setInterval(() => {
@@ -387,7 +275,15 @@ export function useRealtimeVoice({
 			setStatus('error');
 			return false;
 		}
-	}, [chatSessionId, isConfigured, isSupported, releaseAudio, setMuted]);
+	}, [
+		capture.setMuted,
+		capture.start,
+		chatSessionId,
+		isConfigured,
+		isSupported,
+		playback.start,
+		releaseAudio,
+	]);
 
 	useEffect(() => {
 		return () => {
@@ -413,12 +309,12 @@ export function useRealtimeVoice({
 		errorMessage,
 		isActive,
 		isConfigured,
-		isMuted,
+		isMuted: capture.isMuted,
 		isSupported,
 		requiresConfiguration,
-		setMuted,
+		setMuted: capture.setMuted,
 		start,
 		status,
-		stream,
+		stream: capture.stream,
 	};
 }
