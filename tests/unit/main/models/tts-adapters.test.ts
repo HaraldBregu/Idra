@@ -56,6 +56,19 @@ it('maps OpenAI voice controls and preserves the requested audio format', async 
 	expect(result.mimeType).toBe('audio/flac');
 });
 
+it('maps an OpenAI custom voice ID to the provider voice object', async () => {
+	jest.mocked(global.fetch).mockResolvedValue(new Response(Uint8Array.from([1])));
+	await createOpenAISpeechAdapter({ ...provider, id: 'openai' }).synthesize({
+		text: 'Hello',
+		providerId: 'openai',
+		modelId: 'gpt-4o-mini-tts',
+		options: { custom_voice_id: 'voice_123' },
+	});
+
+	const init = jest.mocked(global.fetch).mock.calls[0]?.[1];
+	expect(JSON.parse(String(init?.body)).voice).toEqual({ id: 'voice_123' });
+});
+
 it('maps Deepgram voice and media controls to query parameters', async () => {
 	jest
 		.mocked(global.fetch)
@@ -208,6 +221,39 @@ it('maps Google voice and language settings', async () => {
 	expect(JSON.parse(String(init?.body)).generationConfig.speechConfig).toEqual({
 		languageCode: 'it-IT',
 		voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Sulafat' } },
+	});
+});
+
+it('maps Google multi-speaker voice settings instead of a single voice', async () => {
+	jest.mocked(global.fetch).mockResolvedValue(
+		new Response(
+			JSON.stringify({
+				candidates: [{ content: { parts: [{ inlineData: { mimeType: 'audio/wav', data: 'QQ==' } }] } }],
+			})
+		)
+	);
+	const multiSpeakerVoiceConfig = {
+		speakerVoiceConfigs: [
+			{
+				speaker: 'Joe',
+				voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } },
+			},
+			{
+				speaker: 'Jane',
+				voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Puck' } },
+			},
+		],
+	};
+	await createGoogleSpeechAdapter({ ...provider, id: 'google' }).synthesize({
+		text: 'Joe: Hello. Jane: Hi.',
+		providerId: 'google',
+		modelId: 'gemini-3.1-flash-tts-preview',
+		options: { multiSpeakerVoiceConfig },
+	});
+
+	const init = jest.mocked(global.fetch).mock.calls[0]?.[1];
+	expect(JSON.parse(String(init?.body)).generationConfig.speechConfig).toEqual({
+		multiSpeakerVoiceConfig,
 	});
 });
 
