@@ -190,7 +190,6 @@ const GeneralPage: React.FC = () => {
 					</Item>
 				</Card>
 			</SettingsSection>
-
 		</SettingsPageShell>
 	);
 };
