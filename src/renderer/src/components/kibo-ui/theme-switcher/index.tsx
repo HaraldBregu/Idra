@@ -3,7 +3,7 @@
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
 const themes = [
@@ -42,7 +42,6 @@ export const ThemeSwitcher = ({
 		prop: value,
 		onChange,
 	});
-	const [mounted, setMounted] = useState(false);
 
 	const handleThemeClick = useCallback(
 		(themeKey: 'light' | 'dark' | 'system') => {
@@ -50,14 +49,6 @@ export const ThemeSwitcher = ({
 		},
 		[setTheme]
 	);
-
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	if (!mounted) {
-		return null;
-	}
 
 	return (
 		<div
@@ -72,7 +63,8 @@ export const ThemeSwitcher = ({
 				return (
 					<button
 						aria-label={label}
-						className="relative h-6 w-6 rounded-full"
+						aria-pressed={isActive}
+						className="relative h-6 w-6 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
 						key={key}
 						onClick={() => handleThemeClick(key as 'light' | 'dark' | 'system')}
 						type="button"
