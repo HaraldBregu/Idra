@@ -8,6 +8,7 @@ import { ExtensionRegistry, ExtensionStorage } from './extensions/extension_inde
 
 import { Agent } from './agent/agent';
 import { ExecSandbox } from './agent/sandbox';
+import { createRealtimeVoiceManager, type RealtimeVoiceManager } from './realtime_voice';
 
 export interface MainServices {
 	appState: AppState;
@@ -19,6 +20,7 @@ export interface MainServices {
 	windowContextManager: WindowContextManager;
 	extensionRegistry: ExtensionRegistry;
 	extensionStorage: ExtensionStorage;
+	realtimeVoiceManager: RealtimeVoiceManager;
 }
 
 export interface BootstrapResult extends MainServices {}
@@ -33,6 +35,7 @@ export function bootstrapServices(): BootstrapResult {
 	const agentService = new Agent(windowFactory, new ExecSandbox());
 	const channelRegistry = createChannelRegistry({ logger, eventBus, agentService });
 	const windowContextManager = new WindowContextManager(logger, eventBus);
+	const realtimeVoiceManager = createRealtimeVoiceManager(agentService, windowFactory, eventBus);
 
 	logger.info('Bootstrap', 'Registered global services');
 
@@ -46,12 +49,14 @@ export function bootstrapServices(): BootstrapResult {
 		windowContextManager,
 		extensionRegistry,
 		extensionStorage,
+		realtimeVoiceManager,
 	};
 }
 
 export async function cleanup(services: MainServices): Promise<void> {
-	const { logger, windowContextManager, channelRegistry } = services;
+	const { logger, windowContextManager, channelRegistry, realtimeVoiceManager } = services;
 	logger.info('Bootstrap', 'Starting cleanup');
+	await realtimeVoiceManager.stopAll();
 	await windowContextManager.destroyAll();
 	channelRegistry.destroy();
 	logger.destroy();

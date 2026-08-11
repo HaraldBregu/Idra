@@ -84,7 +84,7 @@ export class Agent {
 	private readonly activeRuns = new Map<string, ActiveAgentRun>();
 	private readonly activeSessions = new Map<string, SessionState>();
 	private readonly scheduler = new AgentRunScheduler(3);
-	private readonly resources = new KeyedMutex();
+	readonly resources = new KeyedMutex();
 	private readonly providerLimiter = new KeyedLimiter(3);
 	private readonly subagentLimiter = new KeyedLimiter(3);
 	private readonly lastMessagesLimit = 50;

@@ -13,6 +13,7 @@ import { ExtensionsIpc } from '../extensions';
 import { WikiIpc } from '../wiki';
 import { WindowIpc } from '../window';
 import { DataIpc } from '../data';
+import { RealtimeVoiceIpc } from '../realtime_voice';
 import type { EventBus } from '../../event_bus';
 import type { MainServices } from '../../bootstrap';
 
@@ -24,6 +25,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 		windowFactory,
 		extensionRegistry,
 		extensionStorage,
+		realtimeVoiceManager,
 	} = services;
 
 	const safeRegister = (name: string, register: () => void): void => {
@@ -51,6 +53,9 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('tasks', () => new TaskIpc().register(undefined, eventBus));
 	safeRegister('mcp', () => new McpIpc().register(undefined, eventBus));
 	safeRegister('models', () => new ModelsIpc().register(undefined, eventBus));
+	safeRegister('realtime-voice', () =>
+		new RealtimeVoiceIpc().register({ realtimeVoice: realtimeVoiceManager }, eventBus)
+	);
 	safeRegister('skills', () => new SkillsIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
