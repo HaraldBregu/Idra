@@ -92,6 +92,20 @@ export function pcm16ToBase64(pcm: Int16Array): string {
 	return btoa(binary);
 }
 
+export function base64ToPcm16(value: string): Int16Array {
+	const binary = atob(value);
+	const output = new Int16Array(Math.floor(binary.length / 2));
+	const bytes = new Uint8Array(binary.length);
+	for (let index = 0; index < binary.length; index += 1) {
+		bytes[index] = binary.charCodeAt(index);
+	}
+	const view = new DataView(bytes.buffer);
+	for (let index = 0; index < output.length; index += 1) {
+		output[index] = view.getInt16(index * 2, true);
+	}
+	return output;
+}
+
 // ─── recording ───────────────────────────────────────────────────────────────
 
 const AUDIO_MIME_TYPES = [

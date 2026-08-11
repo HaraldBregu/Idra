@@ -32,6 +32,7 @@ type BarWaveAnimationProps = {
   height?: number
   className?: string
   mediaStream?: MediaStream | null
+  analyser?: AnalyserNode | null
 }
 
 function readAnalyserAmp(
@@ -66,6 +67,7 @@ export function BarWaveAnimation({
   height = 80,
   className,
   mediaStream,
+  analyser,
 }: BarWaveAnimationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const activeRef = useRef(active)
@@ -77,6 +79,15 @@ export function BarWaveAnimation({
   }, [active])
 
   useEffect(() => {
+    if (analyser) {
+      analyserRef.current = analyser
+      dataArrayRef.current = new Uint8Array(analyser.fftSize)
+      return () => {
+        analyserRef.current = null
+        dataArrayRef.current = null
+      }
+    }
+
     if (!mediaStream) {
       analyserRef.current = null
       dataArrayRef.current = null
@@ -104,7 +115,7 @@ export function BarWaveAnimation({
       analyser.disconnect()
       void audioContext.close().catch(() => undefined)
     }
-  }, [mediaStream])
+  }, [analyser, mediaStream])
 
   useEffect(() => {
     const canvas = canvasRef.current

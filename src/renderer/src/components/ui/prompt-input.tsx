@@ -8,7 +8,6 @@ import {
   TooltipTrigger,
 } from "./tooltip"
 import { BarWaveAnimation } from "./bar-wave-animation"
-import { WaveAnimation } from "./wave-animation"
 import { TypingLoader } from "./loader"
 import { cn } from "@/lib/utils"
 import { Check, Mic, MicOff, X } from "lucide-react"
@@ -76,6 +75,9 @@ export type PromptInputProps = {
   voiceElapsedMs?: number
   voiceMuted?: boolean
   voiceMediaStream?: MediaStream | null
+  voiceAnalyser?: AnalyserNode | null
+  voiceStatus?: string
+  voiceWaveformActive?: boolean
   onVoiceEnd?: () => void
   onVoiceCancel?: () => void
   onVoiceConfirm?: () => void
@@ -158,10 +160,14 @@ function PromptInputVoiceWaveform({
   muted,
   mode,
   mediaStream,
+  analyser,
+  active,
 }: {
   muted: boolean
   mode: PromptInputVoiceMode
   mediaStream?: MediaStream | null
+  analyser?: AnalyserNode | null
+  active?: boolean
 }) {
   return (
     <div
@@ -171,11 +177,12 @@ function PromptInputVoiceWaveform({
       )}
       aria-hidden="true"
     >
-      {mode === "dictation" ? (
-        <BarWaveAnimation active={!muted} height={28} mediaStream={mediaStream} />
-      ) : (
-        <WaveAnimation active={!muted} height={28} />
-      )}
+      <BarWaveAnimation
+        active={active ?? !muted}
+        height={28}
+        mediaStream={mediaStream}
+        analyser={analyser}
+      />
     </div>
   )
 }
@@ -194,6 +201,9 @@ function PromptInputVoicePanel({
   elapsedMs,
   muted,
   mediaStream,
+  analyser,
+  status,
+  waveformActive,
   onEnd,
   onCancel,
   onConfirm,
@@ -205,6 +215,9 @@ function PromptInputVoicePanel({
   elapsedMs?: number
   muted?: boolean
   mediaStream?: MediaStream | null
+  analyser?: AnalyserNode | null
+  status?: string
+  waveformActive?: boolean
   onEnd?: () => void
   onCancel?: () => void
   onConfirm?: () => void
@@ -267,8 +280,23 @@ function PromptInputVoicePanel({
         />
       </div>
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        <div className="min-w-28 flex-1">
-          <PromptInputVoiceWaveform muted={isMuted} mode={mode} mediaStream={mediaStream} />
+        {status ? (
+          <span
+            role="status"
+            aria-live="polite"
+            className="w-20 shrink-0 truncate text-xs font-medium text-muted-foreground"
+          >
+            {status}
+          </span>
+        ) : null}
+        <div className="min-w-20 flex-1">
+          <PromptInputVoiceWaveform
+            muted={isMuted}
+            mode={mode}
+            mediaStream={mediaStream}
+            analyser={analyser}
+            active={waveformActive}
+          />
         </div>
         {elapsedMs !== undefined ? (
           <span className="w-10 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
@@ -361,6 +389,9 @@ function PromptInput({
   voiceElapsedMs,
   voiceMuted,
   voiceMediaStream,
+  voiceAnalyser,
+  voiceStatus,
+  voiceWaveformActive,
   onVoiceEnd,
   onVoiceCancel,
   onVoiceConfirm,
@@ -451,6 +482,9 @@ function PromptInput({
                   elapsedMs={voiceElapsedMs}
                   muted={voiceMuted}
                   mediaStream={voiceMediaStream}
+                  analyser={voiceAnalyser}
+                  status={voiceStatus}
+                  waveformActive={voiceWaveformActive}
                   onEnd={onVoiceEnd}
                   onCancel={onVoiceCancel}
                   onConfirm={onVoiceConfirm ?? onSubmit}
@@ -504,6 +538,9 @@ function PromptInput({
                         elapsedMs={voiceElapsedMs}
                         muted={voiceMuted}
                         mediaStream={voiceMediaStream}
+                        analyser={voiceAnalyser}
+                        status={voiceStatus}
+                        waveformActive={voiceWaveformActive}
                         onCancel={onVoiceCancel}
                         onConfirm={onVoiceConfirm ?? onSubmit}
                         onMutedChange={onVoiceMutedChange}

@@ -347,6 +347,24 @@ export function agentChatReducer(
 				...state,
 				messages: [...state.messages, createUserMessage(action.messageId, action.content)],
 			};
+		case 'start_voice_turn': {
+			const previous = activeAgent(state);
+			const messages = previous
+				? state.messages.map((message) =>
+						message.id === previous.id && isAgentMessage(message)
+							? { ...message, state: 'completed' as const, completedAtMs: Date.now() }
+							: message
+					)
+				: state.messages;
+			const userMessage = createUserMessage(action.userMessageId, action.content);
+			const agentMessage = createAgentMessage(action.agentMessageId, action.runId, Date.now());
+			return {
+				...state,
+				messages: [...messages, userMessage, agentMessage],
+				activeAgentId: agentMessage.id,
+				activeRunId: action.runId,
+			};
+		}
 		case 'apply_response_event':
 			return applyResponseEvent(state, action.event, action.receivedAtMs);
 		case 'complete_active': {
