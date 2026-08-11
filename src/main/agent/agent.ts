@@ -11,6 +11,7 @@ import {
 	resolveStoredSessionId,
 	tryAppendRun,
 	type SessionState,
+	type SessionResult,
 } from './session';
 import { stream } from './runner/run_stream';
 import { agentLocation } from '../shared/agent_location';
@@ -18,13 +19,6 @@ import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './permissions';
 import { parseSkillCommand } from './skills';
-import {
-	createContextState,
-	enqueueCommand,
-	interruptCommands,
-	type AgentCommand,
-	type AgentContextState,
-} from './context';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
 	AgentRunOptions,
@@ -41,16 +35,15 @@ import type { SessionCategory } from './session';
 import { KeyedLimiter } from './limiter';
 import { KeyedMutex } from './mutex';
 import type { ExecSandbox } from './sandbox';
-
-interface ActiveAgentRun {
-	runId: string;
-	agentId: string;
-	sessionId: string;
-	category: SessionCategory;
-	windowId?: number;
-	controller: AbortController;
-	completion?: Promise<string>;
-}
+import {
+	admitRun,
+	beginRun,
+	cancelRun,
+	completeRun,
+	createRunRegistry,
+	type AgentRunOutcome,
+	type AgentRunRecord,
+} from './state';
 
 const RUN_PRIORITIES: Record<SessionCategory, AgentRunPriority> = {
 	main: 'high',
@@ -81,8 +74,7 @@ export type AgentSendOptions =
 type InternalAgentSendOptions = AgentSendOptions & { legacySessionId?: string };
 
 export class Agent {
-	private readonly activeRuns = new Map<string, ActiveAgentRun>();
-	private readonly activeSessions = new Map<string, SessionState>();
+	private readonly runs = createRunRegistry<InternalAgentSendOptions>();
 	private readonly scheduler = new AgentRunScheduler(3);
 	readonly resources = new KeyedMutex();
 	private readonly providerLimiter = new KeyedLimiter(3);
@@ -90,7 +82,6 @@ export class Agent {
 	private readonly lastMessagesLimit = 50;
 	private isStarted = false;
 	readonly config: Config;
-	readonly state: AgentContextState;
 
 	constructor(
 		private readonly windowFactory: WindowFactory,
@@ -98,7 +89,6 @@ export class Agent {
 	) {
 		this.config = { location: path.resolve(agentLocation()) };
 		initTask();
-		this.state = createContextState(createSessionState().context);
 	}
 
 	start(logger: {
@@ -139,7 +129,6 @@ export class Agent {
 		const category = AGENT_CATEGORIES[normalizedAgentId] ?? 'main';
 		const sessionId = resolveSessionId(options.sessionId, this.config.location, category);
 		const runId = options.runId ?? randomUUID();
-		if (this.activeRuns.has(runId)) throw new Error(`Agent run '${runId}' is already active.`);
 		const commandOptions: InternalAgentSendOptions = {
 			...options,
 			sessionId,
@@ -147,61 +136,56 @@ export class Agent {
 				? { legacySessionId: options.sessionId }
 				: {}),
 		};
-		const command: AgentCommand<InternalAgentSendOptions> = {
+		const record = admitRun(this.runs, {
 			id: runId,
 			agentId: normalizedAgentId,
+			sessionId,
+			category,
 			message,
 			options: commandOptions,
 			queuedAt: Date.now(),
-		};
-		enqueueCommand(this.state, command);
-		const controller = new AbortController();
-		const active: ActiveAgentRun = {
-			runId,
-			agentId: command.agentId,
-			sessionId,
-			category,
 			...(options.windowId === undefined ? {} : { windowId: options.windowId }),
-			controller,
-		};
-		this.activeRuns.set(command.id, active);
-		const run = this.scheduler.run(sessionId, () => this.process(command, controller), {
-			priority: RUN_PRIORITIES[category],
-			signal: controller.signal,
 		});
-		active.completion = run;
+		const scheduled = this.scheduler.run(sessionId, () => this.process(record), {
+			priority: RUN_PRIORITIES[category],
+			signal: record.controller.signal,
+		});
+		const completion = scheduled.catch((error): AgentRunOutcome => {
+			if (record.lifecycle.status === 'cancelling' && !record.lifecycle.session) {
+				return { text: '', stopReason: 'cancelled' };
+			}
+			throw error;
+		});
+		record.completion = completion;
 		const cleanup = () => {
-			if (this.activeRuns.get(command.id) === active) this.activeRuns.delete(command.id);
+			completeRun(this.runs, record);
 		};
-		void run.then(cleanup, cleanup);
-		return run;
+		void completion.then(cleanup, cleanup);
+		return completion.then((outcome) => outcome.text);
 	}
 
 	private async process(
-		command: AgentCommand<InternalAgentSendOptions>,
-		controller: AbortController
-	): Promise<string> {
-		if (!this.state.pending.includes(command)) return '';
-		this.state.pending = this.state.pending.filter((candidate) => candidate !== command);
-		const view = { id: command.id, agentId: command.agentId, message: command.message };
-		const { options } = command;
-		const category = AGENT_CATEGORIES[command.agentId] ?? 'main';
+		record: AgentRunRecord<InternalAgentSendOptions>
+	): Promise<AgentRunOutcome> {
+		const { request, controller } = record;
+		const { options } = request;
 		const session = createSessionState();
-		this.activeSessions.set(command.id, session);
+		if (!beginRun(record, session)) return { text: '', stopReason: 'cancelled' };
 
 		let response = '';
+		let result: SessionResult | undefined;
 		try {
-			if (controller.signal.aborted) return '';
-			const parsedSkillCommand = parseSkillCommand(view.message);
+			if (controller.signal.aborted) return { text: '', stopReason: 'cancelled' };
+			const parsedSkillCommand = parseSkillCommand(request.message);
 
 			const baseInput = {
-				runId: view.id,
+				runId: request.id,
 				task: 'chat',
 				message: parsedSkillCommand.message,
-				agentId: view.agentId,
+				agentId: request.agentId,
 				contextMode:
 					options.contextMode ??
-					(options.lightContext === true || category !== 'main' ? 'minimal' : 'workspace'),
+					(options.lightContext === true || request.category !== 'main' ? 'minimal' : 'workspace'),
 				...(options.effort ? { effort: options.effort } : {}),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
 				...(options.files?.length ? { files: options.files } : {}),
@@ -229,10 +213,10 @@ export class Agent {
 							...(options.toolsAllow === undefined ? {} : { toolsAllow: options.toolsAllow }),
 						};
 
-			init(session, this.config, input, category);
+			init(session, this.config, input, request.category);
 			tryAppendRun(session, {
 				type: 'run_queue_metrics',
-				queueDelayMs: Date.now() - command.queuedAt,
+				queueDelayMs: Date.now() - request.queuedAt,
 			});
 
 			const timeoutSignal = AbortSignal.timeout(10 * 60_000);
@@ -249,24 +233,35 @@ export class Agent {
 			const streamingToolArgs = new Map<string, { name: string; argsText: string }>();
 			for await (const event of events) {
 				if (event.type === 'model_call_delta') response += event.delta;
-				if (event.type === 'run_finished') response = event.result.text || response;
+				if (event.type === 'run_finished') {
+					result = event.result;
+					response = event.result.text || response;
+				}
 
 				for (const responseEvent of runtimeEventToAgentEvents(
 					event,
-					view.agentId,
-					view.id,
+					request.agentId,
+					request.id,
 					streamingToolArgs
 				)) {
 					options.streamEvent?.(responseEvent);
 				}
 			}
-			return response;
+			return {
+				text: response,
+				stopReason: result
+					? normalizeStopReason(result.stopReason)
+					: controller.signal.aborted
+						? 'cancelled'
+						: 'end_turn',
+				...(result ? { result } : {}),
+			};
 		} catch (error) {
-			if (controller.signal.aborted) return response;
+			if (controller.signal.aborted) {
+				return { text: response, stopReason: 'cancelled', ...(result ? { result } : {}) };
+			}
 			const cause = toError(error, 'Agent request failed.');
 			throw cause;
-		} finally {
-			this.activeSessions.delete(command.id);
 		}
 	}
 
@@ -280,24 +275,26 @@ export class Agent {
 			.flatMap(toHistoryMessages);
 	}
 
-	async clearMessages(sessionId: string): Promise<void> {
+	clearMessages(sessionId: string): Promise<void> {
 		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
-		await this.cancelSession(resolvedSessionId);
-		await this.scheduler.run(
+		const completions = this.cancelSession(resolvedSessionId);
+		return this.scheduler.run(
 			resolvedSessionId,
 			async () => {
+				await Promise.allSettled(completions);
 				clearSessionMessages(createSessionState(), this.config, resolvedSessionId);
 			},
 			{ priority: 'high' }
 		);
 	}
 
-	async deleteSession(sessionId: string): Promise<void> {
+	deleteSession(sessionId: string): Promise<void> {
 		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
-		await this.cancelSession(resolvedSessionId);
-		await this.scheduler.run(
+		const completions = this.cancelSession(resolvedSessionId);
+		return this.scheduler.run(
 			resolvedSessionId,
 			async () => {
+				await Promise.allSettled(completions);
 				deleteStoredSession(createSessionState(), this.config, resolvedSessionId);
 			},
 			{ priority: 'high' }
@@ -305,47 +302,43 @@ export class Agent {
 	}
 
 	cancel(runId: string, windowId?: number): boolean {
-		const active = this.activeRuns.get(runId);
-		if (!active || (windowId !== undefined && active.windowId !== windowId)) return false;
-		this.state.pending = this.state.pending.filter((command) => command.id !== runId);
+		const record = this.runs.get(runId);
+		if (!record || (windowId !== undefined && record.request.windowId !== windowId)) return false;
+		const cancelled = cancelRun(record, new DOMException('Run cancelled.', 'AbortError'));
+		if (!cancelled) return false;
 		rejectPendingToolPermissions(runId);
-		active.controller.abort(new DOMException('Run cancelled.', 'AbortError'));
 		return true;
 	}
 
 	cancelAll(): void {
 		rejectPendingToolPermissions();
-		interruptCommands(this.state);
-		for (const active of this.activeRuns.values()) {
-			active.controller.abort(new DOMException('Application shutting down.', 'AbortError'));
+		for (const record of this.runs.values()) {
+			cancelRun(record, new DOMException('Application shutting down.', 'AbortError'));
 		}
 	}
 
 	isBusy(agentId: string): boolean {
-		return (
-			[...this.activeRuns.values()].some((active) => active.agentId === agentId) ||
-			this.state.pending.some((command) => command.agentId === agentId)
-		);
+		return [...this.runs.values()].some((record) => record.request.agentId === agentId);
 	}
 
 	runningSkill(): string | undefined {
-		return [...this.activeSessions.values()].find((session) => session.context.skill)?.context
-			.skill;
+		for (const record of this.runs.values()) {
+			if (record.lifecycle.status !== 'running') continue;
+			const skill = record.lifecycle.session.runContext.loadedSkills.at(-1);
+			if (skill) return skill.name;
+		}
+		return undefined;
 	}
 
-	private async cancelSession(sessionId: string): Promise<void> {
-		this.state.pending = this.state.pending.filter(
-			(command) => (command.options as InternalAgentSendOptions).sessionId !== sessionId
+	private cancelSession(sessionId: string): Promise<AgentRunOutcome>[] {
+		const matching = [...this.runs.values()].filter(
+			(record) => record.request.sessionId === sessionId
 		);
-		const matching = [...this.activeRuns.entries()].filter(
-			([, active]) => active.sessionId === sessionId
+		const completions = matching.flatMap((record) =>
+			record.completion ? [record.completion] : []
 		);
-		for (const [runId] of matching) {
-			this.cancel(runId);
-		}
-		await Promise.allSettled(
-			matching.map(([, active]) => active.completion).filter((run): run is Promise<string> => !!run)
-		);
+		for (const record of matching) this.cancel(record.request.id);
+		return completions;
 	}
 }
 

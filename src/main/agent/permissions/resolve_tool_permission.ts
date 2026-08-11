@@ -1,4 +1,4 @@
-import { contextAllowsTool, type ToolsContext } from '../context';
+import { contextAllowsTool, type FileAccessContext } from '../context';
 import { AGENT_DIRECTORY, getPermissions } from '../agent_store';
 import { registry } from '../tools/core/process';
 import { directoryPermissionTargets } from './directory_permission_targets';
@@ -18,7 +18,7 @@ const WRITE_TOOLS = new Set([
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
-	context?: ToolsContext,
+	context?: FileAccessContext,
 	reuseContext = true,
 	fallback: PermissionMode = 'ask',
 	configuredPermissions?: PermissionsSchema

@@ -1,4 +1,4 @@
-import { createContext } from '../context';
+import { createRunContext } from '../context';
 import { DEFAULT_CATEGORY, type SessionState } from './session_types';
 
 export function createSessionState(): SessionState {
@@ -15,6 +15,6 @@ export function createSessionState(): SessionState {
 		sessionsPath: '',
 		folderName: '',
 		runTraceBuffer: [],
-		context: createContext(),
+		runContext: createRunContext(),
 	};
 }

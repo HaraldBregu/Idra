@@ -1,5 +1,5 @@
 import type { RealtimeVoiceEvent, RealtimeVoiceToolEvent } from '../../shared/realtime_voice';
-import type { ToolsContext } from '../agent/context';
+import { createRunContext } from '../agent/context';
 import type { KeyedMutex } from '../agent/mutex';
 import { formatToolOutput } from '../agent/runner/run_common';
 import { runToolCall } from '../agent/runner/run_tool_call';
@@ -41,7 +41,7 @@ export interface RealtimeVoiceToolRuntimeDependencies {
 }
 
 export class RealtimeVoiceToolRuntime {
-	private readonly toolsContext: ToolsContext = {};
+	private readonly fileAccess = createRunContext().fileAccess;
 	private readonly names = new Map<string, string>();
 	private readonly arguments = new Map<string, string>();
 	private tail = Promise.resolve();
@@ -121,7 +121,7 @@ export class RealtimeVoiceToolRuntime {
 			tool,
 			toolCall,
 			this.dependencies.signal,
-			this.toolsContext,
+			this.fileAccess,
 			{ runId: this.dependencies.sessionId, windowId: this.dependencies.windowId },
 			this.dependencies.resources
 		)) {

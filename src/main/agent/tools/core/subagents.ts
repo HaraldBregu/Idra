@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { KeyedLimiter } from '../../limiter';
-import { adoptSubagent, type AgentContext } from '../../context';
 import { stream, type StreamOptions } from '../../runner/run_stream';
 import { createSessionState } from '../../session';
 import type { Config, RuntimeInput, Tool } from '../../types';
@@ -18,7 +17,6 @@ export interface ChildRuntime extends Pick<
 export async function runChild(
 	config: Config,
 	tools: Tool[],
-	parent: AgentContext,
 	task: string,
 	instructions: string,
 	signal: AbortSignal,
@@ -38,13 +36,12 @@ export async function runChild(
 			: { ...baseInput, type: 'default' };
 	const session = createSessionState();
 	session.messages = [{ role: 'user', content: task }];
-	session.context.basePrompt = instructions;
-	adoptSubagent(parent, session.context);
 
 	let text = '';
 	const { type: _type, ...streamOptions } = runtime;
 	const events = stream(config, session, input, signal, {
 		tools,
+		instructions,
 		...streamOptions,
 	});
 	for await (const event of events) {
@@ -78,7 +75,6 @@ const PARALLEL_TOOL_IDS = new Set(['read_file', 'search_web', 'fetch_web_page', 
 export function subagentTool(
 	config: Config,
 	tools: Tool[],
-	parent: AgentContext,
 	runtime: ChildRuntime
 ): Tool {
 	return tool({
@@ -96,7 +92,6 @@ export function subagentTool(
 			return runChild(
 				config,
 				childTools,
-				parent,
 				task,
 				subagentInstructions,
 				signal ?? new AbortController().signal,
@@ -109,7 +104,6 @@ export function subagentTool(
 export function subagentsTool(
 	config: Config,
 	tools: Tool[],
-	parent: AgentContext,
 	runtime: ChildRuntime,
 	pool: KeyedLimiter = fallbackPool
 ): Tool {
@@ -139,7 +133,6 @@ export function subagentsTool(
 						return await runChild(
 							config,
 							childTools,
-							parent,
 							task,
 							subagentsInstructions,
 							parentSignal,

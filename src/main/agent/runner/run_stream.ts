@@ -27,7 +27,6 @@ import { runToolCalls } from './run_tool_calls';
 import { filterTools } from './run_tools';
 import { formatToolOutput } from './run_common';
 import { selectSkillTools } from './run_skill_tools';
-import { hasPrivateInput } from './run_has_private_input';
 import { activateSkill, createSkillRegistrySnapshot } from '../skills';
 import type { SkillLoadResult } from '../../../shared/skills_types';
 import type { KeyedLimiter } from '../limiter';
@@ -37,6 +36,7 @@ import { builtinTools } from './run_builtin_tools';
 
 export interface StreamOptions {
 	tools?: Tool[];
+	instructions?: string;
 	streaming?: boolean;
 	windowFactory?: WindowFactory;
 	resources?: KeyedMutex;
@@ -122,28 +122,19 @@ async function* loop(
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
-	session.context.skill = undefined;
-	session.context.loadedSkills = undefined;
-	session.context.subagents = undefined;
-	session.context.toolsContext = {
-		...(hasPrivateInput(session.messages) ? { hasPrivateContext: true } : {}),
-	};
 	if (!options.tools && !options.sandbox) throw new Error('Agent command sandbox is unavailable.');
 
 	let tools: Tool[] = options.tools
 		? [...options.tools]
 		: builtinTools(config, options.sandbox!, options.windowFactory);
 	const applyActivatedSkill = (skill: SkillLoadResult): void => {
-		session.context.skill = skill.name;
-		rememberSkill(session.context, {
+		rememberSkill(session.runContext, {
 			id: skill.id,
 			name: skill.name,
 			canonicalRoot: skill.canonicalRoot,
 			instructions: skill.instructions,
-			source: skill.source,
 			trust: skill.trust,
 			hash: skill.hash,
-			allowedTools: skill.allowedTools,
 			resources: skill.resources,
 			warnings: skill.warnings,
 		});
@@ -152,7 +143,6 @@ async function* loop(
 			tools.length,
 			...filterTools(selectSkillTools(tools, skill.allowedTools), input.toolsAllow, input.toolsDeny)
 		);
-		session.context.toolsContext.hasPrivateContext = true;
 	};
 	if (!options.tools && skillListingEnabled) tools.push(listSkillsTool(skillSnapshot));
 	if (!options.tools && skillLoadingEnabled) {
@@ -180,8 +170,8 @@ async function* loop(
 			...(options.subagentLimiter ? { subagentLimiter: options.subagentLimiter } : {}),
 		};
 		tools.push(
-			subagentTool(config, childTools, session.context, childRuntime),
-			subagentsTool(config, childTools, session.context, childRuntime, options.subagentLimiter)
+			subagentTool(config, childTools, childRuntime),
+			subagentsTool(config, childTools, childRuntime, options.subagentLimiter)
 		);
 	}
 	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
@@ -197,7 +187,7 @@ async function* loop(
 		providerId: provider.id,
 		tools: tools.map((tool) => tool.id),
 		skillDiagnostics: skillSnapshot.diagnostics,
-		skillActivations: ((session.context.loadedSkills as LoadedSkill[] | undefined) ?? []).map(
+		skillActivations: (session.runContext.loadedSkills as LoadedSkill[]).map(
 			(skill) => ({
 				id: skill.id,
 				name: skill.name,
@@ -214,30 +204,29 @@ async function* loop(
 		let botWebToolCalls = 0;
 		while (true) {
 			if (signal.aborted) return;
-			session.context.systemPrompt = await buildSystemPrompt(
+			const systemPrompt = await buildSystemPrompt(
 				config,
 				tools,
-				session.context.loadedSkills,
-				session.context.basePrompt,
+				session.runContext.loadedSkills,
+				options.instructions,
 				contextMode,
 				tools.some((tool) => tool.id === 'load_skill')
 			);
-			const protectedSkillPrompt = buildLoadedSkillPrompt(session.context.loadedSkills ?? []);
+			const protectedSkillPrompt = buildLoadedSkillPrompt(session.runContext.loadedSkills);
 			const workspaceContext =
-				contextMode === 'workspace' && session.context.basePrompt === undefined
+				contextMode === 'workspace' && options.instructions === undefined
 					? await buildWorkspaceContext(config)
 					: '';
 			const skillContext = tools.some((tool) => tool.id === 'load_skill')
 				? buildSkillContext(skillSnapshot.skills)
 				: '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
-			if (runtimeContext) session.context.toolsContext.hasPrivateContext = true;
 			const messages = session.messages;
 			const turn = yield* runModelTurn(
 				input,
 				provider,
 				modelId,
-				session.context.systemPrompt,
+				systemPrompt,
 				messages,
 				tools,
 				signal,
@@ -305,7 +294,7 @@ async function* loop(
 				tools,
 				turn.toolCalls,
 				signal,
-				session.context.toolsContext,
+				session.runContext.fileAccess,
 				{
 					runId,
 					...(input.approvalWindowId === undefined ? {} : { windowId: input.approvalWindowId }),
@@ -327,12 +316,6 @@ async function* loop(
 				return;
 			}
 
-			if (session.context.toolsContext.cancelled) {
-				session.stopReason = 'cancelled';
-				const result = toResult(session, 'success');
-				yield { type: 'run_finished', result };
-				return;
-			}
 		}
 	} finally {
 		await closeMcp?.();

@@ -2,7 +2,7 @@ import type {
 	AgentInputFile,
 	ModelReasoningEffort,
 } from '../../../shared/agent_types';
-import type { AgentContext } from '../context';
+import type { RunContext } from '../context';
 import type { Message, MessageContentBlock, ToolCall } from '../types';
 
 export const DEFAULT_CATEGORY: SessionCategory = 'main';
@@ -66,5 +66,5 @@ export interface SessionState {
 	sessionsPath: string;
 	folderName: string;
 	runTraceBuffer: string[];
-	context: AgentContext;
+	runContext: RunContext;
 }

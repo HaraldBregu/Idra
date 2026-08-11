@@ -1,5 +1,10 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
-import { fileToolState, isFileCreation, rememberTool, type ToolsContext } from '../context';
+import {
+	fileToolState,
+	isFileCreation,
+	rememberTool,
+	type FileAccessContext,
+} from '../context';
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
@@ -23,7 +28,7 @@ export async function* runToolCall(
 	tool: Tool | undefined,
 	toolCall: ToolCall,
 	signal?: AbortSignal,
-	context?: ToolsContext,
+	context?: FileAccessContext,
 	security: ToolCallSecurityContext = { runId: 'internal' },
 	resources?: KeyedMutex
 ): AsyncGenerator<RuntimeEvent, void> {
@@ -66,9 +71,6 @@ export async function* runToolCall(
 		isError = true;
 	} else if (parseError) {
 		output = `Error: invalid input for '${toolCall.name}': ${parseError instanceof Error ? parseError.message : String(parseError)}`;
-		isError = true;
-	} else if (context?.cancelled) {
-		output = `Error: cancelled by user`;
 		isError = true;
 	} else {
 		let permission = resolveToolPermission(toolCall.name, canonicalInput, context, true, 'ask');
@@ -161,9 +163,6 @@ export async function* runToolCall(
 				const message = error instanceof Error ? error.message : String(error);
 				output = `Error: tool '${toolCall.name}' failed: ${message}`;
 				isError = true;
-			}
-			if (context && toolCall.name !== 'search_web' && toolCall.name !== 'fetch_web_page') {
-				context.hasPrivateContext = true;
 			}
 		}
 	}
