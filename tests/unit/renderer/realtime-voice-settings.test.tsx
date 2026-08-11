@@ -64,6 +64,10 @@ const voiceApi = {
 
 beforeEach(() => {
 	jest.clearAllMocks();
+	Object.defineProperty(globalThis, 'structuredClone', {
+		configurable: true,
+		value: <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T,
+	});
 	realtimeApi.getProviderId.mockResolvedValue(undefined);
 	realtimeApi.getModelId.mockResolvedValue(undefined);
 	realtimeApi.getOptions.mockResolvedValue({});
