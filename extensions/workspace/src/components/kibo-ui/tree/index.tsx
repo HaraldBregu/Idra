@@ -59,6 +59,8 @@ const useTreeNode = () => {
 export type TreeProviderProps = {
   children: ReactNode;
   defaultExpandedIds?: string[];
+  expandedIds?: string[];
+  onExpandedChange?: (expandedIds: string[]) => void;
   showLines?: boolean;
   showIcons?: boolean;
   selectable?: boolean;
@@ -73,6 +75,8 @@ export type TreeProviderProps = {
 export const TreeProvider = ({
   children,
   defaultExpandedIds = [],
+  expandedIds: controlledExpandedIds,
+  onExpandedChange,
   showLines = true,
   showIcons = true,
   selectable = true,
@@ -83,28 +87,37 @@ export const TreeProvider = ({
   animateExpand = true,
   className,
 }: TreeProviderProps) => {
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
+  const [internalExpandedIds, setInternalExpandedIds] = useState<Set<string>>(
     new Set(defaultExpandedIds)
   );
   const [internalSelectedIds, setInternalSelectedIds] = useState<string[]>(
     selectedIds ?? []
   );
 
-  const isControlled =
-    selectedIds !== undefined && onSelectionChange !== undefined;
-  const currentSelectedIds = isControlled ? selectedIds : internalSelectedIds;
+  const expansionIsControlled = controlledExpandedIds !== undefined;
+  const expandedIds = expansionIsControlled
+    ? new Set(controlledExpandedIds)
+    : internalExpandedIds;
+  const selectionIsControlled = selectedIds !== undefined;
+  const currentSelectedIds = selectionIsControlled ? selectedIds : internalSelectedIds;
 
-  const toggleExpanded = useCallback((nodeId: string) => {
-    setExpandedIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(nodeId)) {
-        newSet.delete(nodeId);
+  const toggleExpanded = useCallback(
+    (nodeId: string) => {
+      const nextExpandedIds = new Set(expandedIds);
+      if (nextExpandedIds.has(nodeId)) {
+        nextExpandedIds.delete(nodeId);
       } else {
-        newSet.add(nodeId);
+        nextExpandedIds.add(nodeId);
       }
-      return newSet;
-    });
-  }, []);
+
+      if (expansionIsControlled) {
+        onExpandedChange?.([...nextExpandedIds]);
+      } else {
+        setInternalExpandedIds(nextExpandedIds);
+      }
+    },
+    [expandedIds, expansionIsControlled, onExpandedChange]
+  );
 
   const handleSelection = useCallback(
     (nodeId: string, ctrlKey = false) => {
@@ -122,7 +135,7 @@ export const TreeProvider = ({
         newSelection = currentSelectedIds.includes(nodeId) ? [] : [nodeId];
       }
 
-      if (isControlled) {
+      if (selectionIsControlled) {
         onSelectionChange?.(newSelection);
       } else {
         setInternalSelectedIds(newSelection);
@@ -132,7 +145,7 @@ export const TreeProvider = ({
       selectable,
       multiSelect,
       currentSelectedIds,
-      isControlled,
+      selectionIsControlled,
       onSelectionChange,
     ]
   );
@@ -241,6 +254,7 @@ export const TreeNodeTrigger = ({
         isSelected && "bg-accent/80",
         className
       )}
+      data-selected={isSelected}
       onClick={(e) => {
         toggleExpanded(nodeId);
         handleSelection(nodeId, e.ctrlKey || e.metaKey);
