@@ -11,7 +11,6 @@ import { TitleBarProvider } from './context/TitleBarContext';
 import { NavButton } from './components/NavButton';
 // import { NavigationButtons } from './components/NavigationButtons';
 import { SessionsButton } from './components/SessionsButton';
-import { SettingsButtons } from './components/SettingsButtons';
 import { WindowControls } from './components/WindowControls';
 import { useWindowState } from './hooks/useWindowState';
 import { GradientSphere } from '@/components/ui/gradient-sphere';
@@ -52,7 +51,6 @@ export const TitleBar = React.memo(function TitleBar({
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { isFullScreen } = useWindowState();
-	const [showSettingsButtons, setShowSettingsButtons] = React.useState(false);
 
 	const isHome = location.pathname === '/home';
 	const isStart = location.pathname === '/start';
@@ -73,25 +71,17 @@ export const TitleBar = React.memo(function TitleBar({
 			<GradientSphere size={18} className="pointer-events-none" />
 		</Button>
 	) : !isStart ? (
-		<div className="flex items-center gap-1">
-			<Button
-				type="button"
-				variant="ghost"
-				size="icon"
-				className="size-8 rounded-full"
-				onClick={() => {
-					setShowSettingsButtons(false);
-					navigate('/settings');
-				}}
-				title={settingsLabel}
-				aria-label={settingsLabel}
-			>
-				<User className="size-4" strokeWidth={1.8} />
-			</Button>
-			{showSettingsButtons && (
-				<SettingsButtons onNavigate={() => setShowSettingsButtons(false)} />
-			)}
-		</div>
+		<Button
+			type="button"
+			variant="ghost"
+			size="icon"
+			className="size-8 rounded-full"
+			onClick={() => navigate('/settings')}
+			title={settingsLabel}
+			aria-label={settingsLabel}
+		>
+			<User className="size-4" strokeWidth={1.8} />
+		</Button>
 	) : null;
 	const sessionsButton = isHome ? <SessionsButton /> : null;
 
@@ -110,7 +100,19 @@ export const TitleBar = React.memo(function TitleBar({
 					}
 
 					event.preventDefault();
-					setShowSettingsButtons(true);
+					void window.win
+						.showContextMenu([
+							{ id: '/settings/general', label: t('settings.tabs.general') },
+							{
+								id: '/settings/assistant',
+								label: t('settings.overview.groups.agent'),
+							},
+							{ id: '/settings/system', label: t('settings.tabs.system') },
+							{ id: '/settings/extensions', label: t('settings.tabs.extensions') },
+						])
+						.then((path) => {
+							if (path) navigate(path);
+						});
 				}}
 			>
 				{/* ── Left: platform menu + sidebar toggle + nav buttons ── */}

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { TitleBar } from '../../../src/renderer/src/components/app/titlebar/TitleBar';
@@ -11,13 +11,33 @@ jest.mock('@/components/ui/gradient-sphere', () => ({
 	GradientSphere: (): null => null,
 }));
 
+const showContextMenu = jest.fn();
+const contextMenuItems = [
+	{ id: '/settings/general', label: 'settings.tabs.general' },
+	{ id: '/settings/assistant', label: 'settings.overview.groups.agent' },
+	{ id: '/settings/system', label: 'settings.tabs.system' },
+	{ id: '/settings/extensions', label: 'settings.tabs.extensions' },
+];
+
+beforeEach(() => {
+	showContextMenu.mockResolvedValue(null);
+	Object.defineProperty(window, 'win', {
+		configurable: true,
+		value: {
+			isFullScreen: jest.fn().mockResolvedValue(false),
+			onFullScreenChange: jest.fn(() => jest.fn()),
+			showContextMenu,
+		},
+	});
+});
+
 it.each([
 	['settings.tabs.general', '/settings/general'],
 	['settings.overview.groups.agent', '/settings/assistant'],
 	['settings.tabs.system', '/settings/system'],
 	['settings.tabs.extensions', '/settings/extensions'],
-])('reveals settings buttons on right-click and navigates from %s to %s', async (label, path) => {
-	const user = userEvent.setup();
+])('opens a native context menu and navigates from %s to %s', async (_label, path) => {
+	showContextMenu.mockResolvedValue(path);
 	const { container } = render(
 		<MemoryRouter initialEntries={['/project']}>
 			<TitleBar />
@@ -30,8 +50,6 @@ it.each([
 	const titleBar = container.querySelector('.app-translucent-surface');
 
 	expect(titleBar).not.toBeNull();
-	expect(screen.queryByRole('button', { name: label })).not.toBeInTheDocument();
-
 	const contextMenuEvent = new MouseEvent('contextmenu', {
 		bubbles: true,
 		cancelable: true,
@@ -39,13 +57,23 @@ it.each([
 	fireEvent(titleBar as Element, contextMenuEvent);
 
 	expect(contextMenuEvent.defaultPrevented).toBe(true);
-	expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-	await user.click(screen.getByRole('button', { name: label }));
-
-	expect(screen.getByText(path)).toBeInTheDocument();
+	expect(showContextMenu).toHaveBeenCalledWith(contextMenuItems);
+	await waitFor(() => expect(screen.getByText(path)).toBeInTheDocument());
 });
 
-it('shows the history and user icons on Home before right-click', async () => {
+it('does not open the titlebar menu from a button', () => {
+	render(
+		<MemoryRouter initialEntries={['/home']}>
+			<TitleBar />
+		</MemoryRouter>
+	);
+
+	fireEvent.contextMenu(screen.getByRole('button', { name: 'settings.title' }));
+
+	expect(showContextMenu).not.toHaveBeenCalled();
+});
+
+it('shows the history and user icons on Home', async () => {
 	const user = userEvent.setup();
 
 	render(
@@ -60,7 +88,6 @@ it('shows the history and user icons on Home before right-click', async () => {
 
 	expect(screen.getByRole('button', { name: 'titleBar.chatHistory' })).toBeInTheDocument();
 	expect(screen.getByRole('button', { name: 'settings.title' })).toBeInTheDocument();
-	expect(screen.queryByRole('button', { name: 'settings.tabs.general' })).not.toBeInTheDocument();
 
 	await user.click(screen.getByRole('button', { name: 'settings.title' }));
 
