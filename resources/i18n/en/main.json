@@ -289,6 +289,28 @@
 			"dataFolder": "Data Folder",
 			"openDataFolder": "Open Folder"
 		},
+		"persona": {
+			"title": "Persona demo",
+			"description": "Preview the animated assistant across visual styles and activity states.",
+			"variant": "Style",
+			"state": "State",
+			"previewLabel": "{{variant}} persona in the {{state}} state",
+			"variants": {
+				"obsidian": "Obsidian",
+				"command": "Command",
+				"glint": "Glint",
+				"halo": "Halo",
+				"mana": "Mana",
+				"opal": "Opal"
+			},
+			"states": {
+				"idle": "Idle",
+				"listening": "Listening",
+				"thinking": "Thinking",
+				"speaking": "Speaking",
+				"asleep": "Asleep"
+			}
+		},
 		"system": {
 			"description": "Manage operating system permissions.",
 			"actionsDescription": "Open required operating system panels and control background power behavior.",

@@ -25,6 +25,7 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
+import { PersonaDemo } from './Demo';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -193,6 +194,7 @@ const GeneralPage: React.FC = () => {
 				</Card>
 			</SettingsSection>
 
+			<PersonaDemo />
 		</SettingsPageShell>
 	);
 };
