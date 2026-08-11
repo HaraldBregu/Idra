@@ -236,13 +236,15 @@ npx --no-install electron .
 
 Build installers on the native target operating system:
 
-| Operating system | Command                                         | Output                      |
-| ---------------- | ----------------------------------------------- | --------------------------- |
-| Windows          | `npm run dist:win`                              | x64 NSIS `.exe`             |
-| macOS            | `npm run dist:mac`                              | x64/arm64 `.dmg` and `.pkg` |
-| macOS            | `npm run dist:mac:dmg`                          | x64/arm64 `.dmg` only       |
-| Linux            | `npm run dist:linux:appimage`                   | x64 `.AppImage`             |
-| Linux            | `npm run build && npx electron-builder --linux` | `.AppImage` and `.deb`      |
+| Operating system | Command                                         | Output                              |
+| ---------------- | ----------------------------------------------- | ----------------------------------- |
+| Windows          | `npm run dist:win`                              | x64 NSIS and portable `.exe`        |
+| Windows          | `npm run dist:win:portable`                     | x64 portable `.exe` only            |
+| macOS            | `npm run dist:mac`                              | x64/arm64 `.dmg` and `.pkg`         |
+| macOS            | `npm run dist:mac:dmg`                          | x64/arm64 `.dmg` only               |
+| Linux            | `npm run dist:linux:appimage`                   | x64 `.AppImage`                     |
+| Linux            | `npm run dist:linux:portable`                   | x64 `.AppImage` and `.tar.gz`       |
+| Linux            | `npm run build && npx electron-builder --linux` | x64 `.AppImage`, `.tar.gz`, and DEB |
 
 Artifacts are written to the root `dist/` directory. Local packaging never uploads because
 `electron-builder.json` sets `publish` to `null`.
@@ -252,6 +254,12 @@ Production Windows packaging requires the signing certificate configured through
 notarization credentials. The development/staging `dist:*:dev` and `dist:*:staging`
 scripts currently reference missing helper scripts and must not be used until those
 helpers are restored.
+
+The Windows portable target is signed and runs as the current user. It extracts to a temporary
+directory for the lifetime of the process, so enterprise policies that prohibit execution from
+temporary or user-writable locations still require an IT exception. The Linux archive is the
+fallback when AppImage mounting or FUSE is unavailable. Both formats keep application data in the
+user profile and require manual replacement for upgrades.
 
 ### End-to-end tests
 

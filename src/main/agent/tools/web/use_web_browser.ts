@@ -64,11 +64,21 @@ async function ensureStarted(signal?: AbortSignal): Promise<BrowserContext> {
 	signal?.throwIfAborted();
 	if (context) return context;
 	const userDataDir = path.join(userDataLocation(), 'agent-browser');
-	const launched = await chromium.launchPersistentContext(userDataDir, {
-		channel: 'chrome',
-		headless: false,
-		viewport: null,
-	});
+	let launched: BrowserContext;
+	try {
+		launched = await chromium.launchPersistentContext(userDataDir, {
+			channel: 'chrome',
+			headless: false,
+			viewport: null,
+		});
+	} catch (cause) {
+		signal?.throwIfAborted();
+		const detail = cause instanceof Error ? cause.message : String(cause);
+		throw new Error(
+			`Browser automation could not start Google Chrome. Make sure Chrome is installed, permitted by system policy, and able to write to the Friday profile.\n${detail}`,
+			{ cause }
+		);
+	}
 	if (signal?.aborted) {
 		await launched.close();
 		signal.throwIfAborted();

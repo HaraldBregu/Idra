@@ -580,9 +580,9 @@ Known boundaries:
 
 ## 8. Platform and packaging
 
-- Windows: NSIS installer for x64, selectable installation directory, desktop shortcut, and retained app data on uninstall.
+- Windows: signed NSIS installer and no-install portable executable for x64; the installer supports a selectable directory and desktop shortcut, while both retain per-user app data.
 - macOS: PKG and DMG targets for x64 and arm64, dark-mode support, hardened runtime, and microphone/camera entitlements.
-- Linux: AppImage script and AppImage/DEB builder configuration.
+- Linux: no-install AppImage and tar archive for x64, plus DEB packaging with declared system dependencies.
 - English and Italian translation catalogs and a locale selector are present, but localization is partial: major first-run and Home copy, including suggestions and the editor placeholder, remains hardcoded in English. The Windows installer additionally declares Italian, English, Spanish, French, and German installer languages.
 
 ## Source map

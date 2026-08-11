@@ -97,11 +97,33 @@ npm run test:e2e
 
 ```bash
 npm run build                # Type-check and create a production build
-npm run dist:win             # Windows x64 installer
+npm run dist:win             # Windows x64 installer and portable executable
+npm run dist:win:portable    # Windows x64 portable executable only
 npm run dist:mac             # macOS package for x64 and arm64
 npm run dist:mac:dmg         # macOS DMG for x64 and arm64
 npm run dist:linux:appimage  # Linux AppImage
+npm run dist:linux:portable  # Linux AppImage and tar.gz archive
 ```
+
+### Portable releases
+
+On Windows, download `Friday-Portable-<version>-x64.exe` and run it directly. It temporarily
+extracts its signed application files while Friday is running, but does not install shortcuts,
+file associations, or uninstall records and does not require administrator access.
+
+On Linux, download the AppImage, mark it executable, and launch it. If AppImage mounting or FUSE
+is unavailable, extract the `.tar.gz` release and run `friday-desktop` from the extracted folder.
+Neither option requires a package installation.
+
+Friday settings, conversations, workspace files, and generated data remain under `.friday` in the
+logged-in user's profile. Electron also uses its normal per-user cache and runtime-data locations.
+Portable updates are manual: close Friday and replace the executable or extracted application;
+the profile data remains in place.
+
+Portable packaging does not bypass AppLocker, WDAC, Linux `noexec`, endpoint security, or network
+policy. Protected command execution may require administrator or IT setup, and browser automation
+requires an installed, permitted Google Chrome. Friday reports these limitations without preventing
+chat and other supported features from running.
 
 ## Project Structure
 

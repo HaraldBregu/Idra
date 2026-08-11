@@ -153,7 +153,18 @@ export class ExecSandbox {
 				await this.stopChildren();
 				await SandboxManager.reset();
 			}
-			await SandboxManager.initialize(config);
+			try {
+				await SandboxManager.initialize(config);
+			} catch (cause) {
+				const guidance =
+					process.platform === 'win32'
+						? 'Open Settings > Permissions and complete Windows sandbox setup; administrator or IT approval may be required.'
+						: process.platform === 'linux'
+							? 'Ask IT to provide bubblewrap, socat, and ripgrep and permit unprivileged user namespaces.'
+							: 'Ask your administrator to enable command sandboxing for this machine.';
+				const detail = cause instanceof Error ? cause.message : String(cause);
+				throw new Error(`Command sandbox is unavailable. ${guidance}\n${detail}`, { cause });
+			}
 			this.fingerprint = fingerprint;
 		} finally {
 			release?.();
