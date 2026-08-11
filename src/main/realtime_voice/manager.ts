@@ -7,6 +7,7 @@ import {
 	type RealtimeVoiceSession,
 	type RealtimeVoiceStartRequest,
 	type RealtimeVoiceState,
+	type RealtimeVoiceToolEvent,
 } from '../../shared/realtime_voice';
 import { rejectPendingToolPermissions } from '../agent/permissions';
 import { runToolCall } from '../agent/runner/run_tool_call';
@@ -14,7 +15,7 @@ import { formatToolOutput } from '../agent/runner/run_common';
 import { parseToolArgs } from '../shared/parse_tool_args';
 import type { ToolsContext } from '../agent/context';
 import type { KeyedMutex } from '../agent/mutex';
-import type { RuntimeEvent, Tool, ToolCall } from '../agent/types';
+import type { Tool, ToolCall } from '../agent/types';
 import type { RealtimeVoiceConversation, RealtimeVoiceConversationFactory } from './conversation';
 import type {
 	RealtimeVoiceAdapter,
@@ -63,6 +64,12 @@ interface ActiveRealtimeVoiceSession {
 	state: RealtimeVoiceState;
 	closed: boolean;
 }
+
+type RealtimeVoiceToolPayload = RealtimeVoiceToolEvent extends infer Event
+	? Event extends RealtimeVoiceToolEvent
+		? Omit<Event, 'sessionId' | 'agentId' | 'runId'>
+		: never
+	: never;
 
 export class RealtimeVoiceManager {
 	private readonly byWindow = new Map<number, ActiveRealtimeVoiceSession>();
@@ -384,7 +391,7 @@ export class RealtimeVoiceManager {
 
 	private emitTool(
 		active: ActiveRealtimeVoiceSession,
-		event: Omit<Extract<RealtimeVoiceEvent, { type: RuntimeEvent['type'] | 'tool_call_args_delta' | 'tool_call_input' | 'tool_call_result' }>, 'sessionId' | 'agentId' | 'runId'>
+		event: RealtimeVoiceToolPayload
 	): void {
 		this.dependencies.emit(active.windowId, {
 			...event,
