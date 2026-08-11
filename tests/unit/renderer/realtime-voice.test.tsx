@@ -10,6 +10,12 @@ jest.mock('react-markdown', () => ({ defaultUrlTransform: (url: string) => url }
 jest.mock('@/components/prompt-kit/markdown', () => ({
 	Markdown: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
+jest.mock('@/components/audio-player', () => ({
+	AudioPlayer: ({ src }: { src: string }) => <div data-testid="generated-audio" data-src={src} />,
+}));
+jest.mock('@/components/video-player', () => ({
+	VideoPlayer: ({ src }: { src: string }) => <div data-testid="generated-video" data-src={src} />,
+}));
 
 jest.mock('@/lib/providers', () => ({
 	modelsFor: (capability: string) =>
@@ -322,12 +328,12 @@ describe('useRealtimeVoice', () => {
 			'src',
 			'local-resource://file/tmp/generated-image.png'
 		);
-		expect(view.container.querySelector('audio')).toHaveAttribute(
-			'src',
+		expect(screen.getByTestId('generated-audio')).toHaveAttribute(
+			'data-src',
 			'local-resource://file/tmp/generated-audio.mp3'
 		);
-		expect(view.container.querySelector('video')).toHaveAttribute(
-			'src',
+		expect(screen.getByTestId('generated-video')).toHaveAttribute(
+			'data-src',
 			'local-resource://file/tmp/generated-video.mp4'
 		);
 	});
