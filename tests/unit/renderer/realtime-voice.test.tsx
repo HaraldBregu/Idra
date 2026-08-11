@@ -1,5 +1,6 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { StrictMode, type ReactNode } from 'react';
+import { AssistantMessage } from '../../../src/renderer/src/pages/home/components/AssistantMessage';
 import { Provider } from '../../../src/renderer/src/pages/home/context';
 import { useHomeAgentContext } from '../../../src/renderer/src/pages/home/context';
 import { useRealtimeVoice } from '../../../src/renderer/src/pages/home/hooks/useRealtimeVoice';
@@ -215,5 +216,114 @@ describe('useRealtimeVoice', () => {
 		expect(result.current.chatState.messages.filter((message) => message.role === 'user')).toEqual([
 			expect.objectContaining({ content: 'Show the message I sent.' }),
 		]);
+	});
+
+	it('renders realtime tool status and generated image, audio, and video results', async () => {
+		api.startSession.mockResolvedValue(session);
+		const { result } = renderHook(
+			() => {
+				const voice = useRealtimeVoice({ chatSessionId: 'chat-1', onClosed: jest.fn() });
+				const { chatState } = useHomeAgentContext();
+				return { voice, chatState };
+			},
+			{ wrapper }
+		);
+		await act(async () => result.current.voice.start());
+		act(() => emit({ type: 'user_turn', sessionId: session.id, itemId: 'user-1' }));
+
+		for (const [toolCallId, toolName] of [
+			['image-call', 'create_image'],
+			['audio-call', 'create_sound'],
+			['video-call', 'create_video'],
+		] as const) {
+			act(() =>
+				emit({
+					type: 'tool_call_start',
+					sessionId: session.id,
+					agentId: 'main',
+					runId: session.id,
+					iteration: 0,
+					toolCallId,
+					toolName,
+					name: toolName,
+					serviceKind: 'tool',
+				})
+			);
+		}
+
+		let message = result.current.chatState.messages.findLast(
+			(candidate) => candidate.role === 'agent'
+		);
+		expect(message?.role).toBe('agent');
+		if (!message || message.role !== 'agent') throw new Error('Expected a voice assistant message.');
+		const view = render(<AssistantMessage message={message} />);
+		expect(screen.getAllByLabelText('Running')).toHaveLength(3);
+
+		for (const [toolCallId, toolName, path] of [
+			['image-call', 'create_image', '/tmp/generated-image.png'],
+			['audio-call', 'create_sound', '/tmp/generated-audio.mp3'],
+			['video-call', 'create_video', '/tmp/generated-video.mp4'],
+		] as const) {
+			const output = JSON.stringify({ path });
+			act(() =>
+				emit({
+					type: 'tool_call_result',
+					sessionId: session.id,
+					agentId: 'main',
+					runId: session.id,
+					iteration: 0,
+					toolCallId,
+					toolName,
+					input: { prompt: `Generate ${toolName}` },
+					output,
+					outputText: output,
+					status: 'ok',
+					durationMs: 120,
+					name: toolName,
+					serviceKind: 'tool',
+				})
+			);
+		}
+
+		message = result.current.chatState.messages.findLast(
+			(candidate) => candidate.role === 'agent'
+		);
+		expect(message?.role).toBe('agent');
+		if (!message || message.role !== 'agent') throw new Error('Expected a voice assistant message.');
+		expect(message.tools).toEqual([
+			expect.objectContaining({
+				toolCallId: 'image-call',
+				type: 'create_image',
+				state: 'output-available',
+				status: 'ok',
+			}),
+			expect.objectContaining({
+				toolCallId: 'audio-call',
+				type: 'create_sound',
+				state: 'output-available',
+				status: 'ok',
+			}),
+			expect.objectContaining({
+				toolCallId: 'video-call',
+				type: 'create_video',
+				state: 'output-available',
+				status: 'ok',
+			}),
+		]);
+		view.rerender(<AssistantMessage message={message} />);
+
+		expect(screen.getAllByLabelText('Completed')).toHaveLength(3);
+		expect(screen.getByRole('img', { name: 'Generated image' })).toHaveAttribute(
+			'src',
+			'local-resource://file/tmp/generated-image.png'
+		);
+		expect(view.container.querySelector('audio')).toHaveAttribute(
+			'src',
+			'local-resource://file/tmp/generated-audio.mp3'
+		);
+		expect(view.container.querySelector('video')).toHaveAttribute(
+			'src',
+			'local-resource://file/tmp/generated-video.mp4'
+		);
 	});
 });
