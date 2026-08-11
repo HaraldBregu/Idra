@@ -41,29 +41,36 @@ export function usePcmCapture() {
 			const mediaStream = await navigator.mediaDevices.getUserMedia({
 				audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 },
 			});
-			const context = new AudioContext();
-			const source = context.createMediaStreamSource(mediaStream);
-			const inputAnalyser = context.createAnalyser();
-			inputAnalyser.fftSize = 512;
-			inputAnalyser.smoothingTimeConstant = 0.72;
-			const processor = context.createScriptProcessor(AUDIO_BUFFER_SIZE, 1, 1);
-			processor.onaudioprocess = (event): void => {
-				if (mutedRef.current) return;
-				const input = event.inputBuffer.getChannelData(0);
-				const pcm = resampleToPcm16(input, context.sampleRate, OUTPUT_SAMPLE_RATE);
-				if (pcm.length > 0) onAudio(pcm16ToBase64(pcm));
-			};
-			source.connect(inputAnalyser);
-			source.connect(processor);
-			processor.connect(context.destination);
-			streamRef.current = mediaStream;
-			contextRef.current = context;
-			sourceRef.current = source;
-			analyserRef.current = inputAnalyser;
-			processorRef.current = processor;
-			setStream(mediaStream);
-			setAnalyser(inputAnalyser);
-			await context.resume();
+			let context: AudioContext | null = null;
+			try {
+				context = new AudioContext();
+				const source = context.createMediaStreamSource(mediaStream);
+				const inputAnalyser = context.createAnalyser();
+				inputAnalyser.fftSize = 512;
+				inputAnalyser.smoothingTimeConstant = 0.72;
+				const processor = context.createScriptProcessor(AUDIO_BUFFER_SIZE, 1, 1);
+				processor.onaudioprocess = (event): void => {
+					if (mutedRef.current) return;
+					const input = event.inputBuffer.getChannelData(0);
+					const pcm = resampleToPcm16(input, context?.sampleRate ?? OUTPUT_SAMPLE_RATE, OUTPUT_SAMPLE_RATE);
+					if (pcm.length > 0) onAudio(pcm16ToBase64(pcm));
+				};
+				source.connect(inputAnalyser);
+				source.connect(processor);
+				processor.connect(context.destination);
+				streamRef.current = mediaStream;
+				contextRef.current = context;
+				sourceRef.current = source;
+				analyserRef.current = inputAnalyser;
+				processorRef.current = processor;
+				setStream(mediaStream);
+				setAnalyser(inputAnalyser);
+				await context.resume();
+			} catch (error) {
+				stopStream(mediaStream);
+				void context?.close().catch(() => undefined);
+				throw error;
+			}
 		},
 		[stop]
 	);
@@ -77,6 +84,7 @@ export function usePcmCapture() {
 	}, []);
 
 	useEffect(() => {
+		mountedRef.current = true;
 		return () => {
 			mountedRef.current = false;
 			stop();

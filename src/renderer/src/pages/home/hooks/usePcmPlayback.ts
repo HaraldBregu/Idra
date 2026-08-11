@@ -67,6 +67,7 @@ export function usePcmPlayback() {
 	}, []);
 
 	useEffect(() => {
+		mountedRef.current = true;
 		return () => {
 			mountedRef.current = false;
 			release();

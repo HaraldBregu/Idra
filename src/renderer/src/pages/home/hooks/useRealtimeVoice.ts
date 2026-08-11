@@ -117,6 +117,26 @@ export function useRealtimeVoice({
 		[releaseAudio]
 	);
 
+	const failSession = useCallback(
+		(error: unknown, sessionId = sessionIdRef.current): void => {
+			if (!sessionId || (sessionIdRef.current && sessionIdRef.current !== sessionId)) return;
+			const message =
+				typeof error === 'string' && error.trim()
+					? error
+					: dictationErrorMessage(error);
+			sessionIdRef.current = null;
+			sessionChatIdRef.current = null;
+			setErrorMessage(message);
+			setRequiresConfiguration(needsVoiceConfiguration(message));
+			setStatus('error');
+			dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
+			releaseAudio();
+			void window.models.realtimeVoice.stopSession(sessionId).catch(() => undefined);
+			onClosedRef.current();
+		},
+		[dispatchChat, releaseAudio]
+	);
+
 	useEffect(() => {
 		return window.models.realtimeVoice.onSessionEvent((event: RealtimeVoiceEvent) => {
 			const sessionId = sessionIdRef.current;
@@ -189,15 +209,7 @@ export function useRealtimeVoice({
 					setStatus('listening');
 					return;
 				case 'error': {
-					const message = event.message || 'Realtime voice conversation failed.';
-					sessionIdRef.current = null;
-					setErrorMessage(message);
-					setRequiresConfiguration(needsVoiceConfiguration(message));
-					setStatus('error');
-					dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
-					releaseAudio();
-					void window.models.realtimeVoice.stopSession(sessionId).catch(() => undefined);
-					onClosedRef.current();
+					failSession(event.message || 'Realtime voice conversation failed.', sessionId);
 					return;
 				}
 				case 'closed':
@@ -209,7 +221,7 @@ export function useRealtimeVoice({
 					return;
 			}
 		});
-	}, [dispatchChat, playback.enqueue, playback.stop, releaseAudio]);
+	}, [dispatchChat, failSession, playback.enqueue, playback.stop, releaseAudio]);
 
 	const start = useCallback(async (): Promise<boolean> => {
 		if (sessionIdRef.current) return true;
@@ -243,7 +255,9 @@ export function useRealtimeVoice({
 			await capture.start((audio) => {
 				const sessionId = sessionIdRef.current;
 				if (sessionId) {
-					void window.models.realtimeVoice.appendAudio(sessionId, audio).catch(() => undefined);
+					void window.models.realtimeVoice
+						.appendAudio(sessionId, audio)
+						.catch((error) => failSession(error, sessionId));
 				}
 			});
 			if (startRunRef.current !== runId) {
@@ -280,6 +294,7 @@ export function useRealtimeVoice({
 		capture.setMuted,
 		capture.start,
 		chatSessionId,
+		failSession,
 		isConfigured,
 		isSupported,
 		playback.start,
@@ -287,6 +302,7 @@ export function useRealtimeVoice({
 	]);
 
 	useEffect(() => {
+		mountedRef.current = true;
 		return () => {
 			if (sessionChatIdRef.current === chatSessionId) void closeSession();
 		};
