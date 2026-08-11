@@ -86,10 +86,11 @@ export class ExecSandbox {
 		try {
 			const dependencies =
 				process.platform === 'win32'
-					? await import('@anthropic-ai/sandbox-runtime').then(({ checkWindowsDependenciesAsync }) =>
-							checkWindowsDependenciesAsync({
-								srtWin: resolveSrtWin({ path: this.vendoredWindowsPath() }),
-							})
+					? await import('@anthropic-ai/sandbox-runtime').then(
+							({ checkWindowsDependenciesAsync }) =>
+								checkWindowsDependenciesAsync({
+									srtWin: resolveSrtWin({ path: this.vendoredWindowsPath() }),
+								})
 						)
 					: await SandboxManager.checkDependenciesAsync();
 			if (dependencies.errors.length > 0) {
@@ -201,9 +202,7 @@ export class ExecSandbox {
 			enableWeakerNetworkIsolation: false,
 			allowAppleEvents: false,
 			allowPty: true,
-			...(process.platform === 'win32'
-				? { windows: { srtWin: { path: windowsPath } } }
-				: {}),
+			...(process.platform === 'win32' ? { windows: { srtWin: { path: windowsPath } } } : {}),
 			...(process.platform === 'linux' ? { seccomp: { applyPath: seccompPath } } : {}),
 		};
 		return { config, fingerprint: JSON.stringify({ allowWrite, denyWrite, denyRead }) };
