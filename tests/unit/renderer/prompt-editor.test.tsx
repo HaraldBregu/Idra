@@ -83,8 +83,7 @@ describe('PromptEditor', () => {
 		await waitFor(() => expect(prompt).toHaveStyle({ borderRadius: '28px' }));
 	});
 
-	it('announces realtime voice status and exposes mute and end controls', () => {
-		const onMutedChange = jest.fn();
+	it('shows only the persona and a top-right stop control during voice conversation', () => {
 		const onVoiceEnd = jest.fn();
 		const { container } = render(
 			<PromptEditor
@@ -93,22 +92,22 @@ describe('PromptEditor', () => {
 				actions={<button>Send</button>}
 				voiceMode="conversation"
 				voiceStatus="Friday is speaking…"
+				voiceElapsedMs={10_000}
 				voicePersonaState="speaking"
 				voiceMuted={false}
-				onVoiceMutedChange={onMutedChange}
 				onVoiceEnd={onVoiceEnd}
 			/>
 		);
 
-		expect(screen.getByRole('status')).toHaveTextContent('Friday is speaking…');
 		expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
 		expect(screen.getByTestId('persona')).toHaveAttribute('data-state', 'speaking');
 		expect(container.querySelector('[data-voice-mode="conversation"]')).toHaveClass(
 			'rounded-[1.75rem]'
 		);
-		fireEvent.click(screen.getByRole('button', { name: 'Mute' }));
+		expect(screen.queryByRole('status')).not.toBeInTheDocument();
+		expect(screen.queryByText('0:10')).not.toBeInTheDocument();
+		expect(screen.queryByRole('button', { name: 'Mute' })).not.toBeInTheDocument();
 		fireEvent.click(screen.getByRole('button', { name: 'End voice conversation' }));
-		expect(onMutedChange).toHaveBeenCalledWith(true);
 		expect(onVoiceEnd).toHaveBeenCalled();
 	});
 });

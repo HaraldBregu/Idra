@@ -453,41 +453,35 @@ function PromptInput({
 							{...(props as React.ComponentProps<typeof motion.div>)}
 						>
 							{isConversationMode ? (
-								<>
-									<motion.div
-										layout
-										transition={transition}
-										className="flex min-h-0 flex-1 items-center justify-center rounded-[1.35rem] bg-neutral-950"
+								<motion.div
+									layout
+									transition={transition}
+									className="relative flex min-h-0 flex-1 items-center justify-center rounded-[1.35rem] bg-neutral-950"
+								>
+									<button
+										type="button"
+										aria-label="End voice conversation"
+										disabled={disabled}
+										onClick={(event) => {
+											event.stopPropagation();
+											onVoiceEnd?.();
+										}}
+										className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full border border-white/10 bg-black/35 text-white/70 backdrop-blur-sm transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:pointer-events-none disabled:opacity-50"
 									>
-										<Persona
-											state={voicePersonaState ?? 'idle'}
-											level={
-												voicePersonaState === 'speaking'
-													? 0.72
-													: voicePersonaState === 'listening'
-														? 0.28
-														: 0.16
-											}
-											size={176}
-										/>
-									</motion.div>
-									<div className="flex shrink-0 items-center px-0.5">
-										<PromptInputVoicePanel
-											mode={voiceMode}
-											disabled={disabled}
-											elapsedMs={voiceElapsedMs}
-											muted={voiceMuted}
-											mediaStream={voiceMediaStream}
-											analyser={voiceAnalyser}
-											status={voiceStatus}
-											waveformActive={voiceWaveformActive}
-											onEnd={onVoiceEnd}
-											onCancel={onVoiceCancel}
-											onConfirm={onVoiceConfirm ?? onSubmit}
-											onMutedChange={onVoiceMutedChange}
-										/>
-									</div>
-								</>
+										<X className="size-4" strokeWidth={2.4} />
+									</button>
+									<Persona
+										state={voicePersonaState ?? 'idle'}
+										level={
+											voicePersonaState === 'speaking'
+												? 0.72
+												: voicePersonaState === 'listening'
+													? 0.28
+													: 0.16
+										}
+										size={176}
+									/>
+								</motion.div>
 							) : (
 								<>
 									{header ? (
