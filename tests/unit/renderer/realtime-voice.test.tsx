@@ -88,6 +88,27 @@ const session: RealtimeVoiceSession = {
 	output: { format: 'pcm16', sampleRate: 24_000, channels: 1 },
 };
 
+const mediaTools = [
+	{
+		toolCallId: 'image-call',
+		toolName: 'create_image',
+		generatedPath: '/tmp/generated-image.png',
+		restoredPath: '/tmp/restored-image.png',
+	},
+	{
+		toolCallId: 'audio-call',
+		toolName: 'create_sound',
+		generatedPath: '/tmp/generated-audio.mp3',
+		restoredPath: '/tmp/restored-audio.mp3',
+	},
+	{
+		toolCallId: 'video-call',
+		toolName: 'create_video',
+		generatedPath: '/tmp/generated-video.mp4',
+		restoredPath: '/tmp/restored-video.mp4',
+	},
+] as const;
+
 const api = {
 	startSession: jest.fn(),
 	appendAudio: jest.fn(),
@@ -254,11 +275,7 @@ describe('useRealtimeVoice', () => {
 		await act(async () => result.current.voice.start());
 		act(() => emit({ type: 'user_turn', sessionId: session.id, itemId: 'user-1' }));
 
-		for (const [toolCallId, toolName] of [
-			['image-call', 'create_image'],
-			['audio-call', 'create_sound'],
-			['video-call', 'create_video'],
-		] as const) {
+		for (const { toolCallId, toolName } of mediaTools) {
 			act(() =>
 				emit({
 					type: 'tool_call_start',
@@ -282,12 +299,8 @@ describe('useRealtimeVoice', () => {
 		const view = render(<AssistantMessage message={message} />);
 		expect(screen.getAllByLabelText('Running')).toHaveLength(3);
 
-		for (const [toolCallId, toolName, path] of [
-			['image-call', 'create_image', '/tmp/generated-image.png'],
-			['audio-call', 'create_sound', '/tmp/generated-audio.mp3'],
-			['video-call', 'create_video', '/tmp/generated-video.mp4'],
-		] as const) {
-			const output = JSON.stringify({ path });
+		for (const { toolCallId, toolName, generatedPath } of mediaTools) {
+			const output = JSON.stringify({ path: generatedPath });
 			act(() =>
 				emit({
 					type: 'tool_call_result',
@@ -313,26 +326,16 @@ describe('useRealtimeVoice', () => {
 		);
 		expect(message?.role).toBe('agent');
 		if (!message || message.role !== 'agent') throw new Error('Expected a voice assistant message.');
-		expect(message.tools).toEqual([
-			expect.objectContaining({
-				toolCallId: 'image-call',
-				type: 'create_image',
-				state: 'output-available',
-				status: 'ok',
-			}),
-			expect.objectContaining({
-				toolCallId: 'audio-call',
-				type: 'create_sound',
-				state: 'output-available',
-				status: 'ok',
-			}),
-			expect.objectContaining({
-				toolCallId: 'video-call',
-				type: 'create_video',
-				state: 'output-available',
-				status: 'ok',
-			}),
-		]);
+		for (const { toolCallId, toolName } of mediaTools) {
+			expect(message.tools).toContainEqual(
+				expect.objectContaining({
+					toolCallId,
+					type: toolName,
+					state: 'output-available',
+					status: 'ok',
+				})
+			);
+		}
 		view.rerender(<AssistantMessage message={message} />);
 
 		expect(screen.getAllByLabelText('Completed')).toHaveLength(3);
@@ -353,75 +356,40 @@ describe('useRealtimeVoice', () => {
 	it('restores persisted realtime image, audio, and video tool results', () => {
 		const history: AgentHistoryMessage[] = [
 			{ role: 'user', content: 'Create three assets.' },
-			{
-				role: 'assistant',
-				content: '',
-				contentBlocks: [
+			...mediaTools.flatMap<AgentHistoryMessage>(({ toolCallId, toolName, restoredPath }) => {
+				const output = JSON.stringify({ path: restoredPath });
+				return [
 					{
-						type: 'tool_use',
-						toolUseId: 'image-call',
-						toolName: 'create_image',
-						toolArgs: { prompt: 'Image' },
+						role: 'assistant',
+						content: '',
+						contentBlocks: [
+							{
+								type: 'tool_use',
+								toolUseId: toolCallId,
+								toolName,
+								toolArgs: { prompt: toolName },
+							},
+						],
 					},
-				],
-			},
-			{
-				role: 'tool',
-				toolUseId: 'image-call',
-				content: JSON.stringify({ path: '/tmp/restored-image.png' }),
-				status: 'ok',
-				output: JSON.stringify({ path: '/tmp/restored-image.png' }),
-			},
-			{
-				role: 'assistant',
-				content: '',
-				contentBlocks: [
 					{
-						type: 'tool_use',
-						toolUseId: 'audio-call',
-						toolName: 'create_sound',
-						toolArgs: { prompt: 'Audio' },
+						role: 'tool',
+						toolUseId: toolCallId,
+						content: output,
+						status: 'ok',
+						output,
 					},
-				],
-			},
-			{
-				role: 'tool',
-				toolUseId: 'audio-call',
-				content: JSON.stringify({ path: '/tmp/restored-audio.mp3' }),
-				status: 'ok',
-				output: JSON.stringify({ path: '/tmp/restored-audio.mp3' }),
-			},
-			{
-				role: 'assistant',
-				content: '',
-				contentBlocks: [
-					{
-						type: 'tool_use',
-						toolUseId: 'video-call',
-						toolName: 'create_video',
-						toolArgs: { prompt: 'Video' },
-					},
-				],
-			},
-			{
-				role: 'tool',
-				toolUseId: 'video-call',
-				content: JSON.stringify({ path: '/tmp/restored-video.mp4' }),
-				status: 'ok',
-				output: JSON.stringify({ path: '/tmp/restored-video.mp4' }),
-			},
+				];
+			}),
 		];
 
 		const message = historyToChatMessages(history).find((candidate) => candidate.role === 'agent');
 		expect(message?.role).toBe('agent');
 		if (!message || message.role !== 'agent') throw new Error('Expected restored assistant tools.');
-		expect(message.tools).toEqual(
-			expect.arrayContaining([
-				expect.objectContaining({ toolCallId: 'image-call', state: 'output-available' }),
-				expect.objectContaining({ toolCallId: 'audio-call', state: 'output-available' }),
-				expect.objectContaining({ toolCallId: 'video-call', state: 'output-available' }),
-			])
-		);
+		for (const { toolCallId } of mediaTools) {
+			expect(message.tools).toContainEqual(
+				expect.objectContaining({ toolCallId, state: 'output-available' })
+			);
+		}
 
 		render(<AssistantMessage message={message} />);
 		expect(screen.getAllByLabelText('Completed')).toHaveLength(3);
