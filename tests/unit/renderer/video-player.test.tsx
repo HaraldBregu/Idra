@@ -22,7 +22,11 @@ jest.mock('@/components/kibo-ui/video-player', () => {
 describe('VideoPlayer', () => {
 	it('opens the video file directly from the fullscreen control', () => {
 		const onOpenFile = jest.fn();
-		const requestFullscreen = jest.spyOn(HTMLVideoElement.prototype, 'requestFullscreen');
+		const requestFullscreen = jest.fn();
+		Object.defineProperty(HTMLVideoElement.prototype, 'requestFullscreen', {
+			configurable: true,
+			value: requestFullscreen,
+		});
 
 		const { container } = render(
 			<VideoPlayer src="local-resource://file/video.mp4" controls onOpenFile={onOpenFile} />
