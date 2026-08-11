@@ -17,7 +17,7 @@
       "url": "https://api.deepgram.com/v1",
       "sampleRate": 24000,
       "metadata": {
-        "documentationUrl": "https://developers.deepgram.com/reference/text-to-speech/speak-request",
+        "documentationUrl": "https://developers.deepgram.com/docs/model",
         "documentationStatus": "verified",
         "inputs": {
           "language": {
@@ -96,7 +96,7 @@
       "type": "text-to-speech-model",
       "url": "https://api.deepgram.com/v1",
       "metadata": {
-        "documentationUrl": "https://developers.deepgram.com/docs/model",
+        "documentationUrl": "https://developers.deepgram.com/reference/text-to-speech/speak-request",
         "documentationStatus": "verified",
         "inputs": {
           "voice": {
