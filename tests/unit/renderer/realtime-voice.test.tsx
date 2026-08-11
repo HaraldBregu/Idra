@@ -1,9 +1,13 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { StrictMode, type ReactNode } from 'react';
 import { AssistantMessage } from '../../../src/renderer/src/pages/home/components/AssistantMessage';
-import { Provider } from '../../../src/renderer/src/pages/home/context';
+import {
+	Provider,
+	historyToChatMessages,
+} from '../../../src/renderer/src/pages/home/context';
 import { useHomeAgentContext } from '../../../src/renderer/src/pages/home/context';
 import { useRealtimeVoice } from '../../../src/renderer/src/pages/home/hooks/useRealtimeVoice';
+import type { AgentHistoryMessage } from '../../../src/shared/agent_types';
 import type { RealtimeVoiceEvent, RealtimeVoiceSession } from '../../../src/shared/realtime_voice';
 
 jest.mock('react-markdown', () => ({ defaultUrlTransform: (url: string) => url }));
@@ -343,6 +347,95 @@ describe('useRealtimeVoice', () => {
 		expect(screen.getByTestId('generated-video')).toHaveAttribute(
 			'data-src',
 			'local-resource://file/tmp/generated-video.mp4'
+		);
+	});
+
+	it('restores persisted realtime image, audio, and video tool results', () => {
+		const history: AgentHistoryMessage[] = [
+			{ role: 'user', content: 'Create three assets.' },
+			{
+				role: 'assistant',
+				content: '',
+				contentBlocks: [
+					{
+						type: 'tool_use',
+						toolUseId: 'image-call',
+						toolName: 'create_image',
+						toolArgs: { prompt: 'Image' },
+					},
+				],
+			},
+			{
+				role: 'tool',
+				toolUseId: 'image-call',
+				content: JSON.stringify({ path: '/tmp/restored-image.png' }),
+				status: 'ok',
+				output: JSON.stringify({ path: '/tmp/restored-image.png' }),
+			},
+			{
+				role: 'assistant',
+				content: '',
+				contentBlocks: [
+					{
+						type: 'tool_use',
+						toolUseId: 'audio-call',
+						toolName: 'create_sound',
+						toolArgs: { prompt: 'Audio' },
+					},
+				],
+			},
+			{
+				role: 'tool',
+				toolUseId: 'audio-call',
+				content: JSON.stringify({ path: '/tmp/restored-audio.mp3' }),
+				status: 'ok',
+				output: JSON.stringify({ path: '/tmp/restored-audio.mp3' }),
+			},
+			{
+				role: 'assistant',
+				content: '',
+				contentBlocks: [
+					{
+						type: 'tool_use',
+						toolUseId: 'video-call',
+						toolName: 'create_video',
+						toolArgs: { prompt: 'Video' },
+					},
+				],
+			},
+			{
+				role: 'tool',
+				toolUseId: 'video-call',
+				content: JSON.stringify({ path: '/tmp/restored-video.mp4' }),
+				status: 'ok',
+				output: JSON.stringify({ path: '/tmp/restored-video.mp4' }),
+			},
+		];
+
+		const message = historyToChatMessages(history).find((candidate) => candidate.role === 'agent');
+		expect(message?.role).toBe('agent');
+		if (!message || message.role !== 'agent') throw new Error('Expected restored assistant tools.');
+		expect(message.tools).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ toolCallId: 'image-call', state: 'output-available' }),
+				expect.objectContaining({ toolCallId: 'audio-call', state: 'output-available' }),
+				expect.objectContaining({ toolCallId: 'video-call', state: 'output-available' }),
+			])
+		);
+
+		render(<AssistantMessage message={message} />);
+		expect(screen.getAllByLabelText('Completed')).toHaveLength(3);
+		expect(screen.getByRole('img', { name: 'Generated image' })).toHaveAttribute(
+			'src',
+			'local-resource://file/tmp/restored-image.png'
+		);
+		expect(screen.getByTestId('generated-audio')).toHaveAttribute(
+			'data-src',
+			'local-resource://file/tmp/restored-audio.mp3'
+		);
+		expect(screen.getByTestId('generated-video')).toHaveAttribute(
+			'data-src',
+			'local-resource://file/tmp/restored-video.mp4'
 		);
 	});
 });
