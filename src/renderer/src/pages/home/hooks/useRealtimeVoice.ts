@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { providerModels } from '@/lib/providers';
+import { modelsFor } from '@/lib/providers';
 import { useHomeAgentContext } from '../context';
 import type {
 	RealtimeVoiceEvent,
@@ -81,7 +81,7 @@ export function useRealtimeVoice({
 	const clockRef = useRef<number | null>(null);
 	const handledTurnIdsRef = useRef<Set<string>>(new Set());
 
-	const supportedModels = providerModels('openai', 'realtime-voice');
+	const supportedModels = modelsFor('realtime-voice');
 	const isConfigured = supportedModels.length > 0;
 	const isSupported = canCaptureAudio();
 	const isActive = status !== 'idle' && status !== 'error';

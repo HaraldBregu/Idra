@@ -5,7 +5,7 @@ import { useRealtimeVoice } from '../../../src/renderer/src/pages/home/hooks/use
 import type { RealtimeVoiceEvent, RealtimeVoiceSession } from '../../../src/shared/realtime_voice';
 
 jest.mock('@/lib/providers', () => ({
-	providerModels: (_providerId: string, capability: string) =>
+	modelsFor: (capability: string) =>
 		capability === 'realtime-voice' ? [{ id: 'gpt-realtime-2.1', name: 'GPT Realtime' }] : [],
 }));
 
