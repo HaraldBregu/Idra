@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { SoundPlayer } from '@/components/sound-player';
 
+jest.mock('@resources/icons/icon.png', () => 'sound-artwork.png');
+
 jest.mock('react-player', () => {
 	const React = jest.requireActual<typeof import('react')>('react');
 	return {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import { Download, Pause, Play } from 'lucide-react';
 import artwork from '@resources/icons/icon.png';
@@ -31,13 +31,6 @@ export function SoundPlayer({
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [seekTime, setSeekTime] = useState<number | null>(null);
-
-	useEffect(() => {
-		setIsPlaying(false);
-		setDuration(0);
-		setCurrentTime(0);
-		setSeekTime(null);
-	}, [src]);
 
 	const visibleTime = seekTime ?? currentTime;
 	const progress = duration > 0 ? visibleTime / duration : 0;
