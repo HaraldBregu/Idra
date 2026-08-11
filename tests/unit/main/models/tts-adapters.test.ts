@@ -151,17 +151,15 @@ it('maps Cartesia voice, output, and generation controls', async () => {
 });
 
 it('maps MiniMax nested voice and audio controls', async () => {
-	jest
-		.mocked(global.fetch)
-		.mockResolvedValue(
-			new Response(
-				JSON.stringify({
-					data: { audio: '4142' },
-					base_resp: { status_code: 0, status_msg: 'success' },
-				}),
-				{ headers: { 'Content-Type': 'application/json' } }
-			)
-		);
+	jest.mocked(global.fetch).mockResolvedValue(
+		new Response(
+			JSON.stringify({
+				data: { audio: '4142' },
+				base_resp: { status_code: 0, status_msg: 'success' },
+			}),
+			{ headers: { 'Content-Type': 'application/json' } }
+		)
+	);
 	const result = await createMiniMaxSpeechAdapter({ ...provider, id: 'minimax' }).synthesize({
 		text: 'Hello',
 		providerId: 'minimax',
