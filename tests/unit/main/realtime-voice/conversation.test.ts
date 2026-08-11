@@ -7,7 +7,8 @@ import { realtimeVoiceConversationFactory } from '../../../../src/main/realtime_
 const SESSION_ID = '11111111-1111-4111-8111-111111111111';
 
 it('persists only finalized voice transcripts at their reserved turn position', () => {
-	const location = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-voice-conversation-'));
+	const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-voice-conversation-'));
+	const location = path.join(temporaryRoot, 'agent');
 	try {
 		const conversation = realtimeVoiceConversationFactory({ location })(SESSION_ID, 'model');
 		conversation.beginUserTurn('user-1');
@@ -32,6 +33,6 @@ it('persists only finalized voice transcripts at their reserved turn position', 
 		expect(messages[2].content).toBe('Second spoken message.');
 		expect(JSON.stringify(messages)).not.toContain('Voice message');
 	} finally {
-		fs.rmSync(location, { recursive: true, force: true });
+		fs.rmSync(temporaryRoot, { recursive: true, force: true });
 	}
 });
