@@ -10,7 +10,6 @@ import {
 	resolveSessionId,
 	resolveStoredSessionId,
 	tryAppendRun,
-	type SessionState,
 	type SessionResult,
 } from './session';
 import { stream } from './runner/run_stream';
