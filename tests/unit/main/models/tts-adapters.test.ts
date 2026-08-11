@@ -101,7 +101,7 @@ it('separates ElevenLabs path, query, and body options', async () => {
 
 	const [endpoint, init] = jest.mocked(global.fetch).mock.calls[0] ?? [];
 	const url = endpoint as URL;
-	expect(url.pathname).toEndWith('/text-to-speech/voice-1');
+	expect(url.pathname.endsWith('/text-to-speech/voice-1')).toBe(true);
 	expect(url.searchParams.get('output_format')).toBe('opus_48000_64');
 	expect(url.searchParams.get('enable_logging')).toBe('false');
 	expect(JSON.parse(String(init?.body))).toEqual({

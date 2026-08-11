@@ -5,6 +5,15 @@ import type { SpeechSynthesisResult } from '../../../../shared/speech_types';
 
 const MINIMAX_TTS_PATH = 't2a_v2';
 const MINIMAX_DEFAULT_VOICE_ID = 'English_expressive_narrator';
+const MINIMAX_AUDIO_TYPES: Readonly<Record<string, string>> = {
+	mp3: 'audio/mpeg',
+	wav: 'audio/wav',
+	flac: 'audio/flac',
+	pcm: 'audio/pcm',
+	pcmu_raw: 'audio/basic',
+	pcmu_wav: 'audio/wav',
+	opus: 'audio/opus',
+};
 
 type MiniMaxTtsResponse = {
 	data?: { audio?: string };
@@ -14,10 +23,32 @@ type MiniMaxTtsResponse = {
 export function createMiniMaxSpeechAdapter(provider: SpeechProviderSpec): SpeechAdapter {
 	return {
 		async synthesize(request: SpeechAdapterRequest): Promise<SpeechSynthesisResult> {
-			const optionVoiceId = request.options?.voice_id;
+			const {
+				voice_id: optionVoiceId,
+				voice_setting: optionVoiceSetting,
+				audio_setting: optionAudioSetting,
+				stream: _stream,
+				stream_options: _streamOptions,
+				output_format: _outputFormat,
+				...options
+			} = request.options ?? {};
+			const voiceSetting =
+				optionVoiceSetting && typeof optionVoiceSetting === 'object' && !Array.isArray(optionVoiceSetting)
+					? optionVoiceSetting as Record<string, unknown>
+					: {};
+			const audioSetting =
+				optionAudioSetting && typeof optionAudioSetting === 'object' && !Array.isArray(optionAudioSetting)
+					? optionAudioSetting as Record<string, unknown>
+					: {};
 			const voiceId =
 				request.voice ??
-				(typeof optionVoiceId === 'string' ? optionVoiceId : MINIMAX_DEFAULT_VOICE_ID);
+				(typeof voiceSetting.voice_id === 'string'
+					? voiceSetting.voice_id
+					: typeof optionVoiceId === 'string'
+						? optionVoiceId
+						: MINIMAX_DEFAULT_VOICE_ID);
+			const audioFormat =
+				typeof audioSetting.format === 'string' ? audioSetting.format : 'mp3';
 			const response = await fetch(new URL(MINIMAX_TTS_PATH, `${provider.baseURL}/`), {
 				method: 'POST',
 				headers: {
@@ -25,12 +56,13 @@ export function createMiniMaxSpeechAdapter(provider: SpeechProviderSpec): Speech
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					...request.options,
 					model: request.modelId,
 					text: request.text,
 					stream: false,
-					voice_setting: { voice_id: voiceId },
-					audio_setting: { format: 'mp3' },
+					output_format: 'hex',
+					voice_setting: { ...voiceSetting, voice_id: voiceId },
+					audio_setting: { ...audioSetting, format: audioFormat },
+					...options,
 				}),
 			});
 			await ensureSpeechResponseOk(response, provider.name);
@@ -45,7 +77,12 @@ export function createMiniMaxSpeechAdapter(provider: SpeechProviderSpec): Speech
 				);
 			}
 			const audio = Buffer.from(data.data.audio, 'hex').toString('base64');
-			return speechResult(audio, 'audio/mpeg', provider, request);
+			return speechResult(
+				audio,
+				MINIMAX_AUDIO_TYPES[audioFormat] ?? 'application/octet-stream',
+				provider,
+				request
+			);
 		},
 	};
 }

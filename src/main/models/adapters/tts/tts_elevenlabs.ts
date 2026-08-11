@@ -9,12 +9,26 @@ const ELEVENLABS_DEFAULT_VOICE_ID = '21m00Tcm4TlvDq8ikWAM';
 export function createElevenLabsSpeechAdapter(provider: SpeechProviderSpec): SpeechAdapter {
 	return {
 		async synthesize(request: SpeechAdapterRequest): Promise<SpeechSynthesisResult> {
-			const optionVoiceId = request.options?.voice_id;
+			const {
+				voice_id: optionVoiceId,
+				output_format: outputFormat,
+				enable_logging: enableLogging,
+				optimize_streaming_latency: optimizeStreamingLatency,
+				...bodyOptions
+			} = request.options ?? {};
 			const voiceId =
 				request.voice ??
 				(typeof optionVoiceId === 'string' ? optionVoiceId : ELEVENLABS_DEFAULT_VOICE_ID);
+			const endpoint = new URL(`${ELEVENLABS_TTS_PATH}/${voiceId}`, `${provider.baseURL}/`);
+			if (typeof outputFormat === 'string') endpoint.searchParams.set('output_format', outputFormat);
+			if (typeof enableLogging === 'boolean') {
+				endpoint.searchParams.set('enable_logging', String(enableLogging));
+			}
+			if (typeof optimizeStreamingLatency === 'number') {
+				endpoint.searchParams.set('optimize_streaming_latency', String(optimizeStreamingLatency));
+			}
 			const response = await fetch(
-				new URL(`${ELEVENLABS_TTS_PATH}/${voiceId}`, `${provider.baseURL}/`),
+				endpoint,
 				{
 					method: 'POST',
 					headers: {
@@ -23,14 +37,19 @@ export function createElevenLabsSpeechAdapter(provider: SpeechProviderSpec): Spe
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
-						...request.options,
 						text: request.text,
 						model_id: request.modelId,
+						...bodyOptions,
 					}),
 				}
 			);
 			await ensureSpeechResponseOk(response, provider.name);
-			return speechResult(await responseAudioToBase64(response), 'audio/mpeg', provider, request);
+			return speechResult(
+				await responseAudioToBase64(response),
+				response.headers.get('content-type')?.split(';')[0] || 'audio/mpeg',
+				provider,
+				request
+			);
 		},
 	};
 }

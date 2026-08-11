@@ -22,6 +22,7 @@ export function createGoogleSpeechAdapter(provider: SpeechProviderSpec): SpeechA
 	return {
 		async synthesize(request: SpeechAdapterRequest): Promise<SpeechSynthesisResult> {
 			const optionVoiceName = request.options?.voiceName;
+			const languageCode = request.options?.languageCode;
 			const voiceName =
 				request.voice ??
 				(typeof optionVoiceName === 'string' ? optionVoiceName : GOOGLE_DEFAULT_VOICE);
@@ -36,6 +37,7 @@ export function createGoogleSpeechAdapter(provider: SpeechProviderSpec): SpeechA
 					generationConfig: {
 						responseModalities: ['AUDIO'],
 						speechConfig: {
+							...(typeof languageCode === 'string' ? { languageCode } : {}),
 							voiceConfig: {
 								prebuiltVoiceConfig: { voiceName },
 							},
