@@ -145,16 +145,16 @@ const PersonaWithModel = memo(({ rive, source, children }: PersonaWithModelProps
 		rive,
 		useDefault: true,
 	});
-	const viewModelInstanceColor = useViewModelInstanceColor('color', viewModelInstance);
+	const { setRgb } = useViewModelInstanceColor('color', viewModelInstance);
 
 	useEffect(() => {
-		if (!(viewModelInstanceColor && source.dynamicColor)) {
+		if (!source.dynamicColor) {
 			return;
 		}
 
 		const [r, g, b] = theme === 'dark' ? [255, 255, 255] : [0, 0, 0];
-		viewModelInstanceColor.setRgb(r, g, b);
-	}, [viewModelInstanceColor, theme, source.dynamicColor]);
+		setRgb(r, g, b);
+	}, [setRgb, theme, source.dynamicColor]);
 
 	return children;
 });
