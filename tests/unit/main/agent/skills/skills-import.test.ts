@@ -7,7 +7,6 @@ const cpSync = jest.fn();
 const renameSync = jest.fn();
 const rmSync = jest.fn();
 const validateSkillPackage = jest.fn();
-const setSkillPolicy = jest.fn();
 
 jest.mock('node:fs', () => ({ mkdirSync, existsSync, cpSync, renameSync, rmSync }));
 jest.mock('../../../../../src/main/agent/skills/skills_root', () => ({
@@ -20,9 +19,6 @@ jest.mock('../../../../../src/main/agent/skills/skills_validate', () => ({ valid
 jest.mock('../../../../../src/main/agent/skills/skills_read', () => ({ readSkill }));
 jest.mock('../../../../../src/main/agent/skills/skills_validate_package', () => ({
 	validateSkillPackage,
-}));
-jest.mock('../../../../../src/main/agent/skills/skills_policy_set', () => ({
-	setSkillPolicy,
 }));
 
 import { importSkills } from '../../../../../src/main/agent/skills/skills_import';
@@ -51,14 +47,10 @@ describe('importSkills replacement safety', () => {
 		expect(cpSync).not.toHaveBeenCalled();
 	});
 
-	it('stages, validates, disables, and atomically renames a new import', async () => {
+	it('stages, validates, and atomically renames a new import', async () => {
 		const result = await importSkills();
 
 		expect(validateSkillPackage).toHaveBeenCalledTimes(2);
-		expect(setSkillPolicy).toHaveBeenCalledWith(
-			'example',
-			expect.objectContaining({ enabled: false, trusted: false, invocationPolicy: 'implicit' })
-		);
 		expect(renameSync).toHaveBeenCalledWith(
 			expect.stringMatching(/\/\.import-example-.+\/example$/),
 			'/installed-skills/example'

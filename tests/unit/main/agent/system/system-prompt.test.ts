@@ -83,8 +83,6 @@ describe('addSkillPrompt', () => {
 				id: 'writer',
 				name: 'Writer',
 				description: 'Draft documents',
-				enabled: true,
-				invocationPolicy: 'implicit',
 				location: '/skills/writer',
 				folderPath: '/skills/writer',
 				manifest: { name: 'Writer', description: 'Draft documents' },

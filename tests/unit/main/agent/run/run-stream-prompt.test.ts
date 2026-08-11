@@ -58,8 +58,6 @@ describe('run stream system prompt', () => {
 		location: '/canonical/skills/writer',
 		folderPath: '/canonical/skills/writer',
 		manifest: { name: 'writer', description: 'Draft polished documents', allowedTools: ['read'] },
-		enabled: true,
-		invocationPolicy: 'implicit',
 		source: 'local-filesystem',
 		trust: 'user-controlled',
 		hash: 'writer-hash',

@@ -12,8 +12,6 @@ function skill(name: string, overrides: Partial<SkillInfo> = {}): SkillInfo {
 		location: `/skills/${name}`,
 		folderPath: `/skills/${name}`,
 		manifest: { name, description: `${name} description` },
-		enabled: true,
-		invocationPolicy: 'implicit',
 		source: 'local-filesystem',
 		trust: 'user-controlled',
 		hash: `${name}-hash`,
@@ -23,12 +21,7 @@ function skill(name: string, overrides: Partial<SkillInfo> = {}): SkillInfo {
 
 it('returns the names and descriptions of available skills', async () => {
 	const snapshot: SkillRegistrySnapshot = {
-		skills: [
-			skill('writer'),
-			skill('disabled', { enabled: false }),
-			skill('unreviewed', { trust: 'unreviewed' }),
-			skill('explicit', { invocationPolicy: 'explicit' }),
-		],
+		skills: [skill('writer'), skill('researcher')],
 		diagnostics: [],
 	};
 	const listSkills = listSkillsTool(snapshot);
@@ -40,6 +33,9 @@ it('returns the names and descriptions of available skills', async () => {
 	});
 	expect(() => listSkills.parseInput({ unexpected: true })).toThrow();
 	await expect(listSkills.run(listSkills.parseInput({}))).resolves.toEqual({
-		skills: [{ name: 'writer', description: 'writer description' }],
+		skills: [
+			{ name: 'writer', description: 'writer description' },
+			{ name: 'researcher', description: 'researcher description' },
+		],
 	});
 });

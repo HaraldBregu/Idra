@@ -12,8 +12,6 @@ describe('buildSkillContext', () => {
 				location: '/skills/x',
 				folderPath: '/skills/x',
 				manifest: { name: 'x', description: 'd'.repeat(1_000) },
-				enabled: true,
-				invocationPolicy: 'implicit',
 				source: 'local-filesystem',
 				trust: 'user-controlled',
 				hash: String(index),
