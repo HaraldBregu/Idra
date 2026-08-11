@@ -158,13 +158,11 @@ function PromptInputMotionSlot({
 
 function PromptInputVoiceWaveform({
   muted,
-  mode,
   mediaStream,
   analyser,
   active,
 }: {
   muted: boolean
-  mode: PromptInputVoiceMode
   mediaStream?: MediaStream | null
   analyser?: AnalyserNode | null
   active?: boolean
@@ -292,7 +290,6 @@ function PromptInputVoicePanel({
         <div className="min-w-20 flex-1">
           <PromptInputVoiceWaveform
             muted={isMuted}
-            mode={mode}
             mediaStream={mediaStream}
             analyser={analyser}
             active={waveformActive}

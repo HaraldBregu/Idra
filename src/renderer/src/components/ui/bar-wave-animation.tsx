@@ -99,20 +99,20 @@ export function BarWaveAnimation({
 
     const audioContext = new AudioContextCtor()
     const source = audioContext.createMediaStreamSource(mediaStream)
-    const analyser = audioContext.createAnalyser()
-    analyser.fftSize = 512
-    analyser.smoothingTimeConstant = 0.72
-    source.connect(analyser)
+    const inputAnalyser = audioContext.createAnalyser()
+    inputAnalyser.fftSize = 512
+    inputAnalyser.smoothingTimeConstant = 0.72
+    source.connect(inputAnalyser)
 
-    analyserRef.current = analyser
-    dataArrayRef.current = new Uint8Array(analyser.fftSize)
+    analyserRef.current = inputAnalyser
+    dataArrayRef.current = new Uint8Array(inputAnalyser.fftSize)
     void audioContext.resume().catch(() => undefined)
 
     return () => {
       analyserRef.current = null
       dataArrayRef.current = null
       source.disconnect()
-      analyser.disconnect()
+      inputAnalyser.disconnect()
       void audioContext.close().catch(() => undefined)
     }
   }, [analyser, mediaStream])
