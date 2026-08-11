@@ -9,6 +9,7 @@ import {
 } from "./tooltip"
 import { BarWaveAnimation } from "./bar-wave-animation"
 import { TypingLoader } from "./loader"
+import { Persona, type PersonaState } from "@/components/persona"
 import { cn } from "@/lib/utils"
 import { Check, Mic, MicOff, X } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
@@ -77,6 +78,7 @@ export type PromptInputProps = {
   voiceMediaStream?: MediaStream | null
   voiceAnalyser?: AnalyserNode | null
   voiceStatus?: string
+  voicePersonaState?: PersonaState
   voiceWaveformActive?: boolean
   onVoiceEnd?: () => void
   onVoiceCancel?: () => void
@@ -388,6 +390,7 @@ function PromptInput({
   voiceMediaStream,
   voiceAnalyser,
   voiceStatus,
+  voicePersonaState,
   voiceWaveformActive,
   onVoiceEnd,
   onVoiceCancel,
@@ -414,7 +417,8 @@ function PromptInput({
   })
   const isConversationMode = voiceMode === "conversation"
   const isDictationMode = voiceMode === "dictation"
-  const isPromptExpanded = expanded || isExpanded || isDictationMode || Boolean(header)
+  const isPromptExpanded =
+    expanded || isExpanded || isConversationMode || isDictationMode || Boolean(header)
 
   const handleChange = (newValue: string) => {
     setInternalValue(newValue)
@@ -462,7 +466,7 @@ function PromptInput({
               className={cn(
                 "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 focus-within:ring-1 focus-within:ring-ring/25",
                 isConversationMode
-                  ? "flex min-h-10 items-center gap-2 rounded-full p-1.5 focus-within:ring-0"
+                  ? "flex h-[min(42vh,18rem)] min-h-56 cursor-default flex-col gap-2 overflow-hidden rounded-[1.75rem] p-2 focus-within:ring-0"
                   : isPromptExpanded
                   ? "flex max-h-[min(48vh,30rem)] min-h-24 flex-col rounded-xl px-4 py-3"
                   : "flex min-h-14 items-center gap-2 rounded-full p-2",
@@ -472,21 +476,36 @@ function PromptInput({
               {...(props as React.ComponentProps<typeof motion.div>)}
             >
               {isConversationMode ? (
-                <PromptInputVoicePanel
-                  mode={voiceMode}
-                  disabled={disabled}
-                  leadingAction={leadingAction}
-                  elapsedMs={voiceElapsedMs}
-                  muted={voiceMuted}
-                  mediaStream={voiceMediaStream}
-                  analyser={voiceAnalyser}
-                  status={voiceStatus}
-                  waveformActive={voiceWaveformActive}
-                  onEnd={onVoiceEnd}
-                  onCancel={onVoiceCancel}
-                  onConfirm={onVoiceConfirm ?? onSubmit}
-                  onMutedChange={onVoiceMutedChange}
-                />
+                <>
+                  <motion.div
+                    layout
+                    transition={transition}
+                    className="flex min-h-0 flex-1 items-center justify-center rounded-[1.35rem] bg-neutral-950"
+                  >
+                    <Persona
+                      state={voicePersonaState ?? "idle"}
+                      level={voiceWaveformActive ? 0.72 : 0.18}
+                      size={176}
+                    />
+                  </motion.div>
+                  <div className="flex shrink-0 items-center px-0.5">
+                    <PromptInputVoicePanel
+                      mode={voiceMode}
+                      disabled={disabled}
+                      leadingAction={leadingAction}
+                      elapsedMs={voiceElapsedMs}
+                      muted={voiceMuted}
+                      mediaStream={voiceMediaStream}
+                      analyser={voiceAnalyser}
+                      status={voiceStatus}
+                      waveformActive={voiceWaveformActive}
+                      onEnd={onVoiceEnd}
+                      onCancel={onVoiceCancel}
+                      onConfirm={onVoiceConfirm ?? onSubmit}
+                      onMutedChange={onVoiceMutedChange}
+                    />
+                  </div>
+                </>
               ) : (
                 <>
                   {header ? (

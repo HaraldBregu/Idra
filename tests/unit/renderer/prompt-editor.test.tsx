@@ -5,6 +5,10 @@ jest.mock('@/components/ui/bar-wave-animation', () => ({
 	BarWaveAnimation: () => <div data-testid="voice-waveform" />,
 }));
 
+jest.mock('@/components/persona', () => ({
+	Persona: ({ state }: { state: string }) => <div data-testid="persona" data-state={state} />,
+}));
+
 jest.mock('@/components/text-editor', () => {
 	const React = jest.requireActual<typeof import('react')>('react');
 	return {
@@ -89,6 +93,7 @@ describe('PromptEditor', () => {
 				actions={<button>Send</button>}
 				voiceMode="conversation"
 				voiceStatus="Friday is speaking…"
+				voicePersonaState="speaking"
 				voiceMuted={false}
 				onVoiceMutedChange={onMutedChange}
 				onVoiceEnd={onVoiceEnd}
@@ -96,6 +101,8 @@ describe('PromptEditor', () => {
 		);
 
 		expect(screen.getByRole('status')).toHaveTextContent('Friday is speaking…');
+		expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+		expect(screen.getByTestId('persona')).toHaveAttribute('data-state', 'speaking');
 		fireEvent.click(screen.getByRole('button', { name: 'Mute' }));
 		fireEvent.click(screen.getByRole('button', { name: 'End voice conversation' }));
 		expect(onMutedChange).toHaveBeenCalledWith(true);

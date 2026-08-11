@@ -740,6 +740,13 @@ function PageContent(): ReactElement {
 									? realtimeVoiceStatusLabels[realtimeVoice.status]
 									: undefined
 							}
+							voicePersonaState={
+								realtimeVoice.status === 'listening' ||
+								realtimeVoice.status === 'thinking' ||
+								realtimeVoice.status === 'speaking'
+									? realtimeVoice.status
+									: 'idle'
+							}
 							voiceWaveformActive={
 								voiceMode === 'conversation'
 									? realtimeVoice.status === 'speaking' ||
