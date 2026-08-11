@@ -52,7 +52,10 @@ describe('RealtimeVoiceManager', () => {
 		const connection = new FakeConnection();
 		let adapterEmit: RealtimeVoiceAdapterEventHandler = () => undefined;
 		const createAdapter = jest.fn(() => ({
-			connect: async (_request: RealtimeVoiceAdapterRequest, emit: RealtimeVoiceAdapterEventHandler) => {
+			connect: async (
+				_request: RealtimeVoiceAdapterRequest,
+				emit: RealtimeVoiceAdapterEventHandler
+			) => {
 				adapterEmit = emit;
 				return connection;
 			},
