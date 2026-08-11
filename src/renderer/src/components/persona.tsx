@@ -72,7 +72,9 @@ export function Persona({
 		const rings = Array.from({ length: RING_COUNT }, (_, index) => {
 			const geometry = new LineGeometry();
 			geometry.setPositions(new Float32Array((SEGMENT_COUNT + 1) * 3));
-			const positionBuffer = (geometry.getAttribute('instanceStart') as THREE.InterleavedBufferAttribute).data;
+			const positionBuffer = (
+				geometry.getAttribute('instanceStart') as THREE.InterleavedBufferAttribute
+			).data;
 			const material = [
 				new LineMaterial({
 					blending: THREE.AdditiveBlending,

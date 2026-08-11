@@ -1,7 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AudioWaveform, ChevronRight, Coffee, FolderOpen, Languages, PanelTop, SunMoon } from 'lucide-react';
+import {
+	AudioWaveform,
+	ChevronRight,
+	Coffee,
+	FolderOpen,
+	Languages,
+	PanelTop,
+	SunMoon,
+} from 'lucide-react';
 import { ThemeSwitcher } from '@/components/kibo-ui/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
