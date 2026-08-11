@@ -54,8 +54,21 @@ it('bounds replay to the latest 64 messages and 48,000 characters', () => {
 	expect(messageBounded[0].text).toBe('message-16');
 	expect(messageBounded.at(-1)?.text).toBe('message-79');
 
+	const oldest = `oldest-prefix-${'A'.repeat(60_000)}-oldest-tail`;
 	const characterBounded = realtimeVoiceHistory([
-		{ role: 'user', content: 'A'.repeat(60_000) },
+		{ role: 'user', content: oldest },
+		{ role: 'assistant', content: 'latest answer' },
 	]);
-	expect(characterBounded).toEqual([{ role: 'user', text: 'A'.repeat(48_000) }]);
+	expect(characterBounded.reduce((total, message) => total + message.text.length, 0)).toBe(48_000);
+	expect(characterBounded[0].text).toEndWith('-oldest-tail');
+	expect(characterBounded.at(-1)?.text).toBe('latest answer');
+});
+
+it('excludes legacy voice placeholders from provider history', () => {
+	expect(
+		realtimeVoiceHistory([
+			{ role: 'user', content: 'Voice message' },
+			{ role: 'user', content: 'Actual transcript' },
+		])
+	).toEqual([{ role: 'user', text: 'Actual transcript' }]);
 });

@@ -120,6 +120,8 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 			},
 		]);
 		expect(socket.sent).not.toContainEqual({ type: 'response.create' });
+		socket.event({ type: 'session.updated' });
+		expect(socket.sent).toHaveLength(3);
 		socket.event({
 			type: 'conversation.item.input_audio_transcription.completed',
 			item_id: 'user-item',
