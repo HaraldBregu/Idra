@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	AssistantPersona,
-	type AssistantPersonaProps,
-} from '@/components/persona';
+import { AssistantPersona, type AssistantPersonaProps } from '@/components/persona';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';

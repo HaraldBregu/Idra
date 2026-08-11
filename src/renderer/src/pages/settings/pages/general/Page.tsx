@@ -1,12 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	Coffee,
-	FolderOpen,
-	Languages,
-	PanelTop,
-	SunMoon,
-} from 'lucide-react';
+import { Coffee, FolderOpen, Languages, PanelTop, SunMoon } from 'lucide-react';
 import { ThemeSwitcher } from '@/components/kibo-ui/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -20,11 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
-import {
-	SettingsPageHeader,
-	SettingsPageShell,
-	SettingsSection,
-} from '../../components';
+import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
 import { PersonaDemo } from './Demo';
 
 interface LanguageOption {
@@ -107,7 +97,11 @@ const GeneralPage: React.FC = () => {
 							<ItemTitle>{t('settings.application.menuBar')}</ItemTitle>
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
-							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
+							<Switch
+								checked={trayEnabled}
+								onCheckedChange={handleTrayToggle}
+								aria-label={t('settings.application.menuBar')}
+							/>
 						</ItemActions>
 					</Item>
 					<Item variant="outline" size="md" className="border-b border-border/60">
@@ -118,7 +112,11 @@ const GeneralPage: React.FC = () => {
 							<ItemTitle>{t('settings.application.keepAwake')}</ItemTitle>
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
-							<Switch checked={keepAwake} onCheckedChange={handleKeepAwakeToggle} aria-label={t('settings.application.keepAwake')} />
+							<Switch
+								checked={keepAwake}
+								onCheckedChange={handleKeepAwakeToggle}
+								aria-label={t('settings.application.keepAwake')}
+							/>
 						</ItemActions>
 					</Item>
 					<Item variant="outline" size="md" className="border-b border-border/60">
