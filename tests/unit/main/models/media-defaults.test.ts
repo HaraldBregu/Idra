@@ -4,12 +4,13 @@ const generateMusic = jest.fn();
 const getProviderId = jest.fn();
 const getModelId = jest.fn();
 const resolveOptions = jest.fn();
+const providerModels = jest.fn();
 
 class ProviderError extends Error {}
 
 jest.mock('../../../../src/main/models', () => ({
 	loadProviders: () => [],
-	providerModels: () => [],
+	providerModels,
 	supportsCapability: () => true,
 }));
 jest.mock('../../../../src/main/settings_store', () => ({
@@ -47,6 +48,9 @@ beforeEach(() => {
 	jest.clearAllMocks();
 	getProviderId.mockImplementation((kind: string) => `${kind}-provider`);
 	getModelId.mockImplementation((kind: string) => `${kind}-model`);
+	providerModels.mockImplementation((providerId: string) => [
+		{ id: providerId.replace(/-provider$/, '-model') },
+	]);
 	resolveOptions.mockImplementation(
 		(
 			_kind: string,
@@ -90,5 +94,16 @@ it('passes agent video defaults and request overrides to video generation', asyn
 	});
 	expect(generateVideo).toHaveBeenCalledWith(
 		expect.objectContaining({ options: { stored: true, duration: 8 } })
+	);
+});
+
+it('replaces a stale video model selection with the current catalog default', async () => {
+	getModelId.mockReturnValue('gen4_turbo');
+	providerModels.mockReturnValue([{ id: 'gen4.5' }]);
+
+	await createVideo({ prompt: 'sunrise' });
+
+	expect(generateVideo).toHaveBeenCalledWith(
+		expect.objectContaining({ providerId: 'video-provider', modelId: 'gen4.5' })
 	);
 });

@@ -177,7 +177,7 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | Available    | MiniMax    | Hailuo 2.3 (`MiniMax-Hailuo-2.3`); Hailuo 02 (`MiniMax-Hailuo-02`)                     |
 | Partial      | Pika       | Pika 2.2 (`pika-2.2`); the adapter uses fal.run while the manifest supplies Pika's URL |
 | Available    | Qwen       | Wan 2.5 T2V (`wan2.5-t2v`); Wan 2.2 T2V Plus (`wan2.2-t2v-plus`)                       |
-| Available    | Runway     | Gen-4 Turbo (`gen4_turbo`); Gen-3 Alpha Turbo (`gen3a_turbo`)                          |
+| Available    | Runway     | Gen-4.5 (`gen4.5`)                                                                     |
 | Available    | xAI        | Grok Imagine Video 1.5 (`grok-imagine-video-1.5`)                                      |
 
 ### Audio and sound effects

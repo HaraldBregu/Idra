@@ -22,6 +22,9 @@ describe('provider manifests', () => {
 		const stableImage = loadModels().find(
 			(model) => model.provider.id === 'stability-ai' && model.id === 'stable-image-core'
 		);
+		const runwayVideoModels = loadModels().filter(
+			(model) => model.provider.id === 'runway' && model.type === 'text-to-video'
+		);
 		const openAiRealtime = loadModels().filter(
 			(model) => model.provider.id === 'openai' && model.type === 'realtime-voice'
 		);
@@ -46,6 +49,7 @@ describe('provider manifests', () => {
 		expect(deepseek?.metadata).toEqual(
 			expect.objectContaining({ contextWindow: 1_048_576, defaultOutputTokens: 32_768 })
 		);
+		expect(runwayVideoModels.map((model) => model.id)).toEqual(['gen4.5']);
 		expect(openAiRealtime).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({

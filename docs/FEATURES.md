@@ -411,7 +411,7 @@ Media can be generated from the dedicated Settings studios or by agent tools dur
 | Available    | MiniMax: Hailuo 2.3, Hailuo 02                                                                           |
 | Available    | Pika: 2.2                                                                                                |
 | Available    | Qwen: Wan 2.5 T2V, Wan 2.2 T2V Plus                                                                      |
-| Available    | Runway: Gen-4 Turbo, Gen-3 Alpha Turbo                                                                   |
+| Available    | Runway: Gen-4.5                                                                                          |
 | Available    | xAI: Grok Imagine Video 1.5                                                                              |
 | Catalog only | Midjourney Video v1 is selectable, but the runtime explicitly reports that Midjourney has no public API. |
 

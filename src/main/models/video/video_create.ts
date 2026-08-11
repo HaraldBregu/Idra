@@ -45,8 +45,10 @@ function resolveProviderId(providerId: string): string {
 }
 
 function resolveModelId(providerId: string, modelId: string | undefined): string {
-	if (modelId?.trim()) return modelId.trim();
-	const fallback = providerModels(providerId, 'text-to-video')[0]?.id;
+	const models = providerModels(providerId, 'text-to-video');
+	const selected = modelId?.trim();
+	if (selected && models.some((model) => model.id === selected)) return selected;
+	const fallback = models[0]?.id;
 	if (!fallback) {
 		throw new VideoProviderUnsupportedError(
 			`No text-to-video models available for provider: ${providerId}`

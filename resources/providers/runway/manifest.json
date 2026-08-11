@@ -7,18 +7,14 @@
   "icon_light_url": "/images/fallback_lobehub/png_light/runway.png",
   "services": [
     {
-      "id": "gen4_turbo",
-      "name": "Gen-4 Turbo",
+      "id": "gen4.5",
+      "name": "Gen-4.5",
       "type": "text-to-video-model",
       "url": "https://api.dev.runwayml.com/v1",
       "metadata": {
         "documentationUrl": "https://docs.dev.runwayml.com/api/",
         "documentationStatus": "verified",
         "inputs": {
-          "promptImage": {
-            "type": "string",
-            "required": true
-          },
           "promptText": {
             "type": "string",
             "required": true
@@ -27,16 +23,13 @@
             "type": "string",
             "enum": [
               "1280:720",
-              "720:1280",
-              "1104:832",
-              "832:1104",
-              "960:960",
-              "1584:672"
+              "720:1280"
             ]
           },
           "duration": {
             "type": "integer",
-            "enum": [5, 10]
+            "minimum": 2,
+            "maximum": 10
           },
           "seed": {
             "type": "integer",
@@ -45,36 +38,6 @@
           },
           "contentModeration": {
             "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "id": "gen3a_turbo",
-      "name": "Gen-3 Alpha Turbo",
-      "type": "text-to-video-model",
-      "url": "https://api.dev.runwayml.com/v1",
-      "metadata": {
-        "documentationUrl": "https://docs.dev.runwayml.com/api/",
-        "documentationStatus": "verified",
-        "inputs": {
-          "promptImage": {
-            "type": "string",
-            "required": true
-          },
-          "promptText": {
-            "type": "string",
-            "required": true
-          },
-          "ratio": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "integer",
-            "enum": [5, 10]
-          },
-          "seed": {
-            "type": "integer"
           }
         }
       }
