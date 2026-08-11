@@ -12,7 +12,7 @@
       "type": "large-language-model",
       "url": "https://api.mistral.ai/v1",
       "metadata": {
-        "documentationUrl": "https://docs.mistral.ai/api/",
+        "documentationUrl": "https://docs.mistral.ai/api/endpoint/audio/speech",
         "documentationStatus": "verified",
         "inputs": {
           "temperature": {
@@ -187,16 +187,22 @@
         "documentationStatus": "verified",
         "inputs": {
           "voice_id": {
-            "type": "string"
+            "type": "string",
+            "title": "Voice ID"
           },
           "ref_audio": {
             "type": "string"
           },
           "response_format": {
-            "type": "string"
+            "type": "string",
+            "default": "mp3",
+            "enum": ["pcm", "wav", "mp3", "flac", "opus"]
           },
-          "stream": {
-            "type": "boolean"
+          "metadata": {
+            "type": "object"
+          },
+          "prompt_cache_key": {
+            "type": "string"
           }
         }
       }

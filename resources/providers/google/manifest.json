@@ -70,15 +70,18 @@
       "type": "text-to-speech-model",
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
-        "documentationUrl": "https://ai.google.dev/gemini-api/docs",
+        "documentationUrl": "https://ai.google.dev/gemini-api/docs/generate-content/speech-generation",
         "documentationStatus": "verified",
         "inputs": {
           "voiceName": {
-            "type": "string"
+            "type": "string",
+            "title": "Voice",
+            "default": "Kore",
+            "enum": ["Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Leda", "Orus", "Aoede", "Callirrhoe", "Autonoe", "Enceladus", "Iapetus", "Umbriel", "Algieba", "Despina", "Erinome", "Algenib", "Rasalgethi", "Laomedeia", "Achernar", "Alnilam", "Schedar", "Gacrux", "Pulcherrima", "Achird", "Zubenelgenubi", "Vindemiatrix", "Sadachbia", "Sadaltager", "Sulafat"]
           },
-          "responseModalities": {
-            "type": "array",
-            "enum": ["AUDIO"]
+          "languageCode": {
+            "type": "string",
+            "title": "Language code"
           }
         }
       }

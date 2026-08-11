@@ -297,7 +297,7 @@
       "default": true,
       "sampleRate": 24000,
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
+        "documentationUrl": "https://developers.openai.com/api/reference/resources/audio/subresources/speech/methods/create",
         "documentationStatus": "verified",
         "inputs": {
           "language": {
@@ -394,19 +394,24 @@
         "documentationStatus": "verified",
         "inputs": {
           "voice": {
-            "type": "string"
+            "type": "string",
+            "title": "Voice",
+            "default": "coral",
+            "enum": ["alloy", "ash", "ballad", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse", "marin", "cedar"]
           },
           "instructions": {
             "type": "string"
           },
           "response_format": {
-            "type": "string"
+            "type": "string",
+            "default": "mp3",
+            "enum": ["mp3", "opus", "aac", "flac", "wav", "pcm"]
           },
           "speed": {
-            "type": "number"
-          },
-          "stream_format": {
-            "type": "string"
+            "type": "number",
+            "minimum": 0.25,
+            "maximum": 4,
+            "default": 1
           }
         }
       }
@@ -417,20 +422,25 @@
       "type": "text-to-speech-model",
       "url": "https://api.openai.com/v1",
       "metadata": {
-        "documentationUrl": "https://platform.openai.com/docs/api-reference",
+        "documentationUrl": "https://developers.openai.com/api/reference/resources/audio/subresources/speech/methods/create",
         "documentationStatus": "verified",
         "inputs": {
           "voice": {
-            "type": "string"
+            "type": "string",
+            "title": "Voice",
+            "default": "coral",
+            "enum": ["alloy", "ash", "ballad", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse", "marin", "cedar"]
           },
           "response_format": {
-            "type": "string"
+            "type": "string",
+            "default": "mp3",
+            "enum": ["mp3", "opus", "aac", "flac", "wav", "pcm"]
           },
           "speed": {
-            "type": "number"
-          },
-          "stream_format": {
-            "type": "string"
+            "type": "number",
+            "minimum": 0.25,
+            "maximum": 4,
+            "default": 1
           }
         }
       }
