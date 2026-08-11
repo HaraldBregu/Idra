@@ -76,6 +76,7 @@
           "voice_id": {
             "type": "string",
             "title": "Voice ID",
+            "default": "21m00Tcm4TlvDq8ikWAM",
             "required": true
           },
           "language_code": {
@@ -191,6 +192,7 @@
           "voice_id": {
             "type": "string",
             "title": "Voice ID",
+            "default": "21m00Tcm4TlvDq8ikWAM",
             "required": true
           },
           "language_code": {
@@ -306,6 +308,7 @@
           "voice_id": {
             "type": "string",
             "title": "Voice ID",
+            "default": "21m00Tcm4TlvDq8ikWAM",
             "required": true
           },
           "language_code": {

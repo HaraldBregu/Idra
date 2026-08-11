@@ -21,10 +21,26 @@ export function createCartesiaSpeechAdapter(provider: SpeechProviderSpec): Speec
 				(optionVoice && typeof optionVoice === 'object' && !Array.isArray(optionVoice)
 					? (optionVoice as Record<string, unknown>).id
 					: undefined);
-			const outputFormat =
+			const selectedOutputFormat =
 				optionOutputFormat && typeof optionOutputFormat === 'object' && !Array.isArray(optionOutputFormat)
-					? optionOutputFormat
-					: { container: 'mp3', bit_rate: 128_000, sample_rate: 44_100 };
+					? optionOutputFormat as Record<string, unknown>
+					: {};
+			const container =
+				typeof selectedOutputFormat.container === 'string'
+					? selectedOutputFormat.container
+					: 'mp3';
+			const outputFormat =
+				container === 'mp3'
+					? {
+							container,
+							sample_rate: selectedOutputFormat.sample_rate ?? 44_100,
+							bit_rate: selectedOutputFormat.bit_rate ?? 128_000,
+						}
+					: {
+							container,
+							encoding: selectedOutputFormat.encoding ?? 'pcm_s16le',
+							sample_rate: selectedOutputFormat.sample_rate ?? 44_100,
+						};
 			const response = await fetch(new URL(CARTESIA_TTS_PATH, `${provider.baseURL}/`), {
 				method: 'POST',
 				headers: {

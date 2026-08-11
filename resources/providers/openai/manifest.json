@@ -396,7 +396,7 @@
           "voice": {
             "type": "string",
             "title": "Voice",
-            "default": "coral",
+            "default": "alloy",
             "enum": ["alloy", "ash", "ballad", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse", "marin", "cedar"]
           },
           "instructions": {
@@ -428,7 +428,7 @@
           "voice": {
             "type": "string",
             "title": "Voice",
-            "default": "coral",
+            "default": "alloy",
             "enum": ["alloy", "ash", "ballad", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse", "marin", "cedar"]
           },
           "response_format": {

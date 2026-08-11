@@ -5,12 +5,12 @@ import type { SpeechSynthesisResult } from '../../../../shared/speech_types';
 const OPENAI_TTS_PATH = 'audio/speech';
 const OPENAI_DEFAULT_VOICE = 'alloy';
 const OPENAI_AUDIO_TYPES: Readonly<Record<string, string>> = {
-	 mp3: 'audio/mpeg',
-	 opus: 'audio/opus',
-	 aac: 'audio/aac',
-	 flac: 'audio/flac',
-	 wav: 'audio/wav',
-	 pcm: 'audio/pcm',
+	mp3: 'audio/mpeg',
+	opus: 'audio/opus',
+	aac: 'audio/aac',
+	flac: 'audio/flac',
+	wav: 'audio/wav',
+	pcm: 'audio/pcm',
 };
 
 export function createOpenAISpeechAdapter(provider: SpeechProviderSpec): SpeechAdapter {
