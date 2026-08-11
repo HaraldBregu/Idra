@@ -220,7 +220,7 @@
 			"skills": "Skills",
 			"extensions": "Extensions",
 			"plugins": "Plugins",
-			"rag": "Knowledge Base",
+			"rag": "RAG",
 			"wiki": "LLM Wiki",
 			"vectorDb": "Database"
 		},
@@ -1374,10 +1374,10 @@
 			"dismissSuccess": "Dismiss"
 		},
 		"rag": {
-			"title": "Knowledge Base",
+			"title": "RAG",
 			"description": "Index text files recursively from selected folders and search them as vectors.",
-			"behaviorTitle": "Knowledge Base behavior",
-			"enabled": "Enable Knowledge Base",
+			"behaviorTitle": "RAG behavior",
+			"enabled": "Enable RAG",
 			"enabledDescription": "Document indexing and assistant search.",
 			"embeddingConsent": "Send document text for embeddings",
 			"embeddingConsentDescription": "Let Friday send document chunks to the embedding provider. Changing provider or model requires new consent.",

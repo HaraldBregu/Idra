@@ -220,7 +220,7 @@
 			"skills": "Abilità",
 			"extensions": "Extension",
 			"plugins": "Plugin",
-			"rag": "Base di conoscenza",
+			"rag": "RAG",
 			"wiki": "LLM Wiki",
 			"vectorDb": "Database"
 		},
@@ -1373,10 +1373,10 @@
 			"dismissSuccess": "Chiudi"
 		},
 		"rag": {
-			"title": "Base di conoscenza",
+			"title": "RAG",
 			"description": "Indicizza ricorsivamente i file di testo nelle cartelle selezionate e cercali come vettori.",
-			"behaviorTitle": "Comportamento della base di conoscenza",
-			"enabled": "Abilita la base di conoscenza",
+			"behaviorTitle": "Comportamento RAG",
+			"enabled": "Abilita RAG",
 			"enabledDescription": "Indicizzazione dei documenti e ricerca dell'assistente.",
 			"embeddingConsent": "Invia il testo dei documenti per gli embedding",
 			"embeddingConsentDescription": "Friday può inviare parti dei documenti al provider di embedding. Le modifiche a provider o modello richiedono un nuovo consenso.",

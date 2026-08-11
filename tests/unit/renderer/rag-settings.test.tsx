@@ -4,10 +4,10 @@ import RagPage from '../../../src/renderer/src/pages/settings/pages/rag/Page';
 
 jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
-		'settings.rag.title': 'Knowledge Base',
+		'settings.rag.title': 'RAG',
 		'settings.rag.description': 'Configure retrieval-augmented generation.',
-		'settings.rag.behaviorTitle': 'Knowledge Base behavior',
-		'settings.rag.enabled': 'Enable Knowledge Base',
+		'settings.rag.behaviorTitle': 'RAG behavior',
+		'settings.rag.enabled': 'Enable RAG',
 		'settings.rag.enabledDescription': 'Allow document indexing and assistant search.',
 		'settings.rag.embeddingConsent': 'Send document text for embeddings',
 		'settings.rag.embeddingConsentDescription':
@@ -159,7 +159,7 @@ beforeEach(() => {
 	embeddingApi.setModelId.mockResolvedValue(undefined);
 });
 
-it('manages Knowledge Base data from the Knowledge Base page', async () => {
+it('manages RAG data from the RAG page', async () => {
 	const user = userEvent.setup();
 	render(<RagPage />);
 
@@ -189,7 +189,7 @@ it('loads and saves the embedding model used by RAG', async () => {
 	const user = userEvent.setup();
 	render(<RagPage />);
 
-	expect(await screen.findByRole('heading', { name: 'Knowledge Base' })).toBeInTheDocument();
+	expect(await screen.findByRole('heading', { name: 'RAG' })).toBeInTheDocument();
 	const selector = await screen.findByRole('combobox', { name: 'Embedding model' });
 	expect(selector).toHaveTextContent('OpenAI / Text Embedding 3 Small');
 
@@ -203,11 +203,11 @@ it('loads and saves the embedding model used by RAG', async () => {
 	});
 });
 
-it('enables the Knowledge Base from its settings page', async () => {
+it('enables RAG from its settings page', async () => {
 	const user = userEvent.setup();
 	render(<RagPage />);
 
-	const toggle = await screen.findByRole('switch', { name: 'Enable Knowledge Base' });
+	const toggle = await screen.findByRole('switch', { name: 'Enable RAG' });
 	expect(toggle).not.toBeChecked();
 	await user.click(toggle);
 	await waitFor(() =>

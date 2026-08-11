@@ -13,7 +13,7 @@ const ASSISTANT_SUBPAGE_LABEL_KEYS: Record<string, string> = {
 	'/settings/assistant/chathistory': 'settings.chatHistory.title',
 	'/settings/assistant/data': 'settings.dataControls.title',
 	'/settings/assistant/health': 'settings.tabs.health',
-	'/settings/assistant/knowledge-base': 'settings.rag.title',
+	'/settings/assistant/rag': 'settings.rag.title',
 	'/settings/assistant/llm-wiki': 'settings.wiki.title',
 	'/settings/assistant/permissions': 'settings.tabs.permissions',
 	'/settings/search': 'settings.tabs.searchEngine',

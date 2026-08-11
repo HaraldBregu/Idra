@@ -429,7 +429,7 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'knowledge-base',
-						element: <Navigate to="/settings/assistant/knowledge-base" replace />,
+						element: <Navigate to="/settings/assistant/rag" replace />,
 					},
 					{
 						path: 'llm-wiki',
@@ -463,12 +463,16 @@ const routes: RouteObject[] = [
 								),
 							},
 							{
-								path: 'knowledge-base',
+								path: 'rag',
 								element: (
 									<SettingsRouteWrapper>
 										<RagPage />
 									</SettingsRouteWrapper>
 								),
+							},
+							{
+								path: 'knowledge-base',
+								element: <Navigate to="/settings/assistant/rag" replace />,
 							},
 							{
 								path: 'llm-wiki',

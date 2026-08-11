@@ -40,7 +40,7 @@ Ask Friday to do the work
   -> use focused Extensions when the workflow needs a dedicated interface
 ```
 
-Use the user-facing name **Knowledge Base** in navigation and marketing copy. Introduce **RAG** once as the underlying retrieval approach for technical readers. Keep **LLM Wiki** as the feature name.
+Use the user-facing name **RAG** in application navigation. Marketing copy may introduce it as the semantic Knowledge Base for less technical readers. Keep **LLM Wiki** as the feature name.
 
 ## Approved page structure and copy
 
@@ -202,7 +202,7 @@ Choose one or more folders of text, create a semantic index with your selected e
 - Supports manual generation and scheduled full index rebuilds.
 - Rejects common credential files and high-confidence secret content before indexing.
 
-Use **Knowledge Base** in the interface. A small technical label may say **RAG-powered semantic retrieval**. Do not describe this feature as local-only, incremental, compatible with PDFs or office documents, or independent of Pinecone.
+Use **RAG** in the interface. Marketing copy may say **RAG-powered semantic retrieval**. Do not describe this feature as local-only, incremental, compatible with PDFs or office documents, or independent of Pinecone.
 
 #### LLM Wiki
 
@@ -429,7 +429,7 @@ Use these repository sources to validate final copy and product visuals:
 - [LLM Wiki reference](WIKI.md)
 - [Skills settings](../src/renderer/src/pages/settings/pages/skills/Page.tsx)
 - [Skill loading](../src/main/agent/tools/skill_load.ts)
-- [Knowledge Base settings](../src/renderer/src/pages/settings/pages/rag/Page.tsx)
+- [RAG settings](../src/renderer/src/pages/settings/pages/rag/Page.tsx)
 - [Knowledge search tool](../src/main/agent/tools/knowledge/rag.ts)
 - [LLM Wiki settings](../src/renderer/src/pages/settings/pages/wiki/Page.tsx)
 - [Extensions settings](../src/renderer/src/pages/settings/pages/extensions/Page.tsx)

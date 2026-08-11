@@ -381,11 +381,11 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/assistant/knowledge-base')}
+					onClick={() => navigate('/settings/assistant/rag')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
 							event.preventDefault();
-							navigate('/settings/assistant/knowledge-base');
+							navigate('/settings/assistant/rag');
 						}
 					}}
 				>

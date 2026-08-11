@@ -387,7 +387,7 @@ export const SETTINGS_NAVIGATION: readonly SettingsNavigationItem[] = [
 		icon: Bot,
 	},
 	{
-		path: '/settings/assistant/knowledge-base',
+		path: '/settings/assistant/rag',
 		labelKey: 'settings.rag.title',
 		descriptionKey: 'settings.overview.descriptions.rag',
 		icon: Library,

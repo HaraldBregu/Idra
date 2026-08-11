@@ -38,7 +38,7 @@ const routes = [
 	'/settings/providers/video',
 	'/settings/providers/music',
 	'/settings/search',
-	'/settings/rag',
+	'/settings/assistant/rag',
 	'/settings/wiki',
 	'/settings/tasks',
 	'/settings/tasks/permissions',

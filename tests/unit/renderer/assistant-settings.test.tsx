@@ -55,9 +55,11 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.modelDescription': 'Choose provider and model',
 		'settings.modelServices.history': 'History',
 		'settings.tabs.searchEngine': 'Search Engine',
+		'settings.tabs.permissions': 'Permissions',
+		'settings.overview.descriptions.permissions': 'Manage permissions',
 		'settings.dataControls.title': 'Data management',
 		'settings.dataControls.description': 'Export or purge assistant data',
-		'settings.rag.title': 'Knowledge Base',
+		'settings.rag.title': 'RAG',
 		'settings.rag.description': 'Index and search local documents',
 		'settings.wiki.title': 'LLM Wiki',
 		'settings.wiki.description': 'Build a persistent Markdown wiki',
@@ -173,22 +175,22 @@ it('groups independently collapsible provider settings in one card', async () =>
 	expect(new Set(cards).size).toBe(1);
 
 	const wiki = screen.getByRole('button', { name: /LLM Wiki/ });
-	const knowledgeBase = screen.getByRole('button', { name: /Knowledge Base/ });
-	const permissions = screen.getByRole('button', { name: /settings.tabs.permissions/ });
+	const rag = screen.getByRole('button', { name: /RAG/ });
+	const permissions = screen.getByRole('button', { name: /Permissions/ });
 	const dataManagement = screen.getByRole('button', { name: /Data management/ });
 	expect(
 		wiki.compareDocumentPosition(dataManagement) & Node.DOCUMENT_POSITION_FOLLOWING
 	).toBeTruthy();
-	expect(knowledgeBase.closest('[data-slot="card"]')).toBe(wiki.closest('[data-slot="card"]'));
+	expect(rag.closest('[data-slot="card"]')).toBe(wiki.closest('[data-slot="card"]'));
 	expect(permissions.closest('[data-slot="card"]')).not.toBe(
-		knowledgeBase.closest('[data-slot="card"]')
+		rag.closest('[data-slot="card"]')
 	);
 	expect(dataManagement.closest('[data-slot="card"]')).not.toBe(wiki.closest('[data-slot="card"]'));
 });
 
 it.each([
 	['Data management', '/settings/assistant/data'],
-	['Knowledge Base', '/settings/assistant/knowledge-base'],
+	['RAG', '/settings/assistant/rag'],
 	['LLM Wiki', '/settings/assistant/llm-wiki'],
 ])('opens %s from the Agent settings page', async (label, path) => {
 	const user = userEvent.setup();

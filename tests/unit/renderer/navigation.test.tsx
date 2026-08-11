@@ -27,7 +27,7 @@ beforeEach(() => {
 });
 
 it.each([
-	['/settings/assistant/knowledge-base', 'settings.rag.title'],
+	['/settings/assistant/rag', 'settings.rag.title'],
 	['/settings/assistant/llm-wiki', 'settings.wiki.title'],
 	['/settings/tasks', 'settings.tabs.taskScheduler'],
 	['/settings/assistant/permissions', 'settings.tabs.permissions'],
