@@ -1,4 +1,4 @@
-import { Bot, GrammyError, HttpError, InputFile } from 'grammy';
+import { Bot, GrammyError, HttpError, InputFile } from 'grammy/web';
 import { sendDurableMessageBatch } from '../channels_batch';
 import type {
 	ChannelAdapter,

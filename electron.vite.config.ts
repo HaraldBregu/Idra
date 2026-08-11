@@ -58,7 +58,7 @@ export default defineConfig({
 			__APP_LICENSE__: JSON.stringify(pkg.license),
 		},
 		plugins: [
-			react(),
+			react({ exclude: [/\/node_modules\//, /\/friday-vite-cache\/deps\//] }),
 			tsconfigPaths({ ignoreConfigErrors: true }),
 			{
 				// react-video-audio-player ships Tailwind v3 CSS whose unlayered
