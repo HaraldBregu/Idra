@@ -2,9 +2,10 @@ import { render, waitFor } from '@testing-library/react';
 import { Persona } from '../../../src/renderer/src/components/ai-elements/persona';
 
 const mockSetRgb = jest.fn();
+const mockUseRive = jest.fn(() => ({ rive: {}, RiveComponent: () => null }));
 
 jest.mock('@rive-app/react-webgl2', () => ({
-	useRive: () => ({ rive: {}, RiveComponent: () => null }),
+	useRive: (...args: unknown[]) => mockUseRive(...args),
 	useStateMachineInput: () => null,
 	useViewModel: () => ({}),
 	useViewModelInstance: () => ({}),
@@ -26,6 +27,10 @@ it('does not reapply the dynamic color when only the persona state changes', asy
 	const { rerender } = render(<Persona variant="halo" state="idle" />);
 
 	await waitFor(() => expect(mockSetRgb).toHaveBeenCalledTimes(1));
+	expect(mockUseRive).toHaveBeenLastCalledWith(
+		expect.anything(),
+		expect.objectContaining({ useOffscreenRenderer: false })
+	);
 	rerender(<Persona variant="halo" state="listening" />);
 
 	expect(mockSetRgb).toHaveBeenCalledTimes(1);

@@ -239,7 +239,8 @@ export const Persona: FC<PersonaProps> = memo(
 						src: source.source,
 						stateMachines: stateMachine,
 					}
-				: null
+				: null,
+			{ useOffscreenRenderer: false }
 		);
 
 		const listeningInput = useStateMachineInput(rive, stateMachine, 'listening');
@@ -270,7 +271,7 @@ export const Persona: FC<PersonaProps> = memo(
 
 		return (
 			<Component rive={rive} source={source}>
-				<RiveComponent className={cn('size-16 shrink-0', className)} />
+				<RiveComponent key={variant} className={cn('size-16 shrink-0', className)} />
 			</Component>
 		);
 	}
