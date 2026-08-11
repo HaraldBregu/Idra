@@ -4,6 +4,6 @@ import { toolIcon, type ToolPart } from '../../../src/renderer/src/components/pr
 it.each(['list_extensions', 'open_extensions', 'close_extensions'])(
 	'uses the extension icon for %s',
 	(type) => {
-	expect(toolIcon({ type, state: 'output-available' } satisfies ToolPart)).toBe(Blocks);
+		expect(toolIcon({ type, state: 'output-available' } satisfies ToolPart)).toBe(Blocks);
 	}
 );

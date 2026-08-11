@@ -101,7 +101,7 @@ it('stops requesting extension closes when aborted', async () => {
 		closeExtensionsTool.run({ ids: ['project', 'weather'] }, controller.signal)
 	).rejects.toMatchObject({ name: 'AbortError' });
 	expect(closeExtension).toHaveBeenCalledTimes(1);
-	});
+});
 
 it('rejects empty extension close inputs', () => {
 	expect(() => closeExtensionsTool.parseInput({ ids: '' })).toThrow();
