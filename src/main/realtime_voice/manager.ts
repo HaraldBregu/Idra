@@ -70,8 +70,16 @@ export class RealtimeVoiceManager {
 			id: randomUUID(),
 			providerId: configuration.provider.id,
 			modelId: configuration.modelId,
-			input: { format: 'pcm16', sampleRate: REALTIME_VOICE_SAMPLE_RATE, channels: REALTIME_VOICE_CHANNELS },
-			output: { format: 'pcm16', sampleRate: REALTIME_VOICE_SAMPLE_RATE, channels: REALTIME_VOICE_CHANNELS },
+			input: {
+				format: 'pcm16',
+				sampleRate: REALTIME_VOICE_SAMPLE_RATE,
+				channels: REALTIME_VOICE_CHANNELS,
+			},
+			output: {
+				format: 'pcm16',
+				sampleRate: REALTIME_VOICE_SAMPLE_RATE,
+				channels: REALTIME_VOICE_CHANNELS,
+			},
 		};
 		const controller = new AbortController();
 		const active = {
@@ -105,11 +113,13 @@ export class RealtimeVoiceManager {
 		this.emit(active, { type: 'state', sessionId: info.id, status: 'connecting' });
 
 		try {
-			const connection = await this.dependencies.createAdapter(configuration.provider).connect(
-				configuration,
-				(event) => this.handleAdapterEvent(active, event),
-				controller.signal
-			);
+			const connection = await this.dependencies
+				.createAdapter(configuration.provider)
+				.connect(
+					configuration,
+					(event) => this.handleAdapterEvent(active, event),
+					controller.signal
+				);
 			if (
 				active.closed ||
 				this.byId.get(info.id) !== active ||
@@ -143,10 +153,7 @@ export class RealtimeVoiceManager {
 		) {
 			throw new Error('Invalid realtime voice audio chunk.');
 		}
-		if (
-			active.pendingInputCharacters + audio.length >
-			REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH
-		) {
+		if (active.pendingInputCharacters + audio.length > REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH) {
 			throw new Error('Realtime voice input queue is full.');
 		}
 		active.pendingInputCharacters += audio.length;
@@ -202,7 +209,10 @@ export class RealtimeVoiceManager {
 		return active?.windowId === windowId ? active : undefined;
 	}
 
-	private handleAdapterEvent(active: ActiveRealtimeVoiceSession, event: RealtimeVoiceAdapterEvent): void {
+	private handleAdapterEvent(
+		active: ActiveRealtimeVoiceSession,
+		event: RealtimeVoiceAdapterEvent
+	): void {
 		if (active.closed || this.byId.get(active.info.id) !== active) return;
 		const sessionId = active.info.id;
 		if (event.type === 'input_speech_started') {
@@ -229,7 +239,12 @@ export class RealtimeVoiceManager {
 				active.finalTranscripts.add(event.itemId);
 				active.conversation.addAssistantTranscript(event.transcript);
 			}
-			this.emit(active, { type: event.type, sessionId, itemId: event.itemId, text: event.transcript });
+			this.emit(active, {
+				type: event.type,
+				sessionId,
+				itemId: event.itemId,
+				text: event.transcript,
+			});
 			return;
 		}
 		if (event.type === 'assistant_audio_delta') {

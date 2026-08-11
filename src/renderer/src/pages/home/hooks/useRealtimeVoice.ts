@@ -6,19 +6,11 @@ import type {
 	RealtimeVoiceState,
 	RealtimeVoiceToolEvent,
 } from '@shared/realtime_voice';
-import {
-	canCaptureAudio,
-	dictationErrorMessage,
-	getAppMicrophoneEnabled,
-} from './audio';
+import { canCaptureAudio, dictationErrorMessage, getAppMicrophoneEnabled } from './audio';
 import { usePcmCapture } from './usePcmCapture';
 import { usePcmPlayback } from './usePcmPlayback';
 
-export type RealtimeVoiceUiStatus =
-	| 'idle'
-	| 'checking-permission'
-	| RealtimeVoiceState
-	| 'error';
+export type RealtimeVoiceUiStatus = 'idle' | 'checking-permission' | RealtimeVoiceState | 'error';
 
 const CLOCK_INTERVAL_MS = 250;
 const HOME_AGENT_ID = 'main';
@@ -134,9 +126,7 @@ export function useRealtimeVoice({
 		(error: unknown, sessionId = sessionIdRef.current): void => {
 			if (!sessionId || sessionIdRef.current !== sessionId) return;
 			const message =
-				typeof error === 'string' && error.trim()
-					? error
-					: dictationErrorMessage(error);
+				typeof error === 'string' && error.trim() ? error : dictationErrorMessage(error);
 			sessionIdRef.current = null;
 			sessionChatIdRef.current = null;
 			setErrorMessage(message);
@@ -168,7 +158,7 @@ export function useRealtimeVoice({
 				case 'started':
 					setStatus('listening');
 					return;
-			case 'state':
+				case 'state':
 					setStatus(event.status);
 					return;
 				case 'input_speech_started':
@@ -205,7 +195,11 @@ export function useRealtimeVoice({
 					});
 					return;
 				case 'assistant_transcript_final':
-					dispatchChat({ type: 'complete_active', response: event.text, completedAtMs: Date.now() });
+					dispatchChat({
+						type: 'complete_active',
+						response: event.text,
+						completedAtMs: Date.now(),
+					});
 					return;
 				case 'assistant_audio_delta':
 					setStatus('speaking');

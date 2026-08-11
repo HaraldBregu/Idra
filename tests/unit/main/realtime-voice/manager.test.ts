@@ -98,7 +98,10 @@ describe('RealtimeVoiceManager', () => {
 		const manager = new RealtimeVoiceManager({
 			createAdapter: () => ({ connect: async () => connection }),
 			resolveConfiguration: async () => configuration,
-			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
+			createConversation: () => ({
+				addUserTurn: () => undefined,
+				addAssistantTranscript: () => undefined,
+			}),
 			resources: new KeyedMutex(),
 			emit: () => undefined,
 		});
@@ -123,7 +126,10 @@ describe('RealtimeVoiceManager', () => {
 					}),
 			}),
 			resolveConfiguration: async () => configuration,
-			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
+			createConversation: () => ({
+				addUserTurn: () => undefined,
+				addAssistantTranscript: () => undefined,
+			}),
 			resources: new KeyedMutex(),
 			emit: () => undefined,
 		});
@@ -162,7 +168,10 @@ describe('RealtimeVoiceManager', () => {
 				},
 			}),
 			resolveConfiguration: () => new Promise((resolve) => resolvers.push(resolve)),
-			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
+			createConversation: () => ({
+				addUserTurn: () => undefined,
+				addAssistantTranscript: () => undefined,
+			}),
 			resources: new KeyedMutex(),
 			emit: () => undefined,
 		});
@@ -185,7 +194,10 @@ describe('RealtimeVoiceManager', () => {
 		const manager = new RealtimeVoiceManager({
 			createAdapter: () => ({ connect }),
 			resolveConfiguration: () => new Promise((resolve) => (resolveConfiguration = resolve)),
-			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
+			createConversation: () => ({
+				addUserTurn: () => undefined,
+				addAssistantTranscript: () => undefined,
+			}),
 			resources: new KeyedMutex(),
 			emit: () => undefined,
 		});
@@ -209,7 +221,10 @@ describe('RealtimeVoiceManager', () => {
 				},
 			}),
 			resolveConfiguration: async () => configuration,
-			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
+			createConversation: () => ({
+				addUserTurn: () => undefined,
+				addAssistantTranscript: () => undefined,
+			}),
 			resources: new KeyedMutex(),
 			emit: () => undefined,
 		});

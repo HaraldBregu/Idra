@@ -51,11 +51,7 @@ class OpenAICompatibleRealtimeVoiceConnection implements RealtimeVoiceConnection
 		private readonly emit: RealtimeVoiceAdapterEventHandler
 	) {}
 
-	open(
-		session: Record<string, unknown>,
-		timeoutMs: number,
-		signal?: AbortSignal
-	): Promise<void> {
+	open(session: Record<string, unknown>, timeoutMs: number, signal?: AbortSignal): Promise<void> {
 		return new Promise((resolve, reject) => {
 			let settled = false;
 			const settle = (error?: Error): void => {

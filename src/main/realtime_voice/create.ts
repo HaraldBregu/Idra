@@ -34,7 +34,9 @@ export function createRealtimeVoiceManager(
 			const provider = getProvider(providerId);
 			const apiKey = provider?.apiKey.trim() ?? '';
 			if (!apiKey) {
-				throw new Error(`${provider?.name || providerId || 'Provider'} API key is required for realtime voice.`);
+				throw new Error(
+					`${provider?.name || providerId || 'Provider'} API key is required for realtime voice.`
+				);
 			}
 
 			const models = loadModels().filter(
@@ -46,7 +48,7 @@ export function createRealtimeVoiceManager(
 			const configuredModelId = getModelId('realtimeVoice');
 			const model = configuredModelId
 				? models.find((candidate) => candidate.id === configuredModelId)
-				: models.find((candidate) => candidate.default) ?? models[0];
+				: (models.find((candidate) => candidate.default) ?? models[0]);
 			if (!model) throw new Error('Configured realtime voice model is not supported.');
 
 			const configuredVoice = getOptions('realtimeVoice').voice;
@@ -60,8 +62,8 @@ export function createRealtimeVoiceManager(
 				supportedVoices.includes(configuredVoice.trim())
 					? configuredVoice.trim()
 					: typeof metadataVoice === 'string' &&
-						metadataVoice.trim() &&
-						supportedVoices.includes(metadataVoice.trim())
+						  metadataVoice.trim() &&
+						  supportedVoices.includes(metadataVoice.trim())
 						? metadataVoice.trim()
 						: (realtimeVoiceDefaultVoice(providerId) ?? '');
 			const tools = builtinTools(agent.config, agent.sandbox, windowFactory);

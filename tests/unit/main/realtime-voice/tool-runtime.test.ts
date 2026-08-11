@@ -85,7 +85,9 @@ it('runs native Realtime function calls through the existing tool runner and emi
 
 it('preserves the existing permission request identity and returns rejected tool status', async () => {
 	let resolvePermission = (_event: Record<string, unknown>): void => undefined;
-	const permissionEvent = new Promise<Record<string, unknown>>((resolve) => (resolvePermission = resolve));
+	const permissionEvent = new Promise<Record<string, unknown>>(
+		(resolve) => (resolvePermission = resolve)
+	);
 	let resolveResult = (_output: string): void => undefined;
 	const toolResult = new Promise<string>((resolve) => (resolveResult = resolve));
 	const runtime = new RealtimeVoiceToolRuntime({

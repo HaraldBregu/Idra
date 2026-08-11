@@ -171,10 +171,9 @@ describe('useRealtimeVoice', () => {
 		api.startSession.mockResolvedValue(session);
 		api.appendAudio.mockRejectedValue(new Error('Audio transport failed.'));
 		const onClosed = jest.fn();
-		const { result } = renderHook(
-			() => useRealtimeVoice({ chatSessionId: 'chat-1', onClosed }),
-			{ wrapper }
-		);
+		const { result } = renderHook(() => useRealtimeVoice({ chatSessionId: 'chat-1', onClosed }), {
+			wrapper,
+		});
 		await act(async () => result.current.start());
 		act(() => {
 			processor.onaudioprocess?.({

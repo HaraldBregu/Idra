@@ -20,9 +20,9 @@ describe('realtime voice adapter factory', () => {
 	});
 
 	it('builds a provider-specific adapter and rejects unknown providers', () => {
-		expect(
-			buildRealtimeVoiceAdapter({ id: ' XAI ', name: 'xAI', apiKey: 'key' })
-		).toBeInstanceOf(XAIRealtimeVoiceAdapter);
+		expect(buildRealtimeVoiceAdapter({ id: ' XAI ', name: 'xAI', apiKey: 'key' })).toBeInstanceOf(
+			XAIRealtimeVoiceAdapter
+		);
 		expect(() =>
 			buildRealtimeVoiceAdapter({ id: 'google', name: 'Google', apiKey: 'key' })
 		).toThrow('not supported');

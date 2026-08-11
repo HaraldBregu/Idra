@@ -12,10 +12,7 @@ import type {
 } from './realtime_voice_types';
 
 const OPENAI_BASE_URL = 'https://api.openai.com/v1';
-export const OPENAI_REALTIME_VOICE_MODELS = [
-	'gpt-realtime-2.1',
-	'gpt-realtime-2.1-mini',
-] as const;
+export const OPENAI_REALTIME_VOICE_MODELS = ['gpt-realtime-2.1', 'gpt-realtime-2.1-mini'] as const;
 
 export class OpenAIRealtimeVoiceAdapter implements RealtimeVoiceAdapter {
 	private readonly compatible: OpenAICompatibleRealtimeVoiceAdapter;

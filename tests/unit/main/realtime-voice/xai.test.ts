@@ -14,11 +14,18 @@ class FakeSocket implements RealtimeVoiceSocket {
 			this.socketListeners[event].push(listener);
 		},
 	};
-	private readonly socketListeners = { open: [] as Array<() => void>, close: [] as Array<() => void> };
+	private readonly socketListeners = {
+		open: [] as Array<() => void>,
+		close: [] as Array<() => void>,
+	};
 	private readonly eventListeners: Array<(event: RealtimeVoiceServerEvent) => void> = [];
 
-	on(event: 'event' | 'error', listener: ((event: RealtimeVoiceServerEvent) => void) | ((error: Error) => void)): void {
-		if (event === 'event') this.eventListeners.push(listener as (event: RealtimeVoiceServerEvent) => void);
+	on(
+		event: 'event' | 'error',
+		listener: ((event: RealtimeVoiceServerEvent) => void) | ((error: Error) => void)
+	): void {
+		if (event === 'event')
+			this.eventListeners.push(listener as (event: RealtimeVoiceServerEvent) => void);
 	}
 
 	send(event: RealtimeVoiceClientEvent): void {
