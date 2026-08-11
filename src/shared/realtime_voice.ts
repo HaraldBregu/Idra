@@ -2,7 +2,7 @@ import type { AgentResponseEvent } from './agent_types';
 
 export const REALTIME_VOICE_SAMPLE_RATE = 24_000 as const;
 export const REALTIME_VOICE_CHANNELS = 1 as const;
-export const REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH = 1_400_000;
+export const REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH = 256 * 1024;
 
 export interface RealtimeVoiceStartRequest {
 	readonly chatSessionId: string;
