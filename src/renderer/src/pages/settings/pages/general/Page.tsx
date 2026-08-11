@@ -7,6 +7,7 @@ import {
 	PanelTop,
 	SunMoon,
 } from 'lucide-react';
+import { ThemeSwitcher } from '@/components/kibo-ui/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
@@ -18,7 +19,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { useApp, type AppLanguage, type AppTheme } from '@/contexts';
+import { useApp, type AppLanguage } from '@/contexts';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -33,17 +34,6 @@ interface LanguageOption {
 const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
 	{ value: 'en', labelKey: 'settings.language.en' },
 	{ value: 'it', labelKey: 'settings.language.it' },
-] as const;
-
-interface ThemeOption {
-	readonly value: AppTheme;
-	readonly labelKey: string;
-}
-
-const THEME_OPTIONS: readonly ThemeOption[] = [
-	{ value: 'light', labelKey: 'settings.theme.light' },
-	{ value: 'dark', labelKey: 'settings.theme.dark' },
-	{ value: 'system', labelKey: 'settings.theme.system' },
 ] as const;
 
 const GeneralPage: React.FC = () => {
@@ -79,12 +69,6 @@ const GeneralPage: React.FC = () => {
 		if (next === null) return;
 		const option = LANGUAGE_OPTIONS.find((o) => o.value === next);
 		if (option) setLanguage(option.value);
-	};
-
-	const handleThemeChange = (next: string | null): void => {
-		if (next === null) return;
-		const option = THEME_OPTIONS.find((o) => o.value === next);
-		if (option) setTheme(option.value);
 	};
 
 	return (
@@ -203,24 +187,7 @@ const GeneralPage: React.FC = () => {
 							<ItemTitle>{t('settings.theme.title')}</ItemTitle>
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
-							<Select value={theme} onValueChange={handleThemeChange}>
-								<SelectTrigger
-									size="sm"
-									className="w-24 text-xs [&_svg]:size-3"
-									aria-label={t('settings.theme.title')}
-								>
-									<SelectValue>
-										{t(THEME_OPTIONS.find((o) => o.value === theme)?.labelKey ?? '')}
-									</SelectValue>
-								</SelectTrigger>
-								<SelectContent>
-									{THEME_OPTIONS.map((option) => (
-										<SelectItem key={option.value} value={option.value}>
-											{t(option.labelKey)}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+							<ThemeSwitcher value={theme} onChange={setTheme} />
 						</ItemActions>
 					</Item>
 				</Card>
