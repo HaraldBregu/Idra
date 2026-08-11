@@ -1,7 +1,7 @@
 import fs from 'node:fs';
-import type { ToolContextState } from './context_types';
+import type { FileToolState } from './context_types';
 
-export function isFileCreation(state: ToolContextState): boolean {
+export function isFileCreation(state: FileToolState): boolean {
 	if (state.toolName !== 'write_file') return false;
 	try {
 		fs.lstatSync(state.path);

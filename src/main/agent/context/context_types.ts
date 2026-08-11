@@ -3,32 +3,24 @@ export interface LoadedSkill {
 	name: string;
 	canonicalRoot: string;
 	instructions: string;
-	source?: 'local-filesystem';
 	trust: 'user-controlled';
 	hash: string;
-	allowedTools?: string[];
 	resources: string[];
 	warnings?: { code: string; message: string }[];
 }
 
-export interface ToolContextState {
+export interface FileToolState {
 	toolName: string;
-	fileName: string;
 	path: string;
-	folderPath: string;
+	directory: string;
 }
 
-export interface ToolsContext {
-	tools?: ToolContextState[];
-	cancelled?: boolean;
-	hasPrivateContext?: boolean;
+export interface FileAccessContext {
+	readDirectories: Set<string>;
+	createdFiles: Set<string>;
 }
 
-export interface AgentContext {
-	skill?: string;
-	loadedSkills?: LoadedSkill[];
-	basePrompt?: string;
-	systemPrompt?: string;
-	toolsContext: ToolsContext;
-	subagents?: AgentContext[];
+export interface RunContext {
+	loadedSkills: LoadedSkill[];
+	fileAccess: FileAccessContext;
 }

@@ -1,11 +1,10 @@
-import type { AgentContext } from './context_types';
+import type { RunContext } from './context_types';
 
 export function rememberSkill(
-	context: AgentContext,
-	skill: NonNullable<AgentContext['loadedSkills']>[number]
+	context: RunContext,
+	skill: RunContext['loadedSkills'][number]
 ): void {
-	const skills = (context.loadedSkills ??= []);
-	const existing = skills.find((candidate) => candidate.id === skill.id);
+	const existing = context.loadedSkills.find((candidate) => candidate.id === skill.id);
 	if (existing) Object.assign(existing, skill);
-	else skills.push(skill);
+	else context.loadedSkills.push(skill);
 }

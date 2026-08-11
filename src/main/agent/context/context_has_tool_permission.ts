@@ -1,13 +1,8 @@
-import type { ToolsContext } from './context_types';
+import type { FileAccessContext } from './context_types';
 
 export function hasToolPermission(
-	context: ToolsContext | undefined,
-	toolName: string,
-	folderPath: string
+	context: FileAccessContext | undefined,
+	directory: string
 ): boolean {
-	return (
-		context?.tools?.some(
-			(state) => state.toolName === toolName && state.folderPath === folderPath
-		) ?? false
-	);
+	return context?.readDirectories.has(directory) ?? false;
 }

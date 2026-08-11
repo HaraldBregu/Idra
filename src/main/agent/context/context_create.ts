@@ -1,5 +1,11 @@
-import type { AgentContext } from './context_types';
+import type { RunContext } from './context_types';
 
-export function createContext(): AgentContext {
-	return { toolsContext: {} };
+export function createRunContext(): RunContext {
+	return {
+		loadedSkills: [],
+		fileAccess: {
+			readDirectories: new Set(),
+			createdFiles: new Set(),
+		},
+	};
 }
