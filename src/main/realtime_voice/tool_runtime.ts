@@ -9,6 +9,7 @@ import type {
 	RealtimeVoiceConnection,
 } from '../models/adapters/realtime_voice';
 import { parseToolArgs } from '../shared/parse_tool_args';
+import type { RealtimeVoiceConversation } from './conversation';
 
 const MAX_TOOL_CALLS = 100;
 const MAX_TOOL_OUTPUT_BYTES = 2_000_000;
@@ -34,6 +35,7 @@ export interface RealtimeVoiceToolRuntimeDependencies {
 	tools: Tool[];
 	signal: AbortSignal;
 	resources: KeyedMutex;
+	conversation: Pick<RealtimeVoiceConversation, 'addToolCall' | 'addToolResult'>;
 	connection(): RealtimeVoiceConnection | undefined;
 	emit(event: RealtimeVoiceEvent): void;
 	onThinking(): void;
@@ -44,6 +46,8 @@ export class RealtimeVoiceToolRuntime {
 	private readonly fileAccess = createRunContext().fileAccess;
 	private readonly names = new Map<string, string>();
 	private readonly arguments = new Map<string, string>();
+	private readonly pending = new Set<string>();
+	private readonly completed = new Set<string>();
 	private tail = Promise.resolve();
 	private calls = 0;
 	private outputBytes = 0;
@@ -54,6 +58,7 @@ export class RealtimeVoiceToolRuntime {
 
 	handle(event: ToolAdapterEvent): void {
 		if (event.type === 'tool_call_start') {
+			if (this.names.has(event.callId)) return;
 			this.names.set(event.callId, event.name);
 			this.arguments.set(event.callId, '');
 			this.emit({
@@ -80,6 +85,8 @@ export class RealtimeVoiceToolRuntime {
 			});
 			return;
 		}
+		if (this.pending.has(event.callId) || this.completed.has(event.callId)) return;
+		this.pending.add(event.callId);
 		this.tail = this.tail.then(() => this.run(event)).catch(this.dependencies.onError);
 	}
 
@@ -109,14 +116,16 @@ export class RealtimeVoiceToolRuntime {
 			serviceKind: 'tool',
 		});
 		this.dependencies.onThinking();
+		const persistedToolCall: ToolCall = { id: event.callId, name: event.name, args };
+		this.dependencies.conversation.addToolCall(persistedToolCall);
 
 		const budgetError = this.consumeBudget(event.name);
 		if (budgetError) {
-			await this.finish(event.callId, event.name, args, budgetError, true, 0);
+			await this.finish(persistedToolCall, args, budgetError, true, 0);
 			return;
 		}
 
-		const toolCall: ToolCall = { id: event.callId, name: event.name, args };
+		const toolCall: ToolCall = { ...persistedToolCall };
 		for await (const runtimeEvent of runToolCall(
 			tool,
 			toolCall,
@@ -128,8 +137,7 @@ export class RealtimeVoiceToolRuntime {
 			if (runtimeEvent.type === 'tool_permission_request') this.emit(runtimeEvent);
 			if (runtimeEvent.type === 'tool_call_end') {
 				await this.finish(
-					event.callId,
-					event.name,
+					persistedToolCall,
 					runtimeEvent.input,
 					runtimeEvent.output,
 					runtimeEvent.isError === true,
@@ -137,6 +145,7 @@ export class RealtimeVoiceToolRuntime {
 				);
 			}
 		}
+		this.pending.delete(event.callId);
 	}
 
 	private consumeBudget(name: string): string | undefined {
@@ -154,9 +163,8 @@ export class RealtimeVoiceToolRuntime {
 	}
 
 	private async finish(
-		callId: string,
-		name: string,
-		input: unknown,
+		toolCall: ToolCall,
+		input: Record<string, unknown>,
 		output: unknown,
 		isError: boolean,
 		durationMs: number
@@ -168,22 +176,29 @@ export class RealtimeVoiceToolRuntime {
 			? 'Error: realtime voice tool-output budget exhausted.'
 			: outputText;
 		const finalError = isError || exhausted;
+		toolCall.args = input;
+		toolCall.result = {
+			content: finalOutput,
+			...(finalError ? { isError: true } : {}),
+		};
+		this.dependencies.conversation.addToolResult(toolCall);
+		this.completed.add(toolCall.id);
 		this.emit({
 			type: 'tool_call_result',
 			iteration: 0,
-			toolCallId: callId,
-			toolName: name,
+			toolCallId: toolCall.id,
+			toolName: toolCall.name,
 			input,
 			output: finalOutput,
 			outputText: finalOutput,
 			status: finalError ? 'error' : 'ok',
 			durationMs,
 			...(finalError ? { errorText: finalOutput } : {}),
-			name,
+			name: toolCall.name,
 			serviceKind: 'tool',
 		});
 		if (!this.dependencies.signal.aborted) {
-			await this.dependencies.connection()?.addToolResult(callId, finalOutput);
+			await this.dependencies.connection()?.addToolResult(toolCall.id, finalOutput);
 		}
 	}
 

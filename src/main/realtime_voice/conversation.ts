@@ -1,10 +1,11 @@
 import {
 	addAssistantMessage,
+	addToolResults,
 	createSessionState,
 	init,
 	insertUserMessage,
 } from '../agent/session';
-import type { Config } from '../agent/types';
+import type { Config, ToolCall } from '../agent/types';
 import type { RealtimeVoiceHistoryMessage } from '../models/adapters/realtime_voice';
 import { realtimeVoiceHistory } from './history';
 
@@ -13,6 +14,8 @@ export interface RealtimeVoiceConversation {
 	beginUserTurn(itemId: string): void;
 	finalizeUserTurn(itemId: string, transcript: string): void;
 	addAssistantTranscript(transcript: string): void;
+	addToolCall(toolCall: ToolCall): void;
+	addToolResult(toolCall: ToolCall): void;
 }
 
 interface PendingUserTurn {
@@ -31,6 +34,14 @@ export function realtimeVoiceConversationFactory(config: Config): RealtimeVoiceC
 		const state = createSessionState();
 		const pendingUserTurns = new Map<string, PendingUserTurn>();
 		init(state, config, { task: 'chat', message: '', sessionId: chatSessionId, model: modelId }, 'main');
+		const toolCalls = new Map<string, ToolCall>();
+		const completedToolCalls = new Set<string>();
+		for (const message of state.messages) {
+			for (const toolCall of message.toolCalls ?? []) {
+				toolCalls.set(toolCall.id, toolCall);
+				if (toolCall.result) completedToolCalls.add(toolCall.id);
+			}
+		}
 		return {
 			history: realtimeVoiceHistory(state.messages),
 			beginUserTurn: (itemId) => {
@@ -63,6 +74,26 @@ export function realtimeVoiceConversationFactory(config: Config): RealtimeVoiceC
 				}
 			},
 			addAssistantTranscript: (transcript) => addAssistantMessage(state, transcript, []),
+			addToolCall: (toolCall) => {
+				if (toolCalls.has(toolCall.id)) return;
+				toolCalls.set(toolCall.id, toolCall);
+				addAssistantMessage(state, '', [toolCall]);
+			},
+			addToolResult: (toolCall) => {
+				if (!toolCall.result || completedToolCalls.has(toolCall.id)) return;
+				let persisted = toolCalls.get(toolCall.id);
+				if (!persisted) {
+					persisted = toolCall;
+					toolCalls.set(toolCall.id, persisted);
+					addAssistantMessage(state, '', [persisted]);
+				} else if (persisted !== toolCall) {
+					persisted.name = toolCall.name;
+					persisted.args = toolCall.args;
+					persisted.result = toolCall.result;
+				}
+				completedToolCalls.add(toolCall.id);
+				addToolResults(state, [persisted]);
+			},
 		};
 	};
 }

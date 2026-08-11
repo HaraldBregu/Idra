@@ -102,6 +102,7 @@ export class RealtimeVoiceManager {
 			tools: configuration.tools,
 			signal: controller.signal,
 			resources: this.dependencies.resources,
+			conversation: active.conversation,
 			connection: () => active.connection,
 			emit: (event) => this.emit(active, event),
 			onThinking: () => this.setState(active, 'thinking'),
