@@ -21,11 +21,11 @@ export function AudioPlayer({
 	return (
 		<VideoPlayerRoot
 			audio
-			className={cn('w-full overflow-hidden rounded-xl border border-border', className)}
+			className={cn('block min-w-0 w-full overflow-hidden rounded-xl border border-border', className)}
 			onContextMenu={onContextMenu}
 		>
 			<audio src={src} preload="metadata" slot="media" />
-			<VideoPlayerControlBar>
+			<VideoPlayerControlBar className="w-full">
 				<VideoPlayerPlayButton />
 				<VideoPlayerTimeRange />
 				<VideoPlayerTimeDisplay />

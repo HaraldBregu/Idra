@@ -27,6 +27,8 @@ describe('AudioPlayer', () => {
 		const { container } = render(<AudioPlayer src="local-resource://file/audio.mp3" />);
 
 		expect(container.querySelector('media-controller')).toHaveAttribute('audio');
+		expect(container.querySelector('media-controller')).toHaveClass('block', 'min-w-0', 'w-full');
+		expect(container.querySelector('media-control-bar')).toHaveClass('w-full');
 		expect(container.querySelector('audio')).toHaveAttribute(
 			'src',
 			'local-resource://file/audio.mp3'
