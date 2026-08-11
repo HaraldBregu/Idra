@@ -10,7 +10,7 @@ import { createSessionState } from '../../../../../src/main/agent/session/sessio
 import { persist } from '../../../../../src/main/agent/session/session_persist';
 import { runFilePath } from '../../../../../src/main/agent/session/session_run_file_path';
 import { sessionsRoot } from '../../../../../src/main/agent/session/session_sessions_root';
-import { updateUserMessage } from '../../../../../src/main/agent/session/session_update_user_message';
+import { insertUserMessage } from '../../../../../src/main/agent/session/session_insert_user_message';
 
 const SESSION_ID = '11111111-1111-4111-8111-111111111111';
 
@@ -62,7 +62,7 @@ describe('session persistence', () => {
 		]);
 	});
 
-	it('replaces only the indexed voice marker and persists the transcript', () => {
+	it('inserts a finalized voice transcript at its reserved position', () => {
 		const location = path.join(temporaryRoot, 'agent');
 		const state = createSessionState();
 		state.id = SESSION_ID;
@@ -70,15 +70,15 @@ describe('session persistence', () => {
 		state.sessionsPath = sessionsRoot(location);
 		state.messages = [
 			{ role: 'user', content: 'Earlier message' },
-			{ role: 'user', content: 'Voice message' },
+			{ role: 'assistant', content: 'Later response' },
 		];
 
-		updateUserMessage(state, 0, 'Do not replace this.');
-		updateUserMessage(state, 1, 'Show the message I sent.');
+		insertUserMessage(state, 1, 'Show the message I sent.');
 
 		expect(loadMessagesBySessionId(SESSION_ID, location)).toEqual([
 			{ role: 'user', content: 'Earlier message' },
 			{ role: 'user', content: 'Show the message I sent.' },
+			{ role: 'assistant', content: 'Later response' },
 		]);
 	});
 

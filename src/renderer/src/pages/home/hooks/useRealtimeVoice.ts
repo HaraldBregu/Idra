@@ -189,7 +189,7 @@ export function useRealtimeVoice({
 						userMessageId,
 						agentMessageId: messageId('voice-agent', event.itemId),
 						runId: event.sessionId,
-						content: transcript || 'Voice message',
+						content: transcript || '',
 						startedAtMs: Date.now(),
 					});
 					return;

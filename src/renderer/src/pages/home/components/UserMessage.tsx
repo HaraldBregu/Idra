@@ -13,7 +13,8 @@ export function UserMessage({
 }: {
 	readonly content: string;
 	readonly collapseLongContent?: boolean;
-}): ReactElement {
+}): ReactElement | null {
+	if (!content.trim()) return null;
 	const canToggleContent = collapseLongContent && content.trim().length > LONG_MESSAGE_LENGTH;
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
 

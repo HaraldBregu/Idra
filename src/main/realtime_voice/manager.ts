@@ -226,7 +226,7 @@ export class RealtimeVoiceManager {
 			return;
 		}
 		if (event.type === 'input_speech_stopped') {
-			active.conversation.addUserTurn(event.itemId);
+			active.conversation.beginUserTurn(event.itemId);
 			this.emit(active, { type: event.type, sessionId, itemId: event.itemId });
 			this.emit(active, { type: 'user_turn', sessionId, itemId: event.itemId });
 			this.setState(active, 'thinking');
@@ -236,7 +236,7 @@ export class RealtimeVoiceManager {
 			const transcript = event.transcript.trim();
 			if (!transcript || active.finalUserTranscripts.has(event.itemId)) return;
 			active.finalUserTranscripts.add(event.itemId);
-			active.conversation.updateUserTurn(event.itemId, transcript);
+			active.conversation.finalizeUserTurn(event.itemId, transcript);
 			this.emit(active, {
 				type: 'user_turn',
 				sessionId,

@@ -61,15 +61,16 @@ describe('RealtimeVoiceManager', () => {
 			},
 		}));
 		const events: Array<{ type: string; transcript?: string }> = [];
-		const userTurns: string[] = [];
-		const updatedUserTurns: Array<{ itemId: string; transcript: string }> = [];
+		const begunUserTurns: string[] = [];
+		const finalizedUserTurns: Array<{ itemId: string; transcript: string }> = [];
 		const assistantTurns: string[] = [];
 		const manager = new RealtimeVoiceManager({
 			createAdapter,
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
-				addUserTurn: (itemId) => userTurns.push(itemId),
-				updateUserTurn: (itemId, transcript) => updatedUserTurns.push({ itemId, transcript }),
+				beginUserTurn: (itemId) => begunUserTurns.push(itemId),
+				finalizeUserTurn: (itemId, transcript) =>
+					finalizedUserTurns.push({ itemId, transcript }),
 				addAssistantTranscript: (text) => assistantTurns.push(text),
 			}),
 			resources: new KeyedMutex(),
@@ -102,8 +103,8 @@ describe('RealtimeVoiceManager', () => {
 			transcript: 'Hello there.',
 		});
 
-		expect(userTurns).toEqual(['user-1']);
-		expect(updatedUserTurns).toEqual([
+		expect(begunUserTurns).toEqual(['user-1']);
+		expect(finalizedUserTurns).toEqual([
 			{ itemId: 'user-1', transcript: 'Show the message I sent.' },
 		]);
 		expect(assistantTurns).toEqual(['Hello there.']);
@@ -124,8 +125,8 @@ describe('RealtimeVoiceManager', () => {
 			createAdapter: () => ({ connect: async () => connection }),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
-				addUserTurn: () => undefined,
-				updateUserTurn: () => undefined,
+				beginUserTurn: () => undefined,
+				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),
@@ -153,8 +154,8 @@ describe('RealtimeVoiceManager', () => {
 			}),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
-				addUserTurn: () => undefined,
-				updateUserTurn: () => undefined,
+				beginUserTurn: () => undefined,
+				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),
@@ -196,8 +197,8 @@ describe('RealtimeVoiceManager', () => {
 			}),
 			resolveConfiguration: () => new Promise((resolve) => resolvers.push(resolve)),
 			createConversation: () => ({
-				addUserTurn: () => undefined,
-				updateUserTurn: () => undefined,
+				beginUserTurn: () => undefined,
+				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),
@@ -223,8 +224,8 @@ describe('RealtimeVoiceManager', () => {
 			createAdapter: () => ({ connect }),
 			resolveConfiguration: () => new Promise((resolve) => (resolveConfiguration = resolve)),
 			createConversation: () => ({
-				addUserTurn: () => undefined,
-				updateUserTurn: () => undefined,
+				beginUserTurn: () => undefined,
+				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),
@@ -251,8 +252,8 @@ describe('RealtimeVoiceManager', () => {
 			}),
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
-				addUserTurn: () => undefined,
-				updateUserTurn: () => undefined,
+				beginUserTurn: () => undefined,
+				finalizeUserTurn: () => undefined,
 				addAssistantTranscript: () => undefined,
 			}),
 			resources: new KeyedMutex(),

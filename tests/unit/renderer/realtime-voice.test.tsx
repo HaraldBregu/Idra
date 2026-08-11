@@ -187,7 +187,7 @@ describe('useRealtimeVoice', () => {
 		expect(onClosed).toHaveBeenCalled();
 	});
 
-	it('replaces the voice marker with the final user transcript', async () => {
+	it('keeps a pending voice turn empty until the final user transcript arrives', async () => {
 		api.startSession.mockResolvedValue(session);
 		const { result } = renderHook(
 			() => {
@@ -201,7 +201,7 @@ describe('useRealtimeVoice', () => {
 
 		act(() => emit({ type: 'user_turn', sessionId: session.id, itemId: 'user-1' }));
 		expect(result.current.chatState.messages.filter((message) => message.role === 'user')).toEqual([
-			expect.objectContaining({ content: 'Voice message' }),
+			expect.objectContaining({ content: '' }),
 		]);
 
 		act(() =>
