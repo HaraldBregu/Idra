@@ -49,7 +49,22 @@ describe('provider manifests', () => {
 		expect(deepseek?.metadata).toEqual(
 			expect.objectContaining({ contextWindow: 1_048_576, defaultOutputTokens: 32_768 })
 		);
-		expect(runwayVideoModels.map((model) => model.id)).toEqual(['gen4.5']);
+		expect(runwayVideoModels.map((model) => model.id)).toEqual(
+			expect.arrayContaining([
+				'gen4.5',
+				'seedance2_5',
+				'grok_imagine_1_5',
+				'seedance2',
+				'seedance2_fast',
+				'seedance2_mini',
+				'hailuo3',
+				'veo3.1',
+				'veo3.1_fast',
+				'happyhorse_1_0',
+				'gemini_omni_flash',
+			])
+		);
+		expect(runwayVideoModels).toHaveLength(11);
 		expect(openAiRealtime).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({

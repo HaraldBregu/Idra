@@ -4,6 +4,11 @@ import type { VideoAdapter, VideoProviderSpec } from './ttv_types';
 
 const RUNWAY_BASE_URL = 'https://api.dev.runwayml.com/v1';
 const RUNWAY_VERSION = '2024-11-06';
+const RUNWAY_DEFAULT_DURATIONS: Readonly<Record<string, number>> = {
+	hailuo3: 6,
+	'veo3.1': 8,
+	'veo3.1_fast': 8,
+};
 
 type RunwayTask = {
 	id?: string;
@@ -30,7 +35,7 @@ export function createRunwayVideoAdapter(spec: VideoProviderSpec): VideoAdapter 
 					model: request.modelId,
 					promptText: request.prompt,
 					ratio: '1280:720',
-					duration: 5,
+					duration: RUNWAY_DEFAULT_DURATIONS[request.modelId] ?? 5,
 					...request.options,
 				}),
 				signal: request.signal,
