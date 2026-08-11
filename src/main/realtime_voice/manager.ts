@@ -7,15 +7,9 @@ import {
 	type RealtimeVoiceSession,
 	type RealtimeVoiceStartRequest,
 	type RealtimeVoiceState,
-	type RealtimeVoiceToolEvent,
 } from '../../shared/realtime_voice';
 import { rejectPendingToolPermissions } from '../agent/permissions';
-import { runToolCall } from '../agent/runner/run_tool_call';
-import { formatToolOutput } from '../agent/runner/run_common';
-import { parseToolArgs } from '../shared/parse_tool_args';
-import type { ToolsContext } from '../agent/context';
 import type { KeyedMutex } from '../agent/mutex';
-import type { Tool, ToolCall } from '../agent/types';
 import type { RealtimeVoiceConversation, RealtimeVoiceConversationFactory } from './conversation';
 import type {
 	RealtimeVoiceAdapter,
@@ -23,13 +17,7 @@ import type {
 	RealtimeVoiceAdapterRequest,
 	RealtimeVoiceConnection,
 } from './types';
-
-const MAX_TOOL_CALLS = 100;
-const MAX_TOOL_OUTPUT_BYTES = 2_000_000;
-const MAX_PAID_TOOL_CALLS = 3;
-const MAX_WEB_TOOL_CALLS = 8;
-const PAID_TOOLS = new Set(['create_image', 'create_video', 'create_sound']);
-const WEB_TOOLS = new Set(['search_web', 'fetch_web_page', 'use_web_browser']);
+import { RealtimeVoiceToolRuntime } from './tool_runtime';
 
 export interface ResolvedRealtimeVoiceConfiguration extends RealtimeVoiceAdapterRequest {
 	providerId: string;
@@ -49,27 +37,13 @@ interface ActiveRealtimeVoiceSession {
 	controller: AbortController;
 	connection?: RealtimeVoiceConnection;
 	conversation: RealtimeVoiceConversation;
-	tools: Tool[];
-	toolsContext: ToolsContext;
-	toolNames: Map<string, string>;
-	toolArguments: Map<string, string>;
-	toolTail: Promise<void>;
+	toolRuntime: RealtimeVoiceToolRuntime;
 	inputTail: Promise<void>;
 	pendingInputCharacters: number;
-	toolCalls: number;
-	toolOutputBytes: number;
-	paidToolCalls: number;
-	webToolCalls: number;
 	finalTranscripts: Set<string>;
 	state: RealtimeVoiceState;
 	closed: boolean;
 }
-
-type RealtimeVoiceToolPayload = RealtimeVoiceToolEvent extends infer Event
-	? Event extends RealtimeVoiceToolEvent
-		? Omit<Event, 'sessionId' | 'agentId' | 'runId'>
-		: never
-	: never;
 
 export class RealtimeVoiceManager {
 	private readonly byWindow = new Map<number, ActiveRealtimeVoiceSession>();
@@ -91,26 +65,33 @@ export class RealtimeVoiceManager {
 			input: { format: 'pcm16', sampleRate: REALTIME_VOICE_SAMPLE_RATE, channels: REALTIME_VOICE_CHANNELS },
 			output: { format: 'pcm16', sampleRate: REALTIME_VOICE_SAMPLE_RATE, channels: REALTIME_VOICE_CHANNELS },
 		};
-		const active: ActiveRealtimeVoiceSession = {
+		const controller = new AbortController();
+		const active = {
 			info,
 			windowId,
-			controller: new AbortController(),
+			controller,
 			conversation: this.dependencies.createConversation(chatSessionId, configuration.model),
-			tools: configuration.tools,
-			toolsContext: {},
-			toolNames: new Map(),
-			toolArguments: new Map(),
-			toolTail: Promise.resolve(),
 			inputTail: Promise.resolve(),
 			pendingInputCharacters: 0,
-			toolCalls: 0,
-			toolOutputBytes: 0,
-			paidToolCalls: 0,
-			webToolCalls: 0,
 			finalTranscripts: new Set(),
 			state: 'connecting',
 			closed: false,
-		};
+		} as ActiveRealtimeVoiceSession;
+		active.toolRuntime = new RealtimeVoiceToolRuntime({
+			sessionId: info.id,
+			windowId,
+			tools: configuration.tools,
+			signal: controller.signal,
+			resources: this.dependencies.resources,
+			connection: () => active.connection,
+			emit: (event) => this.emit(active, event),
+			onThinking: () => this.setState(active, 'thinking'),
+			onError: (error) => {
+				if (!controller.signal.aborted) {
+					this.emit(active, { type: 'error', sessionId: info.id, message: errorMessage(error) });
+				}
+			},
+		});
 		this.byWindow.set(windowId, active);
 		this.byId.set(info.id, active);
 		this.emit(active, { type: 'state', sessionId: info.id, status: 'connecting' });
@@ -236,41 +217,12 @@ export class RealtimeVoiceManager {
 			this.setState(active, 'listening');
 			return;
 		}
-		if (event.type === 'tool_call_start') {
-			active.toolNames.set(event.callId, event.name);
-			active.toolArguments.set(event.callId, '');
-			this.emitTool(active, {
-				type: 'tool_call_start',
-				iteration: 0,
-				toolCallId: event.callId,
-				toolName: event.name,
-				name: event.name,
-				serviceKind: 'tool',
-			});
-			return;
-		}
-		if (event.type === 'tool_call_args_delta') {
-			const name = active.toolNames.get(event.callId) ?? 'tool';
-			const argsText = `${active.toolArguments.get(event.callId) ?? ''}${event.delta}`;
-			active.toolArguments.set(event.callId, argsText);
-			this.emitTool(active, {
-				type: 'tool_call_args_delta',
-				iteration: 0,
-				toolCallId: event.callId,
-				toolName: name,
-				jsonDelta: event.delta,
-				argsText,
-			});
-			return;
-		}
-		if (event.type === 'tool_call') {
-			active.toolTail = active.toolTail
-				.then(() => this.runTool(active, event))
-				.catch((error) => {
-					if (!active.controller.signal.aborted) {
-						this.emit(active, { type: 'error', sessionId, message: errorMessage(error) });
-					}
-				});
+		if (
+			event.type === 'tool_call_start' ||
+			event.type === 'tool_call_args_delta' ||
+			event.type === 'tool_call'
+		) {
+			active.toolRuntime.handle(event);
 			return;
 		}
 		if (event.type === 'error') {
@@ -278,127 +230,6 @@ export class RealtimeVoiceManager {
 			return;
 		}
 		if (event.type === 'closed') void this.close(active, false);
-	}
-
-	private async runTool(
-		active: ActiveRealtimeVoiceSession,
-		event: Extract<RealtimeVoiceAdapterEvent, { type: 'tool_call' }>
-	): Promise<void> {
-		if (active.controller.signal.aborted || !active.connection) return;
-		const tool = active.tools.find((candidate) => candidate.id === event.name);
-		const args = parseToolArgs(event.arguments);
-		if (!active.toolNames.has(event.callId)) {
-			active.toolNames.set(event.callId, event.name);
-			this.emitTool(active, {
-				type: 'tool_call_start',
-				iteration: 0,
-				toolCallId: event.callId,
-				toolName: event.name,
-				name: event.name,
-				serviceKind: 'tool',
-			});
-		}
-		this.emitTool(active, {
-			type: 'tool_call_input',
-			iteration: 0,
-			toolCallId: event.callId,
-			toolName: event.name,
-			input: args,
-			argsText: event.arguments,
-			name: event.name,
-			serviceKind: 'tool',
-		});
-		this.setState(active, 'thinking');
-
-		const budgetError = this.consumeToolBudget(active, event.name);
-		if (budgetError) {
-			await this.finishTool(active, event.callId, event.name, args, budgetError, true, 0);
-			return;
-		}
-
-		const toolCall: ToolCall = { id: event.callId, name: event.name, args };
-		for await (const runtimeEvent of runToolCall(
-			tool,
-			toolCall,
-			active.controller.signal,
-			active.toolsContext,
-			{ runId: active.info.id, windowId: active.windowId },
-			this.dependencies.resources
-		)) {
-			if (runtimeEvent.type === 'tool_permission_request') {
-				this.emitTool(active, runtimeEvent);
-			}
-			if (runtimeEvent.type === 'tool_call_end') {
-				await this.finishTool(
-					active,
-					event.callId,
-					event.name,
-					runtimeEvent.input,
-					runtimeEvent.output,
-					runtimeEvent.isError === true,
-					runtimeEvent.durationMs
-				);
-			}
-		}
-	}
-
-	private consumeToolBudget(active: ActiveRealtimeVoiceSession, name: string): string | undefined {
-		active.toolCalls += 1;
-		if (active.toolCalls > MAX_TOOL_CALLS) return 'Error: realtime voice tool-call budget exhausted.';
-		if (PAID_TOOLS.has(name)) {
-			active.paidToolCalls += 1;
-			if (active.paidToolCalls > MAX_PAID_TOOL_CALLS) return 'Error: paid tool-call budget exhausted.';
-		}
-		if (WEB_TOOLS.has(name)) {
-			active.webToolCalls += 1;
-			if (active.webToolCalls > MAX_WEB_TOOL_CALLS) return 'Error: web tool-call budget exhausted.';
-		}
-		return undefined;
-	}
-
-	private async finishTool(
-		active: ActiveRealtimeVoiceSession,
-		callId: string,
-		name: string,
-		input: unknown,
-		output: unknown,
-		isError: boolean,
-		durationMs: number
-	): Promise<void> {
-		const outputText = formatToolOutput(output);
-		active.toolOutputBytes += Buffer.byteLength(outputText, 'utf8');
-		const finalOutput =
-			active.toolOutputBytes > MAX_TOOL_OUTPUT_BYTES
-				? 'Error: realtime voice tool-output budget exhausted.'
-				: outputText;
-		const finalError = isError || active.toolOutputBytes > MAX_TOOL_OUTPUT_BYTES;
-		this.emitTool(active, {
-			type: 'tool_call_result',
-			iteration: 0,
-			toolCallId: callId,
-			toolName: name,
-			input,
-			output: finalOutput,
-			outputText: finalOutput,
-			status: finalError ? 'error' : 'ok',
-			durationMs,
-			...(finalError ? { errorText: finalOutput } : {}),
-			name,
-			serviceKind: 'tool',
-		});
-		if (!active.controller.signal.aborted) await active.connection?.addToolResult(callId, finalOutput);
-	}
-
-	private emitTool(
-		active: ActiveRealtimeVoiceSession,
-		event: RealtimeVoiceToolPayload
-	): void {
-		this.dependencies.emit(active.windowId, {
-			...event,
-			sessionId: active.info.id,
-			agentId: 'main',
-			runId: active.info.id,
-		} as RealtimeVoiceEvent);
 	}
 
 	private setState(active: ActiveRealtimeVoiceSession, state: RealtimeVoiceState): void {
