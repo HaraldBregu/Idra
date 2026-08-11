@@ -13,13 +13,18 @@ jest.mock('@anthropic-ai/sandbox-runtime', () => ({
 import { ExecSandbox } from '../../../../src/main/agent/sandbox';
 
 it('adds Linux remediation when command sandbox dependencies are unavailable', async () => {
-	jest.spyOn(process, 'platform', 'get').mockReturnValue('linux');
+	const platform = Object.getOwnPropertyDescriptor(process, 'platform');
+	Object.defineProperty(process, 'platform', { value: 'linux' });
 	checkDependenciesAsync.mockResolvedValue({ errors: ['bubblewrap is missing'], warnings: [] });
 
-	await expect(new ExecSandbox().status()).resolves.toEqual({
-		state: 'unavailable',
-		platform: 'linux',
-		message:
-			'bubblewrap is missing\nAsk IT to provide bubblewrap, socat, and ripgrep and permit unprivileged user namespaces. Chat and non-command tools remain available.',
-	});
+	try {
+		await expect(new ExecSandbox().status()).resolves.toEqual({
+			state: 'unavailable',
+			platform: 'linux',
+			message:
+				'bubblewrap is missing\nAsk IT to provide bubblewrap, socat, and ripgrep and permit unprivileged user namespaces. Chat and non-command tools remain available.',
+		});
+	} finally {
+		Object.defineProperty(process, 'platform', platform!);
+	}
 });
