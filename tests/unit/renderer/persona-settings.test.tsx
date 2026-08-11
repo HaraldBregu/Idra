@@ -36,12 +36,12 @@ it('feeds slower speech-like levels to the listening preview', () => {
 		expect(preview).toHaveAttribute('data-state', 'listening');
 		expect(preview).toHaveAttribute('data-level', '0.28');
 
-		act(() => jest.advanceTimersByTime(359));
+		act(() => jest.advanceTimersByTime(1199));
 		expect(preview).toHaveAttribute('data-level', '0.28');
 
 		act(() => jest.advanceTimersByTime(1));
 
-		expect(Number(preview.getAttribute('data-level'))).toBeCloseTo(0.5285);
+		expect(Number(preview.getAttribute('data-level'))).toBeCloseTo(0.43975);
 	} finally {
 		jest.useRealTimers();
 		jest.restoreAllMocks();
