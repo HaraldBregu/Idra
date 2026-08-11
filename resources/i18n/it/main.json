@@ -1130,6 +1130,8 @@
 			"realtimeVoiceConfiguration": "Conversazione realtime",
 			"realtimeVoiceDescription": "Conversazioni vocali bidirezionali in tempo reale.",
 			"realtimeVoiceModelDescription": "Modello realtime OpenAI usato per le conversazioni dal vivo.",
+			"realtimeConversationConfiguration": "Conversazione realtime",
+			"realtimeConversationDescription": "Modello e voce usati per le conversazioni vocali dal vivo.",
 			"readAloudConfiguration": "Leggi ad alta voce",
 			"textToSpeechConfigurationSubtitle": "Le impostazioni della voce in uscita sono elencate qui.",
 			"textToSpeechProviderDescription": "Provider usato per le risposte vocali.",

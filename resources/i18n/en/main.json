@@ -1131,6 +1131,8 @@
 			"realtimeVoiceConfiguration": "Realtime conversation",
 			"realtimeVoiceDescription": "Live voice-to-voice conversations.",
 			"realtimeVoiceModelDescription": "OpenAI realtime model used for live conversations.",
+			"realtimeConversationConfiguration": "Realtime conversation",
+			"realtimeConversationDescription": "Model and voice used for live voice conversations.",
 			"readAloudConfiguration": "Read aloud",
 			"textToSpeechConfigurationSubtitle": "Voice output settings are listed here.",
 			"textToSpeechProviderDescription": "Provider used for spoken responses.",

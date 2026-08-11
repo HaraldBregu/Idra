@@ -31,6 +31,7 @@ import {
 } from '../../components/model-configuration-state';
 import type { ProviderModelGroup } from '../../../start/types';
 import { AgentMediaModelConfiguration } from './media';
+import RealtimeConversationConfiguration from './conversation';
 import { SEARCH_ENGINES } from '../search/catalog';
 import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
 
@@ -223,6 +224,8 @@ const AssistantPage: React.FC = () => {
 						onChange={updateModelOption}
 					/>
 				</ModelProviderConfiguration>
+
+				<RealtimeConversationConfiguration />
 
 				<AgentMediaModelConfiguration
 					api={window.models.voice}
