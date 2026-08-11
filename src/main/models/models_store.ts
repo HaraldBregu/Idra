@@ -31,25 +31,28 @@ export function getModelsStore(): ModelsStoreState {
 		image: selection('image'),
 		sound: selection('sound'),
 		video: selection('video'),
+		voice: selection('voice'),
 		text: selection('text'),
 		embedding: selection('embedding'),
 	};
 }
 
 export function setModelsStore(value: ModelsStoreState): void {
-	const { embedding, text, image, sound, video, ...appSelections } = value;
+	const { embedding, text, image, sound, video, voice, ...appSelections } = value;
 	const currentAppSelections = getAppModelSelections();
 	setAppModelSelections({
 		...appSelections,
 		image: currentAppSelections.image,
 		sound: currentAppSelections.sound,
 		video: currentAppSelections.video,
+		voice: currentAppSelections.voice,
 	} as AppModelSelections);
 	setSelection('text', text.providerId, text.modelId);
 	setSelection('embedding', embedding.providerId, embedding.modelId);
 	setSelection('image', image.providerId, image.modelId);
 	setSelection('sound', sound.providerId, sound.modelId);
 	setSelection('video', video.providerId, video.modelId);
+	setSelection('voice', voice.providerId, voice.modelId);
 }
 
 export function getModelProviders(): StoredProvider[] {

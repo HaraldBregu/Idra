@@ -32,6 +32,7 @@ jest.mock('../../../../src/main/agent/knowledge/rag/rag_store', () => ({
 
 import {
 	getModelId,
+	getModelsStore,
 	getOptions,
 	getProviderId,
 	resolveOptions,
@@ -150,6 +151,10 @@ it('reads and writes voice selection and options through the agent store', () =>
 	expect(getProviderId('voice')).toBe('openai');
 	expect(getModelId('voice')).toBe('gpt-4o-mini-tts');
 	expect(getOptions('voice')).toEqual({ voice: 'cedar' });
+	expect(getModelsStore().voice).toEqual({
+		providerId: 'openai',
+		modelId: 'gpt-4o-mini-tts',
+	});
 
 	setOptions('voice', { voice: 'marin', speed: 1.1 });
 
