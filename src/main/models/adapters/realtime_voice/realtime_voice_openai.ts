@@ -67,6 +67,7 @@ function openAISession(request: RealtimeVoiceAdapterRequest): Record<string, unk
 				transcription: { model: 'gpt-4o-mini-transcribe' },
 				turn_detection: {
 					type: 'server_vad',
+					silence_duration_ms: 1_200,
 					create_response: true,
 					interrupt_response: true,
 				},

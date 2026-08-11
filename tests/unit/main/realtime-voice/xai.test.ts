@@ -93,7 +93,7 @@ describe('XAIRealtimeVoiceAdapter', () => {
 			type: 'session.update',
 			session: {
 				voice: 'eve',
-				turn_detection: { type: 'server_vad' },
+				turn_detection: { type: 'server_vad', silence_duration_ms: 1_200 },
 				audio: {
 					input: {
 						format: { type: 'audio/pcm', rate: 24_000 },
