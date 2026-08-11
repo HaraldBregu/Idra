@@ -7,6 +7,10 @@ jest.mock('react-i18next', () => ({
 	useTranslation: () => ({ t: (key: string): string => key }),
 }));
 
+jest.mock('@/components/ui/gradient-sphere', () => ({
+	GradientSphere: (): null => null,
+}));
+
 it.each([
 	['settings.tabs.general', '/settings/general'],
 	['settings.overview.groups.agent', '/settings/assistant'],
