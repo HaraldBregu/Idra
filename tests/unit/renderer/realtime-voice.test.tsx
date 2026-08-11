@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import type { ReactNode } from 'react';
+import { StrictMode, type ReactNode } from 'react';
 import { Provider } from '../../../src/renderer/src/pages/home/context';
 import { useRealtimeVoice } from '../../../src/renderer/src/pages/home/hooks/useRealtimeVoice';
 import type { RealtimeVoiceEvent, RealtimeVoiceSession } from '../../../src/shared/realtime_voice';
@@ -78,7 +78,11 @@ const api = {
 };
 
 function wrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
-	return <Provider>{children}</Provider>;
+	return (
+		<StrictMode>
+			<Provider>{children}</Provider>
+		</StrictMode>
+	);
 }
 
 describe('useRealtimeVoice', () => {
