@@ -18,9 +18,10 @@ const realtimeModels = [
 ];
 const speechModels = [{ id: 'gpt-4o-mini-tts', name: 'GPT 4o Mini TTS' }];
 
-jest.mock('react-i18next', () => ({
-	useTranslation: () => ({ t: (key: string): string => key }),
-}));
+jest.mock('react-i18next', () => {
+	const t = (key: string): string => key;
+	return { useTranslation: () => ({ t }) };
+});
 jest.mock('@/lib/providers', () => ({
 	defaultProviderId: () => 'openai',
 	modelsFor: () => realtimeModels.map((model) => ({ ...model, default: true, provider: openai })),

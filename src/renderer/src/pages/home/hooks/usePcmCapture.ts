@@ -67,6 +67,7 @@ export function usePcmCapture() {
 				setAnalyser(inputAnalyser);
 				await context.resume();
 			} catch (error) {
+				stop();
 				stopStream(mediaStream);
 				void context?.close().catch(() => undefined);
 				throw error;
