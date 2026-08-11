@@ -24,7 +24,7 @@ it('previews each persona state', async () => {
 	expect(preview).toHaveAttribute('data-state', 'speaking');
 });
 
-	it('feeds slower speech-like levels to the listening preview', () => {
+it('feeds slower speech-like levels to the listening preview', () => {
 	jest.useFakeTimers();
 	jest.spyOn(Math, 'random').mockReturnValue(0.75);
 
