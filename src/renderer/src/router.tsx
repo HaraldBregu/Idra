@@ -32,7 +32,6 @@ const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/
 const CloudPage = lazy(() => import('./pages/settings/pages/cloud/Page'));
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const TaskDetailsPage = lazy(() => import('./pages/settings/pages/tasks/detail/Page'));
-const SearchPage = lazy(() => import('./pages/settings/pages/search/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const SystemMediaDetailPage = lazy(() => import('./pages/settings/pages/system/detail/Page'));
@@ -44,7 +43,6 @@ const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page')
 const McpPage = lazy(() => import('./pages/settings/pages/mcp/Page'));
 const McpDetailsPage = lazy(() => import('./pages/settings/pages/mcp/details/Page'));
 const ProviderKeysPage = lazy(() => import('./pages/settings/pages/providers/keys/Page'));
-const ProviderVectorDbPage = lazy(() => import('./pages/settings/pages/providers/vectordb/Page'));
 const RagPage = lazy(() => import('./pages/settings/pages/rag/Page'));
 const WikiPage = lazy(() => import('./pages/settings/pages/wiki/Page'));
 const PermissionsPage = lazy(() => import('./pages/settings/pages/permissions/Page'));
@@ -215,14 +213,6 @@ const routes: RouteObject[] = [
 						],
 					},
 					{
-						path: 'search',
-						element: (
-							<SettingsRouteWrapper>
-								<SearchPage />
-							</SettingsRouteWrapper>
-						),
-					},
-					{
 						path: 'general',
 						element: (
 							<SettingsRouteWrapper>
@@ -366,14 +356,6 @@ const routes: RouteObject[] = [
 								element: (
 									<SettingsRouteWrapper>
 										<ProviderKeysPage />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: 'vectordb',
-								element: (
-									<SettingsRouteWrapper>
-										<ProviderVectorDbPage />
 									</SettingsRouteWrapper>
 								),
 							},
