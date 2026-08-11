@@ -76,12 +76,7 @@ export function FileViewer({
 				</TabsContent>
 				<TabsContent value="preview" className="m-0 min-h-full">
 					<Suspense fallback={viewerFallback}>
-						<MarkdownPreview
-							canSave={canSave}
-							content={content}
-							onSave={onSave}
-							path={path}
-						/>
+						<MarkdownPreview canSave={canSave} content={content} onSave={onSave} path={path} />
 					</Suspense>
 				</TabsContent>
 			</>
@@ -153,10 +148,7 @@ export function FileViewer({
 						</div>
 						<p className="min-w-0 flex-1 truncate text-sm font-medium">{name}</p>
 					</div>
-					<VideoPlayer
-						audio
-						className="block min-w-0 w-full overflow-hidden rounded-md border"
-					>
+					<VideoPlayer audio className="block min-w-0 w-full overflow-hidden rounded-md border">
 						<audio
 							ref={(element) => {
 								mediaRef.current = element;
