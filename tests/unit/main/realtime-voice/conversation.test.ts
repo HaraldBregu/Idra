@@ -60,7 +60,7 @@ it('bounds replay to the latest 64 messages and 48,000 characters', () => {
 		{ role: 'assistant', content: 'latest answer' },
 	]);
 	expect(characterBounded.reduce((total, message) => total + message.text.length, 0)).toBe(48_000);
-	expect(characterBounded[0].text).toEndWith('-oldest-tail');
+	expect(characterBounded[0].text.endsWith('-oldest-tail')).toBe(true);
 	expect(characterBounded.at(-1)?.text).toBe('latest answer');
 });
 
