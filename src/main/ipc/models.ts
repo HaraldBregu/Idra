@@ -31,6 +31,7 @@ import {
 	startRealtime,
 	transcribe as sttTranscribe,
 } from '../models/adapters/stt';
+import { getRealtimeVoiceSetup, setRealtimeVoiceSetup } from '../realtime_voice/setup';
 
 export class ModelsIpc implements IpcModule {
 	readonly name = 'models';
@@ -114,6 +115,10 @@ export class ModelsIpc implements IpcModule {
 		registerCommand(SpeechChannels.setModelId, (modelId) => setModelId('voice', modelId));
 
 		registerQuery(RealtimeVoiceChannels.getProviderId, () => getProviderId('realtimeVoice'));
+		registerQuery(RealtimeVoiceChannels.getSetup, () => getRealtimeVoiceSetup());
+		registerCommand(RealtimeVoiceChannels.setSetup, (request) =>
+			setRealtimeVoiceSetup(request)
+		);
 		registerCommand(RealtimeVoiceChannels.setProviderId, (providerId) => {
 			if (typeof providerId !== 'string' || !providerId.trim()) {
 				throw new Error('Invalid realtime voice provider id.');

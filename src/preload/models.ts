@@ -298,6 +298,23 @@ export const models: ModelsApi = {
 		},
 	},
 	realtimeVoice: {
+		getSetup: () => typedInvokeUnwrap(RealtimeVoiceChannels.getSetup),
+		setSetup: (request) => {
+			if (!request || typeof request !== 'object' || Array.isArray(request)) {
+				throw new Error('Invalid realtime voice setup.');
+			}
+			const providerId = optionalTrimmedString(request.providerId);
+			const modelId = optionalTrimmedString(request.modelId);
+			const options = normalizeOptions(request.options);
+			if (!providerId) throw new Error('Invalid realtime voice provider id.');
+			if (!modelId) throw new Error('Invalid realtime voice model id.');
+			if (!options) throw new Error('Invalid realtime voice options.');
+			return typedInvokeUnwrap(RealtimeVoiceChannels.setSetup, {
+				providerId,
+				modelId,
+				options,
+			});
+		},
 		startSession: (request) => {
 			if (!request || typeof request !== 'object' || Array.isArray(request)) {
 				throw new Error('Invalid realtime voice start request.');

@@ -2,6 +2,8 @@ import type { SpeechSynthesisRequest, SpeechSynthesisResult } from './speech_typ
 import type {
 	RealtimeVoiceEvent,
 	RealtimeVoiceSession,
+	RealtimeVoiceSetup,
+	RealtimeVoiceSetupRequest,
 	RealtimeVoiceStartRequest,
 } from './realtime_voice';
 import type {
@@ -832,6 +834,11 @@ export interface SttInvokeChannelMap {
 }
 
 export interface RealtimeVoiceInvokeChannelMap {
+	[RealtimeVoiceChannels.getSetup]: { args: []; result: RealtimeVoiceSetup };
+	[RealtimeVoiceChannels.setSetup]: {
+		args: [request: RealtimeVoiceSetupRequest];
+		result: RealtimeVoiceSetup;
+	};
 	[RealtimeVoiceChannels.startSession]: {
 		args: [request: RealtimeVoiceStartRequest];
 		result: RealtimeVoiceSession;

@@ -65,6 +65,8 @@ import type { SpeechSynthesisRequest, SpeechSynthesisResult } from './speech_typ
 import type {
 	RealtimeVoiceEvent,
 	RealtimeVoiceSession,
+	RealtimeVoiceSetup,
+	RealtimeVoiceSetupRequest,
 	RealtimeVoiceStartRequest,
 } from './realtime_voice';
 import type {
@@ -353,6 +355,8 @@ export interface ModelsApi {
 		setModelId: (modelId: string) => Promise<void>;
 	};
 	realtimeVoice: {
+		getSetup: () => Promise<RealtimeVoiceSetup>;
+		setSetup: (request: RealtimeVoiceSetupRequest) => Promise<RealtimeVoiceSetup>;
 		startSession: (request: RealtimeVoiceStartRequest) => Promise<RealtimeVoiceSession>;
 		appendAudio: (sessionId: string, audio: string) => Promise<void>;
 		interruptSession: (sessionId: string) => Promise<void>;
