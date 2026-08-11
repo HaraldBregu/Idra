@@ -41,7 +41,10 @@ jest.mock('../../src/main/agent/session', () => ({
 		sessionsPath: '',
 		folderName: '',
 		runTraceBuffer: [],
-		context: { toolsContext: {} },
+		runContext: {
+			loadedSkills: [],
+			fileAccess: { readDirectories: new Set(), createdFiles: new Set() },
+		},
 	}),
 	init: (state: { id: string }, _config: unknown, input: { sessionId: string }) => {
 		state.id = input.sessionId;
@@ -87,6 +90,7 @@ import { AgentChannels } from '../../src/shared/ipc_channels_definitions';
 import type { EventBus } from '../../src/main/event_bus';
 import type { LoggerService } from '../../src/main/shared';
 import type { WindowFactory } from '../../src/main/window_factory';
+import type { ExecSandbox } from '../../src/main/agent/sandbox';
 
 function deferred(): { promise: Promise<void>; resolve: () => void } {
 	let resolve = () => {};
@@ -105,7 +109,7 @@ it('cancels the IPC UI run without interrupting the channel registry bot run', a
 		(
 			_config: unknown,
 			_session: unknown,
-			input: { runId: string; origin: string; sessionId: string },
+			input: { runId: string; agentId: string; sessionId: string },
 			signal: AbortSignal
 		) =>
 			(async function* () {
@@ -167,7 +171,10 @@ it('cancels the IPC UI run without interrupting the channel registry bot run', a
 		emit: jest.fn(),
 		broadcast: jest.fn(),
 	} as unknown as EventBus;
-	const agent = new Agent({} as WindowFactory);
+	const agent = new Agent(
+		{} as WindowFactory,
+		{ reset: jest.fn() } as unknown as ExecSandbox
+	);
 	new AgentIpc().register({ logger, agent }, eventBus);
 	const registry = createChannelRegistry({ logger, eventBus, agentService: agent });
 	await registry.start('telegram');
