@@ -55,8 +55,21 @@ export function useRealtimeVoice({
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [requiresConfiguration, setRequiresConfiguration] = useState(false);
 	const [elapsedMs, setElapsedMs] = useState(0);
-	const capture = usePcmCapture();
-	const playback = usePcmPlayback();
+	const {
+		analyser: captureAnalyser,
+		isMuted,
+		setMuted,
+		start: startCapture,
+		stop: stopCapture,
+		stream,
+	} = usePcmCapture();
+	const {
+		analyser: playbackAnalyser,
+		enqueue: enqueuePlayback,
+		release: releasePlayback,
+		start: startPlayback,
+		stop: stopPlayback,
+	} = usePcmPlayback();
 
 	const mountedRef = useRef(true);
 	const onClosedRef = useRef(onClosed);
@@ -72,7 +85,7 @@ export function useRealtimeVoice({
 	const isConfigured = supportedModels.length > 0;
 	const isSupported = canCaptureAudio();
 	const isActive = status !== 'idle' && status !== 'error';
-	const analyser = status === 'speaking' ? playback.analyser : capture.analyser;
+	const analyser = status === 'speaking' ? playbackAnalyser : captureAnalyser;
 
 	useEffect(() => {
 		onClosedRef.current = onClosed;
@@ -90,10 +103,10 @@ export function useRealtimeVoice({
 
 	const releaseAudio = useCallback((): void => {
 		stopClock();
-		capture.stop();
-		playback.release();
+		stopCapture();
+		releasePlayback();
 		if (mountedRef.current) setElapsedMs(0);
-	}, [capture.stop, playback.release, stopClock]);
+	}, [releasePlayback, stopCapture, stopClock]);
 
 	const closeSession = useCallback(
 		async (notify = true): Promise<void> => {
@@ -160,7 +173,7 @@ export function useRealtimeVoice({
 					return;
 				case 'input_speech_started':
 					if (statusRef.current === 'speaking') {
-						playback.stop();
+						stopPlayback();
 						void window.models.realtimeVoice.interruptSession(sessionId).catch(() => undefined);
 					}
 					setStatus('listening');
@@ -199,12 +212,12 @@ export function useRealtimeVoice({
 					return;
 				case 'assistant_audio_delta':
 					setStatus('speaking');
-					playback.enqueue(event.audio);
+					enqueuePlayback(event.audio);
 					return;
 				case 'assistant_audio_done':
 					return;
 				case 'interrupted':
-					playback.stop();
+					stopPlayback();
 					dispatchChat({ type: 'complete_active', response: '', completedAtMs: Date.now() });
 					setStatus('listening');
 					return;
@@ -221,7 +234,7 @@ export function useRealtimeVoice({
 					return;
 			}
 		});
-	}, [dispatchChat, failSession, playback.enqueue, playback.stop, releaseAudio]);
+	}, [dispatchChat, enqueuePlayback, failSession, releaseAudio, stopPlayback]);
 
 	const start = useCallback(async (): Promise<boolean> => {
 		if (sessionIdRef.current) return true;
@@ -251,8 +264,8 @@ export function useRealtimeVoice({
 			}
 			if (startRunRef.current !== runId) return false;
 
-			await playback.start();
-			await capture.start((audio) => {
+			await startPlayback();
+			await startCapture((audio) => {
 				const sessionId = sessionIdRef.current;
 				if (sessionId) {
 					void window.models.realtimeVoice
@@ -275,7 +288,7 @@ export function useRealtimeVoice({
 
 			sessionIdRef.current = session.id;
 			sessionChatIdRef.current = chatSessionId;
-			capture.setMuted(false);
+			setMuted(false);
 			setStatus('listening');
 			startedAtMsRef.current = Date.now();
 			clockRef.current = window.setInterval(() => {
@@ -291,14 +304,14 @@ export function useRealtimeVoice({
 			return false;
 		}
 	}, [
-		capture.setMuted,
-		capture.start,
 		chatSessionId,
 		failSession,
 		isConfigured,
 		isSupported,
-		playback.start,
 		releaseAudio,
+		setMuted,
+		startCapture,
+		startPlayback,
 	]);
 
 	useEffect(() => {
@@ -327,12 +340,12 @@ export function useRealtimeVoice({
 		errorMessage,
 		isActive,
 		isConfigured,
-		isMuted: capture.isMuted,
+		isMuted,
 		isSupported,
 		requiresConfiguration,
-		setMuted: capture.setMuted,
+		setMuted,
 		start,
 		status,
-		stream: capture.stream,
+		stream,
 	};
 }
