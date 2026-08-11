@@ -99,6 +99,7 @@ describe('RealtimeVoiceManager', () => {
 		const session = await manager.start(1, { chatSessionId: 'chat' });
 		const first = manager.appendAudio(1, session.id, 'A'.repeat(150_000));
 		expect(() => manager.appendAudio(1, session.id, 'A'.repeat(150_000))).toThrow('queue is full');
+		await Promise.resolve();
 		release();
 		await first;
 	});
@@ -122,12 +123,13 @@ describe('RealtimeVoiceManager', () => {
 		});
 
 		const firstStart = manager.start(3, { chatSessionId: 'first' });
-		for (let attempt = 0; attempt < 10 && pending.length < 2; attempt += 1) {
+		for (let attempt = 0; attempt < 10 && pending.length < 1; attempt += 1) {
 			await Promise.resolve();
 		}
 		const secondStart = manager.start(3, { chatSessionId: 'second' });
-		await Promise.resolve();
-		await Promise.resolve();
+		for (let attempt = 0; attempt < 10 && pending.length < 2; attempt += 1) {
+			await Promise.resolve();
+		}
 		expect(pending).toHaveLength(2);
 
 		const lateFirst = new FakeConnection();
