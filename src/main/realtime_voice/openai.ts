@@ -22,11 +22,12 @@ export class OpenAIRealtimeVoiceAdapter implements RealtimeVoiceAdapter {
 
 	async connect(
 		request: RealtimeVoiceAdapterRequest,
-		emit: RealtimeVoiceAdapterEventHandler
+		emit: RealtimeVoiceAdapterEventHandler,
+		signal?: AbortSignal
 	): Promise<RealtimeVoiceConnection> {
 		const socket = this.socketFactory(request.apiKey, request.model);
 		const connection = new OpenAIRealtimeVoiceConnection(socket, emit);
-		await connection.open(request, this.connectTimeoutMs);
+		await connection.open(request, this.connectTimeoutMs, signal);
 		return connection;
 	}
 }
@@ -40,15 +41,21 @@ class OpenAIRealtimeVoiceConnection implements RealtimeVoiceConnection {
 		private readonly emit: RealtimeVoiceAdapterEventHandler
 	) {}
 
-	open(request: RealtimeVoiceAdapterRequest, timeoutMs: number): Promise<void> {
+	open(request: RealtimeVoiceAdapterRequest, timeoutMs: number, signal?: AbortSignal): Promise<void> {
 		return new Promise((resolve, reject) => {
 			let settled = false;
 			const settle = (error?: Error): void => {
 				if (settled) return;
 				settled = true;
 				clearTimeout(timer);
+				signal?.removeEventListener('abort', abort);
 				if (error) reject(error);
 				else resolve();
+			};
+			const abort = (): void => {
+				const reason = signal?.reason;
+				settle(reason instanceof Error ? reason : new DOMException('Voice session stopped.', 'AbortError'));
+				void this.stop();
 			};
 			const timer = setTimeout(() => {
 				settle(new Error('Realtime voice connection timed out.'));
@@ -75,6 +82,8 @@ class OpenAIRealtimeVoiceConnection implements RealtimeVoiceConnection {
 					session: sessionConfiguration(request),
 				});
 			});
+			signal?.addEventListener('abort', abort, { once: true });
+			if (signal?.aborted) abort();
 		});
 	}
 

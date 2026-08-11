@@ -104,8 +104,10 @@ export class RealtimeVoiceManager {
 		this.emit(active, { type: 'state', sessionId: info.id, status: 'connecting' });
 
 		try {
-			const connection = await this.dependencies.adapter.connect(configuration, (event) =>
-				this.handleAdapterEvent(active, event)
+			const connection = await this.dependencies.adapter.connect(
+				configuration,
+				(event) => this.handleAdapterEvent(active, event),
+				controller.signal
 			);
 			if (
 				active.closed ||

@@ -190,4 +190,28 @@ describe('RealtimeVoiceManager', () => {
 		await expect(starting).rejects.toThrow('superseded');
 		expect(connect).not.toHaveBeenCalled();
 	});
+
+	it('aborts adapter setup immediately when its window closes', async () => {
+		let setupSignal: AbortSignal | undefined;
+		const manager = new RealtimeVoiceManager({
+			adapter: {
+				connect: (_request, _emit, signal) => {
+					setupSignal = signal;
+					return new Promise((_resolve, reject) => {
+						signal?.addEventListener('abort', () => reject(signal.reason), { once: true });
+					});
+			},
+			resolveConfiguration: async () => configuration,
+			createConversation: () => ({ addUserTurn: () => undefined, addAssistantTranscript: () => undefined }),
+			resources: new KeyedMutex(),
+			emit: () => undefined,
+		});
+
+		const starting = manager.start(10, { chatSessionId: 'chat' });
+		for (let attempt = 0; attempt < 10 && !setupSignal; attempt += 1) await Promise.resolve();
+		await manager.stopWindow(10);
+
+		expect(setupSignal?.aborted).toBe(true);
+		await expect(starting).rejects.toThrow('stopped');
+	});
 });

@@ -4,6 +4,7 @@ import type { RealtimeSocket } from '../../../../src/main/realtime_voice/types';
 
 class FakeSocket implements RealtimeSocket {
 	readonly sent: RealtimeClientEvent[] = [];
+	closed = false;
 	readonly socket = {
 		readyState: 0,
 		bufferedAmount: 0,
@@ -25,6 +26,7 @@ class FakeSocket implements RealtimeSocket {
 	}
 
 	close(): void {
+		this.closed = true;
 		this.socketListeners.close.forEach((listener) => listener());
 	}
 
@@ -136,5 +138,26 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 		jest.advanceTimersByTime(15_000);
 		await expect(connecting).rejects.toThrow('timed out');
 		jest.useRealTimers();
+	});
+
+	it('closes and rejects setup immediately when the owner aborts', async () => {
+		const socket = new FakeSocket();
+		const adapter = new OpenAIRealtimeVoiceAdapter(() => socket, 15_000);
+		const controller = new AbortController();
+		const connecting = adapter.connect(
+			{
+				apiKey: 'key',
+				model: 'gpt-realtime-2.1',
+				voice: 'marin',
+				instructions: '',
+				tools: [],
+			},
+			() => undefined,
+			controller.signal
+		);
+		controller.abort(new DOMException('Window closed.', 'AbortError'));
+
+		await expect(connecting).rejects.toThrow('Window closed.');
+		expect(socket.closed).toBe(true);
 	});
 });

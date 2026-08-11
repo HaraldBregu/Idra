@@ -51,7 +51,8 @@ export interface RealtimeVoiceConnection {
 export interface RealtimeVoiceAdapter {
 	connect(
 		request: RealtimeVoiceAdapterRequest,
-		emit: RealtimeVoiceAdapterEventHandler
+		emit: RealtimeVoiceAdapterEventHandler,
+		signal?: AbortSignal
 	): Promise<RealtimeVoiceConnection>;
 }
 
