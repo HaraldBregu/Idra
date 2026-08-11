@@ -47,7 +47,7 @@ export function VideoPlayer({
 							type="button"
 							variant="ghost"
 							size="icon"
-							className="size-auto rounded-none p-2.5 text-[var(--media-text-color)] hover:bg-[var(--media-control-hover-background)] hover:text-[var(--media-text-color)]"
+							className="size-auto self-stretch rounded-none bg-background p-2.5 text-foreground hover:bg-accent hover:text-accent-foreground"
 							aria-label="Open video"
 							title="Open video"
 							onClick={onOpenFile}
