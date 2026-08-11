@@ -112,6 +112,7 @@ function TextEditor({
 			.setContent(value ?? '', { emitUpdate: false, contentType: 'markdown' });
 		if (editor.isFocused) chain.focus('end');
 		chain.run();
+		reportVisualLineChange(editor);
 	}, [editor, value]);
 
 	useEffect(() => {
