@@ -102,7 +102,7 @@ export function ModelOptions({
 								onChange(path, next === '__default__' ? undefined : choices[Number(next)]?.value)
 							}
 						>
-							<SelectTrigger className="w-40">
+							<SelectTrigger className="w-40" aria-label={label}>
 								<SelectValue>
 									{selectedIndex < 0 ? defaultLabel : choices[selectedIndex]?.label}
 								</SelectValue>
@@ -126,7 +126,11 @@ export function ModelOptions({
 					key={key}
 					title={label}
 					actions={
-						<Switch checked={checked} onCheckedChange={(checked) => onChange(path, checked)} />
+						<Switch
+							aria-label={label}
+							checked={checked}
+							onCheckedChange={(checked) => onChange(path, checked)}
+						/>
 					}
 				/>
 			);
@@ -151,6 +155,7 @@ export function ModelOptions({
 					title={label}
 					actions={
 						<Input
+							aria-label={label}
 							className="w-40"
 							type={numeric ? 'number' : 'text'}
 							min={schema.minimum}
