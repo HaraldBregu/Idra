@@ -10,6 +10,7 @@ import {
   useCallback,
   useContext,
   useId,
+  useMemo,
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
@@ -95,9 +96,13 @@ export const TreeProvider = ({
   );
 
   const expansionIsControlled = controlledExpandedIds !== undefined;
-  const expandedIds = expansionIsControlled
-    ? new Set(controlledExpandedIds)
-    : internalExpandedIds;
+  const expandedIds = useMemo(
+    () =>
+      expansionIsControlled
+        ? new Set(controlledExpandedIds)
+        : internalExpandedIds,
+    [controlledExpandedIds, expansionIsControlled, internalExpandedIds]
+  );
   const selectionIsControlled = selectedIds !== undefined;
   const currentSelectedIds = selectionIsControlled ? selectedIds : internalSelectedIds;
 
@@ -200,7 +205,6 @@ export const TreeNode = ({
   parentPath = [],
   children,
   className,
-  onClick,
   ...props
 }: TreeNodeProps) => {
   const generatedId = useId();
