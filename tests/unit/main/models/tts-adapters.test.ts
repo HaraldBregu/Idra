@@ -228,7 +228,9 @@ it('maps Google multi-speaker voice settings instead of a single voice', async (
 	jest.mocked(global.fetch).mockResolvedValue(
 		new Response(
 			JSON.stringify({
-				candidates: [{ content: { parts: [{ inlineData: { mimeType: 'audio/wav', data: 'QQ==' } }] } }],
+				candidates: [
+					{ content: { parts: [{ inlineData: { mimeType: 'audio/wav', data: 'QQ==' } }] } },
+				],
 			})
 		)
 	);
