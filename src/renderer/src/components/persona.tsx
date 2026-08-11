@@ -396,15 +396,8 @@ export function Persona({
 						0.016;
 					const listeningEnergy = activeState === 'listening' ? smoothedLevel : 0;
 					const listeningRipple =
-						(Math.sin(
-							angle * (6 + index) + now * (7.5 + listeningEnergy * 12) + ring.phase
-						) *
-							0.7 +
-							Math.sin(
-								angle * (10 + index) -
-									now * (11 + listeningEnergy * 8) +
-									ring.phase * 1.4
-							) *
+						(Math.sin(angle * (6 + index) + now * (7.5 + listeningEnergy * 12) + ring.phase) * 0.7 +
+							Math.sin(angle * (10 + index) - now * (11 + listeningEnergy * 8) + ring.phase * 1.4) *
 								0.3) *
 						listeningEnergy *
 						(0.012 + index * 0.0015);
