@@ -6,11 +6,9 @@ it('clears the tool timeout while retaining parent-run cancellation after return
 	try {
 		let receivedSignal: AbortSignal | undefined;
 		const tool = jsonTool({
-			name: 'background_test',
+			id: 'background_test',
+			name: 'Background test',
 			description: 'test',
-			defaultPermission: 'allow',
-			risk: 'low',
-			effect: 'read',
 			timeoutMs: 20,
 			schema: { type: 'object' },
 			execute: async (_input, signal) => {
@@ -21,11 +19,10 @@ it('clears the tool timeout while retaining parent-run cancellation after return
 		const controller = new AbortController();
 		for await (const _event of runToolCall(
 			tool,
-			{ id: 'call', name: tool.name, args: {} },
-			false,
+			{ id: 'call', name: tool.id, args: {} },
 			controller.signal,
 			undefined,
-			'bypass'
+			{ runId: 'run' }
 		)) {
 			void _event;
 		}

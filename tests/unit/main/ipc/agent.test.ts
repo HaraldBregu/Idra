@@ -33,9 +33,9 @@ describe('AgentIpc run ownership', () => {
 		expect(send).toHaveBeenCalledWith(
 			'hello',
 			'main',
-			expect.objectContaining({
-				runId: 'run-1',
-				permissions: expect.objectContaining({ mode: expect.any(String), dir: expect.any(Object) }),
+				expect.objectContaining({
+					runId: 'run-1',
+					type: 'default',
 				windowId: 7,
 				streamEvent: expect.any(Function),
 			})
