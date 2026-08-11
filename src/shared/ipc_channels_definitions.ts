@@ -113,6 +113,8 @@ export const AppChannels = {
 	getTrayEnabled: 'app:get-tray-enabled',
 	setKeepAwake: 'app:set-keep-awake',
 	getKeepAwake: 'app:get-keep-awake',
+	setPersona: 'app:set-persona',
+	getPersona: 'app:get-persona',
 	setLanguage: 'app:set-language',
 	getLanguage: 'app:get-language',
 	setTheme: 'app:set-theme',

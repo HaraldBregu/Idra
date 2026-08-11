@@ -37,6 +37,8 @@ export type SystemPreferencePaneId = 'Accessibility' | 'ScreenCapture' | 'Camera
 
 export type AppLanguage = 'en' | 'it';
 
+export type AppPersona = 'mana' | 'opal' | 'halo' | 'glint' | 'command';
+
 export type AppTheme = 'light' | 'dark' | 'system';
 
 export type AppThemeColors = Record<string, string>;

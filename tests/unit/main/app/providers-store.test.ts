@@ -25,6 +25,7 @@ jest.mock('../../../../src/main/models', () => ({
 
 import {
 	getTaskConfiguration,
+	getPersona,
 	listProviders,
 	getProvider,
 	hasProvider,
@@ -38,6 +39,7 @@ import {
 	saveStorageConfig,
 	setSelectedStorageId,
 	setTaskConfiguration,
+	setPersona,
 } from '../../../../src/main/settings_store';
 import { getDatabaseConfiguration } from '../../../../src/main/database/database_store';
 import type { StoredProvider } from '../../../../src/shared/provider_types';
@@ -46,6 +48,12 @@ import type { StorageConfig } from '../../../../src/shared/storage_types';
 function provider(id: string, name: string): StoredProvider {
 	return { id, name, apiKey: 'k', baseUrl: 'https://api' };
 }
+
+it('defaults the app persona to halo and persists changes', () => {
+	expect(getPersona()).toBe('halo');
+	setPersona('mana');
+	expect(getPersona()).toBe('mana');
+});
 
 beforeEach(() => clearProviders());
 

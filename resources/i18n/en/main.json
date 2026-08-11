@@ -884,6 +884,14 @@
 			"it": "Italiano",
 			"itDescription": "Use Italian as the display language"
 		},
+		"persona": {
+			"title": "Persona",
+			"mana": "Mana",
+			"opal": "Opal",
+			"halo": "Halo",
+			"glint": "Glint",
+			"command": "Command"
+		},
 		"theme": {
 			"title": "Theme",
 			"light": "Light",

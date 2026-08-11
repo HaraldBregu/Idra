@@ -299,6 +299,14 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: boolean;
 	};
+	[AppChannels.setPersona]: {
+		args: [persona: import('./app_types').AppPersona];
+		result: void;
+	};
+	[AppChannels.getPersona]: {
+		args: [];
+		result: import('./app_types').AppPersona;
+	};
 	[AppChannels.setLanguage]: {
 		args: [language: import('./app_types').AppLanguage];
 		result: void;

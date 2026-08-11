@@ -8,7 +8,7 @@ import { DEFAULT_SYNC_CRON_EXPRESSION } from './storage/storage_sync_types';
 import { loadStorages } from './models';
 import { migrateMcpStoreFromProviders } from './mcp/mcp_store_state';
 import type { PersistedTaskState } from './tasks/tasks_types';
-import type { AppLanguage, AppTheme } from '../shared/app_types';
+import type { AppLanguage, AppPersona, AppTheme } from '../shared/app_types';
 import { getModelProvidersState, setModelProvidersState, getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from './providers/providers_index';
 import { getRagConfiguration, saveRagConfiguration } from './agent/knowledge/rag/rag_store';
 
@@ -46,6 +46,7 @@ export type AppSettingsState = {
 	trayEnabled: boolean;
 	keepAwake: boolean;
 	language: AppLanguage;
+	persona: AppPersona;
 	theme: AppTheme;
 	cloud: StorageConfiguration;
 	modelSelections: AppModelSelections;
@@ -67,6 +68,7 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	trayEnabled: true,
 	keepAwake: false,
 	language: 'en',
+	persona: 'halo',
 	theme: 'system',
 	cloud: DEFAULT_STORAGE_CONFIGURATION,
 	modelSelections: DEFAULT_MODEL_SELECTIONS,
@@ -173,6 +175,14 @@ export function getLanguage(): AppLanguage {
 
 export function setLanguage(language: AppLanguage): void {
 	store.set('language', language);
+}
+
+export function getPersona(): AppPersona {
+	return store.get('persona');
+}
+
+export function setPersona(persona: AppPersona): void {
+	store.set('persona', persona);
 }
 
 export function getTheme(): AppTheme {
