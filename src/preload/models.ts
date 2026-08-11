@@ -4,6 +4,7 @@ import {
 	ImageChannels,
 	SoundChannels,
 	SpeechChannels,
+	RealtimeVoiceChannels,
 	SttChannels,
 	TextChannels,
 	VideoChannels,
@@ -15,6 +16,7 @@ import {
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt_transcription';
 import { normalizeSpeechSynthesisRequest } from '../shared/speech_types';
+import { REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH } from '../shared/realtime_voice';
 import { optionalTrimmedString } from './normalize';
 
 function isSttRealtimeSessionId(value: unknown): value is string {
@@ -294,5 +296,54 @@ export const models: ModelsApi = {
 			if (!normalizedModelId) throw new Error('Invalid voice model id.');
 			return typedInvokeUnwrap(SpeechChannels.setModelId, normalizedModelId);
 		},
+	},
+	realtimeVoice: {
+		startSession: (request) => {
+			if (!request || typeof request !== 'object' || Array.isArray(request)) {
+				throw new Error('Invalid realtime voice start request.');
+			}
+			const chatSessionId = optionalTrimmedString(request.chatSessionId);
+			if (!chatSessionId) throw new Error('Invalid realtime voice chat session id.');
+			return typedInvokeUnwrap(RealtimeVoiceChannels.startSession, { chatSessionId });
+		},
+		appendAudio: (sessionId, audio) => {
+			const normalizedSessionId = optionalTrimmedString(sessionId);
+			if (!normalizedSessionId) throw new Error('Invalid realtime voice session id.');
+			if (
+				typeof audio !== 'string' ||
+				audio.length === 0 ||
+				audio.length > REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH ||
+				!/^[A-Za-z0-9+/]+={0,2}$/.test(audio)
+			) {
+				throw new Error('Invalid realtime voice audio chunk.');
+			}
+			return typedInvokeUnwrap(RealtimeVoiceChannels.appendAudio, normalizedSessionId, audio);
+		},
+		interruptSession: (sessionId) => {
+			const normalizedSessionId = optionalTrimmedString(sessionId);
+			if (!normalizedSessionId) throw new Error('Invalid realtime voice session id.');
+			return typedInvokeUnwrap(RealtimeVoiceChannels.interruptSession, normalizedSessionId);
+		},
+		stopSession: (sessionId) => {
+			const normalizedSessionId = optionalTrimmedString(sessionId);
+			if (!normalizedSessionId) throw new Error('Invalid realtime voice session id.');
+			return typedInvokeUnwrap(RealtimeVoiceChannels.stopSession, normalizedSessionId);
+		},
+		onSessionEvent: (callback) => typedOn(RealtimeVoiceChannels.sessionEvent, callback),
+		getProviderId: () => typedInvokeUnwrap(RealtimeVoiceChannels.getProviderId),
+		setProviderId: (providerId) => {
+			const normalizedProviderId = optionalTrimmedString(providerId);
+			if (!normalizedProviderId) throw new Error('Invalid realtime voice provider id.');
+			return typedInvokeUnwrap(RealtimeVoiceChannels.setProviderId, normalizedProviderId);
+		},
+		getModelId: () => typedInvokeUnwrap(RealtimeVoiceChannels.getModelId),
+		setModelId: (modelId) => {
+			const normalizedModelId = optionalTrimmedString(modelId);
+			if (!normalizedModelId) throw new Error('Invalid realtime voice model id.');
+			return typedInvokeUnwrap(RealtimeVoiceChannels.setModelId, normalizedModelId);
+		},
+		getOptions: () => typedInvokeUnwrap(RealtimeVoiceChannels.getOptions),
+		setOptions: (options) =>
+			typedInvokeUnwrap(RealtimeVoiceChannels.setOptions, normalizeOptions(options) ?? {}),
 	},
 };

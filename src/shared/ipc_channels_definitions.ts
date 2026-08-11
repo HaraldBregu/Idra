@@ -247,6 +247,20 @@ export const SpeechChannels = {
 	synthesize: 'speech:synthesize',
 } as const;
 
+export const RealtimeVoiceChannels = {
+	appendAudio: 'realtime-voice:append-audio',
+	getModelId: 'realtime-voice:get-model-id',
+	getOptions: 'realtime-voice:get-options',
+	getProviderId: 'realtime-voice:get-provider-id',
+	interruptSession: 'realtime-voice:interrupt-session',
+	sessionEvent: 'realtime-voice:session-event',
+	setModelId: 'realtime-voice:set-model-id',
+	setOptions: 'realtime-voice:set-options',
+	setProviderId: 'realtime-voice:set-provider-id',
+	startSession: 'realtime-voice:start-session',
+	stopSession: 'realtime-voice:stop-session',
+} as const;
+
 export const SttChannels = {
 	appendRealtimeAudio: 'stt:append-realtime-audio',
 	cancelRealtime: 'stt:cancel-realtime',

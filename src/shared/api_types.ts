@@ -63,6 +63,11 @@ import type { VideoRequest, VideoResult } from './video_types';
 import type { TextRequest } from './text_types';
 import type { SpeechSynthesisRequest, SpeechSynthesisResult } from './speech_types';
 import type {
+	RealtimeVoiceEvent,
+	RealtimeVoiceSession,
+	RealtimeVoiceStartRequest,
+} from './realtime_voice';
+import type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
 	SttRealtimeStartRequest,
@@ -340,6 +345,19 @@ export interface ModelsApi {
 	};
 	voice: {
 		synthesize: (request: SpeechSynthesisRequest) => Promise<SpeechSynthesisResult>;
+		getOptions: () => Promise<Record<string, unknown>>;
+		setOptions: (options: Record<string, unknown>) => Promise<Record<string, unknown>>;
+		getProviderId: () => Promise<string | undefined>;
+		setProviderId: (providerId: string) => Promise<void>;
+		getModelId: () => Promise<string | undefined>;
+		setModelId: (modelId: string) => Promise<void>;
+	};
+	realtimeVoice: {
+		startSession: (request: RealtimeVoiceStartRequest) => Promise<RealtimeVoiceSession>;
+		appendAudio: (sessionId: string, audio: string) => Promise<void>;
+		interruptSession: (sessionId: string) => Promise<void>;
+		stopSession: (sessionId: string) => Promise<void>;
+		onSessionEvent: (callback: (event: RealtimeVoiceEvent) => void) => () => void;
 		getOptions: () => Promise<Record<string, unknown>>;
 		setOptions: (options: Record<string, unknown>) => Promise<Record<string, unknown>>;
 		getProviderId: () => Promise<string | undefined>;

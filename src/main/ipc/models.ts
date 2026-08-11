@@ -6,6 +6,7 @@ import {
 	ImageChannels,
 	SoundChannels,
 	SpeechChannels,
+	RealtimeVoiceChannels,
 	SttChannels,
 	TextChannels,
 	VideoChannels,
@@ -111,6 +112,29 @@ export class ModelsIpc implements IpcModule {
 		);
 		registerQuery(SpeechChannels.getModelId, () => getModelId('voice'));
 		registerCommand(SpeechChannels.setModelId, (modelId) => setModelId('voice', modelId));
+
+		registerQuery(RealtimeVoiceChannels.getProviderId, () => getProviderId('realtimeVoice'));
+		registerCommand(RealtimeVoiceChannels.setProviderId, (providerId) => {
+			if (typeof providerId !== 'string' || !providerId.trim()) {
+				throw new Error('Invalid realtime voice provider id.');
+			}
+			setProviderId('realtimeVoice', providerId.trim());
+		});
+		registerQuery(RealtimeVoiceChannels.getModelId, () => getModelId('realtimeVoice'));
+		registerCommand(RealtimeVoiceChannels.setModelId, (modelId) => {
+			if (typeof modelId !== 'string' || !modelId.trim()) {
+				throw new Error('Invalid realtime voice model id.');
+			}
+			setModelId('realtimeVoice', modelId.trim());
+		});
+		registerQuery(RealtimeVoiceChannels.getOptions, () => getOptions('realtimeVoice'));
+		registerCommand(RealtimeVoiceChannels.setOptions, (options) => {
+			if (!options || typeof options !== 'object' || Array.isArray(options)) {
+				throw new Error('Invalid realtime voice options.');
+			}
+			setOptions('realtimeVoice', { ...options });
+			return getOptions('realtimeVoice');
+		});
 
 		registerQuery(SttChannels.getSelection, (mode) => getSelection(mode));
 		registerQuery(SttChannels.listProviders, () => listProviders());

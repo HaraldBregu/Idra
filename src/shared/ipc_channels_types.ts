@@ -1,5 +1,10 @@
 import type { SpeechSynthesisRequest, SpeechSynthesisResult } from './speech_types';
 import type {
+	RealtimeVoiceEvent,
+	RealtimeVoiceSession,
+	RealtimeVoiceStartRequest,
+} from './realtime_voice';
+import type {
 	SttModelSelection,
 	SttRealtimeEvent,
 	SttRealtimeSession,
@@ -37,6 +42,7 @@ import {
 	ProviderChannels,
 	SearchChannels,
 	SpeechChannels,
+	RealtimeVoiceChannels,
 	SttChannels,
 	TextChannels,
 	VideoChannels,
@@ -825,6 +831,38 @@ export interface SttInvokeChannelMap {
 	};
 }
 
+export interface RealtimeVoiceInvokeChannelMap {
+	[RealtimeVoiceChannels.startSession]: {
+		args: [request: RealtimeVoiceStartRequest];
+		result: RealtimeVoiceSession;
+	};
+	[RealtimeVoiceChannels.appendAudio]: {
+		args: [sessionId: string, audio: string];
+		result: void;
+	};
+	[RealtimeVoiceChannels.interruptSession]: {
+		args: [sessionId: string];
+		result: void;
+	};
+	[RealtimeVoiceChannels.stopSession]: {
+		args: [sessionId: string];
+		result: void;
+	};
+	[RealtimeVoiceChannels.getProviderId]: { args: []; result: string | undefined };
+	[RealtimeVoiceChannels.setProviderId]: { args: [providerId: string]; result: void };
+	[RealtimeVoiceChannels.getModelId]: { args: []; result: string | undefined };
+	[RealtimeVoiceChannels.setModelId]: { args: [modelId: string]; result: void };
+	[RealtimeVoiceChannels.getOptions]: { args: []; result: Record<string, unknown> };
+	[RealtimeVoiceChannels.setOptions]: {
+		args: [options: Record<string, unknown>];
+		result: Record<string, unknown>;
+	};
+}
+
+export interface RealtimeVoiceEventChannelMap {
+	[RealtimeVoiceChannels.sessionEvent]: { data: RealtimeVoiceEvent };
+}
+
 export interface SttEventChannelMap {
 	[SttChannels.realtimeEvent]: { data: SttRealtimeEvent };
 }
@@ -880,6 +918,7 @@ export interface InvokeChannelMap
 		ImageInvokeChannelMap,
 		SoundInvokeChannelMap,
 		SpeechInvokeChannelMap,
+		RealtimeVoiceInvokeChannelMap,
 		SttInvokeChannelMap,
 		TextInvokeChannelMap,
 		VideoInvokeChannelMap,
@@ -899,4 +938,5 @@ export interface EventChannelMap
 		AgentEventChannelMap,
 		RecorderEventChannelMap,
 		WindowEventChannelMap,
+		RealtimeVoiceEventChannelMap,
 		SttEventChannelMap {}
