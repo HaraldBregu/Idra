@@ -57,7 +57,8 @@ export const TitleBar = React.memo(function TitleBar({
 	const isHome = location.pathname === '/home';
 	const isStart = location.pathname === '/start';
 	const isSettings = location.pathname.startsWith('/settings');
-	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
+	const settingsLabel = t('settings.title', 'Settings');
+	const titleBarTitle = isSettings ? settingsLabel : title;
 	const homeButtonLabel = t('titleBar.home', 'Home');
 	const routeButton = isSettings ? (
 		<Button
@@ -82,8 +83,8 @@ export const TitleBar = React.memo(function TitleBar({
 					setShowSettingsButtons(false);
 					navigate('/settings');
 				}}
-				title={titleBarTitle}
-				aria-label={titleBarTitle}
+				title={settingsLabel}
+				aria-label={settingsLabel}
 			>
 				<User className="size-4" strokeWidth={1.8} />
 			</Button>

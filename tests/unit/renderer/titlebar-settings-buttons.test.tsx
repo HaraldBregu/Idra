@@ -59,10 +59,10 @@ it('shows the history and user icons on Home before right-click', async () => {
 	);
 
 	expect(screen.getByRole('button', { name: 'titleBar.chatHistory' })).toBeInTheDocument();
-	expect(screen.getByRole('button', { name: 'Application Name' })).toBeInTheDocument();
+	expect(screen.getByRole('button', { name: 'settings.title' })).toBeInTheDocument();
 	expect(screen.queryByRole('button', { name: 'settings.tabs.general' })).not.toBeInTheDocument();
 
-	await user.click(screen.getByRole('button', { name: 'Application Name' }));
+	await user.click(screen.getByRole('button', { name: 'settings.title' }));
 
 	expect(screen.getByText('/settings')).toBeInTheDocument();
 });
