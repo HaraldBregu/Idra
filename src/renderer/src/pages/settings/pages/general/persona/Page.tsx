@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Persona, type PersonaState } from '@/components/persona';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,19 @@ const PERSONA_STATES: readonly PersonaState[] = ['idle', 'listening', 'thinking'
 const PersonaPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [state, setState] = useState<PersonaState>('idle');
+	const [listeningLevel, setListeningLevel] = useState(0.28);
+
+	useEffect(() => {
+		if (state !== 'listening') return;
+
+		const interval = window.setInterval(() => {
+			setListeningLevel(0.08 + Math.random() * 0.82);
+		}, 120);
+
+		return () => window.clearInterval(interval);
+	}, [state]);
+
+	const level = state === 'listening' ? listeningLevel : state === 'speaking' ? 0.72 : 0.16;
 
 	return (
 		<SettingsPageShell>
@@ -28,7 +41,7 @@ const PersonaPage: React.FC = () => {
 			>
 				<SettingsPanel className="overflow-hidden">
 					<div className="flex min-h-96 flex-col items-center justify-center gap-4 bg-neutral-950 p-6">
-						<Persona state={state} level={state === 'speaking' ? 0.72 : 0.28} />
+						<Persona state={state} level={level} />
 						<div className="flex flex-wrap items-center justify-center gap-1.5">
 							{PERSONA_STATES.map((personaState) => (
 								<Button
