@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ModelOptions } from '../../../src/renderer/src/components/model-options';
 
@@ -141,7 +141,7 @@ describe('ModelOptions', () => {
 
 		await user.click(screen.getByRole('button', { name: 'Advanced' }));
 		const input = screen.getByRole('textbox', { name: 'previous request ids' });
-		await user.type(input, '["request-1"]');
+		fireEvent.change(input, { target: { value: '["request-1"]' } });
 		expect(onChange).toHaveBeenLastCalledWith(['previous_request_ids'], ['request-1']);
 	});
 });
