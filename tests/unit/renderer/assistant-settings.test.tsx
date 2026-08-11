@@ -60,7 +60,7 @@ jest.mock('react-i18next', () => {
 		'settings.dataControls.title': 'Data management',
 		'settings.dataControls.description': 'Export or purge assistant data',
 		'settings.rag.title': 'RAG',
-		'settings.rag.description': 'Index and search local documents',
+		'settings.overview.descriptions.rag': 'Document search and index',
 		'settings.wiki.title': 'LLM Wiki',
 		'settings.wiki.description': 'Build a persistent Markdown wiki',
 	};

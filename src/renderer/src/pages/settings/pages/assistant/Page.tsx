@@ -391,7 +391,7 @@ const AssistantPage: React.FC = () => {
 				>
 					<SettingsRow
 						title={t('settings.rag.title')}
-						description={t('settings.rag.description')}
+						description={t('settings.overview.descriptions.rag')}
 						className="grid-cols-[minmax(0,1fr)_auto]"
 						actionClassName="w-auto justify-end"
 						actions={<ChevronRight className="size-4 text-muted-foreground" />}
