@@ -369,11 +369,14 @@ const AssistantPage: React.FC = () => {
 					<SettingsRow
 						title={t('settings.tabs.permissions')}
 						description={t('settings.overview.descriptions.permissions')}
-						className="grid-cols-[minmax(0,1fr)_auto]"
+						className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
 						actionClassName="w-auto justify-end"
 						actions={<ChevronRight className="size-4 text-muted-foreground" />}
 					/>
 				</div>
+			</SettingsPanel>
+
+			<SettingsPanel>
 				<div
 					role="button"
 					tabIndex={0}

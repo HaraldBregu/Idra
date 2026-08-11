@@ -173,10 +173,16 @@ it('groups independently collapsible provider settings in one card', async () =>
 	expect(new Set(cards).size).toBe(1);
 
 	const wiki = screen.getByRole('button', { name: /LLM Wiki/ });
+	const knowledgeBase = screen.getByRole('button', { name: /Knowledge Base/ });
+	const permissions = screen.getByRole('button', { name: /settings.tabs.permissions/ });
 	const dataManagement = screen.getByRole('button', { name: /Data management/ });
 	expect(
 		wiki.compareDocumentPosition(dataManagement) & Node.DOCUMENT_POSITION_FOLLOWING
 	).toBeTruthy();
+	expect(knowledgeBase.closest('[data-slot="card"]')).toBe(wiki.closest('[data-slot="card"]'));
+	expect(permissions.closest('[data-slot="card"]')).not.toBe(
+		knowledgeBase.closest('[data-slot="card"]')
+	);
 	expect(dataManagement.closest('[data-slot="card"]')).not.toBe(wiki.closest('[data-slot="card"]'));
 });
 
