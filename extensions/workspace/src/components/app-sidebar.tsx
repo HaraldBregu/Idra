@@ -1,10 +1,19 @@
-import { Bot, ChevronRight, File, Folder, FolderOpen } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import { useMemo, useState, type DragEvent } from 'react';
 import type { WorkspaceTreeEntry } from '@friday/sdk';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+	TreeExpander,
+	TreeIcon,
+	TreeLabel,
+	TreeNode,
+	TreeNodeContent,
+	TreeNodeTrigger,
+	TreeProvider,
+	TreeView,
+} from '@/components/kibo-ui/tree';
+import { WorkspaceTreeItem } from '@/components/workspace-tree-item';
 import { cn } from '@/lib/utils';
 import { workspaceMoveError } from '@/lib/drop';
 import { showNativeContextMenu } from '@/lib/menu';
@@ -21,88 +30,7 @@ const agentFilePaths = [
 	'USER.md',
 ] as const;
 const agentFilePathSet = new Set<string>(agentFilePaths);
-
-function WorkspaceTree({
-	expanded,
-	files,
-	loading,
-	error,
-	draggedPath,
-	dropError,
-	dropTargetPath,
-	movingPath,
-	onCreateRequest,
-	onDeleteRequest,
-	onRenameRequest,
-	onDragEnd,
-	onDragLeave,
-	onDragOver,
-	onDragStart,
-	onDrop,
-	onSelect,
-	onToggle,
-	selectedPath,
-	showEmpty,
-}: {
-	expanded: Set<string>;
-	files: WorkspaceTreeEntry[];
-	loading: boolean;
-	error: string;
-	draggedPath: string | null;
-	dropError: string;
-	dropTargetPath: string | null;
-	movingPath: string | null;
-	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
-	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
-	onRenameRequest: (entry: WorkspaceTreeEntry) => void;
-	onDragEnd: () => void;
-	onDragLeave: (event: DragEvent<HTMLElement>, path: string) => void;
-	onDragOver: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
-	onDragStart: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
-	onDrop: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
-	onSelect: (entry: WorkspaceTreeEntry) => void;
-	onToggle: (path: string) => void;
-	selectedPath: string | null;
-	showEmpty: boolean;
-}) {
-	return (
-		<div>
-			{loading ? (
-				<div className="px-3 py-2 text-[12px] text-sidebar-muted">Loading files...</div>
-			) : error ? (
-				<div className="px-3 py-2 text-[12px] leading-5 text-sidebar-muted">{error}</div>
-			) : files.length === 0 && showEmpty ? (
-				<div className="px-3 py-2 text-[12px] text-sidebar-muted">No files</div>
-			) : (
-				<ul className="space-y-1">
-					{files.map((entry) => (
-						<WorkspaceTreeItem
-							key={entry.path}
-							depth={0}
-							draggedPath={draggedPath}
-							dropError={dropError}
-							dropTargetPath={dropTargetPath}
-							entry={entry}
-							expanded={expanded}
-							movingPath={movingPath}
-							onCreateRequest={onCreateRequest}
-							onDeleteRequest={onDeleteRequest}
-							onRenameRequest={onRenameRequest}
-							onDragEnd={onDragEnd}
-							onDragLeave={onDragLeave}
-							onDragOver={onDragOver}
-							onDragStart={onDragStart}
-							onDrop={onDrop}
-							onToggle={onToggle}
-							onSelect={onSelect}
-							selectedPath={selectedPath}
-						/>
-					))}
-				</ul>
-			)}
-		</div>
-	);
-}
+const agentNodeId = '__friday_workspace_agent__';
 
 interface AppSidebarProps {
 	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
@@ -115,184 +43,6 @@ interface AppSidebarProps {
 	workspaceFiles: WorkspaceTreeEntry[];
 	workspaceLoading: boolean;
 	workspaceLocation: string;
-}
-
-function WorkspaceTreeItem({
-	depth,
-	draggedPath,
-	dropError,
-	dropTargetPath,
-	entry,
-	expanded,
-	movingPath,
-	onCreateRequest,
-	onDeleteRequest,
-	onRenameRequest,
-	onDragEnd,
-	onDragLeave,
-	onDragOver,
-	onDragStart,
-	onDrop,
-	onToggle,
-	onSelect,
-	selectedPath,
-}: {
-	depth: number;
-	draggedPath: string | null;
-	dropError: string;
-	dropTargetPath: string | null;
-	entry: WorkspaceTreeEntry;
-	expanded: Set<string>;
-	movingPath: string | null;
-	onCreateRequest: (parentPath: string, type: 'file' | 'directory') => void;
-	onDeleteRequest: (entry: WorkspaceTreeEntry) => void;
-	onRenameRequest: (entry: WorkspaceTreeEntry) => void;
-	onDragEnd: () => void;
-	onDragLeave: (event: DragEvent<HTMLElement>, path: string) => void;
-	onDragOver: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
-	onDragStart: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
-	onDrop: (event: DragEvent<HTMLElement>, entry: WorkspaceTreeEntry) => void;
-	onToggle: (path: string) => void;
-	onSelect: (entry: WorkspaceTreeEntry) => void;
-	selectedPath: string | null;
-}) {
-	const isDirectory = entry.type === 'directory';
-	const isExpanded = expanded.has(entry.path);
-	const selected = selectedPath === entry.path;
-	const isDropTarget = dropTargetPath === entry.path;
-	const Icon = isDirectory ? (isExpanded ? FolderOpen : Folder) : File;
-
-	const trigger = (
-		<Button
-			data-workspace-entry
-			type="button"
-			variant="ghost"
-			size="sm"
-			draggable={!movingPath}
-			onDragStart={(event) => onDragStart(event, entry)}
-			onDragEnd={onDragEnd}
-			onDragOver={(event) => onDragOver(event, entry)}
-			onDragLeave={(event) => onDragLeave(event, entry.path)}
-			onDrop={(event) => onDrop(event, entry)}
-			onContextMenu={(event) => {
-				showNativeContextMenu(
-					event,
-					[
-						{
-							id: isDirectory ? 'toggle' : 'open',
-							label: isDirectory ? (isExpanded ? 'Collapse' : 'Expand') : 'Open',
-							enabled: !isDirectory || Boolean(entry.children?.length),
-						},
-						...(isDirectory
-							? ([
-									{ type: 'separator' },
-									{ id: 'new-file', label: 'New File' },
-									{ id: 'new-folder', label: 'New Folder' },
-								] as const)
-							: []),
-						{ type: 'separator' },
-						{ id: 'rename', label: isDirectory ? 'Rename Folder' : 'Rename File' },
-						{ type: 'separator' },
-						{ id: 'copy-path', label: 'Copy Path' },
-						{ type: 'separator' },
-						{
-							id: 'delete',
-							label: isDirectory ? 'Delete Folder' : 'Delete File',
-						},
-					],
-					{
-						toggle: () => onToggle(entry.path),
-						open: () => onSelect(entry),
-						'new-file': () => onCreateRequest(entry.path, 'file'),
-						'new-folder': () => onCreateRequest(entry.path, 'directory'),
-						rename: () => onRenameRequest(entry),
-						'copy-path': () => navigator.clipboard.writeText(entry.path),
-						delete: () => onDeleteRequest(entry),
-					}
-				);
-			}}
-			onDoubleClick={(event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				onRenameRequest(entry);
-			}}
-			onClick={() => {
-				if (!isDirectory) onSelect(entry);
-			}}
-			onKeyDown={(event) => {
-				if (event.key === 'Backspace' || event.key === 'Delete') {
-					event.preventDefault();
-					onDeleteRequest(entry);
-				}
-			}}
-			aria-expanded={isDirectory ? isExpanded : undefined}
-			aria-current={selected ? 'page' : undefined}
-			aria-describedby="workspace-drag-instructions"
-			aria-keyshortcuts="Backspace Delete"
-			aria-busy={movingPath === entry.path || undefined}
-			title={entry.path}
-			className={cn(
-				'h-7 w-full justify-start gap-1.5 rounded-md px-0 pr-2 text-left text-[12px] font-medium text-sidebar-muted',
-				'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-sidebar-ring focus-visible:ring-offset-0',
-				selected && 'bg-sidebar-accent text-sidebar-foreground',
-				draggedPath === entry.path && 'opacity-45',
-				movingPath === entry.path && 'animate-pulse',
-				isDropTarget &&
-					!dropError &&
-					'bg-sidebar-accent text-sidebar-foreground ring-1 ring-sidebar-ring',
-				isDropTarget && dropError && 'ring-1 ring-destructive'
-			)}
-			style={{ paddingLeft: `${8 + depth * 14}px` }}
-		>
-			{isDirectory ? (
-				<ChevronRight
-					className={cn('h-3.5 w-3.5 shrink-0 transition-transform', isExpanded && 'rotate-90')}
-					strokeWidth={1.8}
-				/>
-			) : (
-				<span className="h-3.5 w-3.5 shrink-0" />
-			)}
-			<Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
-			<span className="min-w-0 flex-1 truncate">{entry.name}</span>
-		</Button>
-	);
-
-	if (!isDirectory) return <li>{trigger}</li>;
-
-	return (
-		<Collapsible asChild open={isExpanded} onOpenChange={() => onToggle(entry.path)}>
-			<li>
-				<CollapsibleTrigger asChild>{trigger}</CollapsibleTrigger>
-				<CollapsibleContent asChild>
-					<ul className="space-y-1">
-						{entry.children?.map((child) => (
-							<WorkspaceTreeItem
-								key={child.path}
-								depth={depth + 1}
-								draggedPath={draggedPath}
-								dropError={dropError}
-								dropTargetPath={dropTargetPath}
-								entry={child}
-								expanded={expanded}
-								movingPath={movingPath}
-								onCreateRequest={onCreateRequest}
-								onDeleteRequest={onDeleteRequest}
-								onRenameRequest={onRenameRequest}
-								onDragEnd={onDragEnd}
-								onDragLeave={onDragLeave}
-								onDragOver={onDragOver}
-								onDragStart={onDragStart}
-								onDrop={onDrop}
-								onToggle={onToggle}
-								onSelect={onSelect}
-								selectedPath={selectedPath}
-							/>
-						))}
-					</ul>
-				</CollapsibleContent>
-			</li>
-		</Collapsible>
-	);
 }
 
 export function AppSidebar({
