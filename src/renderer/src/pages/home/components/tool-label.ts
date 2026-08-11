@@ -117,6 +117,7 @@ function toolRunningDetail(tool: AgentToolPart): string | undefined {
 export function toolGroupLabel(type: string, tools: readonly AgentToolPart[]): string {
 	const running = tools.filter(isToolRunning);
 	if (type.toLowerCase() === 'task') return 'Tasks';
+	if (type.toLowerCase() === 'extension') return 'Extensions';
 
 	const verbs = groupVerbs(type);
 	if (running.length > 0) {

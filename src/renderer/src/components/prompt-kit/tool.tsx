@@ -30,6 +30,7 @@ import {
 import { useNow } from '@/components/hooks/use-now';
 import { cn } from '@/lib/utils';
 import { formatDuration } from './duration';
+import { isExtensionToolType } from './extension';
 import { isTaskToolType } from './task';
 import { estimateTokens } from './tokens';
 
@@ -77,7 +78,7 @@ export function toolIcon(toolPart: ToolPart): typeof Wrench {
 	const type = toolPart.type.toLowerCase();
 	if (isTaskToolType(type)) return CalendarClock;
 	if (toolPart.serviceKind === 'mcp' || type.startsWith('mcp__')) return Plug;
-	if (type === 'list_extensions' || type === 'open_extensions') return Blocks;
+	if (isExtensionToolType(type)) return Blocks;
 	if (type.includes('skill')) return Sparkles;
 	if (type === 'create_image') return Image;
 	if (type === 'create_video') return Video;
