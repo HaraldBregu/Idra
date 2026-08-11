@@ -3,9 +3,11 @@ import { createRunwayVideoAdapter } from '../../../../src/main/models/adapters/t
 const originalFetch = global.fetch;
 
 beforeEach(() => {
-	global.fetch = jest.fn().mockResolvedValue(
-		new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } })
-	);
+	global.fetch = jest
+		.fn()
+		.mockResolvedValue(
+			new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } })
+		);
 });
 
 afterEach(() => {

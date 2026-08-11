@@ -28,9 +28,7 @@ describe('provider manifests', () => {
 		const openAiRealtime = loadModels().filter(
 			(model) => model.provider.id === 'openai' && model.type === 'realtime-voice'
 		);
-		const realtimeVoiceModels = loadModels().filter(
-			(model) => model.type === 'realtime-voice'
-		);
+		const realtimeVoiceModels = loadModels().filter((model) => model.type === 'realtime-voice');
 		expect(stableImage?.metadata).toEqual(
 			expect.objectContaining({
 				documentationUrl: 'https://platform.stability.ai/docs/api-reference',
