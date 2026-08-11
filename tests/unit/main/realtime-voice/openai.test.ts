@@ -6,6 +6,7 @@ class FakeSocket implements RealtimeSocket {
 	readonly sent: RealtimeClientEvent[] = [];
 	readonly socket = {
 		readyState: 0,
+		bufferedAmount: 0,
 		on: (event: 'open' | 'close', listener: (...args: unknown[]) => void) => {
 			this.socketListeners[event].push(listener);
 		},
@@ -113,6 +114,9 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 		});
 		await connection.interrupt();
 		expect(socket.sent.at(-1)).toEqual({ type: 'response.cancel' });
+
+		socket.socket.bufferedAmount = 1_400_000;
+		await expect(connection.appendAudio('AAAA')).rejects.toThrow('transport queue is full');
 	});
 
 	it('fails startup after the bounded connection timeout', async () => {

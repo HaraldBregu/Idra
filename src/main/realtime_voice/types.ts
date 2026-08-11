@@ -58,6 +58,7 @@ export interface RealtimeVoiceAdapter {
 export interface RealtimeSocket {
 	readonly socket: {
 		readonly readyState: number;
+		readonly bufferedAmount: number;
 		on(event: 'open' | 'close', listener: (...args: unknown[]) => void): unknown;
 	};
 	on(event: 'event', listener: (event: RealtimeServerEvent) => void): unknown;

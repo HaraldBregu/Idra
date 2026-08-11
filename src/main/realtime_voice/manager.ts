@@ -210,7 +210,7 @@ export class RealtimeVoiceManager {
 		if (event.type === 'input_speech_stopped') {
 			active.conversation.addUserTurn();
 			this.emit(active, { type: event.type, sessionId, itemId: event.itemId });
-			this.emit(active, { type: 'user_turn', sessionId, itemId: event.itemId, transcript: 'Voice message' });
+			this.emit(active, { type: 'user_turn', sessionId, itemId: event.itemId });
 			this.setState(active, 'thinking');
 			return;
 		}

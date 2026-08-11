@@ -9,6 +9,7 @@ import type {
 	RealtimeVoiceAdapterRequest,
 	RealtimeVoiceConnection,
 } from './types';
+import { REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH } from '../../shared/realtime_voice';
 
 const OPENAI_BASE_URL = 'https://api.openai.com/v1';
 const CONNECT_TIMEOUT_MS = 15_000;
@@ -79,6 +80,12 @@ class OpenAIRealtimeVoiceConnection implements RealtimeVoiceConnection {
 
 	async appendAudio(audio: string): Promise<void> {
 		if (this.closed) throw new Error('Realtime voice connection is closed.');
+		if (
+			this.realtime.socket.bufferedAmount + audio.length >
+			REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH
+		) {
+			throw new Error('Realtime voice transport queue is full.');
+		}
 		this.realtime.send({ type: 'input_audio_buffer.append', audio });
 	}
 
