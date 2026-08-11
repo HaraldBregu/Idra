@@ -18,6 +18,13 @@ type PersonaProps = Omit<ComponentProps<'div'>, 'children'> & {
 const RING_COUNT = 6;
 const SEGMENT_COUNT = 280;
 const TAU = Math.PI * 2;
+const LISTENING_RINGS = [
+	{ radius: 0.39, opacity: 0.98, width: 1.35 },
+	{ radius: 0.445, opacity: 0.62, width: 0.75 },
+	{ radius: 0.492, opacity: 0.48, width: 0.68 },
+	{ radius: 0.535, opacity: 0.35, width: 0.6 },
+	{ radius: 0.58, opacity: 0.24, width: 0.55 },
+] as const;
 
 export function Persona({
 	className,
@@ -225,24 +232,17 @@ export function Persona({
 				}
 
 				if (activeState === 'listening') {
-					const specs = [
-						[0.39, 0.98, 1.35],
-						[0.445, 0.62, 0.75],
-						[0.492, 0.48, 0.68],
-						[0.535, 0.35, 0.6],
-						[0.58, 0.24, 0.55],
-					];
-					specs.forEach(([radius, opacity, width], index) => {
+					LISTENING_RINGS.forEach(({ radius, opacity, width }, index) => {
 						Object.assign(rings[index].target, {
-							breath: 0.0025 + index * 0.001,
+							breath: 0.004 + index * 0.0015,
 							opacity,
 							radius,
 							width,
-							wobble: 0.001 + index * 0.0007,
+							wobble: 0.0015 + index * 0.0008,
 						});
 						rings[index].glow = index === 0 ? 1 : 0.45;
 						rings[index].lobes = 3 + index;
-						rings[index].speed = 0.55 + index * 0.12;
+						rings[index].speed = 1.1 + index * 0.22;
 					});
 				}
 
@@ -323,8 +323,18 @@ export function Persona({
 			const age = now - enteredAt;
 
 			if (activeState === 'listening') {
-				[0.39, 0.445, 0.492, 0.535, 0.58].forEach((radius, index) => {
-					rings[index].target.radius = radius + smoothedLevel * (0.012 + index * 0.006);
+				LISTENING_RINGS.forEach(({ radius, opacity }, index) => {
+					const pulse = (Math.sin(age * 2.8 - index * 0.9) + 1) * 0.5;
+					const direction = index % 2 === 0 ? 1 : -1;
+					rings[index].target.radius =
+						radius +
+						smoothedLevel * (0.018 + index * 0.008) +
+						pulse * (0.004 + index * 0.003);
+					rings[index].target.opacity = opacity * (0.76 + pulse * 0.24);
+					rings[index].target.rotation = direction * age * (0.05 + index * 0.014);
+					rings[index].target.wobble =
+						0.0015 + index * 0.0008 + smoothedLevel * (0.003 + index * 0.0008);
+					rings[index].glow = index === 0 ? 1 : 0.4 + pulse * 0.2;
 				});
 			}
 
@@ -387,8 +397,8 @@ export function Persona({
 						0.016;
 					const listeningRipple =
 						Math.sin(angle * 4 + now * 3.2 + ring.phase) *
-						(activeState === 'listening' ? smoothedLevel : 0) *
-						0.006;
+						(activeState === 'listening' ? 0.25 + smoothedLevel * 0.75 : 0) *
+						0.01;
 					const breathing = Math.sin(now * 1.25 + ring.phase) * target.breath;
 					const radius =
 						current.radius +
