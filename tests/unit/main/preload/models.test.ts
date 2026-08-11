@@ -6,8 +6,8 @@ jest.mock('electron', () => ({
 	ipcRenderer: { invoke, on, removeListener },
 }));
 
-import { models } from '../../../src/preload/models';
-import { RealtimeVoiceChannels } from '../../../src/shared/ipc_channels_definitions';
+import { models } from '../../../../src/preload/models';
+import { RealtimeVoiceChannels } from '../../../../src/shared/ipc_channels_definitions';
 
 beforeEach(() => {
 	jest.clearAllMocks();
