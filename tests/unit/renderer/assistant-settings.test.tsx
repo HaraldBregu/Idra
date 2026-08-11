@@ -33,7 +33,9 @@ const mockCatalog = [
 		metadata: {
 			documentationStatus: 'verified',
 			documentationUrl: '',
-			inputs: { voice: { type: 'string', title: 'Voice', enum: ['marin', 'cedar'], default: 'marin' } },
+			inputs: {
+				voice: { type: 'string', title: 'Voice', enum: ['marin', 'cedar'], default: 'marin' },
+			},
 		},
 	},
 	{
@@ -278,7 +280,9 @@ it('shows only runtime-supported realtime models and saves model and voice toget
 	);
 	const selector = await screen.findByRole('combobox', { name: 'Realtime conversation' });
 	await user.click(selector);
-	expect(screen.queryByRole('option', { name: 'OpenAI / Custom Realtime' })).not.toBeInTheDocument();
+	expect(
+		screen.queryByRole('option', { name: 'OpenAI / Custom Realtime' })
+	).not.toBeInTheDocument();
 	await user.click(await screen.findByRole('option', { name: 'xAI / Grok Voice' }));
 
 	await waitFor(() => {

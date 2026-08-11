@@ -850,7 +850,10 @@
 			"rulesHint": "One path glob or command per line. Deny rules take precedence.",
 			"kinds": {
 				"read": { "title": "Read", "description": "Paths the agent may read." },
-				"write": { "title": "Write", "description": "Paths the agent may create, edit, or delete." },
+				"write": {
+					"title": "Write",
+					"description": "Paths the agent may create, edit, or delete."
+				},
 				"exec": { "title": "Execute", "description": "Commands the agent may run." }
 			},
 			"reset": "Reset",

@@ -849,7 +849,10 @@
 			"rulesHint": "Un glob di percorso o comando per riga. Le regole di negazione hanno la precedenza.",
 			"kinds": {
 				"read": { "title": "Lettura", "description": "Percorsi che l'agente può leggere." },
-				"write": { "title": "Scrittura", "description": "Percorsi che l'agente può creare, modificare o eliminare." },
+				"write": {
+					"title": "Scrittura",
+					"description": "Percorsi che l'agente può creare, modificare o eliminare."
+				},
 				"exec": { "title": "Esecuzione", "description": "Comandi che l'agente può eseguire." }
 			},
 			"reset": "Ripristina",

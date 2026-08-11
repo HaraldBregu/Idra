@@ -50,12 +50,8 @@ export default function RealtimeConversationConfiguration(): React.JSX.Element {
 					else groups.push({ provider, models: [supportedModel] });
 					return groups;
 				}, []);
-				const configuredGroup = modelGroups.find(
-					(entry) => entry.provider.id === setup.providerId
-				);
-				const configuredModel = configuredGroup?.models.find(
-					(entry) => entry.id === setup.modelId
-				);
+				const configuredGroup = modelGroups.find((entry) => entry.provider.id === setup.providerId);
+				const configuredModel = configuredGroup?.models.find((entry) => entry.id === setup.modelId);
 				const catalogDefault = modelsFor('realtime-voice').find(
 					(entry) => entry.default && allowed.has(`${entry.provider.id}\u001F${entry.id}`)
 				);
@@ -142,7 +138,8 @@ export default function RealtimeConversationConfiguration(): React.JSX.Element {
 			typeof nextInput?.default === 'string' && nextVoices?.includes(nextInput.default)
 				? nextInput.default
 				: nextVoices?.[0];
-		const voice = selectedVoice && nextVoices?.includes(selectedVoice) ? selectedVoice : nextDefault;
+		const voice =
+			selectedVoice && nextVoices?.includes(selectedVoice) ? selectedVoice : nextDefault;
 		void save(providerId, modelId, voice ? { voice } : {});
 	};
 

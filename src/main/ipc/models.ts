@@ -116,9 +116,7 @@ export class ModelsIpc implements IpcModule {
 
 		registerQuery(RealtimeVoiceChannels.getProviderId, () => getProviderId('realtimeVoice'));
 		registerQuery(RealtimeVoiceChannels.getSetup, () => getRealtimeVoiceSetup());
-		registerCommand(RealtimeVoiceChannels.setSetup, (request) =>
-			setRealtimeVoiceSetup(request)
-		);
+		registerCommand(RealtimeVoiceChannels.setSetup, (request) => setRealtimeVoiceSetup(request));
 		registerCommand(RealtimeVoiceChannels.setProviderId, (providerId) => {
 			if (typeof providerId !== 'string' || !providerId.trim()) {
 				throw new Error('Invalid realtime voice provider id.');
