@@ -12,7 +12,9 @@ export type {
 	RealtimeVoiceAdapterEventHandler,
 	RealtimeVoiceAdapterRequest,
 	RealtimeVoiceConnection,
+	RealtimeVoiceClientEvent,
 	RealtimeVoiceProviderSpec,
+	RealtimeVoiceServerEvent,
 	RealtimeVoiceSocket,
 	RealtimeVoiceSocketFactory,
 } from './realtime_voice_types';
