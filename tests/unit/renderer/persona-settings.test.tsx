@@ -24,7 +24,7 @@ it('previews each persona state', async () => {
 	expect(preview).toHaveAttribute('data-state', 'speaking');
 });
 
-it('feeds slower speech-like levels to the listening preview', () => {
+it('feeds randomized voice levels to the listening preview', () => {
 	jest.useFakeTimers();
 	jest.spyOn(Math, 'random').mockReturnValue(0.75);
 
@@ -36,12 +36,9 @@ it('feeds slower speech-like levels to the listening preview', () => {
 		expect(preview).toHaveAttribute('data-state', 'listening');
 		expect(preview).toHaveAttribute('data-level', '0.28');
 
-		act(() => jest.advanceTimersByTime(1199));
-		expect(preview).toHaveAttribute('data-level', '0.28');
+		act(() => jest.advanceTimersByTime(120));
 
-		act(() => jest.advanceTimersByTime(1));
-
-		expect(Number(preview.getAttribute('data-level'))).toBeCloseTo(0.43975);
+		expect(Number(preview.getAttribute('data-level'))).toBeCloseTo(0.695);
 	} finally {
 		jest.useRealTimers();
 		jest.restoreAllMocks();

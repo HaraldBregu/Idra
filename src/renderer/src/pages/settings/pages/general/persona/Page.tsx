@@ -20,11 +20,8 @@ const PersonaPage: React.FC = () => {
 		if (state !== 'listening') return;
 
 		const interval = window.setInterval(() => {
-			setListeningLevel((currentLevel) => {
-				const targetLevel = Math.random() < 0.18 ? 0.06 : 0.2 + Math.random() * 0.58;
-				return currentLevel + (targetLevel - currentLevel) * 0.45;
-			});
-		}, 1200);
+			setListeningLevel(0.08 + Math.random() * 0.82);
+		}, 120);
 
 		return () => window.clearInterval(interval);
 	}, [state]);
