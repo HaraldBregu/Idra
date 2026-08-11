@@ -16,7 +16,6 @@ it.each([
 	['settings.overview.groups.agent', '/settings/assistant'],
 	['settings.tabs.system', '/settings/system'],
 	['settings.tabs.extensions', '/settings/extensions'],
-	['settings.title', '/settings'],
 ])('reveals settings buttons on right-click and navigates from %s to %s', async (label, path) => {
 	const user = userEvent.setup();
 	const { container } = render(
@@ -44,4 +43,26 @@ it.each([
 	await user.click(screen.getByRole('button', { name: label }));
 
 	expect(screen.getByText(path)).toBeInTheDocument();
+});
+
+it('shows the history and user icons on Home before right-click', async () => {
+	const user = userEvent.setup();
+
+	render(
+		<MemoryRouter initialEntries={['/home']}>
+			<TitleBar />
+			<Routes>
+				<Route path="/home" element={null} />
+				<Route path="/settings" element={<p>/settings</p>} />
+			</Routes>
+		</MemoryRouter>
+	);
+
+	expect(screen.getByRole('button', { name: 'titleBar.chatHistory' })).toBeInTheDocument();
+	expect(screen.getByRole('button', { name: 'Application Name' })).toBeInTheDocument();
+	expect(screen.queryByRole('button', { name: 'settings.tabs.general' })).not.toBeInTheDocument();
+
+	await user.click(screen.getByRole('button', { name: 'Application Name' }));
+
+	expect(screen.getByText('/settings')).toBeInTheDocument();
 });

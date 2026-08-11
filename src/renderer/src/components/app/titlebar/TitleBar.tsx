@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Menu, PanelLeft } from 'lucide-react';
+import { Menu, PanelLeft, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
@@ -71,8 +71,26 @@ export const TitleBar = React.memo(function TitleBar({
 		>
 			<GradientSphere size={18} className="pointer-events-none" />
 		</Button>
-	) : !isStart && showSettingsButtons ? (
-		<SettingsButtons onNavigate={() => setShowSettingsButtons(false)} />
+	) : !isStart ? (
+		<div className="flex items-center gap-1">
+			<Button
+				type="button"
+				variant="ghost"
+				size="icon"
+				className="size-8 rounded-full"
+				onClick={() => {
+					setShowSettingsButtons(false);
+					navigate('/settings');
+				}}
+				title={titleBarTitle}
+				aria-label={titleBarTitle}
+			>
+				<User className="size-4" strokeWidth={1.8} />
+			</Button>
+			{showSettingsButtons && (
+				<SettingsButtons onNavigate={() => setShowSettingsButtons(false)} />
+			)}
+		</div>
 	) : null;
 	const sessionsButton = isHome ? <SessionsButton /> : null;
 

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Blocks, Bot, Info, MonitorCog, Settings } from 'lucide-react';
+import { Blocks, Bot, Info, MonitorCog } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -70,20 +70,6 @@ export function SettingsButtons({ onNavigate }: SettingsButtonsProps): ReactElem
 				}}
 			>
 				<Blocks />
-			</Button>
-			<Button
-				type="button"
-				variant="ghost"
-				size="icon"
-				className="size-8 rounded-full"
-				title={settingsLabel}
-				aria-label={settingsLabel}
-				onClick={() => {
-					onNavigate();
-					navigate('/settings');
-				}}
-			>
-				<Settings />
 			</Button>
 		</div>
 	);
