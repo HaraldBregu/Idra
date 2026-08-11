@@ -20,29 +20,27 @@ export function createElevenLabsSpeechAdapter(provider: SpeechProviderSpec): Spe
 				request.voice ??
 				(typeof optionVoiceId === 'string' ? optionVoiceId : ELEVENLABS_DEFAULT_VOICE_ID);
 			const endpoint = new URL(`${ELEVENLABS_TTS_PATH}/${voiceId}`, `${provider.baseURL}/`);
-			if (typeof outputFormat === 'string') endpoint.searchParams.set('output_format', outputFormat);
+			if (typeof outputFormat === 'string')
+				endpoint.searchParams.set('output_format', outputFormat);
 			if (typeof enableLogging === 'boolean') {
 				endpoint.searchParams.set('enable_logging', String(enableLogging));
 			}
 			if (typeof optimizeStreamingLatency === 'number') {
 				endpoint.searchParams.set('optimize_streaming_latency', String(optimizeStreamingLatency));
 			}
-			const response = await fetch(
-				endpoint,
-				{
-					method: 'POST',
-					headers: {
-						[ELEVENLABS_API_KEY_HEADER]: provider.apiKey,
-						Accept: 'audio/mpeg',
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						text: request.text,
-						model_id: request.modelId,
-						...bodyOptions,
-					}),
-				}
-			);
+			const response = await fetch(endpoint, {
+				method: 'POST',
+				headers: {
+					[ELEVENLABS_API_KEY_HEADER]: provider.apiKey,
+					Accept: 'audio/mpeg',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					text: request.text,
+					model_id: request.modelId,
+					...bodyOptions,
+				}),
+			});
 			await ensureSpeechResponseOk(response, provider.name);
 			return speechResult(
 				await responseAudioToBase64(response),

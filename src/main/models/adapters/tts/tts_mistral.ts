@@ -42,8 +42,10 @@ export function createMistralSpeechAdapter(provider: SpeechProviderSpec): Speech
 				promptCacheKey:
 					typeof options.prompt_cache_key === 'string' ? options.prompt_cache_key : undefined,
 				metadata:
-					options.metadata && typeof options.metadata === 'object' && !Array.isArray(options.metadata)
-						? options.metadata as Record<string, unknown>
+					options.metadata &&
+					typeof options.metadata === 'object' &&
+					!Array.isArray(options.metadata)
+						? (options.metadata as Record<string, unknown>)
 						: undefined,
 				stream: false,
 			});

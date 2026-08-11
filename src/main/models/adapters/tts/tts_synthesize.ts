@@ -4,7 +4,12 @@ import {
 	type SpeechSynthesisRequest,
 	type SpeechSynthesisResult,
 } from '../../../../shared/speech_types';
-import { defaultProviderId, loadProviders, providerModels, supportsCapability } from '../../../models';
+import {
+	defaultProviderId,
+	loadProviders,
+	providerModels,
+	supportsCapability,
+} from '../../../models';
 import { getProvider } from '../../../settings_store';
 import { buildSpeechAdapter } from './tts_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
@@ -52,9 +57,7 @@ function configuredProviderId(): string | undefined {
 	const stored = getProviderId('voice');
 	if (!stored) return undefined;
 	const normalized = normalizeProviderId(stored);
-	return supportsCapability(normalized, 'text-to-speech')
-		? (normalized)
-		: undefined;
+	return supportsCapability(normalized, 'text-to-speech') ? normalized : undefined;
 }
 
 function configuredModelId(providerId: string): string | undefined {

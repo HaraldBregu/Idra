@@ -199,9 +199,7 @@ it('groups independently collapsible provider settings in one card', async () =>
 		wiki.compareDocumentPosition(dataManagement) & Node.DOCUMENT_POSITION_FOLLOWING
 	).toBeTruthy();
 	expect(rag.closest('[data-slot="card"]')).toBe(wiki.closest('[data-slot="card"]'));
-	expect(permissions.closest('[data-slot="card"]')).not.toBe(
-		rag.closest('[data-slot="card"]')
-	);
+	expect(permissions.closest('[data-slot="card"]')).not.toBe(rag.closest('[data-slot="card"]'));
 	expect(dataManagement.closest('[data-slot="card"]')).not.toBe(wiki.closest('[data-slot="card"]'));
 });
 

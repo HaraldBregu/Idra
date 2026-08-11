@@ -33,12 +33,16 @@ export function createMiniMaxSpeechAdapter(provider: SpeechProviderSpec): Speech
 				...options
 			} = request.options ?? {};
 			const voiceSetting =
-				optionVoiceSetting && typeof optionVoiceSetting === 'object' && !Array.isArray(optionVoiceSetting)
-					? optionVoiceSetting as Record<string, unknown>
+				optionVoiceSetting &&
+				typeof optionVoiceSetting === 'object' &&
+				!Array.isArray(optionVoiceSetting)
+					? (optionVoiceSetting as Record<string, unknown>)
 					: {};
 			const audioSetting =
-				optionAudioSetting && typeof optionAudioSetting === 'object' && !Array.isArray(optionAudioSetting)
-					? optionAudioSetting as Record<string, unknown>
+				optionAudioSetting &&
+				typeof optionAudioSetting === 'object' &&
+				!Array.isArray(optionAudioSetting)
+					? (optionAudioSetting as Record<string, unknown>)
 					: {};
 			const voiceId =
 				request.voice ??
@@ -47,8 +51,7 @@ export function createMiniMaxSpeechAdapter(provider: SpeechProviderSpec): Speech
 					: typeof optionVoiceId === 'string'
 						? optionVoiceId
 						: MINIMAX_DEFAULT_VOICE_ID);
-			const audioFormat =
-				typeof audioSetting.format === 'string' ? audioSetting.format : 'mp3';
+			const audioFormat = typeof audioSetting.format === 'string' ? audioSetting.format : 'mp3';
 			const response = await fetch(new URL(MINIMAX_TTS_PATH, `${provider.baseURL}/`), {
 				method: 'POST',
 				headers: {

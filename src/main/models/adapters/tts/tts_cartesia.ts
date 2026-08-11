@@ -22,13 +22,13 @@ export function createCartesiaSpeechAdapter(provider: SpeechProviderSpec): Speec
 					? (optionVoice as Record<string, unknown>).id
 					: undefined);
 			const selectedOutputFormat =
-				optionOutputFormat && typeof optionOutputFormat === 'object' && !Array.isArray(optionOutputFormat)
-					? optionOutputFormat as Record<string, unknown>
+				optionOutputFormat &&
+				typeof optionOutputFormat === 'object' &&
+				!Array.isArray(optionOutputFormat)
+					? (optionOutputFormat as Record<string, unknown>)
 					: {};
 			const container =
-				typeof selectedOutputFormat.container === 'string'
-					? selectedOutputFormat.container
-					: 'mp3';
+				typeof selectedOutputFormat.container === 'string' ? selectedOutputFormat.container : 'mp3';
 			const outputFormat =
 				container === 'mp3'
 					? {

@@ -1,211 +1,211 @@
 {
-  "providerId": "mistral",
-  "providerName": "Mistral AI",
-  "apiKeyUrl": "https://console.mistral.ai/api-keys",
-  "images_url": "/images",
-  "icon_dark_url": "/images/fallback_lobehub/png_dark/mistral-color.png",
-  "icon_light_url": "/images/fallback_lobehub/png_light/mistral-color.png",
-  "services": [
-    {
-      "id": "mistral-large-2512",
-      "name": "Mistral Large 2512",
-      "type": "large-language-model",
-      "url": "https://api.mistral.ai/v1",
-      "metadata": {
-        "documentationUrl": "https://docs.mistral.ai/api/",
-        "documentationStatus": "verified",
-        "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "top_p": {
-            "type": "number"
-          },
-          "max_tokens": {
-            "type": "integer"
-          },
-          "min_tokens": {
-            "type": "integer"
-          },
-          "stop": {
-            "type": "array"
-          },
-          "random_seed": {
-            "type": "integer"
-          },
-          "response_format": {
-            "type": "object"
-          },
-          "tools": {
-            "type": "array"
-          },
-          "tool_choice": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "id": "mistral-medium-3-5",
-      "name": "Mistral Medium 3.5",
-      "type": "large-language-model",
-      "url": "https://api.mistral.ai/v1",
-      "metadata": {
-        "documentationUrl": "https://docs.mistral.ai/api/",
-        "documentationStatus": "verified",
-        "inputs": {
-          "reasoning_effort": {
-            "type": "string",
-            "enum": ["none", "minimal", "low", "medium", "high", "xhigh"]
-          },
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "top_p": {
-            "type": "number"
-          },
-          "max_tokens": {
-            "type": "integer"
-          },
-          "min_tokens": {
-            "type": "integer"
-          },
-          "stop": {
-            "type": "array"
-          },
-          "random_seed": {
-            "type": "integer"
-          },
-          "response_format": {
-            "type": "object"
-          },
-          "tools": {
-            "type": "array"
-          },
-          "tool_choice": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "id": "devstral-2512",
-      "name": "Devstral 2512",
-      "type": "large-language-model",
-      "url": "https://api.mistral.ai/v1",
-      "metadata": {
-        "documentationUrl": "https://docs.mistral.ai/api/",
-        "documentationStatus": "verified",
-        "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "top_p": {
-            "type": "number"
-          },
-          "max_tokens": {
-            "type": "integer"
-          },
-          "min_tokens": {
-            "type": "integer"
-          },
-          "stop": {
-            "type": "array"
-          },
-          "random_seed": {
-            "type": "integer"
-          },
-          "response_format": {
-            "type": "object"
-          },
-          "tools": {
-            "type": "array"
-          },
-          "tool_choice": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "id": "voxtral-mini-latest",
-      "name": "Voxtral Mini 2602",
-      "apiTypes": ["batch"],
-      "type": "speech-to-text-model",
-      "url": "https://api.mistral.ai/v1",
-      "sampleRate": 16000,
-      "metadata": {
-        "documentationUrl": "https://docs.mistral.ai/api/",
-        "documentationStatus": "verified",
-        "inputs": {
-          "language": {
-            "type": "string"
-          },
-          "timestamp_granularities": {
-            "type": "array"
-          },
-          "diarize": {
-            "type": "boolean"
-          },
-          "context_bias": {
-            "type": "array"
-          }
-        }
-      }
-    },
-    {
-      "id": "voxtral-mini-transcribe-realtime-2602",
-      "name": "Voxtral Mini Transcribe Realtime 2602",
-      "apiTypes": ["stream"],
-      "realtime": true,
-      "type": "speech-to-text-model",
-      "url": "https://api.mistral.ai/v1",
-      "sampleRate": 16000,
-      "metadata": {
-        "documentationUrl": "https://docs.mistral.ai/api/",
-        "documentationStatus": "verified",
-        "inputs": {
-          "transcription_config": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "id": "voxtral-mini-tts-2603",
-      "name": "Voxtral Mini TTS 2603",
-      "type": "text-to-speech-model",
-      "url": "https://api.mistral.ai/v1",
-      "metadata": {
-        "documentationUrl": "https://docs.mistral.ai/api/endpoint/audio/speech",
-        "documentationStatus": "verified",
-        "inputs": {
-          "voice_id": {
-            "type": "string",
-            "title": "Voice ID"
-          },
-          "ref_audio": {
-            "type": "string"
-          },
-          "response_format": {
-            "type": "string",
-            "default": "mp3",
-            "enum": ["pcm", "wav", "mp3", "flac", "opus"]
-          },
-          "metadata": {
-            "type": "object"
-          },
-          "prompt_cache_key": {
-            "type": "string"
-          }
-        }
-      }
-    }
-  ]
+	"providerId": "mistral",
+	"providerName": "Mistral AI",
+	"apiKeyUrl": "https://console.mistral.ai/api-keys",
+	"images_url": "/images",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/mistral-color.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/mistral-color.png",
+	"services": [
+		{
+			"id": "mistral-large-2512",
+			"name": "Mistral Large 2512",
+			"type": "large-language-model",
+			"url": "https://api.mistral.ai/v1",
+			"metadata": {
+				"documentationUrl": "https://docs.mistral.ai/api/",
+				"documentationStatus": "verified",
+				"inputs": {
+					"temperature": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 1
+					},
+					"top_p": {
+						"type": "number"
+					},
+					"max_tokens": {
+						"type": "integer"
+					},
+					"min_tokens": {
+						"type": "integer"
+					},
+					"stop": {
+						"type": "array"
+					},
+					"random_seed": {
+						"type": "integer"
+					},
+					"response_format": {
+						"type": "object"
+					},
+					"tools": {
+						"type": "array"
+					},
+					"tool_choice": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		{
+			"id": "mistral-medium-3-5",
+			"name": "Mistral Medium 3.5",
+			"type": "large-language-model",
+			"url": "https://api.mistral.ai/v1",
+			"metadata": {
+				"documentationUrl": "https://docs.mistral.ai/api/",
+				"documentationStatus": "verified",
+				"inputs": {
+					"reasoning_effort": {
+						"type": "string",
+						"enum": ["none", "minimal", "low", "medium", "high", "xhigh"]
+					},
+					"temperature": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 1
+					},
+					"top_p": {
+						"type": "number"
+					},
+					"max_tokens": {
+						"type": "integer"
+					},
+					"min_tokens": {
+						"type": "integer"
+					},
+					"stop": {
+						"type": "array"
+					},
+					"random_seed": {
+						"type": "integer"
+					},
+					"response_format": {
+						"type": "object"
+					},
+					"tools": {
+						"type": "array"
+					},
+					"tool_choice": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		{
+			"id": "devstral-2512",
+			"name": "Devstral 2512",
+			"type": "large-language-model",
+			"url": "https://api.mistral.ai/v1",
+			"metadata": {
+				"documentationUrl": "https://docs.mistral.ai/api/",
+				"documentationStatus": "verified",
+				"inputs": {
+					"temperature": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 1
+					},
+					"top_p": {
+						"type": "number"
+					},
+					"max_tokens": {
+						"type": "integer"
+					},
+					"min_tokens": {
+						"type": "integer"
+					},
+					"stop": {
+						"type": "array"
+					},
+					"random_seed": {
+						"type": "integer"
+					},
+					"response_format": {
+						"type": "object"
+					},
+					"tools": {
+						"type": "array"
+					},
+					"tool_choice": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		{
+			"id": "voxtral-mini-latest",
+			"name": "Voxtral Mini 2602",
+			"apiTypes": ["batch"],
+			"type": "speech-to-text-model",
+			"url": "https://api.mistral.ai/v1",
+			"sampleRate": 16000,
+			"metadata": {
+				"documentationUrl": "https://docs.mistral.ai/api/",
+				"documentationStatus": "verified",
+				"inputs": {
+					"language": {
+						"type": "string"
+					},
+					"timestamp_granularities": {
+						"type": "array"
+					},
+					"diarize": {
+						"type": "boolean"
+					},
+					"context_bias": {
+						"type": "array"
+					}
+				}
+			}
+		},
+		{
+			"id": "voxtral-mini-transcribe-realtime-2602",
+			"name": "Voxtral Mini Transcribe Realtime 2602",
+			"apiTypes": ["stream"],
+			"realtime": true,
+			"type": "speech-to-text-model",
+			"url": "https://api.mistral.ai/v1",
+			"sampleRate": 16000,
+			"metadata": {
+				"documentationUrl": "https://docs.mistral.ai/api/",
+				"documentationStatus": "verified",
+				"inputs": {
+					"transcription_config": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		{
+			"id": "voxtral-mini-tts-2603",
+			"name": "Voxtral Mini TTS 2603",
+			"type": "text-to-speech-model",
+			"url": "https://api.mistral.ai/v1",
+			"metadata": {
+				"documentationUrl": "https://docs.mistral.ai/api/endpoint/audio/speech",
+				"documentationStatus": "verified",
+				"inputs": {
+					"voice_id": {
+						"type": "string",
+						"title": "Voice ID"
+					},
+					"ref_audio": {
+						"type": "string"
+					},
+					"response_format": {
+						"type": "string",
+						"default": "mp3",
+						"enum": ["pcm", "wav", "mp3", "flac", "opus"]
+					},
+					"metadata": {
+						"type": "object"
+					},
+					"prompt_cache_key": {
+						"type": "string"
+					}
+				}
+			}
+		}
+	]
 }

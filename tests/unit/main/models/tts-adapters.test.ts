@@ -31,9 +31,11 @@ beforeEach(() => {
 });
 
 it('maps OpenAI voice controls and preserves the requested audio format', async () => {
-	jest.mocked(global.fetch).mockResolvedValue(
-		new Response(Uint8Array.from([1, 2]), { headers: { 'Content-Type': 'audio/flac' } })
-	);
+	jest
+		.mocked(global.fetch)
+		.mockResolvedValue(
+			new Response(Uint8Array.from([1, 2]), { headers: { 'Content-Type': 'audio/flac' } })
+		);
 	const result = await createOpenAISpeechAdapter({ ...provider, id: 'openai' }).synthesize({
 		text: 'Hello',
 		providerId: 'openai',
@@ -55,9 +57,11 @@ it('maps OpenAI voice controls and preserves the requested audio format', async 
 });
 
 it('maps Deepgram voice and media controls to query parameters', async () => {
-	jest.mocked(global.fetch).mockResolvedValue(
-		new Response(Uint8Array.from([1]), { headers: { 'Content-Type': 'audio/ogg' } })
-	);
+	jest
+		.mocked(global.fetch)
+		.mockResolvedValue(
+			new Response(Uint8Array.from([1]), { headers: { 'Content-Type': 'audio/ogg' } })
+		);
 	const result = await createDeepgramSpeechAdapter({ ...provider, id: 'deepgram' }).synthesize({
 		text: 'Hello',
 		providerId: 'deepgram',
@@ -83,9 +87,11 @@ it('maps Deepgram voice and media controls to query parameters', async () => {
 });
 
 it('separates ElevenLabs path, query, and body options', async () => {
-	jest.mocked(global.fetch).mockResolvedValue(
-		new Response(Uint8Array.from([1]), { headers: { 'Content-Type': 'audio/opus' } })
-	);
+	jest
+		.mocked(global.fetch)
+		.mockResolvedValue(
+			new Response(Uint8Array.from([1]), { headers: { 'Content-Type': 'audio/opus' } })
+		);
 	await createElevenLabsSpeechAdapter({ ...provider, id: 'elevenlabs' }).synthesize({
 		text: 'Hello',
 		providerId: 'elevenlabs',
@@ -113,9 +119,11 @@ it('separates ElevenLabs path, query, and body options', async () => {
 });
 
 it('maps Cartesia voice, output, and generation controls', async () => {
-	jest.mocked(global.fetch).mockResolvedValue(
-		new Response(Uint8Array.from([1]), { headers: { 'Content-Type': 'audio/wav' } })
-	);
+	jest
+		.mocked(global.fetch)
+		.mockResolvedValue(
+			new Response(Uint8Array.from([1]), { headers: { 'Content-Type': 'audio/wav' } })
+		);
 	await createCartesiaSpeechAdapter({ ...provider, id: 'cartesia' }).synthesize({
 		text: 'Hello',
 		providerId: 'cartesia',
@@ -143,12 +151,17 @@ it('maps Cartesia voice, output, and generation controls', async () => {
 });
 
 it('maps MiniMax nested voice and audio controls', async () => {
-	jest.mocked(global.fetch).mockResolvedValue(
-		new Response(
-			JSON.stringify({ data: { audio: '4142' }, base_resp: { status_code: 0, status_msg: 'success' } }),
-			{ headers: { 'Content-Type': 'application/json' } }
-		)
-	);
+	jest
+		.mocked(global.fetch)
+		.mockResolvedValue(
+			new Response(
+				JSON.stringify({
+					data: { audio: '4142' },
+					base_resp: { status_code: 0, status_msg: 'success' },
+				}),
+				{ headers: { 'Content-Type': 'application/json' } }
+			)
+		);
 	const result = await createMiniMaxSpeechAdapter({ ...provider, id: 'minimax' }).synthesize({
 		text: 'Hello',
 		providerId: 'minimax',
@@ -179,7 +192,9 @@ it('maps Google voice and language settings', async () => {
 	jest.mocked(global.fetch).mockResolvedValue(
 		new Response(
 			JSON.stringify({
-				candidates: [{ content: { parts: [{ inlineData: { mimeType: 'audio/wav', data: 'QQ==' } }] } }],
+				candidates: [
+					{ content: { parts: [{ inlineData: { mimeType: 'audio/wav', data: 'QQ==' } }] } },
+				],
 			}),
 			{ headers: { 'Content-Type': 'application/json' } }
 		)

@@ -1,9 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type {
-	AgentMediaModelKind,
-	AgentMediaModelSettings,
-} from '../../shared/agent_types';
+import type { AgentMediaModelKind, AgentMediaModelSettings } from '../../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
 import { normalizePermissionsSchema } from './permissions/normalize_permissions_schema';
@@ -112,11 +109,18 @@ export function setPermissions(permissions: PermissionsSchema): PermissionsSchem
 	return getPermissions();
 }
 
-export function addPermissionRule(kind: PermissionKind, bucket: PermissionBucket, rule: string): void {
+export function addPermissionRule(
+	kind: PermissionKind,
+	bucket: PermissionBucket,
+	rule: string
+): void {
 	const permissions = getPermissions();
 	const permission = permissions[kind];
 	if (permission[bucket].includes(rule)) return;
-	setPermissions({ ...permissions, [kind]: { ...permission, [bucket]: [...permission[bucket], rule] } });
+	setPermissions({
+		...permissions,
+		[kind]: { ...permission, [bucket]: [...permission[bucket], rule] },
+	});
 }
 
 export function resetPermissions(): PermissionsSchema {

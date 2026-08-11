@@ -126,10 +126,7 @@ export function ModelOptions({
 					key={key}
 					title={label}
 					actions={
-						<Switch
-							checked={checked}
-							onCheckedChange={(checked) => onChange(path, checked)}
-						/>
+						<Switch checked={checked} onCheckedChange={(checked) => onChange(path, checked)} />
 					}
 				/>
 			);
@@ -140,7 +137,9 @@ export function ModelOptions({
 					title={label}
 					description={schema.description}
 					actionClassName="sm:max-w-[60%]"
-					actions={<JsonOption label={label} value={value} onChange={(next) => onChange(path, next)} />}
+					actions={
+						<JsonOption label={label} value={value} onChange={(next) => onChange(path, next)} />
+					}
 				/>
 			);
 		} else {
