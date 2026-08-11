@@ -73,7 +73,6 @@ export function createRealtimeVoiceManager(
 					id: providerId,
 					name: provider?.name || model.provider.name,
 					apiKey,
-					baseURL: provider?.baseUrl.trim() || model.url,
 				},
 				modelId: model.id,
 				voice,

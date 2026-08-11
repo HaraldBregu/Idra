@@ -48,7 +48,7 @@ function createOpenAISocket(
 ): RealtimeVoiceSocket {
 	const client = new OpenAI({
 		apiKey: provider.apiKey,
-		baseURL: provider.baseURL?.trim() || OPENAI_BASE_URL,
+		baseURL: OPENAI_BASE_URL,
 	});
 	return new OpenAIRealtimeWS({ model: modelId }, client) as unknown as RealtimeVoiceSocket;
 }

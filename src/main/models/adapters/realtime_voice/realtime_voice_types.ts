@@ -4,7 +4,6 @@ export interface RealtimeVoiceProviderSpec {
 	id: string;
 	name: string;
 	apiKey: string;
-	baseURL?: string;
 }
 
 export interface RealtimeVoiceAdapterRequest {

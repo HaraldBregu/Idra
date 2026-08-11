@@ -54,7 +54,6 @@ describe('XAIRealtimeVoiceAdapter', () => {
 				id: 'xai',
 				name: 'xAI',
 				apiKey: 'xai-key',
-				baseURL: 'https://api.x.ai/v1',
 			},
 			socketFactory,
 			1_000
@@ -83,7 +82,7 @@ describe('XAIRealtimeVoiceAdapter', () => {
 
 		socket.open();
 		expect(socketFactory).toHaveBeenCalledWith(
-			expect.objectContaining({ id: 'xai', apiKey: 'xai-key', baseURL: 'https://api.x.ai/v1' }),
+			expect.objectContaining({ id: 'xai', apiKey: 'xai-key' }),
 			'grok-voice-latest'
 		);
 		expect(socket.sent[0]).toMatchObject({
