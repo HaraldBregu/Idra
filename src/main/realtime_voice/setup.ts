@@ -68,8 +68,11 @@ export function setRealtimeVoiceSetup(request: RealtimeVoiceSetupRequest): Realt
 	if (!request || typeof request !== 'object' || Array.isArray(request)) {
 		throw new Error('Invalid realtime voice setup.');
 	}
+	if (typeof request.providerId !== 'string' || typeof request.modelId !== 'string') {
+		throw new Error('Invalid realtime voice provider or model.');
+	}
 	const providerId = normalizeProviderId(request.providerId);
-	const modelId = typeof request.modelId === 'string' ? request.modelId.trim() : '';
+	const modelId = request.modelId.trim();
 	if (!providerId || !modelId) throw new Error('Invalid realtime voice provider or model.');
 	if (!request.options || typeof request.options !== 'object' || Array.isArray(request.options)) {
 		throw new Error('Invalid realtime voice options.');

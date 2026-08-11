@@ -94,6 +94,14 @@ it('rejects catalog entries that are not supported by a runtime adapter', () => 
 	expect(setMediaModel).not.toHaveBeenCalled();
 });
 
+it('rejects malformed provider and model values before catalog access', () => {
+	expect(() =>
+		setRealtimeVoiceSetup({ providerId: 42, modelId: 'gpt-realtime', options: {} } as never)
+	).toThrow('Invalid realtime voice provider or model.');
+	expect(supportsRealtimeVoiceModel).not.toHaveBeenCalled();
+	expect(setMediaModel).not.toHaveBeenCalled();
+});
+
 it('rejects runtime model references missing from the realtime voice catalog', () => {
 	supportsRealtimeVoiceModel.mockReturnValue(true);
 	expect(() =>
