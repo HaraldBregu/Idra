@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 
 interface JsonOptionProps {
@@ -10,11 +10,6 @@ interface JsonOptionProps {
 export function JsonOption({ label, value, onChange }: JsonOptionProps): React.JSX.Element {
 	const [text, setText] = useState(value === undefined ? '' : JSON.stringify(value, null, 2));
 	const [invalid, setInvalid] = useState(false);
-
-	useEffect(() => {
-		setText(value === undefined ? '' : JSON.stringify(value, null, 2));
-		setInvalid(false);
-	}, [value]);
 
 	return (
 		<Textarea
