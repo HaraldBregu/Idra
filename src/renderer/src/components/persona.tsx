@@ -171,7 +171,9 @@ export function Persona({
 
 			const pixelRatio = renderer.getPixelRatio();
 			rings.forEach((ring) => {
-				ring.material.forEach((material) => material.resolution.set(width * pixelRatio, height * pixelRatio));
+				ring.material.forEach((material) =>
+					material.resolution.set(width * pixelRatio, height * pixelRatio)
+				);
 			});
 		});
 		resizeObserver.observe(container);
@@ -333,7 +335,11 @@ export function Persona({
 			rings.forEach((ring) => {
 				const current = ring.current;
 				const target = ring.target;
-				current.arcLength = THREE.MathUtils.lerp(current.arcLength, target.arcLength, transitionEase);
+				current.arcLength = THREE.MathUtils.lerp(
+					current.arcLength,
+					target.arcLength,
+					transitionEase
+				);
 				current.arcStart = THREE.MathUtils.lerp(current.arcStart, target.arcStart, transitionEase);
 				current.offsetX = THREE.MathUtils.lerp(current.offsetX, target.offsetX, transitionEase);
 				current.offsetY = THREE.MathUtils.lerp(current.offsetY, target.offsetY, transitionEase);
@@ -359,7 +365,7 @@ export function Persona({
 					const angle = current.arcStart + current.arcLength * progress + current.rotation;
 					const primaryWave = Math.sin(angle * ring.lobes + now * ring.speed + ring.phase);
 					const secondaryWave = Math.sin(
-						angle * (ring.lobes + 2) - now * ring.speed * 0.63 + ring.phase * 1.7,
+						angle * (ring.lobes + 2) - now * ring.speed * 0.63 + ring.phase * 1.7
 					);
 					const voiceRipple =
 						Math.sin(angle * 7 - now * 8.5 + ring.phase) *
