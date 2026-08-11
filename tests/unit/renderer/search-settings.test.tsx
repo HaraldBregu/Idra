@@ -4,7 +4,7 @@ import OverviewPage from '../../../src/renderer/src/pages/settings/pages/overvie
 
 jest.mock('react-i18next', () => {
 	const translations: Record<string, string> = {
-		'settings.tabs.searchEngine': 'Search engine',
+		'settings.tabs.searchEngines': 'Search engine',
 	};
 	const t = (key: string, values?: Record<string, string>): string =>
 		(translations[key] ?? key).replace('{{name}}', values?.name ?? '');
