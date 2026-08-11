@@ -1,6 +1,10 @@
 import { render, waitFor } from '@testing-library/react';
 import { PromptEditor } from '@/components/prompt-editor';
 
+jest.mock('@/components/ui/bar-wave-animation', () => ({
+	BarWaveAnimation: () => <div data-testid="voice-waveform" />,
+}));
+
 jest.mock('@/components/text-editor', () => {
 	const React = jest.requireActual<typeof import('react')>('react');
 	return {
@@ -73,5 +77,28 @@ describe('PromptEditor', () => {
 		expect(prompt).toHaveClass('min-h-14');
 		expect(prompt).toHaveClass('rounded-full');
 		await waitFor(() => expect(prompt).toHaveStyle({ borderRadius: '28px' }));
+	});
+
+	it('announces realtime voice status and exposes mute and end controls', () => {
+		const onMutedChange = jest.fn();
+		const onVoiceEnd = jest.fn();
+		render(
+			<PromptEditor
+				value=""
+				leadingAction={<button>Attach</button>}
+				actions={<button>Send</button>}
+				voiceMode="conversation"
+				voiceStatus="Friday is speaking…"
+				voiceMuted={false}
+				onVoiceMutedChange={onMutedChange}
+				onVoiceEnd={onVoiceEnd}
+			/>
+		);
+
+		expect(screen.getByRole('status')).toHaveTextContent('Friday is speaking…');
+		fireEvent.click(screen.getByRole('button', { name: 'Mute' }));
+		fireEvent.click(screen.getByRole('button', { name: 'End voice conversation' }));
+		expect(onMutedChange).toHaveBeenCalledWith(true);
+		expect(onVoiceEnd).toHaveBeenCalled();
 	});
 });
