@@ -1,10 +1,7 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { StrictMode, type ReactNode } from 'react';
 import { AssistantMessage } from '../../../src/renderer/src/pages/home/components/AssistantMessage';
-import {
-	Provider,
-	historyToChatMessages,
-} from '../../../src/renderer/src/pages/home/context';
+import { Provider, historyToChatMessages } from '../../../src/renderer/src/pages/home/context';
 import { useHomeAgentContext } from '../../../src/renderer/src/pages/home/context';
 import { useRealtimeVoice } from '../../../src/renderer/src/pages/home/hooks/useRealtimeVoice';
 import type { AgentHistoryMessage } from '../../../src/shared/agent_types';
@@ -295,7 +292,8 @@ describe('useRealtimeVoice', () => {
 			(candidate) => candidate.role === 'agent'
 		);
 		expect(message?.role).toBe('agent');
-		if (!message || message.role !== 'agent') throw new Error('Expected a voice assistant message.');
+		if (!message || message.role !== 'agent')
+			throw new Error('Expected a voice assistant message.');
 		const view = render(<AssistantMessage message={message} />);
 		expect(screen.getAllByLabelText('Running')).toHaveLength(3);
 
@@ -321,11 +319,10 @@ describe('useRealtimeVoice', () => {
 			);
 		}
 
-		message = result.current.chatState.messages.findLast(
-			(candidate) => candidate.role === 'agent'
-		);
+		message = result.current.chatState.messages.findLast((candidate) => candidate.role === 'agent');
 		expect(message?.role).toBe('agent');
-		if (!message || message.role !== 'agent') throw new Error('Expected a voice assistant message.');
+		if (!message || message.role !== 'agent')
+			throw new Error('Expected a voice assistant message.');
 		for (const { toolCallId, toolName } of mediaTools) {
 			expect(message.tools).toContainEqual(
 				expect.objectContaining({
