@@ -14,9 +14,9 @@ export function UserMessage({
 	readonly content: string;
 	readonly collapseLongContent?: boolean;
 }): ReactElement | null {
+	const [isContentExpanded, setIsContentExpanded] = useState(false);
 	if (!content.trim()) return null;
 	const canToggleContent = collapseLongContent && content.trim().length > LONG_MESSAGE_LENGTH;
-	const [isContentExpanded, setIsContentExpanded] = useState(false);
 
 	return (
 		<Message className="w-full justify-end">
