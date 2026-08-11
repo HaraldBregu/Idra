@@ -113,7 +113,7 @@ describe('useRealtimeVoice', () => {
 		} as unknown as Window['app'];
 	});
 
-	it('survives early start events, mutes capture, interrupts playback, and tears down', async () => {
+	it('survives early start events, mutes capture, stops playback on barge-in, and tears down', async () => {
 		let resolveStart!: (value: RealtimeVoiceSession) => void;
 		api.startSession.mockReturnValue(
 			new Promise<RealtimeVoiceSession>((resolve) => {
@@ -158,7 +158,7 @@ describe('useRealtimeVoice', () => {
 		act(() => emit({ type: 'assistant_audio_delta', sessionId: session.id, audio: 'AAA=' }));
 		act(() => emit({ type: 'input_speech_started', sessionId: session.id }));
 		expect(playedSource.stop).toHaveBeenCalled();
-		expect(api.interruptSession).toHaveBeenCalledWith(session.id);
+		expect(api.interruptSession).not.toHaveBeenCalled();
 
 		await act(async () => result.current.end());
 		expect(api.stopSession).toHaveBeenCalledWith(session.id);

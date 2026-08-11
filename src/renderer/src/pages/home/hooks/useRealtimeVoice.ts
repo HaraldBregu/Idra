@@ -168,14 +168,11 @@ export function useRealtimeVoice({
 				case 'started':
 					setStatus('listening');
 					return;
-				case 'state':
+			case 'state':
 					setStatus(event.status);
 					return;
 				case 'input_speech_started':
-					if (statusRef.current === 'speaking') {
-						stopPlayback();
-						void window.models.realtimeVoice.interruptSession(sessionId).catch(() => undefined);
-					}
+					stopPlayback();
 					setStatus('listening');
 					return;
 				case 'input_speech_stopped':
