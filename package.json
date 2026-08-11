@@ -130,7 +130,6 @@
 		"@radix-ui/react-slider": "^1.4.7",
 		"@radix-ui/react-tooltip": "^1.2.8",
 		"@radix-ui/react-use-controllable-state": "^1.2.6",
-		"@rive-app/react-webgl2": "^4.31.0",
 		"@tiptap/core": "^3.29.2",
 		"@tiptap/extensions": "^3.29.2",
 		"@tiptap/markdown": "^3.29.2",
