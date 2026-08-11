@@ -115,10 +115,11 @@ On Linux, download the AppImage, mark it executable, and launch it. If AppImage 
 is unavailable, extract the `.tar.gz` release and run `friday-desktop` from the extracted folder.
 Neither option requires a package installation.
 
-Friday settings, conversations, workspace files, and generated data remain under `.friday` in the
-logged-in user's profile. Electron also uses its normal per-user cache and runtime-data locations.
-Portable updates are manual: close Friday and replace the executable or extracted application;
-the profile data remains in place.
+Friday settings, conversations, workspace files, and generated data remain under
+`%USERPROFILE%\.friday` on Windows or `$HOME/.friday` on Linux. Electron runtime data remains in
+`%APPDATA%\Friday` on Windows or `$XDG_CONFIG_HOME/Friday` on Linux, normally
+`$HOME/.config/Friday`. Portable updates are manual: close Friday and replace the executable or
+extracted application; the profile data remains in place.
 
 Portable packaging does not bypass AppLocker, WDAC, Linux `noexec`, endpoint security, or network
 policy. Protected command execution may require administrator or IT setup, and browser automation

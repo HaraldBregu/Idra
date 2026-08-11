@@ -14,6 +14,13 @@ import { getPermissions } from './agent_store';
 import { userDataLocation } from '../shared/user_data_location';
 import { resolveUserPath } from '../shared/user_path';
 
+const WINDOWS_SANDBOX_GUIDANCE =
+	'Open Settings > Permissions and complete Windows sandbox setup; administrator or IT approval may be required. Chat and non-command tools remain available.';
+const LINUX_SANDBOX_GUIDANCE =
+	'Ask IT to provide bubblewrap, socat, and ripgrep and permit unprivileged user namespaces. Chat and non-command tools remain available.';
+const OTHER_SANDBOX_GUIDANCE =
+	'Ask your administrator to enable command sandboxing for this machine. Chat and non-command tools remain available.';
+
 export interface SandboxedCommand {
 	command: string;
 	args: string[];
@@ -76,11 +83,17 @@ export class ExecSandbox {
 	}
 
 	async status(): Promise<SandboxStatus> {
+		const guidance =
+			process.platform === 'win32'
+				? WINDOWS_SANDBOX_GUIDANCE
+				: process.platform === 'linux'
+					? LINUX_SANDBOX_GUIDANCE
+					: OTHER_SANDBOX_GUIDANCE;
 		if (!SandboxManager.isSupportedPlatform()) {
 			return {
 				state: 'unavailable',
 				platform: process.platform,
-				message: `Command sandboxing is unavailable on ${process.platform}.`,
+				message: `Command sandboxing is unavailable on ${process.platform}. ${guidance}`,
 			};
 		}
 		try {
@@ -97,7 +110,7 @@ export class ExecSandbox {
 				return {
 					state: process.platform === 'win32' ? 'setup_required' : 'unavailable',
 					platform: process.platform,
-					message: [...dependencies.errors, ...dependencies.warnings].join('\n'),
+					message: `${[...dependencies.errors, ...dependencies.warnings].join('\n')}\n${guidance}`,
 				};
 			}
 			return { state: 'ready', platform: process.platform };
@@ -105,7 +118,7 @@ export class ExecSandbox {
 			return {
 				state: process.platform === 'win32' ? 'setup_required' : 'unavailable',
 				platform: process.platform,
-				message: error instanceof Error ? error.message : String(error),
+				message: `${error instanceof Error ? error.message : String(error)}\n${guidance}`,
 			};
 		}
 	}
@@ -159,10 +172,10 @@ export class ExecSandbox {
 			} catch (cause) {
 				const guidance =
 					process.platform === 'win32'
-						? 'Open Settings > Permissions and complete Windows sandbox setup; administrator or IT approval may be required.'
+						? WINDOWS_SANDBOX_GUIDANCE
 						: process.platform === 'linux'
-							? 'Ask IT to provide bubblewrap, socat, and ripgrep and permit unprivileged user namespaces.'
-							: 'Ask your administrator to enable command sandboxing for this machine.';
+							? LINUX_SANDBOX_GUIDANCE
+							: OTHER_SANDBOX_GUIDANCE;
 				const detail = cause instanceof Error ? cause.message : String(cause);
 				throw new Error(`Command sandbox is unavailable. ${guidance}\n${detail}`, { cause });
 			}
