@@ -44,7 +44,6 @@ export function resolveToolPermission(
 	if (decisions.includes('deny')) return 'deny';
 	if (targets.length > 0 && decisions.every((decision) => decision === 'allow')) return 'allow';
 	if (
-		kind === 'read' &&
 		reuseContext &&
 		contextAllowsTool(context, toolName, args, AGENT_DIRECTORY)
 	) return 'allow';
