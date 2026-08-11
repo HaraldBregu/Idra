@@ -1,6 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
+import { realPath } from '../../../../../src/main/shared/real_path';
 
 const getPermissions = jest.fn();
 
@@ -61,8 +62,8 @@ describe('per-run file access', () => {
 			)
 		);
 		expect(isolated.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(first.readDirectories).toHaveLength(1);
-		expect(second.readDirectories).toHaveLength(0);
+		expect(first.readDirectories.size).toBe(1);
+		expect(second.readDirectories.size).toBe(0);
 	});
 
 	it('allows editing only the exact file newly created in the same run', async () => {
@@ -71,7 +72,7 @@ describe('per-run file access', () => {
 		const other = path.join(root, 'two', 'example.txt');
 		getPermissions.mockReturnValue({
 			...emptyPermissions,
-			write: { allow: [target], deny: [] },
+			write: { allow: [realPath(target)], deny: [] },
 		});
 		const write = jest.fn().mockResolvedValue({ path: target });
 		const edit = jest.fn().mockResolvedValue({ path: target });
@@ -117,7 +118,7 @@ describe('per-run file access', () => {
 			)
 		);
 		expect(differentPath.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(fileAccess.createdFiles).toEqual(new Set([target]));
+		expect(fileAccess.createdFiles).toEqual(new Set([realPath(target)]));
 	});
 
 	it('does not remember failed reads or failed file creation', async () => {
@@ -125,8 +126,8 @@ describe('per-run file access', () => {
 		const readPath = path.join(root, 'read.txt');
 		const writePath = path.join(root, 'write.txt');
 		getPermissions.mockReturnValue({
-			read: { allow: [readPath], deny: [] },
-			write: { allow: [writePath], deny: [] },
+			read: { allow: [realPath(readPath)], deny: [] },
+			write: { allow: [realPath(writePath)], deny: [] },
 			exec: { allow: [], deny: [] },
 		});
 		const fileAccess = createRunContext().fileAccess;
@@ -150,8 +151,8 @@ describe('per-run file access', () => {
 			)
 		);
 
-		expect(fileAccess.readDirectories).toHaveLength(0);
-		expect(fileAccess.createdFiles).toHaveLength(0);
+		expect(fileAccess.readDirectories.size).toBe(0);
+		expect(fileAccess.createdFiles.size).toBe(0);
 	});
 
 	it('does not let a contextual grant override a configured deny', async () => {
