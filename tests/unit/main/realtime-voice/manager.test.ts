@@ -51,16 +51,17 @@ describe('RealtimeVoiceManager', () => {
 	it('persists only voice markers and native assistant transcripts while streaming UI events', async () => {
 		const connection = new FakeConnection();
 		let adapterEmit: RealtimeVoiceAdapterEventHandler = () => undefined;
+		const createAdapter = jest.fn(() => ({
+			connect: async (_request: RealtimeVoiceAdapterRequest, emit: RealtimeVoiceAdapterEventHandler) => {
+				adapterEmit = emit;
+				return connection;
+			},
+		}));
 		const events: Array<{ type: string; transcript?: string }> = [];
 		const userTurns: string[] = [];
 		const assistantTurns: string[] = [];
 		const manager = new RealtimeVoiceManager({
-			createAdapter: () => ({
-				connect: async (_request, emit) => {
-					adapterEmit = emit;
-					return connection;
-				},
-			}),
+			createAdapter,
 			resolveConfiguration: async () => configuration,
 			createConversation: () => ({
 				addUserTurn: () => userTurns.push('Voice message'),
@@ -71,6 +72,7 @@ describe('RealtimeVoiceManager', () => {
 		});
 
 		const session = await manager.start(7, { chatSessionId: 'chat' });
+		expect(createAdapter).toHaveBeenCalledWith(configuration.provider);
 		adapterEmit({ type: 'input_speech_stopped', itemId: 'user-1' });
 		adapterEmit({
 			type: 'assistant_transcript_final',
