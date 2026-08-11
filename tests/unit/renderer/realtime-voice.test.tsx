@@ -16,6 +16,14 @@ jest.mock('@/components/audio-player', () => ({
 jest.mock('@/components/video-player', () => ({
 	VideoPlayer: ({ src }: { src: string }) => <div data-testid="generated-video" data-src={src} />,
 }));
+jest.mock('@/pages/home/hooks', () => ({
+	useReadMessageAloud: () => ({
+		speak: jest.fn(),
+		isSpeaking: false,
+		errorMessage: null,
+		clearError: jest.fn(),
+	}),
+}));
 
 jest.mock('@/lib/providers', () => ({
 	modelsFor: (capability: string) =>
