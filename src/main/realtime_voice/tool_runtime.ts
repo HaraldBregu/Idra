@@ -4,8 +4,11 @@ import type { KeyedMutex } from '../agent/mutex';
 import { formatToolOutput } from '../agent/runner/run_common';
 import { runToolCall } from '../agent/runner/run_tool_call';
 import type { Tool, ToolCall } from '../agent/types';
+import type {
+	RealtimeVoiceAdapterEvent,
+	RealtimeVoiceConnection,
+} from '../models/adapters/realtime_voice';
 import { parseToolArgs } from '../shared/parse_tool_args';
-import type { RealtimeVoiceAdapterEvent, RealtimeVoiceConnection } from './types';
 
 const MAX_TOOL_CALLS = 100;
 const MAX_TOOL_OUTPUT_BYTES = 2_000_000;
