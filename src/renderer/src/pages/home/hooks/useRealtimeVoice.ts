@@ -119,7 +119,7 @@ export function useRealtimeVoice({
 
 	const failSession = useCallback(
 		(error: unknown, sessionId = sessionIdRef.current): void => {
-			if (!sessionId || (sessionIdRef.current && sessionIdRef.current !== sessionId)) return;
+			if (!sessionId || sessionIdRef.current !== sessionId) return;
 			const message =
 				typeof error === 'string' && error.trim()
 					? error
