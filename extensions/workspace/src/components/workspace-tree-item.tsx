@@ -154,7 +154,7 @@ export function WorkspaceTreeItem({
 				/>
 				<TreeLabel className="text-[12px] font-medium">{entry.name}</TreeLabel>
 			</TreeNodeTrigger>
-			<TreeNodeContent hasChildren={isDirectory}>
+			<TreeNodeContent hasChildren={isDirectory} className="space-y-1">
 				{entry.children?.map((child, index) => (
 					<WorkspaceTreeItem
 						key={child.path}

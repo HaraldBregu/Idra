@@ -251,7 +251,7 @@ export function AppSidebar({
 					selectedIds={selectedWorkspacePath ? [selectedWorkspacePath] : []}
 					showLines={false}
 				>
-					<TreeView className="p-0" role="tree">
+					<TreeView className="space-y-1 p-0" role="tree">
 						{!workspaceLoading && !workspaceError && agentFiles.length > 0 ? (
 							<TreeNode nodeId={agentNodeId}>
 								<TreeNodeTrigger
@@ -294,7 +294,7 @@ export function AppSidebar({
 										{agentFiles.length}
 									</Badge>
 								</TreeNodeTrigger>
-								<TreeNodeContent hasChildren>
+								<TreeNodeContent hasChildren className="space-y-1">
 									{agentFiles.map((entry, index) => (
 										<WorkspaceTreeItem
 											key={entry.path}
