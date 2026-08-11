@@ -32,6 +32,7 @@ export class OpenAIRealtimeVoiceAdapter implements RealtimeVoiceAdapter {
 
 class OpenAIRealtimeVoiceConnection implements RealtimeVoiceConnection {
 	private closed = false;
+	private responseActive = false;
 
 	constructor(
 		private readonly realtime: RealtimeSocket,
@@ -49,8 +50,8 @@ class OpenAIRealtimeVoiceConnection implements RealtimeVoiceConnection {
 				else resolve();
 			};
 			const timer = setTimeout(() => {
-				this.stop();
 				settle(new Error('Realtime voice connection timed out.'));
+				void this.stop();
 			}, timeoutMs);
 			timer.unref?.();
 
@@ -82,7 +83,7 @@ class OpenAIRealtimeVoiceConnection implements RealtimeVoiceConnection {
 	}
 
 	async interrupt(): Promise<void> {
-		if (this.closed) return;
+		if (this.closed || !this.responseActive) return;
 		this.realtime.send({ type: 'response.cancel' });
 	}
 
@@ -102,6 +103,14 @@ class OpenAIRealtimeVoiceConnection implements RealtimeVoiceConnection {
 	}
 
 	private handleEvent(event: RealtimeServerEvent): void {
+		if (event.type === 'response.created') {
+			this.responseActive = true;
+			return;
+		}
+		if (event.type === 'response.done') {
+			this.responseActive = false;
+			return;
+		}
 		if (
 			event.type === 'response.output_item.added' &&
 			event.item.type === 'function_call' &&
@@ -214,7 +223,7 @@ function sessionConfiguration(request: RealtimeVoiceAdapterRequest): RealtimeSes
 		tool_choice: 'auto',
 		tools: request.tools.map((tool) => ({
 			type: 'function',
-			name: tool.name,
+			name: tool.id,
 			description: tool.description,
 			parameters: tool.schema,
 		})),

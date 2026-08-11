@@ -47,7 +47,18 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 				model: 'gpt-realtime-2.1',
 				voice: 'marin',
 				instructions: 'Help the user.',
-				tools: [],
+				tools: [
+					{
+						id: 'read_file',
+						name: 'Read file',
+						description: 'Read a file.',
+						schema: { type: 'object' },
+						timeoutMs: 1_000,
+						maxOutputBytes: 1_000,
+						parseInput: () => ({}),
+						run: () => '',
+					},
+				],
 			},
 			(event) => events.push(event)
 		);
@@ -63,6 +74,7 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 					},
 					output: { format: { type: 'audio/pcm', rate: 24_000 }, voice: 'marin' },
 				},
+				tools: [{ type: 'function', name: 'read_file' }],
 			},
 		});
 		socket.event({ type: 'session.updated', event_id: 'e', session: { type: 'realtime' } });
@@ -91,6 +103,16 @@ describe('OpenAIRealtimeVoiceAdapter', () => {
 			},
 			{ type: 'response.create' },
 		]);
+
+		await connection.interrupt();
+		expect(socket.sent.at(-1)).toEqual({ type: 'response.create' });
+		socket.event({
+			type: 'response.created',
+			event_id: 'e3',
+			response: { id: 'response', object: 'realtime.response', status: 'in_progress', output: [] },
+		});
+		await connection.interrupt();
+		expect(socket.sent.at(-1)).toEqual({ type: 'response.cancel' });
 	});
 
 	it('fails startup after the bounded connection timeout', async () => {
