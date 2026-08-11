@@ -10,21 +10,22 @@ import {
 } from '../../shared/realtime_voice';
 import { rejectPendingToolPermissions } from '../agent/permissions';
 import type { KeyedMutex } from '../agent/mutex';
-import type { RealtimeVoiceConversation, RealtimeVoiceConversationFactory } from './conversation';
 import type {
 	RealtimeVoiceAdapter,
 	RealtimeVoiceAdapterEvent,
 	RealtimeVoiceAdapterRequest,
 	RealtimeVoiceConnection,
-} from './types';
+	RealtimeVoiceProviderSpec,
+} from '../models/adapters/realtime_voice';
+import type { RealtimeVoiceConversation, RealtimeVoiceConversationFactory } from './conversation';
 import { RealtimeVoiceToolRuntime } from './tool_runtime';
 
 export interface ResolvedRealtimeVoiceConfiguration extends RealtimeVoiceAdapterRequest {
-	providerId: string;
+	provider: RealtimeVoiceProviderSpec;
 }
 
 export interface RealtimeVoiceManagerDependencies {
-	adapter: RealtimeVoiceAdapter;
+	createAdapter(provider: RealtimeVoiceProviderSpec): RealtimeVoiceAdapter;
 	resolveConfiguration(): Promise<ResolvedRealtimeVoiceConfiguration>;
 	createConversation: RealtimeVoiceConversationFactory;
 	resources: KeyedMutex;
@@ -67,8 +68,8 @@ export class RealtimeVoiceManager {
 		this.requireCurrentGeneration(windowId, generation);
 		const info: RealtimeVoiceSession = {
 			id: randomUUID(),
-			providerId: configuration.providerId,
-			modelId: configuration.model,
+			providerId: configuration.provider.id,
+			modelId: configuration.modelId,
 			input: { format: 'pcm16', sampleRate: REALTIME_VOICE_SAMPLE_RATE, channels: REALTIME_VOICE_CHANNELS },
 			output: { format: 'pcm16', sampleRate: REALTIME_VOICE_SAMPLE_RATE, channels: REALTIME_VOICE_CHANNELS },
 		};
@@ -77,7 +78,7 @@ export class RealtimeVoiceManager {
 			info,
 			windowId,
 			controller,
-			conversation: this.dependencies.createConversation(chatSessionId, configuration.model),
+			conversation: this.dependencies.createConversation(chatSessionId, configuration.modelId),
 			inputTail: Promise.resolve(),
 			pendingInputCharacters: 0,
 			finalTranscripts: new Set(),
@@ -104,7 +105,7 @@ export class RealtimeVoiceManager {
 		this.emit(active, { type: 'state', sessionId: info.id, status: 'connecting' });
 
 		try {
-			const connection = await this.dependencies.adapter.connect(
+			const connection = await this.dependencies.createAdapter(configuration.provider).connect(
 				configuration,
 				(event) => this.handleAdapterEvent(active, event),
 				controller.signal
