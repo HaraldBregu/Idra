@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { AlertCircle, ArrowUp, AudioLines, FileAudio, Mic, Paperclip, Plus, Square, X } from 'lucide-react';
+import {
+	AlertCircle,
+	ArrowUp,
+	AudioLines,
+	FileAudio,
+	Mic,
+	Paperclip,
+	Plus,
+	Square,
+	X,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '@/components/app/base/page';
 import { AudioPlayer } from '@/components/audio-player';
@@ -10,7 +20,13 @@ import {
 	ChatContainerRoot,
 	ChatContainerScrollAnchor,
 } from '@/components/ui/chat-container';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import {
+	Empty,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
+} from '@/components/ui/empty';
 import logo from '@resources/icons/icon.png';
 import { PromptEditor } from '@/components/prompt-editor';
 import {
@@ -187,10 +203,7 @@ function AttachmentTray({
 	if (attachments.length === 0) return null;
 
 	return (
-		<div
-			className="flex w-full flex-wrap gap-1.5"
-			onClick={(event) => event.stopPropagation()}
-		>
+		<div className="flex w-full flex-wrap gap-1.5" onClick={(event) => event.stopPropagation()}>
 			{attachments.map((attachment) => {
 				const isAudio = attachment.kind === 'audio';
 				const title = isAudio
@@ -349,7 +362,11 @@ function SubmitButton({
 	readonly disabled?: boolean;
 	readonly onAction: () => void;
 }): ReactElement {
-	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
+	const label = isLoading
+		? 'Stop generation'
+		: canSubmit
+			? 'Send message'
+			: 'Start voice conversation';
 	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
@@ -424,9 +441,7 @@ function PageContent(): ReactElement {
 		(message) => message.id !== welcomeMessage.id
 	);
 	const showEmptyConversation =
-		visibleMessages.length === 0 &&
-		!agent.isLoading &&
-		!agent.historyLoading;
+		visibleMessages.length === 0 && !agent.isLoading && !agent.historyLoading;
 	const showPromptSuggestions = showEmptyConversation && voiceMode === null;
 	const canSubmit = agent.input.trim().length > 0 || attachments.length > 0;
 	const dictationStatus = dictation.status;
@@ -449,10 +464,8 @@ function PageContent(): ReactElement {
 	const attachmentDisabled = voiceMode !== null || voiceBusy;
 	const activeVoiceElapsedMs =
 		activeDictationMode === 'record' ? recorder.elapsedMs : dictation.elapsedMs;
-	const activeVoiceMuted =
-		activeDictationMode === 'record' ? recorder.isMuted : dictation.isMuted;
-	const activeVoiceStream =
-		activeDictationMode === 'record' ? recorder.stream : dictation.stream;
+	const activeVoiceMuted = activeDictationMode === 'record' ? recorder.isMuted : dictation.isMuted;
+	const activeVoiceStream = activeDictationMode === 'record' ? recorder.stream : dictation.stream;
 	const activeVoiceSetMuted =
 		activeDictationMode === 'record' ? recorder.setMuted : dictation.setMuted;
 	const voiceErrorMessage =
@@ -679,10 +692,7 @@ function PageContent(): ReactElement {
 										<AssistantMessage
 											key={message.id}
 											message={message}
-											isStreaming={
-												agent.isLoading &&
-												message.id === agent.chatState.activeAgentId
-											}
+											isStreaming={agent.isLoading && message.id === agent.chatState.activeAgentId}
 											showHeader={showAssistantHeader}
 											collapseLongContent={isPreviousMessage}
 											className={groupedAssistantClassName}
@@ -733,15 +743,11 @@ function PageContent(): ReactElement {
 							voiceElapsedMs={
 								voiceMode === 'conversation' ? realtimeVoice.elapsedMs : activeVoiceElapsedMs
 							}
-							voiceMuted={
-								voiceMode === 'conversation' ? realtimeVoice.isMuted : activeVoiceMuted
-							}
+							voiceMuted={voiceMode === 'conversation' ? realtimeVoice.isMuted : activeVoiceMuted}
 							voiceMediaStream={
 								voiceMode === 'conversation' ? realtimeVoice.stream : activeVoiceStream
 							}
-							voiceAnalyser={
-								voiceMode === 'conversation' ? realtimeVoice.analyser : null
-							}
+							voiceAnalyser={voiceMode === 'conversation' ? realtimeVoice.analyser : null}
 							voiceStatus={
 								voiceMode === 'conversation'
 									? realtimeVoiceStatusLabels[realtimeVoice.status]
