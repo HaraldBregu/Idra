@@ -4,7 +4,6 @@ jest.mock('../../../../../src/main/agent/runner/run_stream', () => ({
 	stream: (...args: unknown[]) => mockStream(...args),
 }));
 
-import { createContext } from '../../../../../src/main/agent/context';
 import type { SessionState } from '../../../../../src/main/agent/session';
 import {
 	subagentTool,
@@ -26,44 +25,48 @@ describe('subagentTool', () => {
 				yield { type: 'assistant_message', content: 'done', toolCalls: [] };
 			})()
 		);
-		const parent = createContext();
-		const tool = subagentTool({ location: '/agent' }, [], parent);
+		const tool = subagentTool({ location: '/agent' }, [], { type: 'default' });
 
 		await tool.run({ task: 'inspect context', systemPrompt: 'Act as a test reviewer.' });
 
 		const session = mockStream.mock.calls[0][1] as SessionState;
 		expect(session.messages).toEqual([{ role: 'user', content: 'inspect context' }]);
-		expect(session.context.basePrompt).not.toContain('Act as a test reviewer.');
-		expect(session.context.basePrompt).toContain('- Stay focused:');
-		expect(parent.subagents).toEqual([session.context]);
-		expect(mockStream.mock.calls[0][4]).toEqual({ tools: [], interactive: false });
+		expect(mockStream.mock.calls[0][4].instructions).not.toContain('Act as a test reviewer.');
+		expect(mockStream.mock.calls[0][4].instructions).toContain('- Stay focused:');
+		expect(mockStream.mock.calls[0][4].tools).toEqual([]);
 		expect(mockStream.mock.calls[0][2]).toMatchObject({
-			origin: 'subagent',
+			type: 'default',
+			agentId: 'subagent',
 			contextMode: 'minimal',
 			toolsAllow: [],
 		});
 	});
 
-	it('forwards trusted runtime permissions and ignores a model-supplied bypass', async () => {
+	it('creates fresh isolated context for every child execution', async () => {
 		mockStream.mockReturnValue(
 			(async function* () {
 				yield { type: 'assistant_message', content: 'done', toolCalls: [] };
 			})()
 		);
-		const permissions = {
-			mode: 'ask',
-			dir: {},
-			read: { default: 'allow', allow: [], deny: [], ask: [] },
-		} as const;
-		const tool = subagentTool({ location: '/agent' }, [], createContext(), { permissions });
+		const tool = subagentTool({ location: '/agent' }, [], { type: 'default' });
 
-		await tool.run({ task: 'apply the change', permissionMode: 'bypass' });
+		await tool.run({ task: 'first' });
+		await tool.run({ task: 'second' });
 
-		expect(mockStream.mock.calls[0][4]).toEqual({
-			tools: [],
-			interactive: false,
-			permissions,
+		const first = mockStream.mock.calls[0][1] as SessionState;
+		const second = mockStream.mock.calls[1][1] as SessionState;
+		first.runContext.fileAccess.readDirectories.add('/first');
+		first.runContext.loadedSkills.push({
+			id: 'one',
+			name: 'One',
+			canonicalRoot: '/skills/one',
+			instructions: 'one',
+			trust: 'user-controlled',
+			hash: 'one',
+			resources: [],
 		});
+		expect(second.runContext.fileAccess.readDirectories).toEqual(new Set());
+		expect(second.runContext.loadedSkills).toEqual([]);
 	});
 
 	it('runs three batch children concurrently, preserves order, and isolates failure', async () => {
@@ -81,7 +84,7 @@ describe('subagentTool', () => {
 					yield { type: 'assistant_message', content: `${input.message}:done`, toolCalls: [] };
 				})()
 		);
-		const tool = subagentsTool({ location: '/agent' }, [], createContext());
+		const tool = subagentsTool({ location: '/agent' }, [], { type: 'default' });
 		const pending = tool.run({
 			tasks: [
 				{ id: 'first', task: 'slow' },
@@ -110,19 +113,20 @@ describe('subagentTool', () => {
 				})()
 		);
 		const safe = jsonTool({
-			name: 'read',
+			id: 'read_file',
+			name: 'Read file',
 			description: 'read',
-			parallelSafe: true,
 			schema: { type: 'object' },
 			execute: () => undefined,
 		});
 		const unsafe = jsonTool({
-			name: 'exec',
+			id: 'exec_command',
+			name: 'Exec command',
 			description: 'execute',
 			schema: { type: 'object' },
 			execute: () => undefined,
 		});
-		const tool = subagentsTool({ location: '/agent' }, [safe, unsafe], createContext());
+		const tool = subagentsTool({ location: '/agent' }, [safe, unsafe], { type: 'default' });
 
 		await tool.run({
 			tasks: [
@@ -132,7 +136,9 @@ describe('subagentTool', () => {
 		});
 
 		for (const call of mockStream.mock.calls) {
-			expect(call[4].tools.map((candidate: { name: string }) => candidate.name)).toEqual(['read']);
+			expect(call[4].tools.map((candidate: { id: string }) => candidate.id)).toEqual([
+				'read_file',
+			]);
 		}
 	});
 
@@ -150,7 +156,7 @@ describe('subagentTool', () => {
 		);
 		const controller = new AbortController();
 		const pool = new KeyedLimiter(3);
-		const tool = subagentsTool({ location: '/agent' }, [], createContext(), {}, pool);
+		const tool = subagentsTool({ location: '/agent' }, [], { type: 'default' }, pool);
 		const pending = tool.run(
 			{
 				tasks: [
@@ -186,7 +192,7 @@ describe('subagentTool', () => {
 				})()
 		);
 		const pool = new KeyedLimiter(3);
-		const tool = subagentsTool({ location: '/agent' }, [], createContext(), {}, pool);
+		const tool = subagentsTool({ location: '/agent' }, [], { type: 'default' }, pool);
 		const first = tool.run({
 			tasks: [
 				{ id: 'a', task: 'a' },
@@ -212,7 +218,7 @@ describe('subagentTool', () => {
 	});
 
 	it('requires two or three independent tasks', async () => {
-		const tool = subagentsTool({ location: '/agent' }, [], createContext());
+		const tool = subagentsTool({ location: '/agent' }, [], { type: 'default' });
 		await expect(tool.run({ tasks: [{ id: 'one', task: 'one' }] })).rejects.toThrow();
 		await expect(
 			tool.run({
