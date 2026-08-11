@@ -58,6 +58,8 @@ export class RealtimeVoiceManager {
 		if (previous) await this.stop(windowId, previous.info.id);
 
 		const configuration = await this.dependencies.resolveConfiguration();
+		const displaced = this.byWindow.get(windowId);
+		if (displaced) await this.close(displaced, true);
 		const info: RealtimeVoiceSession = {
 			id: randomUUID(),
 			providerId: configuration.providerId,

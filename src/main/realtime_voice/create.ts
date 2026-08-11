@@ -49,10 +49,17 @@ export function createRealtimeVoiceManager(
 
 			const configuredVoice = getOptions('realtimeVoice').voice;
 			const metadataVoice = model.metadata?.inputs.voice?.default;
+			const supportedVoices = (model.metadata?.inputs.voice?.enum ?? []).filter(
+				(value): value is string => typeof value === 'string'
+			);
 			const voice =
-				typeof configuredVoice === 'string' && configuredVoice.trim()
+				typeof configuredVoice === 'string' &&
+				configuredVoice.trim() &&
+				supportedVoices.includes(configuredVoice.trim())
 					? configuredVoice.trim()
-					: typeof metadataVoice === 'string' && metadataVoice.trim()
+					: typeof metadataVoice === 'string' &&
+						metadataVoice.trim() &&
+						supportedVoices.includes(metadataVoice.trim())
 						? metadataVoice.trim()
 						: 'marin';
 			const tools = builtinTools(agent.config, agent.sandbox, windowFactory);
