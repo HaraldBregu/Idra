@@ -329,12 +329,12 @@ export function Persona({
 					const pulse = (Math.sin(age * 2.8 - index * 0.9) + 1) * 0.5;
 					const direction = index % 2 === 0 ? 1 : -1;
 					rings[index].target.radius =
-						radius + smoothedLevel * (0.02 + index * 0.01) + pulse * (0.004 + index * 0.003);
-					rings[index].target.opacity = opacity * (0.74 + pulse * 0.16 + smoothedLevel * 0.1);
+						radius + smoothedLevel * (0.018 + index * 0.008) + pulse * (0.004 + index * 0.003);
+					rings[index].target.opacity = opacity * (0.76 + pulse * 0.24);
 					rings[index].target.rotation = direction * age * (0.05 + index * 0.014);
 					rings[index].target.wobble =
-						0.0015 + index * 0.0008 + smoothedLevel * (0.006 + index * 0.0012);
-					rings[index].glow = index === 0 ? 1 : 0.35 + pulse * 0.15 + smoothedLevel * 0.3;
+						0.0015 + index * 0.0008 + smoothedLevel * (0.003 + index * 0.0008);
+					rings[index].glow = index === 0 ? 1 : 0.4 + pulse * 0.2;
 				});
 			}
 
@@ -394,13 +394,10 @@ export function Persona({
 						Math.sin(angle * 7 - now * 8.5 + ring.phase) *
 						(activeState === 'speaking' ? smoothedLevel : 0) *
 						0.016;
-					const listeningEnergy = activeState === 'listening' ? smoothedLevel : 0;
 					const listeningRipple =
-						(Math.sin(angle * (6 + index) + now * (7.5 + listeningEnergy * 12) + ring.phase) * 0.7 +
-							Math.sin(angle * (10 + index) - now * (11 + listeningEnergy * 8) + ring.phase * 1.4) *
-								0.3) *
-						listeningEnergy *
-						(0.012 + index * 0.0015);
+						Math.sin(angle * 4 + now * 3.2 + ring.phase) *
+						(activeState === 'listening' ? 0.25 + smoothedLevel * 0.75 : 0) *
+						0.01;
 					const breathing = Math.sin(now * 1.25 + ring.phase) * target.breath;
 					const radius =
 						current.radius +
