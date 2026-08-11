@@ -1,7 +1,7 @@
 import { useState, type ReactElement, type ReactNode } from 'react';
 import { defaultUrlTransform } from 'react-markdown';
+import { AudioPlayer } from '@/components/audio-player';
 import { VideoPlayer } from '@/components/video-player';
-import { SoundPlayer } from '@/components/sound-player';
 import { Copy, Reply, Volume2 } from 'lucide-react';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message, MessageActions } from '@/components/prompt-kit/message';
@@ -176,32 +176,15 @@ export function AssistantMessage({
 	const standaloneMediaPaths = mediaPaths.filter(
 		(path) => !contentEmbedsImage(message.content, path)
 	);
-	const soundToolsByPath = new Map(
-		message.tools.flatMap((tool) => {
-			if (tool.type !== 'create_sound') return [];
-			const path = imagePathFromOutput(tool.output);
-			return path ? [[path, tool] as const] : [];
-		})
-	);
 	const messageMarkdownComponents = {
 		...markdownComponents,
 		img: ({ src, alt }: { src?: string; alt?: string }) => {
 			const localPath = resolveLocalImagePath(src, mediaPaths);
 			if (localPath && isAudioPath(localPath)) {
-				const soundTool = soundToolsByPath.get(localPath);
-				const soundInput = soundTool?.input as { prompt?: unknown } | null | undefined;
-				const soundTitle =
-					typeof soundInput?.prompt === 'string' && soundInput.prompt.trim().length > 0
-						? soundInput.prompt.trim()
-						: 'Generated sound';
-				const extension = fileName(localPath).split('.').pop();
 				return (
-					<SoundPlayer
+					<AudioPlayer
 						src={localResourceUrl(localPath)}
-						title={soundTitle}
-						format={extension}
 						className="mb-4 mt-2"
-						onDownload={() => void window.app.showAudioContextMenu(localPath)}
 						onContextMenu={() => void window.app.showAudioContextMenu(localPath)}
 					/>
 				);
@@ -286,21 +269,11 @@ export function AssistantMessage({
 				<div className="flex w-full flex-col gap-2">
 					{standaloneMediaPaths.map((path) => {
 						if (isAudioPath(path)) {
-							const soundTool = soundToolsByPath.get(path);
-							const soundInput = soundTool?.input as { prompt?: unknown } | null | undefined;
-							const soundTitle =
-								typeof soundInput?.prompt === 'string' && soundInput.prompt.trim().length > 0
-									? soundInput.prompt.trim()
-									: 'Generated sound';
-							const extension = fileName(path).split('.').pop();
 							return (
-								<SoundPlayer
+								<AudioPlayer
 									key={path}
 									src={localResourceUrl(path)}
-									title={soundTitle}
-									format={extension}
 									className="mb-4"
-									onDownload={() => void window.app.showAudioContextMenu(path)}
 									onContextMenu={() => void window.app.showAudioContextMenu(path)}
 								/>
 							);
