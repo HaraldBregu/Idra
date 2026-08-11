@@ -6,6 +6,11 @@ import { useHomeAgentContext } from '../../../src/renderer/src/pages/home/contex
 import { useRealtimeVoice } from '../../../src/renderer/src/pages/home/hooks/useRealtimeVoice';
 import type { RealtimeVoiceEvent, RealtimeVoiceSession } from '../../../src/shared/realtime_voice';
 
+jest.mock('react-markdown', () => ({ defaultUrlTransform: (url: string) => url }));
+jest.mock('@/components/prompt-kit/markdown', () => ({
+	Markdown: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
+
 jest.mock('@/lib/providers', () => ({
 	modelsFor: (capability: string) =>
 		capability === 'realtime-voice' ? [{ id: 'gpt-realtime-2.1', name: 'GPT Realtime' }] : [],
