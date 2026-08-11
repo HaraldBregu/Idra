@@ -84,38 +84,141 @@
       "type": "text-to-speech-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationUrl": "https://platform.minimax.io/docs/api-reference/speech-t2a-http",
         "documentationStatus": "verified",
         "inputs": {
-          "voice_id": {
-            "type": "string"
+          "voice_setting": {
+            "type": "object",
+            "properties": {
+              "voice_id": {
+                "type": "string",
+                "title": "Voice ID"
+              },
+              "speed": {
+                "type": "number",
+                "minimum": 0.5,
+                "maximum": 2,
+                "default": 1
+              },
+              "vol": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10,
+                "default": 1
+              },
+              "pitch": {
+                "type": "integer",
+                "minimum": -12,
+                "maximum": 12,
+                "default": 0
+              },
+              "emotion": {
+                "type": "string"
+              },
+              "text_normalization": {
+                "type": "boolean",
+                "default": false
+              },
+              "latex_read": {
+                "type": "boolean",
+                "default": false
+              }
+            }
           },
-          "speed": {
-            "type": "number"
+          "audio_setting": {
+            "type": "object",
+            "properties": {
+              "sample_rate": {
+                "type": "integer",
+                "default": 32000,
+                "enum": [8000, 16000, 22050, 24000, 32000, 44100]
+              },
+              "bitrate": {
+                "type": "integer",
+                "default": 128000,
+                "enum": [32000, 64000, 128000, 256000]
+              },
+              "format": {
+                "type": "string",
+                "default": "mp3",
+                "enum": ["mp3", "pcm", "flac", "wav", "pcmu_raw", "pcmu_wav", "opus"]
+              },
+              "channel": {
+                "type": "integer",
+                "default": 1,
+                "enum": [1, 2]
+              },
+              "force_cbr": {
+                "type": "boolean",
+                "default": false
+              }
+            }
           },
-          "vol": {
-            "type": "number"
+          "pronunciation_dict": {
+            "type": "object",
+            "properties": {
+              "tone": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
           },
-          "pitch": {
-            "type": "number"
+          "timbre_weights": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "voice_id": {
+                  "type": "string"
+                },
+                "weight": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              }
+            }
           },
-          "emotion": {
-            "type": "string"
+          "language_boost": {
+            "type": "string",
+            "enum": ["Chinese", "Chinese,Yue", "English", "Arabic", "Russian", "Spanish", "French", "Portuguese", "German", "Turkish", "Dutch", "Ukrainian", "Vietnamese", "Indonesian", "Japanese", "Italian", "Korean", "Thai", "Polish", "Romanian", "Greek", "Czech", "Finnish", "Hindi", "Bulgarian", "Danish", "Hebrew", "Malay", "Persian", "Slovak", "Swedish", "Croatian", "Filipino", "Hungarian", "Norwegian", "Slovenian", "Catalan", "Nynorsk", "Tamil", "Afrikaans", "auto"]
           },
-          "sample_rate": {
-            "type": "integer"
+          "voice_modify": {
+            "type": "object",
+            "properties": {
+              "pitch": {
+                "type": "integer",
+                "minimum": -100,
+                "maximum": 100,
+                "default": 0
+              },
+              "intensity": {
+                "type": "integer",
+                "minimum": -100,
+                "maximum": 100,
+                "default": 0
+              },
+              "timbre": {
+                "type": "integer",
+                "minimum": -100,
+                "maximum": 100,
+                "default": 0
+              },
+              "sound_effects": {
+                "type": "string"
+              }
+            }
           },
-          "bitrate": {
-            "type": "integer"
+          "subtitle_enable": {
+            "type": "boolean",
+            "default": false
           },
-          "format": {
-            "type": "string"
-          },
-          "channel": {
-            "type": "integer"
-          },
-          "stream": {
-            "type": "boolean"
+          "subtitle_type": {
+            "type": "string",
+            "default": "sentence",
+            "enum": ["sentence", "word"]
           }
         }
       }
@@ -126,38 +229,141 @@
       "type": "text-to-speech-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
-        "documentationUrl": "https://platform.minimax.io/docs/guides/models-intro",
+        "documentationUrl": "https://platform.minimax.io/docs/api-reference/speech-t2a-http",
         "documentationStatus": "verified",
         "inputs": {
-          "voice_id": {
-            "type": "string"
+          "voice_setting": {
+            "type": "object",
+            "properties": {
+              "voice_id": {
+                "type": "string",
+                "title": "Voice ID"
+              },
+              "speed": {
+                "type": "number",
+                "minimum": 0.5,
+                "maximum": 2,
+                "default": 1
+              },
+              "vol": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10,
+                "default": 1
+              },
+              "pitch": {
+                "type": "integer",
+                "minimum": -12,
+                "maximum": 12,
+                "default": 0
+              },
+              "emotion": {
+                "type": "string"
+              },
+              "text_normalization": {
+                "type": "boolean",
+                "default": false
+              },
+              "latex_read": {
+                "type": "boolean",
+                "default": false
+              }
+            }
           },
-          "speed": {
-            "type": "number"
+          "audio_setting": {
+            "type": "object",
+            "properties": {
+              "sample_rate": {
+                "type": "integer",
+                "default": 32000,
+                "enum": [8000, 16000, 22050, 24000, 32000, 44100]
+              },
+              "bitrate": {
+                "type": "integer",
+                "default": 128000,
+                "enum": [32000, 64000, 128000, 256000]
+              },
+              "format": {
+                "type": "string",
+                "default": "mp3",
+                "enum": ["mp3", "pcm", "flac", "wav", "pcmu_raw", "pcmu_wav", "opus"]
+              },
+              "channel": {
+                "type": "integer",
+                "default": 1,
+                "enum": [1, 2]
+              },
+              "force_cbr": {
+                "type": "boolean",
+                "default": false
+              }
+            }
           },
-          "vol": {
-            "type": "number"
+          "pronunciation_dict": {
+            "type": "object",
+            "properties": {
+              "tone": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
           },
-          "pitch": {
-            "type": "number"
+          "timbre_weights": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "voice_id": {
+                  "type": "string"
+                },
+                "weight": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              }
+            }
           },
-          "emotion": {
-            "type": "string"
+          "language_boost": {
+            "type": "string",
+            "enum": ["Chinese", "Chinese,Yue", "English", "Arabic", "Russian", "Spanish", "French", "Portuguese", "German", "Turkish", "Dutch", "Ukrainian", "Vietnamese", "Indonesian", "Japanese", "Italian", "Korean", "Thai", "Polish", "Romanian", "Greek", "Czech", "Finnish", "Hindi", "Bulgarian", "Danish", "Hebrew", "Malay", "Persian", "Slovak", "Swedish", "Croatian", "Filipino", "Hungarian", "Norwegian", "Slovenian", "Catalan", "Nynorsk", "Tamil", "Afrikaans", "auto"]
           },
-          "sample_rate": {
-            "type": "integer"
+          "voice_modify": {
+            "type": "object",
+            "properties": {
+              "pitch": {
+                "type": "integer",
+                "minimum": -100,
+                "maximum": 100,
+                "default": 0
+              },
+              "intensity": {
+                "type": "integer",
+                "minimum": -100,
+                "maximum": 100,
+                "default": 0
+              },
+              "timbre": {
+                "type": "integer",
+                "minimum": -100,
+                "maximum": 100,
+                "default": 0
+              },
+              "sound_effects": {
+                "type": "string"
+              }
+            }
           },
-          "bitrate": {
-            "type": "integer"
+          "subtitle_enable": {
+            "type": "boolean",
+            "default": false
           },
-          "format": {
-            "type": "string"
-          },
-          "channel": {
-            "type": "integer"
-          },
-          "stream": {
-            "type": "boolean"
+          "subtitle_type": {
+            "type": "string",
+            "default": "sentence",
+            "enum": ["sentence", "word"]
           }
         }
       }
