@@ -34,7 +34,7 @@ beforeEach(() => {
 	listExtensions.mockReturnValue([project, weather]);
 });
 
-it('lists the installed extensions through a main-only read tool', async () => {
+it('lists installed extensions and defines the tool identity', async () => {
 	await expect(listExtensionsTool.run({})).resolves.toEqual({ extensions: [project, weather] });
 	expect(listExtensionsTool).toMatchObject({
 		id: 'list_extensions',
@@ -63,7 +63,7 @@ it('rejects missing IDs before opening any extension', async () => {
 	expect(loadExtension).not.toHaveBeenCalled();
 });
 
-it('defines opening extensions as a permission-free main-only action', () => {
+it('defines the extension open tool identity', () => {
 	expect(openExtensionsTool(windowFactory)).toMatchObject({
 		id: 'open_extensions',
 		name: 'Open extensions',
