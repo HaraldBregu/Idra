@@ -6,7 +6,6 @@ import type {
 	RealtimeVoiceState,
 	RealtimeVoiceToolEvent,
 } from '@shared/realtime_voice';
-import type { AgentResponseEvent } from '@shared/agent_types';
 import {
 	base64ToPcm16,
 	canCaptureAudio,
@@ -194,7 +193,7 @@ export function useRealtimeVoice({
 			if (isToolEvent(event)) {
 				dispatchChat({
 					type: 'apply_response_event',
-					event: event as AgentResponseEvent,
+					event,
 					receivedAtMs: Date.now(),
 				});
 				return;
@@ -334,6 +333,7 @@ export function useRealtimeVoice({
 				return false;
 			}
 
+			setStatus('connecting');
 			const session = await window.models.realtimeVoice.startSession({ chatSessionId });
 			if (startRunRef.current !== runId) {
 				stopStream(mediaStream);
@@ -373,7 +373,7 @@ export function useRealtimeVoice({
 			setStream(mediaStream);
 			setInputAnalyser(inputNode);
 			setMuted(false);
-			setStatus('connecting');
+			setStatus('listening');
 			startedAtMsRef.current = Date.now();
 			clockRef.current = window.setInterval(() => {
 				setElapsedMs(Date.now() - startedAtMsRef.current);

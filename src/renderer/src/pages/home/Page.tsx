@@ -400,6 +400,8 @@ function PageContent(): ReactElement {
 	}, [setMode]);
 	const agent = useHomeAgent({ setMode });
 	const realtimeVoice = useRealtimeVoice({ chatSessionId, onClosed: closeVoiceUi });
+	const realtimeVoiceActive = realtimeVoice.isActive;
+	const endRealtimeVoice = realtimeVoice.end;
 	const dictation = useRealtimeDictation({
 		value: agent.input,
 		onValueChange: agent.setInput,
@@ -466,7 +468,7 @@ function PageContent(): ReactElement {
 		if (mode !== 'chat') return;
 		setVoiceMode(null);
 		setActiveDictationMode(null);
-		if (realtimeVoice.isActive) void realtimeVoice.end(false);
+		if (realtimeVoiceActive) void endRealtimeVoice(false);
 		if (
 			dictationStatus === 'checking-permission' ||
 			dictationStatus === 'connecting' ||
@@ -486,7 +488,8 @@ function PageContent(): ReactElement {
 		cancelRecordingSession,
 		dictationStatus,
 		mode,
-		realtimeVoice,
+		endRealtimeVoice,
+		realtimeVoiceActive,
 		recorderStatus,
 	]);
 
