@@ -8,7 +8,7 @@ import { defaultProviderId, loadProviders, providerModels, supportsCapability } 
 import { getProvider } from '../../../settings_store';
 import { buildSpeechAdapter } from './tts_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
-import { getModelId, getProviderId } from '../../models_store';
+import { getModelId, getProviderId, resolveOptions } from '../../models_store';
 import type { SpeechProviderSpec } from './tts_types';
 
 export async function synthesize(request: SpeechSynthesisRequest): Promise<SpeechSynthesisResult> {
@@ -18,7 +18,12 @@ export async function synthesize(request: SpeechSynthesisRequest): Promise<Speec
 	);
 	const modelId = resolveModelId(providerId, normalized.modelId ?? configuredModelId(providerId));
 	const provider = resolveProvider(providerId);
-	return buildSpeechAdapter(provider).synthesize({ ...normalized, providerId, modelId });
+	return buildSpeechAdapter(provider).synthesize({
+		...normalized,
+		providerId,
+		modelId,
+		options: resolveOptions('voice', providerId, modelId, normalized.options),
+	});
 }
 
 function resolveProviderId(providerId: string): string {

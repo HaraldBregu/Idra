@@ -21,7 +21,7 @@ import { getRagConfiguration, saveRagConfiguration } from '../agent/knowledge/ra
 
 export type { ModelKind, ModelSelection, ModelsStoreState } from '../settings_store';
 
-export type MediaModelKind = 'image' | 'sound' | 'video';
+export type MediaModelKind = 'image' | 'sound' | 'video' | 'voice';
 
 const EMPTY_SELECTION: ModelSelection = { providerId: '', modelId: '' };
 
@@ -160,7 +160,7 @@ function selection(kind: ModelKind): ModelSelection {
 }
 
 function isMediaModelKind(kind: ModelKind): kind is MediaModelKind {
-	return kind === 'image' || kind === 'sound' || kind === 'video';
+	return kind === 'image' || kind === 'sound' || kind === 'video' || kind === 'voice';
 }
 
 function agentMediaModelKind(kind: MediaModelKind): AgentMediaModelKind {

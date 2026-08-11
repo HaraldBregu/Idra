@@ -751,6 +751,11 @@ export interface SpeechInvokeChannelMap {
 		args: [];
 		result: string | undefined;
 	};
+	[SpeechChannels.getOptions]: { args: []; result: Record<string, unknown> };
+	[SpeechChannels.setOptions]: {
+		args: [options: Record<string, unknown>];
+		result: Record<string, unknown>;
+	};
 	[SpeechChannels.setProviderId]: {
 		args: [providerId: string];
 		result: void;

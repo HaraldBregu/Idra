@@ -278,6 +278,9 @@ export const models: ModelsApi = {
 		getProviderId: () => {
 			return typedInvokeUnwrap(SpeechChannels.getProviderId);
 		},
+		getOptions: () => typedInvokeUnwrap(SpeechChannels.getOptions),
+		setOptions: (options) =>
+			typedInvokeUnwrap(SpeechChannels.setOptions, normalizeOptions(options) ?? {}),
 		setProviderId: (providerId) => {
 			const normalizedProviderId = optionalTrimmedString(providerId);
 			if (!normalizedProviderId) throw new Error('Invalid voice provider id.');

@@ -48,7 +48,7 @@ export type AgentToolEffect =
 	| 'paid'
 	| 'persistence';
 
-export type AgentMediaModelKind = 'image' | 'audio' | 'video';
+export type AgentMediaModelKind = 'image' | 'audio' | 'video' | 'voice';
 
 export interface AgentMediaModelSettings {
 	providerId: string;

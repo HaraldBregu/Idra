@@ -26,6 +26,7 @@ type AgentStoreSchema = {
 	image_model: AgentMediaModelSettings;
 	audio_model: AgentMediaModelSettings;
 	video_model: AgentMediaModelSettings;
+	voice_model: AgentMediaModelSettings;
 	permissions: PermissionsSchema;
 };
 
@@ -51,6 +52,7 @@ const DEFAULT_AGENT_STORE: AgentStoreSchema = {
 	image_model: EMPTY_MEDIA_MODEL,
 	audio_model: EMPTY_MEDIA_MODEL,
 	video_model: EMPTY_MEDIA_MODEL,
+	voice_model: EMPTY_MEDIA_MODEL,
 	permissions: DEFAULT_AGENT_PERMISSIONS,
 };
 

@@ -101,6 +101,11 @@ export class ModelsIpc implements IpcModule {
 
 		registerCommand(SpeechChannels.synthesize, (request) => voice.synthesize(request));
 		registerQuery(SpeechChannels.getProviderId, () => getProviderId('voice'));
+		registerQuery(SpeechChannels.getOptions, () => getOptions('voice'));
+		registerCommand(SpeechChannels.setOptions, (options) => {
+			setOptions('voice', options);
+			return getOptions('voice');
+		});
 		registerCommand(SpeechChannels.setProviderId, (providerId) =>
 			setProviderId('voice', providerId)
 		);

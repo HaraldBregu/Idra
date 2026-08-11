@@ -238,8 +238,10 @@ export const DataChannels = {
 } as const;
 
 export const SpeechChannels = {
+	getOptions: 'speech:get-options',
 	getModelId: 'speech:get-model-id',
 	getProviderId: 'speech:get-provider-id',
+	setOptions: 'speech:set-options',
 	setModelId: 'speech:set-model-id',
 	setProviderId: 'speech:set-provider-id',
 	synthesize: 'speech:synthesize',
