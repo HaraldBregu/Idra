@@ -97,8 +97,8 @@ describe('RealtimeVoiceManager', () => {
 			emit: () => undefined,
 		});
 		const session = await manager.start(1, { chatSessionId: 'chat' });
-		const first = manager.appendAudio(1, session.id, 'A'.repeat(900_000));
-		expect(() => manager.appendAudio(1, session.id, 'A'.repeat(600_000))).toThrow('queue is full');
+		const first = manager.appendAudio(1, session.id, 'A'.repeat(150_000));
+		expect(() => manager.appendAudio(1, session.id, 'A'.repeat(150_000))).toThrow('queue is full');
 		release();
 		await first;
 	});
@@ -122,8 +122,9 @@ describe('RealtimeVoiceManager', () => {
 		});
 
 		const firstStart = manager.start(3, { chatSessionId: 'first' });
-		await Promise.resolve();
-		await Promise.resolve();
+		for (let attempt = 0; attempt < 10 && pending.length < 2; attempt += 1) {
+			await Promise.resolve();
+		}
 		const secondStart = manager.start(3, { chatSessionId: 'second' });
 		await Promise.resolve();
 		await Promise.resolve();
