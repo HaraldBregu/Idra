@@ -16,7 +16,7 @@ type PersonaProps = Omit<ComponentProps<'div'>, 'children'> & {
 };
 
 const RING_COUNT = 6;
-const SEGMENT_COUNT = 240;
+const SEGMENT_COUNT = 280;
 const TAU = Math.PI * 2;
 
 export function Persona({
@@ -29,14 +29,14 @@ export function Persona({
 }: PersonaProps): ReactElement {
 	const mountRef = useRef<HTMLDivElement>(null);
 	const stateRef = useRef(state);
-	const levelRef = useRef(level);
+	const levelRef = useRef(Number.isFinite(level) ? THREE.MathUtils.clamp(level, 0, 1) : 0);
 
 	useEffect(() => {
 		stateRef.current = state;
 	}, [state]);
 
 	useEffect(() => {
-		levelRef.current = THREE.MathUtils.clamp(level, 0, 1);
+		levelRef.current = Number.isFinite(level) ? THREE.MathUtils.clamp(level, 0, 1) : 0;
 	}, [level]);
 
 	useEffect(() => {
@@ -70,7 +70,9 @@ export function Persona({
 		scene.add(orb);
 
 		const rings = Array.from({ length: RING_COUNT }, (_, index) => {
-			const geometry = [new LineGeometry(), new LineGeometry(), new LineGeometry()];
+			const geometry = new LineGeometry();
+			geometry.setPositions(new Float32Array((SEGMENT_COUNT + 1) * 3));
+			const positionBuffer = (geometry.getAttribute('instanceStart') as THREE.InterleavedBufferAttribute).data;
 			const material = [
 				new LineMaterial({
 					blending: THREE.AdditiveBlending,
@@ -103,7 +105,10 @@ export function Persona({
 					worldUnits: false,
 				}),
 			];
-			const lines = geometry.map((item, layer) => new Line2(item, material[layer]));
+			const lines = material.map((item) => new Line2(geometry, item));
+			lines.forEach((line) => {
+				line.frustumCulled = false;
+			});
 			const group = new THREE.Group();
 			group.add(lines[2], lines[1], lines[0]);
 			orb.add(group);
@@ -127,6 +132,7 @@ export function Persona({
 				lobes: 3,
 				material,
 				phase: index * 0.91 + 0.17,
+				positionBuffer,
 				speed: 0.6,
 				target: {
 					arcLength: TAU,
@@ -275,6 +281,9 @@ export function Persona({
 					rings[0].lobes = 2;
 					rings[1].lobes = 3;
 					rings[2].lobes = 2;
+					rings[0].glow = 0.9;
+					rings[1].glow = 0.45;
+					rings[2].glow = 0.3;
 					rings[0].speed = 1.1;
 					rings[1].speed = 1.5;
 					rings[2].speed = 1.8;
@@ -326,8 +335,9 @@ export function Persona({
 			if (activeState === 'speaking') {
 				const syntheticLevel = 0.22 + 0.14 * Math.sin(now * 3.1) + 0.08 * Math.sin(now * 7.7);
 				const energy = Math.max(smoothedLevel, syntheticLevel);
+				const wobbleBase = [0.004, 0.005, 0.006, 0.006];
 				[0.012, 0.017, 0.019, 0.022].forEach((scale, index) => {
-					rings[index].target.wobble = 0.004 + index * 0.001 + energy * scale;
+					rings[index].target.wobble = wobbleBase[index] + energy * scale;
 				});
 			}
 
@@ -359,7 +369,9 @@ export function Persona({
 				ring.material[2].linewidth = current.width * 9;
 
 				const pointCount = Math.max(24, Math.round(SEGMENT_COUNT * (current.arcLength / TAU)));
-				const positions = new Float32Array((pointCount + 1) * 3);
+				const positions = ring.positionBuffer.array as Float32Array;
+				let previousX = 0;
+				let previousY = 0;
 				for (let index = 0; index <= pointCount; index += 1) {
 					const progress = index / pointCount;
 					const angle = current.arcStart + current.arcLength * progress + current.rotation;
@@ -383,11 +395,25 @@ export function Persona({
 						voiceRipple +
 						listeningRipple;
 
-					positions[index * 3] = Math.cos(angle) * radius * current.scaleX + current.offsetX;
-					positions[index * 3 + 1] = Math.sin(angle) * radius * current.scaleY + current.offsetY;
+					const x = Math.cos(angle) * radius * current.scaleX + current.offsetX;
+					const y = Math.sin(angle) * radius * current.scaleY + current.offsetY;
+
+					if (index > 0) {
+						const offset = (index - 1) * 6;
+						positions[offset] = previousX;
+						positions[offset + 1] = previousY;
+						positions[offset + 2] = 0;
+						positions[offset + 3] = x;
+						positions[offset + 4] = y;
+						positions[offset + 5] = 0;
+					}
+
+					previousX = x;
+					previousY = y;
 				}
 
-				ring.geometry.forEach((geometry) => geometry.setPositions(positions));
+				ring.geometry.instanceCount = pointCount;
+				ring.positionBuffer.needsUpdate = true;
 			});
 
 			orb.rotation.z = Math.sin(now * 0.19) * 0.003;
@@ -398,7 +424,7 @@ export function Persona({
 			renderer.setAnimationLoop(null);
 			resizeObserver.disconnect();
 			rings.forEach((ring) => {
-				ring.geometry.forEach((geometry) => geometry.dispose());
+				ring.geometry.dispose();
 				ring.material.forEach((material) => material.dispose());
 			});
 			renderer.dispose();
