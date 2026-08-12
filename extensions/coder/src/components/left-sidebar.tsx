@@ -1,7 +1,6 @@
-import { Clock3, Code2, FolderGit2, Plus, Search } from 'lucide-react';
+import { Check, Clock3, Code2, FolderGit2, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 
-import { FileTree } from '@/components/file-tree';
 import { Button } from '@/components/ui/button';
 import type { CoderController } from '@/types';
 
@@ -47,18 +46,13 @@ export function LeftSidebar({ coder }: { coder: CoderController }) {
 				</div>
 			</section>
 
-			<section className="coder-sidebar-section coder-files">
-				<header><span>Workspace</span><FolderGit2 /></header>
-				{coder.filesLoading ? <p className="coder-sidebar-empty">Loading files…</p> : null}
-				{!coder.filesLoading && coder.files.length === 0 ? (
-					<p className="coder-sidebar-empty">No workspace files</p>
-				) : (
-					<FileTree
-						entries={coder.files}
-						onSelect={(path) => void coder.selectFile(path)}
-						selectedPath={coder.selectedFilePath}
-					/>
-				)}
+			<section className="coder-sidebar-section coder-projects">
+				<header><span>Projects</span><span>1</span></header>
+				<button type="button" className="coder-project is-selected">
+					<span className="coder-project-icon"><FolderGit2 /></span>
+					<span><strong>{coder.workspaceName}</strong><small>{coder.workspaceLocation || 'Agent workspace'}</small></span>
+					<Check />
+				</button>
 			</section>
 
 			<footer className="coder-workspace-path" title={coder.workspaceLocation}>
