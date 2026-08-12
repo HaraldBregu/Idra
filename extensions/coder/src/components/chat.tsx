@@ -66,7 +66,7 @@ export function Chat({ coder }: { coder: CoderController }) {
 					}}
 				>
 					<textarea
-						ref={coder.composerRef}
+						id="coder-composer"
 						value={coder.input}
 						onChange={(event) => coder.setInput(event.target.value)}
 						onKeyDown={(event) => {

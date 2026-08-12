@@ -1,4 +1,4 @@
-import type { Dispatch, RefObject, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 
 export type RunState = 'idle' | 'running' | 'approval' | 'error';
 export type InspectorTab = 'changes' | 'context' | 'activity';
@@ -39,7 +39,6 @@ export interface CoderController {
 	activeSessionId: string;
 	activeSessionTitle: string;
 	changedFiles: string[];
-	composerRef: RefObject<HTMLTextAreaElement | null>;
 	error: string;
 	input: string;
 	inspectorTab: InspectorTab;

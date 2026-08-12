@@ -14,17 +14,17 @@ import type {
 const sessionIdsKey = 'coder-session-ids';
 const activeSessionKey = 'coder-active-session';
 const coderTools = new Set(['write_file', 'edit_file', 'apply_patch', 'create_file', 'delete_file']);
+const initialSessionId = crypto.randomUUID();
+const previewNow = Date.now();
 
 export function useCoder(): CoderController {
 	const preview = !isFriday();
-	const initialSessionId = useRef(crypto.randomUUID()).current;
-	const composerRef = useRef<HTMLTextAreaElement>(null);
 	const activeRunIdRef = useRef('');
-	const [sessions, setSessions] = useState<CoderSession[]>(
+	const [sessions, setSessions] = useState<CoderSession[]>(() =>
 		preview
 			? [
-					{ id: initialSessionId, title: 'Refine command palette', createdAtMs: Date.now() },
-					{ id: 'preview-2', title: 'Fix extension loading state', createdAtMs: Date.now() - 86_400_000 },
+					{ id: initialSessionId, title: 'Refine command palette', createdAtMs: previewNow },
+					{ id: 'preview-2', title: 'Fix extension loading state', createdAtMs: previewNow - 86_400_000 },
 				]
 			: []
 	);
@@ -133,11 +133,13 @@ export function useCoder(): CoderController {
 				setMessages([]);
 				setActivities([]);
 				setPermission(null);
-				window.requestAnimationFrame(() => composerRef.current?.focus());
+				window.requestAnimationFrame(() =>
+					document.querySelector<HTMLTextAreaElement>('#coder-composer')?.focus()
+				);
 			}
 			if (event.key === '/') {
 				event.preventDefault();
-				composerRef.current?.focus();
+				document.querySelector<HTMLTextAreaElement>('#coder-composer')?.focus();
 			}
 		};
 		window.addEventListener('keydown', onKeyDown);
@@ -150,7 +152,9 @@ export function useCoder(): CoderController {
 		setActivities([]);
 		setPermission(null);
 		setError('');
-		window.requestAnimationFrame(() => composerRef.current?.focus());
+		window.requestAnimationFrame(() =>
+			document.querySelector<HTMLTextAreaElement>('#coder-composer')?.focus()
+		);
 	}, []);
 
 	const selectSession = useCallback(async (sessionId: string) => {
@@ -405,7 +409,6 @@ export function useCoder(): CoderController {
 		activeSessionId,
 		activeSessionTitle,
 		changedFiles,
-		composerRef,
 		error,
 		input,
 		inspectorTab,
