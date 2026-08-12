@@ -54,8 +54,8 @@ export class ExecSandbox {
 			? {
 					filesystem: {
 						...config.filesystem,
-						allowRead: [...config.filesystem.allowRead, ...approvedPatterns],
-						allowWrite: [...config.filesystem.allowWrite, ...approvedPatterns],
+						allowRead: [...(config.filesystem.allowRead ?? []), ...approvedPatterns],
+						allowWrite: [...(config.filesystem.allowWrite ?? []), ...approvedPatterns],
 					},
 			}
 			: undefined;
