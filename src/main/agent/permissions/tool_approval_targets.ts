@@ -11,5 +11,7 @@ export function toolApprovalTargets(
 		return directoryPermissionTargets(toolName, args, baseDir);
 	}
 	const targets = toolPermissionTargets(toolName, args, baseDir);
-	return targets.map((target) => path.dirname(target));
+	return targets.length > 0
+		? targets.map((target) => path.dirname(target))
+		: directoryPermissionTargets(toolName, args, baseDir);
 }
