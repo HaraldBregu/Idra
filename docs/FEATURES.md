@@ -166,12 +166,12 @@ The Permissions screen provides persistent controls for sensitive tools:
 
 - The policy has three buckets: `read`, `write`, and `exec`.
 - Each bucket contains only `allow` and `deny` rule arrays. There is no persisted `ask` property.
-- Read and write entries are absolute or home-relative path globs. Exec entries are command rules.
-- The default policy allows reads and writes below the agent workspace and allows sandboxed commands. Unmatched sensitive operations resolve to an interactive **Ask** decision.
+- All entries are absolute or home-relative path globs. Exec entries identify directories where sandboxed commands may run and access files.
+- The default policy trusts the agent workspace recursively for reads, writes, and sandboxed commands. Unmatched sensitive operations resolve to an interactive **Ask** decision.
 - Tools unrelated to filesystem reads, filesystem mutations, or command execution remain allowed.
-- An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
-- An always-allow decision stores a containing-folder glob for reads, the exact target for writes, or the command for exec.
-- Resetting restores the default workspace path globs and sandboxed command rule.
+- An interactive permission card offers **Deny**, **Allow once**, and **Trust this location** when the grant can be persisted.
+- Trusting a location stores a recursive containing-folder glob for the requesting capability.
+- Resetting restores the default workspace path glob in all three buckets and removes prior command-text exec rules during migration.
 
 Permissions use this top-level structure:
 
@@ -186,8 +186,8 @@ Permissions use this top-level structure:
 		"deny": ["/workspace/.git/**", "/workspace/config/prod/**"]
 	},
 	"exec": {
-		"allow": ["python", "pytest", "npm test", "git status"],
-		"deny": ["sudo", "rm -rf", "curl", "wget", "ssh"]
+		"allow": ["/workspace/**", "/shared/build-cache/**"],
+		"deny": ["/workspace/private/**"]
 	}
 }
 ```
@@ -197,16 +197,18 @@ Rule resolution is deny-first:
 - Any matching deny rule denies the operation, even when an allow rule also matches.
 - If no deny matches, a matching allow rule allows the operation.
 - If neither matches, the runtime requests approval when interactive and denies non-interactive background calls.
-- A single-word exec allow rule such as `python` includes its arguments. A multi-word allow rule such as `npm test` is exact. Deny command rules match the command and its arguments.
-- Compound commands are allowed automatically only when every segment is allowed. Commands using substitutions or redirections require approval.
+- Shell syntax does not change the permission decision. Commands using pipes, substitutions, or redirections run without a prompt when every declared location is trusted.
+- `exec_command.workdir` and every `exec_command.additionalRoots` entry are canonicalized before authorization. Relative additional roots resolve from the command working directory.
 
 Important boundaries:
 
-- Normal `exec` calls run inside the operating-system command sandbox. Read deny rules and both write rule arrays are also applied at the OS boundary.
-- A command that intentionally needs host execution must use `elevated: true`. The wildcard `*` does not authorize elevated execution; a non-wildcard exec allow rule or interactive approval is required.
+- Normal `exec` calls run inside the operating-system command sandbox. Trusted and blocked exec paths are also applied to sandbox reads and writes.
+- A command that needs an outside directory must declare it in `additionalRoots`. Friday asks before spawning the command; a one-time approval extends only that sandboxed invocation.
+- A command that intentionally needs host execution must use `elevated: true`. Host execution always requires interactive approval and cannot be persisted as a trusted location.
+- Windows does not support per-invocation filesystem overrides. An outside location must be trusted persistently before a Windows sandboxed command can use it.
 - Background calls never bypass stored permissions. Because they cannot display an approval request, an **Ask** result is denied.
 - Relative policy paths such as `Desktop/**` resolve from the user home directory.
-- Permission rules are editable from Settings, one rule per line.
+- Permission rules are managed as trusted or blocked locations in Settings, scoped to read, write, and execute capabilities.
 
 ### Skills
 
