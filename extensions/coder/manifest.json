@@ -1,6 +1,6 @@
 {
-	"title": "Workspace",
-	"description": "Friday workspace extension.",
+	"title": "Coder",
+	"description": "A focused coding agent with task sessions, workspace context, live activity, and change review.",
 	"metadata": {
 		"version": "1.0.0",
 		"category": "utility",

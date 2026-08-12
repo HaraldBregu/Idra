@@ -1,8 +1,8 @@
 {
-	"name": "workspace",
+	"name": "friday-coder",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Friday workspace extension.",
+	"description": "A focused coding agent for Friday with task, workspace, and review sidebars.",
 	"keywords": [
 		"utility"
 	],
