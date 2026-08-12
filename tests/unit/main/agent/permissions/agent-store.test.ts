@@ -1,6 +1,6 @@
 jest.mock('electron-store', () =>
 	jest.fn().mockImplementation((options: { defaults?: unknown }) => {
-		let backing = structuredClone(options.defaults ?? {});
+		const backing = structuredClone(options.defaults ?? {});
 		return {
 			get: (key: string) => (backing as Record<string, unknown>)[key],
 			set: (key: string, value: unknown) => {
