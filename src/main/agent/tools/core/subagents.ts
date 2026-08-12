@@ -12,6 +12,7 @@ export interface ChildRuntime extends Pick<
 	'resources' | 'providerLimiter' | 'subagentLimiter'
 > {
 	type: AgentRunType;
+	interactionMode: import('../../../../shared/agent_types').AgentInteractionMode;
 }
 
 export async function runChild(
@@ -28,6 +29,7 @@ export async function runChild(
 		message: task,
 		agentId: 'subagent',
 		contextMode: 'minimal' as const,
+		interactionMode: runtime.interactionMode,
 		toolsAllow: tools.map((candidate) => candidate.id),
 	};
 	const input: RuntimeInput =
@@ -82,6 +84,7 @@ export function subagentTool(
 		name: 'Subagent',
 		description:
 			'Spawn a subagent to complete a task in its own isolated context and return a summary. It has the same tools as you, except spawning subagents. Use it for work that takes many steps, produces large intermediate output, or is independent of the conversation. Give it a clear objective and the expected output.',
+		planSafe: true,
 		inputSchema: z.object({
 			task: z.string().describe('The task for the subagent to complete'),
 		}),
@@ -112,6 +115,7 @@ export function subagentsTool(
 		name: 'Subagents',
 		description:
 			'Spawn two or three independent read-only subagents concurrently. Each task must have a stable id. Results preserve input order, and one failed child does not cancel its siblings.',
+		planSafe: true,
 		inputSchema: z.object({
 			tasks: z
 				.array(

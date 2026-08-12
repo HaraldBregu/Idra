@@ -6,6 +6,7 @@ export const getRecentWikiActivityTool = tool({
 	id: 'get_recent_wiki_activity',
 	name: 'Get recent wiki activity',
 	description: 'Read recent append-only wiki operations and pending human-review item IDs.',
+	planSafe: true,
 	inputSchema: z.object({ count: z.number().int().min(1).max(50).optional() }),
 	execute: async ({ count }) => getRecentWikiActivity(count),
 });
