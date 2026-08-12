@@ -1,6 +1,6 @@
 {
 	"title": "Coder",
-	"description": "A focused coding agent with task sessions, workspace context, live activity, and change review.",
+	"description": "A terminal-first coding agent with task sessions, project navigation, live commands, and workspace context.",
 	"metadata": {
 		"version": "1.0.0",
 		"category": "utility",

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { agent, app, isFriday } from '@friday/sdk';
 
 import type {
@@ -7,13 +7,11 @@ import type {
 	CoderMessage,
 	CoderPermission,
 	CoderSession,
-	InspectorTab,
 	RunState,
 } from '@/types';
 
 const sessionIdsKey = 'coder-session-ids';
 const activeSessionKey = 'coder-active-session';
-const coderTools = new Set(['write_file', 'edit_file', 'apply_patch', 'create_file', 'delete_file']);
 const initialSessionId = crypto.randomUUID();
 const previewNow = Date.now();
 
@@ -65,11 +63,7 @@ export function useCoder(): CoderController {
 	const [runLabel, setRunLabel] = useState(preview ? 'Preview' : 'Ready');
 	const [permission, setPermission] = useState<CoderPermission | null>(null);
 	const [error, setError] = useState('');
-	const [selectedFilePath, setSelectedFilePath] = useState('');
-	const [selectedFileContent, setSelectedFileContent] = useState('');
-	const [inspectorTab, setInspectorTab] = useState<InspectorTab>('changes');
 	const [leftOpen, setLeftOpen] = useState(true);
-	const [rightOpen, setRightOpen] = useState(true);
 
 	useEffect(() => {
 		if (preview) return;
@@ -193,25 +187,6 @@ export function useCoder(): CoderController {
 		}
 	}, []);
 
-	const selectFile = useCallback(async (path: string) => {
-		setSelectedFilePath(path);
-		setInspectorTab('context');
-		setRightOpen(true);
-		if (!isFriday()) {
-			setSelectedFileContent(
-				path.endsWith('recent.ts')
-					? "export const recentCommands = new Map<string, number>();\n"
-					: 'Select a workspace text file in Friday to inspect its current contents.'
-			);
-			return;
-		}
-		try {
-			setSelectedFileContent(await agent.readWorkspaceFile(path));
-		} catch {
-			setSelectedFileContent('Preview is unavailable for this file type.');
-		}
-	}, []);
-
 	const cancelRun = useCallback(() => {
 		const runId = activeRunIdRef.current;
 		if (runId && isFriday()) void agent.cancel(runId).catch(() => undefined);
@@ -320,7 +295,6 @@ export function useCoder(): CoderController {
 									? {
 											...item,
 											detail: path || event.argsText || 'Action ready',
-											path: coderTools.has(event.toolName) ? path : undefined,
 										}
 									: item
 							)
@@ -396,10 +370,6 @@ export function useCoder(): CoderController {
 		}
 	}, [activeSessionId, input]);
 
-	const changedFiles = useMemo(
-		() => [...new Set(activities.flatMap((activity) => (activity.path ? [activity.path] : [])))],
-		[activities]
-	);
 	const workspaceName = workspaceLocation.split(/[\\/]/).filter(Boolean).at(-1) || 'Agent workspace';
 	const activeSessionTitle =
 		sessions.find((session) => session.id === activeSessionId)?.title || 'New coding task';
@@ -408,20 +378,15 @@ export function useCoder(): CoderController {
 		activities,
 		activeSessionId,
 		activeSessionTitle,
-		changedFiles,
 		error,
 		input,
-		inspectorTab,
 		isPreview: preview,
 		leftOpen,
 		messages,
 		modelId,
 		permission,
-		rightOpen,
 		runLabel,
 		runState,
-		selectedFileContent,
-		selectedFilePath,
 		sessions,
 		sessionsLoading,
 		workspaceLocation,
@@ -429,12 +394,9 @@ export function useCoder(): CoderController {
 		approvePermission,
 		cancelRun,
 		createSession,
-		selectFile,
 		selectSession,
 		send,
 		setInput,
-		setInspectorTab,
 		setLeftOpen,
-		setRightOpen,
 	};
 }
