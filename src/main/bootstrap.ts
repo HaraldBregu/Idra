@@ -39,6 +39,7 @@ export function bootstrapServices(): BootstrapResult {
 	const realtimeVoiceManager = createRealtimeVoiceManager(agentService, windowFactory, eventBus);
 	const conversationService = new Conversation(agentService, realtimeVoiceManager);
 	eventBus.on('window:closed', (event) => {
+		agentService.cancelWindow((event.payload as { windowId: number }).windowId);
 		void conversationService.execute({
 			type: 'voice',
 			action: 'stop-window',

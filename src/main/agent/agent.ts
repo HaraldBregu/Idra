@@ -321,6 +321,12 @@ export class Agent {
 		}
 	}
 
+	cancelWindow(windowId: number): void {
+		for (const record of this.runs.values()) {
+			if (record.request.windowId === windowId) this.cancel(record.request.id, windowId);
+		}
+	}
+
 	isBusy(agentId: string): boolean {
 		return [...this.runs.values()].some((record) => record.request.agentId === agentId);
 	}
