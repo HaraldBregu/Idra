@@ -89,6 +89,11 @@ export async function* runToolCall(
 			const approvalId = crypto.randomUUID();
 			const fingerprint = inputFingerprint(canonicalInput);
 			const expiresAtMs = Date.now() + 120_000;
+			const allowOnce = !(
+				process.platform === 'win32' &&
+				toolCall.name === 'exec_command' &&
+				resolution.reason === 'outside_trusted_location'
+			);
 			yield {
 				type: 'tool_permission_request',
 				approvalId,
@@ -99,11 +104,7 @@ export async function* runToolCall(
 				targets: resolution.approvalTargets,
 				reason: resolution.reason ?? 'outside_trusted_location',
 				persistable: resolution.persistable,
-				allowOnce: !(
-					process.platform === 'win32' &&
-					toolCall.name === 'exec_command' &&
-					resolution.reason === 'outside_trusted_location'
-				),
+				allowOnce,
 				expiresAt: new Date(expiresAtMs).toISOString(),
 				inputFingerprint: fingerprint,
 			};
@@ -118,13 +119,14 @@ export async function* runToolCall(
 				},
 				signal
 			);
-			permissionOutcome = decision;
-			if (decision === 'approve_always' && resolution.persistable && resolution.kind) {
+			const effectiveDecision = decision === 'approve' && !allowOnce ? 'reject' : decision;
+			permissionOutcome = effectiveDecision;
+			if (effectiveDecision === 'approve_always' && resolution.persistable && resolution.kind) {
 				for (const target of resolution.approvalTargets) {
 					addPermissionRule(resolution.kind, 'allow', recursivePermissionRule(target));
 				}
 			}
-			permission = decision === 'reject' ? 'deny' : 'allow';
+			permission = effectiveDecision === 'reject' ? 'deny' : 'allow';
 		}
 		permissionOutcome ??= permission;
 
