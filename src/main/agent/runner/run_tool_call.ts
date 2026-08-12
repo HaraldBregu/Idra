@@ -19,10 +19,16 @@ import { formatToolOutput } from './run_common';
 import { limitToolOutput } from './run_limit_output';
 import type { KeyedMutex } from '../mutex';
 import { directoryPermissionTargets } from '../permissions/directory_permission_targets';
+import type {
+	AgentInteractionMode,
+	AgentUserInputQuestion,
+} from '../../../shared/agent_types';
+import { waitForUserInput } from '../user_input/user_input_pending';
 
 export interface ToolCallSecurityContext {
 	runId: string;
 	windowId?: number;
+	interactionMode?: AgentInteractionMode;
 }
 
 export async function* runToolCall(
@@ -73,6 +79,49 @@ export async function* runToolCall(
 	} else if (parseError) {
 		output = `Error: invalid input for '${toolCall.name}': ${parseError instanceof Error ? parseError.message : String(parseError)}`;
 		isError = true;
+	} else if (security.interactionMode === 'plan' && tool.planSafe !== true) {
+		output = `Error: tool '${toolCall.name}' is unavailable in Plan mode`;
+		isError = true;
+	} else if (toolCall.name === 'request_user_input') {
+		if (security.interactionMode !== 'plan' || security.windowId === undefined) {
+			output = 'Error: structured user input is only available in an interactive Plan run.';
+			isError = true;
+		} else {
+			const questions = canonicalInput.questions as AgentUserInputQuestion[];
+			const requestId = crypto.randomUUID();
+			const fingerprint = inputFingerprint(canonicalInput);
+			const expiresAtMs = Date.now() + 10 * 60_000;
+			yield {
+				type: 'user_input_request',
+				requestId,
+				toolCallId: toolCall.id,
+				questions,
+				expiresAt: new Date(expiresAtMs).toISOString(),
+				inputFingerprint: fingerprint,
+			};
+			const answers = await waitForUserInput(
+				{
+					requestId,
+					runId: security.runId,
+					toolCallId: toolCall.id,
+					inputFingerprint: fingerprint,
+					questionIds: questions.map((question) => question.id),
+					expiresAtMs,
+					windowId: security.windowId,
+				},
+				signal
+			);
+			const status = answers ? 'resolved' : 'interrupted';
+			yield {
+				type: 'user_input_result',
+				requestId,
+				toolCallId: toolCall.id,
+				status,
+				answers: answers ?? [],
+			};
+			output = { status, answers: answers ?? [] };
+			isError = !answers;
+		}
 	} else {
 		const resolution = resolveToolPermissionDetails(
 			toolCall.name,
