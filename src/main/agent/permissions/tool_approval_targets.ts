@@ -1,4 +1,6 @@
 import path from 'node:path';
+import { directoryPermissionTargets } from './directory_permission_targets';
+import { recursivePermissionRule } from './recursive_permission_rule';
 import { toolPermissionTargets } from './tool_permission_targets';
 
 export function toolApprovalTargets(
@@ -6,8 +8,9 @@ export function toolApprovalTargets(
 	args: Record<string, unknown>,
 	baseDir: string
 ): string[] {
+	if (toolName === 'exec_command' || toolName === 'process') {
+		return directoryPermissionTargets(toolName, args, baseDir);
+	}
 	const targets = toolPermissionTargets(toolName, args, baseDir);
-	return toolName === 'read_file'
-		? targets.map((target) => path.join(path.dirname(target), '**'))
-		: targets;
+	return targets.map((target) => recursivePermissionRule(path.dirname(target)));
 }

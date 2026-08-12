@@ -5,7 +5,8 @@ export {
 	setPermissions,
 } from '../agent_store';
 export { toolApprovalTargets } from './tool_approval_targets';
-export { resolveToolPermission } from './resolve_tool_permission';
+export { resolveToolPermission, resolveToolPermissionDetails } from './resolve_tool_permission';
+export { recursivePermissionRule } from './recursive_permission_rule';
 export {
 	rejectPendingToolPermissions,
 	respondToolPermission,

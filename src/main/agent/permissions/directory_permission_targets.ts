@@ -7,6 +7,7 @@ import { skillsRoot } from '../skills/skills_root';
 import { registry } from '../tools/core/process';
 import { toolPermissionTargets } from './tool_permission_targets';
 import { getWikiSettings } from '../knowledge/wiki/wiki_get_settings';
+import { resolveExecRoots } from './resolve_exec_roots';
 
 const AGENT_FILES: Record<string, string> = {
 	save_memory: 'MEMORY.md',
@@ -39,14 +40,13 @@ export function directoryPermissionTargets(
 	baseDir: string
 ): string[] {
 	if (toolName === 'exec_command') {
-		if (typeof args.command !== 'string' || args.command.length === 0) return [];
-		const workdir =
-			typeof args.workdir === 'string' && args.workdir.length > 0 ? args.workdir : '.';
-		return [realPath(resolveUserPath(workdir, baseDir))];
+		return resolveExecRoots(args, baseDir);
 	}
 	if (toolName === 'process') {
 		const session = typeof args.sessionId === 'string' ? registry.get(args.sessionId) : undefined;
-		return session && session.executionMode === 'sandbox' ? [realPath(session.workdir)] : [];
+		return session && session.executionMode === 'sandbox'
+			? [realPath(session.workdir), ...session.roots.map(realPath)]
+			: [];
 	}
 	if (typeof args.path === 'string' || toolName === 'apply_patch') {
 		const targets = toolPermissionTargets(toolName, args, baseDir);
