@@ -17,6 +17,7 @@ import { agentLocation } from '../shared/agent_location';
 import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../tasks';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './permissions';
+import { interruptPendingUserInput } from './user_input/user_input_pending';
 import { parseSkillCommand } from './skills';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
@@ -185,6 +186,8 @@ export class Agent {
 				contextMode:
 					options.contextMode ??
 					(options.lightContext === true || request.category !== 'main' ? 'minimal' : 'workspace'),
+				interactionMode:
+					request.category === 'main' && options.interactionMode === 'plan' ? 'plan' : 'default',
 				...(options.effort ? { effort: options.effort } : {}),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
 				...(options.files?.length ? { files: options.files } : {}),
@@ -306,11 +309,13 @@ export class Agent {
 		const cancelled = cancelRun(record, new DOMException('Run cancelled.', 'AbortError'));
 		if (!cancelled) return false;
 		rejectPendingToolPermissions(runId);
+		interruptPendingUserInput(runId);
 		return true;
 	}
 
 	cancelAll(): void {
 		rejectPendingToolPermissions();
+		interruptPendingUserInput();
 		for (const record of this.runs.values()) {
 			cancelRun(record, new DOMException('Application shutting down.', 'AbortError'));
 		}
@@ -439,7 +444,16 @@ function runtimeEventToAgentEvents(
 	streamingToolArgs: Map<string, { name: string; argsText: string }>
 ): AgentResponseEvent[] {
 	if (event.type === 'run_started') {
-		return [{ type: 'run_state', state: 'thinking', agentId, runId }];
+		return [
+			{
+				type: 'run_started',
+				sessionId: event.sessionId,
+				interactionMode: event.interactionMode,
+				agentId,
+				runId,
+			},
+			{ type: 'run_state', state: 'thinking', agentId, runId },
+		];
 	}
 	if (event.type === 'run_error') {
 		return [{ type: 'run_state', state: 'error', label: event.message, agentId, runId }];
@@ -529,6 +543,23 @@ function runtimeEventToAgentEvents(
 				agentId,
 				runId,
 			},
+		];
+	}
+	if (event.type === 'user_input_request') {
+		return [
+			{
+				...event,
+				type: 'user_input_request',
+				agentId,
+				runId,
+			},
+			{ type: 'run_state', state: 'awaiting_input', agentId, runId },
+		];
+	}
+	if (event.type === 'user_input_result') {
+		return [
+			{ ...event, type: 'user_input_result', agentId, runId },
+			{ type: 'run_state', state: 'thinking', agentId, runId },
 		];
 	}
 	if (event.type === 'tool_call_end') {

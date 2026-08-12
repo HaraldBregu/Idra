@@ -13,9 +13,12 @@ import type { PublicProvider } from '../../shared/provider_types';
 import { loadProviders } from '../models';
 import type {
 	AgentContextMode,
+	AgentInteractionMode,
 	AgentRunOptions,
 	AgentToolPermissionDecision,
 	AgentToolPermissionScope,
+	AgentUserInputAnswer,
+	AgentUserInputScope,
 	ModelReasoningEffort,
 	WorkspaceTreeEntry,
 } from '../../shared/agent_types';
@@ -64,6 +67,7 @@ import { writeWorkspaceMarkdown } from './markdown';
 import { moveWorkspaceEntry } from './move';
 import { renameWorkspaceEntry } from './rename';
 import { resolveWorkspaceFile } from './workspace';
+import { respondUserInput } from '../agent/user_input/user_input_pending';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;
@@ -97,6 +101,33 @@ function toToolPermissionScope(value: unknown): AgentToolPermissionScope {
 	};
 }
 
+function toUserInputScope(value: unknown): AgentUserInputScope {
+	if (!isRecord(value)) throw new Error('Invalid user input scope.');
+	const requestId = optionalTrimmedString(value.requestId);
+	const runId = optionalTrimmedString(value.runId);
+	const toolCallId = optionalTrimmedString(value.toolCallId);
+	const inputFingerprint = optionalTrimmedString(value.inputFingerprint);
+	if (!requestId || !runId || !toolCallId || !inputFingerprint)
+		throw new Error('Invalid user input scope.');
+	return { requestId, runId, toolCallId, inputFingerprint };
+}
+
+function toUserInputAnswers(value: unknown): AgentUserInputAnswer[] {
+	if (!Array.isArray(value) || value.length < 1 || value.length > 3)
+		throw new Error('Invalid user input answers.');
+	const answers = value.map((answer) => {
+		if (!isRecord(answer)) throw new Error('Invalid user input answer.');
+		const questionId = optionalTrimmedString(answer.questionId);
+		const text = optionalTrimmedString(answer.answer);
+		if (!questionId || !text || questionId.length > 64 || text.length > 1000)
+			throw new Error('Invalid user input answer.');
+		return { questionId, answer: text };
+	});
+	if (new Set(answers.map((answer) => answer.questionId)).size !== answers.length)
+		throw new Error('User input answer IDs must be unique.');
+	return answers;
+}
+
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
 	'minimal',
@@ -128,6 +159,7 @@ function toPermissionRules(value: unknown): PermissionRules {
 function toPermissions(value: unknown): PermissionsSchema {
 	if (!isRecord(value)) throw new Error('Invalid permissions.');
 	return {
+		interactionMode: options.interactionMode === 'plan' ? 'plan' : 'default',
 		read: toPermissionRules(value.read),
 		write: toPermissionRules(value.write),
 		exec: toPermissionRules(value.exec),
@@ -245,6 +277,15 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 					},
 				});
 			}, AgentChannels.send)
+		);
+
+		ipcMain.handle(
+			AgentChannels.respondUserInput,
+			wrapIpcHandler((event, value: unknown, answers: unknown): boolean => {
+				const window = BrowserWindow.fromWebContents(event.sender);
+				if (!window) return false;
+				return respondUserInput(toUserInputScope(value), toUserInputAnswers(answers), window.id);
+			}, AgentChannels.respondUserInput)
 		);
 
 		ipcMain.handle(

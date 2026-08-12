@@ -21,6 +21,9 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 			...(typeof event.sessionId === 'string' ? { sessionId: event.sessionId } : {}),
 			...(typeof event.model === 'string' ? { model: event.model } : {}),
 			...(typeof event.providerId === 'string' ? { providerId: event.providerId } : {}),
+			...(typeof event.interactionMode === 'string'
+				? { interactionMode: event.interactionMode }
+				: {}),
 			toolCount: Array.isArray(event.tools) ? event.tools.length : 0,
 			skillDiagnosticCount: Array.isArray(event.skillDiagnostics)
 				? event.skillDiagnostics.length
@@ -149,6 +152,16 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 			...(typeof event.toolCallId === 'string' ? { toolCallId: event.toolCallId } : {}),
 			...(typeof event.toolName === 'string' ? { toolName: event.toolName } : {}),
 			...(typeof event.expiresAt === 'string' ? { expiresAt: event.expiresAt } : {}),
+		};
+	}
+	if (event.type === 'user_input_request' || event.type === 'user_input_result') {
+		return {
+			type: event.type,
+			...(typeof event.requestId === 'string' ? { requestId: event.requestId } : {}),
+			...(typeof event.toolCallId === 'string' ? { toolCallId: event.toolCallId } : {}),
+			...(typeof event.status === 'string' ? { status: event.status } : {}),
+			questionCount: Array.isArray(event.questions) ? event.questions.length : undefined,
+			answerCount: Array.isArray(event.answers) ? event.answers.length : undefined,
 		};
 	}
 	if (event.type === 'run_finished') {
