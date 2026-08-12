@@ -158,10 +158,12 @@ async function* loop(
 
 	let closeMcp: (() => Promise<void>) | undefined;
 	let mcpDiscovery: McpDiscoveryDiagnostics | undefined;
-	if (!options.tools && input.interactionMode !== 'plan') {
+	if (!options.tools) {
 		if (
+			input.interactionMode !== 'plan' &&
 			input.toolsAllow === undefined ||
-			input.toolsAllow.some((toolId) => toolId.startsWith('mcp__'))
+			(input.interactionMode !== 'plan' &&
+				input.toolsAllow?.some((toolId) => toolId.startsWith('mcp__')))
 		) {
 			const mcp = await loadMcpTools(signal);
 			tools.push(...mcp.tools);
