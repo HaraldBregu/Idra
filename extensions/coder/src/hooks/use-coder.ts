@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { agent, app, isFriday, type WorkspaceTreeEntry } from '@friday/sdk';
+import { agent, app, isFriday } from '@friday/sdk';
 
 import type {
 	CoderActivity,
@@ -28,7 +28,7 @@ export function useCoder(): CoderController {
 				]
 			: []
 	);
-	const [activeSessionId, setActiveSessionId] = useState(initialSessionId);
+	const [activeSessionId, setActiveSessionId] = useState<string>(initialSessionId);
 	const [messages, setMessages] = useState<CoderMessage[]>(
 		preview
 			? [
@@ -57,24 +57,7 @@ export function useCoder(): CoderController {
 				]
 			: []
 	);
-	const [files, setFiles] = useState<WorkspaceTreeEntry[]>(
-		preview
-			? [
-					{
-						name: 'src',
-						path: 'src',
-						type: 'directory',
-						children: [
-							{ name: 'CommandMenu.tsx', path: 'src/CommandMenu.tsx', type: 'file' },
-							{ name: 'recent.ts', path: 'src/recent.ts', type: 'file' },
-						],
-					},
-					{ name: 'package.json', path: 'package.json', type: 'file' },
-				]
-			: []
-	);
 	const [workspaceLocation, setWorkspaceLocation] = useState(preview ? '/workspace/friday' : '');
-	const [filesLoading, setFilesLoading] = useState(!preview);
 	const [sessionsLoading, setSessionsLoading] = useState(!preview);
 	const [input, setInput] = useState('');
 	const [modelId, setModelId] = useState(preview ? 'gpt-5.4' : 'Default model');
@@ -94,18 +77,16 @@ export function useCoder(): CoderController {
 		void Promise.all([
 			agent.listSessions(),
 			agent.getWorkspaceLocation(),
-			agent.listWorkspaceFiles(),
 			agent.getModelId(),
 			app.getExtensionStoreValue<string[]>(sessionIdsKey),
 			app.getExtensionStoreValue<string>(activeSessionKey),
 		])
-			.then(async ([allSessions, location, workspaceFiles, currentModel, storedIds, storedActive]) => {
+			.then(async ([allSessions, location, currentModel, storedIds, storedActive]) => {
 				if (!active) return;
 				const ids = new Set(storedIds ?? []);
 				const coderSessions = allSessions.filter((session) => ids.has(session.id));
 				setSessions(coderSessions);
 				setWorkspaceLocation(location);
-				setFiles(workspaceFiles);
 				setModelId(currentModel || 'Default model');
 				const nextActive = storedActive && ids.has(storedActive) ? storedActive : initialSessionId;
 				setActiveSessionId(nextActive);
@@ -136,7 +117,6 @@ export function useCoder(): CoderController {
 			.catch((reason) => setError(reason instanceof Error ? reason.message : 'Unable to load Coder.'))
 			.finally(() => {
 				if (!active) return;
-				setFilesLoading(false);
 				setSessionsLoading(false);
 			});
 		return () => {
@@ -348,7 +328,12 @@ export function useCoder(): CoderController {
 								item.id === event.toolCallId
 									? {
 											...item,
-											status: event.status === 'ok' ? 'ok' : event.status,
+											status:
+												event.status === 'ok'
+													? 'ok'
+													: event.status === 'blocked' || event.status === 'rejected'
+														? 'blocked'
+														: 'error',
 											detail: event.errorText || item.detail,
 											durationMs: event.durationMs,
 										}
@@ -390,7 +375,6 @@ export function useCoder(): CoderController {
 				return next;
 			});
 			void app.setExtensionStoreValue(activeSessionKey, activeSessionId);
-			void agent.listWorkspaceFiles().then(setFiles).catch(() => undefined);
 			setRunState('idle');
 			setRunLabel('Ready');
 		} catch (reason) {
@@ -423,8 +407,6 @@ export function useCoder(): CoderController {
 		changedFiles,
 		composerRef,
 		error,
-		files,
-		filesLoading,
 		input,
 		inspectorTab,
 		isPreview: preview,

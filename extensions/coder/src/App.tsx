@@ -4,7 +4,6 @@ import { Chat } from '@/components/chat';
 import { Inspector } from '@/components/inspector';
 import { LeftSidebar } from '@/components/left-sidebar';
 import { Button } from '@/components/ui/button';
-import { TooltipProvider } from '@/components/ui/tooltip';
 import { useCoder } from '@/hooks/use-coder';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -13,8 +12,7 @@ export default function App() {
 	const coder = useCoder();
 
 	return (
-		<TooltipProvider>
-			<main
+		<main
 				className="coder-shell"
 				data-left-open={coder.leftOpen}
 				data-right-open={coder.rightOpen}
@@ -63,7 +61,6 @@ export default function App() {
 				<aside className="coder-right" aria-label="Work inspector">
 					<Inspector coder={coder} />
 				</aside>
-			</main>
-		</TooltipProvider>
+		</main>
 	);
 }

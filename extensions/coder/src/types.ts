@@ -1,5 +1,4 @@
 import type { Dispatch, RefObject, SetStateAction } from 'react';
-import type { WorkspaceTreeEntry } from '@friday/sdk';
 
 export type RunState = 'idle' | 'running' | 'approval' | 'error';
 export type InspectorTab = 'changes' | 'context' | 'activity';
@@ -42,8 +41,6 @@ export interface CoderController {
 	changedFiles: string[];
 	composerRef: RefObject<HTMLTextAreaElement | null>;
 	error: string;
-	files: WorkspaceTreeEntry[];
-	filesLoading: boolean;
 	input: string;
 	inspectorTab: InspectorTab;
 	isPreview: boolean;
