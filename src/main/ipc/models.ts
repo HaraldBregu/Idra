@@ -31,7 +31,7 @@ import {
 	startRealtime,
 	transcribe as sttTranscribe,
 } from '../models/adapters/stt';
-import { getRealtimeVoiceSetup, setRealtimeVoiceSetup } from '../realtime_voice/setup';
+import { getRealtimeVoiceSetup, setRealtimeVoiceSetup } from '../agent/realtime_voice/setup';
 
 export class ModelsIpc implements IpcModule {
 	readonly name = 'models';

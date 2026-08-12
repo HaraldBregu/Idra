@@ -42,7 +42,7 @@ jest.mock('../../../../src/main/models/adapters/stt', () => ({
 	startRealtime: jest.fn(),
 	transcribe: jest.fn(),
 }));
-jest.mock('../../../../src/main/realtime_voice/setup', () => ({
+jest.mock('../../../../src/main/agent/realtime_voice/setup', () => ({
 	getRealtimeVoiceSetup,
 	setRealtimeVoiceSetup,
 }));

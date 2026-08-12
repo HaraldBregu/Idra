@@ -7,11 +7,11 @@ import type {
 	RealtimeVoiceAdapterRequest,
 	RealtimeVoiceConnection,
 } from '../../../../src/main/models/adapters/realtime_voice';
-import { realtimeVoiceConversationFactory } from '../../../../src/main/realtime_voice/conversation';
+import { realtimeVoiceConversationFactory } from '../../../../src/main/agent/realtime_voice/conversation';
 import {
 	RealtimeVoiceManager,
 	type ResolvedRealtimeVoiceConfiguration,
-} from '../../../../src/main/realtime_voice/manager';
+} from '../../../../src/main/agent/realtime_voice/manager';
 
 class FakeConnection implements RealtimeVoiceConnection {
 	readonly audio: string[] = [];

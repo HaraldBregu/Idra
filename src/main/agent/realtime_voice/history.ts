@@ -1,5 +1,5 @@
-import type { RealtimeVoiceHistoryMessage } from '../models/adapters/realtime_voice';
-import type { Message } from '../agent/types';
+import type { RealtimeVoiceHistoryMessage } from '../../models/adapters/realtime_voice';
+import type { Message } from '../types';
 
 const MAX_REALTIME_VOICE_HISTORY_MESSAGES = 64;
 const MAX_REALTIME_VOICE_HISTORY_CHARACTERS = 48_000;

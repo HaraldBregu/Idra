@@ -21,11 +21,11 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	const {
 		logger,
 		agentService,
+		conversationService,
 		channelRegistry,
 		windowFactory,
 		extensionRegistry,
 		extensionStorage,
-		realtimeVoiceManager,
 	} = services;
 
 	const safeRegister = (name: string, register: () => void): void => {
@@ -48,13 +48,18 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 			eventBus
 		)
 	);
-	safeRegister('agent', () => new AgentIpc().register({ logger, agent: agentService }, eventBus));
+	safeRegister('agent', () =>
+		new AgentIpc().register(
+			{ logger, agent: agentService, conversation: conversationService },
+			eventBus
+		)
+	);
 	safeRegister('recorder', () => new RecorderIpc().register(undefined, eventBus));
 	safeRegister('tasks', () => new TaskIpc().register(undefined, eventBus));
 	safeRegister('mcp', () => new McpIpc().register(undefined, eventBus));
 	safeRegister('models', () => new ModelsIpc().register(undefined, eventBus));
 	safeRegister('realtime-voice', () =>
-		new RealtimeVoiceIpc().register({ realtimeVoice: realtimeVoiceManager }, eventBus)
+		new RealtimeVoiceIpc().register({ conversation: conversationService }, eventBus)
 	);
 	safeRegister('skills', () => new SkillsIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));

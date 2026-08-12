@@ -6,6 +6,7 @@ import type { EventBus } from '../event_bus';
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
 import { AgentChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent } from '../agent/agent';
+import type { Conversation } from '../agent/conversation';
 import type { LoggerService } from '../shared';
 import type { PublicProvider } from '../../shared/provider_types';
 import { loadProviders } from '../models';
@@ -66,6 +67,7 @@ import { resolveWorkspaceFile } from './workspace';
 export interface AgentIpcDeps {
 	logger: LoggerService;
 	agent: Agent;
+	conversation: Conversation;
 }
 
 const TOOL_PERMISSION_DECISIONS: readonly AgentToolPermissionDecision[] = [
@@ -223,19 +225,24 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentRunOpti
 export class AgentIpc implements IpcModule<AgentIpcDeps> {
 	readonly name = 'agent';
 
-	register({ logger, agent }: AgentIpcDeps, eventBus: EventBus): void {
+	register({ logger, agent, conversation }: AgentIpcDeps, eventBus: EventBus): void {
 		ipcMain.handle(
 			AgentChannels.send,
 			wrapIpcHandler(async (event, message: string, options?: unknown): Promise<string> => {
 				const window = BrowserWindow.fromWebContents(event.sender);
 				if (!window) throw new Error('Assistant request requires an originating window.');
-				return agent.send(message, 'main', {
-					...normalizeAgentSendRuntimeOptions(options),
-					type: 'default',
-					windowId: window.id,
-					streamEvent: (responseEvent) =>
-						eventBus.sendTo(window.id, AgentChannels.response, responseEvent),
-				});
+					return conversation.execute({
+						type: 'text',
+						message,
+						agentId: 'main',
+						options: {
+							...normalizeAgentSendRuntimeOptions(options),
+							type: 'default',
+							windowId: window.id,
+							streamEvent: (responseEvent) =>
+								eventBus.sendTo(window.id, AgentChannels.response, responseEvent),
+						},
+					});
 			}, AgentChannels.send)
 		);
 

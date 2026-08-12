@@ -1,18 +1,18 @@
-import { normalizeProviderId } from '../../shared/provider_types';
-import { RealtimeVoiceChannels } from '../../shared/ipc_channels_definitions';
-import type { Agent } from '../agent/agent';
-import { builtinTools } from '../agent/runner/run_builtin_tools';
-import { buildSystemPrompt } from '../agent/system';
-import type { EventBus } from '../event_bus';
-import { defaultProviderId, loadModels } from '../models';
+import { normalizeProviderId } from '../../../shared/provider_types';
+import { RealtimeVoiceChannels } from '../../../shared/ipc_channels_definitions';
+import type { Agent } from '../agent';
+import { builtinTools } from '../runner/run_builtin_tools';
+import { buildSystemPrompt } from '../system';
+import type { EventBus } from '../../event_bus';
+import { defaultProviderId, loadModels } from '../../models';
 import {
 	buildRealtimeVoiceAdapter,
 	realtimeVoiceDefaultVoice,
 	supportsRealtimeVoiceModel,
-} from '../models/adapters/realtime_voice';
-import { getModelId, getOptions, getProviderId } from '../models/models_store';
-import { getProvider } from '../settings_store';
-import type { WindowFactory } from '../window_factory';
+} from '../../models/adapters/realtime_voice';
+import { getModelId, getOptions, getProviderId } from '../../models/models_store';
+import { getProvider } from '../../settings_store';
+import type { WindowFactory } from '../../window_factory';
 import { realtimeVoiceConversationFactory } from './conversation';
 import { RealtimeVoiceManager } from './manager';
 
@@ -80,9 +80,6 @@ export function createRealtimeVoiceManager(
 				tools,
 			};
 		},
-	});
-	eventBus.on('window:closed', (event) => {
-		void manager.stopWindow((event.payload as { windowId: number }).windowId);
 	});
 	return manager;
 }

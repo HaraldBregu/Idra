@@ -4,9 +4,9 @@ import {
 	createSessionState,
 	init,
 	insertUserMessage,
-} from '../agent/session';
-import type { Config, ToolCall } from '../agent/types';
-import type { RealtimeVoiceHistoryMessage } from '../models/adapters/realtime_voice';
+} from '../session';
+import type { Config, ToolCall } from '../types';
+import type { RealtimeVoiceHistoryMessage } from '../../models/adapters/realtime_voice';
 import { realtimeVoiceHistory } from './history';
 
 export interface RealtimeVoiceConversation {

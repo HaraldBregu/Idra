@@ -1,29 +1,45 @@
 import { BrowserWindow } from 'electron';
 import { RealtimeVoiceChannels } from '../../shared/ipc_channels_definitions';
 import type { EventBus } from '../event_bus';
-import type { RealtimeVoiceManager } from '../realtime_voice';
+import type { Conversation } from '../agent/conversation';
 import { registerCommandWithEvent } from './core/gateway';
 import type { IpcModule } from './core/module';
 
 export interface RealtimeVoiceIpcDependencies {
-	realtimeVoice: RealtimeVoiceManager;
+	conversation: Conversation;
 }
 
 export class RealtimeVoiceIpc implements IpcModule<RealtimeVoiceIpcDependencies> {
 	readonly name = 'realtime-voice';
 
-	register({ realtimeVoice }: RealtimeVoiceIpcDependencies, _eventBus: EventBus): void {
+	register({ conversation }: RealtimeVoiceIpcDependencies, _eventBus: EventBus): void {
 		registerCommandWithEvent(RealtimeVoiceChannels.startSession, (event, request) =>
-			realtimeVoice.start(windowId(event.sender), request)
+			conversation.execute({ type: 'voice', action: 'start', windowId: windowId(event.sender), request })
 		);
 		registerCommandWithEvent(RealtimeVoiceChannels.appendAudio, (event, sessionId, audio) =>
-			realtimeVoice.appendAudio(windowId(event.sender), sessionId, audio)
+			conversation.execute({
+				type: 'voice',
+				action: 'append-audio',
+				windowId: windowId(event.sender),
+				sessionId,
+				audio,
+			})
 		);
 		registerCommandWithEvent(RealtimeVoiceChannels.interruptSession, (event, sessionId) =>
-			realtimeVoice.interrupt(windowId(event.sender), sessionId)
+			conversation.execute({
+				type: 'voice',
+				action: 'interrupt',
+				windowId: windowId(event.sender),
+				sessionId,
+			})
 		);
 		registerCommandWithEvent(RealtimeVoiceChannels.stopSession, (event, sessionId) =>
-			realtimeVoice.stop(windowId(event.sender), sessionId)
+			conversation.execute({
+				type: 'voice',
+				action: 'stop',
+				windowId: windowId(event.sender),
+				sessionId,
+			})
 		);
 	}
 }

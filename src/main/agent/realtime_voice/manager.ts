@@ -7,16 +7,16 @@ import {
 	type RealtimeVoiceSession,
 	type RealtimeVoiceStartRequest,
 	type RealtimeVoiceState,
-} from '../../shared/realtime_voice';
-import { rejectPendingToolPermissions } from '../agent/permissions';
-import type { KeyedMutex } from '../agent/mutex';
+} from '../../../shared/realtime_voice';
+import { rejectPendingToolPermissions } from '../permissions';
+import type { KeyedMutex } from '../mutex';
 import type {
 	RealtimeVoiceAdapter,
 	RealtimeVoiceAdapterEvent,
 	RealtimeVoiceAdapterRequest,
 	RealtimeVoiceConnection,
 	RealtimeVoiceProviderSpec,
-} from '../models/adapters/realtime_voice';
+} from '../../models/adapters/realtime_voice';
 import type { RealtimeVoiceConversation, RealtimeVoiceConversationFactory } from './conversation';
 import { RealtimeVoiceToolRuntime } from './tool_runtime';
 

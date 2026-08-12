@@ -14,7 +14,7 @@ jest.mock('../../../../src/main/models/adapters/realtime_voice', () => ({
 import {
 	getRealtimeVoiceSetup,
 	setRealtimeVoiceSetup,
-} from '../../../../src/main/realtime_voice/setup';
+} from '../../../../src/main/agent/realtime_voice/setup';
 
 const openaiModel = {
 	id: 'gpt-realtime',

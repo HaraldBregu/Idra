@@ -7,20 +7,21 @@ import { createChannelRegistry, type ChannelRegistry } from './channels';
 import { ExtensionRegistry, ExtensionStorage } from './extensions/extension_index';
 
 import { Agent } from './agent/agent';
+import { Conversation } from './agent/conversation';
 import { ExecSandbox } from './agent/sandbox';
-import { createRealtimeVoiceManager, type RealtimeVoiceManager } from './realtime_voice';
+import { createRealtimeVoiceManager } from './agent/realtime_voice';
 
 export interface MainServices {
 	appState: AppState;
 	eventBus: EventBus;
 	logger: LoggerService;
 	agentService: Agent;
+	conversationService: Conversation;
 	channelRegistry: ChannelRegistry;
 	windowFactory: WindowFactory;
 	windowContextManager: WindowContextManager;
 	extensionRegistry: ExtensionRegistry;
 	extensionStorage: ExtensionStorage;
-	realtimeVoiceManager: RealtimeVoiceManager;
 }
 
 export interface BootstrapResult extends MainServices {}
@@ -36,6 +37,14 @@ export function bootstrapServices(): BootstrapResult {
 	const channelRegistry = createChannelRegistry({ logger, eventBus, agentService });
 	const windowContextManager = new WindowContextManager(logger, eventBus);
 	const realtimeVoiceManager = createRealtimeVoiceManager(agentService, windowFactory, eventBus);
+	const conversationService = new Conversation(agentService, realtimeVoiceManager);
+	eventBus.on('window:closed', (event) => {
+		void conversationService.execute({
+			type: 'voice',
+			action: 'stop-window',
+			windowId: (event.payload as { windowId: number }).windowId,
+		});
+	});
 
 	logger.info('Bootstrap', 'Registered global services');
 
@@ -44,19 +53,19 @@ export function bootstrapServices(): BootstrapResult {
 		eventBus,
 		logger,
 		agentService,
+		conversationService,
 		channelRegistry,
 		windowFactory,
 		windowContextManager,
 		extensionRegistry,
 		extensionStorage,
-		realtimeVoiceManager,
 	};
 }
 
 export async function cleanup(services: MainServices): Promise<void> {
-	const { logger, windowContextManager, channelRegistry, realtimeVoiceManager } = services;
+	const { logger, windowContextManager, channelRegistry, conversationService } = services;
 	logger.info('Bootstrap', 'Starting cleanup');
-	await realtimeVoiceManager.stopAll();
+	await conversationService.execute({ type: 'voice', action: 'stop-all' });
 	await windowContextManager.destroyAll();
 	channelRegistry.destroy();
 	logger.destroy();
