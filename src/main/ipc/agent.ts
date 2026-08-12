@@ -231,18 +231,18 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapIpcHandler(async (event, message: string, options?: unknown): Promise<string> => {
 				const window = BrowserWindow.fromWebContents(event.sender);
 				if (!window) throw new Error('Assistant request requires an originating window.');
-					return conversation.execute({
-						type: 'text',
-						message,
-						agentId: 'main',
-						options: {
-							...normalizeAgentSendRuntimeOptions(options),
-							type: 'default',
-							windowId: window.id,
-							streamEvent: (responseEvent) =>
-								eventBus.sendTo(window.id, AgentChannels.response, responseEvent),
-						},
-					});
+				return conversation.execute({
+					type: 'text',
+					message,
+					agentId: 'main',
+					options: {
+						...normalizeAgentSendRuntimeOptions(options),
+						type: 'default',
+						windowId: window.id,
+						streamEvent: (responseEvent) =>
+							eventBus.sendTo(window.id, AgentChannels.response, responseEvent),
+					},
+				});
 			}, AgentChannels.send)
 		);
 

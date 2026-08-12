@@ -13,7 +13,9 @@ function command(channel: string): (...args: unknown[]) => unknown {
 it('routes realtime voice lifecycle commands through the invoking window owner', async () => {
 	const execute = jest.fn(async () => undefined);
 	const sender = {};
-	jest.mocked(BrowserWindow.fromWebContents).mockReturnValue({ id: 42, isDestroyed: () => false } as never);
+	jest
+		.mocked(BrowserWindow.fromWebContents)
+		.mockReturnValue({ id: 42, isDestroyed: () => false } as never);
 	new RealtimeVoiceIpc().register({ conversation: { execute } as never }, {} as never);
 
 	await command(RealtimeVoiceChannels.startSession)({ sender }, { chatSessionId: 'chat' });

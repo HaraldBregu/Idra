@@ -14,7 +14,12 @@ export class RealtimeVoiceIpc implements IpcModule<RealtimeVoiceIpcDependencies>
 
 	register({ conversation }: RealtimeVoiceIpcDependencies, _eventBus: EventBus): void {
 		registerCommandWithEvent(RealtimeVoiceChannels.startSession, (event, request) =>
-			conversation.execute({ type: 'voice', action: 'start', windowId: windowId(event.sender), request })
+			conversation.execute({
+				type: 'voice',
+				action: 'start',
+				windowId: windowId(event.sender),
+				request,
+			})
 		);
 		registerCommandWithEvent(RealtimeVoiceChannels.appendAudio, (event, sessionId, audio) =>
 			conversation.execute({

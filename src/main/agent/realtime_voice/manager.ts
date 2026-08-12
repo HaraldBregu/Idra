@@ -20,8 +20,10 @@ import type {
 import type { RealtimeVoiceConversation, RealtimeVoiceConversationFactory } from './conversation';
 import { RealtimeVoiceToolRuntime } from './tool_runtime';
 
-export interface ResolvedRealtimeVoiceConfiguration
-	extends Omit<RealtimeVoiceAdapterRequest, 'history'> {
+export interface ResolvedRealtimeVoiceConfiguration extends Omit<
+	RealtimeVoiceAdapterRequest,
+	'history'
+> {
 	provider: RealtimeVoiceProviderSpec;
 }
 

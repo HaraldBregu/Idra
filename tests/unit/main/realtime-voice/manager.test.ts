@@ -75,8 +75,7 @@ describe('RealtimeVoiceManager', () => {
 			createConversation: () => ({
 				history: [],
 				beginUserTurn: (itemId) => begunUserTurns.push(itemId),
-				finalizeUserTurn: (itemId, transcript) =>
-					finalizedUserTurns.push({ itemId, transcript }),
+				finalizeUserTurn: (itemId, transcript) => finalizedUserTurns.push({ itemId, transcript }),
 				addAssistantTranscript: (text) => assistantTurns.push(text),
 				addToolCall: () => undefined,
 				addToolResult: () => undefined,

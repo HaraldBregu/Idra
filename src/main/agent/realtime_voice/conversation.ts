@@ -33,7 +33,12 @@ export function realtimeVoiceConversationFactory(config: Config): RealtimeVoiceC
 	return (chatSessionId, modelId) => {
 		const state = createSessionState();
 		const pendingUserTurns = new Map<string, PendingUserTurn>();
-		init(state, config, { task: 'chat', message: '', sessionId: chatSessionId, model: modelId }, 'main');
+		init(
+			state,
+			config,
+			{ task: 'chat', message: '', sessionId: chatSessionId, model: modelId },
+			'main'
+		);
 		const toolCalls = new Map<string, ToolCall>();
 		const completedToolCalls = new Set<string>();
 		for (const message of state.messages) {

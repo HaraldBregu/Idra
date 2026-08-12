@@ -1,7 +1,4 @@
-import type {
-	RealtimeVoiceSession,
-	RealtimeVoiceStartRequest,
-} from '../../shared/realtime_voice';
+import type { RealtimeVoiceSession, RealtimeVoiceStartRequest } from '../../shared/realtime_voice';
 import type { Agent, AgentSendOptions } from './agent';
 import type { RealtimeVoiceManager } from './realtime_voice';
 
