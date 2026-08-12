@@ -9,11 +9,14 @@ import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { ToolActivityGroup } from './ToolActivityGroup';
 import { ToolPermissionCard } from './ToolPermissionCard';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { type AgentMessage, type AgentToolPart } from '../context';
 import { useReadMessageAloud } from '../hooks';
 import { markdownComponents } from './markdown';
 import { statusLabel, isRunningState, stateTone } from './status';
+import { UserInputCard } from './UserInputCard';
+import { parsePlanEnvelope } from './plan';
 
 const LONG_MESSAGE_LENGTH = 600;
 
@@ -154,6 +157,8 @@ export function AssistantMessage({
 	collapseLongContent = false,
 	className,
 	onReply,
+	canImplement = false,
+	onImplement,
 }: {
 	readonly message: AgentMessage;
 	readonly isStreaming?: boolean;
@@ -161,17 +166,24 @@ export function AssistantMessage({
 	readonly collapseLongContent?: boolean;
 	readonly className?: string;
 	readonly onReply?: () => void;
+	readonly canImplement?: boolean;
+	readonly onImplement?: () => void;
 }): ReactElement {
 	const canToggleContent =
 		collapseLongContent && message.content.trim().length > LONG_MESSAGE_LENGTH;
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
 	const { speak, isSpeaking, errorMessage: speakErrorMessage, clearError } = useReadMessageAloud();
 
-	const hasContent = message.content.length > 0;
-	const messageText = message.content.trim();
+	const parsedPlan = parsePlanEnvelope(message.content, isStreaming);
+	const displayContent = parsedPlan.kind === 'markdown' ? message.content : parsedPlan.content;
+	const hasContent = displayContent.length > 0 || parsedPlan.kind === 'complete';
+	const messageText = displayContent.trim();
 	const hasTools = message.tools.length > 0;
 	const skillTools = message.tools.filter(isSkillTool);
-	const otherTools = message.tools.filter((tool) => !isSkillTool(tool));
+	const questionTools = message.tools.filter((tool) => tool.type === 'request_user_input');
+	const otherTools = message.tools.filter(
+		(tool) => !isSkillTool(tool) && tool.type !== 'request_user_input'
+	);
 	const mediaPaths = generatedMediaPaths(message.tools);
 	const standaloneMediaPaths = mediaPaths.filter(
 		(path) => !contentEmbedsImage(message.content, path)
@@ -259,6 +271,17 @@ export function AssistantMessage({
 		<Message className={cn('flex w-full flex-col', className)}>
 			{skillTools.length > 0 && <ToolActivityGroup tools={skillTools} />}
 			{otherTools.length > 0 && <ToolActivityGroup tools={otherTools} />}
+			{questionTools.map((tool) => (
+				<UserInputCard
+					key={tool.toolCallId}
+					tool={tool}
+					pending={
+						message.pendingUserInput?.toolCallId === tool.toolCallId
+							? message.pendingUserInput
+							: undefined
+					}
+				/>
+			))}
 			{message.pendingPermission && (
 				<ToolPermissionCard
 					key={message.pendingPermission.toolCallId}
@@ -301,13 +324,37 @@ export function AssistantMessage({
 			)}
 			{hasContent && (
 				<>
-					<Markdown
-						className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]"
-						components={messageMarkdownComponents}
-						urlTransform={transformImageUrl}
-					>
-						{normalizeImageLinks(message.content)}
-					</Markdown>
+					{parsedPlan.kind === 'complete' ? (
+						<Card className="w-full gap-4 border-info/30 py-4">
+							<CardHeader className="px-4">
+								<CardTitle className="text-sm">Proposed plan</CardTitle>
+							</CardHeader>
+							<CardContent className="px-4">
+								<Markdown
+									className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]"
+									components={messageMarkdownComponents}
+									urlTransform={transformImageUrl}
+								>
+									{normalizeImageLinks(displayContent)}
+								</Markdown>
+							</CardContent>
+							{canImplement && onImplement ? (
+								<CardFooter className="justify-end px-4">
+									<Button type="button" size="sm" onClick={onImplement}>
+										Implement
+									</Button>
+								</CardFooter>
+							) : null}
+						</Card>
+					) : displayContent ? (
+						<Markdown
+							className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]"
+							components={messageMarkdownComponents}
+							urlTransform={transformImageUrl}
+						>
+							{normalizeImageLinks(displayContent)}
+						</Markdown>
+					) : null}
 					{canToggleContent ? (
 						<Button
 							type="button"
