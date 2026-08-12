@@ -8,14 +8,15 @@ jest.mock('react-i18next', () => ({
 
 const workspaceRule = '/workspace/**';
 const permissions = {
-	read: { allow: [workspaceRule, '/shared/**'], deny: ['/workspace/private/**'] },
-	write: { allow: [workspaceRule, '/shared/**'], deny: ['/workspace/private/**'] },
-	exec: { allow: [workspaceRule], deny: ['/workspace/private/**'] },
+	read: { allow: [workspaceRule, '/shared/**'], deny: ['/blocked/**'] },
+	write: { allow: [workspaceRule, '/shared/**'], deny: ['/blocked/**'] },
+	exec: { allow: [workspaceRule], deny: ['/blocked/**'] },
 };
 const agentApi = {
 	policyGet: jest.fn(),
 	getWorkspaceLocation: jest.fn(),
 	policyPickDirectory: jest.fn(),
+	policyNormalizeDirectory: jest.fn(),
 	policySet: jest.fn(),
 	policyReset: jest.fn(),
 };
@@ -35,6 +36,7 @@ beforeEach(() => {
 	agentApi.policyGet.mockResolvedValue(JSON.parse(JSON.stringify(permissions)));
 	agentApi.getWorkspaceLocation.mockResolvedValue('/workspace');
 	agentApi.policyPickDirectory.mockResolvedValue(undefined);
+	agentApi.policyNormalizeDirectory.mockImplementation(async (value: string) => value);
 	agentApi.policySet.mockImplementation(async (value) => value);
 	agentApi.policyReset.mockResolvedValue(JSON.parse(JSON.stringify(permissions)));
 	appApi.getSandboxStatus.mockResolvedValue({ state: 'ready', platform: 'darwin' });
@@ -46,7 +48,7 @@ describe('Permissions settings', () => {
 
 		const workspace = await screen.findByText('/workspace');
 		expect(workspace.closest('[class*="grid"]')).toHaveTextContent('workspaceDescription');
-		expect(screen.getByText('/workspace/private').closest('[class*="grid"]')).toHaveTextContent(
+		expect(screen.getByText('/blocked').closest('[class*="grid"]')).toHaveTextContent(
 			'blocked'
 		);
 		expect(screen.getAllByRole('button', { name: 'removeLocation' })).toHaveLength(2);
