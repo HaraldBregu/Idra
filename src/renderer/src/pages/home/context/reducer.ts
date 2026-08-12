@@ -174,7 +174,7 @@ function applyResponseEvent(
 					questions: event.questions,
 					expiresAt: event.expiresAt,
 				},
-			}))
+			})
 		);
 	}
 
