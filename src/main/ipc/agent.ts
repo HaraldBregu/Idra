@@ -1,6 +1,7 @@
 import { BrowserWindow, dialog, ipcMain } from 'electron';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { realPath } from '../shared/real_path';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../event_bus';
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
@@ -505,6 +506,17 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 					: dialog.showOpenDialog(options));
 				return result.canceled ? undefined : result.filePaths[0];
 			}, AgentChannels.policyPickDirectory)
+		);
+
+		ipcMain.handle(
+			AgentChannels.policyNormalizeDirectory,
+			wrapSimpleHandler((value: unknown): string => {
+				const target = optionalTrimmedString(value);
+				if (!target || !path.isAbsolute(target) || /[*?\[\]]/.test(target)) {
+					throw new Error('Choose an absolute folder path without wildcard characters.');
+				}
+				return realPath(target);
+			}, AgentChannels.policyNormalizeDirectory)
 		);
 
 		ipcMain.handle(

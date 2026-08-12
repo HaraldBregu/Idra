@@ -223,6 +223,9 @@ export const agent: AgentApi = {
 	policyPickDirectory: (): Promise<string | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.policyPickDirectory);
 	},
+	policyNormalizeDirectory: (value: string): Promise<string> => {
+		return typedInvokeUnwrap(AgentChannels.policyNormalizeDirectory, value);
+	},
 	healthGetSettings: (): Promise<HealthSettings> => {
 		return typedInvokeUnwrap(AgentChannels.healthSettings);
 	},
