@@ -122,7 +122,7 @@ export function useCoder(): CoderController {
 		return () => {
 			active = false;
 		};
-	}, [initialSessionId, preview]);
+	}, [preview]);
 
 	useEffect(() => {
 		const onKeyDown = (event: KeyboardEvent) => {
