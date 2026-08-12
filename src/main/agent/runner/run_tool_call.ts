@@ -8,10 +8,11 @@ import {
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
-	resolveToolPermission,
-	toolApprovalTargets,
+	recursivePermissionRule,
+	resolveToolPermissionDetails,
 	waitForToolPermission,
 } from '../permissions';
+import { approvedExecRoots } from '../permissions/approved_exec_roots';
 import { inputFingerprint } from '../permissions/input_fingerprint';
 import { redactApprovalInput } from '../permissions/redact_approval_input';
 import { formatToolOutput } from './run_common';
@@ -73,12 +74,18 @@ export async function* runToolCall(
 		output = `Error: invalid input for '${toolCall.name}': ${parseError instanceof Error ? parseError.message : String(parseError)}`;
 		isError = true;
 	} else {
-		let permission = resolveToolPermission(toolCall.name, canonicalInput, context, true, 'ask');
+		const resolution = resolveToolPermissionDetails(
+			toolCall.name,
+			canonicalInput,
+			context,
+			true,
+			'ask'
+		);
+		let permission = resolution.mode;
 
 		if (permission === 'ask' && security.windowId === undefined) permission = 'deny';
 
 		if (permission === 'ask') {
-			const targets = toolApprovalTargets(toolCall.name, canonicalInput, agentLocation());
 			const approvalId = crypto.randomUUID();
 			const fingerprint = inputFingerprint(canonicalInput);
 			const expiresAtMs = Date.now() + 120_000;
@@ -89,7 +96,9 @@ export async function* runToolCall(
 				toolName: toolCall.name,
 				input: redactApprovalInput(canonicalInput),
 				mode: 'ask',
-				targets,
+				targets: resolution.approvalTargets,
+				reason: resolution.reason ?? 'outside_trusted_location',
+				persistable: resolution.persistable,
 				expiresAt: new Date(expiresAtMs).toISOString(),
 				inputFingerprint: fingerprint,
 			};
@@ -105,13 +114,17 @@ export async function* runToolCall(
 				signal
 			);
 			permissionOutcome = decision;
-			if (decision === 'approve_always') {
-				const kind = toolCall.name === 'read_file'
-					? 'read'
-					: toolCall.name === 'exec_command' || toolCall.name === 'process'
-						? 'exec'
-						: 'write';
-				for (const target of targets) addPermissionRule(kind, 'allow', target);
+			if (decision === 'approve_always' && resolution.persistable && resolution.kind) {
+				for (const target of resolution.approvalTargets) {
+					addPermissionRule(resolution.kind, 'allow', recursivePermissionRule(target));
+				}
+			}
+			if (
+				decision === 'approve' &&
+				resolution.kind === 'exec' &&
+				toolCall.name === 'exec_command'
+			) {
+				approvedExecRoots.set(canonicalInput, resolution.approvalTargets);
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}

@@ -239,6 +239,8 @@ export type AgentRunStreamEvent =
 			input: unknown;
 			mode: 'ask';
 			targets: string[];
+			reason: 'outside_trusted_location' | 'host_execution';
+			persistable: boolean;
 			expiresAt: string;
 			inputFingerprint: string;
 			detail?: string;

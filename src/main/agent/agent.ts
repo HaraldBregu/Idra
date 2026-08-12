@@ -521,6 +521,8 @@ function runtimeEventToAgentEvents(
 				input: event.input,
 				mode: 'ask',
 				targets: event.targets,
+				reason: event.reason,
+				persistable: event.persistable,
 				expiresAt: event.expiresAt,
 				inputFingerprint: event.inputFingerprint,
 				agentId,
