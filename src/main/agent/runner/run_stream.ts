@@ -161,9 +161,8 @@ async function* loop(
 	if (!options.tools) {
 		if (
 			input.interactionMode !== 'plan' &&
-			input.toolsAllow === undefined ||
-			(input.interactionMode !== 'plan' &&
-				input.toolsAllow?.some((toolId) => toolId.startsWith('mcp__')))
+			(input.toolsAllow === undefined ||
+				input.toolsAllow.some((toolId) => toolId.startsWith('mcp__')))
 		) {
 			const mcp = await loadMcpTools(signal);
 			tools.push(...mcp.tools);
