@@ -12,7 +12,7 @@ import type { PermissionsSchema } from '../../../../../src/main/agent/permission
 const defaults: PermissionsSchema = {
 	read: { allow: ['/outside/**'], deny: [] },
 	write: { allow: [], deny: [] },
-	exec: { allow: [], deny: [] },
+	exec: { allow: ['/appdata/agent/**'], deny: [] },
 };
 
 beforeEach(() => {
@@ -60,16 +60,35 @@ describe('resolveToolPermission', () => {
 		).toBe('deny');
 	});
 
-	it('matches exact and command-prefix rules', () => {
+	it('allows every shell form inside the workspace and asks outside', () => {
 		getPermissions.mockReturnValue({
 			...defaults,
-			exec: { allow: ['git status'], deny: ['git push'] },
+			exec: { allow: ['/appdata/agent/**'], deny: ['/appdata/agent/private/**'] },
 		});
 
-		expect(resolveToolPermission('exec_command', { command: 'git status' })).toBe('allow');
-		expect(resolveToolPermission('exec_command', { command: 'git push origin main' })).toBe(
-			'deny'
-		);
-		expect(resolveToolPermission('exec_command', { command: 'git-evil push' })).toBe('ask');
+		expect(resolveToolPermission('exec_command', { command: 'echo ok > result.txt' })).toBe('allow');
+		expect(resolveToolPermission('exec_command', { command: 'echo $(pwd)' })).toBe('allow');
+		expect(resolveToolPermission('exec_command', { command: 'pwd', workdir: '/outside' })).toBe('ask');
+		expect(resolveToolPermission('exec_command', { command: 'pwd', workdir: 'private' })).toBe('deny');
+		expect(resolveToolPermission('exec_command', { command: 'pwd', elevated: true })).toBe('ask');
+	});
+
+	it('asks when any declared external root is not trusted', () => {
+		expect(
+			resolveToolPermission('exec_command', {
+				command: 'cp file /shared',
+				additionalRoots: ['/shared'],
+			})
+		).toBe('ask');
+		getPermissions.mockReturnValue({
+			...defaults,
+			exec: { allow: ['/appdata/agent/**', '/shared/**'], deny: [] },
+		});
+		expect(
+			resolveToolPermission('exec_command', {
+				command: 'cp file /shared',
+				additionalRoots: ['/shared'],
+			})
+		).toBe('allow');
 	});
 });

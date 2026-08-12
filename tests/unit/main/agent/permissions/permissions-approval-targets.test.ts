@@ -10,10 +10,16 @@ describe('toolApprovalTargets', () => {
 		]);
 	});
 
-	it('keeps exact targets for write and exec', () => {
+	it('stores the containing folder for write and the declared exec roots', () => {
 		expect(toolApprovalTargets('write_file', { path: '/workspace/a.txt' }, agentDir)).toEqual([
-			path.resolve('/workspace/a.txt'),
+			path.resolve('/workspace'),
 		]);
-		expect(toolApprovalTargets('exec_command', { command: 'npm test' }, agentDir)).toEqual(['npm test']);
+		expect(
+			toolApprovalTargets(
+				'exec_command',
+				{ command: 'npm test', workdir: '/workspace', additionalRoots: ['/shared'] },
+				agentDir
+			)
+		).toEqual([path.resolve('/workspace'), path.resolve('/shared')]);
 	});
 });

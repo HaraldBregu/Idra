@@ -18,6 +18,16 @@ describe('directoryPermissionTargets', () => {
 		).toEqual([path.resolve('/workspace/app')]);
 	});
 
+	it('includes canonical additional exec roots resolved from workdir', () => {
+		expect(
+			directoryPermissionTargets(
+				'exec_command',
+				{ command: 'npm test', workdir: '/workspace/app', additionalRoots: ['../shared'] },
+				agentDir
+			)
+		).toEqual([path.resolve('/workspace/app'), path.resolve('/workspace/shared')]);
+	});
+
 	it('uses the agent directory for exec without an explicit working directory', () => {
 		expect(directoryPermissionTargets('exec_command', { command: 'npm test' }, agentDir)).toEqual([
 			agentDir,
@@ -74,12 +84,14 @@ describe('directoryPermissionTargets', () => {
 		const session = {
 			id: 'permission-session',
 			workdir: '/workspace/app',
+			roots: ['/shared'],
+			executionMode: 'sandbox',
 		} as ProcessSession;
 		registry.register(session);
 		try {
 			expect(
 				directoryPermissionTargets('process', { action: 'poll', sessionId: session.id }, agentDir)
-			).toEqual([path.resolve('/workspace/app')]);
+			).toEqual([path.resolve('/workspace/app'), path.resolve('/shared')]);
 		} finally {
 			registry.remove(session.id);
 		}
