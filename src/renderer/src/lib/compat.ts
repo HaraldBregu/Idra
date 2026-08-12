@@ -6,11 +6,15 @@ import type { StoredProvider as StoredProvider } from '../../../shared/provider_
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
+	AgentInteractionMode,
 	AgentInputFile,
 	AgentResponseEvent,
 	AgentRunState,
 	AgentSessionSummary,
 	AgentToolPermissionDecision,
+	AgentUserInputAnswer,
+	AgentUserInputQuestion,
+	AgentUserInputScope,
 	AgentToolResultStatus,
 	ModelReasoningEffort,
 } from '../../../shared/agent_types';
@@ -32,11 +36,15 @@ export type Model = ProviderModel;
 export type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
+	AgentInteractionMode,
 	AgentInputFile,
 	AgentResponseEvent,
 	AgentRunState,
 	AgentSessionSummary,
 	AgentToolPermissionDecision,
+	AgentUserInputAnswer,
+	AgentUserInputQuestion,
+	AgentUserInputScope,
 	ModelReasoningEffort,
 	StoredProvider,
 };
