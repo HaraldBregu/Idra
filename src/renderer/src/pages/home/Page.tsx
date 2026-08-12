@@ -738,7 +738,11 @@ function PageContent(): ReactElement {
 									<AttachmentTray attachments={attachments} onRemove={removeAttachment} />
 								) : undefined
 							}
-							leadingAction={<AttachmentButton disabled={attachmentDisabled} />}
+							leadingAction={
+								voiceMode === 'dictation' ? undefined : (
+									<AttachmentButton disabled={attachmentDisabled} />
+								)
+							}
 							voiceMode={voiceMode}
 							voiceElapsedMs={
 								voiceMode === 'conversation' ? realtimeVoice.elapsedMs : activeVoiceElapsedMs
