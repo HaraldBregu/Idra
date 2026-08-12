@@ -27,7 +27,30 @@ export function Terminal({ coder }: { coder: CoderController }) {
 				) : null}
 
 				{coder.messages.map((message) => (
-					<div key={message.id} className={`terminal-entry terminal-entry--${message.role}`}>
+					<div key={message.id}>
+						{message.role === 'assistant' &&
+						message.id === coder.messages.at(-1)?.id &&
+						coder.activities.length > 0 ? (
+							<div className="terminal-activity" aria-label="Agent commands">
+								{coder.activities.map((activity) => (
+									<div key={activity.id} className={`terminal-command terminal-command--${activity.status}`}>
+										{activity.status === 'running' ? (
+											<LoaderCircle className="is-spinning" />
+										) : activity.status === 'ok' ? (
+											<Check />
+										) : (
+											<X />
+										)}
+										<strong>{activity.name}</strong>
+										<span>{activity.detail}</span>
+										{activity.durationMs ? (
+											<time>{activity.durationMs < 1000 ? `${activity.durationMs}ms` : `${(activity.durationMs / 1000).toFixed(1)}s`}</time>
+										) : null}
+									</div>
+								))}
+							</div>
+						) : null}
+						<div className={`terminal-entry terminal-entry--${message.role}`}>
 						{message.role === 'user' ? (
 							<>
 								<span className="terminal-prompt-label">{coder.workspaceName}</span>
@@ -44,29 +67,9 @@ export function Terminal({ coder }: { coder: CoderController }) {
 								)}
 							</>
 						)}
+						</div>
 					</div>
 				))}
-
-				{coder.activities.length > 0 ? (
-					<div className="terminal-activity" aria-label="Agent commands">
-						{coder.activities.map((activity) => (
-							<div key={activity.id} className={`terminal-command terminal-command--${activity.status}`}>
-								{activity.status === 'running' ? (
-									<LoaderCircle className="is-spinning" />
-								) : activity.status === 'ok' ? (
-									<Check />
-								) : (
-									<X />
-								)}
-								<strong>{activity.name}</strong>
-								<span>{activity.detail}</span>
-								{activity.durationMs ? (
-									<time>{activity.durationMs < 1000 ? `${activity.durationMs}ms` : `${(activity.durationMs / 1000).toFixed(1)}s`}</time>
-								) : null}
-							</div>
-						))}
-					</div>
-				) : null}
 
 				{coder.permission ? (
 					<section className="terminal-permission" aria-label="Tool permission request">

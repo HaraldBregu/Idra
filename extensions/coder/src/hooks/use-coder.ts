@@ -242,6 +242,7 @@ export function useCoder(): CoderController {
 		activeRunIdRef.current = runId;
 		setInput('');
 		setError('');
+		setActivities([]);
 		setPermission(null);
 		setRunState('running');
 		setRunLabel('Starting');
