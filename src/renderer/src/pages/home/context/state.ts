@@ -17,6 +17,10 @@ export interface PendingToolPermission {
 	readonly toolName: string;
 	readonly inputFingerprint: string;
 	readonly input: unknown;
+	readonly targets: readonly string[];
+	readonly reason: 'outside_trusted_location' | 'host_execution';
+	readonly persistable: boolean;
+	readonly expiresAt: string;
 }
 
 export interface AgentMessage {
