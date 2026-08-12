@@ -33,6 +33,8 @@ import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 import type { ExecSandbox } from '../sandbox';
 import { builtinTools } from './run_builtin_tools';
+import { filterPlanTools } from './run_plan_tools';
+import { addPlanPrompt } from '../system/system_add_plan_prompt';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -126,7 +128,8 @@ async function* loop(
 
 	let tools: Tool[] = options.tools
 		? [...options.tools]
-		: builtinTools(config, options.sandbox!, options.windowFactory);
+		: builtinTools(config, options.sandbox!, options.windowFactory, input.interactionMode);
+	tools = filterPlanTools(tools, input.interactionMode);
 	const applyActivatedSkill = (skill: SkillLoadResult): void => {
 		rememberSkill(session.runContext, {
 			id: skill.id,
@@ -141,7 +144,10 @@ async function* loop(
 		tools.splice(
 			0,
 			tools.length,
-			...filterTools(selectSkillTools(tools, skill.allowedTools), input.toolsAllow, input.toolsDeny)
+			...filterPlanTools(
+				filterTools(selectSkillTools(tools, skill.allowedTools), input.toolsAllow, input.toolsDeny),
+				input.interactionMode
+			)
 		);
 	};
 	if (!options.tools && skillListingEnabled) tools.push(listSkillsTool(skillSnapshot));
@@ -152,7 +158,7 @@ async function* loop(
 
 	let closeMcp: (() => Promise<void>) | undefined;
 	let mcpDiscovery: McpDiscoveryDiagnostics | undefined;
-	if (!options.tools) {
+	if (!options.tools && input.interactionMode !== 'plan') {
 		if (
 			input.toolsAllow === undefined ||
 			input.toolsAllow.some((toolId) => toolId.startsWith('mcp__'))
@@ -165,6 +171,7 @@ async function* loop(
 		const childTools = filterTools(tools, input.toolsAllow, input.toolsDeny);
 		const childRuntime = {
 			type: input.type,
+			interactionMode: input.interactionMode,
 			...(options.resources ? { resources: options.resources } : {}),
 			...(options.providerLimiter ? { providerLimiter: options.providerLimiter } : {}),
 			...(options.subagentLimiter ? { subagentLimiter: options.subagentLimiter } : {}),
@@ -175,6 +182,7 @@ async function* loop(
 		);
 	}
 	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
+	tools = filterPlanTools(tools, input.interactionMode);
 	if (input.explicitSkill && !skillLoadingEnabled)
 		throw new Error('Skill loading is unavailable for this run.');
 	if (input.explicitSkill)
@@ -183,6 +191,7 @@ async function* loop(
 	yield {
 		type: 'run_started',
 		sessionId: session.id,
+		interactionMode: input.interactionMode,
 		model: modelId,
 		providerId: provider.id,
 		tools: tools.map((tool) => tool.id),
@@ -211,7 +220,11 @@ async function* loop(
 				contextMode,
 				tools.some((tool) => tool.id === 'load_skill')
 			);
-			const protectedSkillPrompt = buildLoadedSkillPrompt(session.runContext.loadedSkills);
+			const loadedSkillPrompt = buildLoadedSkillPrompt(session.runContext.loadedSkills);
+			const protectedSkillPrompt =
+				input.interactionMode === 'plan'
+					? addPlanPrompt(loadedSkillPrompt)
+					: loadedSkillPrompt;
 			const workspaceContext =
 				contextMode === 'workspace' && options.instructions === undefined
 					? await buildWorkspaceContext(config)
@@ -296,6 +309,7 @@ async function* loop(
 				session.runContext.fileAccess,
 				{
 					runId,
+					interactionMode: input.interactionMode,
 					...(input.approvalWindowId === undefined ? {} : { windowId: input.approvalWindowId }),
 				},
 				options.resources

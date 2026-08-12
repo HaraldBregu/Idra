@@ -1,6 +1,7 @@
 import type { Config, Tool } from '../types';
 import type { WindowFactory } from '../../window_factory';
 import type { ExecSandbox } from '../sandbox';
+import type { AgentInteractionMode } from '../../../shared/agent_types';
 import { completeBootstrapTool } from '../tools/assistant/complete_bootstrap';
 import { applyPatchTool } from '../tools/core/apply_patch';
 import { editTool } from '../tools/core/edit_file';
@@ -45,7 +46,8 @@ import { useWebBrowserTool } from '../tools/web/use_web_browser';
 export function builtinTools(
 	config: Config,
 	sandbox: ExecSandbox,
-	windowFactory?: WindowFactory
+	windowFactory?: WindowFactory,
+	interactionMode: AgentInteractionMode = 'default'
 ): Tool[] {
 	return [
 		readTool,
@@ -53,7 +55,7 @@ export function builtinTools(
 		writeTool,
 		editTool,
 		applyPatchTool,
-		execTool(sandbox),
+		execTool(sandbox, interactionMode),
 		processTool,
 		...getSearchWebTools(),
 		fetchWebPageTool,
