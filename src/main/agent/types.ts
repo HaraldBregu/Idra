@@ -38,6 +38,7 @@ export interface Tool {
 	readonly schema: JSONSchema;
 	readonly timeoutMs: number;
 	readonly maxOutputBytes: number;
+	readonly planSafe?: boolean;
 	parseInput(input: unknown): Record<string, unknown>;
 	run(input: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> | unknown;
 }
@@ -48,6 +49,7 @@ export type ToolConfig<T extends z.ZodType> = {
 	description: string;
 	timeoutMs?: number;
 	maxOutputBytes?: number;
+	planSafe?: boolean;
 	inputSchema: T;
 	execute: (input: z.infer<T>, signal?: AbortSignal) => Promise<unknown> | unknown;
 };
@@ -58,6 +60,7 @@ export type JsonToolConfig = {
 	description: string;
 	timeoutMs?: number;
 	maxOutputBytes?: number;
+	planSafe?: boolean;
 	parseInput?: (input: unknown) => Record<string, unknown>;
 	schema: JSONSchema;
 	execute: (input: Record<string, unknown>, signal?: AbortSignal) => Promise<unknown> | unknown;
@@ -110,6 +113,7 @@ type RuntimeInputBase = Pick<
 	providerId?: string;
 	agentId: string;
 	contextMode: 'minimal' | 'workspace';
+	interactionMode: import('../../shared/agent_types').AgentInteractionMode;
 	toolsDeny?: string[];
 	approvalWindowId?: number;
 	explicitSkill?: string;
@@ -163,12 +167,28 @@ export type RuntimeEvent =
 	| {
 			type: 'run_started';
 			sessionId: string;
+			interactionMode: import('../../shared/agent_types').AgentInteractionMode;
 			model: string;
 			providerId: string;
 			tools: string[];
 			mcpDiscovery?: McpDiscoveryDiagnostics;
 			skillDiagnostics?: readonly SkillDiagnostic[];
 			skillActivations?: { id: string; name: string; hash: string; trust: SkillTrust }[];
+	  }
+	| {
+			type: 'user_input_request';
+			requestId: string;
+			toolCallId: string;
+			questions: import('../../shared/agent_types').AgentUserInputQuestion[];
+			expiresAt: string;
+			inputFingerprint: string;
+	  }
+	| {
+			type: 'user_input_result';
+			requestId: string;
+			toolCallId: string;
+			status: 'resolved' | 'interrupted';
+			answers: import('../../shared/agent_types').AgentUserInputAnswer[];
 	  }
 	| { type: 'assistant_message'; content: string; toolCalls: ToolCall[] }
 	| {

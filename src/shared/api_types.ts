@@ -41,6 +41,8 @@ import type {
 	AgentSessionSummary,
 	AgentToolPermissionDecision,
 	AgentToolPermissionScope,
+	AgentUserInputAnswer,
+	AgentUserInputScope,
 	WorkspaceTreeEntry,
 } from './agent_types';
 import type { CatalogModel, ProviderModel } from './model_types';

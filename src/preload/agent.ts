@@ -9,6 +9,8 @@ import type {
 	AgentSessionSummary,
 	AgentToolPermissionDecision,
 	AgentToolPermissionScope,
+	AgentUserInputAnswer,
+	AgentUserInputScope,
 	ModelReasoningEffort,
 } from '../shared/agent_types';
 import { normalizeAgentInputFiles } from '../shared/agent_files';
@@ -48,6 +50,7 @@ function normalizeAgentSendRuntimeOptions(options?: AgentRunOptions): AgentRunOp
 			? { model: optionalTrimmedString(options.model) }
 			: {}),
 		...(isModelReasoningEffort(options.effort) ? { effort: options.effort } : {}),
+		interactionMode: options.interactionMode === 'plan' ? 'plan' : 'default',
 		...(options.contextMode === 'minimal' || options.contextMode === 'workspace'
 			? { contextMode: options.contextMode }
 			: typeof options.lightContext === 'boolean'
@@ -103,6 +106,12 @@ export const agent: AgentApi = {
 		decision: AgentToolPermissionDecision
 	): Promise<boolean> => {
 		return typedInvokeUnwrap(AgentChannels.respondToolPermission, scope, decision);
+	},
+	respondUserInput: (
+		scope: AgentUserInputScope,
+		answers: AgentUserInputAnswer[]
+	): Promise<boolean> => {
+		return typedInvokeUnwrap(AgentChannels.respondUserInput, scope, answers);
 	},
 	listSessions: (): Promise<AgentSessionSummary[]> => {
 		return typedInvokeUnwrap(AgentChannels.listSessions);

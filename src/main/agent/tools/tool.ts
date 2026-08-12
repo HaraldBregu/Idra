@@ -13,6 +13,7 @@ export function tool<T extends z.ZodType>({
 	description,
 	timeoutMs = 10 * 60_000,
 	maxOutputBytes = 200_000,
+	planSafe,
 	inputSchema,
 	execute,
 }: ToolConfig<T>): Tool {
@@ -22,6 +23,7 @@ export function tool<T extends z.ZodType>({
 		description,
 		timeoutMs,
 		maxOutputBytes,
+		planSafe,
 		schema: toJsonSchema(inputSchema),
 		parseInput(input: unknown) {
 			return inputSchema.parse(input) as Record<string, unknown>;
@@ -38,6 +40,7 @@ export function jsonTool({
 	description,
 	timeoutMs = 10 * 60_000,
 	maxOutputBytes = 200_000,
+	planSafe,
 	parseInput,
 	schema,
 	execute,
@@ -48,6 +51,7 @@ export function jsonTool({
 		description,
 		timeoutMs,
 		maxOutputBytes,
+		planSafe,
 		schema,
 		parseInput(input: unknown) {
 			if (parseInput) return parseInput(input);
