@@ -99,6 +99,7 @@ it('keeps background exec ownership until the parent run is cancelled', async ()
 		{ command: 'background command', workdir: '/tmp', background: true },
 		controller.signal
 	);
+	await new Promise((resolve) => setImmediate(resolve));
 	child.emit('spawn');
 	await expect(result).resolves.toMatchObject({ background: true, pid: child.pid });
 	controller.abort(new Error('cancel owning run'));

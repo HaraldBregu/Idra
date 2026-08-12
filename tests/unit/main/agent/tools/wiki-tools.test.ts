@@ -22,7 +22,14 @@ describe('wiki tools', () => {
 			'rebuild_wiki_index',
 			'get_recent_wiki_activity',
 		]);
-		expect(getWikiTools('task')).toEqual([]);
+		expect(getWikiTools('task').map((tool) => tool.id)).toEqual([
+			'ingest_wiki_source',
+			'save_wiki_analysis',
+			'lint_wiki',
+			'review_wiki_changes',
+			'rebuild_wiki_index',
+			'get_recent_wiki_activity',
+		]);
 
 		wikiSettingsStore.store = { ...DEFAULT_WIKI_SETTINGS, enabled: false };
 		expect(getWikiTools('main')).toEqual([]);

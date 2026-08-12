@@ -40,7 +40,7 @@ it('exposes one main-session knowledge broker and prefers confident compiled wik
 
 	expect(getKnowledgeTools('main').map((tool) => tool.id)).toEqual(['query_knowledge']);
 	expect(getKnowledgeTools('task').map((tool) => tool.id)).toEqual(['query_knowledge']);
-	expect(getKnowledgeTools('bot')).toEqual([]);
+	expect(getKnowledgeTools('bot').map((tool) => tool.id)).toEqual(['query_knowledge']);
 	expect(buildWikiAnswerContext).toHaveBeenCalledWith('leave', false, undefined, controller.signal);
 	expect(searchRag).not.toHaveBeenCalled();
 	expect(output).toMatchObject({ route: 'compiled_wiki', abstain: false });
