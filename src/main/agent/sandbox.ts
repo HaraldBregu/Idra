@@ -13,6 +13,7 @@ import type { SandboxStatus } from '../../shared/sandbox';
 import { getPermissions } from './agent_store';
 import { userDataLocation } from '../shared/user_data_location';
 import { resolveUserPath } from '../shared/user_path';
+import { recursivePermissionRule } from './permissions/recursive_permission_rule';
 
 const WINDOWS_SANDBOX_GUIDANCE =
 	'Open Settings > Permissions and complete Windows sandbox setup; administrator or IT approval may be required. Chat and non-command tools remain available.';
@@ -38,13 +39,30 @@ export class ExecSandbox {
 		command: string,
 		cwd: string,
 		commandId: string,
-		signal?: AbortSignal
+		signal?: AbortSignal,
+		approvedRoots: readonly string[] = []
 	): Promise<SandboxedCommand> {
 		await this.ensureReady();
+		if (process.platform === 'win32' && approvedRoots.length > 0) {
+			throw new Error(
+				'One-time access to an outside location is unavailable on Windows. Trust the location to continue.'
+			);
+		}
+		const { config } = await this.configuration();
+		const approvedPatterns = approvedRoots.map(recursivePermissionRule);
+		const customConfig = approvedPatterns.length > 0
+			? {
+					filesystem: {
+						...config.filesystem,
+						allowRead: [...config.filesystem.allowRead, ...approvedPatterns],
+						allowWrite: [...config.filesystem.allowWrite, ...approvedPatterns],
+					},
+			}
+			: undefined;
 		const wrapped = await SandboxManager.wrapWithSandboxArgv(
 			command,
 			process.platform === 'win32' ? undefined : '/bin/sh',
-			undefined,
+			customConfig,
 			signal,
 			cwd,
 			{ commandId, commandText: command }
@@ -70,10 +88,10 @@ export class ExecSandbox {
 	annotate(commandId: string, stderr: string): string {
 		const annotated = SandboxManager.annotateStderrWithSandboxFailures(commandId, stderr);
 		if (annotated !== stderr) {
-			return `${annotated}\nA sandbox restriction blocked this operation. Retry with elevated: true to request host execution.`;
+			return `${annotated}\nA sandbox restriction blocked this operation. Declare the outside directory in additionalRoots to request access.`;
 		}
 		if (/operation not permitted|permission denied|\bEPERM\b/i.test(stderr)) {
-			return `${stderr}\nA filesystem sandbox may have blocked this operation. Retry with elevated: true to request host execution.`;
+			return `${stderr}\nA filesystem sandbox may have blocked this operation. Declare the outside directory in additionalRoots to request access.`;
 		}
 		return stderr;
 	}
@@ -192,9 +210,19 @@ export class ExecSandbox {
 		const permissions = getPermissions();
 		const resolveRules = (rules: string[]): string[] =>
 			rules.map((rule) => resolveUserPath(rule, os.homedir()));
-		const allowWrite = [...resolveRules(permissions.write.allow), this.temporaryDirectory];
-		const denyWrite = resolveRules(permissions.write.deny);
-		const denyRead = resolveRules(permissions.read.deny);
+		const allowRead = resolveRules([
+			...permissions.read.allow,
+			...permissions.exec.allow,
+		]);
+		const allowWrite = [
+			...resolveRules([...permissions.write.allow, ...permissions.exec.allow]),
+			this.temporaryDirectory,
+		];
+		const denyWrite = resolveRules([...permissions.write.deny, ...permissions.exec.deny]);
+		const denyRead = [
+			os.homedir(),
+			...resolveRules([...permissions.read.deny, ...permissions.exec.deny]),
+		];
 		const windowsPath = this.vendoredWindowsPath();
 		const seccompPath = this.vendoredSeccompPath();
 		const config: SandboxRuntimeConfig = {
@@ -207,7 +235,7 @@ export class ExecSandbox {
 			},
 			filesystem: {
 				denyRead,
-				allowRead: [],
+				allowRead,
 				allowWrite,
 				denyWrite,
 			},
@@ -218,7 +246,10 @@ export class ExecSandbox {
 			...(process.platform === 'win32' ? { windows: { srtWin: { path: windowsPath } } } : {}),
 			...(process.platform === 'linux' ? { seccomp: { applyPath: seccompPath } } : {}),
 		};
-		return { config, fingerprint: JSON.stringify({ allowWrite, denyWrite, denyRead }) };
+		return {
+			config,
+			fingerprint: JSON.stringify({ allowRead, allowWrite, denyRead, denyWrite }),
+		};
 	}
 
 	private vendoredWindowsPath(): string {
