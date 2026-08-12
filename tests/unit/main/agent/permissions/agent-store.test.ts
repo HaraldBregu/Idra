@@ -59,6 +59,18 @@ describe('agent store permissions', () => {
 		expect(saved.exec.deny).toEqual([]);
 	});
 
+	it('removes an execute ancestor grant when it contains a blocked child', () => {
+		const saved = setPermissions({
+			read: { allow: [], deny: [] },
+			write: { allow: [], deny: [] },
+			exec: { allow: ['/shared/**'], deny: ['/shared/private/**'] },
+		});
+		expect(saved.exec).toEqual({
+			allow: [workspaceRule],
+			deny: ['/shared/private/**'],
+		});
+	});
+
 	it('adds a rule without changing other buckets', () => {
 		addPermissionRule('exec', 'allow', '/repo/**');
 		expect(getPermissions().exec.allow).toEqual([workspaceRule, '/repo/**']);

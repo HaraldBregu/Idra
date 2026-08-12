@@ -65,4 +65,16 @@ describe('ExecSandbox permissions', () => {
 			{ commandId: 'command', commandText: 'pwd' }
 		);
 	});
+
+	it('uses per-command filesystem rules on Unix', async () => {
+		await new ExecSandbox().wrap('pwd', '/workspace', 'command');
+		expect(wrapWithSandboxArgv).toHaveBeenCalledWith(
+			'pwd',
+			'/bin/sh',
+			expect.objectContaining({ filesystem: expect.any(Object) }),
+			undefined,
+			'/workspace',
+			{ commandId: 'command', commandText: 'pwd' }
+		);
+	});
 });
