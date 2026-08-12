@@ -6,6 +6,7 @@ export const listExtensionsTool = tool({
 	id: 'list_extensions',
 	name: 'List extensions',
 	description: 'List the installed Friday extensions available to open.',
+	planSafe: true,
 	inputSchema: z.object({}).strict(),
 	execute: () => ({ extensions: listExtensions() }),
 });

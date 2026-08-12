@@ -15,6 +15,7 @@ export function loadSkillTool(
 		name: 'Load skill',
 		description:
 			'Activate an Agent Skill for this run. The harness injects its protected instructions and canonical resource root on the next model turn.',
+		planSafe: true,
 		inputSchema: z.object({
 			name: z.enum(names as [string, ...string[]]).describe('The exact skill name to activate.'),
 		}),

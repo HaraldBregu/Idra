@@ -59,6 +59,7 @@ export const fetchWebPageTool = tool({
 	name: 'Fetch web page',
 	description:
 		'Fetch an HTTP(S) URL and return its readable text content. HTML is converted to plain text; JSON is pretty-printed.',
+	planSafe: true,
 	inputSchema: z.object({
 		url: z.string().url().describe('HTTP(S) URL to fetch.'),
 		maxChars: z

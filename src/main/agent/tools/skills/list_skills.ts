@@ -10,6 +10,7 @@ export function listSkillsTool(snapshot: SkillRegistrySnapshot): Tool {
 		id: 'list_skills',
 		name: 'List skills',
 		description: 'List the available Agent Skills with their names and descriptions.',
+		planSafe: true,
 		inputSchema: z.object({}).strict(),
 		execute: () => ({ skills }),
 	});
