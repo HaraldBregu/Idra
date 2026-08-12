@@ -835,6 +835,16 @@
 			}
 		},
 		"permissions": {
+			"locationsNotice": "Trusted locations allow file tools and sandboxed commands. Blocked locations take precedence. Friday asks before using tools anywhere else or running outside the sandbox.",
+			"locationsTitle": "Locations",
+			"locationsDescription": "Choose which tools may use each folder and its subfolders.",
+			"workspaceDescription": "Workspace · includes subfolders · always trusted",
+			"trusted": "Trusted",
+			"blocked": "Blocked",
+			"removeLocation": "Remove location",
+			"pathPlaceholder": "Folder path",
+			"browse": "Browse for folder",
+			"add": "Add",
 			"sandboxTitle": "Command sandbox",
 			"sandboxDescription": "OS-level isolation keeps command writes inside approved directories.",
 			"sandboxChecking": "Checking…",
@@ -866,7 +876,7 @@
 					"title": "Write",
 					"description": "Paths the agent may create, edit, or delete."
 				},
-				"exec": { "title": "Execute", "description": "Commands the agent may run." }
+				"exec": { "title": "Execute", "description": "Folders where sandboxed commands may run and access files." }
 			},
 			"reset": "Reset",
 			"saveFailed": "Could not save the permissions."

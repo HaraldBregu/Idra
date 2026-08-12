@@ -834,6 +834,16 @@
 			}
 		},
 		"permissions": {
+			"locationsNotice": "Le posizioni attendibili consentono strumenti file e comandi in sandbox. Le posizioni bloccate hanno la precedenza. Friday chiede conferma prima di usare strumenti altrove o fuori dalla sandbox.",
+			"locationsTitle": "Posizioni",
+			"locationsDescription": "Scegli quali strumenti possono usare ogni cartella e le relative sottocartelle.",
+			"workspaceDescription": "Area di lavoro · include sottocartelle · sempre attendibile",
+			"trusted": "Attendibile",
+			"blocked": "Bloccata",
+			"removeLocation": "Rimuovi posizione",
+			"pathPlaceholder": "Percorso cartella",
+			"browse": "Scegli cartella",
+			"add": "Aggiungi",
 			"sandboxTitle": "Sandbox dei comandi",
 			"sandboxDescription": "L'isolamento a livello di sistema operativo limita le scritture dei comandi alle cartelle approvate.",
 			"sandboxChecking": "Verifica in corso…",
@@ -865,7 +875,7 @@
 					"title": "Scrittura",
 					"description": "Percorsi che l'agente può creare, modificare o eliminare."
 				},
-				"exec": { "title": "Esecuzione", "description": "Comandi che l'agente può eseguire." }
+				"exec": { "title": "Esecuzione", "description": "Cartelle in cui i comandi in sandbox possono essere eseguiti e accedere ai file." }
 			},
 			"reset": "Ripristina",
 			"saveFailed": "Impossibile salvare i permessi."
