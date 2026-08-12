@@ -101,6 +101,11 @@ export function Terminal({ coder }: { coder: CoderController }) {
 					value={coder.input}
 					onChange={(event) => coder.setInput(event.target.value)}
 					onKeyDown={(event) => {
+						if (event.ctrlKey && event.key.toLowerCase() === 'c' && coder.runState !== 'idle') {
+							event.preventDefault();
+							coder.cancelRun();
+							return;
+						}
 						if (event.key === 'Enter' && !event.shiftKey) {
 							event.preventDefault();
 							void coder.send();
