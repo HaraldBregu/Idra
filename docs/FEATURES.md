@@ -195,6 +195,8 @@ Permissions use this top-level structure:
 Rule resolution is deny-first:
 
 - Any matching deny rule denies the operation, even when an allow rule also matches.
+- The workspace is always trusted. Block rules inside it are discarded.
+- If an execute allow contains a blocked child outside the workspace, the broader execute allow is removed so the operating-system sandbox cannot re-allow the child.
 - If no deny matches, a matching allow rule allows the operation.
 - If neither matches, the runtime requests approval when interactive and denies non-interactive background calls.
 - Shell syntax does not change the permission decision. Commands using pipes, substitutions, or redirections run without a prompt when every declared location is trusted.
@@ -206,6 +208,8 @@ Important boundaries:
 - A command that needs an outside directory must declare it in `additionalRoots`. Friday asks before spawning the command; a one-time approval extends only that sandboxed invocation.
 - A command that intentionally needs host execution must use `elevated: true`. Host execution always requires interactive approval and cannot be persisted as a trusted location.
 - Windows does not support per-invocation filesystem overrides. An outside location must be trusted persistently before a Windows sandboxed command can use it.
+- On macOS and Linux, permission edits apply to newly wrapped commands without stopping already-running sandbox sessions. Windows sandbox policy changes require reinitialization and may stop active sandboxed commands.
+- Command reads from operating-system paths outside the user home remain available when required by the shell and installed programs. Execute locations strictly gate command working directories, declared user locations, and filesystem writes; they are not a complete operating-system read allowlist.
 - Background calls never bypass stored permissions. Because they cannot display an approval request, an **Ask** result is denied.
 - Relative policy paths such as `Desktop/**` resolve from the user home directory.
 - Permission rules are managed as trusted or blocked locations in Settings, scoped to read, write, and execute capabilities.
