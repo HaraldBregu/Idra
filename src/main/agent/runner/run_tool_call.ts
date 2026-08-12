@@ -24,6 +24,8 @@ import type {
 	AgentUserInputQuestion,
 } from '../../../shared/agent_types';
 import { waitForUserInput } from '../user_input/user_input_pending';
+import path from 'node:path';
+import { resolveExecRoots } from '../permissions/resolve_exec_roots';
 
 export interface ToolCallSecurityContext {
 	runId: string;
@@ -82,6 +84,22 @@ export async function* runToolCall(
 	} else if (security.interactionMode === 'plan' && tool.planSafe !== true) {
 		output = `Error: tool '${toolCall.name}' is unavailable in Plan mode`;
 		isError = true;
+	} else if (
+		security.interactionMode === 'plan' &&
+		toolCall.name === 'exec_command' &&
+		(Boolean(canonicalInput.background) ||
+			Boolean(canonicalInput.elevated) ||
+			Boolean(canonicalInput.pty) ||
+			canonicalInput.host === 'gateway' ||
+			canonicalInput.host === 'node' ||
+			(Array.isArray(canonicalInput.additionalRoots) && canonicalInput.additionalRoots.length > 0) ||
+			resolveExecRoots(canonicalInput, agentLocation()).some((root) => {
+				const relative = path.relative(agentLocation(), root);
+				return relative.startsWith('..') || path.isAbsolute(relative);
+			}))
+	) {
+		output = "Error: command input is unavailable in Plan mode";
+		isError = true;
 	} else if (toolCall.name === 'request_user_input') {
 		if (security.interactionMode !== 'plan' || security.windowId === undefined) {
 			output = 'Error: structured user input is only available in an interactive Plan run.';
@@ -131,6 +149,7 @@ export async function* runToolCall(
 			'ask'
 		);
 		let permission = resolution.mode;
+		if (security.interactionMode === 'plan' && permission === 'ask') permission = 'deny';
 
 		if (permission === 'ask' && security.windowId === undefined) permission = 'deny';
 
