@@ -92,11 +92,25 @@ describe('exec path approval', () => {
 			{ runId: 'run', windowId: 1 }
 		);
 		await events.next();
-		expect((await events.next()).value).toMatchObject({
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({
 			type: 'tool_permission_request',
 			reason: 'host_execution',
 			persistable: false,
 		});
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		const end = events.next();
+		respondToolPermission(
+			{
+				approvalId: request.approvalId,
+				runId: 'run',
+				toolName: request.toolName,
+				inputFingerprint: request.inputFingerprint,
+			},
+			'reject',
+			1
+		);
+		await end;
 	});
 });
 
