@@ -14,6 +14,7 @@ export {
 	type AgentToolPart,
 	type HomeChatMessage,
 	type PendingToolPermission,
+	type PendingUserInput,
 	type UserMessage,
 } from './state';
 export {

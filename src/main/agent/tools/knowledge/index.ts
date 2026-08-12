@@ -8,6 +8,9 @@ import { lintWikiTool } from './lint_wiki';
 import { rebuildWikiIndexTool } from './rebuild_wiki_index';
 import { reviewWikiChangesTool } from './review_wiki_changes';
 import { saveWikiAnalysisTool } from './save_wiki_analysis';
+import { searchWikiTool } from './search_wiki';
+import { queryWikiTool } from './query_wiki';
+import { readWikiPageTool } from './read_wiki_page';
 
 export function getKnowledgeTools(): Tool[] {
 	if (getWikiSettings().enabled !== true && getRagConfiguration().enabled !== true) return [];
@@ -17,6 +20,9 @@ export function getKnowledgeTools(): Tool[] {
 export function getWikiTools(): Tool[] {
 	if (getWikiSettings().enabled !== true) return [];
 	return [
+		searchWikiTool,
+		queryWikiTool,
+		readWikiPageTool,
 		ingestWikiSourceTool,
 		saveWikiAnalysisTool,
 		lintWikiTool,
