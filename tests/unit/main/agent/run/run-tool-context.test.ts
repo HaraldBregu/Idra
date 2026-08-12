@@ -16,6 +16,8 @@ import { createRunContext } from '../../../../../src/main/agent/context';
 import { respondToolPermission } from '../../../../../src/main/agent/permissions';
 import { runToolCall } from '../../../../../src/main/agent/runner/run_tool_call';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
+import { execTool } from '../../../../../src/main/agent/tools/core/exec_command';
+import type { ExecSandbox } from '../../../../../src/main/agent/sandbox';
 import type { RuntimeEvent, Tool, ToolCall } from '../../../../../src/main/agent/types';
 
 const emptyPermissions = {
@@ -81,6 +83,50 @@ describe('exec path approval', () => {
 		await end;
 		expect(addPermissionRule).toHaveBeenCalledWith('exec', 'allow', `${path.resolve('/outside')}/**`);
 		expect(run).toHaveBeenCalledTimes(1);
+	});
+
+	it('passes a one-time outside grant to the real exec sandbox', async () => {
+		const wrapped = jest.fn(async (command: string) => ({
+			command: '/bin/true',
+			args: [],
+			env: {},
+			commandId: 'command',
+		}));
+		const sandbox = {
+			wrap: wrapped,
+			track: jest.fn(),
+			cleanup: jest.fn(),
+			annotate: jest.fn((_id: string, stderr: string) => stderr),
+		} as unknown as ExecSandbox;
+		const events = runToolCall(
+			execTool(sandbox),
+			{ id: 'exec', name: 'exec_command', args: { command: 'pwd', workdir: '/outside' } },
+			undefined,
+			undefined,
+			{ runId: 'run', windowId: 1 }
+		);
+		await events.next();
+		const request = (await events.next()).value;
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		const end = events.next();
+		respondToolPermission(
+			{
+				approvalId: request.approvalId,
+				runId: 'run',
+				toolName: request.toolName,
+				inputFingerprint: request.inputFingerprint,
+			},
+			'approve',
+			1
+		);
+		await end;
+		expect(wrapped).toHaveBeenCalledWith(
+			'pwd',
+			path.resolve('/outside'),
+			expect.any(String),
+			expect.any(AbortSignal),
+			[path.resolve('/outside')]
+		);
 	});
 
 	it('never offers a persistent grant for host execution', async () => {
