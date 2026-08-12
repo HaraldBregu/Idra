@@ -32,11 +32,11 @@ beforeEach(() => {
 	jest.clearAllMocks();
 	Object.defineProperty(window, 'agent', { configurable: true, value: agentApi });
 	Object.defineProperty(window, 'app', { configurable: true, value: appApi });
-	agentApi.policyGet.mockResolvedValue(structuredClone(permissions));
+	agentApi.policyGet.mockResolvedValue(JSON.parse(JSON.stringify(permissions)));
 	agentApi.getWorkspaceLocation.mockResolvedValue('/workspace');
 	agentApi.policyPickDirectory.mockResolvedValue(undefined);
 	agentApi.policySet.mockImplementation(async (value) => value);
-	agentApi.policyReset.mockResolvedValue(structuredClone(permissions));
+	agentApi.policyReset.mockResolvedValue(JSON.parse(JSON.stringify(permissions)));
 	appApi.getSandboxStatus.mockResolvedValue({ state: 'ready', platform: 'darwin' });
 });
 
