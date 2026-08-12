@@ -13,7 +13,6 @@ import type { PublicProvider } from '../../shared/provider_types';
 import { loadProviders } from '../models';
 import type {
 	AgentContextMode,
-	AgentInteractionMode,
 	AgentRunOptions,
 	AgentToolPermissionDecision,
 	AgentToolPermissionScope,
@@ -159,7 +158,6 @@ function toPermissionRules(value: unknown): PermissionRules {
 function toPermissions(value: unknown): PermissionsSchema {
 	if (!isRecord(value)) throw new Error('Invalid permissions.');
 	return {
-		interactionMode: options.interactionMode === 'plan' ? 'plan' : 'default',
 		read: toPermissionRules(value.read),
 		write: toPermissionRules(value.write),
 		exec: toPermissionRules(value.exec),
@@ -221,6 +219,7 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentRunOpti
 		optionalTrimmedString(options.sessionId) ?? optionalTrimmedString(options.agentRuntime);
 	const files = normalizeAgentInputFiles(options.files);
 	return {
+		interactionMode: options.interactionMode === 'plan' ? 'plan' : 'default',
 		...(optionalTrimmedString(options.runId)
 			? { runId: optionalTrimmedString(options.runId) }
 			: {}),

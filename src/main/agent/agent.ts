@@ -178,7 +178,7 @@ export class Agent {
 			if (controller.signal.aborted) return { text: '', stopReason: 'cancelled' };
 			const parsedSkillCommand = parseSkillCommand(request.message);
 
-			const baseInput = {
+			const baseInput: Omit<RuntimeInput, 'type' | 'toolsAllow'> = {
 				runId: request.id,
 				task: 'chat',
 				message: parsedSkillCommand.message,
