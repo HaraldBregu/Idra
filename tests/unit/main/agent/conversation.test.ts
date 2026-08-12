@@ -56,10 +56,17 @@ it('switches text and voice conversations through one entry point', async () => 
 	await conversation.execute({ type: 'voice', action: 'stop-all' });
 
 	expect(send).toHaveBeenCalledWith('hello', 'main', options);
+	expect(send).toHaveBeenCalledTimes(1);
 	expect(voice.start).toHaveBeenCalledWith(7, { chatSessionId: 'chat' });
+	expect(voice.start).toHaveBeenCalledTimes(1);
 	expect(voice.appendAudio).toHaveBeenCalledWith(7, 'voice-session', 'AAAA');
+	expect(voice.appendAudio).toHaveBeenCalledTimes(1);
 	expect(voice.interrupt).toHaveBeenCalledWith(7, 'voice-session');
+	expect(voice.interrupt).toHaveBeenCalledTimes(1);
 	expect(voice.stop).toHaveBeenCalledWith(7, 'voice-session');
+	expect(voice.stop).toHaveBeenCalledTimes(1);
 	expect(voice.stopWindow).toHaveBeenCalledWith(7);
+	expect(voice.stopWindow).toHaveBeenCalledTimes(1);
 	expect(voice.stopAll).toHaveBeenCalledWith();
+	expect(voice.stopAll).toHaveBeenCalledTimes(1);
 });
