@@ -14,6 +14,8 @@ import { getPermissions } from './agent_store';
 import { userDataLocation } from '../shared/user_data_location';
 import { resolveUserPath } from '../shared/user_path';
 import { recursivePermissionRule } from './permissions/recursive_permission_rule';
+import type { AgentInteractionMode } from '../../shared/agent_types';
+import { agentLocation } from '../shared/agent_location';
 
 const WINDOWS_SANDBOX_GUIDANCE =
 	'Open Settings > Permissions and complete Windows sandbox setup; administrator or IT approval may be required. Chat and non-command tools remain available.';
@@ -40,7 +42,8 @@ export class ExecSandbox {
 		cwd: string,
 		commandId: string,
 		signal?: AbortSignal,
-		approvedRoots: readonly string[] = []
+		approvedRoots: readonly string[] = [],
+		interactionMode: AgentInteractionMode = 'default'
 	): Promise<SandboxedCommand> {
 		await this.ensureReady();
 		if (process.platform === 'win32' && approvedRoots.length > 0) {
@@ -50,7 +53,24 @@ export class ExecSandbox {
 		}
 		const { config } = await this.configuration();
 		const approvedPatterns = approvedRoots.map(recursivePermissionRule);
-		const customConfig = process.platform !== 'win32' || approvedPatterns.length > 0
+		const customConfig = interactionMode === 'plan'
+			? {
+					network: {
+						allowedDomains: [],
+						deniedDomains: ['*'],
+						allowLocalBinding: false,
+						allowUnixSockets: [],
+						allowAllUnixSockets: false,
+					},
+					filesystem: {
+						denyRead: config.filesystem.denyRead,
+						allowRead: [recursivePermissionRule(agentLocation())],
+						allowWrite: [recursivePermissionRule(this.temporaryDirectory)],
+						denyWrite: [recursivePermissionRule(agentLocation())],
+					},
+					allowPty: false,
+				}
+			: process.platform !== 'win32' || approvedPatterns.length > 0
 			? {
 					filesystem: {
 						...config.filesystem,

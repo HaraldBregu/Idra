@@ -10,6 +10,8 @@ import type { ExecutionMode } from '../../../../shared/sandbox';
 import { shellQuote } from './quote';
 import { approvedExecRoots } from '../../permissions/approved_exec_roots';
 import { resolveExecRoots } from '../../permissions/resolve_exec_roots';
+import type { AgentInteractionMode } from '../../../../shared/agent_types';
+import path from 'node:path';
 
 interface ExecResult {
 	command: string;
@@ -83,7 +85,8 @@ const execInputSchema = z.object({
 async function runExec(
 	sandbox: ExecSandbox,
 	input: z.infer<typeof execInputSchema>,
-	abortSignal?: AbortSignal
+	abortSignal?: AbortSignal,
+	interactionMode: AgentInteractionMode = 'default'
 ): Promise<ExecResult> {
 	abortSignal?.throwIfAborted();
 	const {
@@ -97,6 +100,14 @@ async function runExec(
 		elevated: elevatedInput,
 		host: hostInput,
 	} = input;
+	const planMode = interactionMode === 'plan';
+	if (planMode) {
+		if (backgroundInput === true) throw new Error('Plan commands cannot run in the background.');
+		if (ptyInput === true) throw new Error('Plan commands cannot use a PTY.');
+		if (elevatedInput === true) throw new Error('Plan commands cannot run outside the sandbox.');
+		if ((input.additionalRoots?.length ?? 0) > 0)
+			throw new Error('Plan commands cannot access additional roots.');
+	}
 
 	if (hostInput === 'gateway' || hostInput === 'node') {
 		throw new Error(`exec host '${hostInput}' is not available in this runtime.`);
@@ -114,8 +125,18 @@ async function runExec(
 
 	const roots = resolveExecRoots(input, agentLocation());
 	const cwd = roots[0] ?? resolveUserPath(workdir ?? '.', agentLocation());
-	const yieldMs = yieldMsInput ?? 10000;
-	const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
+	if (planMode) {
+		const relative = path.relative(agentLocation(), cwd);
+		if (relative.startsWith('..') || path.isAbsolute(relative))
+			throw new Error('Plan commands must run inside the workspace.');
+	}
+	const planTimeoutSeconds = Math.min(timeoutInput ?? 60, 120);
+	const yieldMs = planMode ? planTimeoutSeconds * 1000 + 1 : (yieldMsInput ?? 10000);
+	const timeoutMs = planMode
+		? planTimeoutSeconds * 1000
+		: timeoutInput === undefined
+			? undefined
+			: timeoutInput * 1000;
 	const startedAt = Date.now();
 	const pty = ptyInput === true;
 	const executionMode: ExecutionMode = elevatedInput === true ? 'host' : 'sandbox';
@@ -143,7 +164,8 @@ async function runExec(
 					cwd,
 					commandId,
 					abortSignal,
-					approvedExecRoots.getStore() ?? []
+					approvedExecRoots.getStore() ?? [],
+					interactionMode
 				)
 			: undefined;
 	const spawnCommand = wrapped?.command ?? hostCommand;
@@ -366,14 +388,18 @@ async function runExec(
 	});
 }
 
-export function execTool(sandbox: ExecSandbox) {
+export function execTool(
+	sandbox: ExecSandbox,
+	interactionMode: AgentInteractionMode = 'default'
+) {
 	return tool({
 		id: 'exec_command',
 		name: 'Execute command',
 		description:
 			'Run a shell command in a filesystem sandbox. Commands are trusted by working directory. Declare every directory accessed outside workdir in additionalRoots so Friday can request permission before execution. ' +
 			'For an intentional host operation, retry with elevated: true to request approval. Set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
+		planSafe: true,
 		inputSchema: execInputSchema,
-		execute: (input, signal) => runExec(sandbox, input, signal),
+		execute: (input, signal) => runExec(sandbox, input, signal, interactionMode),
 	});
 }
