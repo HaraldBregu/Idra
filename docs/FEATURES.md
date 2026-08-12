@@ -171,7 +171,7 @@ The Permissions screen provides persistent controls for sensitive tools:
 - Tools unrelated to filesystem reads, filesystem mutations, or command execution remain allowed.
 - An interactive permission card offers **Deny**, **Allow once**, and **Trust this location** when the grant can be persisted.
 - Trusting a location stores a recursive containing-folder glob for the requesting capability.
-- Resetting restores the default workspace path glob in all three buckets and removes prior command-text exec rules during migration.
+- Resetting restores the default workspace path glob in all three buckets.
 
 Permissions use this top-level structure:
 

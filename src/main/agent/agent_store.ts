@@ -4,7 +4,6 @@ import type { AgentMediaModelKind, AgentMediaModelSettings } from '../../shared/
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
 import { normalizePermissionsSchema } from './permissions/normalize_permissions_schema';
-import { migratePermissions } from './permissions/migrate_permissions';
 import {
 	type PermissionBucket,
 	type PermissionKind,
@@ -28,11 +27,9 @@ type AgentStoreSchema = {
 	voice_model: AgentMediaModelSettings;
 	realtime_voice_model: AgentMediaModelSettings;
 	permissions: PermissionsSchema;
-	permissionsVersion?: number;
 };
 
 const AGENT_STORE_NAME = 'agent';
-const PERMISSIONS_VERSION = 2;
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
 export const AGENT_DIRECTORY = path.resolve(agentLocation());
 const workspacePattern = `${AGENT_DIRECTORY.replaceAll(path.sep, '/')}/**`;
@@ -118,18 +115,10 @@ export function setMediaModel(kind: AgentMediaModelKind, settings: AgentMediaMod
 }
 
 export function getPermissions(): PermissionsSchema {
-	const permissions = migratePermissions(
-		store.get('permissions'),
-		store.get('permissionsVersion'),
-		PERMISSIONS_VERSION,
-		DEFAULT_AGENT_PERMISSIONS,
+	return withWorkspacePermissions(
+		normalizePermissionsSchema(store.get('permissions'), DEFAULT_AGENT_PERMISSIONS),
 		workspacePattern
 	);
-	if (store.get('permissionsVersion') !== PERMISSIONS_VERSION) {
-		store.set('permissions', permissions);
-		store.set('permissionsVersion', PERMISSIONS_VERSION);
-	}
-	return permissions;
 }
 
 export function setPermissions(permissions: PermissionsSchema): PermissionsSchema {
@@ -140,7 +129,6 @@ export function setPermissions(permissions: PermissionsSchema): PermissionsSchem
 			workspacePattern
 		)
 	);
-	store.set('permissionsVersion', PERMISSIONS_VERSION);
 	return getPermissions();
 }
 
@@ -160,6 +148,5 @@ export function addPermissionRule(
 
 export function resetPermissions(): PermissionsSchema {
 	store.set('permissions', DEFAULT_AGENT_PERMISSIONS);
-	store.set('permissionsVersion', PERMISSIONS_VERSION);
 	return getPermissions();
 }
