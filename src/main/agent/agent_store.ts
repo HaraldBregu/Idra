@@ -9,6 +9,7 @@ import {
 	type PermissionKind,
 	type PermissionsSchema,
 } from './permissions/permissions_types';
+import { withWorkspacePermissions } from './permissions/with_workspace_permissions';
 
 export type SearchEngineSettings = {
 	providerId: string;
@@ -26,16 +27,18 @@ type AgentStoreSchema = {
 	voice_model: AgentMediaModelSettings;
 	realtime_voice_model: AgentMediaModelSettings;
 	permissions: PermissionsSchema;
+	permissionsVersion?: number;
 };
 
 const AGENT_STORE_NAME = 'agent';
+const PERMISSIONS_VERSION = 2;
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
 export const AGENT_DIRECTORY = path.resolve(agentLocation());
 const workspacePattern = `${AGENT_DIRECTORY.replaceAll(path.sep, '/')}/**`;
 const DEFAULT_AGENT_PERMISSIONS: PermissionsSchema = {
 	read: { allow: [workspacePattern], deny: [] },
 	write: { allow: [workspacePattern], deny: [] },
-	exec: { allow: ['*'], deny: [] },
+	exec: { allow: [workspacePattern], deny: [] },
 };
 const EMPTY_MEDIA_MODEL: AgentMediaModelSettings = {
 	providerId: '',
@@ -114,11 +117,29 @@ export function setMediaModel(kind: AgentMediaModelKind, settings: AgentMediaMod
 }
 
 export function getPermissions(): PermissionsSchema {
-	return normalizePermissionsSchema(store.get('permissions'), DEFAULT_AGENT_PERMISSIONS);
+	const normalized = normalizePermissionsSchema(store.get('permissions'), DEFAULT_AGENT_PERMISSIONS);
+	const permissions = withWorkspacePermissions(
+		store.get('permissionsVersion') === PERMISSIONS_VERSION
+			? normalized
+			: { ...normalized, exec: DEFAULT_AGENT_PERMISSIONS.exec },
+		workspacePattern
+	);
+	if (store.get('permissionsVersion') !== PERMISSIONS_VERSION) {
+		store.set('permissions', permissions);
+		store.set('permissionsVersion', PERMISSIONS_VERSION);
+	}
+	return permissions;
 }
 
 export function setPermissions(permissions: PermissionsSchema): PermissionsSchema {
-	store.set('permissions', normalizePermissionsSchema(permissions, DEFAULT_AGENT_PERMISSIONS));
+	store.set(
+		'permissions',
+		withWorkspacePermissions(
+			normalizePermissionsSchema(permissions, DEFAULT_AGENT_PERMISSIONS),
+			workspacePattern
+		)
+	);
+	store.set('permissionsVersion', PERMISSIONS_VERSION);
 	return getPermissions();
 }
 
@@ -138,5 +159,6 @@ export function addPermissionRule(
 
 export function resetPermissions(): PermissionsSchema {
 	store.set('permissions', DEFAULT_AGENT_PERMISSIONS);
+	store.set('permissionsVersion', PERMISSIONS_VERSION);
 	return getPermissions();
 }
