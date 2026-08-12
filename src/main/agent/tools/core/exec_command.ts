@@ -143,7 +143,7 @@ async function runExec(
 					cwd,
 					commandId,
 					abortSignal,
-					approvedExecRoots.get(input) ?? []
+					approvedExecRoots.getStore() ?? []
 				)
 			: undefined;
 	const spawnCommand = wrapped?.command ?? hostCommand;

@@ -119,13 +119,6 @@ export async function* runToolCall(
 					addPermissionRule(resolution.kind, 'allow', recursivePermissionRule(target));
 				}
 			}
-			if (
-				decision === 'approve' &&
-				resolution.kind === 'exec' &&
-				toolCall.name === 'exec_command'
-			) {
-				approvedExecRoots.set(canonicalInput, resolution.approvalTargets);
-			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}
 		permissionOutcome ??= permission;
@@ -159,8 +152,12 @@ export async function* runToolCall(
 						abort = () => reject(toolSignal.reason ?? new Error('Tool call aborted.'));
 						toolSignal.addEventListener('abort', abort, { once: true });
 					});
+					const run = (): Promise<unknown> => Promise.resolve(tool.run(canonicalInput, toolSignal));
+					const approvedRoots = permissionOutcome === 'approve' && toolCall.name === 'exec_command'
+						? resolution.approvalTargets
+						: [];
 					output = await Promise.race([
-						Promise.resolve(tool.run(canonicalInput, toolSignal)),
+						approvedExecRoots.run(approvedRoots, run),
 						aborted,
 					]);
 					output = limitToolOutput(output, tool.maxOutputBytes);

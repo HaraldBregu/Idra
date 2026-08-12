@@ -1,1 +1,3 @@
-export const approvedExecRoots = new WeakMap<Record<string, unknown>, readonly string[]>();
+import { AsyncLocalStorage } from 'node:async_hooks';
+
+export const approvedExecRoots = new AsyncLocalStorage<readonly string[]>();
