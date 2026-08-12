@@ -86,7 +86,7 @@ describe('exec path approval', () => {
 	});
 
 	it('passes a one-time outside grant to the real exec sandbox', async () => {
-		const wrapped = jest.fn(async (command: string) => ({
+		const wrapped = jest.fn(async (_command: string) => ({
 			command: '/bin/true',
 			args: [],
 			env: {},
