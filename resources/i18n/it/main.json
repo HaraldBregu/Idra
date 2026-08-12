@@ -2352,6 +2352,30 @@
 		"loadError": "Impossibile caricare le informazioni dell'area di lavoro. Riprova.",
 		"saveError": "Impossibile salvare le modifiche. Il campo è ancora aperto per riprovare."
 	},
+	"toolPermission": {
+		"title": "Consentire a Friday di {{action}}?",
+		"hostAccess": "Accesso host",
+		"outsideLocations": "Fuori dalle posizioni attendibili",
+		"location": "Posizione",
+		"hostReason": "Questa operazione viene eseguita fuori dalla sandbox del file system e può accedere ad altre posizioni.",
+		"outsideReason": "Questa posizione non è attendibile per lo strumento richiesto.",
+		"deny": "Nega",
+		"trustLocation": "Rendi attendibile questa posizione",
+		"allowOnce": "Consenti una volta",
+		"expired": "Questa richiesta di autorizzazione è scaduta o non è più attiva.",
+		"responseFailed": "Impossibile registrare la risposta.",
+		"actions": {
+			"read_file": "leggere file",
+			"write_file": "scrivere file",
+			"edit_file": "modificare file",
+			"apply_patch": "applicare questa patch",
+			"exec_command": "eseguire questo comando",
+			"process": "inviare input a questo processo host",
+			"create_image": "creare un'immagine qui",
+			"create_video": "creare un video qui",
+			"create_sound": "creare audio qui"
+		}
+	},
 	"taskCommands": {
 		"list": "Mostra l'elenco delle attività pianificate",
 		"create": "Crea e pianifica un'attività con questi dettagli: {{message}}",
