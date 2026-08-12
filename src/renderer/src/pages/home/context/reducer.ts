@@ -128,6 +128,8 @@ function applyResponseEvent(
 		}));
 	}
 
+	if (event.type === 'run_started') return ensured.state;
+
 	if (event.type === 'reasoning_summary') {
 		return ensured.state;
 	}
@@ -155,6 +157,38 @@ function applyResponseEvent(
 				startedAtMs: message.startedAtMs ?? receivedAtMs,
 			})
 		);
+	}
+
+	if (event.type === 'user_input_request') {
+		return updateAgentMessage(
+			{ ...ensured.state, activeAgentId: ensured.message.id, activeRunId: event.runId },
+			ensured.message.id,
+			(message) => ({
+				...message,
+				state: 'awaiting_input',
+				pendingUserInput: {
+					requestId: event.requestId,
+					runId: event.runId,
+					toolCallId: event.toolCallId,
+					inputFingerprint: event.inputFingerprint,
+					questions: event.questions,
+					expiresAt: event.expiresAt,
+				},
+			}))
+		);
+	}
+
+	if (event.type === 'user_input_result') {
+		return updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
+			...message,
+			pendingUserInput: undefined,
+			tools: updateAgentToolPart(message.tools, event.toolCallId, {
+				type: 'request_user_input',
+				state: event.status === 'resolved' ? 'output-available' : 'output-error',
+				output: { status: event.status, answers: event.answers },
+				outputText: JSON.stringify({ status: event.status, answers: event.answers }),
+			}),
+		}));
 	}
 
 	if (event.type === 'model_usage') {
@@ -410,6 +444,7 @@ export function agentChatReducer(
 						? message.state
 						: 'completed',
 				pendingPermission: undefined,
+				pendingUserInput: undefined,
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
@@ -423,6 +458,7 @@ export function agentChatReducer(
 				state: 'cancelled',
 				errorText: 'Cancelled.',
 				pendingPermission: undefined,
+				pendingUserInput: undefined,
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
@@ -451,6 +487,7 @@ export function agentChatReducer(
 				state: 'error',
 				errorText: action.errorText,
 				pendingPermission: undefined,
+				pendingUserInput: undefined,
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));

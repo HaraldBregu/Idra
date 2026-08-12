@@ -58,8 +58,11 @@ export function applyAgentResponseEventToTools(
 ): AgentToolPart[] | undefined {
 	switch (event.type) {
 		case 'run_state':
+		case 'run_started':
 		case 'reasoning_summary':
 		case 'text_delta':
+		case 'user_input_request':
+		case 'user_input_result':
 			return undefined;
 		case 'tool_call_start':
 			return updateAgentToolPart(tools, event.toolCallId, {

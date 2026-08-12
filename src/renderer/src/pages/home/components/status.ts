@@ -5,6 +5,7 @@ const runStateLabels: Record<AgentRunState, string> = {
 	thinking: 'Thinking',
 	reasoning: 'Thinking',
 	using_tools: 'Using tools',
+	awaiting_input: 'Awaiting input',
 	answering: 'Answering',
 	completed: 'Completed',
 	cancelled: 'Cancelled',
@@ -16,6 +17,7 @@ export function isRunningState(state: AgentRunState): boolean {
 		state === 'thinking' ||
 		state === 'reasoning' ||
 		state === 'using_tools' ||
+		state === 'awaiting_input' ||
 		state === 'answering'
 	);
 }

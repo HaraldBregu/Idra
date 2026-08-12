@@ -1,4 +1,8 @@
-import type { AgentRunState } from '@/lib/compat';
+import type {
+	AgentRunState,
+	AgentUserInputQuestion,
+	AgentUserInputScope,
+} from '@/lib/compat';
 import type { AgentToolPart } from './tool-parts';
 
 export type { AgentRunState, AgentToolPart };
@@ -24,6 +28,11 @@ export interface PendingToolPermission {
 	readonly expiresAt: string;
 }
 
+export interface PendingUserInput extends AgentUserInputScope {
+	readonly questions: readonly AgentUserInputQuestion[];
+	readonly expiresAt: string;
+}
+
 export interface AgentMessage {
 	readonly id: string;
 	readonly role: 'agent';
@@ -33,6 +42,7 @@ export interface AgentMessage {
 	readonly state: AgentRunState;
 	readonly tools: readonly AgentToolPart[];
 	readonly pendingPermission?: PendingToolPermission;
+	readonly pendingUserInput?: PendingUserInput;
 	readonly errorText?: string;
 	readonly startedAtMs?: number;
 	readonly completedAtMs?: number;
