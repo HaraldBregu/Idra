@@ -30,6 +30,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import Sandbox from './Sandbox';
+import { locationPath } from './location_path';
 
 type Permissions = Awaited<ReturnType<typeof window.agent.policyGet>>;
 type PermissionKind = keyof Permissions;
@@ -81,19 +82,40 @@ const PermissionsPage: React.FC = () => {
 				return paths.map((rule) => ({
 					bucket,
 					rule,
-					path: rule.replace(/[\\/]\*\*$/, ''),
+					path: locationPath(rule),
 					kinds: KINDS.filter((kind) => permissions[kind][bucket].includes(rule)),
 				}));
 			})
 		: [];
+	const workspaceKey = workspace.replaceAll('\\', '/').replace(/\/$/, '');
 	const workspaceRow = rows.find(
-		(row) => row.bucket === 'allow' && row.path === workspace && row.kinds.length === KINDS.length
+		(row) =>
+			row.bucket === 'allow' &&
+			row.path.replaceAll('\\', '/').replace(/\/$/, '') === workspaceKey &&
+			row.kinds.length === KINDS.length
 	);
 	const customRows = rows.filter((row) => row !== workspaceRow);
 
-	const addLocation = (): void => {
+	const addLocation = async (): Promise<void> => {
 		if (!permissions || !newPath.trim() || newKinds.length === 0) return;
-		const rule = `${newPath.trim().replace(/[\\/]+$/, '')}/**`;
+		setError(null);
+		let normalized: string;
+		try {
+			normalized = await window.agent.policyNormalizeDirectory(newPath);
+		} catch (cause) {
+			setError(cause instanceof Error ? cause.message : String(cause));
+			return;
+		}
+		const locationKey = normalized.replaceAll('\\', '/').replace(/\/$/, '');
+		if (
+			newBucket === 'deny' &&
+			(locationKey === workspaceKey || locationKey.startsWith(`${workspaceKey}/`))
+		) {
+			setError(t('settings.permissions.workspaceAlwaysTrusted'));
+			return;
+		}
+		const rule = `${normalized}${/[\\/]$/.test(normalized) ? '' : '/'}**`;
+		const opposite: PermissionBucket = newBucket === 'allow' ? 'deny' : 'allow';
 		setPermissions(
 			KINDS.reduce(
 				(next, kind) =>
@@ -103,6 +125,9 @@ const PermissionsPage: React.FC = () => {
 								[kind]: {
 									...next[kind],
 									[newBucket]: [...new Set([...next[kind][newBucket], rule])],
+									[opposite]: next[kind][opposite].filter(
+										(candidate) => locationPath(candidate) !== normalized
+									),
 								},
 							}
 						: next,
@@ -182,29 +207,30 @@ const PermissionsPage: React.FC = () => {
 						))}
 						<div className="space-y-2 border-t border-border/60 p-3">
 							<div className="flex flex-col gap-2 sm:flex-row">
-								<Input value={newPath} onChange={(event) => setNewPath(event.target.value)} placeholder={t('settings.permissions.pathPlaceholder')} disabled={saving} />
-								<Button type="button" variant="outline" size="icon" aria-label={t('settings.permissions.browse')} onClick={() => void window.agent.policyPickDirectory().then((value) => value && setNewPath(value))} disabled={saving}>
+								<Input aria-label={t('settings.permissions.pathLabel')} value={newPath} onChange={(event) => setNewPath(event.target.value)} placeholder={t('settings.permissions.pathPlaceholder')} disabled={saving} />
+								<Button type="button" variant="outline" size="icon" aria-label={t('settings.permissions.browse')} onClick={() => void window.agent.policyPickDirectory().then((value) => value && setNewPath(value)).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : String(cause)))} disabled={saving}>
 									<FolderOpen className="size-4" />
 								</Button>
 								<Select value={newBucket} onValueChange={(value) => setNewBucket(value as PermissionBucket)} disabled={saving}>
-									<SelectTrigger size="sm"><SelectValue /></SelectTrigger>
+									<SelectTrigger size="sm" aria-label={t('settings.permissions.accessLabel')}><SelectValue /></SelectTrigger>
 									<SelectContent>
 										<SelectItem value="allow">{t('settings.permissions.trusted')}</SelectItem>
 										<SelectItem value="deny">{t('settings.permissions.blocked')}</SelectItem>
 									</SelectContent>
 								</Select>
-								<Button type="button" size="sm" onClick={addLocation} disabled={saving || !newPath.trim() || newKinds.length === 0}>
+								<Button type="button" size="sm" onClick={() => void addLocation()} disabled={saving || !newPath.trim() || newKinds.length === 0}>
 									<Plus className="size-3" /> {t('settings.permissions.add')}
 								</Button>
 							</div>
-							<div className="flex flex-wrap gap-3">
+							<fieldset className="flex flex-wrap gap-3">
+								<legend className="sr-only">{t('settings.permissions.toolsLabel')}</legend>
 								{KINDS.map((kind) => (
 									<label key={kind} className="flex items-center gap-1.5 text-xs text-muted-foreground">
 										<input type="checkbox" checked={newKinds.includes(kind)} onChange={(event) => setNewKinds(event.target.checked ? [...newKinds, kind] : newKinds.filter((value) => value !== kind))} disabled={saving} />
 										{t(`settings.permissions.kinds.${kind}.title`)}
 									</label>
 								))}
-							</div>
+							</fieldset>
 						</div>
 					</SettingsPanel>
 				</SettingsSection>
