@@ -493,6 +493,21 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.policyPickDirectory,
+			wrapSimpleHandler(async (): Promise<string | undefined> => {
+				const window = BrowserWindow.getFocusedWindow();
+				const options = {
+					defaultPath: workspacePath(agent.config),
+					properties: ['openDirectory' as const],
+				};
+				const result = await (window
+					? dialog.showOpenDialog(window, options)
+					: dialog.showOpenDialog(options));
+				return result.canceled ? undefined : result.filePaths[0];
+			}, AgentChannels.policyPickDirectory)
+		);
+
+		ipcMain.handle(
 			AgentChannels.healthSettings,
 			wrapSimpleHandler(() => getHealthSettings(), AgentChannels.healthSettings)
 		);

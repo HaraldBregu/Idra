@@ -220,6 +220,9 @@ export const agent: AgentApi = {
 	policyReset: (): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyReset);
 	},
+	policyPickDirectory: (): Promise<string | undefined> => {
+		return typedInvokeUnwrap(AgentChannels.policyPickDirectory);
+	},
 	healthGetSettings: (): Promise<HealthSettings> => {
 		return typedInvokeUnwrap(AgentChannels.healthSettings);
 	},

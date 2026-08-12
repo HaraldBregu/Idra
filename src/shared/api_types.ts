@@ -147,6 +147,7 @@ export interface AgentApi {
 	policyGet: () => Promise<PermissionsSchema>;
 	policySet: (permissions: PermissionsSchema) => Promise<PermissionsSchema>;
 	policyReset: () => Promise<PermissionsSchema>;
+	policyPickDirectory: () => Promise<string | undefined>;
 	healthGetSettings: () => Promise<HealthSettings>;
 	healthSaveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
 	healthResetSettings: () => Promise<HealthSettings>;

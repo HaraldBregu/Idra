@@ -145,6 +145,7 @@ export interface AgentInvokeChannelMap {
 		args: [];
 		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
 	};
+	[AgentChannels.policyPickDirectory]: { args: []; result: string | undefined };
 	[AgentChannels.healthSettings]: {
 		args: [];
 		result: import('../main/agent/health/health_types').HealthSettings;
