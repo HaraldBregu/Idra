@@ -48,6 +48,17 @@ describe('agent store permissions', () => {
 		expect(saved.exec.allow).toEqual([workspaceRule]);
 	});
 
+	it('removes blocked rules inside the always-trusted workspace', () => {
+		const saved = setPermissions({
+			read: { allow: [], deny: [`${AGENT_DIRECTORY}/private/**`] },
+			write: { allow: [], deny: [`${AGENT_DIRECTORY}/private/**`] },
+			exec: { allow: [], deny: [`${AGENT_DIRECTORY}/private/**`] },
+		});
+		expect(saved.read.deny).toEqual([]);
+		expect(saved.write.deny).toEqual([]);
+		expect(saved.exec.deny).toEqual([]);
+	});
+
 	it('adds a rule without changing other buckets', () => {
 		addPermissionRule('exec', 'allow', '/repo/**');
 		expect(getPermissions().exec.allow).toEqual([workspaceRule, '/repo/**']);
