@@ -1,4 +1,3 @@
-import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/permissions/permissions_types';
 import { getWikiTools } from '../../../../../src/main/agent/tools/knowledge';
 import {
 	DEFAULT_WIKI_SETTINGS,
@@ -29,12 +28,4 @@ describe('wiki tools', () => {
 		expect(getWikiTools('main')).toEqual([]);
 	});
 
-	it('allows wiki tools by default', () => {
-		expect(DEFAULT_PERMISSIONS.tools.ingest_wiki_source).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.tools.save_wiki_analysis).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.tools.lint_wiki).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.tools.review_wiki_changes).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.tools.rebuild_wiki_index).toMatchObject({ default: 'allow' });
-		expect(DEFAULT_PERMISSIONS.tools.get_recent_wiki_activity).toMatchObject({ default: 'allow' });
-	});
 });

@@ -5,6 +5,7 @@ const spawn = jest.fn();
 jest.mock('node:child_process', () => ({ spawn }));
 
 import { execTool } from '../../../../../src/main/agent/tools/core/exec_command';
+import type { ExecSandbox } from '../../../../../src/main/agent/sandbox';
 import {
 	processTool,
 	registry,
@@ -32,6 +33,15 @@ function childProcess() {
 	return child;
 }
 
+function sandbox(): ExecSandbox {
+	return {
+		wrap: jest.fn(async (command: string) => ({ command, args: [], env: {}, commandId: 'id' })),
+		track: jest.fn(),
+		cleanup: jest.fn(),
+		annotate: jest.fn((_id: string, stderr: string) => stderr),
+	} as unknown as ExecSandbox;
+}
+
 it('kills only the exec child when its run is cancelled', async () => {
 	const child = childProcess();
 	const unrelated = childProcess();
@@ -41,6 +51,8 @@ it('kills only the exec child when its run is cancelled', async () => {
 		pid: unrelated.pid,
 		command: 'other',
 		workdir: '/tmp',
+		roots: [],
+		executionMode: 'sandbox',
 		startedAt: Date.now(),
 		stdout: '',
 		stderr: '',
@@ -50,7 +62,7 @@ it('kills only the exec child when its run is cancelled', async () => {
 		child: unrelated as never,
 	});
 	const controller = new AbortController();
-	const result = execTool.run(
+	const result = execTool(sandbox()).run(
 		{ command: 'long command', workdir: '/tmp', yieldMs: 10_000 },
 		controller.signal
 	);
@@ -68,7 +80,7 @@ it('kills a background exec cancelled before its spawn acknowledgement', async (
 	const child = childProcess();
 	spawn.mockReturnValue(child);
 	const controller = new AbortController();
-	const result = execTool.run(
+	const result = execTool(sandbox()).run(
 		{ command: 'background command', workdir: '/tmp', background: true },
 		controller.signal
 	);
@@ -83,7 +95,7 @@ it('keeps background exec ownership until the parent run is cancelled', async ()
 	const child = childProcess();
 	spawn.mockReturnValue(child);
 	const controller = new AbortController();
-	const result = execTool.run(
+	const result = execTool(sandbox()).run(
 		{ command: 'background command', workdir: '/tmp', background: true },
 		controller.signal
 	);
@@ -98,7 +110,7 @@ it('kills and removes a yielded exec session when its parent run is cancelled', 
 	const child = childProcess();
 	spawn.mockReturnValue(child);
 	const controller = new AbortController();
-	const result = await execTool.run(
+	const result = await execTool(sandbox()).run(
 		{ command: 'yielded command', workdir: '/tmp', yieldMs: 0 },
 		controller.signal
 	);
@@ -117,6 +129,8 @@ it('cancels a process poll without killing or removing its existing session', as
 		pid: child.pid,
 		command: 'existing command',
 		workdir: '/tmp',
+		roots: [],
+		executionMode: 'sandbox',
 		startedAt: Date.now(),
 		stdout: '',
 		stderr: '',

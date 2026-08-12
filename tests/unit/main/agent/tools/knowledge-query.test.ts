@@ -9,7 +9,6 @@ jest.mock('../../../../../src/main/agent/knowledge/wiki/wiki_answer_context', ()
 	buildWikiAnswerContext,
 }));
 
-import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/permissions/permissions_types';
 import { getKnowledgeTools } from '../../../../../src/main/agent/tools/knowledge';
 import { queryKnowledgeTool } from '../../../../../src/main/agent/tools/knowledge/query_knowledge';
 
@@ -42,7 +41,6 @@ it('exposes one main-session knowledge broker and prefers confident compiled wik
 	expect(getKnowledgeTools('main').map((tool) => tool.id)).toEqual(['query_knowledge']);
 	expect(getKnowledgeTools('task').map((tool) => tool.id)).toEqual(['query_knowledge']);
 	expect(getKnowledgeTools('bot')).toEqual([]);
-	expect(DEFAULT_PERMISSIONS.tools.query_knowledge).toMatchObject({ default: 'allow' });
 	expect(buildWikiAnswerContext).toHaveBeenCalledWith('leave', false, undefined, controller.signal);
 	expect(searchRag).not.toHaveBeenCalled();
 	expect(output).toMatchObject({ route: 'compiled_wiki', abstain: false });
