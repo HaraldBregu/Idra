@@ -4,6 +4,7 @@ import type { AgentMediaModelKind, AgentMediaModelSettings } from '../../shared/
 import { agentLocation } from '../shared/agent_location';
 import { userDataLocation } from '../shared/user_data_location';
 import { normalizePermissionsSchema } from './permissions/normalize_permissions_schema';
+import { migratePermissions } from './permissions/migrate_permissions';
 import {
 	type PermissionBucket,
 	type PermissionKind,
@@ -117,11 +118,11 @@ export function setMediaModel(kind: AgentMediaModelKind, settings: AgentMediaMod
 }
 
 export function getPermissions(): PermissionsSchema {
-	const normalized = normalizePermissionsSchema(store.get('permissions'), DEFAULT_AGENT_PERMISSIONS);
-	const permissions = withWorkspacePermissions(
-		store.get('permissionsVersion') === PERMISSIONS_VERSION
-			? normalized
-			: { ...normalized, exec: DEFAULT_AGENT_PERMISSIONS.exec },
+	const permissions = migratePermissions(
+		store.get('permissions'),
+		store.get('permissionsVersion'),
+		PERMISSIONS_VERSION,
+		DEFAULT_AGENT_PERMISSIONS,
 		workspacePattern
 	);
 	if (store.get('permissionsVersion') !== PERMISSIONS_VERSION) {
