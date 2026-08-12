@@ -210,19 +210,13 @@ export class ExecSandbox {
 		const permissions = getPermissions();
 		const resolveRules = (rules: string[]): string[] =>
 			rules.map((rule) => resolveUserPath(rule, os.homedir()));
-		const allowRead = resolveRules([
-			...permissions.read.allow,
-			...permissions.exec.allow,
-		]);
+		const allowRead = resolveRules(permissions.exec.allow);
 		const allowWrite = [
-			...resolveRules([...permissions.write.allow, ...permissions.exec.allow]),
+			...resolveRules(permissions.exec.allow),
 			this.temporaryDirectory,
 		];
-		const denyWrite = resolveRules([...permissions.write.deny, ...permissions.exec.deny]);
-		const denyRead = [
-			os.homedir(),
-			...resolveRules([...permissions.read.deny, ...permissions.exec.deny]),
-		];
+		const denyWrite = resolveRules(permissions.exec.deny);
+		const denyRead = [os.homedir(), ...resolveRules(permissions.exec.deny)];
 		const windowsPath = this.vendoredWindowsPath();
 		const seccompPath = this.vendoredSeccompPath();
 		const config: SandboxRuntimeConfig = {

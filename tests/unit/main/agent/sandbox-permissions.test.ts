@@ -29,7 +29,7 @@ jest.mock('../../../../src/main/agent/agent_store', () => ({
 import { ExecSandbox } from '../../../../src/main/agent/sandbox';
 
 describe('ExecSandbox permissions', () => {
-	it('uses trusted execute paths as read and write boundaries', async () => {
+	it('uses only execute paths as command read and write boundaries', async () => {
 		const configuration = await (
 			new ExecSandbox() as unknown as {
 				configuration: () => Promise<{ config: { filesystem: Record<string, string[]> } }>;
@@ -43,11 +43,10 @@ describe('ExecSandbox permissions', () => {
 			expect.arrayContaining(['/workspace/**', '/shared/**'])
 		);
 		expect(configuration.config.filesystem.denyRead).toEqual(
-			expect.arrayContaining([os.homedir(), '/workspace/private/**', '/shared/private/**'])
+			expect.arrayContaining([os.homedir(), '/shared/private/**'])
 		);
-		expect(configuration.config.filesystem.denyWrite).toEqual(
-			expect.arrayContaining(['/workspace/private/**', '/shared/private/**'])
-		);
+		expect(configuration.config.filesystem.denyRead).not.toContain('/workspace/private/**');
+		expect(configuration.config.filesystem.denyWrite).toEqual(['/shared/private/**']);
 	});
 
 	it('adds an approved outside root only to the wrapped invocation', async () => {
