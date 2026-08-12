@@ -50,7 +50,7 @@ export class ExecSandbox {
 		}
 		const { config } = await this.configuration();
 		const approvedPatterns = approvedRoots.map(recursivePermissionRule);
-		const customConfig = approvedPatterns.length > 0
+		const customConfig = process.platform !== 'win32' || approvedPatterns.length > 0
 			? {
 					filesystem: {
 						...config.filesystem,
@@ -242,7 +242,9 @@ export class ExecSandbox {
 		};
 		return {
 			config,
-			fingerprint: JSON.stringify({ allowRead, allowWrite, denyRead, denyWrite }),
+			fingerprint: process.platform === 'win32'
+				? JSON.stringify({ allowRead, allowWrite, denyRead, denyWrite })
+				: 'sandbox-runtime-v2',
 		};
 	}
 

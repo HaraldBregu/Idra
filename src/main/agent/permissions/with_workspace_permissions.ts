@@ -11,6 +11,14 @@ export function withWorkspacePermissions(
 		const target = permissionRuleRoot(rule);
 		return target !== workspace && !target.startsWith(`${workspace}${path.sep}`);
 	};
+	const execDeny = permissions.exec.deny.filter(outsideWorkspace);
+	const safeExecAllow = permissions.exec.allow.filter((rule) => {
+		const allowed = permissionRuleRoot(rule);
+		return !execDeny.some((deniedRule) => {
+			const denied = permissionRuleRoot(deniedRule);
+			return denied === allowed || denied.startsWith(`${allowed}${path.sep}`);
+		});
+	});
 	return {
 		read: {
 			...permissions.read,
@@ -24,8 +32,8 @@ export function withWorkspacePermissions(
 		},
 		exec: {
 			...permissions.exec,
-			allow: [...new Set([workspacePattern, ...permissions.exec.allow])],
-			deny: permissions.exec.deny.filter(outsideWorkspace),
+			allow: [...new Set([workspacePattern, ...safeExecAllow])],
+			deny: execDeny,
 		},
 	};
 }
