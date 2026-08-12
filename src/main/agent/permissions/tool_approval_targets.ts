@@ -1,6 +1,5 @@
 import path from 'node:path';
 import { directoryPermissionTargets } from './directory_permission_targets';
-import { recursivePermissionRule } from './recursive_permission_rule';
 import { toolPermissionTargets } from './tool_permission_targets';
 
 export function toolApprovalTargets(
@@ -12,5 +11,5 @@ export function toolApprovalTargets(
 		return directoryPermissionTargets(toolName, args, baseDir);
 	}
 	const targets = toolPermissionTargets(toolName, args, baseDir);
-	return targets.map((target) => recursivePermissionRule(path.dirname(target)));
+	return targets.map((target) => path.dirname(target));
 }
