@@ -4,10 +4,11 @@ import fs from 'node:fs';
 import { realPath } from '../../../../../src/main/shared/real_path';
 
 const getPermissions = jest.fn();
+const addPermissionRule = jest.fn();
 
 jest.mock('../../../../../src/main/agent/agent_store', () => ({
 	AGENT_DIRECTORY: '/appdata/agent',
-	addPermissionRule: jest.fn(),
+	addPermissionRule,
 	getPermissions,
 }));
 
@@ -25,6 +26,78 @@ const emptyPermissions = {
 
 beforeEach(() => {
 	getPermissions.mockReset().mockReturnValue(emptyPermissions);
+	addPermissionRule.mockReset();
+});
+
+describe('exec path approval', () => {
+	it('runs shell syntax inside the workspace without an approval event', async () => {
+		getPermissions.mockReturnValue({
+			...emptyPermissions,
+			exec: { allow: ['/appdata/agent/**'], deny: [] },
+		});
+		const run = jest.fn().mockResolvedValue('done');
+		const events = await collect(
+			runToolCall(
+				fakeTool('exec_command', run),
+				{ id: 'exec', name: 'exec_command', args: { command: 'echo $(pwd) > result.txt' } },
+				undefined,
+				undefined,
+				{ runId: 'run', windowId: 1 }
+			)
+		);
+		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		expect(run).toHaveBeenCalledTimes(1);
+	});
+
+	it('asks before an outside command and reports the canonical location', async () => {
+		const run = jest.fn().mockResolvedValue('done');
+		const events = runToolCall(
+			fakeTool('exec_command', run),
+			{ id: 'exec', name: 'exec_command', args: { command: 'pwd', workdir: '/outside' } },
+			undefined,
+			undefined,
+			{ runId: 'run', windowId: 1 }
+		);
+		await events.next();
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({
+			type: 'tool_permission_request',
+			targets: [path.resolve('/outside')],
+			reason: 'outside_trusted_location',
+			persistable: true,
+		});
+		if (!request || request.type !== 'tool_permission_request') throw new Error('Expected approval');
+		const end = events.next();
+		respondToolPermission(
+			{
+				approvalId: request.approvalId,
+				runId: 'run',
+				toolName: request.toolName,
+				inputFingerprint: request.inputFingerprint,
+			},
+			'approve_always',
+			1
+		);
+		await end;
+		expect(addPermissionRule).toHaveBeenCalledWith('exec', 'allow', `${path.resolve('/outside')}/**`);
+		expect(run).toHaveBeenCalledTimes(1);
+	});
+
+	it('never offers a persistent grant for host execution', async () => {
+		const events = runToolCall(
+			fakeTool('exec_command', jest.fn()),
+			{ id: 'host', name: 'exec_command', args: { command: 'pwd', elevated: true } },
+			undefined,
+			undefined,
+			{ runId: 'run', windowId: 1 }
+		);
+		await events.next();
+		expect((await events.next()).value).toMatchObject({
+			type: 'tool_permission_request',
+			reason: 'host_execution',
+			persistable: false,
+		});
+	});
 });
 
 describe('per-run file access', () => {
