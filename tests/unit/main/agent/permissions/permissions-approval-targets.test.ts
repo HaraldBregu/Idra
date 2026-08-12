@@ -22,4 +22,10 @@ describe('toolApprovalTargets', () => {
 			)
 		).toEqual([path.resolve('/workspace'), path.resolve('/shared')]);
 	});
+
+	it('stores the selected output folder for generated media', () => {
+		expect(
+			toolApprovalTargets('create_image', { directory: '/workspace/images' }, agentDir)
+		).toEqual([path.resolve('/workspace/images')]);
+	});
 });
