@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatMode } from '@/contexts/chat-mode';
 import { useChatSession } from '@/contexts/chat-session';
-import type { ModelReasoningEffort } from '@/lib/compat';
+import type { AgentInteractionMode, ModelReasoningEffort } from '@/lib/compat';
 import type { AgentResponseEvent } from '@/lib/compat';
 import { useHomeAgentContext } from '../context';
 import { expandTaskCommand } from './commands';
 import { filesToAgentInput } from './files';
+import { useInteractionMode } from './mode';
 
 type WindowWithOptionalAgent = Window & {
 	agent?: Window['agent'];
@@ -53,6 +54,8 @@ function runtimeOptionsForPrompt(prompt: string) {
 export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) => void }) {
 	const { chatState, dispatchChat } = useHomeAgentContext();
 	const { sessionId, setSessionId } = useChatSession();
+	const { interactionMode, setInteractionMode, migrateInteractionMode } =
+		useInteractionMode(sessionId);
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(false);
@@ -61,6 +64,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	const activeRunIdRef = useRef<string | undefined>(undefined);
 	const localInteractionRef = useRef(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
+	const resolvedSessionIdRef = useRef<string | undefined>(undefined);
 
 	const focusInput = useCallback((): void => {
 		inputRef.current?.focus();
@@ -94,7 +98,11 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	}, [dispatchChat]);
 
 	const sendPrompt = useCallback(
-		async (prompt: string, files: File[] = []): Promise<void> => {
+		async (
+			prompt: string,
+			files: File[] = [],
+			sendOptions: { interactionMode?: AgentInteractionMode; preserveInput?: boolean } = {}
+		): Promise<void> => {
 			const trimmed = expandTaskCommand(prompt.trim());
 			if (!trimmed && files.length === 0) return;
 
@@ -106,7 +114,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 			localInteractionRef.current = true;
 			const submittedAtMs = Date.now();
 
-			setInput('');
+			if (!sendOptions.preserveInput) setInput('');
 			setIsLoading(true);
 			dispatchChat({
 				type: 'submit_user_message',
@@ -136,11 +144,16 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 					...runtimeOptionsForPrompt(trimmed),
 					runId,
 					sessionId,
+					interactionMode: sendOptions.interactionMode ?? interactionMode,
 					...(inputFiles.length > 0 ? { files: inputFiles } : {}),
 				};
 				let response = '';
 				const onEvent = (event: AgentResponseEvent): void => {
 					if (requestIdRef.current !== requestId || event.agentId !== HOME_AGENT_ID) return;
+					if (event.type === 'run_started' && event.sessionId !== sessionId) {
+						migrateInteractionMode(event.sessionId);
+						resolvedSessionIdRef.current = event.sessionId;
+					}
 					if (event.type === 'text_delta') response += event.delta;
 					dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
 				};
@@ -150,6 +163,11 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				requestActiveRef.current = false;
 				setIsLoading(false);
 				dispatchChat({ type: 'complete_active', response, completedAtMs: Date.now() });
+				if (resolvedSessionIdRef.current) {
+					const resolvedSessionId = resolvedSessionIdRef.current;
+					resolvedSessionIdRef.current = undefined;
+					setSessionId(resolvedSessionId);
+				}
 			} catch (error) {
 				if (requestIdRef.current !== requestId) return;
 				activeRunIdRef.current = undefined;
@@ -159,8 +177,17 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
 			}
 		},
-		[dispatchChat, sessionId]
+		[dispatchChat, interactionMode, migrateInteractionMode, sessionId, setSessionId]
 	);
+
+	const implementPlan = useCallback((): void => {
+		setInteractionMode('default');
+		void sendPrompt(
+			'Implement the approved plan. Re-read the relevant files, make the changes, and verify them.',
+			[],
+			{ interactionMode: 'default', preserveInput: true }
+		);
+	}, [sendPrompt, setInteractionMode]);
 
 	// useEffect(() => {
 	// 	const agent = getAgentApi();
@@ -226,6 +253,8 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 	useEffect(() => {
 		return () => {
+			const runId = activeRunIdRef.current;
+			if (runId) void getAgentApi()?.cancel(runId).catch(() => undefined);
 			requestIdRef.current += 1;
 			requestActiveRef.current = false;
 		};
@@ -260,8 +289,11 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		input,
 		inputRef,
 		isLoading,
+		interactionMode,
+		implementPlan,
 		resetChat,
 		setInput,
+		setInteractionMode,
 		switchToTyping,
 		useSuggestion,
 	};
