@@ -523,6 +523,7 @@ function runtimeEventToAgentEvents(
 				targets: event.targets,
 				reason: event.reason,
 				persistable: event.persistable,
+				allowOnce: event.allowOnce,
 				expiresAt: event.expiresAt,
 				inputFingerprint: event.inputFingerprint,
 				agentId,

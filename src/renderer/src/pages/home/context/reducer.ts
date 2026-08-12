@@ -149,6 +149,7 @@ function applyResponseEvent(
 						targets: event.targets,
 						reason: event.reason,
 						persistable: event.persistable,
+						allowOnce: event.allowOnce,
 						expiresAt: event.expiresAt,
 				},
 				startedAtMs: message.startedAtMs ?? receivedAtMs,

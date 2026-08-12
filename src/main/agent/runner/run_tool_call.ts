@@ -99,6 +99,11 @@ export async function* runToolCall(
 				targets: resolution.approvalTargets,
 				reason: resolution.reason ?? 'outside_trusted_location',
 				persistable: resolution.persistable,
+				allowOnce: !(
+					process.platform === 'win32' &&
+					toolCall.name === 'exec_command' &&
+					resolution.reason === 'outside_trusted_location'
+				),
 				expiresAt: new Date(expiresAtMs).toISOString(),
 				inputFingerprint: fingerprint,
 			};

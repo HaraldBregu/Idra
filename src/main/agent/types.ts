@@ -187,6 +187,7 @@ export type RuntimeEvent =
 			targets: string[];
 			reason: 'outside_trusted_location' | 'host_execution';
 			persistable: boolean;
+			allowOnce: boolean;
 			expiresAt: string;
 			inputFingerprint: string;
 	  }

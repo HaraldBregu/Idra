@@ -20,6 +20,7 @@ export interface PendingToolPermission {
 	readonly targets: readonly string[];
 	readonly reason: 'outside_trusted_location' | 'host_execution';
 	readonly persistable: boolean;
+	readonly allowOnce: boolean;
 	readonly expiresAt: string;
 }
 
