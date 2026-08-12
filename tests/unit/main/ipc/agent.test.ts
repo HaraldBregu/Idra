@@ -1,5 +1,5 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import { AgentIpc } from '../../../../src/main/ipc/agent';
+import { AgentIpc, normalizeAgentSendRuntimeOptions } from '../../../../src/main/ipc/agent';
 import { AgentChannels } from '../../../../src/shared/ipc_channels_definitions';
 import type { Agent } from '../../../../src/main/agent/agent';
 import type { Conversation } from '../../../../src/main/agent/conversation';
@@ -78,5 +78,17 @@ describe('AgentIpc run ownership', () => {
 			data: false,
 		});
 		expect(cancel).not.toHaveBeenCalled();
+	});
+});
+
+describe('assistant interaction mode normalization', () => {
+	it('defaults omitted and invalid values and accepts Plan mode', () => {
+		expect(normalizeAgentSendRuntimeOptions(undefined).interactionMode).toBeUndefined();
+		expect(normalizeAgentSendRuntimeOptions({ interactionMode: 'invalid' }).interactionMode).toBe(
+			'default'
+		);
+		expect(normalizeAgentSendRuntimeOptions({ interactionMode: 'plan' }).interactionMode).toBe(
+			'plan'
+		);
 	});
 });
