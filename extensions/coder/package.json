@@ -10,7 +10,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build",
+		"typecheck": "tsc --noEmit",
+		"build": "npm run typecheck && vite build",
 		"preview": "vite preview"
 	},
 	"dependencies": {
@@ -42,9 +43,12 @@
 	},
 	"devDependencies": {
 		"@tailwindcss/postcss": "^4.2.2",
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.4",
 		"@vitejs/plugin-react": "^5.0.4",
 		"postcss": "^8.4.31",
 		"tailwindcss": "^4.3.3",
+		"typescript": "^5.9.2",
 		"vite": "^7.1.7"
 	}
 }
