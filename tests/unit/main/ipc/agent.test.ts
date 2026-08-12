@@ -83,7 +83,7 @@ describe('AgentIpc run ownership', () => {
 
 describe('assistant interaction mode normalization', () => {
 	it('defaults omitted and invalid values and accepts Plan mode', () => {
-		expect(normalizeAgentSendRuntimeOptions(undefined).interactionMode).toBeUndefined();
+		expect(normalizeAgentSendRuntimeOptions(undefined).interactionMode).toBe('default');
 		expect(normalizeAgentSendRuntimeOptions({ interactionMode: 'invalid' }).interactionMode).toBe(
 			'default'
 		);

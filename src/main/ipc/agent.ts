@@ -212,7 +212,7 @@ async function readWorkspaceTree(root: string, directory = root): Promise<Worksp
 }
 
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentRunOptions {
-	if (options === undefined || options === null) return {};
+	if (options === undefined || options === null) return { interactionMode: 'default' };
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
 
 	const sessionId =
