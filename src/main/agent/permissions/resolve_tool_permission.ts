@@ -55,7 +55,13 @@ export function resolveToolPermissionDetails(
 	const decisions = targets.map((target) =>
 		permissionFor(permissions[kind], target, kind, args.elevated === true)
 	);
-	const approvalTargets = toolApprovalTargets(toolName, args, AGENT_DIRECTORY);
+	const approvalTargets = [
+		...new Set(
+			toolApprovalTargets(toolName, args, AGENT_DIRECTORY).filter(
+				(_target, index) => decisions[index] !== 'allow'
+			)
+		),
+	];
 	if (decisions.includes('deny'))
 		return { mode: 'deny', kind, targets, approvalTargets, persistable: false };
 	if (targets.length > 0 && decisions.every((decision) => decision === 'allow'))
