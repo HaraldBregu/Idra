@@ -3,6 +3,7 @@ import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
 import type { PermissionKind, PermissionMode, PermissionRules } from './permissions_types';
+import { permissionRuleRoot } from './permission_rule_root';
 
 export function permissionFor(
 	rules: PermissionRules,
@@ -14,7 +15,7 @@ export function permissionFor(
 		if (rule === '*') return true;
 		const rawPattern = resolveUserPath(rule, os.homedir());
 		const recursiveRoot = rawPattern.endsWith(`${path.sep}**`)
-			? realPath(rawPattern.slice(0, -3))
+			? permissionRuleRoot(rawPattern)
 			: undefined;
 		const resolvedTarget = realPath(target);
 		if (
