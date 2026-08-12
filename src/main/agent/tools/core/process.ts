@@ -11,6 +11,7 @@ export interface ProcessSession {
 	readonly pid: number | undefined;
 	readonly command: string;
 	readonly workdir: string;
+	readonly roots: readonly string[];
 	readonly startedAt: number;
 	readonly executionMode: ExecutionMode;
 	stdout: string;

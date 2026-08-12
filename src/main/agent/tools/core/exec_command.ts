@@ -8,10 +8,13 @@ import { registry } from './process';
 import type { ExecSandbox } from '../../sandbox';
 import type { ExecutionMode } from '../../../../shared/sandbox';
 import { shellQuote } from './quote';
+import { approvedExecRoots } from '../../permissions/approved_exec_roots';
+import { resolveExecRoots } from '../../permissions/resolve_exec_roots';
 
 interface ExecResult {
 	command: string;
 	workdir: string;
+	roots: string[];
 	background: boolean;
 	pty: boolean;
 	executionMode: ExecutionMode;
@@ -35,6 +38,12 @@ const execInputSchema = z.object({
 		.optional()
 		.describe(
 			'Working directory. Relative paths resolve from the workspace; ~ expands to the user home.'
+		),
+	additionalRoots: z
+		.array(z.string().min(1))
+		.optional()
+		.describe(
+			'Additional directories the command will access outside its working directory. Relative paths resolve from workdir. Untrusted locations require approval before execution.'
 		),
 	env: z.record(z.string(), z.string()).optional(),
 	yieldMs: z
@@ -103,7 +112,8 @@ async function runExec(
 		}
 	}
 
-	const cwd = resolveUserPath(workdir ?? '.', agentLocation());
+	const roots = resolveExecRoots(input, agentLocation());
+	const cwd = roots[0] ?? resolveUserPath(workdir ?? '.', agentLocation());
 	const yieldMs = yieldMsInput ?? 10000;
 	const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
 	const startedAt = Date.now();
@@ -128,7 +138,13 @@ async function runExec(
 	const commandId = randomUUID();
 	const wrapped =
 		executionMode === 'sandbox'
-			? await sandbox.wrap(pty ? ptyCommand : command, cwd, commandId, abortSignal)
+			? await sandbox.wrap(
+					pty ? ptyCommand : command,
+					cwd,
+					commandId,
+					abortSignal,
+					approvedExecRoots.get(input) ?? []
+				)
 			: undefined;
 	const spawnCommand = wrapped?.command ?? hostCommand;
 	const spawnArgs = wrapped?.args ?? hostArgs;
@@ -188,6 +204,7 @@ async function runExec(
 				resolve({
 					command,
 					workdir: cwd,
+					roots,
 					background: true,
 					pty,
 					executionMode,
@@ -244,6 +261,7 @@ async function runExec(
 				pid: child.pid,
 				command,
 				workdir: cwd,
+				roots: roots.slice(1),
 				startedAt,
 				executionMode,
 				stdout,
@@ -275,6 +293,7 @@ async function runExec(
 			resolve({
 				command,
 				workdir: cwd,
+				roots,
 				background: true,
 				sessionId,
 				pty,
@@ -329,6 +348,7 @@ async function runExec(
 			resolve({
 				command,
 				workdir: cwd,
+				roots,
 				background: false,
 				pty,
 				executionMode,
@@ -351,7 +371,7 @@ export function execTool(sandbox: ExecSandbox) {
 		id: 'exec_command',
 		name: 'Execute command',
 		description:
-			'Run a shell command in a filesystem sandbox. The read and write permission globs define its filesystem boundary, while exec allow and deny rules control commands. ' +
+			'Run a shell command in a filesystem sandbox. Commands are trusted by working directory. Declare every directory accessed outside workdir in additionalRoots so Friday can request permission before execution. ' +
 			'For an intentional host operation, retry with elevated: true to request approval. Set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
 		inputSchema: execInputSchema,
 		execute: (input, signal) => runExec(sandbox, input, signal),
