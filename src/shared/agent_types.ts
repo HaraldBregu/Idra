@@ -1,10 +1,13 @@
 export type ModelReasoningEffort = 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
 
+export type AgentInteractionMode = 'default' | 'plan';
+
 export type AgentRunState =
 	| 'idle'
 	| 'thinking'
 	| 'reasoning'
 	| 'using_tools'
+	| 'awaiting_input'
 	| 'answering'
 	| 'completed'
 	| 'cancelled'
@@ -30,6 +33,30 @@ export interface AgentToolPermissionScope {
 	approvalId: string;
 	runId: string;
 	toolName: string;
+	inputFingerprint: string;
+}
+
+export interface AgentUserInputOption {
+	label: string;
+	description: string;
+}
+
+export interface AgentUserInputQuestion {
+	id: string;
+	header: string;
+	question: string;
+	options: AgentUserInputOption[];
+}
+
+export interface AgentUserInputAnswer {
+	questionId: string;
+	answer: string;
+}
+
+export interface AgentUserInputScope {
+	requestId: string;
+	runId: string;
+	toolCallId: string;
 	inputFingerprint: string;
 }
 
@@ -69,6 +96,7 @@ export interface AgentRunOptions {
 	model?: string;
 	effort?: ModelReasoningEffort;
 	contextMode?: AgentContextMode;
+	interactionMode?: AgentInteractionMode;
 	toolsAllow?: string[];
 	toolsDeny?: string[];
 	files?: AgentInputFile[];
@@ -192,6 +220,7 @@ export interface AgentCapabilityResolutionSummary {
 }
 
 export type AgentRunStreamEvent =
+	| { type: 'run_started'; sessionId: string; interactionMode: AgentInteractionMode }
 	| { type: 'run_state'; state: AgentRunState; label?: string }
 	| {
 			type: 'model_selected';
@@ -245,6 +274,21 @@ export type AgentRunStreamEvent =
 			expiresAt: string;
 			inputFingerprint: string;
 			detail?: string;
+	  }
+	| {
+			type: 'user_input_request';
+			requestId: string;
+			toolCallId: string;
+			questions: AgentUserInputQuestion[];
+			expiresAt: string;
+			inputFingerprint: string;
+	  }
+	| {
+			type: 'user_input_result';
+			requestId: string;
+			toolCallId: string;
+			status: 'resolved' | 'interrupted';
+			answers: AgentUserInputAnswer[];
 	  }
 	| ({
 			type: 'tool_call_result';

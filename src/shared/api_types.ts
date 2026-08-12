@@ -123,6 +123,10 @@ export interface AgentApi {
 		scope: AgentToolPermissionScope,
 		decision: AgentToolPermissionDecision
 	) => Promise<boolean>;
+	respondUserInput: (
+		scope: AgentUserInputScope,
+		answers: AgentUserInputAnswer[]
+	) => Promise<boolean>;
 	listSessions: () => Promise<AgentSessionSummary[]>;
 	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
 	clearMessages: (sessionId: string) => Promise<void>;

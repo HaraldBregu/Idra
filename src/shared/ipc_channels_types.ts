@@ -68,6 +68,13 @@ export interface AgentInvokeChannelMap {
 		];
 		result: boolean;
 	};
+	[AgentChannels.respondUserInput]: {
+		args: [
+			scope: import('./agent_types').AgentUserInputScope,
+			answers: import('./agent_types').AgentUserInputAnswer[],
+		];
+		result: boolean;
+	};
 	[AgentChannels.lastMessages]: {
 		args: [sessionId: string];
 		result: import('./agent_types').AgentHistoryMessage[];
