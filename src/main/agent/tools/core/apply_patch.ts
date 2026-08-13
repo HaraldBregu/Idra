@@ -230,6 +230,8 @@ export const applyPatchTool = tool({
 	name: 'Apply patch',
 	description:
 		'Apply a multi-file patch using the *** Begin Patch/*** End Patch format. Supports Add File, Delete File, and Update File (with optional Move to) hunks.',
+	hardApproval: ({ input }) =>
+		/^\s*\*\*\* Delete File:/m.test(input) || /^\s*\*\*\* Move to:/m.test(input),
 	inputSchema: z.object({
 		input: z.string().min(1).describe('Patch content using the *** Begin Patch/End Patch format.'),
 	}),
