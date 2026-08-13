@@ -9,7 +9,11 @@ import {
 	toResult,
 	type SessionState,
 	persist,
+	sessionDir,
 } from '../session';
+import { goalContext } from '../goal/context';
+import { goalTools } from '../goal/tools';
+import { readGoal } from '../goal/read';
 import { rememberSkill } from '../context';
 import {
 	buildLoadedSkillPrompt,
@@ -134,6 +138,14 @@ async function* loop(
 	let tools: Tool[] = options.tools
 		? [...options.tools]
 		: builtinTools(config, options.sandbox!, options.windowFactory, input.interactionMode);
+	if (
+		!options.tools &&
+		session.category === 'main' &&
+		input.interactionMode !== 'plan' &&
+		readGoal(sessionDir(session))?.status === 'active'
+	) {
+		tools.push(...goalTools(sessionDir(session)));
+	}
 	tools = filterPlanTools(tools, input.interactionMode);
 	const applyActivatedSkill = (skill: SkillLoadResult): void => {
 		rememberSkill(session.runContext, {
@@ -235,7 +247,13 @@ async function* loop(
 			const skillContext = tools.some((tool) => tool.id === 'load_skill')
 				? buildSkillContext(skillSnapshot.skills)
 				: '';
-			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
+			const activeGoalContext =
+				session.category === 'main' && input.interactionMode !== 'plan'
+					? goalContext(sessionDir(session))
+					: '';
+			const runtimeContext = [workspaceContext, skillContext, activeGoalContext]
+				.filter(Boolean)
+				.join('\n\n');
 			const messages = promptCapabilities
 				? projectPromptAttachments(session.messages, promptCapabilities)
 				: session.messages;
