@@ -12,6 +12,7 @@ import { approvedExecRoots } from '../../permissions/approved_exec_roots';
 import { resolveExecRoots } from '../../permissions/resolve_exec_roots';
 import type { AgentInteractionMode } from '../../../../shared/agent_types';
 import path from 'node:path';
+import { isPlanExecInputSafe } from '../../runner/plan_exec_input';
 
 interface ExecResult {
 	command: string;
@@ -102,6 +103,8 @@ async function runExec(
 	} = input;
 	const planMode = interactionMode === 'plan';
 	if (planMode) {
+		if (!isPlanExecInputSafe(input, agentLocation()))
+			throw new Error('Command input is unavailable in Plan mode.');
 		if (backgroundInput === true) throw new Error('Plan commands cannot run in the background.');
 		if (ptyInput === true) throw new Error('Plan commands cannot use a PTY.');
 		if (elevatedInput === true) throw new Error('Plan commands cannot run outside the sandbox.');
@@ -116,7 +119,16 @@ async function runExec(
 		throw new Error("exec host 'sandbox' cannot be combined with elevated mode.");
 	}
 
-	const env: NodeJS.ProcessEnv = { ...process.env };
+	const env: NodeJS.ProcessEnv = planMode
+		? {
+				PATH: process.env.PATH,
+				LANG: process.env.LANG,
+				LC_ALL: process.env.LC_ALL,
+				SystemRoot: process.env.SystemRoot,
+				ComSpec: process.env.ComSpec,
+				PATHEXT: process.env.PATHEXT,
+			}
+		: { ...process.env };
 	if (envInput) {
 		for (const [key, value] of Object.entries(envInput)) {
 			env[key] = value;
@@ -131,7 +143,7 @@ async function runExec(
 			throw new Error('Plan commands must run inside the workspace.');
 	}
 	const planTimeoutSeconds = Math.min(timeoutInput ?? 60, 120);
-	const yieldMs = planMode ? planTimeoutSeconds * 1000 + 1 : (yieldMsInput ?? 10000);
+	const yieldMs = yieldMsInput ?? 10000;
 	const timeoutMs = planMode
 		? planTimeoutSeconds * 1000
 		: timeoutInput === undefined
@@ -281,7 +293,8 @@ async function runExec(
 		let aborted = false;
 		let ownedSessionId: string | undefined;
 		let timeoutTimer: NodeJS.Timeout | undefined;
-		const yieldTimer = setTimeout(() => {
+		let hardKillTimer: NodeJS.Timeout | undefined;
+		const yieldTimer = planMode ? undefined : setTimeout(() => {
 			if (settled || aborted) return;
 			settled = true;
 
@@ -340,6 +353,7 @@ async function runExec(
 		const abort = (): void => {
 			aborted = true;
 			child.kill('SIGTERM');
+			if (planMode) hardKillTimer = setTimeout(() => child.kill('SIGKILL'), 1_000);
 			if (ownedSessionId) registry.remove(ownedSessionId);
 		};
 		abortSignal?.addEventListener('abort', abort, { once: true });
@@ -349,13 +363,15 @@ async function runExec(
 			timeoutTimer = setTimeout(() => {
 				timedOut = true;
 				child.kill('SIGTERM');
+				if (planMode) hardKillTimer = setTimeout(() => child.kill('SIGKILL'), 1_000);
 			}, timeoutMs);
 		}
 
 		child.on('error', (error) => {
 			if (settled) return;
 			settled = true;
-			clearTimeout(yieldTimer);
+			if (yieldTimer) clearTimeout(yieldTimer);
+			if (hardKillTimer) clearTimeout(hardKillTimer);
 			if (timeoutTimer) clearTimeout(timeoutTimer);
 			abortSignal?.removeEventListener('abort', abort);
 			cleanupSandbox();
@@ -363,10 +379,11 @@ async function runExec(
 		});
 		child.on('close', (exitCode, signal) => {
 			if (timeoutTimer) clearTimeout(timeoutTimer);
+			if (hardKillTimer) clearTimeout(hardKillTimer);
 			abortSignal?.removeEventListener('abort', abort);
 			if (settled) return;
 			settled = true;
-			clearTimeout(yieldTimer);
+			if (yieldTimer) clearTimeout(yieldTimer);
 			if (aborted) {
 				cleanupSandbox();
 				reject(abortSignal?.reason ?? new Error('Exec cancelled.'));
@@ -407,7 +424,7 @@ export function execTool(
 		description:
 			'Run a shell command in a filesystem sandbox. Commands are trusted by working directory. Declare every directory accessed outside workdir in additionalRoots so Friday can request permission before execution. ' +
 			'For an intentional host operation, retry with elevated: true to request approval. Set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
-		planSafe: true,
+		planSafe: interactionMode === 'plan',
 		inputSchema: execInputSchema,
 		execute: (input, signal) => runExec(sandbox, input, signal, interactionMode),
 	});

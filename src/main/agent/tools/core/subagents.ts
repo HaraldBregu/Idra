@@ -93,7 +93,8 @@ export function subagentTool(
 				(candidate) =>
 					candidate.id !== 'subagent' &&
 					candidate.id !== 'subagents' &&
-					candidate.id !== 'request_user_input'
+					candidate.id !== 'request_user_input' &&
+					candidate.id !== 'load_skill'
 			);
 			return runChild(
 				config,
