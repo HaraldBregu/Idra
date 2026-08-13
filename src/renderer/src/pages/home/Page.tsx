@@ -864,7 +864,11 @@ function PageContent(): ReactElement {
 								);
 							}}
 							wrapperClassName="max-w-none"
-							className={cn('w-full', planCommandActive && 'plan-prompt-frame')}
+							className={cn(
+								'w-full',
+								planCommandActive && 'plan-prompt-frame',
+								goalCommandActive && 'goal-prompt-frame'
+							)
 							footerClassName="-mx-1.5 -mb-1.5"
 							actions={
 								<PromptInputActions className="justify-end gap-1.5">
@@ -876,9 +880,12 @@ function PageContent(): ReactElement {
 									<SubmitButton
 										isLoading={agent.isLoading}
 										canSubmit={canSubmit}
-										forceSubmit={planCommandActive}
+										forceSubmit={planCommandActive || goalCommandActive}
 										disabled={
-											voiceBusy || hasAttachmentErrors || (planCommandActive && !hasPromptText)
+											voiceBusy ||
+											hasAttachmentErrors ||
+											(planCommandActive && !hasPromptText) ||
+											(goalCommandActive && !hasGoalObjective)
 										}
 										onAction={handlePrimaryAction}
 									/>
