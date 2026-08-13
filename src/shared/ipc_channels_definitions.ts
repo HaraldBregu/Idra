@@ -4,6 +4,7 @@ export const AgentChannels = {
 	cancel: 'agent:cancel',
 	respondToolPermission: 'agent:respond-tool-permission',
 	respondUserInput: 'agent:respond-user-input',
+	getPromptInputCapabilities: 'agent:prompt-input-capabilities:get',
 	listSessions: 'agent:list-sessions',
 	lastMessages: 'agent:last-messages',
 	editUserMessage: 'agent:edit-user-message',

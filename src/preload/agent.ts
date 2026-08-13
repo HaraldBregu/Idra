@@ -4,6 +4,7 @@ import type { AgentApi } from './index.d';
 import type { PublicProvider } from '../shared';
 import type {
 	AgentHistoryMessage,
+	AgentPromptInputCapabilities,
 	AgentResponseEvent,
 	AgentRunOptions,
 	AgentSessionSummary,
@@ -112,6 +113,9 @@ export const agent: AgentApi = {
 		answers: AgentUserInputAnswer[]
 	): Promise<boolean> => {
 		return typedInvokeUnwrap(AgentChannels.respondUserInput, scope, answers);
+	},
+	getPromptInputCapabilities: (): Promise<AgentPromptInputCapabilities | null> => {
+		return typedInvokeUnwrap(AgentChannels.getPromptInputCapabilities);
 	},
 	listSessions: (): Promise<AgentSessionSummary[]> => {
 		return typedInvokeUnwrap(AgentChannels.listSessions);

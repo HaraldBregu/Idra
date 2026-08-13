@@ -288,6 +288,14 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.getPromptInputCapabilities,
+			wrapSimpleHandler(
+				() => agent.getPromptInputCapabilities(),
+				AgentChannels.getPromptInputCapabilities
+			)
+		);
+
+		ipcMain.handle(
 			AgentChannels.cancel,
 			wrapIpcHandler((event, value: unknown): boolean => {
 				const window = BrowserWindow.fromWebContents(event.sender);

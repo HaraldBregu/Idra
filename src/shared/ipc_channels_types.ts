@@ -75,6 +75,10 @@ export interface AgentInvokeChannelMap {
 		];
 		result: boolean;
 	};
+	[AgentChannels.getPromptInputCapabilities]: {
+		args: [];
+		result: import('./agent_types').AgentPromptInputCapabilities | null;
+	};
 	[AgentChannels.lastMessages]: {
 		args: [sessionId: string];
 		result: import('./agent_types').AgentHistoryMessage[];

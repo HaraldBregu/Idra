@@ -113,9 +113,9 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 			prompt: string,
 			files: File[] = [],
 			sendOptions: { interactionMode?: AgentInteractionMode; preserveInput?: boolean } = {}
-		): Promise<void> => {
+		): Promise<boolean> => {
 			const trimmed = expandTaskCommand(prompt.trim());
-			if (!trimmed && files.length === 0) return;
+			if (!trimmed && files.length === 0) return false;
 
 			const requestId = requestIdRef.current + 1;
 			const runId = crypto.randomUUID();
@@ -127,7 +127,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 			if (!sendOptions.preserveInput) setInput('');
 			setIsLoading(true);
-			dispatchChat({
+					dispatchChat({
 				type: 'submit_user_message',
 				userMessageId: messageId('user'),
 				agentMessageId: messageId('agent'),
@@ -144,13 +144,13 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 					type: 'error_active',
 					errorText: 'Agent API is unavailable.',
 					completedAtMs: Date.now(),
-				});
-				return;
-			}
+					});
+					return false;
+				}
 
 			try {
 				const inputFiles = files.length > 0 ? await filesToAgentInput(files) : [];
-				if (requestIdRef.current !== requestId) return;
+					if (requestIdRef.current !== requestId) return false;
 				const runtimeOptions = {
 					...runtimeOptionsForPrompt(trimmed),
 					runId,
@@ -173,14 +173,16 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				activeRunIdRef.current = undefined;
 				requestActiveRef.current = false;
 				setIsLoading(false);
-				dispatchChat({ type: 'complete_active', response, completedAtMs: Date.now() });
-			} catch (error) {
-				if (requestIdRef.current !== requestId) return;
+					dispatchChat({ type: 'complete_active', response, completedAtMs: Date.now() });
+					return true;
+				} catch (error) {
+					if (requestIdRef.current !== requestId) return false;
 				activeRunIdRef.current = undefined;
 				requestActiveRef.current = false;
 				setIsLoading(false);
 				const message = error instanceof Error ? error.message : 'Agent request failed.';
-				dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
+					dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
+					return false;
 			} finally {
 				const resolved = resolvedSessionRef.current;
 				if (resolved?.requestId === requestId) {
@@ -238,12 +240,12 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	// }, [dispatchChat]);
 
 	const handleSubmit = useCallback(
-		(files?: File[], interactionModeOverride?: AgentInteractionMode): void => {
+		(files?: File[], interactionModeOverride?: AgentInteractionMode): Promise<boolean> => {
 			if (isLoading) {
 				stopResponse();
-				return;
+				return Promise.resolve(false);
 			}
-			void sendPrompt(input, files, { interactionMode: interactionModeOverride });
+			return sendPrompt(input, files, { interactionMode: interactionModeOverride });
 		},
 		[input, isLoading, sendPrompt, stopResponse]
 	);

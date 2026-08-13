@@ -36,6 +36,7 @@ import type { RagConfiguration } from './rag_types';
 import type { PermissionsSchema } from '../main/agent/permissions/permissions_types';
 import type {
 	AgentHistoryMessage,
+	AgentPromptInputCapabilities,
 	AgentRunOptions,
 	AgentResponseEvent,
 	AgentSessionSummary,
@@ -129,6 +130,7 @@ export interface AgentApi {
 		scope: AgentUserInputScope,
 		answers: AgentUserInputAnswer[]
 	) => Promise<boolean>;
+	getPromptInputCapabilities: () => Promise<AgentPromptInputCapabilities | null>;
 	listSessions: () => Promise<AgentSessionSummary[]>;
 	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
 	editUserMessage: (
