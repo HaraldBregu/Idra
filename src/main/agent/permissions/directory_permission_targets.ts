@@ -8,6 +8,7 @@ import { registry } from '../tools/core/process';
 import { toolPermissionTargets } from './tool_permission_targets';
 import { getWikiSettings } from '../knowledge/wiki/wiki_get_settings';
 import { resolveExecRoots } from './resolve_exec_roots';
+import { fileHistoryTargets } from '../history/targets';
 
 const AGENT_FILES: Record<string, string> = {
 	save_memory: 'MEMORY.md',
@@ -42,6 +43,8 @@ export function directoryPermissionTargets(
 	if (toolName === 'exec_command') {
 		return resolveExecRoots(args, baseDir);
 	}
+	if (toolName === 'undo_file_operation') return fileHistoryTargets('undo');
+	if (toolName === 'redo_file_operation') return fileHistoryTargets('redo');
 	if (toolName === 'process') {
 		const session = typeof args.sessionId === 'string' ? registry.get(args.sessionId) : undefined;
 		return session && session.executionMode === 'sandbox'

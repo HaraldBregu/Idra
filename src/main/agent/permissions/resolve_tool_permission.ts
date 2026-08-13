@@ -27,7 +27,11 @@ export function resolveToolPermissionDetails(
 ): ToolPermissionResolution {
 	let kind: PermissionKind | undefined;
 	if (toolName === 'read_file') kind = 'read';
-	else if (WRITE_TOOLS.has(toolName)) kind = 'write';
+	else if (
+		WRITE_TOOLS.has(toolName) ||
+		toolName === 'undo_file_operation' ||
+		toolName === 'redo_file_operation'
+	) kind = 'write';
 	else if (toolName === 'exec_command' || toolName === 'process') kind = 'exec';
 	if (!kind)
 		return { mode: 'allow', targets: [], approvalTargets: [], persistable: false };
