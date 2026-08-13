@@ -12,6 +12,10 @@
       "type": "large-language-model",
       "url": "https://api.anthropic.com",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]},
+          {"kind":"document","mimeTypes":["application/pdf"],"extensions":[".pdf"]}
+        ],
         "documentationUrl": "https://platform.claude.com/docs/en/api/messages",
         "documentationStatus": "verified",
         "inputs": {
@@ -73,6 +77,10 @@
       "type": "large-language-model",
       "url": "https://api.anthropic.com",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]},
+          {"kind":"document","mimeTypes":["application/pdf"],"extensions":[".pdf"]}
+        ],
         "documentationUrl": "https://platform.claude.com/docs/en/api/messages",
         "documentationStatus": "verified",
         "inputs": {
