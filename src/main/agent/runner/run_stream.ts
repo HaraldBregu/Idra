@@ -142,6 +142,7 @@ async function* loop(
 		!options.tools &&
 		session.category === 'main' &&
 		input.interactionMode !== 'plan' &&
+		session.folderName !== '' &&
 		readGoal(sessionDir(session))?.status === 'active'
 	) {
 		tools.push(...goalTools(sessionDir(session)));
@@ -248,7 +249,9 @@ async function* loop(
 				? buildSkillContext(skillSnapshot.skills)
 				: '';
 			const activeGoalContext =
-				session.category === 'main' && input.interactionMode !== 'plan'
+				session.category === 'main' &&
+				input.interactionMode !== 'plan' &&
+				session.folderName !== ''
 					? goalContext(sessionDir(session))
 					: '';
 			const runtimeContext = [workspaceContext, skillContext, activeGoalContext]
