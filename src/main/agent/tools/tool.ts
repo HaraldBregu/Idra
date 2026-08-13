@@ -14,6 +14,7 @@ export function tool<T extends z.ZodType>({
 	timeoutMs = 10 * 60_000,
 	maxOutputBytes = 200_000,
 	planSafe,
+	hardApproval,
 	inputSchema,
 	execute,
 }: ToolConfig<T>): Tool {
@@ -24,6 +25,9 @@ export function tool<T extends z.ZodType>({
 		timeoutMs,
 		maxOutputBytes,
 		planSafe,
+		hardApproval: typeof hardApproval === 'function'
+			? (input) => hardApproval(inputSchema.parse(input))
+			: hardApproval,
 		schema: toJsonSchema(inputSchema),
 		parseInput(input: unknown) {
 			return inputSchema.parse(input) as Record<string, unknown>;
@@ -41,6 +45,7 @@ export function jsonTool({
 	timeoutMs = 10 * 60_000,
 	maxOutputBytes = 200_000,
 	planSafe,
+	hardApproval,
 	parseInput,
 	schema,
 	execute,
@@ -52,6 +57,7 @@ export function jsonTool({
 		timeoutMs,
 		maxOutputBytes,
 		planSafe,
+		hardApproval,
 		schema,
 		parseInput(input: unknown) {
 			if (parseInput) return parseInput(input);
