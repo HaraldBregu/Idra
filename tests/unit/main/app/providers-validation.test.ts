@@ -91,6 +91,42 @@ describe('provider manifest validation', () => {
 		}
 	);
 
+	it('requires promptAttachments when prompt model metadata exists', () => {
+		const errors = validateProviderManifest({
+			providerId: 'acme',
+			providerName: 'Acme',
+			services: [
+				{
+					id: 'chat',
+					name: 'Chat',
+					type: 'large-language-model',
+					url: 'https://api.acme.test',
+					metadata: { inputs: {} },
+				},
+			],
+		});
+
+		expect(errors).toContainEqual(expect.stringContaining('promptAttachments must be declared'));
+	});
+
+	it('requires promptAttachments to be an array', () => {
+		const errors = validateProviderManifest({
+			providerId: 'acme',
+			providerName: 'Acme',
+			services: [
+				{
+					id: 'chat',
+					name: 'Chat',
+					type: 'large-language-model',
+					url: 'https://api.acme.test',
+					metadata: { promptAttachments: {} },
+				},
+			],
+		});
+
+		expect(errors).toContainEqual(expect.stringContaining('promptAttachments must be an array'));
+	});
+
 	it('accepts deeply valid prompt attachment rules', () => {
 		expect(
 			validateProviderManifest({
