@@ -1,7 +1,30 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
 	parseProviderManifest,
 	validateProviderManifest,
 } from '../../../../src/shared/providers/validation';
+
+const IMAGE_RULE = {
+	kind: 'image',
+	mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+	extensions: ['.jpg', '.jpeg', '.png', '.webp'],
+};
+const PDF_RULE = {
+	kind: 'document',
+	mimeTypes: ['application/pdf'],
+	extensions: ['.pdf'],
+};
+
+function expectedPromptAttachments(providerId: string, modelId: string): unknown[] {
+	if (['anthropic', 'openai', 'perplexity', 'reka'].includes(providerId)) {
+		return [IMAGE_RULE, PDF_RULE];
+	}
+	if (['google', 'kimi', 'xai'].includes(providerId)) return [IMAGE_RULE];
+	if (providerId === 'mistral' && modelId !== 'devstral-2512') return [IMAGE_RULE];
+	if (providerId === 'qwen' && modelId !== 'qwen3.7-max') return [IMAGE_RULE];
+	return [];
+}
 
 describe('provider manifest validation', () => {
 	it('rejects invalid service types and accepts supported manifest services', () => {
@@ -125,5 +148,32 @@ describe('provider manifest validation', () => {
 		});
 
 		expect(errors).toContainEqual(expect.stringContaining(expectedPath));
+	});
+
+	it('declares the expected attachment contract for every bundled prompt model', () => {
+		const providersDirectory = join(process.cwd(), 'resources', 'providers');
+		const manifests = readdirSync(providersDirectory).map((providerDirectory) =>
+			JSON.parse(
+				readFileSync(join(providersDirectory, providerDirectory, 'manifest.json'), 'utf8')
+			)
+		);
+		const promptModels = manifests.flatMap((manifest) => {
+			expect(validateProviderManifest(manifest)).toEqual([]);
+			return manifest.services
+				.filter((service: { type: string }) =>
+					['large-language-model', 'research-chat-model'].includes(service.type)
+				)
+				.map((service: { id: string; metadata: { promptAttachments: unknown[] } }) => ({
+					providerId: manifest.providerId as string,
+					service,
+				}));
+		});
+
+		expect(promptModels).toHaveLength(43);
+		for (const { providerId, service } of promptModels) {
+			expect(service.metadata.promptAttachments).toEqual(
+				expectedPromptAttachments(providerId, service.id)
+			);
+		}
 	});
 });
