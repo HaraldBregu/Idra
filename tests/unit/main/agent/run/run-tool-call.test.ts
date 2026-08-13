@@ -57,6 +57,32 @@ describe('runToolCall', () => {
 		expect(call.result).toMatchObject({ content: 'done', isError: undefined });
 	});
 
+	it('denies a destructive tool without interactive one-time approval', async () => {
+		const run = jest.fn();
+		const tool = jsonTool({
+			id: 'destructive_tool',
+			name: 'Destructive',
+			description: 'delete',
+			hardApproval: true,
+			schema: { type: 'object' },
+			execute: run,
+		});
+		const call: ToolCall = { id: 'destructive', name: tool.id, args: {} };
+
+		for await (const _event of runToolCall(
+			tool,
+			call,
+			new AbortController().signal,
+			undefined,
+			{ runId: 'run' }
+		))
+			void _event;
+
+		expect(run).not.toHaveBeenCalled();
+		expect(call.result).toMatchObject({ isError: true });
+		expect(call.result?.content).toContain('permission denied');
+	});
+
 	it('returns a tool error without leaking it as an operational failure', async () => {
 		const tool = jsonTool({
 			id: 'inspect',
