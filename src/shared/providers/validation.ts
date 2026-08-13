@@ -21,8 +21,54 @@ const SERVICE_TYPES = [
 	'bot',
 ] as const;
 
+const PROMPT_MODEL_SERVICE_TYPES = ['large-language-model', 'research-chat-model'] as const;
+const PROMPT_ATTACHMENT_KINDS = ['image', 'document', 'audio', 'video'] as const;
+const MIME_TYPE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*\/[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*$/;
+const EXTENSION_PATTERN = /^\.[a-z0-9]+(?:[._-][a-z0-9]+)*$/;
+
 function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;
+}
+
+function validatePromptAttachments(value: unknown, path: string): string[] {
+	if (!Array.isArray(value)) return [`${path} must be an array.`];
+	return value.flatMap((item, index) => {
+		const itemPath = `${path}[${index}]`;
+		if (typeof item !== 'object' || item === null || Array.isArray(item)) {
+			return [`${itemPath} must be an object.`];
+		}
+		const rule = item as Record<string, unknown>;
+		const errors: string[] = [];
+		if (!PROMPT_ATTACHMENT_KINDS.includes(rule.kind as (typeof PROMPT_ATTACHMENT_KINDS)[number])) {
+			errors.push(`${itemPath}.kind must be one of ${PROMPT_ATTACHMENT_KINDS.join(', ')}.`);
+		}
+		if (!Array.isArray(rule.mimeTypes) || rule.mimeTypes.length === 0) {
+			errors.push(`${itemPath}.mimeTypes must be a non-empty array.`);
+		} else {
+			rule.mimeTypes.forEach((mimeType, mimeIndex) => {
+				if (typeof mimeType !== 'string' || !MIME_TYPE_PATTERN.test(mimeType)) {
+					errors.push(`${itemPath}.mimeTypes[${mimeIndex}] must be a valid MIME type.`);
+				}
+			});
+		}
+		if (!Array.isArray(rule.extensions) || rule.extensions.length === 0) {
+			errors.push(`${itemPath}.extensions must be a non-empty array.`);
+		} else {
+			rule.extensions.forEach((extension, extensionIndex) => {
+				if (typeof extension !== 'string' || !EXTENSION_PATTERN.test(extension)) {
+					errors.push(
+					`${itemPath}.extensions[${extensionIndex}] must be a lowercase dot-prefixed extension.`
+				);
+				}
+			});
+		}
+		for (const limit of ['maxFiles', 'maxBytes', 'maxTotalBytes'] as const) {
+			if (rule[limit] !== undefined && (!Number.isInteger(rule[limit]) || (rule[limit] as number) <= 0)) {
+				errors.push(`${itemPath}.${limit} must be a positive integer when present.`);
+			}
+		}
+		return errors;
+	});
 }
 
 /** Validate a provider manifest. Returns human-readable errors, empty when valid. */
@@ -71,6 +117,29 @@ export function validateProviderManifest(value: unknown): string[] {
 		}
 		if (!isNonEmptyString(service.url))
 			serviceErrors.push(`manifest.json: services[${index}].url must be a non-empty string.`);
+		const metadata = service.metadata;
+		const isPromptModel = PROMPT_MODEL_SERVICE_TYPES.includes(
+			service.type as (typeof PROMPT_MODEL_SERVICE_TYPES)[number]
+		);
+		if (isPromptModel && (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata))) {
+			serviceErrors.push(
+				`manifest.json: services[${index}].metadata must be an object for prompt models.`
+			);
+		} else if (typeof metadata === 'object' && metadata !== null && !Array.isArray(metadata)) {
+			const promptAttachments = (metadata as Record<string, unknown>).promptAttachments;
+			if (isPromptModel && promptAttachments === undefined) {
+				serviceErrors.push(
+					`manifest.json: services[${index}].metadata.promptAttachments must be declared for prompt models.`
+				);
+			} else if (promptAttachments !== undefined) {
+				serviceErrors.push(
+					...validatePromptAttachments(
+						promptAttachments,
+						`manifest.json: services[${index}].metadata.promptAttachments`
+					)
+				);
+			}
+		}
 		return serviceErrors;
 	});
 }
