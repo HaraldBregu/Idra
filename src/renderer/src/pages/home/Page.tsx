@@ -744,6 +744,10 @@ function PageContent(): ReactElement {
 							ariaLabel="Message Friday"
 							value={agent.input}
 							onValueChange={agent.setInput}
+							onPlanCommandChange={(active) => {
+								setPlanCommandActive(active);
+								if (active) agent.setInteractionMode('plan');
+							}}
 							isLoading={agent.isLoading}
 							maxHeight={360}
 							onSubmit={submitPrompt}
@@ -755,14 +759,7 @@ function PageContent(): ReactElement {
 							}
 							leadingAction={
 								voiceMode === 'dictation' ? undefined : (
-									<div className="flex items-center gap-0.5">
-										<AttachmentButton disabled={attachmentDisabled} />
-										<InteractionModeSelect
-											value={agent.interactionMode}
-											onChange={agent.setInteractionMode}
-											disabled={agent.isLoading}
-										/>
-									</div>
+									<AttachmentButton disabled={attachmentDisabled} />
 								)
 							}
 							voiceMode={voiceMode}
@@ -814,7 +811,8 @@ function PageContent(): ReactElement {
 									<SubmitButton
 										isLoading={agent.isLoading}
 										canSubmit={canSubmit}
-										disabled={voiceBusy}
+										forceSubmit={planCommandActive}
+										disabled={voiceBusy || (planCommandActive && !hasPromptText)}
 										onAction={handlePrimaryAction}
 									/>
 								</PromptInputActions>
