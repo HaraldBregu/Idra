@@ -21,8 +21,12 @@ const request = (providerId: string): LlmRequest => ({
 	streaming: true,
 });
 
-async function* emptyStream(): AsyncIterable<never> {
-	return;
+function emptyStream(): AsyncIterable<never> {
+	return {
+		[Symbol.asyncIterator]: () => ({
+			next: async () => ({ done: true, value: undefined as never }),
+		}),
+	};
 }
 
 describe('LLM streaming attachment payloads', () => {
