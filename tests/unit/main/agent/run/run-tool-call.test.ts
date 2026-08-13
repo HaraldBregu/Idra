@@ -1,6 +1,8 @@
 import { runToolCall } from '../../../../../src/main/agent/runner/run_tool_call';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
 import type { ToolCall } from '../../../../../src/main/agent/types';
+import { requestUserInputTool } from '../../../../../src/main/agent/tools/core/request_user_input';
+import { respondUserInput } from '../../../../../src/main/agent/user_input/user_input_pending';
 
 describe('runToolCall', () => {
 	it('propagates cancellation to the tool and stops waiting', async () => {
@@ -103,5 +105,55 @@ describe('runToolCall', () => {
 		expect(run).not.toHaveBeenCalled();
 		expect(call.result).toMatchObject({ isError: true });
 		expect(call.result?.content).toContain('unavailable in Plan mode');
+	});
+
+	it('resumes the same Plan tool call after structured answers', async () => {
+		const call: ToolCall = {
+			id: 'question-call',
+			name: 'request_user_input',
+			args: {
+				questions: [
+					{
+						id: 'scope',
+						header: 'Scope',
+						question: 'Which scope?',
+						options: [
+							{ label: 'Small', description: 'One part.' },
+							{ label: 'Large', description: 'All parts.' },
+						],
+					},
+				],
+			},
+		};
+		const events = runToolCall(
+			requestUserInputTool,
+			call,
+			new AbortController().signal,
+			undefined,
+			{ runId: 'run', windowId: 7, interactionMode: 'plan' }
+		);
+
+		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
+		const request = (await events.next()).value;
+		expect(request).toMatchObject({ type: 'user_input_request', toolCallId: call.id });
+		if (!request || request.type !== 'user_input_request') throw new Error('Expected request');
+		expect(
+			respondUserInput(
+				{
+					requestId: request.requestId,
+					runId: 'run',
+					toolCallId: call.id,
+					inputFingerprint: request.inputFingerprint,
+				},
+				[{ questionId: 'scope', answer: 'Small' }],
+				7
+			)
+		).toBe(true);
+		expect((await events.next()).value).toMatchObject({
+			type: 'user_input_result',
+			status: 'resolved',
+		});
+		expect((await events.next()).value).toMatchObject({ type: 'tool_call_end', isError: false });
+		expect(call.result).toMatchObject({ isError: false });
 	});
 });
