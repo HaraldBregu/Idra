@@ -24,7 +24,10 @@ export function resolvePromptInputCapabilities(
 	const model = findModel(providerId, 'llm', modelId);
 	if (!model) return null;
 	const adapterKinds = ADAPTER_FORMATS[providerId.trim().toLowerCase()] ?? ['image'];
-	const declared = model.metadata?.promptAttachments;
+	const declared =
+		model.metadata?.documentationStatus === 'verified'
+			? model.metadata.promptAttachments
+			: undefined;
 	const rules = (declared ?? [])
 		.filter((rule) => adapterKinds.includes(rule.kind))
 		.map((rule): PromptAttachmentRule => ({

@@ -77,8 +77,8 @@ describe('fitModelContext', () => {
 		).toThrow('available tool schemas');
 	});
 
-	it('keeps current text while replacing an attachment payload that cannot fit', () => {
-		const result = fitModelContext({
+	it('rejects an attachment payload in the latest turn when it cannot fit', () => {
+		expect(() => fitModelContext({
 			systemPrompt: 'System rules.',
 			messages: [
 				{
@@ -96,12 +96,7 @@ describe('fitModelContext', () => {
 			],
 			tools: [],
 			maxInputTokens: 700,
-		});
-
-		expect(JSON.stringify(result.messages)).toContain('Inspect this attachment.');
-		expect(JSON.stringify(result.messages)).toContain('attachment payload omitted');
-		expect(JSON.stringify(result.messages)).not.toContain('a'.repeat(100));
-		expect(result.estimatedTokens).toBeLessThanOrEqual(700);
+		})).toThrow('current user turn');
 	});
 
 	it('fails instead of silently truncating oversized current text', () => {
