@@ -233,8 +233,11 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
 		localInteractionRef.current = false;
-		setIsLoading(false);
-		setHistoryLoading(true);
+		window.queueMicrotask(() => {
+			if (cancelled) return;
+			setIsLoading(false);
+			setHistoryLoading(true);
+		});
 		agent
 			.getLastMessages(sessionId)
 			.then((history) => {

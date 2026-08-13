@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { AgentInteractionMode } from '@/lib/compat';
 
 const STORAGE_KEY = 'friday-interaction-modes';
@@ -29,10 +29,11 @@ export function useInteractionMode(sessionId: string) {
 	const [interactionMode, setInteractionModeState] = useState<AgentInteractionMode>(
 		() => readModes()[sessionId] ?? 'default'
 	);
-
-	useEffect(() => {
+	const [activeSessionId, setActiveSessionId] = useState(sessionId);
+	if (activeSessionId !== sessionId) {
+		setActiveSessionId(sessionId);
 		setInteractionModeState(readModes()[sessionId] ?? 'default');
-	}, [sessionId]);
+	}
 
 	const setInteractionMode = useCallback(
 		(mode: AgentInteractionMode): void => {
