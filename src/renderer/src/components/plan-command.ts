@@ -30,6 +30,7 @@ export const PlanCommand = Node.create({
 						type.create(),
 						state.schema.text(' '),
 					]);
+					return undefined;
 				},
 			}),
 		];
