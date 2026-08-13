@@ -4,6 +4,7 @@ import path from 'node:path';
 import {
 	SandboxManager,
 	VENDORED_SRT_WIN_EXE,
+	getDefaultWritePaths,
 	installWindowsSandboxAsync,
 	resolveSrtWin,
 	type SandboxRuntimeConfig,
@@ -36,6 +37,7 @@ export class ExecSandbox {
 	private transition: Promise<void> = Promise.resolve();
 	private readonly children = new Set<ChildProcess>();
 	private readonly temporaryDirectory = path.join(userDataLocation(), 'sandbox');
+	private readonly planSettings = new Map<string, string>();
 
 	async wrap(
 		command: string,
@@ -45,6 +47,7 @@ export class ExecSandbox {
 		approvedRoots: readonly string[] = [],
 		interactionMode: AgentInteractionMode = 'default'
 	): Promise<SandboxedCommand> {
+		if (interactionMode === 'plan') return this.wrapPlan(command, commandId);
 		await this.ensureReady();
 		if (process.platform === 'win32' && approvedRoots.length > 0) {
 			throw new Error(
@@ -53,24 +56,7 @@ export class ExecSandbox {
 		}
 		const { config } = await this.configuration();
 		const approvedPatterns = approvedRoots.map(recursivePermissionRule);
-		const customConfig = interactionMode === 'plan'
-			? {
-					network: {
-						allowedDomains: [],
-						deniedDomains: ['*'],
-						allowLocalBinding: false,
-						allowUnixSockets: [],
-						allowAllUnixSockets: false,
-					},
-					filesystem: {
-						denyRead: config.filesystem.denyRead,
-						allowRead: [recursivePermissionRule(agentLocation())],
-						allowWrite: [recursivePermissionRule(this.temporaryDirectory)],
-						denyWrite: [recursivePermissionRule(agentLocation())],
-					},
-					allowPty: false,
-				}
-			: process.platform !== 'win32' || approvedPatterns.length > 0
+		const customConfig = process.platform !== 'win32' || approvedPatterns.length > 0
 			? {
 					filesystem: {
 						...config.filesystem,
@@ -116,7 +102,14 @@ export class ExecSandbox {
 		return stderr;
 	}
 
-	cleanup(): void {
+	cleanup(commandId?: string): void {
+		if (commandId) {
+			const settings = this.planSettings.get(commandId);
+			if (settings) {
+				this.planSettings.delete(commandId);
+				void fs.unlink(settings).catch(() => undefined);
+			}
+		}
 		SandboxManager.cleanupAfterCommand();
 	}
 
@@ -265,6 +258,74 @@ export class ExecSandbox {
 			fingerprint: process.platform === 'win32'
 				? JSON.stringify({ allowRead, allowWrite, denyRead, denyWrite })
 				: 'sandbox-runtime-v2',
+		};
+	}
+
+	private async wrapPlan(command: string, commandId: string): Promise<SandboxedCommand> {
+		await fs.mkdir(this.temporaryDirectory, { recursive: true });
+		const settingsPath = path.join(this.temporaryDirectory, `${commandId}.json`);
+		const readPaths = [
+			agentLocation(),
+			this.temporaryDirectory,
+			'/bin',
+			'/sbin',
+			'/usr',
+			'/etc',
+			'/dev',
+			'/proc',
+			'/sys',
+			'/System',
+			'/Library',
+			'/opt/homebrew',
+			'/usr/local',
+			'/nix/store',
+			process.env.SystemRoot,
+			path.dirname(process.execPath),
+		].filter((value): value is string => Boolean(value));
+		const persistentDefaults = getDefaultWritePaths().filter(
+			(value) => !value.startsWith('/dev/')
+		);
+		const config: SandboxRuntimeConfig = {
+			network: {
+				allowedDomains: [],
+				deniedDomains: ['*'],
+				allowLocalBinding: false,
+				allowUnixSockets: [],
+				allowAllUnixSockets: false,
+			},
+			filesystem: {
+				denyRead: [path.parse(agentLocation()).root],
+				allowRead: readPaths,
+				allowWrite: [this.temporaryDirectory],
+				denyWrite: [agentLocation(), ...persistentDefaults],
+			},
+			enableWeakerNestedSandbox: false,
+			enableWeakerNetworkIsolation: false,
+			allowAppleEvents: false,
+			allowPty: false,
+			...(process.platform === 'win32'
+				? { windows: { srtWin: { path: this.vendoredWindowsPath() } } }
+				: {}),
+			...(process.platform === 'linux'
+				? { seccomp: { applyPath: this.vendoredSeccompPath() } }
+				: {}),
+		};
+		await fs.writeFile(settingsPath, JSON.stringify(config), { mode: 0o600 });
+		this.planSettings.set(commandId, settingsPath);
+		const cliPath = this.unpackedPath(
+			path.resolve(path.dirname(VENDORED_SRT_WIN_EXE), '..', '..', '..', 'dist', 'cli.js')
+		);
+		return {
+			command: process.execPath,
+			args: [cliPath, '--settings', settingsPath, '-c', command],
+			env: {
+				ELECTRON_RUN_AS_NODE: '1',
+				HOME: this.temporaryDirectory,
+				TMPDIR: this.temporaryDirectory,
+				TMP: this.temporaryDirectory,
+				TEMP: this.temporaryDirectory,
+			},
+			commandId,
 		};
 	}
 

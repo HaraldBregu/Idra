@@ -197,7 +197,7 @@ async function runExec(
 	const cleanupSandbox = (): void => {
 		if (executionMode !== 'sandbox' || sandboxCleaned) return;
 		sandboxCleaned = true;
-		sandbox.cleanup();
+		sandbox.cleanup(commandId);
 	};
 
 	if (backgroundInput === true) {
