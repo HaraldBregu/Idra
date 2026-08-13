@@ -271,7 +271,10 @@ async function runExec(
 			try {
 				process.kill(-child.pid, signal);
 				return;
-			} catch {}
+			} catch {
+				child.kill(signal);
+				return;
+			}
 		}
 		child.kill(signal);
 	};
