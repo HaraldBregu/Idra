@@ -24,9 +24,7 @@ import type {
 	AgentUserInputQuestion,
 } from '../../../shared/agent_types';
 import { waitForUserInput } from '../user_input/user_input_pending';
-import path from 'node:path';
-import { resolveExecRoots } from '../permissions/resolve_exec_roots';
-import { isPlanExecInputSafe } from './plan_exec_input';
+import { planCommandError } from '../plan/command';
 
 export interface ToolCallSecurityContext {
 	runId: string;
@@ -88,13 +86,9 @@ export async function* runToolCall(
 	} else if (
 		security.interactionMode === 'plan' &&
 		toolCall.name === 'exec_command' &&
-		(!isPlanExecInputSafe(canonicalInput, agentLocation()) ||
-			resolveExecRoots(canonicalInput, agentLocation()).some((root) => {
-				const relative = path.relative(agentLocation(), root);
-				return relative.startsWith('..') || path.isAbsolute(relative);
-			}))
+		planCommandError(canonicalInput, agentLocation())
 	) {
-		output = "Error: command input is unavailable in Plan mode";
+		output = `Error: ${planCommandError(canonicalInput, agentLocation())}`;
 		isError = true;
 	} else if (toolCall.name === 'request_user_input') {
 		if (security.interactionMode !== 'plan' || security.windowId === undefined) {
