@@ -42,7 +42,9 @@ it('toggles the long-message label inside the message container', () => {
 		'from-transparent',
 		'to-primary'
 	);
+	expect(moreButton).toHaveClass('h-auto', 'px-0');
 	expect(moreButton).toHaveClass('hover:bg-transparent');
+	expect(moreButton.querySelector('svg')).toBeNull();
 	fireEvent.click(moreButton);
 	expect(screen.getByRole('button', { name: 'Less' })).toHaveAttribute('aria-expanded', 'true');
 });

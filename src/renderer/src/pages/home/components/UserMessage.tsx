@@ -144,9 +144,9 @@ export function UserMessage({
 							<div className="absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-b from-transparent to-primary px-3 pb-1 pt-5">
 								<Button
 									type="button"
-									variant="ghost"
+									variant="link"
 									size="xs"
-									className="text-primary-foreground/70 hover:bg-transparent hover:text-primary-foreground"
+									className="h-auto px-0 text-primary-foreground/70 hover:bg-transparent hover:text-primary-foreground"
 									aria-expanded={isContentExpanded}
 									onClick={() => setIsContentExpanded((expanded) => !expanded)}
 								>
