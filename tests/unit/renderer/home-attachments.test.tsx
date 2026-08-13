@@ -177,9 +177,11 @@ describe('Home prompt attachments', () => {
 	it('uses effective accept metadata and disables the picker when resolution fails', async () => {
 		const getCapabilities = jest.fn().mockResolvedValueOnce(imageCapabilities);
 		renderPage(getCapabilities);
-		expect(await screen.findByLabelText('Attachment files')).toHaveAttribute(
-			'accept',
-			imageCapabilities.accept
+		await waitFor(() =>
+			expect(screen.getByLabelText('Attachment files')).toHaveAttribute(
+				'accept',
+				imageCapabilities.accept
+			)
 		);
 		expect(screen.getByRole('button', { name: 'Add attachment' })).toBeEnabled();
 
@@ -216,6 +218,7 @@ describe('Home prompt attachments', () => {
 		const picker = await screen.findByLabelText('Attachment files');
 		const file = new File(['png'], 'diagram.png', { type: 'image/png' });
 		fireEvent.change(picker, { target: { files: [file] } });
+		await screen.findByText('diagram.png');
 
 		fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 		await waitFor(() => expect(handleSubmit).toHaveBeenCalledTimes(1));
