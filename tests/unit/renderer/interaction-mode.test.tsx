@@ -13,6 +13,9 @@ function Harness({ sessionId }: { readonly sessionId: string }) {
 			<button type="button" onClick={() => mode.migrateInteractionMode('resolved')}>
 				Migrate
 			</button>
+			<button type="button" onClick={() => mode.finishInteractionModeMigration('resolved')}>
+				Finish
+			</button>
 		</>
 	);
 }
@@ -42,4 +45,10 @@ it('migrates the home alias mode to the resolved session key', async () => {
 	expect(screen.getByText('plan')).toBeInTheDocument();
 	const stored = JSON.parse(localStorage.getItem('friday-interaction-modes') ?? '{}');
 	expect(stored).toEqual({ home: 'plan', resolved: 'plan' });
+
+	view.rerender(<Harness sessionId="home" />);
+	await user.click(screen.getByRole('button', { name: 'Finish' }));
+	expect(JSON.parse(localStorage.getItem('friday-interaction-modes') ?? '{}')).toEqual({
+		resolved: 'plan',
+	});
 });

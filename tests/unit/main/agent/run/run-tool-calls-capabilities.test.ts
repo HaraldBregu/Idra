@@ -1,5 +1,6 @@
 import { runToolCalls } from '../../../../../src/main/agent/runner/run_tool_calls';
 import type { Tool, ToolCall } from '../../../../../src/main/agent/types';
+import { requestUserInputTool } from '../../../../../src/main/agent/tools/core/request_user_input';
 
 function fakeTool(name: string, output: string): Tool {
 	return {
@@ -38,5 +39,48 @@ describe('runToolCalls capability changes', () => {
 		}
 
 		expect(outputs).toEqual(['loaded', "Error: unknown tool 'write_file'"]);
+	});
+
+	it('stops an aborted batch after persisting an interrupted input result', async () => {
+		const controller = new AbortController();
+		const read = fakeTool('read_file', 'read');
+		const calls: ToolCall[] = [
+			{
+				id: 'question',
+				name: 'request_user_input',
+				args: {
+					questions: [
+						{
+							id: 'scope',
+							header: 'Scope',
+							question: 'Which scope?',
+							options: [
+								{ label: 'One', description: 'One area.' },
+								{ label: 'All', description: 'All areas.' },
+							],
+						},
+					],
+				},
+			},
+			{ id: 'read', name: 'read_file', args: {} },
+		];
+		const events = runToolCalls(
+			[requestUserInputTool, read],
+			calls,
+			controller.signal,
+			undefined,
+			{ runId: 'run', windowId: 1, interactionMode: 'plan' }
+		);
+		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
+		expect((await events.next()).value).toMatchObject({ type: 'user_input_request' });
+		const result = events.next();
+		controller.abort(new Error('stopped'));
+		expect((await result).value).toMatchObject({
+			type: 'user_input_result',
+			status: 'interrupted',
+		});
+		for await (const _event of events) void _event;
+		expect(calls[0].result?.content).toContain('interrupted');
+		expect(calls[1].result).toBeUndefined();
 	});
 });

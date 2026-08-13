@@ -2,8 +2,13 @@ import os from 'node:os';
 
 const initialize = jest.fn().mockResolvedValue(undefined);
 const wrapWithSandboxArgv = jest.fn().mockResolvedValue({ argv: ['/bin/sh', '-lc', 'pwd'], env: {} });
+const writeFile = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('node:fs/promises', () => ({ mkdir: jest.fn().mockResolvedValue(undefined) }));
+jest.mock('node:fs/promises', () => ({
+	mkdir: jest.fn().mockResolvedValue(undefined),
+	writeFile,
+	unlink: jest.fn().mockResolvedValue(undefined),
+}));
 jest.mock('@anthropic-ai/sandbox-runtime', () => ({
 	SandboxManager: {
 		initialize,
@@ -15,6 +20,7 @@ jest.mock('@anthropic-ai/sandbox-runtime', () => ({
 		annotateStderrWithSandboxFailures: (_id: string, stderr: string) => stderr,
 	},
 	VENDORED_SRT_WIN_EXE: '/vendor/srt-win.exe',
+	getDefaultWritePaths: () => ['/dev/null', '/tmp/claude', '/home/user/.npm/_logs'],
 	installWindowsSandboxAsync: jest.fn(),
 	resolveSrtWin: jest.fn(),
 }));
@@ -80,25 +86,40 @@ describe('ExecSandbox permissions', () => {
 	});
 
 	it('uses a networkless read-only workspace profile for Plan commands', async () => {
-		await new ExecSandbox().wrap('git status', agentLocation(), 'plan-command', undefined, [], 'plan');
-		expect(wrapWithSandboxArgv).toHaveBeenCalledWith(
+		const wrapped = await new ExecSandbox().wrap(
 			'git status',
-			'/bin/sh',
-			expect.objectContaining({
-				network: expect.objectContaining({
-					allowedDomains: [],
-					deniedDomains: ['*'],
-					allowLocalBinding: false,
-				}),
-				filesystem: expect.objectContaining({
-					allowRead: [`${agentLocation()}/**`],
-					denyWrite: [`${agentLocation()}/**`],
-				}),
-				allowPty: false,
-			}),
-			undefined,
 			agentLocation(),
-			{ commandId: 'plan-command', commandText: 'git status' }
+			'plan-command',
+			undefined,
+			[],
+			'plan'
+		);
+		const config = JSON.parse(writeFile.mock.calls.at(-1)?.[1] as string);
+		expect(config.network).toMatchObject({
+			allowedDomains: [],
+			deniedDomains: ['*'],
+			allowLocalBinding: false,
+		});
+		expect(config.filesystem).toMatchObject({
+			denyRead: ['/'],
+			allowRead: expect.arrayContaining([agentLocation()]),
+			allowWrite: expect.any(Array),
+			denyWrite: expect.arrayContaining([
+				agentLocation(),
+				'/tmp/claude',
+				'/home/user/.npm/_logs',
+			]),
+		});
+		expect(wrapped.args).toEqual(
+			expect.arrayContaining(['--settings', expect.stringContaining('plan-command.json'), '-c', 'git status'])
+		);
+		expect(wrapWithSandboxArgv).not.toHaveBeenCalledWith(
+			expect.anything(),
+			expect.anything(),
+			expect.objectContaining({ network: expect.anything() }),
+			expect.anything(),
+			expect.anything(),
+			expect.anything()
 		);
 	});
 });

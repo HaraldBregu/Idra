@@ -17,6 +17,7 @@ describe('plan envelope parsing', () => {
 	});
 
 	it.each([
+		'<proposed_plan></proposed_plan>',
 		'Before <proposed_plan>Plan</proposed_plan>',
 		'<proposed_plan>One</proposed_plan><proposed_plan>Two</proposed_plan>',
 		'<proposed_plan>Missing close',
