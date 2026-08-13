@@ -26,14 +26,15 @@ it('copies a user message', async () => {
 	await waitFor(() => expect(writeText).toHaveBeenCalledWith('Copy this message.'));
 });
 
-it('toggles the long-message label in the bottom action row', () => {
+it('toggles the long-message label below the message and separate from its actions', () => {
 	render(
 		<UserMessage content={'Long message '.repeat(60)} collapseLongContent onEdit={jest.fn()} />
 	);
 	const copyButton = screen.getByRole('button', { name: 'Copy message' });
 	const moreButton = screen.getByRole('button', { name: 'More' });
 
-	expect(moreButton.parentElement).toBe(copyButton.parentElement);
+	expect(moreButton.parentElement).not.toBe(copyButton.parentElement);
+	expect(moreButton.compareDocumentPosition(copyButton)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 	fireEvent.click(moreButton);
 	expect(screen.getByRole('button', { name: 'Less' })).toHaveAttribute('aria-expanded', 'true');
 });
