@@ -212,9 +212,14 @@ describe('Home prompt attachments', () => {
 		expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
 	});
 
-	it('retains files after rejection and clears them only after a successful send resolves', async () => {
+	it('clears submitted files immediately while the captured request continues', async () => {
 		const getCapabilities = jest.fn().mockResolvedValue(imageCapabilities);
-		handleSubmit.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+		let resolveSubmit = (_accepted: boolean): void => {};
+		handleSubmit.mockReturnValueOnce(
+			new Promise<boolean>((resolve) => {
+				resolveSubmit = resolve;
+			})
+		);
 		renderPage(getCapabilities);
 		const picker = await screen.findByLabelText('Attachment files');
 		await waitFor(() => expect(picker).toHaveAttribute('accept', imageCapabilities.accept));
@@ -224,10 +229,9 @@ describe('Home prompt attachments', () => {
 
 		fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 		await waitFor(() => expect(handleSubmit).toHaveBeenCalledTimes(1));
-		expect(screen.getByText('diagram.png')).toBeInTheDocument();
-
-		fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 		await waitFor(() => expect(screen.queryByText('diagram.png')).not.toBeInTheDocument());
+		expect(handleSubmit).toHaveBeenCalledWith([file], undefined);
+		resolveSubmit(false);
 	});
 
 	it('validates type, individual size, totals, and count from file metadata', () => {

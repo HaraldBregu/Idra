@@ -317,14 +317,7 @@ export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatM
 		}
 
 		if (message.role === 'user') {
-			const text = typeof message.content === 'string' ? message.content : '';
-			const attachmentLabels = (message.contentBlocks ?? [])
-				.filter((block) => block.type === 'attachment')
-				.map(
-					(block) =>
-						`[Attached ${block.kind}: ${block.name}; ${block.mimeType}; ${block.bytes} bytes]`
-				);
-			const content = [text, ...attachmentLabels].filter(Boolean).join('\n');
+			const content = typeof message.content === 'string' ? message.content : '';
 			if (content.length > 0) out.push(createUserMessage(`user-history-${index}`, content));
 			return;
 		}
@@ -384,14 +377,17 @@ export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatM
 export function agentChatReducer(state: AgentChatState, action: AgentChatAction): AgentChatState {
 	switch (action.type) {
 		case 'submit_user_message': {
-			const userMessage = createUserMessage(action.userMessageId, action.content);
 			const agentMessage = createAgentMessage(
 				action.agentMessageId,
 				undefined,
 				action.submittedAtMs
 			);
 			return {
-				messages: [...state.messages, userMessage, agentMessage],
+				messages: [
+					...state.messages,
+					...(action.content ? [createUserMessage(action.userMessageId, action.content)] : []),
+					agentMessage,
+				],
 				activeAgentId: agentMessage.id,
 			};
 		}

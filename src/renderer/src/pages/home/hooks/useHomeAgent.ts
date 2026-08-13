@@ -131,7 +131,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				type: 'submit_user_message',
 				userMessageId: messageId('user'),
 				agentMessageId: messageId('agent'),
-				content: trimmed || files.map((file) => file.name).join(', '),
+				content: trimmed,
 				submittedAtMs,
 			});
 

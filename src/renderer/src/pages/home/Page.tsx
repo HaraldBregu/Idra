@@ -581,11 +581,12 @@ function PageContent(): ReactElement {
 			return;
 		}
 		if ((planCommandActive && !hasPromptText) || hasAttachmentErrors) return;
-		const accepted = await agent.handleSubmit(
-			attachments.map((attachment) => attachment.file),
+		const submittedFiles = attachments.map((attachment) => attachment.file);
+		clearAttachments();
+		await agent.handleSubmit(
+			submittedFiles,
 			planCommandActive ? 'plan' : undefined
 		);
-		if (accepted) clearAttachments();
 	};
 
 	const returnToChat = (): void => {

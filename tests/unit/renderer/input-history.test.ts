@@ -35,7 +35,7 @@ it('restores an unresolved structured input call as interrupted', () => {
 	});
 });
 
-it('restores attachment-only user turns from metadata without payload data', () => {
+it('does not render persisted attachment metadata in the thread', () => {
 	const history: AgentHistoryMessage[] = [
 		{
 			role: 'user',
@@ -52,9 +52,6 @@ it('restores attachment-only user turns from metadata without payload data', () 
 		},
 	];
 	const message = historyToChatMessages(history)[0];
-	expect(message).toMatchObject({
-		role: 'user',
-		content: '[Attached document: brief.pdf; application/pdf; 1234 bytes]',
-	});
-	expect(JSON.stringify(message)).not.toContain('base64');
+	expect(message).toBeUndefined();
+	expect(JSON.stringify(historyToChatMessages(history))).not.toContain('brief.pdf');
 });
