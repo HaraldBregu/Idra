@@ -354,23 +354,26 @@ function VoiceButton({
 function SubmitButton({
 	isLoading,
 	canSubmit,
+	forceSubmit,
 	disabled,
 	onAction,
 }: {
 	readonly isLoading: boolean;
 	readonly canSubmit: boolean;
+	readonly forceSubmit?: boolean;
 	readonly disabled?: boolean;
 	readonly onAction: () => void;
 }): ReactElement {
+	const submitVisible = canSubmit || forceSubmit;
 	const label = isLoading
 		? 'Stop generation'
-		: canSubmit
+		: submitVisible
 			? 'Send message'
 			: 'Start voice conversation';
-	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
+	const iconKey = isLoading ? 'stop' : submitVisible ? 'send' : 'voice';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
-	) : canSubmit ? (
+	) : submitVisible ? (
 		<ArrowUp className="size-4" />
 	) : (
 		<AudioLines className="size-4" />
