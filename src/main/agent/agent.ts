@@ -288,7 +288,7 @@ export class Agent {
 					options.streamEvent?.(responseEvent);
 				}
 			}
-			if (result && request.category === 'main') {
+			if (result && request.category === 'main' && session.folderName !== '') {
 				accountGoalRun(sessionDir(session), result.usage ?? { inputTokens: 0, outputTokens: 0 }, result.toolCalls.length);
 			}
 			return {
