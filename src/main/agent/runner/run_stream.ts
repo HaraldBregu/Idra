@@ -38,8 +38,9 @@ import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 import type { ExecSandbox } from '../sandbox';
 import { builtinTools } from './run_builtin_tools';
-import { filterPlanTools } from './run_plan_tools';
-import { addPlanPrompt } from '../system/system_add_plan_prompt';
+import { addPlanPrompt } from '../plan/context';
+import { isPlanOutputValid } from '../plan/output';
+import { filterPlanTools } from '../plan/tools';
 import { projectPromptAttachments, resolvePromptInputCapabilities } from '../attachments';
 
 export interface StreamOptions {
@@ -290,6 +291,11 @@ async function* loop(
 			});
 
 			if (turn.toolCalls.length === 0) {
+				if (input.interactionMode === 'plan' && !isPlanOutputValid(turn.content)) {
+					throw new Error(
+						'Plan response must contain exactly one non-empty <proposed_plan> envelope and no other text.'
+					);
+				}
 				const result = toResult(session, 'success');
 				yield { type: 'run_finished', result };
 				return;
