@@ -95,6 +95,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	const stopResponse = useCallback((): void => {
 		const runId = activeRunIdRef.current;
 		activeRunIdRef.current = undefined;
+		resolvedSessionRef.current = undefined;
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
 		setIsLoading(false);
@@ -236,6 +237,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 	const resetChat = useCallback((): void => {
 		requestIdRef.current += 1;
+		resolvedSessionRef.current = undefined;
 		requestActiveRef.current = false;
 		activeRunIdRef.current = undefined;
 		localInteractionRef.current = true;
@@ -250,6 +252,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		if (!agent) return;
 
 		requestIdRef.current += 1;
+		resolvedSessionRef.current = undefined;
 		requestActiveRef.current = false;
 		localInteractionRef.current = false;
 		window.queueMicrotask(() => {
@@ -270,6 +273,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 		return () => {
 			cancelled = true;
+			resolvedSessionRef.current = undefined;
 			const runId = activeRunIdRef.current;
 			if (runId) void getAgentApi()?.cancel(runId).catch(() => undefined);
 		};
@@ -280,6 +284,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 			const runId = activeRunIdRef.current;
 			if (runId) void getAgentApi()?.cancel(runId).catch(() => undefined);
 			requestIdRef.current += 1;
+			resolvedSessionRef.current = undefined;
 			requestActiveRef.current = false;
 		};
 	}, []);

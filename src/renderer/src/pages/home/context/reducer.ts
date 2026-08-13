@@ -365,7 +365,22 @@ export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatM
 			outputTokens: message.usage?.outputTokens,
 		});
 	});
-	return out;
+	return out.map((message) => {
+		if (!isAgentMessage(message)) return message;
+		return {
+			...message,
+			tools: message.tools.map((tool) =>
+				tool.type === 'request_user_input' && tool.state === 'input-available'
+					? {
+							...tool,
+							state: 'output-error' as const,
+							output: { status: 'interrupted', answers: [] },
+							outputText: JSON.stringify({ status: 'interrupted', answers: [] }),
+						}
+					: tool
+			),
+		};
+	});
 }
 
 

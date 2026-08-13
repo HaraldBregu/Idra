@@ -17,7 +17,8 @@ export function parsePlanEnvelope(content: string, streaming: boolean): ParsedPl
 		trimmed.endsWith(CLOSE)
 	) {
 		const body = trimmed.slice(OPEN.length, -CLOSE.length).trim();
-		if (!body.includes(OPEN) && !body.includes(CLOSE)) return { kind: 'complete', content: body };
+		if (body.length > 0 && !body.includes(OPEN) && !body.includes(CLOSE))
+			return { kind: 'complete', content: body };
 	}
 	if (streaming) {
 		if (OPEN.startsWith(trimmed)) return { kind: 'streaming', content: '' };

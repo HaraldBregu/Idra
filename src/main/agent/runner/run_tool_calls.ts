@@ -12,13 +12,16 @@ export async function* runToolCalls(
 	resources?: KeyedMutex
 ): AsyncGenerator<RuntimeEvent, void> {
 	for (const toolCall of toolCalls) {
-		yield* runToolCall(
+		for await (const event of runToolCall(
 			tools.find((tool) => tool.id === toolCall.name),
 			toolCall,
 			signal,
 			context,
 			security,
 			resources
-		);
+		)) {
+			yield event;
+		}
+		if (signal?.aborted) break;
 	}
 }
