@@ -210,7 +210,7 @@ export class Agent {
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
 				...(files.length ? { files } : {}),
 				...(promptCapabilities ? { promptCapabilities } : {}),
-				deferPersist: true,
+				...(files.length ? { deferPersist: true } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.legacySessionId ? { legacySessionId: options.legacySessionId } : {}),
 				...(providerId ? { providerId } : {}),
