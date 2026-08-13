@@ -51,10 +51,10 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 	const fullTokens =
 		Math.ceil(
 			contextBytes({
-					systemPrompt: combinedSystemPrompt,
-					messages: [...contextMessages, ...input.messages],
-					tools: toolView,
-				}) / CONTEXT_BYTES_PER_TOKEN
+				systemPrompt: combinedSystemPrompt,
+				messages: [...contextMessages, ...input.messages],
+				tools: toolView,
+			}) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
 	if (fullTokens <= maxInputTokens) {
 		return {
@@ -114,10 +114,10 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 	let mandatoryTokens =
 		Math.ceil(
 			contextBytes({
-					systemPrompt: [minimumSystem, protectedSystemPrompt].filter(Boolean).join('\n\n'),
-					messages: selectedMessages,
-					tools: toolView,
-				}) / CONTEXT_BYTES_PER_TOKEN
+				systemPrompt: [minimumSystem, protectedSystemPrompt].filter(Boolean).join('\n\n'),
+				messages: selectedMessages,
+				tools: toolView,
+			}) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
 	if (mandatoryTokens > maxInputTokens) {
 		throw new Error(
@@ -130,10 +130,10 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 	mandatoryTokens =
 		Math.ceil(
 			contextBytes({
-					systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
-					messages: selectedMessages,
-					tools: toolView,
-				}) / CONTEXT_BYTES_PER_TOKEN
+				systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
+				messages: selectedMessages,
+				tools: toolView,
+			}) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
 	if (mandatoryTokens > maxInputTokens) {
 		const marker = '\n\n[Additional system context omitted to fit the model context budget.]';
@@ -142,10 +142,10 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		while (
 			Math.ceil(
 				contextBytes({
-						systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
-						messages: selectedMessages,
-						tools: toolView,
-					}) / CONTEXT_BYTES_PER_TOKEN
+					systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
+					messages: selectedMessages,
+					tools: toolView,
+				}) / CONTEXT_BYTES_PER_TOKEN
 			) +
 				32 >
 			maxInputTokens
@@ -164,10 +164,10 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		const candidateTokens =
 			Math.ceil(
 				contextBytes({
-						systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
-						messages: [...optionalContextMessages, ...selectedMessages],
-						tools: toolView,
-					}) / CONTEXT_BYTES_PER_TOKEN
+					systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
+					messages: [...optionalContextMessages, ...selectedMessages],
+					tools: toolView,
+				}) / CONTEXT_BYTES_PER_TOKEN
 			) + 32;
 		if (candidateTokens <= maxInputTokens) break;
 		optionalContextMessages.pop();
@@ -184,10 +184,10 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		const candidateTokens =
 			Math.ceil(
 				contextBytes({
-						systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
-						messages: [...optionalContextMessages, ...candidateMessages],
-						tools: toolView,
-					}) / CONTEXT_BYTES_PER_TOKEN
+					systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
+					messages: [...optionalContextMessages, ...candidateMessages],
+					tools: toolView,
+				}) / CONTEXT_BYTES_PER_TOKEN
 			) + 32;
 		if (candidateTokens > maxInputTokens) {
 			omittedPrior = true;
@@ -206,10 +206,10 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		const markerTokens =
 			Math.ceil(
 				contextBytes({
-						systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
-						messages: [...optionalContextMessages, ...candidateMessages],
-						tools: toolView,
-					}) / CONTEXT_BYTES_PER_TOKEN
+					systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
+					messages: [...optionalContextMessages, ...candidateMessages],
+					tools: toolView,
+				}) / CONTEXT_BYTES_PER_TOKEN
 			) + 32;
 		if (markerTokens <= maxInputTokens) selectedMessages = candidateMessages;
 	}
@@ -217,10 +217,10 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 	const estimatedTokens =
 		Math.ceil(
 			contextBytes({
-					systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
-					messages: [...optionalContextMessages, ...selectedMessages],
-					tools: toolView,
-				}) / CONTEXT_BYTES_PER_TOKEN
+				systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
+				messages: [...optionalContextMessages, ...selectedMessages],
+				tools: toolView,
+			}) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
 	return {
 		systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n') || undefined,

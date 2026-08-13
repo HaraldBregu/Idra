@@ -24,14 +24,18 @@ export function projectPromptAttachments(
 				const mimeType = typeof block.mimeType === 'string' ? block.mimeType : 'unknown';
 				const extension = path.extname(name).toLowerCase();
 				const supported = capabilities.rules.some(
-					(rule) => rule.kind === kind && rule.mimeTypes.includes(mimeType) && rule.extensions.includes(extension)
+					(rule) =>
+						rule.kind === kind &&
+						rule.mimeTypes.includes(mimeType) &&
+						rule.extensions.includes(extension)
 				);
 				if (supported) return legacyDocument ? { ...block, type: 'document' } : block;
-				const bytes = typeof block.bytes === 'number'
-					? block.bytes
-					: typeof block.base64 === 'string'
-						? Buffer.from(block.base64, 'base64').length
-						: 0;
+				const bytes =
+					typeof block.bytes === 'number'
+						? block.bytes
+						: typeof block.base64 === 'string'
+							? Buffer.from(block.base64, 'base64').length
+							: 0;
 				return {
 					type: 'text',
 					text: `[Historical attachment unavailable for this model: ${name}; ${kind}; ${mimeType}; ${bytes} bytes]`,
