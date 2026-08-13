@@ -41,14 +41,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useChatMode, type ChatMode } from '@/contexts/chat-mode';
 import { useChatSession } from '@/contexts/chat-session';
 import { cn } from '@/lib/utils';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import type { AgentInteractionMode } from '@/lib/compat';
 import { AssistantMessage } from './components/AssistantMessage';
 import { UserMessage } from './components/UserMessage';
 import { Provider, welcomeMessage } from './context';
@@ -282,33 +274,6 @@ function AttachmentButton({ disabled }: { readonly disabled?: boolean }): ReactE
 				<Plus className="size-4" />
 			</Button>
 		</PromptInputAction>
-	);
-}
-
-function InteractionModeSelect({
-	value,
-	onChange,
-	disabled,
-}: {
-	readonly value: AgentInteractionMode;
-	readonly onChange: (mode: AgentInteractionMode) => void;
-	readonly disabled: boolean;
-}): ReactElement {
-	return (
-		<Select value={value} onValueChange={(mode) => onChange(mode as AgentInteractionMode)}>
-			<SelectTrigger
-				size="sm"
-				aria-label="Interaction mode"
-				disabled={disabled}
-				className="h-8 border-0 bg-transparent px-2 text-xs text-muted-foreground shadow-none hover:bg-muted hover:text-foreground"
-			>
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent align="start">
-				<SelectItem value="default">Default</SelectItem>
-				<SelectItem value="plan">Plan</SelectItem>
-			</SelectContent>
-		</Select>
 	);
 }
 
