@@ -538,10 +538,14 @@ function PageContent(): ReactElement {
 			void window.agent
 				.getPromptInputCapabilities()
 				.then((capabilities) => {
-					if (active) setPromptCapabilities(capabilities);
+					if (!active) return;
+					setPromptCapabilities(capabilities);
+					setAttachments((current) => validatePromptAttachments(current, capabilities));
 				})
 				.catch(() => {
-					if (active) setPromptCapabilities(null);
+					if (!active) return;
+					setPromptCapabilities(null);
+					setAttachments((current) => validatePromptAttachments(current, null));
 				});
 		};
 		refresh();
@@ -551,11 +555,6 @@ function PageContent(): ReactElement {
 			unsubscribe();
 		};
 	}, []);
-
-	useEffect(() => {
-		if (promptCapabilities === undefined) return;
-		setAttachments((current) => validatePromptAttachments(current, promptCapabilities));
-	}, [promptCapabilities]);
 
 	const removeAttachment = useCallback((id: string): void => {
 		setAttachments((current) =>
