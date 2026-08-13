@@ -67,4 +67,40 @@ describe('TextEditor', () => {
 
 		await waitFor(() => expect(onVisualLineChange).toHaveBeenCalledWith(true));
 	});
+
+	it('reinserts the Plan node when controlled prompt text is cleared', () => {
+		const editorElement = document.createElement('div');
+		const chain = {
+			setContent: jest.fn(() => chain),
+			insertContentAt: jest.fn(() => chain),
+			focus: jest.fn(() => chain),
+			run: jest.fn(),
+		};
+		const editor = {
+			view: { dom: editorElement },
+			state: {
+				doc: {
+					descendants: (visit: (node: { type: { name: string } }) => boolean) =>
+						visit({ type: { name: 'planCommand' } }),
+				},
+			},
+			chain: jest.fn(() => chain),
+			getMarkdown: jest.fn(() => 'submitted plan request'),
+			isFocused: true,
+			setEditable: jest.fn(),
+		};
+		jest.mocked(useEditor).mockReturnValue(editor as never);
+		jest.spyOn(document, 'createRange').mockReturnValue({
+			selectNodeContents: jest.fn(),
+			getClientRects: () => [] as unknown as DOMRectList,
+		} as unknown as Range);
+
+		render(<TextEditor value="" />);
+
+		expect(chain.insertContentAt).toHaveBeenCalledWith(1, [
+			{ type: 'planCommand' },
+			{ type: 'text', text: ' ' },
+		]);
+		expect(chain.focus).toHaveBeenCalledWith('end');
+	});
 });

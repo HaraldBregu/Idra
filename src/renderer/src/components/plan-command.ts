@@ -47,8 +47,9 @@ export const PlanCommand = Node.create({
 				});
 				if (planPosition === undefined || selection.from <= planPosition) return false;
 				if (doc.textBetween(planPosition + 1, selection.from).trim().length > 0) return false;
+				const deleteFrom = planPosition;
 				return this.editor.commands.command(({ tr }) => {
-					tr.delete(planPosition, selection.from);
+					tr.delete(deleteFrom, selection.from);
 					return true;
 				});
 			},
