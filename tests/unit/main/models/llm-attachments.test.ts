@@ -123,19 +123,31 @@ describe('LLM attachment payload builders', () => {
 					{
 						type: 'text',
 						text: [
-							'[Uploaded text file]',
-							'Name: config.toml',
-							'MIME type: text/plain',
-							'Size: 8 bytes',
-							'The complete file content is included inline below. Read it directly from this block; the name is metadata, not a filesystem path, and no file tool is needed.',
-							'--- BEGIN UPLOADED FILE: config.toml ---',
+							'[Complete contents of the uploaded text file]',
+							'--- BEGIN UPLOADED CONTENT ---',
 							'enabled=true',
-							'--- END UPLOADED FILE: config.toml ---',
+							'--- END UPLOADED CONTENT ---',
 						].join('\n'),
 					},
 				],
 			},
 		]);
+		expect(
+			JSON.stringify(
+				llmToTranscriptEntry({
+					role: 'user',
+					content: [
+						{
+							type: 'text_file',
+							name: 'config.toml',
+							mimeType: 'text/plain',
+							bytes: 8,
+							text: 'enabled=true',
+						},
+					],
+				})
+			)
+		).not.toContain('config.toml');
 	});
 
 	it('rejects unknown semantic blocks instead of silently dropping them', () => {

@@ -70,12 +70,7 @@ function toUserContent(content: Message['content']): string | LlmUserContentBloc
 			) {
 				return {
 					type: 'text',
-					text: formatUploadedTextFile({
-						name: block.name,
-						mimeType: block.mimeType,
-						bytes: block.bytes,
-						text: block.text,
-					}),
+					text: formatUploadedTextFile(block.text),
 				};
 			}
 			if (block.type === 'image' && typeof block.base64 === 'string') {

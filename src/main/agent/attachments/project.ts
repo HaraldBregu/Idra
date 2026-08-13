@@ -15,12 +15,7 @@ export function projectPromptAttachments(
 				if (block.type === 'text_file' && typeof block.text === 'string') {
 					return {
 						type: 'text',
-						text: formatUploadedTextFile({
-							name: String(block.name),
-							mimeType: String(block.mimeType),
-							bytes: Number(block.bytes),
-							text: block.text,
-						}),
+						text: formatUploadedTextFile(block.text),
 					};
 				}
 				const legacyDocument = block.type === 'file' && block.mimeType === 'application/pdf';
