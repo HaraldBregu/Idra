@@ -27,6 +27,7 @@ jest.mock('../../../../src/main/agent/agent_store', () => ({
 }));
 
 import { ExecSandbox } from '../../../../src/main/agent/sandbox';
+import { agentLocation } from '../../../../src/main/shared/agent_location';
 
 describe('ExecSandbox permissions', () => {
 	it('uses only execute paths as command read and write boundaries', async () => {
@@ -75,6 +76,29 @@ describe('ExecSandbox permissions', () => {
 			undefined,
 			'/workspace',
 			{ commandId: 'command', commandText: 'pwd' }
+		);
+	});
+
+	it('uses a networkless read-only workspace profile for Plan commands', async () => {
+		await new ExecSandbox().wrap('git status', agentLocation(), 'plan-command', undefined, [], 'plan');
+		expect(wrapWithSandboxArgv).toHaveBeenCalledWith(
+			'git status',
+			'/bin/sh',
+			expect.objectContaining({
+				network: expect.objectContaining({
+					allowedDomains: [],
+					deniedDomains: ['*'],
+					allowLocalBinding: false,
+				}),
+				filesystem: expect.objectContaining({
+					allowRead: [`${agentLocation()}/**`],
+					denyWrite: [`${agentLocation()}/**`],
+				}),
+				allowPty: false,
+			}),
+			undefined,
+			agentLocation(),
+			{ commandId: 'plan-command', commandText: 'git status' }
 		);
 	});
 });
