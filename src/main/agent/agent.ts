@@ -286,7 +286,7 @@ export class Agent {
 		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
 		return this.scheduler.run(
 			resolvedSessionId,
-			() =>
+			async () =>
 				updateUserMessageBySessionId(
 					resolvedSessionId,
 					this.config.location,
