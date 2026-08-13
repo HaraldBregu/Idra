@@ -1,264 +1,253 @@
 {
-  "providerId": "xai",
-  "providerName": "xAI",
-  "apiKeyUrl": "https://console.x.ai",
-  "images_url": "/images",
-  "icon_dark_url": "/images/fallback_lobehub/png_dark/xai.png",
-  "icon_light_url": "/images/fallback_lobehub/png_light/xai.png",
-  "services": [
-    {
-      "id": "grok-4.3",
-      "name": "Grok 4.3",
-      "type": "large-language-model",
-      "url": "https://api.x.ai/v1",
-      "metadata": {
-        "promptAttachments": [
-          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
-        ],
-        "documentationUrl": "https://docs.x.ai/developers/models",
-        "documentationStatus": "verified",
-        "inputs": {
-          "reasoning_effort": {
-            "type": "string",
-            "enum": [
-              "none",
-              "low",
-              "medium",
-              "high"
-            ]
-          },
-          "temperature": {
-            "type": "number"
-          },
-          "top_p": {
-            "type": "number"
-          },
-          "max_tokens": {
-            "type": "integer"
-          },
-          "stop": {
-            "type": "array"
-          },
-          "response_format": {
-            "type": "object"
-          },
-          "tools": {
-            "type": "array"
-          },
-          "tool_choice": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "id": "grok-build-0.1",
-      "name": "Grok Build 0.1",
-      "type": "large-language-model",
-      "url": "https://api.x.ai/v1",
-      "metadata": {
-        "promptAttachments": [
-          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
-        ],
-        "documentationUrl": "https://docs.x.ai/developers/models",
-        "documentationStatus": "verified",
-        "inputs": {
-          "temperature": {
-            "type": "number"
-          },
-          "top_p": {
-            "type": "number"
-          },
-          "max_tokens": {
-            "type": "integer"
-          },
-          "stop": {
-            "type": "array"
-          },
-          "response_format": {
-            "type": "object"
-          },
-          "tools": {
-            "type": "array"
-          },
-          "tool_choice": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "id": "xai-stt-batch",
-      "name": "xAI STT Batch",
-      "apiTypes": [
-        "batch"
-      ],
-      "type": "speech-to-text-model",
-      "url": "https://api.x.ai/v1",
-      "sampleRate": 24000,
-      "metadata": {
-        "documentationUrl": "https://docs.x.ai/developers/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
-      }
-    },
-    {
-      "id": "xai-stt-streaming",
-      "name": "xAI STT Streaming",
-      "apiTypes": [
-        "stream"
-      ],
-      "realtime": true,
-      "type": "speech-to-text-model",
-      "url": "https://api.x.ai/v1",
-      "sampleRate": 24000,
-      "metadata": {
-        "documentationUrl": "https://docs.x.ai/developers/models",
-        "documentationStatus": "unverified",
-        "inputs": {}
-      }
-    },
-    {
-      "id": "grok-voice-latest",
-      "name": "Grok Voice Latest",
-      "type": "realtime-voice-model",
-      "url": "https://api.x.ai/v1",
-      "sampleRate": 24000,
-      "metadata": {
-        "documentationUrl": "https://docs.x.ai/developers/model-capabilities/audio/voice",
-        "documentationStatus": "verified",
-        "inputs": {
-          "voice": {
-            "type": "string",
-            "title": "Voice",
-            "default": "eve",
-            "enum": [
-              "carina",
-              "zagan",
-              "helix",
-              "orion",
-              "luna",
-              "iris",
-              "altair",
-              "zenith",
-              "perseus",
-              "helios",
-              "lux",
-              "kepler",
-              "rigel",
-              "cosmo",
-              "celeste",
-              "ursa",
-              "sirius",
-              "lumen",
-              "castor",
-              "naksh",
-              "atlas",
-              "ara",
-              "eve",
-              "leo",
-              "rex",
-              "sal"
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": "grok-imagine-image",
-      "name": "Grok Imagine Image",
-      "type": "text-to-image-model",
-      "url": "https://api.x.ai/v1",
-      "metadata": {
-        "documentationUrl": "https://docs.x.ai/developers/models",
-        "documentationStatus": "verified",
-        "inputs": {
-          "n": {
-            "type": "integer",
-            "maximum": 10
-          },
-          "aspect_ratio": {
-            "type": "string"
-          },
-          "resolution": {
-            "type": "string"
-          },
-          "response_format": {
-            "type": "string",
-            "default": "url",
-            "enum": [
-              "url",
-              "b64_json"
-            ]
-          },
-          "storage_options": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "id": "grok-imagine-image-quality",
-      "name": "Grok Imagine Image Quality",
-      "type": "text-to-image-model",
-      "url": "https://api.x.ai/v1",
-      "metadata": {
-        "documentationUrl": "https://docs.x.ai/developers/models",
-        "documentationStatus": "verified",
-        "inputs": {
-          "n": {
-            "type": "integer",
-            "maximum": 10
-          },
-          "aspect_ratio": {
-            "type": "string"
-          },
-          "resolution": {
-            "type": "string"
-          },
-          "response_format": {
-            "type": "string",
-            "default": "url",
-            "enum": [
-              "url",
-              "b64_json"
-            ]
-          },
-          "storage_options": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "id": "grok-imagine-video-1.5",
-      "name": "Grok Imagine Video 1.5",
-      "type": "text-to-video-model",
-      "url": "https://api.x.ai/v1",
-      "metadata": {
-        "documentationUrl": "https://docs.x.ai/developers/models",
-        "documentationStatus": "verified",
-        "inputs": {
-          "image": {
-            "type": "string",
-            "required": true
-          },
-          "duration": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 15
-          },
-          "resolution": {
-            "type": "string",
-            "default": "480p",
-            "enum": [
-              "480p",
-              "720p",
-              "1080p"
-            ]
-          }
-        }
-      }
-    }
-  ]
+	"providerId": "xai",
+	"providerName": "xAI",
+	"apiKeyUrl": "https://console.x.ai",
+	"images_url": "/images",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/xai.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/xai.png",
+	"services": [
+		{
+			"id": "grok-4.3",
+			"name": "Grok 4.3",
+			"type": "large-language-model",
+			"url": "https://api.x.ai/v1",
+			"metadata": {
+				"promptAttachments": [
+					{
+						"kind": "image",
+						"mimeTypes": ["image/jpeg", "image/png", "image/webp"],
+						"extensions": [".jpg", ".jpeg", ".png", ".webp"]
+					}
+				],
+				"documentationUrl": "https://docs.x.ai/developers/models",
+				"documentationStatus": "verified",
+				"inputs": {
+					"reasoning_effort": {
+						"type": "string",
+						"enum": ["none", "low", "medium", "high"]
+					},
+					"temperature": {
+						"type": "number"
+					},
+					"top_p": {
+						"type": "number"
+					},
+					"max_tokens": {
+						"type": "integer"
+					},
+					"stop": {
+						"type": "array"
+					},
+					"response_format": {
+						"type": "object"
+					},
+					"tools": {
+						"type": "array"
+					},
+					"tool_choice": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		{
+			"id": "grok-build-0.1",
+			"name": "Grok Build 0.1",
+			"type": "large-language-model",
+			"url": "https://api.x.ai/v1",
+			"metadata": {
+				"promptAttachments": [
+					{
+						"kind": "image",
+						"mimeTypes": ["image/jpeg", "image/png", "image/webp"],
+						"extensions": [".jpg", ".jpeg", ".png", ".webp"]
+					}
+				],
+				"documentationUrl": "https://docs.x.ai/developers/models",
+				"documentationStatus": "verified",
+				"inputs": {
+					"temperature": {
+						"type": "number"
+					},
+					"top_p": {
+						"type": "number"
+					},
+					"max_tokens": {
+						"type": "integer"
+					},
+					"stop": {
+						"type": "array"
+					},
+					"response_format": {
+						"type": "object"
+					},
+					"tools": {
+						"type": "array"
+					},
+					"tool_choice": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		{
+			"id": "xai-stt-batch",
+			"name": "xAI STT Batch",
+			"apiTypes": ["batch"],
+			"type": "speech-to-text-model",
+			"url": "https://api.x.ai/v1",
+			"sampleRate": 24000,
+			"metadata": {
+				"documentationUrl": "https://docs.x.ai/developers/models",
+				"documentationStatus": "unverified",
+				"inputs": {}
+			}
+		},
+		{
+			"id": "xai-stt-streaming",
+			"name": "xAI STT Streaming",
+			"apiTypes": ["stream"],
+			"realtime": true,
+			"type": "speech-to-text-model",
+			"url": "https://api.x.ai/v1",
+			"sampleRate": 24000,
+			"metadata": {
+				"documentationUrl": "https://docs.x.ai/developers/models",
+				"documentationStatus": "unverified",
+				"inputs": {}
+			}
+		},
+		{
+			"id": "grok-voice-latest",
+			"name": "Grok Voice Latest",
+			"type": "realtime-voice-model",
+			"url": "https://api.x.ai/v1",
+			"sampleRate": 24000,
+			"metadata": {
+				"documentationUrl": "https://docs.x.ai/developers/model-capabilities/audio/voice",
+				"documentationStatus": "verified",
+				"inputs": {
+					"voice": {
+						"type": "string",
+						"title": "Voice",
+						"default": "eve",
+						"enum": [
+							"carina",
+							"zagan",
+							"helix",
+							"orion",
+							"luna",
+							"iris",
+							"altair",
+							"zenith",
+							"perseus",
+							"helios",
+							"lux",
+							"kepler",
+							"rigel",
+							"cosmo",
+							"celeste",
+							"ursa",
+							"sirius",
+							"lumen",
+							"castor",
+							"naksh",
+							"atlas",
+							"ara",
+							"eve",
+							"leo",
+							"rex",
+							"sal"
+						]
+					}
+				}
+			}
+		},
+		{
+			"id": "grok-imagine-image",
+			"name": "Grok Imagine Image",
+			"type": "text-to-image-model",
+			"url": "https://api.x.ai/v1",
+			"metadata": {
+				"documentationUrl": "https://docs.x.ai/developers/models",
+				"documentationStatus": "verified",
+				"inputs": {
+					"n": {
+						"type": "integer",
+						"maximum": 10
+					},
+					"aspect_ratio": {
+						"type": "string"
+					},
+					"resolution": {
+						"type": "string"
+					},
+					"response_format": {
+						"type": "string",
+						"default": "url",
+						"enum": ["url", "b64_json"]
+					},
+					"storage_options": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		{
+			"id": "grok-imagine-image-quality",
+			"name": "Grok Imagine Image Quality",
+			"type": "text-to-image-model",
+			"url": "https://api.x.ai/v1",
+			"metadata": {
+				"documentationUrl": "https://docs.x.ai/developers/models",
+				"documentationStatus": "verified",
+				"inputs": {
+					"n": {
+						"type": "integer",
+						"maximum": 10
+					},
+					"aspect_ratio": {
+						"type": "string"
+					},
+					"resolution": {
+						"type": "string"
+					},
+					"response_format": {
+						"type": "string",
+						"default": "url",
+						"enum": ["url", "b64_json"]
+					},
+					"storage_options": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		{
+			"id": "grok-imagine-video-1.5",
+			"name": "Grok Imagine Video 1.5",
+			"type": "text-to-video-model",
+			"url": "https://api.x.ai/v1",
+			"metadata": {
+				"documentationUrl": "https://docs.x.ai/developers/models",
+				"documentationStatus": "verified",
+				"inputs": {
+					"image": {
+						"type": "string",
+						"required": true
+					},
+					"duration": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 15
+					},
+					"resolution": {
+						"type": "string",
+						"default": "480p",
+						"enum": ["480p", "720p", "1080p"]
+					}
+				}
+			}
+		}
+	]
 }

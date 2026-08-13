@@ -1,199 +1,199 @@
 {
-  "providerId": "zai",
-  "providerName": "Z.ai / Zhipu AI",
-  "apiKeyUrl": "https://z.ai/manage-apikey/apikey-list",
-  "images_url": "/images",
-  "icon_dark_url": "/images/fallback_lobehub/png_dark/zai.png",
-  "icon_light_url": "/images/fallback_lobehub/png_light/zai.png",
-  "services": [
-    {
-      "id": "glm-5.1",
-      "name": "GLM-5.1",
-      "type": "large-language-model",
-      "url": "https://api.z.ai/api/paas/v4",
-      "metadata": {
-        "promptAttachments": [],
-        "documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
-        "documentationStatus": "verified",
-        "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "top_p": {
-            "type": "number",
-            "minimum": 0.01,
-            "maximum": 1
-          },
-          "max_tokens": {
-            "type": "integer",
-            "maximum": 131072
-          },
-          "thinking": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["enabled", "disabled"]
-              },
-              "clear_thinking": {
-                "type": "boolean"
-              }
-            }
-          },
-          "stop": {
-            "type": "array"
-          },
-          "tools": {
-            "type": "array"
-          },
-          "tool_choice": {
-            "type": "object"
-          },
-          "stream": {
-            "type": "boolean"
-          },
-          "do_sample": {
-            "type": "boolean"
-          },
-          "repetition_penalty": {
-            "type": "number"
-          },
-          "response_format": {
-            "type": "object"
-          },
-          "user_id": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    {
-      "id": "glm-5",
-      "name": "GLM-5",
-      "type": "large-language-model",
-      "url": "https://api.z.ai/api/paas/v4",
-      "metadata": {
-        "promptAttachments": [],
-        "documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
-        "documentationStatus": "verified",
-        "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "top_p": {
-            "type": "number",
-            "minimum": 0.01,
-            "maximum": 1
-          },
-          "max_tokens": {
-            "type": "integer",
-            "maximum": 131072
-          },
-          "thinking": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["enabled", "disabled"]
-              },
-              "clear_thinking": {
-                "type": "boolean"
-              }
-            }
-          },
-          "stop": {
-            "type": "array"
-          },
-          "tools": {
-            "type": "array"
-          },
-          "tool_choice": {
-            "type": "object"
-          },
-          "stream": {
-            "type": "boolean"
-          },
-          "do_sample": {
-            "type": "boolean"
-          },
-          "repetition_penalty": {
-            "type": "number"
-          },
-          "response_format": {
-            "type": "object"
-          },
-          "user_id": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    {
-      "id": "glm-5-turbo",
-      "name": "GLM-5 Turbo",
-      "type": "large-language-model",
-      "url": "https://api.z.ai/api/paas/v4",
-      "metadata": {
-        "promptAttachments": [],
-        "documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
-        "documentationStatus": "verified",
-        "inputs": {
-          "temperature": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-          },
-          "top_p": {
-            "type": "number",
-            "minimum": 0.01,
-            "maximum": 1
-          },
-          "max_tokens": {
-            "type": "integer",
-            "maximum": 131072
-          },
-          "thinking": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["enabled", "disabled"]
-              },
-              "clear_thinking": {
-                "type": "boolean"
-              }
-            }
-          },
-          "stop": {
-            "type": "array"
-          },
-          "tools": {
-            "type": "array"
-          },
-          "tool_choice": {
-            "type": "object"
-          },
-          "stream": {
-            "type": "boolean"
-          },
-          "do_sample": {
-            "type": "boolean"
-          },
-          "repetition_penalty": {
-            "type": "number"
-          },
-          "response_format": {
-            "type": "object"
-          },
-          "user_id": {
-            "type": "string"
-          }
-        }
-      }
-    }
-  ]
+	"providerId": "zai",
+	"providerName": "Z.ai / Zhipu AI",
+	"apiKeyUrl": "https://z.ai/manage-apikey/apikey-list",
+	"images_url": "/images",
+	"icon_dark_url": "/images/fallback_lobehub/png_dark/zai.png",
+	"icon_light_url": "/images/fallback_lobehub/png_light/zai.png",
+	"services": [
+		{
+			"id": "glm-5.1",
+			"name": "GLM-5.1",
+			"type": "large-language-model",
+			"url": "https://api.z.ai/api/paas/v4",
+			"metadata": {
+				"promptAttachments": [],
+				"documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
+				"documentationStatus": "verified",
+				"inputs": {
+					"temperature": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 1
+					},
+					"top_p": {
+						"type": "number",
+						"minimum": 0.01,
+						"maximum": 1
+					},
+					"max_tokens": {
+						"type": "integer",
+						"maximum": 131072
+					},
+					"thinking": {
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"enum": ["enabled", "disabled"]
+							},
+							"clear_thinking": {
+								"type": "boolean"
+							}
+						}
+					},
+					"stop": {
+						"type": "array"
+					},
+					"tools": {
+						"type": "array"
+					},
+					"tool_choice": {
+						"type": "object"
+					},
+					"stream": {
+						"type": "boolean"
+					},
+					"do_sample": {
+						"type": "boolean"
+					},
+					"repetition_penalty": {
+						"type": "number"
+					},
+					"response_format": {
+						"type": "object"
+					},
+					"user_id": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"id": "glm-5",
+			"name": "GLM-5",
+			"type": "large-language-model",
+			"url": "https://api.z.ai/api/paas/v4",
+			"metadata": {
+				"promptAttachments": [],
+				"documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
+				"documentationStatus": "verified",
+				"inputs": {
+					"temperature": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 1
+					},
+					"top_p": {
+						"type": "number",
+						"minimum": 0.01,
+						"maximum": 1
+					},
+					"max_tokens": {
+						"type": "integer",
+						"maximum": 131072
+					},
+					"thinking": {
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"enum": ["enabled", "disabled"]
+							},
+							"clear_thinking": {
+								"type": "boolean"
+							}
+						}
+					},
+					"stop": {
+						"type": "array"
+					},
+					"tools": {
+						"type": "array"
+					},
+					"tool_choice": {
+						"type": "object"
+					},
+					"stream": {
+						"type": "boolean"
+					},
+					"do_sample": {
+						"type": "boolean"
+					},
+					"repetition_penalty": {
+						"type": "number"
+					},
+					"response_format": {
+						"type": "object"
+					},
+					"user_id": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"id": "glm-5-turbo",
+			"name": "GLM-5 Turbo",
+			"type": "large-language-model",
+			"url": "https://api.z.ai/api/paas/v4",
+			"metadata": {
+				"promptAttachments": [],
+				"documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
+				"documentationStatus": "verified",
+				"inputs": {
+					"temperature": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 1
+					},
+					"top_p": {
+						"type": "number",
+						"minimum": 0.01,
+						"maximum": 1
+					},
+					"max_tokens": {
+						"type": "integer",
+						"maximum": 131072
+					},
+					"thinking": {
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"enum": ["enabled", "disabled"]
+							},
+							"clear_thinking": {
+								"type": "boolean"
+							}
+						}
+					},
+					"stop": {
+						"type": "array"
+					},
+					"tools": {
+						"type": "array"
+					},
+					"tool_choice": {
+						"type": "object"
+					},
+					"stream": {
+						"type": "boolean"
+					},
+					"do_sample": {
+						"type": "boolean"
+					},
+					"repetition_penalty": {
+						"type": "number"
+					},
+					"response_format": {
+						"type": "object"
+					},
+					"user_id": {
+						"type": "string"
+					}
+				}
+			}
+		}
+	]
 }

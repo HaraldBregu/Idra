@@ -57,13 +57,16 @@ function validatePromptAttachments(value: unknown, path: string): string[] {
 			rule.extensions.forEach((extension, extensionIndex) => {
 				if (typeof extension !== 'string' || !EXTENSION_PATTERN.test(extension)) {
 					errors.push(
-					`${itemPath}.extensions[${extensionIndex}] must be a lowercase dot-prefixed extension.`
-				);
+						`${itemPath}.extensions[${extensionIndex}] must be a lowercase dot-prefixed extension.`
+					);
 				}
 			});
 		}
 		for (const limit of ['maxFiles', 'maxBytes', 'maxTotalBytes'] as const) {
-			if (rule[limit] !== undefined && (!Number.isInteger(rule[limit]) || (rule[limit] as number) <= 0)) {
+			if (
+				rule[limit] !== undefined &&
+				(!Number.isInteger(rule[limit]) || (rule[limit] as number) <= 0)
+			) {
 				errors.push(`${itemPath}.${limit} must be a positive integer when present.`);
 			}
 		}
@@ -121,7 +124,10 @@ export function validateProviderManifest(value: unknown): string[] {
 		const isPromptModel = PROMPT_MODEL_SERVICE_TYPES.includes(
 			service.type as (typeof PROMPT_MODEL_SERVICE_TYPES)[number]
 		);
-		if (isPromptModel && (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata))) {
+		if (
+			isPromptModel &&
+			(typeof metadata !== 'object' || metadata === null || Array.isArray(metadata))
+		) {
 			serviceErrors.push(
 				`manifest.json: services[${index}].metadata must be an object for prompt models.`
 			);

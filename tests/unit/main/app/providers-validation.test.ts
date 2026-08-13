@@ -78,7 +78,7 @@ describe('provider manifest validation', () => {
 		).toEqual([expect.stringContaining('services[0].type must be one of')]);
 	});
 
-	it.each(['large-language-model', 'research-chat-model']) (
+	it.each(['large-language-model', 'research-chat-model'])(
 		'requires prompt attachment metadata for %s services',
 		(type) => {
 			const errors = validateProviderManifest({
@@ -121,17 +121,45 @@ describe('provider manifest validation', () => {
 	});
 
 	it.each([
-		['unsupported kind', { kind: 'archive', mimeTypes: ['application/zip'], extensions: ['.zip'] }, 'kind'],
+		[
+			'unsupported kind',
+			{ kind: 'archive', mimeTypes: ['application/zip'], extensions: ['.zip'] },
+			'kind',
+		],
 		['missing MIME array', { kind: 'image', extensions: ['.png'] }, 'mimeTypes'],
 		['empty MIME array', { kind: 'image', mimeTypes: [], extensions: ['.png'] }, 'mimeTypes'],
 		['invalid MIME', { kind: 'image', mimeTypes: ['image'], extensions: ['.png'] }, 'mimeTypes[0]'],
 		['missing extension array', { kind: 'image', mimeTypes: ['image/png'] }, 'extensions'],
-		['empty extension array', { kind: 'image', mimeTypes: ['image/png'], extensions: [] }, 'extensions'],
-		['uppercase extension', { kind: 'image', mimeTypes: ['image/png'], extensions: ['.PNG'] }, 'extensions[0]'],
-		['extension without dot', { kind: 'image', mimeTypes: ['image/png'], extensions: ['png'] }, 'extensions[0]'],
-		['zero file limit', { kind: 'image', mimeTypes: ['image/png'], extensions: ['.png'], maxFiles: 0 }, 'maxFiles'],
-		['fractional byte limit', { kind: 'image', mimeTypes: ['image/png'], extensions: ['.png'], maxBytes: 1.5 }, 'maxBytes'],
-		['negative total limit', { kind: 'image', mimeTypes: ['image/png'], extensions: ['.png'], maxTotalBytes: -1 }, 'maxTotalBytes'],
+		[
+			'empty extension array',
+			{ kind: 'image', mimeTypes: ['image/png'], extensions: [] },
+			'extensions',
+		],
+		[
+			'uppercase extension',
+			{ kind: 'image', mimeTypes: ['image/png'], extensions: ['.PNG'] },
+			'extensions[0]',
+		],
+		[
+			'extension without dot',
+			{ kind: 'image', mimeTypes: ['image/png'], extensions: ['png'] },
+			'extensions[0]',
+		],
+		[
+			'zero file limit',
+			{ kind: 'image', mimeTypes: ['image/png'], extensions: ['.png'], maxFiles: 0 },
+			'maxFiles',
+		],
+		[
+			'fractional byte limit',
+			{ kind: 'image', mimeTypes: ['image/png'], extensions: ['.png'], maxBytes: 1.5 },
+			'maxBytes',
+		],
+		[
+			'negative total limit',
+			{ kind: 'image', mimeTypes: ['image/png'], extensions: ['.png'], maxTotalBytes: -1 },
+			'maxTotalBytes',
+		],
 	])('rejects %s', (_label, rule, expectedPath) => {
 		const errors = validateProviderManifest({
 			providerId: 'acme',
@@ -155,9 +183,7 @@ describe('provider manifest validation', () => {
 		const manifests = readdirSync(providersDirectory, { withFileTypes: true })
 			.filter((entry) => entry.isDirectory())
 			.map((entry) =>
-				JSON.parse(
-					readFileSync(join(providersDirectory, entry.name, 'manifest.json'), 'utf8')
-				)
+				JSON.parse(readFileSync(join(providersDirectory, entry.name, 'manifest.json'), 'utf8'))
 			);
 		const promptModels = manifests.flatMap((manifest) => {
 			expect(validateProviderManifest(manifest)).toEqual([]);
