@@ -447,6 +447,7 @@ function PageContent(): ReactElement {
 	const [promptCapabilities, setPromptCapabilities] =
 		useState<AgentPromptInputCapabilities | null>();
 	const [planCommandActive, setPlanCommandActive] = useState(false);
+	const [goalCommandActive, setGoalCommandActive] = useState(false);
 	const [transcriptionErrorMessage, setTranscriptionErrorMessage] = useState<string | null>(null);
 	const [transcribingRecording, setTranscribingRecording] = useState(false);
 	const transcriptionRunRef = useRef(0);
@@ -457,8 +458,14 @@ function PageContent(): ReactElement {
 		visibleMessages.length === 0 && !agent.isLoading && !agent.historyLoading;
 	const showPromptSuggestions = showEmptyConversation && voiceMode === null;
 	const hasPromptText = agent.input.trim().length > 0;
+	const hasGoalObjective = agent.input.replace(/^\/goal\s*/i, '').trim().length > 0;
 	const hasAttachmentErrors = attachments.some((attachment) => Boolean(attachment.error));
-	const canSubmit = planCommandActive ? hasPromptText : hasPromptText || attachments.length > 0;
+	const canSubmit =
+		planCommandActive || goalCommandActive
+			? goalCommandActive
+				? hasGoalObjective
+				: hasPromptText
+			: hasPromptText || attachments.length > 0;
 	const dictationStatus = dictation.status;
 	const cancelDictationSession = dictation.cancel;
 	const recorderStatus = recorder.status;
@@ -580,7 +587,12 @@ function PageContent(): ReactElement {
 			await agent.handleSubmit();
 			return;
 		}
-		if ((planCommandActive && !hasPromptText) || hasAttachmentErrors) return;
+		if (
+			(planCommandActive && !hasPromptText) ||
+			(goalCommandActive && !hasGoalObjective) ||
+			hasAttachmentErrors
+		)
+			return;
 		const submittedFiles = attachments.map((attachment) => attachment.file);
 		clearAttachments();
 		await agent.handleSubmit(submittedFiles, planCommandActive ? 'plan' : undefined);
@@ -788,6 +800,7 @@ function PageContent(): ReactElement {
 								setPlanCommandActive(active);
 								agent.setInteractionMode(active ? 'plan' : 'default');
 							}}
+							onGoalCommandChange={setGoalCommandActive}
 							isLoading={agent.isLoading}
 							maxHeight={360}
 							onSubmit={() => void submitPrompt()}
