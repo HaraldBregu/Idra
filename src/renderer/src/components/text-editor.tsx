@@ -146,11 +146,9 @@ function TextEditor({
 	useEffect(() => {
 		if (!editor || editor.getMarkdown() === (value ?? '')) return;
 		let planCommandActive = false;
-		let goalCommandActive = false;
 		editor.state.doc.descendants((node) => {
 			if (node.type.name === PlanCommand.name) planCommandActive = true;
-			if (node.type.name === GoalCommand.name) goalCommandActive = true;
-			return !planCommandActive || !goalCommandActive;
+			return !planCommandActive;
 		});
 		const chain = editor.chain().setContent(value ?? '', {
 			emitUpdate: false,
@@ -159,12 +157,6 @@ function TextEditor({
 		if (planCommandActive) {
 			chain.insertContentAt(1, [
 				{ type: PlanCommand.name },
-				{ type: 'text', text: ' ' },
-			]);
-		}
-		if (goalCommandActive) {
-			chain.insertContentAt(1, [
-				{ type: GoalCommand.name },
 				{ type: 'text', text: ' ' },
 			]);
 		}
