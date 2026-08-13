@@ -65,6 +65,12 @@ jest.mock('@/components/audio-player', () => ({
 	AudioPlayer: () => <div />,
 }));
 
+jest.mock('@/components/ui/chat-container', () => ({
+	ChatContainerRoot: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+	ChatContainerContent: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+	ChatContainerScrollAnchor: () => <div />,
+}));
+
 jest.mock('@/components/prompt-editor', () => ({
 	PromptEditor: ({
 		value,
