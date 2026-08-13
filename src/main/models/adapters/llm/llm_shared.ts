@@ -95,9 +95,10 @@ function toUserContent(content: Message['content']): string | LlmUserContentBloc
 					base64: block.base64,
 				};
 			}
-			return undefined;
+			throw new Error(`Unsupported user content block: ${String(block.type)}.`);
 		})
 		.filter((block): block is LlmUserContentBlock => block !== undefined);
+	if (content.some((block) => block.type === 'text_file')) return blocks;
 	if (blocks.every((block) => block.type === 'text')) return toTextContent(content);
 	return blocks;
 }

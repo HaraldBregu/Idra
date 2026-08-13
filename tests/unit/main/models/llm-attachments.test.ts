@@ -2,6 +2,7 @@ import {
 	llmBuildAnthropicMessages,
 	llmBuildChatMessages,
 	llmBuildResponseInput,
+	llmToTranscriptEntry,
 } from '../../../../src/main/models/adapters/llm/llm_shared';
 import type { LlmTranscriptEntry } from '../../../../src/main/models/adapters/llm/llm_types';
 
@@ -97,5 +98,43 @@ describe('LLM attachment payload builders', () => {
 		expect(() => llmBuildChatMessages('', transcript(gif as typeof image))).toThrow(
 			'unsupported image MIME type image/gif'
 		);
+	});
+
+	it('keeps local text files as separate labeled user text blocks', () => {
+		expect(
+			llmToTranscriptEntry({
+				role: 'user',
+				content: [
+					{ type: 'text', text: 'Review this file.' },
+					{
+						type: 'text_file',
+						name: 'config.toml',
+						mimeType: 'text/plain',
+						bytes: 8,
+						text: 'enabled=true',
+					},
+				],
+			})
+		).toEqual([
+			{
+				role: 'user',
+				content: [
+					{ type: 'text', text: 'Review this file.' },
+					{
+						type: 'text',
+						text: '[Attached text file: config.toml; text/plain; 8 bytes]\nenabled=true',
+					},
+				],
+			},
+		]);
+	});
+
+	it('rejects unknown semantic blocks instead of silently dropping them', () => {
+		expect(() =>
+			llmToTranscriptEntry({
+				role: 'user',
+				content: [{ type: 'audio', mimeType: 'audio/mpeg', base64: 'YXVkaW8=' }],
+			})
+		).toThrow('Unsupported user content block: audio.');
 	});
 });
