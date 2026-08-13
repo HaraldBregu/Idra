@@ -32,6 +32,14 @@ describe('normalizeAgentInputFiles', () => {
 		).toThrow('at most');
 	});
 
+	it('rejects malformed attachment entries instead of silently dropping them', () => {
+		expect(() => normalizeAgentInputFiles('file')).toThrow('array');
+		expect(() => normalizeAgentInputFiles([{}])).toThrow('name, MIME type, and base64 data');
+		expect(() =>
+			normalizeAgentInputFiles([{ name: '', mimeType: 'text/plain', data: 'YQ==' }])
+		).toThrow('name, MIME type, and base64 data');
+	});
+
 	it('uses decoded bytes rather than encoded character count', () => {
 		const data = Buffer.alloc(AGENT_MAX_ATTACHMENT_BYTES).toString('base64');
 		expect(

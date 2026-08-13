@@ -51,19 +51,22 @@ export const AGENT_TEXT_ATTACHMENT_EXTENSIONS = [
 ] as const;
 
 export function normalizeAgentInputFiles(value: unknown): AgentInputFile[] | undefined {
-	if (!Array.isArray(value)) return undefined;
+	if (value === undefined) return undefined;
+	if (!Array.isArray(value)) throw new Error('Attachments must be an array.');
 	if (value.length > AGENT_MAX_ATTACHMENT_COUNT) {
 		throw new Error(`A maximum of ${AGENT_MAX_ATTACHMENT_COUNT} attachments is allowed.`);
 	}
 	const files: AgentInputFile[] = [];
 	let totalBytes = 0;
 	for (const item of value) {
-		if (!item || typeof item !== 'object') continue;
+		if (!item || typeof item !== 'object' || Array.isArray(item))
+			throw new Error('Each attachment must include a name, MIME type, and base64 data.');
 		const { name, mimeType, data } = item as Record<string, unknown>;
 		if (typeof name !== 'string' || typeof mimeType !== 'string' || typeof data !== 'string')
-			continue;
+			throw new Error('Each attachment must include a name, MIME type, and base64 data.');
 		const normalizedData = data.trim();
-		if (!mimeType.trim() || !normalizedData) continue;
+		if (!name || !mimeType.trim() || !normalizedData)
+			throw new Error('Each attachment must include a name, MIME type, and base64 data.');
 		if (
 			normalizedData.length > Math.ceil(AGENT_MAX_ATTACHMENT_BYTES / 3) * 4 ||
 			normalizedData.length % 4 === 1 ||
