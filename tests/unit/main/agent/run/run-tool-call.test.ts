@@ -137,6 +137,8 @@ describe('runToolCall', () => {
 		const request = (await events.next()).value;
 		expect(request).toMatchObject({ type: 'user_input_request', toolCallId: call.id });
 		if (!request || request.type !== 'user_input_request') throw new Error('Expected request');
+		const resultEvent = events.next();
+		await Promise.resolve();
 		expect(
 			respondUserInput(
 				{
@@ -149,7 +151,7 @@ describe('runToolCall', () => {
 				7
 			)
 		).toBe(true);
-		expect((await events.next()).value).toMatchObject({
+		expect((await resultEvent).value).toMatchObject({
 			type: 'user_input_result',
 			status: 'resolved',
 		});
