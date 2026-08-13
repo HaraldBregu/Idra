@@ -1,4 +1,4 @@
-import { filterPlanTools } from '../../../../../src/main/agent/runner/run_plan_tools';
+import { filterPlanTools } from '../../../../../src/main/agent/plan/tools';
 import { jsonTool } from '../../../../../src/main/agent/tools/tool';
 
 const candidate = (id: string, planSafe?: boolean) =>
