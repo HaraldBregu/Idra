@@ -39,6 +39,7 @@ export interface Tool {
 	readonly timeoutMs: number;
 	readonly maxOutputBytes: number;
 	readonly planSafe?: boolean;
+	readonly hardApproval?: boolean | ((input: Record<string, unknown>) => boolean);
 	parseInput(input: unknown): Record<string, unknown>;
 	run(input: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> | unknown;
 }
@@ -50,6 +51,7 @@ export type ToolConfig<T extends z.ZodType> = {
 	timeoutMs?: number;
 	maxOutputBytes?: number;
 	planSafe?: boolean;
+	hardApproval?: boolean | ((input: z.infer<T>) => boolean);
 	inputSchema: T;
 	execute: (input: z.infer<T>, signal?: AbortSignal) => Promise<unknown> | unknown;
 };
@@ -61,6 +63,7 @@ export type JsonToolConfig = {
 	timeoutMs?: number;
 	maxOutputBytes?: number;
 	planSafe?: boolean;
+	hardApproval?: boolean | ((input: Record<string, unknown>) => boolean);
 	parseInput?: (input: unknown) => Record<string, unknown>;
 	schema: JSONSchema;
 	execute: (input: Record<string, unknown>, signal?: AbortSignal) => Promise<unknown> | unknown;
