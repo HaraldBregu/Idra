@@ -19,6 +19,24 @@ export interface ModelContextBudgetResult {
 	estimatedTokens: number;
 }
 
+function contextBytes(value: unknown): number {
+	return Buffer.byteLength(
+		JSON.stringify(value, function (key, current: unknown) {
+			if (
+				key === 'base64' &&
+				typeof current === 'string' &&
+				this &&
+				typeof this === 'object' &&
+				['image', 'document', 'file'].includes(String((this as Record<string, unknown>).type))
+			) {
+				return `[binary attachment: ${Math.floor((current.length * 3) / 4)} bytes]`;
+			}
+			return current;
+		}),
+		'utf8'
+	);
+}
+
 export function fitModelContext(input: ModelContextBudgetInput): ModelContextBudgetResult {
 	const maxInputTokens = Math.max(256, Math.floor(input.maxInputTokens));
 	const toolView = input.tools.map((tool) => ({
@@ -32,14 +50,11 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 	const contextMessages = input.contextMessages ?? [];
 	const fullTokens =
 		Math.ceil(
-			Buffer.byteLength(
-				JSON.stringify({
+			contextBytes({
 					systemPrompt: combinedSystemPrompt,
 					messages: [...contextMessages, ...input.messages],
 					tools: toolView,
-				}),
-				'utf8'
-			) / CONTEXT_BYTES_PER_TOKEN
+				}) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
 	if (fullTokens <= maxInputTokens) {
 		return {
@@ -98,14 +113,11 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 	const protectedSystemPrompt = input.protectedSystemPrompt ?? '';
 	let mandatoryTokens =
 		Math.ceil(
-			Buffer.byteLength(
-				JSON.stringify({
+			contextBytes({
 					systemPrompt: [minimumSystem, protectedSystemPrompt].filter(Boolean).join('\n\n'),
 					messages: selectedMessages,
 					tools: toolView,
-				}),
-				'utf8'
-			) / CONTEXT_BYTES_PER_TOKEN
+				}) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
 	if (mandatoryTokens > maxInputTokens) {
 		throw new Error(
@@ -117,14 +129,11 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 
 	mandatoryTokens =
 		Math.ceil(
-			Buffer.byteLength(
-				JSON.stringify({
+			contextBytes({
 					systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
 					messages: selectedMessages,
 					tools: toolView,
-				}),
-				'utf8'
-			) / CONTEXT_BYTES_PER_TOKEN
+				}) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
 	if (mandatoryTokens > maxInputTokens) {
 		const marker = '\n\n[Additional system context omitted to fit the model context budget.]';
@@ -132,14 +141,11 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		systemPrompt = `${systemPrompt.slice(0, Math.max(minimumSystem.length, systemPrompt.length - excessCharacters - marker.length))}${marker}`;
 		while (
 			Math.ceil(
-				Buffer.byteLength(
-					JSON.stringify({
+				contextBytes({
 						systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
 						messages: selectedMessages,
 						tools: toolView,
-					}),
-					'utf8'
-				) / CONTEXT_BYTES_PER_TOKEN
+					}) / CONTEXT_BYTES_PER_TOKEN
 			) +
 				32 >
 			maxInputTokens
@@ -157,14 +163,11 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 	while (optionalContextMessages.length > 0) {
 		const candidateTokens =
 			Math.ceil(
-				Buffer.byteLength(
-					JSON.stringify({
+				contextBytes({
 						systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
 						messages: [...optionalContextMessages, ...selectedMessages],
 						tools: toolView,
-					}),
-					'utf8'
-				) / CONTEXT_BYTES_PER_TOKEN
+					}) / CONTEXT_BYTES_PER_TOKEN
 			) + 32;
 		if (candidateTokens <= maxInputTokens) break;
 		optionalContextMessages.pop();
@@ -180,14 +183,11 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		const candidateMessages = [...messages.slice(previousUserIndex, cursor), ...selectedMessages];
 		const candidateTokens =
 			Math.ceil(
-				Buffer.byteLength(
-					JSON.stringify({
+				contextBytes({
 						systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
 						messages: [...optionalContextMessages, ...candidateMessages],
 						tools: toolView,
-					}),
-					'utf8'
-				) / CONTEXT_BYTES_PER_TOKEN
+					}) / CONTEXT_BYTES_PER_TOKEN
 			) + 32;
 		if (candidateTokens > maxInputTokens) {
 			omittedPrior = true;
@@ -205,28 +205,22 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		const candidateMessages = [marker, ...selectedMessages];
 		const markerTokens =
 			Math.ceil(
-				Buffer.byteLength(
-					JSON.stringify({
+				contextBytes({
 						systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
 						messages: [...optionalContextMessages, ...candidateMessages],
 						tools: toolView,
-					}),
-					'utf8'
-				) / CONTEXT_BYTES_PER_TOKEN
+					}) / CONTEXT_BYTES_PER_TOKEN
 			) + 32;
 		if (markerTokens <= maxInputTokens) selectedMessages = candidateMessages;
 	}
 
 	const estimatedTokens =
 		Math.ceil(
-			Buffer.byteLength(
-				JSON.stringify({
+			contextBytes({
 					systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n'),
 					messages: [...optionalContextMessages, ...selectedMessages],
 					tools: toolView,
-				}),
-				'utf8'
-			) / CONTEXT_BYTES_PER_TOKEN
+				}) / CONTEXT_BYTES_PER_TOKEN
 		) + 32;
 	return {
 		systemPrompt: [systemPrompt, protectedSystemPrompt].filter(Boolean).join('\n\n') || undefined,

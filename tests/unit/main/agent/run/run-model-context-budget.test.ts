@@ -77,8 +77,8 @@ describe('fitModelContext', () => {
 		).toThrow('available tool schemas');
 	});
 
-	it('rejects an attachment payload in the latest turn when it cannot fit', () => {
-		expect(() => fitModelContext({
+	it('keeps binary attachment payloads without counting base64 as text context', () => {
+		const result = fitModelContext({
 			systemPrompt: 'System rules.',
 			messages: [
 				{
@@ -96,7 +96,11 @@ describe('fitModelContext', () => {
 			],
 			tools: [],
 			maxInputTokens: 700,
-		})).toThrow('current user turn');
+		});
+
+		expect(JSON.stringify(result.messages)).toContain('Inspect this attachment.');
+		expect(JSON.stringify(result.messages)).toContain('a'.repeat(100));
+		expect(result.estimatedTokens).toBeLessThanOrEqual(700);
 	});
 
 	it('fails instead of silently truncating oversized current text', () => {
