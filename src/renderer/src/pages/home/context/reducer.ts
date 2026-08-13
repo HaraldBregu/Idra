@@ -1,8 +1,4 @@
-import type {
-	AgentHistoryMessage,
-	AgentResponseEvent,
-	AgentToolCallStatus,
-} from '@/lib/compat';
+import type { AgentHistoryMessage, AgentResponseEvent, AgentToolCallStatus } from '@/lib/compat';
 import type { AgentChatAction } from './actions';
 import {
 	applyAgentResponseEventToTools,
@@ -19,7 +15,6 @@ import {
 	type UserMessage,
 } from './state';
 
-
 function isAgentMessage(message: HomeChatMessage): message is AgentMessage {
 	return message.role === 'agent' && message.type === 'agent';
 }
@@ -33,11 +28,7 @@ function createUserMessage(id: string, content: string): UserMessage {
 	};
 }
 
-function createAgentMessage(
-	id: string,
-	runId?: string,
-	startedAtMs?: number
-): AgentMessage {
+function createAgentMessage(id: string, runId?: string, startedAtMs?: number): AgentMessage {
 	return {
 		id,
 		role: 'agent',
@@ -141,18 +132,18 @@ function applyResponseEvent(
 			(message) => ({
 				...message,
 				runId: event.runId,
-					pendingPermission: {
-						approvalId: event.approvalId,
-						runId: event.runId,
-						toolCallId: event.toolCallId,
-						toolName: event.toolName,
+				pendingPermission: {
+					approvalId: event.approvalId,
+					runId: event.runId,
+					toolCallId: event.toolCallId,
+					toolName: event.toolName,
 					inputFingerprint: event.inputFingerprint,
-						input: event.input,
-						targets: event.targets,
-						reason: event.reason,
-						persistable: event.persistable,
-						allowOnce: event.allowOnce,
-						expiresAt: event.expiresAt,
+					input: event.input,
+					targets: event.targets,
+					reason: event.reason,
+					persistable: event.persistable,
+					allowOnce: event.allowOnce,
+					expiresAt: event.expiresAt,
 				},
 				startedAtMs: message.startedAtMs ?? receivedAtMs,
 			})
@@ -329,7 +320,10 @@ export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatM
 			const text = typeof message.content === 'string' ? message.content : '';
 			const attachmentLabels = (message.contentBlocks ?? [])
 				.filter((block) => block.type === 'attachment')
-				.map((block) => `[Attached ${block.kind}: ${block.name}; ${block.mimeType}; ${block.bytes} bytes]`);
+				.map(
+					(block) =>
+						`[Attached ${block.kind}: ${block.name}; ${block.mimeType}; ${block.bytes} bytes]`
+				);
 			const content = [text, ...attachmentLabels].filter(Boolean).join('\n');
 			if (content.length > 0) out.push(createUserMessage(`user-history-${index}`, content));
 			return;
@@ -387,11 +381,7 @@ export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatM
 	});
 }
 
-
-export function agentChatReducer(
-	state: AgentChatState,
-	action: AgentChatAction
-): AgentChatState {
+export function agentChatReducer(state: AgentChatState, action: AgentChatAction): AgentChatState {
 	switch (action.type) {
 		case 'submit_user_message': {
 			const userMessage = createUserMessage(action.userMessageId, action.content);
@@ -448,11 +438,7 @@ export function agentChatReducer(
 			if (!current) {
 				if (action.response.trim().length === 0) return state;
 				const message: AgentMessage = {
-					...createAgentMessage(
-						`agent-completed-${Date.now()}`,
-						undefined,
-						action.completedAtMs
-					),
+					...createAgentMessage(`agent-completed-${Date.now()}`, undefined, action.completedAtMs),
 					content: action.response,
 					state: 'completed',
 					completedAtMs: action.completedAtMs,
@@ -464,9 +450,7 @@ export function agentChatReducer(
 				...message,
 				content: message.content.trim().length > 0 ? message.content : action.response,
 				state:
-					message.state === 'error' || message.state === 'cancelled'
-						? message.state
-						: 'completed',
+					message.state === 'error' || message.state === 'cancelled' ? message.state : 'completed',
 				pendingPermission: undefined,
 				pendingUserInput: undefined,
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
@@ -500,11 +484,7 @@ export function agentChatReducer(
 			const current = activeAgent(state);
 			if (!current) {
 				const message: AgentMessage = {
-					...createAgentMessage(
-						`agent-error-${Date.now()}`,
-						undefined,
-						action.completedAtMs
-					),
+					...createAgentMessage(`agent-error-${Date.now()}`, undefined, action.completedAtMs),
 					content: action.errorText,
 					state: 'error',
 					errorText: action.errorText,
