@@ -12,7 +12,6 @@ import {
 	tryAppendRun,
 	updateUserMessageBySessionId,
 	type SessionResult,
-	persist,
 } from './session';
 import { stream } from './runner/run_stream';
 import { agentLocation } from '../shared/agent_location';
