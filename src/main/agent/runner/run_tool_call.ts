@@ -24,6 +24,7 @@ import type {
 	AgentUserInputQuestion,
 } from '../../../shared/agent_types';
 import { waitForUserInput } from '../user_input/user_input_pending';
+import path from 'node:path';
 import { resolveExecRoots } from '../permissions/resolve_exec_roots';
 import { isPlanExecInputSafe } from './plan_exec_input';
 
@@ -89,8 +90,8 @@ export async function* runToolCall(
 		toolCall.name === 'exec_command' &&
 		(!isPlanExecInputSafe(canonicalInput, agentLocation()) ||
 			resolveExecRoots(canonicalInput, agentLocation()).some((root) => {
-				const relative = require('node:path').relative(agentLocation(), root);
-				return relative.startsWith('..') || require('node:path').isAbsolute(relative);
+				const relative = path.relative(agentLocation(), root);
+				return relative.startsWith('..') || path.isAbsolute(relative);
 			}))
 	) {
 		output = "Error: command input is unavailable in Plan mode";
