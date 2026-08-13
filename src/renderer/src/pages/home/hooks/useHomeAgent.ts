@@ -169,7 +169,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 					dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
 				};
 				response = await agent.send(trimmed, runtimeOptions, onEvent);
-				if (requestIdRef.current !== requestId) return;
+				if (requestIdRef.current !== requestId) return false;
 				activeRunIdRef.current = undefined;
 				requestActiveRef.current = false;
 				setIsLoading(false);
