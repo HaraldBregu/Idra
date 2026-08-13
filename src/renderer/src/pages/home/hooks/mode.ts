@@ -26,21 +26,16 @@ function writeModes(modes: Record<string, AgentInteractionMode>): void {
 }
 
 export function useInteractionMode(sessionId: string) {
-	const [interactionMode, setInteractionModeState] = useState<AgentInteractionMode>(
-		() => readModes()[sessionId] ?? 'default'
-	);
-	const [activeSessionId, setActiveSessionId] = useState(sessionId);
-	if (activeSessionId !== sessionId) {
-		setActiveSessionId(sessionId);
-		setInteractionModeState(readModes()[sessionId] ?? 'default');
-	}
+	const [modes, setModes] = useState<Record<string, AgentInteractionMode>>(readModes);
+	const interactionMode = modes[sessionId] ?? 'default';
 
 	const setInteractionMode = useCallback(
 		(mode: AgentInteractionMode): void => {
-			const modes = readModes();
-			modes[sessionId] = mode;
-			writeModes(modes);
-			setInteractionModeState(mode);
+			setModes((current) => {
+				const next = { ...current, [sessionId]: mode };
+				writeModes(next);
+				return next;
+			});
 		},
 		[sessionId]
 	);
@@ -48,11 +43,14 @@ export function useInteractionMode(sessionId: string) {
 	const migrateInteractionMode = useCallback(
 		(resolvedSessionId: string): void => {
 			if (resolvedSessionId === sessionId) return;
-			const modes = readModes();
-			const mode = modes[sessionId] ?? interactionMode;
-			delete modes[sessionId];
-			modes[resolvedSessionId] = mode;
-			writeModes(modes);
+			setModes((current) => {
+				const next = { ...current };
+				const mode = next[sessionId] ?? interactionMode;
+				delete next[sessionId];
+				next[resolvedSessionId] = mode;
+				writeModes(next);
+				return next;
+			});
 		},
 		[interactionMode, sessionId]
 	);
