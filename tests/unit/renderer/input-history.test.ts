@@ -34,3 +34,27 @@ it('restores an unresolved structured input call as interrupted', () => {
 		output: { status: 'interrupted', answers: [] },
 	});
 });
+
+it('restores attachment-only user turns from metadata without payload data', () => {
+	const history: AgentHistoryMessage[] = [
+		{
+			role: 'user',
+			content: '',
+			contentBlocks: [
+				{
+					type: 'attachment',
+					kind: 'document',
+					name: 'brief.pdf',
+					mimeType: 'application/pdf',
+					bytes: 1234,
+				},
+			],
+		},
+	];
+	const message = historyToChatMessages(history)[0];
+	expect(message).toMatchObject({
+		role: 'user',
+		content: '[Attached document: brief.pdf; application/pdf; 1234 bytes]',
+	});
+	expect(JSON.stringify(message)).not.toContain('base64');
+});

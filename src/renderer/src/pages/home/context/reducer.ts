@@ -326,7 +326,11 @@ export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatM
 		}
 
 		if (message.role === 'user') {
-			const content = typeof message.content === 'string' ? message.content : '';
+			const text = typeof message.content === 'string' ? message.content : '';
+			const attachmentLabels = (message.contentBlocks ?? [])
+				.filter((block) => block.type === 'attachment')
+				.map((block) => `[Attached ${block.kind}: ${block.name}; ${block.mimeType}; ${block.bytes} bytes]`);
+			const content = [text, ...attachmentLabels].filter(Boolean).join('\n');
 			if (content.length > 0) out.push(createUserMessage(`user-history-${index}`, content));
 			return;
 		}
