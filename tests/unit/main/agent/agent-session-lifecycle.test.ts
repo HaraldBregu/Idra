@@ -69,7 +69,11 @@ jest.mock('../../../../src/main/agent/session', () => {
 			order.push('delete');
 			deleteSession(...args);
 		},
-		init: (state: { id: string }, _config: unknown, input: { sessionId: string; runId: string }) => {
+		init: (
+			state: { id: string },
+			_config: unknown,
+			input: { sessionId: string; runId: string }
+		) => {
 			state.id = input.sessionId;
 			order.push(`init:${input.runId}`);
 		},
@@ -123,10 +127,7 @@ beforeEach(() => {
 });
 
 it('rejects invalid current-turn attachments before session initialization', async () => {
-	const agent = new Agent(
-		{} as WindowFactory,
-		{ reset: jest.fn() } as unknown as ExecSandbox
-	);
+	const agent = new Agent({} as WindowFactory, { reset: jest.fn() } as unknown as ExecSandbox);
 	await expect(
 		agent.send('inspect', 'main', {
 			type: 'default',
@@ -151,10 +152,7 @@ it.each([
 ] as const)(
 	'enqueues %s before a replacement send while the cancelled run settles',
 	async (method, mutate, mutationEvent) => {
-		const agent = new Agent(
-			{} as WindowFactory,
-			{ reset: jest.fn() } as unknown as ExecSandbox
-		);
+		const agent = new Agent({} as WindowFactory, { reset: jest.fn() } as unknown as ExecSandbox);
 		const old = controlRun('old');
 		const oldResponse = agent.send('old', 'health', {
 			type: 'background',
@@ -196,10 +194,7 @@ it.each([
 );
 
 it('cancels queued same-session work before clear and keeps the replacement behind maintenance', async () => {
-	const agent = new Agent(
-		{} as WindowFactory,
-		{ reset: jest.fn() } as unknown as ExecSandbox
-	);
+	const agent = new Agent({} as WindowFactory, { reset: jest.fn() } as unknown as ExecSandbox);
 	const running = controlRun('running');
 	controlRun('queued');
 	const runningResponse = agent.send('running', 'main', {
