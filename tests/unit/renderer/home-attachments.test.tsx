@@ -73,6 +73,12 @@ jest.mock('@/components/ui/chat-container', () => ({
 	ChatContainerScrollAnchor: () => <div />,
 }));
 
+jest.mock('@/components/ui/prompt-input', () => ({
+	PromptInputAction: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+	PromptInputActions: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+	usePromptInput: () => ({ triggerFileUpload: jest.fn() }),
+}));
+
 jest.mock('@/components/prompt-editor', () => ({
 	PromptEditor: ({
 		value,
