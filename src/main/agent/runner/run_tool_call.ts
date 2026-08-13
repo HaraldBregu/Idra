@@ -25,6 +25,9 @@ import type {
 } from '../../../shared/agent_types';
 import { waitForUserInput } from '../user_input/user_input_pending';
 import { planCommandError } from '../plan/command';
+import { toolPermissionTargets } from '../permissions/tool_permission_targets';
+import { captureFiles } from '../history/capture';
+import { recordFileOperation } from '../history/record';
 
 export interface ToolCallSecurityContext {
 	runId: string;
@@ -234,6 +237,10 @@ export async function* runToolCall(
 						abort = () => reject(toolSignal.reason ?? new Error('Tool call aborted.'));
 						toolSignal.addEventListener('abort', abort, { once: true });
 					});
+					const historyTargets = ['write_file', 'edit_file', 'apply_patch'].includes(toolCall.name)
+						? toolPermissionTargets(toolCall.name, canonicalInput, agentLocation())
+						: [];
+					const before = historyTargets.length > 0 ? captureFiles(historyTargets) : [];
 					const run = (): Promise<unknown> => Promise.resolve(tool.run(canonicalInput, toolSignal));
 					const approvedRoots = permissionOutcome === 'approve' && toolCall.name === 'exec_command'
 						? resolution.approvalTargets
@@ -242,6 +249,15 @@ export async function* runToolCall(
 						approvedExecRoots.run(approvedRoots, run),
 						aborted,
 					]);
+					if (historyTargets.length > 0) {
+						recordFileOperation(
+							security.runId,
+							toolCall.id,
+							toolCall.name,
+							before,
+							captureFiles(historyTargets)
+						);
+					}
 					output = limitToolOutput(output, tool.maxOutputBytes);
 					if (toolCall.name === 'read_file' && state) rememberTool(context, state);
 					if (createsFile && state) rememberTool(context, state);
