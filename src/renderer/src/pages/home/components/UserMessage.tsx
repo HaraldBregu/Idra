@@ -126,28 +126,36 @@ export function UserMessage({
 						</div>
 					</form>
 				) : (
-					<Markdown
-						className={cn(
-							'min-w-0 w-fit max-w-full break-words rounded-xl bg-primary px-5 py-3 text-sm font-medium leading-relaxed text-primary-foreground [overflow-wrap:anywhere] selection:bg-primary-foreground selection:text-primary',
-							canToggleContent && !isContentExpanded && 'max-h-40 overflow-hidden'
-						)}
-						components={userMarkdownComponents}
+					<div
+						data-slot="user-message-content"
+						className="relative min-w-0 w-fit max-w-full overflow-hidden rounded-xl bg-primary"
 					>
-						{content}
-					</Markdown>
+						<Markdown
+							className={cn(
+								'min-w-0 max-w-full break-words px-5 py-3 text-sm font-medium leading-relaxed text-primary-foreground [overflow-wrap:anywhere] selection:bg-primary-foreground selection:text-primary',
+								canToggleContent && 'pb-10',
+								canToggleContent && !isContentExpanded && 'max-h-40 overflow-hidden'
+							)}
+							components={userMarkdownComponents}
+						>
+							{content}
+						</Markdown>
+						{canToggleContent ? (
+							<div className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-primary via-primary to-transparent pb-1 pt-5">
+								<Button
+									type="button"
+									variant="ghost"
+									size="xs"
+									className="text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+									aria-expanded={isContentExpanded}
+									onClick={() => setIsContentExpanded((expanded) => !expanded)}
+								>
+									{isContentExpanded ? 'Less' : 'More'}
+								</Button>
+							</div>
+						) : null}
+					</div>
 				)}
-				{canToggleContent && !isEditing ? (
-					<Button
-						type="button"
-						variant="ghost"
-						size="xs"
-						className="self-center text-muted-foreground hover:text-foreground"
-						aria-expanded={isContentExpanded}
-						onClick={() => setIsContentExpanded((expanded) => !expanded)}
-					>
-						{isContentExpanded ? 'Less' : 'More'}
-					</Button>
-				) : null}
 				{!isEditing ? (
 					<MessageActions className="gap-1">
 						<Button
