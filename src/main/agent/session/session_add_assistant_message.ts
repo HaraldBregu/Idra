@@ -1,6 +1,7 @@
 import type { MessageContentBlock, ToolCall } from '../types';
 import { persist } from './session_persist';
 import type { SessionState, SessionUsage } from './session_types';
+import { hasAssistantPayload } from './session_has_assistant_payload';
 
 export function addAssistantMessage(
 	state: SessionState,
@@ -9,6 +10,7 @@ export function addAssistantMessage(
 	providerItems: MessageContentBlock[] = [],
 	usage?: SessionUsage
 ): void {
+	if (!hasAssistantPayload(content, toolCalls)) return;
 	const contentBlocks: MessageContentBlock[] = [...providerItems];
 	if (content || contentBlocks.length === 0) {
 		contentBlocks.push({ type: 'text', text: content });

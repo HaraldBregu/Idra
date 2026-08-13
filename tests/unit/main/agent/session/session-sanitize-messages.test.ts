@@ -5,6 +5,30 @@ import {
 import type { Message } from '../../../../../src/main/agent/types';
 
 describe('sanitizeMessages', () => {
+	it('removes interrupted empty assistant turns while preserving valid text and tool calls', () => {
+		const toolCall = {
+			id: 'tool',
+			name: 'read_file',
+			args: { path: 'README.md' },
+		};
+		const messages: Message[] = [
+			{ role: 'user', content: 'first request' },
+			{ role: 'assistant', content: '' },
+			{ role: 'assistant', content: [{ type: 'text', text: '' }] },
+			{ role: 'assistant', content: [{ type: 'provider_item', provider: 'openai', item: {} }] },
+			{ role: 'assistant', content: 'partial answer' },
+			{ role: 'assistant', content: '', toolCalls: [toolCall] },
+			{ role: 'user', content: 'second request' },
+		];
+
+		expect(sanitizeMessages(messages)).toEqual([
+			messages[0],
+			messages[4],
+			messages[5],
+			messages[6],
+		]);
+	});
+
 	it('removes prior skill instructions without changing other tool results', () => {
 		const messages: Message[] = [
 			{ role: 'user', content: 'load a skill' },
