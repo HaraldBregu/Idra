@@ -27,7 +27,14 @@ export function preflightPromptAttachments(
 	let textTotal = 0;
 	const ruleCounts = new Map<PromptAttachmentRule, { files: number; bytes: number }>();
 	return files.map((file) => {
-		if (!file.name || file.name !== path.basename(file.name) || /[\\/\u0000-\u001f\u007f]/.test(file.name))
+		if (
+			!file.name ||
+			file.name !== path.basename(file.name) ||
+			file.name.split('').some((character) => {
+				const code = character.charCodeAt(0);
+				return character === '/' || character === '\\' || code < 0x20 || code === 0x7f;
+			})
+		)
 			throw new Error(`Attachment "${file.name || 'unnamed'}" must use a safe basename.`);
 		const extension = path.extname(file.name).toLowerCase();
 		const data = file.data.trim();
