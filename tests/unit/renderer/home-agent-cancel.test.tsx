@@ -39,7 +39,9 @@ it('generates the run id before send and reuses it for Stop', async () => {
 		return (
 			<>
 				<textarea value={agent.input} onChange={(event) => agent.setInput(event.target.value)} />
-				<button onClick={() => agent.handleSubmit()}>{agent.isLoading ? 'Stop' : 'Send'}</button>
+				<button onClick={() => agent.handleSubmit(undefined, 'plan')}>
+					{agent.isLoading ? 'Stop' : 'Send'}
+				</button>
 			</>
 		);
 	}
@@ -52,7 +54,11 @@ it('generates the run id before send and reuses it for Stop', async () => {
 	fireEvent.change(screen.getByRole('textbox'), { target: { value: 'hello' } });
 	fireEvent.click(screen.getByRole('button', { name: 'Send' }));
 	await waitFor(() => expect(send).toHaveBeenCalled());
-	expect(send.mock.calls[0][1]).toMatchObject({ runId, sessionId: 'home' });
+	expect(send.mock.calls[0][1]).toMatchObject({
+		runId,
+		sessionId: 'home',
+		interactionMode: 'plan',
+	});
 
 	fireEvent.click(screen.getByRole('button', { name: 'Stop' }));
 	await waitFor(() => expect(cancel).toHaveBeenCalledWith(runId));

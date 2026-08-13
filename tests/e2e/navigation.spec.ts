@@ -84,17 +84,14 @@ test('the platform shortcut creates a new chat session', async () => {
 	await expect(page.getByRole('textbox', { name: 'Message Friday' })).toBeFocused();
 });
 
-test('Plan mode is keyboard accessible and scoped to the conversation', async () => {
+test('the leading /plan command activates Plan mode and requires prompt text', async () => {
 	await page.evaluate(() => {
 		window.location.hash = '#/home';
 	});
-	const selector = page.getByRole('combobox', { name: 'Interaction mode' });
-	await expect(selector).toContainText('Default');
-	await selector.focus();
-	await page.keyboard.press('Enter');
-	await page.keyboard.press('ArrowDown');
-	await page.keyboard.press('Enter');
-	await expect(selector).toContainText('Plan');
+	const editor = page.getByRole('textbox', { name: 'Message Friday' });
+	await editor.pressSequentially('/plan');
+	await expect(editor.locator('[data-plan-command]')).toHaveText('Plan');
+	await expect(page.getByRole('button', { name: 'Send message' })).toBeDisabled();
 
 	const selectedSession = await page.evaluate(() => localStorage.getItem('chat-session-id'));
 	expect(selectedSession).toBeTruthy();
@@ -106,9 +103,8 @@ test('Plan mode is keyboard accessible and scoped to the conversation', async ()
 			}, selectedSession)
 		)
 		.toBe('plan');
-
-	await page.keyboard.press(process.platform === 'darwin' ? 'Meta+n' : 'Control+n');
-	await expect(selector).toContainText('Default');
+	await editor.pressSequentially('Inspect the current workspace');
+	await expect(page.getByRole('button', { name: 'Send message' })).toBeEnabled();
 });
 
 test('wiki settings renders the complete configuration workflow', async ({}, testInfo) => {
