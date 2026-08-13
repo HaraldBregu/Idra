@@ -3,6 +3,52 @@ import type { AgentInputFile } from './agent_types';
 export const AGENT_MAX_ATTACHMENT_COUNT = 10;
 export const AGENT_MAX_ATTACHMENT_BYTES = 20 * 1024 * 1024;
 export const AGENT_MAX_ATTACHMENT_TOTAL_BYTES = 50 * 1024 * 1024;
+export const AGENT_MAX_TEXT_ATTACHMENT_BYTES = 120_000;
+export const AGENT_MAX_TEXT_ATTACHMENT_TOTAL_BYTES = 500_000;
+
+export const AGENT_TEXT_ATTACHMENT_EXTENSIONS = [
+	'.txt',
+	'.md',
+	'.markdown',
+	'.csv',
+	'.json',
+	'.jsonl',
+	'.log',
+	'.yaml',
+	'.yml',
+	'.toml',
+	'.xml',
+	'.js',
+	'.jsx',
+	'.mjs',
+	'.cjs',
+	'.ts',
+	'.tsx',
+	'.py',
+	'.java',
+	'.kt',
+	'.go',
+	'.rs',
+	'.c',
+	'.h',
+	'.cpp',
+	'.hpp',
+	'.cs',
+	'.php',
+	'.rb',
+	'.swift',
+	'.sh',
+	'.bash',
+	'.zsh',
+	'.fish',
+	'.ps1',
+	'.sql',
+	'.html',
+	'.css',
+	'.scss',
+	'.vue',
+	'.svelte',
+] as const;
 
 export function normalizeAgentInputFiles(value: unknown): AgentInputFile[] | undefined {
 	if (!Array.isArray(value)) return undefined;

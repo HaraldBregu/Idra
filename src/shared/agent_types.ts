@@ -89,6 +89,20 @@ export interface AgentInputFile {
 	data: string;
 }
 
+export interface AgentPromptInputLimits {
+	maxFiles: number;
+	maxBinaryBytes: number;
+	maxBinaryTotalBytes: number;
+	maxTextBytes: number;
+	maxTextTotalBytes: number;
+}
+
+export interface AgentPromptInputCapabilities {
+	rules: import('./model_types').PromptAttachmentRule[];
+	accept: string;
+	limits: AgentPromptInputLimits;
+}
+
 export interface AgentRunOptions {
 	runId?: string;
 	sessionId?: string;
@@ -126,6 +140,13 @@ export type AgentHistoryContentBlock =
 			toolUseId: string;
 			toolName: string;
 			toolArgs?: unknown;
+	  }
+	| {
+			type: 'attachment';
+			kind: 'text' | 'image' | 'document';
+			name: string;
+			mimeType: string;
+			bytes: number;
 	  };
 
 export interface AgentHistoryMessage {
