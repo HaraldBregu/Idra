@@ -189,7 +189,11 @@ export class Agent {
 		let result: SessionResult | undefined;
 		try {
 			if (controller.signal.aborted) return { text: '', stopReason: 'cancelled' };
-			const parsedSkillCommand = parseSkillCommand(request.message);
+			const parsedGoalCommand =
+				request.category === 'main' ? parseGoalCommand(request.message) : undefined;
+			const parsedSkillCommand = parseSkillCommand(
+				parsedGoalCommand?.action === 'create' ? parsedGoalCommand.objective : request.message
+			);
 			const providerId = options.providerId;
 			const modelId = options.model ?? options.modelId;
 			const promptCapabilities = resolvePromptInputCapabilities(providerId, modelId);
@@ -241,10 +245,12 @@ export class Agent {
 						};
 
 			init(session, this.config, input, request.category);
-			const goalCommand = request.category === 'main' ? parseGoalCommand(request.message) : undefined;
-			if (goalCommand) {
-				const reply = applyGoalCommand(sessionDir(session), goalCommand);
-				addAssistantMessage(session, reply, []);
+			if (parsedGoalCommand) {
+				const reply = applyGoalCommand(sessionDir(session), parsedGoalCommand);
+				if (parsedGoalCommand.action === 'create') {
+					response = reply;
+				} else {
+					addAssistantMessage(session, reply, []);
 				options.streamEvent?.({ type: 'text_delta', delta: reply, agentId: request.agentId, runId: request.id });
 				options.streamEvent?.({
 					type: 'run_finished',
@@ -253,7 +259,8 @@ export class Agent {
 					agentId: request.agentId,
 					runId: request.id,
 				});
-				return { text: reply, stopReason: 'end_turn' };
+					return { text: reply, stopReason: 'end_turn' };
+				}
 			}
 			tryAppendRun(session, {
 				type: 'run_queue_metrics',
