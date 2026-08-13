@@ -146,7 +146,7 @@ export function UserMessage({
 									type="button"
 									variant="ghost"
 									size="xs"
-									className="text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+									className="text-primary-foreground/70 hover:bg-transparent hover:text-primary-foreground"
 									aria-expanded={isContentExpanded}
 									onClick={() => setIsContentExpanded((expanded) => !expanded)}
 								>
