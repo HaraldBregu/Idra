@@ -136,9 +136,13 @@ export class Agent {
 		const category = AGENT_CATEGORIES[normalizedAgentId] ?? 'main';
 		const sessionId = resolveSessionId(options.sessionId, this.config.location, category);
 		const runId = options.runId ?? randomUUID();
+		const pinnedProviderId = options.providerId?.trim() || getProviderId();
+		const pinnedModelId = (options.model ?? options.modelId)?.trim() || getModelId();
 		const commandOptions: InternalAgentSendOptions = {
 			...options,
 			sessionId,
+			...(pinnedProviderId ? { providerId: pinnedProviderId } : {}),
+			...(pinnedModelId ? { model: pinnedModelId, modelId: pinnedModelId } : {}),
 			...(options.sessionId && options.sessionId !== sessionId
 				? { legacySessionId: options.sessionId }
 				: {}),
@@ -184,8 +188,8 @@ export class Agent {
 		try {
 			if (controller.signal.aborted) return { text: '', stopReason: 'cancelled' };
 			const parsedSkillCommand = parseSkillCommand(request.message);
-			const providerId = options.providerId?.trim() || getProviderId();
-			const modelId = (options.model ?? options.modelId)?.trim() || getModelId();
+			const providerId = options.providerId;
+			const modelId = options.model ?? options.modelId;
 			const promptCapabilities = resolvePromptInputCapabilities(providerId, modelId);
 			const files = options.files?.length
 				? promptCapabilities
