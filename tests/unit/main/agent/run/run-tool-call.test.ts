@@ -156,6 +156,7 @@ describe('runToolCall', () => {
 			status: 'resolved',
 		});
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_end', isError: false });
+		await events.next();
 		expect(call.result).toMatchObject({ isError: false });
 	});
 });
