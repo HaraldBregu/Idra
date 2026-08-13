@@ -9,16 +9,19 @@ import { TextEditor } from './text-editor';
 export type PromptEditorProps = Omit<PromptInputProps, 'children'> & {
 	readonly placeholder?: string;
 	readonly ariaLabel?: string;
+	readonly onPlanCommandChange?: (active: boolean) => void;
 };
 
 function PromptEditorArea({
 	placeholder,
 	ariaLabel,
 	onVisualLineChange,
+	onPlanCommandChange,
 }: {
 	readonly placeholder?: string;
 	readonly ariaLabel?: string;
 	readonly onVisualLineChange: (hasMultipleLines: boolean) => void;
+	readonly onPlanCommandChange?: (active: boolean) => void;
 }): ReactElement {
 	const { value, setValue, onSubmit, disabled, textareaRef } = usePromptInput();
 
@@ -31,6 +34,7 @@ function PromptEditorArea({
 			placeholder={placeholder}
 			ariaLabel={ariaLabel}
 			onVisualLineChange={onVisualLineChange}
+			onPlanCommandChange={onPlanCommandChange}
 			onEditorReady={(editor) => {
 				// ponytail: PromptInput uses this ref to focus the editor and locate its container
 				textareaRef.current = editor.view.dom as unknown as HTMLTextAreaElement;
@@ -43,6 +47,7 @@ function PromptEditorArea({
 function PromptEditor({
 	placeholder,
 	ariaLabel,
+	onPlanCommandChange,
 	expanded,
 	value,
 	...props
@@ -59,6 +64,7 @@ function PromptEditor({
 				placeholder={placeholder}
 				ariaLabel={ariaLabel}
 				onVisualLineChange={setHasMultipleVisualLines}
+				onPlanCommandChange={onPlanCommandChange}
 			/>
 		</PromptInput>
 	);
