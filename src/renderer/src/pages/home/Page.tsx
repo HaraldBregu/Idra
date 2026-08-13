@@ -251,9 +251,7 @@ function AttachmentTray({
 								</div>
 							}
 						/>
-						<TooltipContent side="top">
-							{attachment.error ?? attachment.file.name}
-						</TooltipContent>
+						<TooltipContent side="top">{attachment.error ?? attachment.file.name}</TooltipContent>
 					</Tooltip>
 				);
 			})}
@@ -794,7 +792,7 @@ function PageContent(): ReactElement {
 							}}
 							isLoading={agent.isLoading}
 							maxHeight={360}
-								onSubmit={() => void submitPrompt()}
+							onSubmit={() => void submitPrompt()}
 							textareaRef={agent.inputRef}
 							header={
 								attachments.length > 0 ? (
@@ -844,16 +842,16 @@ function PageContent(): ReactElement {
 							onVoiceEnd={() => void endVoiceConversation()}
 							onVoiceCancel={() => void cancelDictation()}
 							onVoiceConfirm={() => void confirmDictation()}
-								filesAccept={promptCapabilities?.accept}
-								onFilesChange={(files) => {
-									if (!promptCapabilities) return;
-									setAttachments((current) =>
-										validatePromptAttachments(
-											[...current, ...filesToAttachments(files)],
-											promptCapabilities
-										)
-									);
-								}}
+							filesAccept={promptCapabilities?.accept}
+							onFilesChange={(files) => {
+								if (!promptCapabilities) return;
+								setAttachments((current) =>
+									validatePromptAttachments(
+										[...current, ...filesToAttachments(files)],
+										promptCapabilities
+									)
+								);
+							}}
 							wrapperClassName="max-w-none"
 							className={cn('w-full', planCommandActive && 'plan-prompt-frame')}
 							footerClassName="-mx-1.5 -mb-1.5"

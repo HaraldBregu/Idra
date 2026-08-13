@@ -127,7 +127,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 			if (!sendOptions.preserveInput) setInput('');
 			setIsLoading(true);
-					dispatchChat({
+			dispatchChat({
 				type: 'submit_user_message',
 				userMessageId: messageId('user'),
 				agentMessageId: messageId('agent'),
@@ -144,13 +144,13 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 					type: 'error_active',
 					errorText: 'Agent API is unavailable.',
 					completedAtMs: Date.now(),
-					});
-					return false;
-				}
+				});
+				return false;
+			}
 
 			try {
 				const inputFiles = files.length > 0 ? await filesToAgentInput(files) : [];
-					if (requestIdRef.current !== requestId) return false;
+				if (requestIdRef.current !== requestId) return false;
 				const runtimeOptions = {
 					...runtimeOptionsForPrompt(trimmed),
 					runId,
@@ -173,16 +173,16 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				activeRunIdRef.current = undefined;
 				requestActiveRef.current = false;
 				setIsLoading(false);
-					dispatchChat({ type: 'complete_active', response, completedAtMs: Date.now() });
-					return true;
-				} catch (error) {
-					if (requestIdRef.current !== requestId) return false;
+				dispatchChat({ type: 'complete_active', response, completedAtMs: Date.now() });
+				return true;
+			} catch (error) {
+				if (requestIdRef.current !== requestId) return false;
 				activeRunIdRef.current = undefined;
 				requestActiveRef.current = false;
 				setIsLoading(false);
 				const message = error instanceof Error ? error.message : 'Agent request failed.';
-					dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
-					return false;
+				dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
+				return false;
 			} finally {
 				const resolved = resolvedSessionRef.current;
 				if (resolved?.requestId === requestId) {
@@ -290,14 +290,20 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 			cancelled = true;
 			resolvedSessionRef.current = undefined;
 			const runId = activeRunIdRef.current;
-			if (runId) void getAgentApi()?.cancel(runId).catch(() => undefined);
+			if (runId)
+				void getAgentApi()
+					?.cancel(runId)
+					.catch(() => undefined);
 		};
 	}, [dispatchChat, sessionId]);
 
 	useEffect(() => {
 		return () => {
 			const runId = activeRunIdRef.current;
-			if (runId) void getAgentApi()?.cancel(runId).catch(() => undefined);
+			if (runId)
+				void getAgentApi()
+					?.cancel(runId)
+					.catch(() => undefined);
 			requestIdRef.current += 1;
 			resolvedSessionRef.current = undefined;
 			requestActiveRef.current = false;
