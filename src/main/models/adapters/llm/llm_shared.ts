@@ -17,6 +17,10 @@ import type {
 
 type ReasoningContentBlock = Extract<LlmContentBlock, { type: 'reasoning' }>;
 
+const SUPPORTED_IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+
+export type LlmChatContentProfile = 'image-only' | 'reka';
+
 export function llmToTranscriptEntry(message: Message): LlmTranscriptEntry[] {
 	if (message.role === 'assistant') {
 		if (!hasAssistantPayload(message.content, message.toolCalls)) return [];
@@ -56,18 +60,38 @@ function toUserContent(content: Message['content']): string | LlmUserContentBloc
 		.map((block): LlmUserContentBlock | undefined => {
 			if (block.type === 'text' && typeof block.text === 'string')
 				return { type: 'text', text: block.text };
+			if (
+				block.type === 'text_file' &&
+				typeof block.name === 'string' &&
+				typeof block.mimeType === 'string' &&
+				typeof block.bytes === 'number' &&
+				typeof block.text === 'string'
+			) {
+				return {
+					type: 'text',
+					text: `[Attached text file: ${block.name}; ${block.mimeType}; ${block.bytes} bytes]\n${block.text}`,
+				};
+			}
 			if (block.type === 'image' && typeof block.base64 === 'string') {
+				const mimeType = requireSupportedImageMimeType(block.mimeType, 'image attachment');
 				return {
 					type: 'image',
-					mimeType: typeof block.mimeType === 'string' ? block.mimeType : undefined,
+					mimeType,
 					base64: block.base64,
 				};
 			}
-			if (block.type === 'file' && typeof block.base64 === 'string') {
+			if (
+				(block.type === 'document' || block.type === 'file') &&
+				typeof block.base64 === 'string'
+			) {
+				const name = typeof block.name === 'string' ? block.name : 'unnamed attachment';
+				if (block.mimeType !== 'application/pdf') {
+					throw new Error(`${name}: only PDF document attachments can be serialized.`);
+				}
 				return {
-					type: 'file',
-					name: typeof block.name === 'string' ? block.name : undefined,
-					mimeType: typeof block.mimeType === 'string' ? block.mimeType : undefined,
+					type: 'document',
+					name,
+					mimeType: 'application/pdf',
 					base64: block.base64,
 				};
 			}
@@ -80,6 +104,19 @@ function toUserContent(content: Message['content']): string | LlmUserContentBloc
 
 function toDataUrl(mimeType: string, base64: string): string {
 	return `data:${mimeType};base64,${base64}`;
+}
+
+function requireSupportedImageMimeType(value: unknown, label: string): string {
+	if (typeof value !== 'string' || !SUPPORTED_IMAGE_MIME_TYPES.has(value)) {
+		throw new Error(`${label}: unsupported image MIME type ${String(value)}.`);
+	}
+	return value;
+}
+
+function requirePdfDocument(block: Extract<LlmUserContentBlock, { type: 'document' }>): void {
+	if (block.mimeType !== 'application/pdf') {
+		throw new Error(`${block.name}: only application/pdf documents can be serialized.`);
+	}
 }
 
 function toAssistantContent(content: Message['content']): LlmContentBlock[] {
@@ -205,16 +242,18 @@ function toResponseUserContent(
 	return content.map((block): ResponseInputContent => {
 		if (block.type === 'text') return { type: 'input_text', text: block.text };
 		if (block.type === 'image') {
+			const mimeType = requireSupportedImageMimeType(block.mimeType, 'image attachment');
 			return {
 				type: 'input_image',
-				image_url: toDataUrl(block.mimeType ?? 'image/png', block.base64),
+				image_url: toDataUrl(mimeType, block.base64),
 				detail: 'auto',
 			};
 		}
+		requirePdfDocument(block);
 		return {
 			type: 'input_file',
 			filename: block.name,
-			file_data: toDataUrl(block.mimeType ?? 'application/pdf', block.base64),
+			file_data: toDataUrl(block.mimeType, block.base64),
 		};
 	});
 }
@@ -290,22 +329,23 @@ function toAnthropicUserContent(
 	return content.map((block): Anthropic.Messages.ContentBlockParam => {
 		if (block.type === 'text') return { type: 'text', text: block.text };
 		if (block.type === 'image') {
+			const mimeType = requireSupportedImageMimeType(block.mimeType, 'image attachment');
 			return {
 				type: 'image',
 				source: {
 					type: 'base64',
-					media_type: (block.mimeType ?? 'image/png') as
+					media_type: mimeType as
 						| 'image/png'
 						| 'image/jpeg'
-						| 'image/gif'
 						| 'image/webp',
 					data: block.base64,
 				},
 			};
 		}
+		requirePdfDocument(block);
 		return {
 			type: 'document',
-			source: { type: 'base64', media_type: 'application/pdf', data: block.base64 },
+			source: { type: 'base64', media_type: block.mimeType, data: block.base64 },
 		};
 	});
 }
@@ -313,14 +353,17 @@ function toAnthropicUserContent(
 export function llmBuildChatMessages(
 	system: string,
 	transcript: LlmTranscriptEntry[],
-	options: { includeReasoningContent?: boolean } = {}
+	options: { includeReasoningContent?: boolean; contentProfile?: LlmChatContentProfile } = {}
 ): OpenAI.ChatCompletionMessageParam[] {
 	const msgs: OpenAI.ChatCompletionMessageParam[] = [];
 	if (system) msgs.push({ role: 'system', content: system });
 
 	for (const entry of transcript) {
 		if (entry.role === 'user') {
-			msgs.push({ role: 'user', content: toChatUserContent(entry.content) });
+			msgs.push({
+				role: 'user',
+				content: toChatUserContent(entry.content, options.contentProfile ?? 'image-only'),
+			});
 			continue;
 		}
 		if (entry.role === 'assistant') {
@@ -366,24 +409,27 @@ export function llmBuildChatMessages(
 }
 
 function toChatUserContent(
-	content: string | LlmUserContentBlock[]
+	content: string | LlmUserContentBlock[],
+	profile: LlmChatContentProfile
 ): string | OpenAI.ChatCompletionContentPart[] {
 	if (typeof content === 'string') return content;
 	return content.map((block): OpenAI.ChatCompletionContentPart => {
 		if (block.type === 'text') return { type: 'text', text: block.text };
 		if (block.type === 'image') {
+			const mimeType = requireSupportedImageMimeType(block.mimeType, 'image attachment');
 			return {
 				type: 'image_url',
-				image_url: { url: toDataUrl(block.mimeType ?? 'image/png', block.base64) },
+				image_url: { url: toDataUrl(mimeType, block.base64) },
 			};
 		}
+		requirePdfDocument(block);
+		if (profile !== 'reka') {
+			throw new Error(`${block.name}: this chat adapter does not support document attachments.`);
+		}
 		return {
-			type: 'file',
-			file: {
-				filename: block.name,
-				file_data: toDataUrl(block.mimeType ?? 'application/pdf', block.base64),
-			},
-		};
+			type: 'pdf_url',
+			pdf_url: { url: toDataUrl(block.mimeType, block.base64) },
+		} as unknown as OpenAI.ChatCompletionContentPart;
 	});
 }
 

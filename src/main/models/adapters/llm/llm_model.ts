@@ -555,6 +555,7 @@ export class LlmModel implements LlmAdapter {
 					reasoningContentEnabled: this.reasoningContentEnabled,
 					reasoningEffortEnabled: this.reasoningEffortEnabled,
 					thinkingModeEnabled: this.thinkingModeEnabled,
+					contentProfile: provider.id.toLowerCase() === 'reka' ? 'reka' : 'image-only',
 				});
 			} catch (error) {
 				this.throwProviderError(error);
@@ -582,6 +583,7 @@ export class LlmModel implements LlmAdapter {
 				model: req.model,
 				messages: llmBuildChatMessages(req.system, req.messages, {
 					includeReasoningContent: this.reasoningContentEnabled,
+					contentProfile: provider.id.toLowerCase() === 'reka' ? 'reka' : 'image-only',
 				}),
 				tools: tools.length > 0 ? tools : undefined,
 				tool_choice: tools.length > 0 ? 'auto' : undefined,

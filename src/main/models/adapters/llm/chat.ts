@@ -10,6 +10,7 @@ export async function* chat(
 		reasoningContentEnabled: boolean;
 		reasoningEffortEnabled: boolean;
 		thinkingModeEnabled: boolean;
+		contentProfile: 'image-only' | 'reka';
 	}
 ): AsyncIterable<LlmProviderEvent> {
 	const tools: OpenAI.ChatCompletionTool[] = req.tools.map((tool) => ({
@@ -25,6 +26,7 @@ export async function* chat(
 		model: req.model,
 		messages: llmBuildChatMessages(req.system, req.messages, {
 			includeReasoningContent: options.reasoningContentEnabled,
+			contentProfile: options.contentProfile,
 		}),
 		tools: tools.length > 0 ? tools : undefined,
 		tool_choice: tools.length > 0 ? 'auto' : undefined,

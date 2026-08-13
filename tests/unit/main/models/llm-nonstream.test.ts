@@ -1,10 +1,13 @@
 import { LlmModel } from '../../../../src/main/models/adapters/llm/llm_model';
 import type { LlmEvent, LlmRequest } from '../../../../src/main/models/adapters/llm/llm_types';
 
-const request = (providerId: string): LlmRequest => ({
+const request = (
+	providerId: string,
+	content: LlmRequest['messages'][number]['content'] = 'hello'
+): LlmRequest => ({
 	provider: { id: providerId, apiKey: 'key' },
 	model: 'model',
-	messages: [{ role: 'user', content: 'hello' }],
+	messages: [{ role: 'user', content }],
 	tools: [
 		{
 			name: 'lookup',
@@ -142,5 +145,63 @@ describe('LlmModel non-streaming transport', () => {
 				}),
 			])
 		);
+	});
+
+	it('uses the targeted Reka PDF payload for batch requests', async () => {
+		const create = jest.fn().mockResolvedValue({ choices: [], usage: {} });
+		const model = new LlmModel({
+			openAIClientFactory: () => ({ chat: { completions: { create } } }) as never,
+		});
+		const content = [
+			{
+				type: 'document',
+				name: 'brief.pdf',
+				mimeType: 'application/pdf',
+				base64: 'cGRm',
+			},
+		];
+		for await (const _event of model.stream(request('reka', content))) {
+			// Consume the provider stream.
+		}
+
+		expect(create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				stream: false,
+				messages: [
+					{
+						role: 'user',
+						content: [
+							{
+								type: 'pdf_url',
+								pdf_url: { url: 'data:application/pdf;base64,cGRm' },
+							},
+						],
+					},
+				],
+			}),
+			expect.objectContaining({ signal: undefined })
+		);
+	});
+
+	it('rejects generic chat PDF blocks before a batch network request', async () => {
+		const create = jest.fn();
+		const model = new LlmModel({
+			openAIClientFactory: () => ({ chat: { completions: { create } } }) as never,
+		});
+		const content = [
+			{
+				type: 'document',
+				name: 'brief.pdf',
+				mimeType: 'application/pdf',
+				base64: 'cGRm',
+			},
+		];
+
+		await expect(async () => {
+			for await (const _event of model.stream(request('compatible', content))) {
+				// Consume the provider stream.
+			}
+		}).rejects.toThrow('brief.pdf: this chat adapter does not support document attachments.');
+		expect(create).not.toHaveBeenCalled();
 	});
 });

@@ -110,8 +110,8 @@ export type LlmToolResultBlock =
 
 export type LlmUserContentBlock =
 	| { type: 'text'; text: string }
-	| { type: 'image'; mimeType?: string; base64: string }
-	| { type: 'file'; name?: string; mimeType?: string; base64: string };
+	| { type: 'image'; mimeType: string; base64: string }
+	| { type: 'document'; name: string; mimeType: 'application/pdf'; base64: string };
 
 export type LlmToolResultStatus = 'ok' | 'error' | 'blocked' | 'rejected';
 
