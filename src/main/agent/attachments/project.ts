@@ -1,6 +1,7 @@
 import path from 'node:path';
 import type { AgentPromptInputCapabilities } from '../../../shared/agent_types';
 import type { Message } from '../types';
+import { formatUploadedTextFile } from './text';
 
 export function projectPromptAttachments(
 	messages: readonly Message[],
@@ -14,7 +15,12 @@ export function projectPromptAttachments(
 				if (block.type === 'text_file' && typeof block.text === 'string') {
 					return {
 						type: 'text',
-						text: `[Attached text file: ${String(block.name)}; ${String(block.mimeType)}; ${String(block.bytes)} bytes]\n${block.text}`,
+						text: formatUploadedTextFile({
+							name: String(block.name),
+							mimeType: String(block.mimeType),
+							bytes: Number(block.bytes),
+							text: block.text,
+						}),
 					};
 				}
 				const legacyDocument = block.type === 'file' && block.mimeType === 'application/pdf';

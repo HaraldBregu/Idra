@@ -122,7 +122,16 @@ describe('LLM attachment payload builders', () => {
 					{ type: 'text', text: 'Review this file.' },
 					{
 						type: 'text',
-						text: '[Attached text file: config.toml; text/plain; 8 bytes]\nenabled=true',
+						text: [
+							'[Uploaded text file]',
+							'Name: config.toml',
+							'MIME type: text/plain',
+							'Size: 8 bytes',
+							'The complete file content is included inline below. Read it directly from this block; the name is metadata, not a filesystem path, and no file tool is needed.',
+							'--- BEGIN UPLOADED FILE: config.toml ---',
+							'enabled=true',
+							'--- END UPLOADED FILE: config.toml ---',
+						].join('\n'),
 					},
 				],
 			},

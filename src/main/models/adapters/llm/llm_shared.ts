@@ -8,6 +8,7 @@ import type {
 } from 'openai/resources/responses/responses';
 import type { Message } from '../../../agent/types';
 import { hasAssistantPayload } from '../../../agent/session/session_has_assistant_payload';
+import { formatUploadedTextFile } from '../../../agent/attachments/text';
 import type {
 	LlmContentBlock,
 	LlmStreamRequest,
@@ -69,7 +70,12 @@ function toUserContent(content: Message['content']): string | LlmUserContentBloc
 			) {
 				return {
 					type: 'text',
-					text: `[Attached text file: ${block.name}; ${block.mimeType}; ${block.bytes} bytes]\n${block.text}`,
+					text: formatUploadedTextFile({
+						name: block.name,
+						mimeType: block.mimeType,
+						bytes: block.bytes,
+						text: block.text,
+					}),
 				};
 			}
 			if (block.type === 'image' && typeof block.base64 === 'string') {

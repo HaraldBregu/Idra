@@ -159,7 +159,11 @@ describe('historical attachment projection', () => {
 			],
 			{ ...capabilities, rules: [] }
 		);
-		expect(JSON.stringify(result)).toContain('[Attached text file: note.txt');
+		expect(JSON.stringify(result)).toContain('[Uploaded text file]');
+		expect(JSON.stringify(result)).toContain('Read it directly from this block');
+		expect(JSON.stringify(result)).toContain('--- BEGIN UPLOADED FILE: note.txt ---');
+		expect(JSON.stringify(result)).toContain('hello');
+		expect(JSON.stringify(result)).toContain('--- END UPLOADED FILE: note.txt ---');
 		expect(JSON.stringify(result)).toContain('Historical attachment unavailable');
 		expect(JSON.stringify(result)).not.toContain('cGRm');
 	});
