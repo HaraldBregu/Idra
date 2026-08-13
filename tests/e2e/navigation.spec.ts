@@ -84,6 +84,33 @@ test('the platform shortcut creates a new chat session', async () => {
 	await expect(page.getByRole('textbox', { name: 'Message Friday' })).toBeFocused();
 });
 
+test('Plan mode is keyboard accessible and scoped to the conversation', async () => {
+	await page.evaluate(() => {
+		window.location.hash = '#/home';
+	});
+	const selector = page.getByRole('combobox', { name: 'Interaction mode' });
+	await expect(selector).toContainText('Default');
+	await selector.focus();
+	await page.keyboard.press('Enter');
+	await page.keyboard.press('ArrowDown');
+	await page.keyboard.press('Enter');
+	await expect(selector).toContainText('Plan');
+
+	const selectedSession = await page.evaluate(() => localStorage.getItem('chat-session-id'));
+	expect(selectedSession).toBeTruthy();
+	await expect
+		.poll(() =>
+			page.evaluate((sessionId) => {
+				const modes = JSON.parse(localStorage.getItem('friday-interaction-modes') ?? '{}');
+				return modes[sessionId ?? ''];
+			}, selectedSession)
+		)
+		.toBe('plan');
+
+	await page.keyboard.press(process.platform === 'darwin' ? 'Meta+n' : 'Control+n');
+	await expect(selector).toContainText('Default');
+});
+
 test('wiki settings renders the complete configuration workflow', async ({}, testInfo) => {
 	await page.evaluate(() => {
 		window.location.hash = '#/settings/wiki';
