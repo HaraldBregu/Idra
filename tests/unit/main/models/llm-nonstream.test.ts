@@ -50,10 +50,41 @@ describe('LlmModel non-streaming transport', () => {
 			openAIClientFactory: () => ({ responses: { create } }) as never,
 		});
 		const events: LlmEvent[] = [];
-		for await (const event of model.stream(request('openai'))) events.push(event);
+		for await (const event of model.stream(
+			request('openai', [
+				{ type: 'image', mimeType: 'image/png', base64: 'aW1hZ2U=' },
+				{
+					type: 'document',
+					name: 'brief.pdf',
+					mimeType: 'application/pdf',
+					base64: 'cGRm',
+				},
+			])
+		))
+			events.push(event);
 
 		expect(create).toHaveBeenCalledWith(
-			expect.objectContaining({ stream: false, model: 'model' }),
+			expect.objectContaining({
+				stream: false,
+				model: 'model',
+				input: [
+					{
+						role: 'user',
+						content: [
+							{
+								type: 'input_image',
+								image_url: 'data:image/png;base64,aW1hZ2U=',
+								detail: 'auto',
+							},
+							{
+								type: 'input_file',
+								filename: 'brief.pdf',
+								file_data: 'data:application/pdf;base64,cGRm',
+							},
+						],
+					},
+				],
+			}),
 			expect.objectContaining({ signal: undefined })
 		);
 		expect(events).toEqual(
@@ -84,10 +115,47 @@ describe('LlmModel non-streaming transport', () => {
 			anthropicClientFactory: () => ({ messages: { create } }) as never,
 		});
 		const events: LlmEvent[] = [];
-		for await (const event of model.stream(request('anthropic'))) events.push(event);
+		for await (const event of model.stream(
+			request('anthropic', [
+				{ type: 'image', mimeType: 'image/jpeg', base64: 'aW1hZ2U=' },
+				{
+					type: 'document',
+					name: 'brief.pdf',
+					mimeType: 'application/pdf',
+					base64: 'cGRm',
+				},
+			])
+		))
+			events.push(event);
 
 		expect(create).toHaveBeenCalledWith(
-			expect.objectContaining({ stream: false, model: 'model' }),
+			expect.objectContaining({
+				stream: false,
+				model: 'model',
+				messages: [
+					{
+						role: 'user',
+						content: [
+							{
+								type: 'image',
+								source: {
+									type: 'base64',
+									media_type: 'image/jpeg',
+									data: 'aW1hZ2U=',
+								},
+							},
+							{
+								type: 'document',
+								source: {
+									type: 'base64',
+									media_type: 'application/pdf',
+									data: 'cGRm',
+								},
+							},
+						],
+					},
+				],
+			}),
 			expect.objectContaining({ signal: undefined })
 		);
 		expect(events).toEqual(
@@ -127,10 +195,28 @@ describe('LlmModel non-streaming transport', () => {
 			openAIClientFactory: () => ({ chat: { completions: { create } } }) as never,
 		});
 		const events: LlmEvent[] = [];
-		for await (const event of model.stream(request('compatible'))) events.push(event);
+		for await (const event of model.stream(
+			request('compatible', [{ type: 'image', mimeType: 'image/webp', base64: 'aW1hZ2U=' }])
+		))
+			events.push(event);
 
 		expect(create).toHaveBeenCalledWith(
-			expect.objectContaining({ stream: false, stream_options: undefined, model: 'model' }),
+			expect.objectContaining({
+				stream: false,
+				stream_options: undefined,
+				model: 'model',
+				messages: [
+					{
+						role: 'user',
+						content: [
+							{
+								type: 'image_url',
+								image_url: { url: 'data:image/webp;base64,aW1hZ2U=' },
+							},
+						],
+					},
+				],
+			}),
 			expect.objectContaining({ signal: undefined })
 		);
 		expect(events).toEqual(
