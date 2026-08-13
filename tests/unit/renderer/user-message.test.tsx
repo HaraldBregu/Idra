@@ -37,6 +37,7 @@ it('toggles the long-message label inside the message container', () => {
 	expect(messageContainer).toContainElement(moreButton);
 	expect(messageContainer).not.toContainElement(copyButton);
 	expect(moreButton.parentElement).toHaveClass('justify-end');
+	expect(moreButton.parentElement).toHaveClass('bg-transparent');
 	fireEvent.click(moreButton);
 	expect(screen.getByRole('button', { name: 'Less' })).toHaveAttribute('aria-expanded', 'true');
 });
