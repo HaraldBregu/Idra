@@ -141,7 +141,7 @@ export function UserMessage({
 							{content}
 						</Markdown>
 						{canToggleContent ? (
-							<div className="absolute inset-x-0 bottom-0 flex justify-end bg-transparent px-3 pb-1 pt-5">
+							<div className="absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-b from-transparent to-primary px-3 pb-1 pt-5">
 								<Button
 									type="button"
 									variant="ghost"
