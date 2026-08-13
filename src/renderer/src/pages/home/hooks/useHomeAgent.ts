@@ -4,7 +4,7 @@ import { useChatSession } from '@/contexts/chat-session';
 import type { AgentInteractionMode, ModelReasoningEffort } from '@/lib/compat';
 import type { AgentResponseEvent } from '@/lib/compat';
 import { useHomeAgentContext } from '../context';
-import { expandTaskCommand } from './commands';
+import { expandTaskCommand, parseGoalCommand } from './commands';
 import { filesToAgentInput } from './files';
 import { useInteractionMode } from './mode';
 
@@ -116,6 +116,8 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		): Promise<boolean> => {
 			const trimmed = expandTaskCommand(prompt.trim());
 			if (!trimmed && files.length === 0) return false;
+			const goalObjective = parseGoalCommand(trimmed);
+			const displayContent = goalObjective === undefined ? trimmed : goalObjective;
 
 			const requestId = requestIdRef.current + 1;
 			const runId = crypto.randomUUID();
@@ -131,7 +133,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				type: 'submit_user_message',
 				userMessageId: messageId('user'),
 				agentMessageId: messageId('agent'),
-				content: trimmed,
+				content: displayContent,
 				submittedAtMs,
 			});
 
