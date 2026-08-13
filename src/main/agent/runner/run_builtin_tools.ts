@@ -51,7 +51,7 @@ export function builtinTools(
 ): Tool[] {
 	return [
 		readTool,
-		requestUserInputTool,
+		...(interactionMode === 'plan' ? [requestUserInputTool] : []),
 		writeTool,
 		editTool,
 		applyPatchTool,
