@@ -47,6 +47,17 @@ export function ToolPermissionCard({
 		defaultValue: TOOL_ACTIONS[permission.toolName] ?? `use ${permission.toolName}`,
 	});
 	const hostExecution = permission.reason === 'host_execution';
+	const destructiveOperation = permission.reason === 'destructive_operation';
+	const reasonKey = hostExecution
+		? 'toolPermission.hostReason'
+		: destructiveOperation
+			? 'toolPermission.destructiveReason'
+			: 'toolPermission.outsideReason';
+	const badgeKey = hostExecution
+		? 'toolPermission.hostAccess'
+		: destructiveOperation
+			? 'toolPermission.destructiveOperation'
+			: 'toolPermission.outsideLocations';
 
 	const respond = (decision: AgentToolPermissionDecision): void => {
 		if (responding) return;
@@ -79,8 +90,8 @@ export function ToolPermissionCard({
 					{t('toolPermission.title', { action })}
 				</CardTitle>
 				<CardAction>
-					<Badge variant={hostExecution ? 'destructive' : 'secondary'}>
-						{t(hostExecution ? 'toolPermission.hostAccess' : 'toolPermission.outsideLocations')}
+					<Badge variant={hostExecution || destructiveOperation ? 'destructive' : 'secondary'}>
+						{t(badgeKey)}
 					</Badge>
 				</CardAction>
 			</CardHeader>
@@ -96,7 +107,7 @@ export function ToolPermissionCard({
 					</div>
 				)}
 				<p className="text-xs text-muted-foreground">
-					{t(hostExecution ? 'toolPermission.hostReason' : 'toolPermission.outsideReason')}
+					{t(reasonKey)}
 				</p>
 				{detail && <pre className="max-h-24 overflow-auto whitespace-pre-wrap break-all rounded-md bg-muted px-2 py-1.5 font-mono text-xs text-muted-foreground"><code>{detail}</code></pre>}
 				{error && <p className="text-xs text-destructive" aria-live="polite">{error}</p>}

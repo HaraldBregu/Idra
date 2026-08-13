@@ -2355,9 +2355,11 @@
 	"toolPermission": {
 		"title": "Consentire a Friday di {{action}}?",
 		"hostAccess": "Accesso host",
+		"destructiveOperation": "Operazione distruttiva",
 		"outsideLocations": "Fuori dalle posizioni attendibili",
 		"location": "Posizione",
 		"hostReason": "Questa operazione viene eseguita fuori dalla sandbox del file system e può accedere ad altre posizioni.",
+		"destructiveReason": "Questa operazione può sovrascrivere, eliminare, annullare o ripristinare modifiche ai file e richiede un'autorizzazione una tantum.",
 		"outsideReason": "Questa posizione non è attendibile per lo strumento richiesto.",
 		"deny": "Nega",
 		"trustLocation": "Rendi attendibile questa posizione",
