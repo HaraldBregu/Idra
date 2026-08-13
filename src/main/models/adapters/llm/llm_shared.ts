@@ -7,6 +7,7 @@ import type {
 	ResponseOutputItem,
 } from 'openai/resources/responses/responses';
 import type { Message } from '../../../agent/types';
+import { hasAssistantPayload } from '../../../agent/session/session_has_assistant_payload';
 import type {
 	LlmContentBlock,
 	LlmStreamRequest,
@@ -18,6 +19,7 @@ type ReasoningContentBlock = Extract<LlmContentBlock, { type: 'reasoning' }>;
 
 export function llmToTranscriptEntry(message: Message): LlmTranscriptEntry[] {
 	if (message.role === 'assistant') {
+		if (!hasAssistantPayload(message.content, message.toolCalls)) return [];
 		const content = toAssistantContent(message.content);
 		for (const toolCall of message.toolCalls ?? []) {
 			content.push({
@@ -27,8 +29,6 @@ export function llmToTranscriptEntry(message: Message): LlmTranscriptEntry[] {
 				toolArgs: toolCall.args,
 			});
 		}
-		if (content.length === 0) content.push({ type: 'text', text: '' });
-
 		const entries: LlmTranscriptEntry[] = [{ role: 'assistant', content }];
 		for (const toolCall of message.toolCalls ?? []) {
 			// Providers reject assistant tool_calls without a matching tool message,
