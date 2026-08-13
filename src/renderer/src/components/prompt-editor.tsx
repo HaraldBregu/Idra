@@ -10,6 +10,7 @@ export type PromptEditorProps = Omit<PromptInputProps, 'children'> & {
 	readonly placeholder?: string;
 	readonly ariaLabel?: string;
 	readonly onPlanCommandChange?: (active: boolean) => void;
+	readonly onGoalCommandChange?: (active: boolean) => void;
 };
 
 function PromptEditorArea({
@@ -17,11 +18,13 @@ function PromptEditorArea({
 	ariaLabel,
 	onVisualLineChange,
 	onPlanCommandChange,
+	onGoalCommandChange,
 }: {
 	readonly placeholder?: string;
 	readonly ariaLabel?: string;
 	readonly onVisualLineChange: (hasMultipleLines: boolean) => void;
 	readonly onPlanCommandChange?: (active: boolean) => void;
+	readonly onGoalCommandChange?: (active: boolean) => void;
 }): ReactElement {
 	const { value, setValue, onSubmit, disabled, textareaRef } = usePromptInput();
 
@@ -35,6 +38,7 @@ function PromptEditorArea({
 			ariaLabel={ariaLabel}
 			onVisualLineChange={onVisualLineChange}
 			onPlanCommandChange={onPlanCommandChange}
+			onGoalCommandChange={onGoalCommandChange}
 			onEditorReady={(editor) => {
 				// ponytail: PromptInput uses this ref to focus the editor and locate its container
 				textareaRef.current = editor.view.dom as unknown as HTMLTextAreaElement;
@@ -48,6 +52,7 @@ function PromptEditor({
 	placeholder,
 	ariaLabel,
 	onPlanCommandChange,
+	onGoalCommandChange,
 	expanded,
 	value,
 	...props
@@ -65,6 +70,7 @@ function PromptEditor({
 				ariaLabel={ariaLabel}
 				onVisualLineChange={setHasMultipleVisualLines}
 				onPlanCommandChange={onPlanCommandChange}
+				onGoalCommandChange={onGoalCommandChange}
 			/>
 		</PromptInput>
 	);
