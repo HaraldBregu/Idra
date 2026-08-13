@@ -92,32 +92,6 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 	}
 	if (latestUserIndex < 0) latestUserIndex = Math.max(0, messages.length - 1);
 	let selectedMessages = messages.slice(latestUserIndex);
-	const currentUser = selectedMessages[0];
-	if (currentUser && currentUser.role === 'user' && Array.isArray(currentUser.content)) {
-		while (true) {
-			const currentTokens =
-				Math.ceil(
-					Buffer.byteLength(JSON.stringify(selectedMessages), 'utf8') / CONTEXT_BYTES_PER_TOKEN
-				) + 32;
-			if (currentTokens <= maxInputTokens - 512) break;
-			let largestIndex = -1;
-			let largestBytes = 0;
-			for (const [index, block] of currentUser.content.entries()) {
-				if ((block.type !== 'image' && block.type !== 'file') || typeof block.base64 !== 'string')
-					continue;
-				const bytes = Buffer.byteLength(block.base64, 'utf8');
-				if (bytes <= largestBytes) continue;
-				largestIndex = index;
-				largestBytes = bytes;
-			}
-			if (largestIndex < 0) break;
-			const block = currentUser.content[largestIndex];
-			currentUser.content[largestIndex] = {
-				type: 'text',
-				text: `[attachment payload omitted to fit model context: ${typeof block.name === 'string' ? block.name : 'unnamed'}; ${typeof block.mimeType === 'string' ? block.mimeType : 'unknown type'}; ${largestBytes} base64 bytes]`,
-			};
-		}
-	}
 
 	const minimumSystem = (input.systemPrompt ?? '').slice(0, 1_536);
 	let systemPrompt = input.systemPrompt ?? '';

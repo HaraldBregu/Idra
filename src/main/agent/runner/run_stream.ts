@@ -8,6 +8,7 @@ import {
 	tryAppendRun,
 	toResult,
 	type SessionState,
+	persist,
 } from '../session';
 import { rememberSkill } from '../context';
 import {
@@ -35,6 +36,7 @@ import type { ExecSandbox } from '../sandbox';
 import { builtinTools } from './run_builtin_tools';
 import { filterPlanTools } from './run_plan_tools';
 import { addPlanPrompt } from '../system/system_add_plan_prompt';
+import { projectPromptAttachments, resolvePromptInputCapabilities } from '../attachments';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -123,6 +125,8 @@ async function* loop(
 		: { skills: [], diagnostics: [] };
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
+	const promptCapabilities =
+		input.promptCapabilities ?? resolvePromptInputCapabilities(provider.id, modelId);
 
 	if (!options.tools && !options.sandbox) throw new Error('Agent command sandbox is unavailable.');
 
@@ -234,7 +238,9 @@ async function* loop(
 				? buildSkillContext(skillSnapshot.skills)
 				: '';
 			const runtimeContext = [workspaceContext, skillContext].filter(Boolean).join('\n\n');
-			const messages = session.messages;
+			const messages = promptCapabilities
+				? projectPromptAttachments(session.messages, promptCapabilities)
+				: session.messages;
 			const turn = yield* runModelTurn(
 				input,
 				provider,
@@ -248,7 +254,8 @@ async function* loop(
 				protectedSkillPrompt,
 				runtimeContext ? [{ role: 'user', content: runtimeContext }] : [],
 				options.streaming ?? true,
-				options.providerLimiter
+				options.providerLimiter,
+				input.deferPersist ? () => persist(session) : undefined
 			);
 
 			recordTurn(session, turn);

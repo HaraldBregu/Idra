@@ -13,7 +13,7 @@ export function externalizeAttachments(messages: Message[], state: SessionState)
 				? message.content
 				: message.content.map((block) => {
 						if (
-							(block.type !== 'image' && block.type !== 'file') ||
+							(block.type !== 'image' && block.type !== 'document' && block.type !== 'file') ||
 							typeof block.base64 !== 'string'
 						)
 							return block;

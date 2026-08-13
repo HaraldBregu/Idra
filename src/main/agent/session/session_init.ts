@@ -1,5 +1,5 @@
-import type { AgentInputFile } from '../../../shared/agent_types';
 import type { Config, Message, MessageContentBlock } from '../types';
+import type { PromptAttachmentBlock } from '../attachments';
 import type { SessionInput, SessionCategory, SessionState } from './session_types';
 import { loadMessagesBySessionId } from './session_load_messages_by_session_id';
 import { persist } from './session_persist';
@@ -40,19 +40,13 @@ export function init(
 	state.finalText = '';
 	state.stopReason = undefined;
 	state.runTraceBuffer = [];
-	persist(state);
+	if (!input.deferPersist) persist(state);
 }
 
-function toUserContent(message: string, files: AgentInputFile[]): Message['content'] {
+function toUserContent(message: string, files: PromptAttachmentBlock[]): Message['content'] {
 	if (files.length === 0) return message;
 	const blocks: MessageContentBlock[] = [];
 	if (message) blocks.push({ type: 'text', text: message });
-	for (const file of files) {
-		blocks.push(
-			file.mimeType.startsWith('image/')
-				? { type: 'image', mimeType: file.mimeType, base64: file.data }
-				: { type: 'file', name: file.name, mimeType: file.mimeType, base64: file.data }
-		);
-	}
+	blocks.push(...files);
 	return blocks;
 }

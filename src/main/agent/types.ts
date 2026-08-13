@@ -104,7 +104,15 @@ export type RuntimeOutput = SessionResult;
 
 type RuntimeInputBase = Pick<
 	SessionInput,
-	'sessionId' | 'messages' | 'model' | 'effort' | 'maxTurns' | 'maxIterations' | 'files'
+	| 'sessionId'
+	| 'messages'
+	| 'model'
+	| 'effort'
+	| 'maxTurns'
+	| 'maxIterations'
+	| 'files'
+	| 'promptCapabilities'
+	| 'deferPersist'
 > & {
 	legacySessionId?: string;
 	runId: string;

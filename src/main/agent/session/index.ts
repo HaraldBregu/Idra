@@ -14,6 +14,7 @@ export { loadMessages } from './session_load_messages';
 export { createSessionState } from './session_module_state';
 export { persistSystemPrompt } from './session_persist_system';
 export { recordTurn } from './session_record_turn';
+export { persist } from './session_persist';
 export { requireUuidSessionId } from './session_require_uuid';
 export { resolveSessionId } from './session_resolve_session_id';
 export { resolveStoredSessionId } from './session_resolve_stored_session_id';

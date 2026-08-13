@@ -12,6 +12,7 @@ import {
 	tryAppendRun,
 	updateUserMessageBySessionId,
 	type SessionResult,
+	persist,
 } from './session';
 import { stream } from './runner/run_stream';
 import { agentLocation } from '../shared/agent_location';
@@ -25,6 +26,7 @@ import type {
 	AgentRunOptions,
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
+	AgentPromptInputCapabilities,
 	AgentResponseEvent,
 	AgentRunStopReason,
 	AgentSessionSummary,
@@ -45,6 +47,11 @@ import {
 	type AgentRunOutcome,
 	type AgentRunRecord,
 } from './state';
+import { getModelId, getProviderId } from './agent_store';
+import {
+	preflightPromptAttachments,
+	resolvePromptInputCapabilities,
+} from './attachments';
 
 const RUN_PRIORITIES: Record<SessionCategory, AgentRunPriority> = {
 	main: 'high',
@@ -178,6 +185,16 @@ export class Agent {
 		try {
 			if (controller.signal.aborted) return { text: '', stopReason: 'cancelled' };
 			const parsedSkillCommand = parseSkillCommand(request.message);
+			const providerId = options.providerId?.trim() || getProviderId();
+			const modelId = (options.model ?? options.modelId)?.trim() || getModelId();
+			const promptCapabilities = resolvePromptInputCapabilities(providerId, modelId);
+			const files = options.files?.length
+				? promptCapabilities
+					? preflightPromptAttachments(options.files, promptCapabilities)
+					: (() => {
+							throw new Error('Attachments require a valid configured prompt model.');
+						})()
+				: [];
 
 			const baseInput: Omit<RuntimeInput, 'type' | 'toolsAllow'> = {
 				runId: request.id,
@@ -191,11 +208,13 @@ export class Agent {
 					request.category === 'main' && options.interactionMode === 'plan' ? 'plan' : 'default',
 				...(options.effort ? { effort: options.effort } : {}),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
-				...(options.files?.length ? { files: options.files } : {}),
+				...(files.length ? { files } : {}),
+				...(promptCapabilities ? { promptCapabilities } : {}),
+				deferPersist: true,
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.legacySessionId ? { legacySessionId: options.legacySessionId } : {}),
-				...(options.providerId ? { providerId: options.providerId } : {}),
-				...((options.model ?? options.modelId) ? { model: options.model ?? options.modelId } : {}),
+				...(providerId ? { providerId } : {}),
+				...(modelId ? { model: modelId } : {}),
 				...(options.windowId === undefined || options.streamEvent === undefined
 					? {}
 					: { approvalWindowId: options.windowId }),
@@ -276,6 +295,10 @@ export class Agent {
 		return loadMessages(this.config, sessionId)
 			.slice(-this.lastMessagesLimit)
 			.flatMap(toHistoryMessages);
+	}
+
+	getPromptInputCapabilities(): AgentPromptInputCapabilities | null {
+		return resolvePromptInputCapabilities(getProviderId(), getModelId());
 	}
 
 	editUserMessage(
@@ -428,7 +451,7 @@ function toHistoryMessages(message: Message): AgentHistoryMessage[] {
 		return messages;
 	}
 
-	return [{ role: 'user', content }];
+	return [{ role: 'user', content, contentBlocks: toHistoryContentBlocks(message) }];
 }
 
 function toHistoryContentBlocks(message: Message): AgentHistoryContentBlock[] {
@@ -437,6 +460,33 @@ function toHistoryContentBlocks(message: Message): AgentHistoryContentBlock[] {
 				.map((block): AgentHistoryContentBlock | undefined => {
 					if (block.type === 'text' && typeof block.text === 'string') {
 						return { type: 'text', text: block.text };
+					}
+					if (
+						(block.type === 'text_file' ||
+							block.type === 'image' ||
+							block.type === 'document' ||
+							block.type === 'file') &&
+						typeof block.name === 'string' &&
+						typeof block.mimeType === 'string'
+					) {
+						const bytes =
+							typeof block.bytes === 'number'
+								? block.bytes
+								: typeof block.base64 === 'string'
+									? Buffer.from(block.base64, 'base64').length
+									: 0;
+						return {
+							type: 'attachment',
+							kind:
+								block.type === 'text_file'
+									? 'text'
+									: block.type === 'image'
+										? 'image'
+										: 'document',
+							name: block.name,
+							mimeType: block.mimeType,
+							bytes,
+						};
 					}
 					return undefined;
 				})

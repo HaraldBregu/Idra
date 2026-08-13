@@ -31,7 +31,8 @@ export async function* runModelTurn(
 	protectedSystemPrompt = '',
 	contextMessages: Message[] = [],
 	streaming = true,
-	providerLimiter?: KeyedLimiter
+	providerLimiter?: KeyedLimiter,
+	onContextAccepted?: () => void
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	const maxRetries = 2;
 	const maxTokens = modelOutputLimit(provider.id, modelId, modelOptions);
@@ -43,6 +44,7 @@ export async function* runModelTurn(
 		tools,
 		maxInputTokens: modelInputLimit(provider.id, modelId, maxTokens),
 	});
+	onContextAccepted?.();
 	for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
 		const attemptStartedAt = Date.now();
 		let firstTokenAt: number | undefined;
