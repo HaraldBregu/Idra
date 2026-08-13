@@ -157,16 +157,25 @@ async function runExec(
 			? `script -q /dev/null ${shellQuote(process.env.SHELL ?? '/bin/sh')} -lc ${shellQuote(command)}`
 			: `script -q -e -c ${shellQuote(command)} /dev/null`;
 	const commandId = randomUUID();
+	const approvedRoots = approvedExecRoots.getStore() ?? [];
 	const wrapped =
 		executionMode === 'sandbox'
-			? await sandbox.wrap(
-					pty ? ptyCommand : command,
-					cwd,
-					commandId,
-					abortSignal,
-					approvedExecRoots.getStore() ?? [],
-					interactionMode
-				)
+			? interactionMode === 'plan'
+				? await sandbox.wrap(
+						pty ? ptyCommand : command,
+						cwd,
+						commandId,
+						abortSignal,
+						approvedRoots,
+						'plan'
+					)
+				: await sandbox.wrap(
+						pty ? ptyCommand : command,
+						cwd,
+						commandId,
+						abortSignal,
+						approvedRoots
+					)
 			: undefined;
 	const spawnCommand = wrapped?.command ?? hostCommand;
 	const spawnArgs = wrapped?.args ?? hostArgs;

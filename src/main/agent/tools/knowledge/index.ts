@@ -20,9 +20,6 @@ export function getKnowledgeTools(): Tool[] {
 export function getWikiTools(): Tool[] {
 	if (getWikiSettings().enabled !== true) return [];
 	return [
-		searchWikiTool,
-		queryWikiTool,
-		readWikiPageTool,
 		ingestWikiSourceTool,
 		saveWikiAnalysisTool,
 		lintWikiTool,
@@ -30,4 +27,9 @@ export function getWikiTools(): Tool[] {
 		rebuildWikiIndexTool,
 		getRecentWikiActivityTool,
 	];
+}
+
+export function getPlanWikiTools(): Tool[] {
+	if (getWikiSettings().enabled !== true) return [];
+	return [searchWikiTool, queryWikiTool, readWikiPageTool];
 }

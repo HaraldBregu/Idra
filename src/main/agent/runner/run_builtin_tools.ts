@@ -15,7 +15,7 @@ import { listExtensionsTool } from '../tools/extensions/list_extensions';
 import { openExtensionsTool } from '../tools/extensions/open_extensions';
 import { updateHealthSettingsTool } from '../tools/health/update_health_settings';
 import { updateHealthTool } from '../tools/health/update_health';
-import { getKnowledgeTools, getWikiTools } from '../tools/knowledge';
+import { getKnowledgeTools, getPlanWikiTools, getWikiTools } from '../tools/knowledge';
 import { forgetMemoryTool } from '../tools/memory/forget_memory';
 import { listMemoriesTool } from '../tools/memory/list_memories';
 import { saveMemoryTool } from '../tools/memory/save_memory';
@@ -77,6 +77,7 @@ export function builtinTools(
 		listMemoriesTool(config),
 		...getKnowledgeTools(),
 		...getWikiTools(),
+		...(interactionMode === 'plan' ? getPlanWikiTools() : []),
 		updateHealthTool(config),
 		updateHealthSettingsTool,
 		createTaskTool,
