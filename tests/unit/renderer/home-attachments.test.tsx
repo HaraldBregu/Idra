@@ -199,6 +199,7 @@ describe('Home prompt attachments', () => {
 			.mockResolvedValueOnce(textCapabilities);
 		renderPage(getCapabilities);
 		const picker = await screen.findByLabelText('Attachment files');
+		await waitFor(() => expect(picker).toHaveAttribute('accept', imageCapabilities.accept));
 		fireEvent.change(picker, {
 			target: { files: [new File(['png'], 'diagram.png', { type: 'image/png' })] },
 		});
@@ -216,6 +217,7 @@ describe('Home prompt attachments', () => {
 		handleSubmit.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
 		renderPage(getCapabilities);
 		const picker = await screen.findByLabelText('Attachment files');
+		await waitFor(() => expect(picker).toHaveAttribute('accept', imageCapabilities.accept));
 		const file = new File(['png'], 'diagram.png', { type: 'image/png' });
 		fireEvent.change(picker, { target: { files: [file] } });
 		await screen.findByText('diagram.png');
