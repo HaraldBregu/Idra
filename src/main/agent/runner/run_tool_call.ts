@@ -197,7 +197,10 @@ export async function* runToolCall(
 				},
 				signal
 			);
-			const effectiveDecision = decision === 'approve' && !allowOnce ? 'reject' : decision;
+			const effectiveDecision =
+				(decision === 'approve' && !allowOnce) || (decision === 'approve_always' && hardApproval)
+					? 'reject'
+					: decision;
 			permissionOutcome = effectiveDecision;
 			if (effectiveDecision === 'approve_always' && resolution.persistable && resolution.kind) {
 				for (const target of resolution.approvalTargets) {
