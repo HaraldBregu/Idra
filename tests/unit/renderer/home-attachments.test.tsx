@@ -65,6 +65,10 @@ jest.mock('@/components/audio-player', () => ({
 	AudioPlayer: () => <div />,
 }));
 
+jest.mock('@/components/app/base/page', () => ({
+	PageContainer: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+}));
+
 jest.mock('@resources/icons/icon.png', () => 'icon.png');
 
 jest.mock('@/components/ui/chat-container', () => ({
