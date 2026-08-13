@@ -464,6 +464,14 @@ export function agentChatReducer(
 				errorText: 'Cancelled.',
 				pendingPermission: undefined,
 				pendingUserInput: undefined,
+				tools: message.pendingUserInput
+					? updateAgentToolPart(message.tools, message.pendingUserInput.toolCallId, {
+							type: 'request_user_input',
+							state: 'output-error',
+							output: { status: 'interrupted', answers: [] },
+							outputText: JSON.stringify({ status: 'interrupted', answers: [] }),
+						})
+					: message.tools,
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));

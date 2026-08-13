@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent, type ReactElement } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactElement } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { AgentUserInputAnswer, AgentUserInputQuestion } from '@/lib/compat';
@@ -40,26 +40,34 @@ export function UserInputCard({
 	const [other, setOther] = useState<Record<string, string>>({});
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState('');
+	const resolvedRef = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		if (result) resolvedRef.current?.focus();
+	}, [result]);
 	if (questions.length === 0) return null;
 
 	if (result) {
 		return (
 			<Card className="max-w-2xl gap-3 border-border/70 py-4">
 				<CardHeader className="px-4">
-					<CardTitle className="text-sm">
-						{result.status === 'resolved' ? 'Planning choices' : 'Questions interrupted'}
-					</CardTitle>
+					<div ref={resolvedRef} tabIndex={-1} className="outline-none">
+						<CardTitle className="text-sm">
+							{result.status === 'resolved' ? 'Planning choices' : 'Questions interrupted'}
+						</CardTitle>
+					</div>
 				</CardHeader>
 				<CardContent className="space-y-2 px-4 text-sm">
-					{result.answers.map((answer) => (
-						<div key={answer.questionId}>
-							<span className="font-medium">
-								{questions.find((question) => question.id === answer.questionId)?.header ??
-									answer.questionId}
+					{questions.map((question) => {
+						const answer = result.answers.find((candidate) => candidate.questionId === question.id);
+						return (
+						<div key={question.id}>
+							<span className="block font-medium">{question.question}</span>
+							<span className="text-muted-foreground">
+								{answer?.answer ?? 'Interrupted before an answer was submitted.'}
 							</span>
-							<span className="text-muted-foreground">: {answer.answer}</span>
 						</div>
-					))}
+						);
+					})}
 				</CardContent>
 			</Card>
 		);

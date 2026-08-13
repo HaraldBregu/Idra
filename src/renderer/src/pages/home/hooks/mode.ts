@@ -46,7 +46,6 @@ export function useInteractionMode(sessionId: string) {
 			setModes((current) => {
 				const next = { ...current };
 				const mode = next[sessionId] ?? interactionMode;
-				delete next[sessionId];
 				next[resolvedSessionId] = mode;
 				writeModes(next);
 				return next;
@@ -55,5 +54,24 @@ export function useInteractionMode(sessionId: string) {
 		[interactionMode, sessionId]
 	);
 
-	return { interactionMode, setInteractionMode, migrateInteractionMode };
+	const finishInteractionModeMigration = useCallback(
+		(resolvedSessionId: string): void => {
+			if (resolvedSessionId === sessionId) return;
+			setModes((current) => {
+				const next = { ...current };
+				delete next[sessionId];
+				next[resolvedSessionId] ??= interactionMode;
+				writeModes(next);
+				return next;
+			});
+		},
+		[interactionMode, sessionId]
+	);
+
+	return {
+		interactionMode,
+		setInteractionMode,
+		migrateInteractionMode,
+		finishInteractionModeMigration,
+	};
 }

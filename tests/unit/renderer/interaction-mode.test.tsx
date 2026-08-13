@@ -41,5 +41,5 @@ it('migrates the home alias mode to the resolved session key', async () => {
 	view.rerender(<Harness sessionId="resolved" />);
 	expect(screen.getByText('plan')).toBeInTheDocument();
 	const stored = JSON.parse(localStorage.getItem('friday-interaction-modes') ?? '{}');
-	expect(stored).toEqual({ resolved: 'plan' });
+	expect(stored).toEqual({ home: 'plan', resolved: 'plan' });
 });

@@ -54,8 +54,12 @@ function runtimeOptionsForPrompt(prompt: string) {
 export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) => void }) {
 	const { chatState, dispatchChat } = useHomeAgentContext();
 	const { sessionId, setSessionId } = useChatSession();
-	const { interactionMode, setInteractionMode, migrateInteractionMode } =
-		useInteractionMode(sessionId);
+	const {
+		interactionMode,
+		setInteractionMode,
+		migrateInteractionMode,
+		finishInteractionModeMigration,
+	} = useInteractionMode(sessionId);
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(false);
@@ -64,7 +68,11 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	const activeRunIdRef = useRef<string | undefined>(undefined);
 	const localInteractionRef = useRef(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
-	const resolvedSessionIdRef = useRef<string | undefined>(undefined);
+	const resolvedSessionRef = useRef<{ requestId: number; sessionId: string } | undefined>(
+		undefined
+	);
+	const currentSessionIdRef = useRef(sessionId);
+	currentSessionIdRef.current = sessionId;
 
 	const focusInput = useCallback((): void => {
 		inputRef.current?.focus();
@@ -152,7 +160,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 					if (requestIdRef.current !== requestId || event.agentId !== HOME_AGENT_ID) return;
 					if (event.type === 'run_started' && event.sessionId !== sessionId) {
 						migrateInteractionMode(event.sessionId);
-						resolvedSessionIdRef.current = event.sessionId;
+						resolvedSessionRef.current = { requestId, sessionId: event.sessionId };
 					}
 					if (event.type === 'text_delta') response += event.delta;
 					dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
@@ -163,11 +171,6 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				requestActiveRef.current = false;
 				setIsLoading(false);
 				dispatchChat({ type: 'complete_active', response, completedAtMs: Date.now() });
-				if (resolvedSessionIdRef.current) {
-					const resolvedSessionId = resolvedSessionIdRef.current;
-					resolvedSessionIdRef.current = undefined;
-					setSessionId(resolvedSessionId);
-				}
 			} catch (error) {
 				if (requestIdRef.current !== requestId) return;
 				activeRunIdRef.current = undefined;
@@ -175,9 +178,25 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				setIsLoading(false);
 				const message = error instanceof Error ? error.message : 'Agent request failed.';
 				dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
+			} finally {
+				const resolved = resolvedSessionRef.current;
+				if (resolved?.requestId === requestId) {
+					resolvedSessionRef.current = undefined;
+					if (currentSessionIdRef.current === sessionId) {
+						finishInteractionModeMigration(resolved.sessionId);
+						setSessionId(resolved.sessionId);
+					}
+				}
 			}
 		},
-		[dispatchChat, interactionMode, migrateInteractionMode, sessionId, setSessionId]
+		[
+			dispatchChat,
+			finishInteractionModeMigration,
+			interactionMode,
+			migrateInteractionMode,
+			sessionId,
+			setSessionId,
+		]
 	);
 
 	const implementPlan = useCallback((): void => {
@@ -235,7 +254,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		localInteractionRef.current = false;
 		window.queueMicrotask(() => {
 			if (cancelled) return;
-			setIsLoading(false);
+			if (!requestActiveRef.current) setIsLoading(false);
 			setHistoryLoading(true);
 		});
 		agent
