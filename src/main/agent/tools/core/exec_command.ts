@@ -271,9 +271,7 @@ async function runExec(
 			try {
 				process.kill(-child.pid, signal);
 				return;
-			} catch {
-				/* process may already have exited */
-			}
+			} catch {}
 		}
 		child.kill(signal);
 	};
