@@ -12,7 +12,7 @@ import { approvedExecRoots } from '../../permissions/approved_exec_roots';
 import { resolveExecRoots } from '../../permissions/resolve_exec_roots';
 import type { AgentInteractionMode } from '../../../../shared/agent_types';
 import path from 'node:path';
-import { isPlanExecInputSafe } from '../../runner/plan_exec_input';
+import { planCommandError } from '../../plan/command';
 
 interface ExecResult {
 	command: string;
@@ -103,13 +103,8 @@ async function runExec(
 	} = input;
 	const planMode = interactionMode === 'plan';
 	if (planMode) {
-		if (!isPlanExecInputSafe(input, agentLocation()))
-			throw new Error('Command input is unavailable in Plan mode.');
-		if (backgroundInput === true) throw new Error('Plan commands cannot run in the background.');
-		if (ptyInput === true) throw new Error('Plan commands cannot use a PTY.');
-		if (elevatedInput === true) throw new Error('Plan commands cannot run outside the sandbox.');
-		if ((input.additionalRoots?.length ?? 0) > 0)
-			throw new Error('Plan commands cannot access additional roots.');
+		const policyError = planCommandError(input, agentLocation());
+		if (policyError) throw new Error(policyError);
 	}
 
 	if (hostInput === 'gateway' || hostInput === 'node') {
