@@ -437,6 +437,7 @@ function PageContent(): ReactElement {
 	const recorder = useAudioRecorder();
 	const voiceButtonMode = useVoiceButtonMode();
 	const [attachments, setAttachments] = useState<PromptAttachment[]>([]);
+	const [planCommandActive, setPlanCommandActive] = useState(false);
 	const [transcriptionErrorMessage, setTranscriptionErrorMessage] = useState<string | null>(null);
 	const [transcribingRecording, setTranscribingRecording] = useState(false);
 	const transcriptionRunRef = useRef(0);
@@ -446,7 +447,8 @@ function PageContent(): ReactElement {
 	const showEmptyConversation =
 		visibleMessages.length === 0 && !agent.isLoading && !agent.historyLoading;
 	const showPromptSuggestions = showEmptyConversation && voiceMode === null;
-	const canSubmit = agent.input.trim().length > 0 || attachments.length > 0;
+	const hasPromptText = agent.input.trim().length > 0;
+	const canSubmit = planCommandActive ? hasPromptText : hasPromptText || attachments.length > 0;
 	const dictationStatus = dictation.status;
 	const cancelDictationSession = dictation.cancel;
 	const recorderStatus = recorder.status;
@@ -543,7 +545,11 @@ function PageContent(): ReactElement {
 			agent.handleSubmit();
 			return;
 		}
-		agent.handleSubmit(attachments.map((attachment) => attachment.file));
+		if (planCommandActive && !hasPromptText) return;
+		agent.handleSubmit(
+			attachments.map((attachment) => attachment.file),
+			planCommandActive ? 'plan' : undefined
+		);
 		clearAttachments();
 	};
 
