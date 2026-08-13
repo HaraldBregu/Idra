@@ -61,6 +61,10 @@ jest.mock('../../../src/renderer/src/pages/home/hooks', () => ({
 	useVoiceButtonMode: () => 'disabled',
 }));
 
+jest.mock('@/components/audio-player', () => ({
+	AudioPlayer: () => <div />,
+}));
+
 jest.mock('@/components/prompt-editor', () => ({
 	PromptEditor: ({
 		value,
