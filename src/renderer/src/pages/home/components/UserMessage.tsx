@@ -136,20 +136,20 @@ export function UserMessage({
 						{content}
 					</Markdown>
 				)}
-				{canToggleContent && !isEditing ? (
-					<Button
-						type="button"
-						variant="ghost"
-						size="xs"
-						className="text-muted-foreground hover:text-foreground"
-						aria-expanded={isContentExpanded}
-						onClick={() => setIsContentExpanded((expanded) => !expanded)}
-					>
-						{isContentExpanded ? 'Less' : 'More'}
-					</Button>
-				) : null}
 				{!isEditing ? (
 					<MessageActions className="gap-1">
+						{canToggleContent ? (
+							<Button
+								type="button"
+								variant="ghost"
+								size="xs"
+								className="text-muted-foreground hover:text-foreground"
+								aria-expanded={isContentExpanded}
+								onClick={() => setIsContentExpanded((expanded) => !expanded)}
+							>
+								{isContentExpanded ? 'Less' : 'More'}
+							</Button>
+						) : null}
 						<Button
 							type="button"
 							variant="ghost"

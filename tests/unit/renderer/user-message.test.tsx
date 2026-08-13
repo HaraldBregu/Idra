@@ -26,6 +26,18 @@ it('copies a user message', async () => {
 	await waitFor(() => expect(writeText).toHaveBeenCalledWith('Copy this message.'));
 });
 
+it('toggles the long-message label in the bottom action row', () => {
+	render(
+		<UserMessage content={'Long message '.repeat(60)} collapseLongContent onEdit={jest.fn()} />
+	);
+	const copyButton = screen.getByRole('button', { name: 'Copy message' });
+	const moreButton = screen.getByRole('button', { name: 'More' });
+
+	expect(moreButton.parentElement).toBe(copyButton.parentElement);
+	fireEvent.click(moreButton);
+	expect(screen.getByRole('button', { name: 'Less' })).toHaveAttribute('aria-expanded', 'true');
+});
+
 it('edits a user message inline', async () => {
 	const onEdit = jest.fn().mockResolvedValue(true);
 	render(<UserMessage content="Original message" onEdit={onEdit} />);
