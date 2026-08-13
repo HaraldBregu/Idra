@@ -152,11 +152,13 @@ describe('provider manifest validation', () => {
 
 	it('declares the expected attachment contract for every bundled prompt model', () => {
 		const providersDirectory = join(process.cwd(), 'resources', 'providers');
-		const manifests = readdirSync(providersDirectory).map((providerDirectory) =>
-			JSON.parse(
-				readFileSync(join(providersDirectory, providerDirectory, 'manifest.json'), 'utf8')
-			)
-		);
+		const manifests = readdirSync(providersDirectory, { withFileTypes: true })
+			.filter((entry) => entry.isDirectory())
+			.map((entry) =>
+				JSON.parse(
+					readFileSync(join(providersDirectory, entry.name, 'manifest.json'), 'utf8')
+				)
+			);
 		const promptModels = manifests.flatMap((manifest) => {
 			expect(validateProviderManifest(manifest)).toEqual([]);
 			return manifest.services
