@@ -79,6 +79,10 @@ export interface AgentInvokeChannelMap {
 		args: [sessionId: string];
 		result: import('./agent_types').AgentHistoryMessage[];
 	};
+	[AgentChannels.editUserMessage]: {
+		args: [sessionId: string, userOffsetFromEnd: number, content: string];
+		result: boolean;
+	};
 	[AgentChannels.clearMessages]: { args: [sessionId: string]; result: void };
 	[AgentChannels.deleteSession]: { args: [sessionId: string]; result: void };
 	[AgentChannels.getWorkspaceLocation]: { args: []; result: string };

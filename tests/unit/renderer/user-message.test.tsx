@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { UserMessage } from '../../../src/renderer/src/pages/home/components/UserMessage';
 
 jest.mock('@/components/prompt-kit/markdown', () => ({
@@ -11,4 +11,44 @@ it('does not render a user bubble before a voice transcript is available', () =>
 
 	rerender(<UserMessage content="Show the message I sent." />);
 	expect(screen.getByText('Show the message I sent.')).toBeInTheDocument();
+});
+
+it('copies a user message', async () => {
+	const writeText = jest.fn().mockResolvedValue(undefined);
+	Object.defineProperty(navigator, 'clipboard', {
+		configurable: true,
+		value: { writeText },
+	});
+	render(<UserMessage content="Copy this message." />);
+
+	fireEvent.click(screen.getByRole('button', { name: 'Copy message' }));
+
+	await waitFor(() => expect(writeText).toHaveBeenCalledWith('Copy this message.'));
+});
+
+it('edits a user message inline', async () => {
+	const onEdit = jest.fn().mockResolvedValue(true);
+	render(<UserMessage content="Original message" onEdit={onEdit} />);
+
+	fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
+	const editor = screen.getByRole('textbox', { name: 'Edit message text' });
+	fireEvent.change(editor, { target: { value: 'Updated message' } });
+	fireEvent.click(screen.getByRole('button', { name: 'Submit edit' }));
+
+	await waitFor(() => expect(onEdit).toHaveBeenCalledWith('Updated message'));
+	await waitFor(() => expect(screen.queryByRole('form', { name: 'Edit message' })).toBeNull());
+});
+
+it('cancels an inline edit without saving', () => {
+	const onEdit = jest.fn().mockResolvedValue(true);
+	render(<UserMessage content="Original message" onEdit={onEdit} />);
+
+	fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
+	fireEvent.change(screen.getByRole('textbox', { name: 'Edit message text' }), {
+		target: { value: 'Discarded message' },
+	});
+	fireEvent.click(screen.getByRole('button', { name: 'Cancel edit' }));
+
+	expect(onEdit).not.toHaveBeenCalled();
+	expect(screen.getByText('Original message')).toBeInTheDocument();
 });

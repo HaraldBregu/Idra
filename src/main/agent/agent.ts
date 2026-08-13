@@ -10,6 +10,7 @@ import {
 	resolveSessionId,
 	resolveStoredSessionId,
 	tryAppendRun,
+	updateUserMessageBySessionId,
 	type SessionResult,
 } from './session';
 import { stream } from './runner/run_stream';
@@ -275,6 +276,25 @@ export class Agent {
 		return loadMessages(this.config, sessionId)
 			.slice(-this.lastMessagesLimit)
 			.flatMap(toHistoryMessages);
+	}
+
+	editUserMessage(
+		sessionId: string,
+		userOffsetFromEnd: number,
+		content: string
+	): Promise<boolean> {
+		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
+		return this.scheduler.run(
+			resolvedSessionId,
+			() =>
+				updateUserMessageBySessionId(
+					resolvedSessionId,
+					this.config.location,
+					userOffsetFromEnd,
+					content
+				),
+			{ priority: 'high' }
+		);
 	}
 
 	clearMessages(sessionId: string): Promise<void> {

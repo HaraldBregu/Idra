@@ -6,6 +6,7 @@ export const AgentChannels = {
 	respondUserInput: 'agent:respond-user-input',
 	listSessions: 'agent:list-sessions',
 	lastMessages: 'agent:last-messages',
+	editUserMessage: 'agent:edit-user-message',
 	clearMessages: 'agent:clear-messages',
 	deleteSession: 'agent:delete-session',
 	getWorkspaceLocation: 'agent:workspace:location:get',

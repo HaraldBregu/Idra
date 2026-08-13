@@ -322,6 +322,24 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.editUserMessage,
+			wrapSimpleHandler(
+				(sessionId: unknown, userOffsetFromEnd: unknown, content: unknown): Promise<boolean> => {
+					if (!Number.isSafeInteger(userOffsetFromEnd) || Number(userOffsetFromEnd) < 0)
+						throw new Error('Invalid user message offset.');
+					const normalizedContent = optionalTrimmedString(content);
+					if (!normalizedContent) throw new Error('Invalid user message content.');
+					return agent.editUserMessage(
+						requireUuidSessionId(sessionId),
+						Number(userOffsetFromEnd),
+						normalizedContent
+					);
+				},
+				AgentChannels.editUserMessage
+			)
+		);
+
+		ipcMain.handle(
 			AgentChannels.clearMessages,
 			wrapSimpleHandler((sessionId: unknown): Promise<void> => {
 				return agent.clearMessages(requireUuidSessionId(sessionId));

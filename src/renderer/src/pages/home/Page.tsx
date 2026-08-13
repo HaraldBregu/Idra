@@ -688,11 +688,18 @@ function PageContent(): ReactElement {
 									const groupedAssistantClassName = showAssistantHeader ? undefined : '-mt-5';
 
 									if (message.role === 'user') {
+										const userOffsetFromEnd = visibleMessages
+											.slice(index + 1)
+											.filter((nextMessage) => nextMessage.role === 'user').length;
 										return (
 											<UserMessage
 												key={message.id}
 												content={message.content}
 												collapseLongContent={isPreviousMessage}
+												canEdit={!agent.isLoading}
+												onEdit={(content) =>
+													agent.editUserMessage(message.id, userOffsetFromEnd, content)
+												}
 											/>
 										);
 									}

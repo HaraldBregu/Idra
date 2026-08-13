@@ -121,6 +121,24 @@ export const agent: AgentApi = {
 		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
 		return typedInvokeUnwrap(AgentChannels.lastMessages, normalizedSessionId);
 	},
+	editUserMessage: (
+		sessionId: string,
+		userOffsetFromEnd: number,
+		content: string
+	): Promise<boolean> => {
+		const normalizedSessionId = optionalTrimmedString(sessionId);
+		const normalizedContent = optionalTrimmedString(content);
+		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
+		if (!Number.isSafeInteger(userOffsetFromEnd) || userOffsetFromEnd < 0)
+			throw new Error('Invalid user message offset.');
+		if (!normalizedContent) throw new Error('Invalid user message content.');
+		return typedInvokeUnwrap(
+			AgentChannels.editUserMessage,
+			normalizedSessionId,
+			userOffsetFromEnd,
+			normalizedContent
+		);
+	},
 	clearMessages: (sessionId: string): Promise<void> => {
 		const normalizedSessionId = optionalTrimmedString(sessionId);
 		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');

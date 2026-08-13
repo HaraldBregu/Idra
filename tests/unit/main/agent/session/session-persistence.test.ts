@@ -11,6 +11,7 @@ import { persist } from '../../../../../src/main/agent/session/session_persist';
 import { runFilePath } from '../../../../../src/main/agent/session/session_run_file_path';
 import { sessionsRoot } from '../../../../../src/main/agent/session/session_sessions_root';
 import { insertUserMessage } from '../../../../../src/main/agent/session/session_insert_user_message';
+import { updateUserMessageBySessionId } from '../../../../../src/main/agent/session/session_update_user_message_by_session_id';
 
 const SESSION_ID = '11111111-1111-4111-8111-111111111111';
 
@@ -79,6 +80,31 @@ describe('session persistence', () => {
 			{ role: 'user', content: 'Earlier message' },
 			{ role: 'user', content: 'Show the message I sent.' },
 			{ role: 'assistant', content: 'Later response' },
+		]);
+	});
+
+	it('updates a stored user message by its offset from the end', () => {
+		const location = path.join(temporaryRoot, 'agent');
+		const state = createSessionState();
+		state.id = SESSION_ID;
+		state.folderName = SESSION_ID;
+		state.sessionsPath = sessionsRoot(location);
+		state.messages = [
+			{ role: 'user', content: 'First question' },
+			{ role: 'assistant', content: 'First answer' },
+			{ role: 'user', content: 'Second question' },
+			{ role: 'assistant', content: 'Second answer' },
+		];
+		persist(state);
+
+		expect(updateUserMessageBySessionId(SESSION_ID, location, 1, 'Updated question')).toBe(
+			true
+		);
+		expect(loadMessagesBySessionId(SESSION_ID, location)).toEqual([
+			{ role: 'user', content: 'Updated question' },
+			{ role: 'assistant', content: 'First answer' },
+			{ role: 'user', content: 'Second question' },
+			{ role: 'assistant', content: 'Second answer' },
 		]);
 	});
 

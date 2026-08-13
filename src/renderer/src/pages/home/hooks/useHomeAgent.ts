@@ -211,6 +211,17 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		);
 	}, [sendPrompt, setInteractionMode]);
 
+	const editUserMessage = useCallback(
+		async (messageId: string, userOffsetFromEnd: number, content: string): Promise<boolean> => {
+			const agent = getAgentApi();
+			if (!agent) return false;
+			const updated = await agent.editUserMessage(sessionId, userOffsetFromEnd, content);
+			if (updated) dispatchChat({ type: 'update_user_message', messageId, content });
+			return updated;
+		},
+		[dispatchChat, sessionId]
+	);
+
 	// useEffect(() => {
 	// 	const agent = getAgentApi();
 	// 	if (!agent) return;
@@ -315,6 +326,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 	return {
 		chatState,
+		editUserMessage,
 		handleSubmit,
 		historyLoading,
 		input,
