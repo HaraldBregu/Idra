@@ -12,7 +12,12 @@ import {
 	tryAppendRun,
 	updateUserMessageBySessionId,
 	type SessionResult,
+	addAssistantMessage,
+	sessionDir,
 } from './session';
+import { accountGoalRun } from './goal/account';
+import { applyGoalCommand } from './goal/apply';
+import { parseGoalCommand } from './goal/parse';
 import { stream } from './runner/run_stream';
 import { agentLocation } from '../shared/agent_location';
 import { destroyTask, getRuntime, initTask, setTaskRunner, startTask } from '../tasks';
@@ -236,6 +241,20 @@ export class Agent {
 						};
 
 			init(session, this.config, input, request.category);
+			const goalCommand = request.category === 'main' ? parseGoalCommand(request.message) : undefined;
+			if (goalCommand) {
+				const reply = applyGoalCommand(sessionDir(session), goalCommand);
+				addAssistantMessage(session, reply, []);
+				options.streamEvent?.({ type: 'text_delta', delta: reply, agentId: request.agentId, runId: request.id });
+				options.streamEvent?.({
+					type: 'run_finished',
+					stopReason: 'end_turn',
+					outputChars: reply.length,
+					agentId: request.agentId,
+					runId: request.id,
+				});
+				return { text: reply, stopReason: 'end_turn' };
+			}
 			tryAppendRun(session, {
 				type: 'run_queue_metrics',
 				queueDelayMs: Date.now() - request.queuedAt,
@@ -268,6 +287,9 @@ export class Agent {
 				)) {
 					options.streamEvent?.(responseEvent);
 				}
+			}
+			if (result && request.category === 'main') {
+				accountGoalRun(sessionDir(session), result.usage ?? { inputTokens: 0, outputTokens: 0 }, result.toolCalls.length);
 			}
 			return {
 				text: response,
