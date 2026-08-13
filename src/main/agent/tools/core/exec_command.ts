@@ -260,7 +260,23 @@ async function runExec(
 		});
 	}
 
-	const child = spawn(spawnCommand, spawnArgs, { cwd, env, shell });
+	const child = spawn(spawnCommand, spawnArgs, {
+		cwd,
+		env,
+		shell,
+		detached: planMode && process.platform !== 'win32',
+	});
+	const terminateChild = (signal: NodeJS.Signals): void => {
+		if (planMode && process.platform !== 'win32' && child.pid) {
+			try {
+				process.kill(-child.pid, signal);
+				return;
+			} catch {
+				/* process may already have exited */
+			}
+		}
+		child.kill(signal);
+	};
 	if (executionMode === 'sandbox') sandbox.track(child);
 	const maxOutputLength = 200000;
 	let stdout = '';
@@ -352,8 +368,8 @@ async function runExec(
 		}, yieldMs);
 		const abort = (): void => {
 			aborted = true;
-			child.kill('SIGTERM');
-			if (planMode) hardKillTimer = setTimeout(() => child.kill('SIGKILL'), 1_000);
+			terminateChild('SIGTERM');
+			if (planMode) hardKillTimer = setTimeout(() => terminateChild('SIGKILL'), 1_000);
 			if (ownedSessionId) registry.remove(ownedSessionId);
 		};
 		abortSignal?.addEventListener('abort', abort, { once: true });
@@ -362,8 +378,8 @@ async function runExec(
 		if (timeoutMs !== undefined) {
 			timeoutTimer = setTimeout(() => {
 				timedOut = true;
-				child.kill('SIGTERM');
-				if (planMode) hardKillTimer = setTimeout(() => child.kill('SIGKILL'), 1_000);
+				terminateChild('SIGTERM');
+				if (planMode) hardKillTimer = setTimeout(() => terminateChild('SIGKILL'), 1_000);
 			}, timeoutMs);
 		}
 
