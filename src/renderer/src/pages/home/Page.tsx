@@ -746,7 +746,7 @@ function PageContent(): ReactElement {
 							onValueChange={agent.setInput}
 							onPlanCommandChange={(active) => {
 								setPlanCommandActive(active);
-								if (active) agent.setInteractionMode('plan');
+								agent.setInteractionMode(active ? 'plan' : 'default');
 							}}
 							isLoading={agent.isLoading}
 							maxHeight={360}

@@ -123,9 +123,21 @@ function TextEditor({
 
 	useEffect(() => {
 		if (!editor || editor.getMarkdown() === (value ?? '')) return;
-		const chain = editor
-			.chain()
-			.setContent(value ?? '', { emitUpdate: false, contentType: 'markdown' });
+		let planCommandActive = false;
+		editor.state.doc.descendants((node) => {
+			if (node.type.name === PlanCommand.name) planCommandActive = true;
+			return !planCommandActive;
+		});
+		const chain = editor.chain().setContent(value ?? '', {
+			emitUpdate: false,
+			contentType: 'markdown',
+		});
+		if (planCommandActive) {
+			chain.insertContentAt(1, [
+				{ type: PlanCommand.name },
+				{ type: 'text', text: ' ' },
+			]);
+		}
 		if (editor.isFocused) chain.focus('end');
 		chain.run();
 		reportPlanCommand(editor);

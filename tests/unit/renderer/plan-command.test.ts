@@ -42,4 +42,18 @@ describe('PlanCommand', () => {
 		expect(editor.state.doc.textContent).toBe('Start /plan');
 		editor.destroy();
 	});
+
+	it('removes the Plan node with Backspace at its boundary', () => {
+		const editor = new Editor({
+			element: document.createElement('div'),
+			extensions: [StarterKit, PlanCommand],
+		});
+		typeText(editor, '/plan');
+		expect(editor.getHTML()).toContain('data-plan-command');
+
+		editor.commands.keyboardShortcut('Backspace');
+
+		expect(editor.getHTML()).not.toContain('data-plan-command');
+		editor.destroy();
+	});
 });

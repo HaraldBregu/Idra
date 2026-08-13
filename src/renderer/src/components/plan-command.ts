@@ -35,4 +35,23 @@ export const PlanCommand = Node.create({
 			}),
 		];
 	},
+	addKeyboardShortcuts() {
+		return {
+			Backspace: () => {
+				const { doc, selection } = this.editor.state;
+				if (!selection.empty) return false;
+				let planPosition: number | undefined;
+				doc.descendants((node, position) => {
+					if (node.type === this.type) planPosition = position;
+					return planPosition === undefined;
+				});
+				if (planPosition === undefined || selection.from <= planPosition) return false;
+				if (doc.textBetween(planPosition + 1, selection.from).trim().length > 0) return false;
+				return this.editor.commands.command(({ tr }) => {
+					tr.delete(planPosition, selection.from);
+					return true;
+				});
+			},
+		};
+	},
 });
