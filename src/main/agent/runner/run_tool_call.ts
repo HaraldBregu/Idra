@@ -137,13 +137,27 @@ export async function* runToolCall(
 			isError = !answers;
 		}
 	} else {
-		const resolution = resolveToolPermissionDetails(
+		let resolution = resolveToolPermissionDetails(
 			toolCall.name,
 			canonicalInput,
 			context,
 			true,
 			'ask'
 		);
+		const hardApproval = typeof tool.hardApproval === 'function'
+			? tool.hardApproval(canonicalInput)
+			: tool.hardApproval === true;
+		if (hardApproval && resolution.mode !== 'deny') {
+			resolution = {
+				...resolution,
+				mode: 'ask',
+				approvalTargets: resolution.approvalTargets.length > 0
+					? resolution.approvalTargets
+					: resolution.targets,
+				reason: 'destructive_operation',
+				persistable: false,
+			};
+		}
 		let permission = resolution.mode;
 		if (security.interactionMode === 'plan' && permission === 'ask') permission = 'deny';
 
