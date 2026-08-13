@@ -7,6 +7,7 @@ jest.mock('../../../../src/main/models', () => ({
 import { resolvePromptInputCapabilities } from '../../../../src/main/agent/attachments/capabilities';
 import { preflightPromptAttachments } from '../../../../src/main/agent/attachments/preflight';
 import { projectPromptAttachments } from '../../../../src/main/agent/attachments/project';
+import { llmToTranscriptEntry } from '../../../../src/main/models/adapters/llm/llm_shared';
 
 const imageRule = {
 	kind: 'image' as const,
@@ -167,4 +168,27 @@ describe('historical attachment projection', () => {
 		expect(JSON.stringify(result)).toContain('Historical attachment unavailable');
 		expect(JSON.stringify(result)).not.toContain('cGRm');
 	});
+});
+
+it('passes uploaded text content—not its location—to the provider transcript', () => {
+	const [file] = preflightPromptAttachments(
+		[
+			{
+				name: 'private-notes.md',
+				mimeType: 'text/markdown',
+				data: Buffer.from('UNIQUE_UPLOADED_CONTENT').toString('base64'),
+			},
+		],
+		{ ...capabilities, rules: [] }
+	);
+	const projected = projectPromptAttachments(
+		[{ role: 'user', content: [{ type: 'text', text: 'Read the upload.' }, file] }],
+		{ ...capabilities, rules: [] }
+	);
+	const providerTranscript = projected.flatMap(llmToTranscriptEntry);
+	const serialized = JSON.stringify(providerTranscript);
+	expect(serialized).toContain('UNIQUE_UPLOADED_CONTENT');
+	expect(serialized).toContain('BEGIN UPLOADED CONTENT');
+	expect(serialized).not.toContain('private-notes.md');
+	expect(serialized).not.toContain(Buffer.from('UNIQUE_UPLOADED_CONTENT').toString('base64'));
 });
