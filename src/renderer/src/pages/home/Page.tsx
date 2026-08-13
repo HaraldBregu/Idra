@@ -696,7 +696,7 @@ function PageContent(): ReactElement {
 												key={message.id}
 												content={message.content}
 												collapseLongContent={isPreviousMessage}
-												canEdit={!agent.isLoading}
+												canEdit={!agent.isLoading && voiceMode === null}
 												onEdit={(content) =>
 													agent.editUserMessage(message.id, userOffsetFromEnd, content)
 												}
