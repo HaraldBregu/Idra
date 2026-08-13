@@ -120,9 +120,10 @@ async function* loop(
 	const skillListingEnabled =
 		(input.toolsAllow === undefined || input.toolsAllow.includes('list_skills')) &&
 		!input.toolsDeny?.includes('list_skills');
-	const skillSnapshot = skillLoadingEnabled || skillListingEnabled
-		? createSkillRegistrySnapshot()
-		: { skills: [], diagnostics: [] };
+	const skillSnapshot =
+		skillLoadingEnabled || skillListingEnabled
+			? createSkillRegistrySnapshot()
+			: { skills: [], diagnostics: [] };
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 	const promptCapabilities =
@@ -202,12 +203,11 @@ async function* loop(
 		tools: tools.map((tool) => tool.id),
 		skillDiagnostics: skillSnapshot.diagnostics,
 		skillActivations: session.runContext.loadedSkills.map((skill) => ({
-				id: skill.id,
-				name: skill.name,
-				hash: skill.hash,
-				trust: skill.trust,
-			})
-		),
+			id: skill.id,
+			name: skill.name,
+			hash: skill.hash,
+			trust: skill.trust,
+		})),
 		...(mcpDiscovery ? { mcpDiscovery } : {}),
 	};
 
@@ -227,9 +227,7 @@ async function* loop(
 			);
 			const loadedSkillPrompt = buildLoadedSkillPrompt(session.runContext.loadedSkills);
 			const protectedSkillPrompt =
-				input.interactionMode === 'plan'
-					? addPlanPrompt(loadedSkillPrompt)
-					: loadedSkillPrompt;
+				input.interactionMode === 'plan' ? addPlanPrompt(loadedSkillPrompt) : loadedSkillPrompt;
 			const workspaceContext =
 				contextMode === 'workspace' && options.instructions === undefined
 					? await buildWorkspaceContext(config)

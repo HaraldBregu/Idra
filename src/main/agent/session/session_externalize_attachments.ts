@@ -19,7 +19,9 @@ export function externalizeAttachments(messages: Message[], state: SessionState)
 							return block;
 						const bytes = Buffer.from(block.base64, 'base64');
 						if (bytes.length > AGENT_MAX_ATTACHMENT_BYTES) {
-							throw new Error(`Each attachment must be at most ${AGENT_MAX_ATTACHMENT_BYTES} bytes.`);
+							throw new Error(
+								`Each attachment must be at most ${AGENT_MAX_ATTACHMENT_BYTES} bytes.`
+							);
 						}
 						const id = createHash('sha256').update(bytes).digest('hex');
 						const directory = sessionPath(state.sessionsPath, state.folderName, 'attachments');

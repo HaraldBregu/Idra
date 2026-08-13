@@ -335,10 +335,7 @@ function toAnthropicUserContent(
 				type: 'image',
 				source: {
 					type: 'base64',
-					media_type: mimeType as
-						| 'image/png'
-						| 'image/jpeg'
-						| 'image/webp',
+					media_type: mimeType as 'image/png' | 'image/jpeg' | 'image/webp',
 					data: block.base64,
 				},
 			};

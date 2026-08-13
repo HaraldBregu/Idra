@@ -16,7 +16,8 @@ export function hydrateAttachments(
 			typeof message.content === 'string'
 				? message.content
 				: message.content.map((block) => {
-						if (block.type !== 'image' && block.type !== 'document' && block.type !== 'file') return block;
+						if (block.type !== 'image' && block.type !== 'document' && block.type !== 'file')
+							return block;
 						if (!block.attachment || typeof block.attachment !== 'object') return block;
 						const { id, bytes } = block.attachment as Record<string, unknown>;
 						if (

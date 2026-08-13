@@ -47,10 +47,7 @@ import {
 	type AgentRunRecord,
 } from './state';
 import { getModelId, getProviderId } from './agent_store';
-import {
-	preflightPromptAttachments,
-	resolvePromptInputCapabilities,
-} from './attachments';
+import { preflightPromptAttachments, resolvePromptInputCapabilities } from './attachments';
 
 const RUN_PRIORITIES: Record<SessionCategory, AgentRunPriority> = {
 	main: 'high',
@@ -304,11 +301,7 @@ export class Agent {
 		return resolvePromptInputCapabilities(getProviderId(), getModelId());
 	}
 
-	editUserMessage(
-		sessionId: string,
-		userOffsetFromEnd: number,
-		content: string
-	): Promise<boolean> {
+	editUserMessage(sessionId: string, userOffsetFromEnd: number, content: string): Promise<boolean> {
 		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
 		return this.scheduler.run(
 			resolvedSessionId,
@@ -481,11 +474,7 @@ function toHistoryContentBlocks(message: Message): AgentHistoryContentBlock[] {
 						return {
 							type: 'attachment',
 							kind:
-								block.type === 'text_file'
-									? 'text'
-									: block.type === 'image'
-										? 'image'
-										: 'document',
+								block.type === 'text_file' ? 'text' : block.type === 'image' ? 'image' : 'document',
 							name: block.name,
 							mimeType: block.mimeType,
 							bytes,

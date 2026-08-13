@@ -80,9 +80,7 @@ export function normalizeAgentInputFiles(value: unknown): AgentInputFile[] | und
 		}
 		totalBytes += decodedBytes;
 		if (totalBytes > AGENT_MAX_ATTACHMENT_TOTAL_BYTES) {
-			throw new Error(
-				`Attachments must total at most ${AGENT_MAX_ATTACHMENT_TOTAL_BYTES} bytes.`
-			);
+			throw new Error(`Attachments must total at most ${AGENT_MAX_ATTACHMENT_TOTAL_BYTES} bytes.`);
 		}
 		files.push({ name, mimeType: mimeType.trim(), data: normalizedData });
 	}
