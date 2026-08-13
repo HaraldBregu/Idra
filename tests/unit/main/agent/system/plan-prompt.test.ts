@@ -1,4 +1,4 @@
-import { addPlanPrompt } from '../../../../../src/main/agent/system/system_add_plan_prompt';
+import { addPlanPrompt } from '../../../../../src/main/agent/plan/context';
 
 describe('Plan protected prompt', () => {
 	it('appends the read-only and final-envelope contract after the normal prompt', () => {
