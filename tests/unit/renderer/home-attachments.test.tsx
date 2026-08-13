@@ -79,6 +79,18 @@ jest.mock('@/components/ui/prompt-input', () => ({
 	usePromptInput: () => ({ triggerFileUpload: jest.fn() }),
 }));
 
+jest.mock('@/components/ui/scroll-button', () => ({
+	ScrollButton: () => <button type="button">Scroll</button>,
+}));
+
+jest.mock('../../../src/renderer/src/pages/home/components/AssistantMessage', () => ({
+	AssistantMessage: () => <div />,
+}));
+
+jest.mock('../../../src/renderer/src/pages/home/components/UserMessage', () => ({
+	UserMessage: () => <div />,
+}));
+
 jest.mock('@/components/prompt-editor', () => ({
 	PromptEditor: ({
 		value,
