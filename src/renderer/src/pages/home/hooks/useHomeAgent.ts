@@ -227,12 +227,12 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	// }, [dispatchChat]);
 
 	const handleSubmit = useCallback(
-		(files?: File[]): void => {
+		(files?: File[], interactionModeOverride?: AgentInteractionMode): void => {
 			if (isLoading) {
 				stopResponse();
 				return;
 			}
-			void sendPrompt(input, files);
+			void sendPrompt(input, files, { interactionMode: interactionModeOverride });
 		},
 		[input, isLoading, sendPrompt, stopResponse]
 	);
