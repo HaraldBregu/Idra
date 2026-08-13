@@ -12,6 +12,9 @@
       "type": "large-language-model",
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://ai.google.dev/gemini-api/docs/openai",
         "documentationStatus": "verified",
         "inputs": {
@@ -41,6 +44,9 @@
       "type": "large-language-model",
       "url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://ai.google.dev/gemini-api/docs/openai",
         "documentationStatus": "verified",
         "inputs": {

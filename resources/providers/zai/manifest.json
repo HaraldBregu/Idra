@@ -12,6 +12,7 @@
       "type": "large-language-model",
       "url": "https://api.z.ai/api/paas/v4",
       "metadata": {
+        "promptAttachments": [],
         "documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
         "documentationStatus": "verified",
         "inputs": {
@@ -74,6 +75,7 @@
       "type": "large-language-model",
       "url": "https://api.z.ai/api/paas/v4",
       "metadata": {
+        "promptAttachments": [],
         "documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
         "documentationStatus": "verified",
         "inputs": {
@@ -136,6 +138,7 @@
       "type": "large-language-model",
       "url": "https://api.z.ai/api/paas/v4",
       "metadata": {
+        "promptAttachments": [],
         "documentationUrl": "https://docs.z.ai/api-reference/llm/chat-completion",
         "documentationStatus": "verified",
         "inputs": {

@@ -12,6 +12,9 @@
       "type": "large-language-model",
       "url": "https://api.mistral.ai/v1",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://docs.mistral.ai/api/",
         "documentationStatus": "verified",
         "inputs": {
@@ -53,6 +56,9 @@
       "type": "large-language-model",
       "url": "https://api.mistral.ai/v1",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://docs.mistral.ai/api/",
         "documentationStatus": "verified",
         "inputs": {
@@ -98,6 +104,7 @@
       "type": "large-language-model",
       "url": "https://api.mistral.ai/v1",
       "metadata": {
+        "promptAttachments": [],
         "documentationUrl": "https://docs.mistral.ai/api/",
         "documentationStatus": "verified",
         "inputs": {

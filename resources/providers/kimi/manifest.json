@@ -12,6 +12,9 @@
       "type": "large-language-model",
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://platform.kimi.ai/docs/api/chat",
         "documentationStatus": "verified",
         "inputs": {
@@ -70,6 +73,9 @@
       "type": "large-language-model",
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://platform.kimi.ai/docs/api/chat",
         "documentationStatus": "verified",
         "inputs": {
@@ -124,6 +130,9 @@
       "type": "large-language-model",
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://platform.kimi.ai/docs/api/chat",
         "documentationStatus": "verified",
         "inputs": {
@@ -178,6 +187,9 @@
       "type": "large-language-model",
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://platform.kimi.ai/docs/api/chat",
         "documentationStatus": "verified",
         "inputs": {
@@ -241,6 +253,9 @@
       "type": "large-language-model",
       "url": "https://api.moonshot.ai/v1",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://platform.kimi.ai/docs/api/chat",
         "documentationStatus": "verified",
         "inputs": {

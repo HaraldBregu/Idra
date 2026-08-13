@@ -12,6 +12,7 @@
       "type": "large-language-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
+        "promptAttachments": [],
         "documentationUrl": "https://platform.minimax.io/docs/api-reference/text-openai-api",
         "documentationStatus": "verified",
         "inputs": {
@@ -48,6 +49,7 @@
       "type": "large-language-model",
       "url": "https://api.minimax.io/v1",
       "metadata": {
+        "promptAttachments": [],
         "documentationUrl": "https://platform.minimax.io/docs/api-reference/text-openai-api",
         "documentationStatus": "verified",
         "inputs": {

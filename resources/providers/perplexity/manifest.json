@@ -12,6 +12,10 @@
       "type": "research-chat-model",
       "url": "https://api.perplexity.ai",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]},
+          {"kind":"document","mimeTypes":["application/pdf"],"extensions":[".pdf"]}
+        ],
         "documentationUrl": "https://docs.perplexity.ai/api-reference/sonar-post",
         "documentationStatus": "verified",
         "inputs": {
@@ -78,6 +82,10 @@
       "type": "research-chat-model",
       "url": "https://api.perplexity.ai",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]},
+          {"kind":"document","mimeTypes":["application/pdf"],"extensions":[".pdf"]}
+        ],
         "documentationUrl": "https://docs.perplexity.ai/api-reference/sonar-post",
         "documentationStatus": "verified",
         "inputs": {
@@ -144,6 +152,10 @@
       "type": "research-chat-model",
       "url": "https://api.perplexity.ai",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]},
+          {"kind":"document","mimeTypes":["application/pdf"],"extensions":[".pdf"]}
+        ],
         "documentationUrl": "https://docs.perplexity.ai/api-reference/sonar-post",
         "documentationStatus": "verified",
         "inputs": {
@@ -202,6 +214,10 @@
       "type": "research-chat-model",
       "url": "https://api.perplexity.ai",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]},
+          {"kind":"document","mimeTypes":["application/pdf"],"extensions":[".pdf"]}
+        ],
         "documentationUrl": "https://docs.perplexity.ai/api-reference/sonar-post",
         "documentationStatus": "verified",
         "inputs": {
@@ -256,4 +272,3 @@
     }
   ]
 }
-

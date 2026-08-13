@@ -12,6 +12,7 @@
 			"type": "large-language-model",
 			"url": "https://api.deepseek.com",
 			"metadata": {
+				"promptAttachments": [],
 				"documentationUrl": "https://api-docs.deepseek.com/guides/thinking_mode",
 				"documentationStatus": "verified",
 				"contextWindow": 1048576,
@@ -85,6 +86,7 @@
 			"type": "large-language-model",
 			"url": "https://api.deepseek.com",
 			"metadata": {
+				"promptAttachments": [],
 				"documentationUrl": "https://api-docs.deepseek.com/guides/thinking_mode",
 				"documentationStatus": "verified",
 				"contextWindow": 1048576,

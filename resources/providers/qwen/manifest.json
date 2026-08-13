@@ -12,6 +12,7 @@
       "type": "large-language-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
+        "promptAttachments": [],
         "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
         "documentationStatus": "verified",
         "inputs": {
@@ -58,6 +59,9 @@
       "type": "large-language-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
         "documentationStatus": "verified",
         "inputs": {
@@ -104,6 +108,9 @@
       "type": "large-language-model",
       "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "metadata": {
+        "promptAttachments": [
+          {"kind":"image","mimeTypes":["image/jpeg","image/png","image/webp"],"extensions":[".jpg",".jpeg",".png",".webp"]}
+        ],
         "documentationUrl": "https://www.alibabacloud.com/help/en/model-studio/",
         "documentationStatus": "verified",
         "inputs": {
