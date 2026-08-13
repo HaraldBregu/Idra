@@ -503,9 +503,9 @@ input[type='range']:hover::-moz-range-thumb {
 .plan-prompt-frame::before {
 	content: '';
 	position: absolute;
-	inset: -1px;
+	inset: -0.5px;
 	border-radius: inherit;
-	padding: 1px;
+	padding: 0.5px;
 	background: linear-gradient(
 		90deg,
 		#ef4444,
