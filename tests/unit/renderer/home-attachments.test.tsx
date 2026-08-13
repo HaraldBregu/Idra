@@ -174,13 +174,13 @@ describe('Home prompt attachments', () => {
 		modelCatalogChanged = undefined;
 	});
 
-	it('uses effective accept metadata and disables the picker when resolution fails', async () => {
-		const getCapabilities = jest.fn().mockResolvedValueOnce(imageCapabilities);
+	it('keeps local text available on text-only models and disables the picker on resolution failure', async () => {
+		const getCapabilities = jest.fn().mockResolvedValueOnce(textCapabilities);
 		renderPage(getCapabilities);
 		await waitFor(() =>
 			expect(screen.getByLabelText('Attachment files')).toHaveAttribute(
 				'accept',
-				imageCapabilities.accept
+				textCapabilities.accept
 			)
 		);
 		expect(screen.getByRole('button', { name: 'Add attachment' })).toBeEnabled();
