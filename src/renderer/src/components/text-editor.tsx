@@ -4,6 +4,7 @@ import { Markdown } from '@tiptap/markdown';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { cn } from '@/lib/utils';
+import { GoalCommand } from './goal-command';
 import { PlanCommand } from './plan-command';
 
 export type TextEditorProps = {
@@ -17,6 +18,7 @@ export type TextEditorProps = {
 	readonly onEditorReady?: (editor: Editor) => void;
 	readonly onVisualLineChange?: (hasMultipleLines: boolean) => void;
 	readonly onPlanCommandChange?: (active: boolean) => void;
+	readonly onGoalCommandChange?: (active: boolean) => void;
 };
 
 function TextEditor({
@@ -30,18 +32,21 @@ function TextEditor({
 	onEditorReady,
 	onVisualLineChange,
 	onPlanCommandChange,
+	onGoalCommandChange,
 }: TextEditorProps): ReactElement {
 	const onValueChangeRef = useRef(onValueChange);
 	const onSubmitRef = useRef(onSubmit);
 	const onVisualLineChangeRef = useRef(onVisualLineChange);
 	const onPlanCommandChangeRef = useRef(onPlanCommandChange);
+	const onGoalCommandChangeRef = useRef(onGoalCommandChange);
 
 	useEffect(() => {
 		onValueChangeRef.current = onValueChange;
 		onSubmitRef.current = onSubmit;
 		onVisualLineChangeRef.current = onVisualLineChange;
 		onPlanCommandChangeRef.current = onPlanCommandChange;
-	}, [onPlanCommandChange, onSubmit, onValueChange, onVisualLineChange]);
+		onGoalCommandChangeRef.current = onGoalCommandChange;
+	}, [onGoalCommandChange, onPlanCommandChange, onSubmit, onValueChange, onVisualLineChange]);
 
 	const reportPlanCommand = (updatedEditor: Editor): void => {
 		let active = false;
@@ -50,6 +55,15 @@ function TextEditor({
 			return !active;
 		});
 		onPlanCommandChangeRef.current?.(active);
+	};
+
+	const reportGoalCommand = (updatedEditor: Editor): void => {
+		let active = false;
+		updatedEditor.state.doc.descendants((node) => {
+			if (node.type.name === GoalCommand.name) active = true;
+			return !active;
+		});
+		onGoalCommandChangeRef.current?.(active);
 	};
 
 	const reportVisualLineChange = (updatedEditor: Editor): void => {
@@ -64,18 +78,26 @@ function TextEditor({
 	};
 
 	const editor = useEditor({
-		extensions: [StarterKit, Placeholder.configure({ placeholder }), PlanCommand, Markdown],
+		extensions: [
+			StarterKit,
+			Placeholder.configure({ placeholder }),
+			PlanCommand,
+			GoalCommand,
+			Markdown,
+		],
 		content: value ?? '',
 		contentType: 'markdown',
 		editable: !disabled,
 		onCreate: ({ editor: createdEditor }) => {
 			onEditorReady?.(createdEditor);
 			reportPlanCommand(createdEditor);
+			reportGoalCommand(createdEditor);
 			reportVisualLineChange(createdEditor);
 		},
 		onUpdate: ({ editor: updatedEditor }) => {
 			onValueChangeRef.current?.(updatedEditor.getMarkdown());
 			reportPlanCommand(updatedEditor);
+			reportGoalCommand(updatedEditor);
 			reportVisualLineChange(updatedEditor);
 		},
 		editorProps: {
@@ -124,9 +146,11 @@ function TextEditor({
 	useEffect(() => {
 		if (!editor || editor.getMarkdown() === (value ?? '')) return;
 		let planCommandActive = false;
+		let goalCommandActive = false;
 		editor.state.doc.descendants((node) => {
 			if (node.type.name === PlanCommand.name) planCommandActive = true;
-			return !planCommandActive;
+			if (node.type.name === GoalCommand.name) goalCommandActive = true;
+			return !planCommandActive || !goalCommandActive;
 		});
 		const chain = editor.chain().setContent(value ?? '', {
 			emitUpdate: false,
@@ -138,9 +162,16 @@ function TextEditor({
 				{ type: 'text', text: ' ' },
 			]);
 		}
+		if (goalCommandActive) {
+			chain.insertContentAt(1, [
+				{ type: GoalCommand.name },
+				{ type: 'text', text: ' ' },
+			]);
+		}
 		if (editor.isFocused) chain.focus('end');
 		chain.run();
 		reportPlanCommand(editor);
+		reportGoalCommand(editor);
 		reportVisualLineChange(editor);
 	}, [editor, value]);
 
