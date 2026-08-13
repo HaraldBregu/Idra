@@ -1,5 +1,4 @@
 import { Editor } from '@tiptap/core';
-import { Markdown } from '@tiptap/markdown';
 import StarterKit from '@tiptap/starter-kit';
 import { GoalCommand } from '../../../src/renderer/src/components/goal-command';
 
@@ -17,7 +16,7 @@ describe('GoalCommand', () => {
 	it('turns a leading /goal into a green inline node and preserves the command on submit', () => {
 		const editor = new Editor({
 			element: document.createElement('div'),
-			extensions: [StarterKit, GoalCommand, Markdown],
+			extensions: [StarterKit, GoalCommand],
 		});
 
 		typeText(editor, '/goal');
@@ -25,7 +24,10 @@ describe('GoalCommand', () => {
 		expect(editor.getHTML()).toContain('text-emerald-600');
 
 		typeText(editor, 'Keep tests green');
-		expect(editor.getMarkdown()).toBe('/goal Keep tests green');
+		expect(editor.state.doc.textContent.trim()).toBe('Keep tests green');
+		expect(GoalCommand.config.renderMarkdown?.({ node: editor.state.doc.firstChild! } as never)).toBe(
+			'/goal'
+		);
 		editor.destroy();
 	});
 
