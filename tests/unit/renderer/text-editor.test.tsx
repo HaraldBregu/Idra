@@ -30,6 +30,7 @@ describe('TextEditor', () => {
 		};
 		const editor = {
 			view: { dom: editorElement },
+			state: { doc: { descendants: jest.fn() } },
 			chain: jest.fn(() => chain),
 			getMarkdown: jest.fn(() => editorValue),
 			isFocused: false,
