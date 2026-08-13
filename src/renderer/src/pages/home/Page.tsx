@@ -595,6 +595,7 @@ function PageContent(): ReactElement {
 			return;
 		const submittedFiles = attachments.map((attachment) => attachment.file);
 		clearAttachments();
+		if (goalCommandActive) setGoalCommandActive(false);
 		await agent.handleSubmit(submittedFiles, planCommandActive ? 'plan' : undefined);
 	};
 
