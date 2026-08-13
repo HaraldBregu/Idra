@@ -4,6 +4,7 @@ import { Markdown } from '@tiptap/markdown';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { cn } from '@/lib/utils';
+import { PlanCommand } from './plan-command';
 
 export type TextEditorProps = {
 	readonly value?: string;
@@ -15,6 +16,7 @@ export type TextEditorProps = {
 	readonly ariaLabel?: string;
 	readonly onEditorReady?: (editor: Editor) => void;
 	readonly onVisualLineChange?: (hasMultipleLines: boolean) => void;
+	readonly onPlanCommandChange?: (active: boolean) => void;
 };
 
 function TextEditor({
@@ -27,16 +29,28 @@ function TextEditor({
 	ariaLabel,
 	onEditorReady,
 	onVisualLineChange,
+	onPlanCommandChange,
 }: TextEditorProps): ReactElement {
 	const onValueChangeRef = useRef(onValueChange);
 	const onSubmitRef = useRef(onSubmit);
 	const onVisualLineChangeRef = useRef(onVisualLineChange);
+	const onPlanCommandChangeRef = useRef(onPlanCommandChange);
 
 	useEffect(() => {
 		onValueChangeRef.current = onValueChange;
 		onSubmitRef.current = onSubmit;
 		onVisualLineChangeRef.current = onVisualLineChange;
-	}, [onSubmit, onValueChange, onVisualLineChange]);
+		onPlanCommandChangeRef.current = onPlanCommandChange;
+	}, [onPlanCommandChange, onSubmit, onValueChange, onVisualLineChange]);
+
+	const reportPlanCommand = (updatedEditor: Editor): void => {
+		let active = false;
+		updatedEditor.state.doc.descendants((node) => {
+			if (node.type.name === PlanCommand.name) active = true;
+			return !active;
+		});
+		onPlanCommandChangeRef.current?.(active);
+	};
 
 	const reportVisualLineChange = (updatedEditor: Editor): void => {
 		const range = updatedEditor.view.dom.ownerDocument.createRange();
@@ -50,16 +64,18 @@ function TextEditor({
 	};
 
 	const editor = useEditor({
-		extensions: [StarterKit, Placeholder.configure({ placeholder }), Markdown],
+		extensions: [StarterKit, Placeholder.configure({ placeholder }), PlanCommand, Markdown],
 		content: value ?? '',
 		contentType: 'markdown',
 		editable: !disabled,
 		onCreate: ({ editor: createdEditor }) => {
 			onEditorReady?.(createdEditor);
+			reportPlanCommand(createdEditor);
 			reportVisualLineChange(createdEditor);
 		},
 		onUpdate: ({ editor: updatedEditor }) => {
 			onValueChangeRef.current?.(updatedEditor.getMarkdown());
+			reportPlanCommand(updatedEditor);
 			reportVisualLineChange(updatedEditor);
 		},
 		editorProps: {
@@ -112,6 +128,7 @@ function TextEditor({
 			.setContent(value ?? '', { emitUpdate: false, contentType: 'markdown' });
 		if (editor.isFocused) chain.focus('end');
 		chain.run();
+		reportPlanCommand(editor);
 		reportVisualLineChange(editor);
 	}, [editor, value]);
 
