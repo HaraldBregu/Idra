@@ -799,7 +799,7 @@ function PageContent(): ReactElement {
 								setAttachments((current) => [...current, ...filesToAttachments(files)])
 							}
 							wrapperClassName="max-w-none"
-							className="w-full"
+							className={cn('w-full', planCommandActive && 'plan-prompt-frame')}
 							footerClassName="-mx-1.5 -mb-1.5"
 							actions={
 								<PromptInputActions className="justify-end gap-1.5">

@@ -21,8 +21,11 @@ describe('PlanCommand', () => {
 
 		typeText(editor, '/plan');
 
-		expect(editor.getHTML()).toContain('data-plan-command');
-		expect(editor.getHTML()).toContain('text-purple-700');
+		const html = editor.getHTML();
+		expect(html).toContain('data-plan-command');
+		expect(html).toContain('text-purple-600');
+		expect(html).not.toContain('border-purple');
+		expect(html).not.toContain('bg-purple');
 		expect(editor.state.doc.textContent.trim()).toBe('');
 
 		typeText(editor, 'Inspect the current architecture');

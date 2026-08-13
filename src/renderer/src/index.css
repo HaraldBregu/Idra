@@ -494,3 +494,48 @@ input[type='range']:hover::-moz-range-thumb {
 	font-family: var(--font-mono);
 	font-size: 0.75rem;
 }
+
+.plan-prompt-frame {
+	position: relative;
+	border-color: transparent;
+}
+
+.plan-prompt-frame::before {
+	content: '';
+	position: absolute;
+	inset: -1px;
+	border-radius: inherit;
+	padding: 1px;
+	background: linear-gradient(
+		90deg,
+		#ef4444,
+		#f59e0b,
+		#eab308,
+		#22c55e,
+		#06b6d4,
+		#3b82f6,
+		#a855f7,
+		#ec4899,
+		#ef4444
+	);
+	background-size: 300% 100%;
+	animation: plan-prompt-rainbow 5s linear infinite;
+	pointer-events: none;
+	-webkit-mask:
+		linear-gradient(#000 0 0) content-box,
+		linear-gradient(#000 0 0);
+	-webkit-mask-composite: xor;
+	mask-composite: exclude;
+}
+
+@keyframes plan-prompt-rainbow {
+	to {
+		background-position: 300% 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.plan-prompt-frame::before {
+		animation: none;
+	}
+}

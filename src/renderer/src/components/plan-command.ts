@@ -11,8 +11,7 @@ export const PlanCommand = Node.create({
 		'span',
 		{
 			'data-plan-command': '',
-			class:
-				'inline-flex items-center rounded-md border border-purple-500/30 bg-purple-500/15 px-1.5 py-0.5 text-xs font-medium text-purple-700 dark:text-purple-300',
+			class: 'font-semibold text-purple-600 dark:text-purple-400',
 			contenteditable: 'false',
 		},
 		'Plan',
