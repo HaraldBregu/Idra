@@ -166,6 +166,11 @@ function applyResponseEvent(
 			(message) => ({
 				...message,
 				state: 'awaiting_input',
+				tools: updateAgentToolPart(message.tools, event.toolCallId, {
+					type: 'request_user_input',
+					state: 'input-available',
+					input: { questions: event.questions },
+				}),
 				pendingUserInput: {
 					requestId: event.requestId,
 					runId: event.runId,
