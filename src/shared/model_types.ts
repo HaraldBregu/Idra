@@ -41,15 +41,6 @@ export interface PromptAttachmentRule {
 	readonly maxTotalBytes?: number;
 }
 
-export interface PromptAttachmentRule {
-	readonly kind: 'image' | 'document' | 'audio' | 'video';
-	readonly mimeTypes: readonly string[];
-	readonly extensions: readonly string[];
-	readonly maxFiles?: number;
-	readonly maxBytes?: number;
-	readonly maxTotalBytes?: number;
-}
-
 export interface ModelMetadata {
 	/** Official provider page that documents this service's request contract. */
 	readonly documentationUrl: string;
@@ -63,8 +54,6 @@ export interface ModelMetadata {
 	readonly promptAttachments?: readonly PromptAttachmentRule[];
 	/** API request fields supported by this exact service or model. */
 	readonly inputs: Readonly<Record<string, ModelInputSchema>>;
-	/** Native prompt attachment formats documented for this exact model. */
-	readonly promptAttachments?: readonly PromptAttachmentRule[];
 }
 
 export interface ProviderModel {
