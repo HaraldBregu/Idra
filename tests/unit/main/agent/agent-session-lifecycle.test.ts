@@ -52,6 +52,11 @@ jest.mock('../../../../src/main/agent/permissions', () => ({
 jest.mock('../../../../src/main/agent/skills', () => ({
 	parseSkillCommand: (message: string) => ({ message }),
 }));
+jest.mock('../../../../src/main/models', () => ({
+	findModel: jest.fn(() => ({
+		metadata: { documentationStatus: 'verified', promptAttachments: [] },
+	})),
+}));
 jest.mock('../../../../src/main/agent/session', () => {
 	const actual = jest.requireActual('../../../../src/main/agent/session');
 	return {
@@ -115,6 +120,29 @@ beforeEach(() => {
 	jest.clearAllMocks();
 	controls.clear();
 	order.length = 0;
+});
+
+it('rejects invalid current-turn attachments before session initialization', async () => {
+	const agent = new Agent(
+		{} as WindowFactory,
+		{ reset: jest.fn() } as unknown as ExecSandbox
+	);
+	await expect(
+		agent.send('inspect', 'main', {
+			type: 'default',
+			runId: 'invalid-attachment',
+			providerId: 'openai',
+			model: 'test-model',
+			files: [
+				{
+					name: '../secret.txt',
+					mimeType: 'text/plain',
+					data: Buffer.from('secret').toString('base64'),
+				},
+			],
+		})
+	).rejects.toThrow('safe basename');
+	expect(order).not.toContain('init:invalid-attachment');
 });
 
 it.each([
