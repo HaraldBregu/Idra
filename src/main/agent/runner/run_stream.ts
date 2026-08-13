@@ -279,6 +279,15 @@ async function* loop(
 			);
 
 			recordTurn(session, turn);
+			if (
+				turn.toolCalls.length === 0 &&
+				input.interactionMode === 'plan' &&
+				!isPlanOutputValid(turn.content)
+			) {
+				throw new Error(
+					'Plan response must contain exactly one non-empty <proposed_plan> envelope and no other text.'
+				);
+			}
 
 			yield {
 				type: 'assistant_message',
@@ -291,11 +300,6 @@ async function* loop(
 			});
 
 			if (turn.toolCalls.length === 0) {
-				if (input.interactionMode === 'plan' && !isPlanOutputValid(turn.content)) {
-					throw new Error(
-						'Plan response must contain exactly one non-empty <proposed_plan> envelope and no other text.'
-					);
-				}
 				const result = toResult(session, 'success');
 				yield { type: 'run_finished', result };
 				return;
