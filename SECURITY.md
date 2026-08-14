@@ -31,14 +31,13 @@ Idra handles the following sensitive data locally on the user's machine:
 - Agent conversation history and session data
 - Local workspace files
 
-Reports involving exposure, exfiltration, or unauthorized use of any of the above are in scope, as are Electron shell escapes (sandbox, context isolation, or IPC bypasses) and permission-check bypasses for tool or connector actions.
+Reports involving exposure, exfiltration, unauthorized use, API access-control bypasses, or agent permission-check bypasses are in scope.
 
 ## Security Baseline
 
 The application is built against the following hardening baseline:
 
-- Renderer windows run with sandboxing, context isolation, disabled Node integration, and web security enabled; windows are created through `WindowFactory` to keep these defaults consistent.
-- Preload APIs expose narrow, typed IPC methods only.
+- The Fastify server validates request bodies and exposes only explicit HTTP routes.
 - Secrets are not committed, logged, rendered, or stored in plaintext where avoidable; API keys are not shown back in plain text after saving.
 - Tool and connector actions that write, delete, publish, or access private data must pass explicit permission checks; non-interactive runs deny permission-requiring actions by default.
 - Channels enforce per-channel access control (e.g. direct-message allowlists).
