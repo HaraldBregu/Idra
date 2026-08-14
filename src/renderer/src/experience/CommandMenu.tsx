@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
 	Home,
 	Settings,
@@ -216,6 +216,7 @@ function CommandMenuItem({
 
 export function CommandMenu(): React.JSX.Element {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState('');
@@ -226,6 +227,11 @@ export function CommandMenu(): React.JSX.Element {
 		[groups, searchOnlyItems]
 	);
 	const isSearching = search.trim().length >= MIN_SEARCH_LENGTH;
+	const searchEnabled =
+		location.pathname === '/home' ||
+		location.pathname.startsWith('/home/') ||
+		location.pathname === '/settings' ||
+		location.pathname.startsWith('/settings/');
 
 	// Filtered results re-render into the scroll container without resetting its
 	// position, leaving top matches hidden above the viewport. Scroll to top on
@@ -248,6 +254,10 @@ export function CommandMenu(): React.JSX.Element {
 	);
 
 	useEffect(() => {
+		if (!searchEnabled) handleOpenChange(false);
+	}, [handleOpenChange, searchEnabled]);
+
+	useEffect(() => {
 		const handler = (e: KeyboardEvent): void => {
 			const isSettingsShortcut =
 				e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey && e.key === ',';
@@ -260,14 +270,14 @@ export function CommandMenu(): React.JSX.Element {
 				return;
 			}
 
-			if (isSearchShortcut) {
+			if (isSearchShortcut && searchEnabled) {
 				e.preventDefault();
 				setOpen(true);
 			}
 		};
 		window.addEventListener('keydown', handler);
 		return () => window.removeEventListener('keydown', handler);
-	}, [navigateTo]);
+	}, [navigateTo, searchEnabled]);
 
 	return (
 		<CommandDialog
