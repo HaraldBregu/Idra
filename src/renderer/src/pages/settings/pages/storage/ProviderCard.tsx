@@ -9,6 +9,7 @@ import {
 	Trash2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -22,6 +23,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { openExternalUrl } from '@/lib/external-links';
+import type { PublicProvider } from '@shared/provider_types';
 import type { StorageConfig } from '../../../../../../shared/storage_types';
 import { getErrorMessage, MASKED_API_KEY_LABEL } from '../../../start/constants';
 import { SettingsField, SettingsNotice } from '../../components';
@@ -77,6 +79,7 @@ function GroupHeading({ children }: { readonly children: React.ReactNode }): Rea
 
 interface ProviderCardProps {
 	readonly storage: StorageConfig;
+	readonly provider?: PublicProvider;
 	readonly onSaved: (saved: StorageConfig) => void;
 	readonly onRemoved: () => void;
 	readonly hideDelete?: boolean;
@@ -87,6 +90,7 @@ interface ProviderCardProps {
 
 export function ProviderCard({
 	storage,
+	provider,
 	onSaved,
 	onRemoved,
 	hideDelete = false,
@@ -196,9 +200,18 @@ export function ProviderCard({
 			<Collapsible open={expanded} onOpenChange={setExpanded} className="flex flex-col gap-3">
 				<CardHeader className={cn('select-none items-center', expanded && 'border-b')}>
 					<div className="flex items-center gap-2.5 min-w-0 flex-1">
-						<div className="flex size-8 flex-shrink-0 items-center justify-center rounded-md bg-muted">
-							<HardDrive className="size-4 text-muted-foreground" />
-						</div>
+						{provider ? (
+							<ProviderAvatar
+								providerId={provider.id}
+								name={provider.name}
+								iconDarkUrl={provider.iconDarkUrl}
+								iconLightUrl={provider.iconLightUrl}
+							/>
+						) : (
+							<div className="flex size-8 flex-shrink-0 items-center justify-center rounded-md bg-muted">
+								<HardDrive className="size-4 text-muted-foreground" />
+							</div>
+						)}
 						<div className="min-w-0 flex-1">
 							<div className="flex min-w-0 items-center gap-1.5">
 								<CardTitle className="min-w-0 truncate">

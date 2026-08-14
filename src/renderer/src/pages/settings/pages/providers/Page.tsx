@@ -603,6 +603,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 										<ProviderCard
 											key={entry.key}
 											storage={entry.storage}
+											provider={provider}
 											subtitle={subtitle || undefined}
 											linkUrl={
 												provider ? getProviderApiConfigurationUrl(provider) || undefined : undefined
