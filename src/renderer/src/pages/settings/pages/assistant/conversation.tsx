@@ -166,6 +166,7 @@ export default function RealtimeConversationConfiguration({
 				configState={state}
 				idPrefix="agent-realtime-conversation"
 				triggerTitle={t('settings.modelServices.realtimeConversationConfiguration')}
+				triggerDescription={model ? undefined : t('settings.modelServices.modelPlaceholder')}
 				description={t('settings.modelServices.realtimeConversationDescription')}
 				showInlineError
 				showIcon={false}

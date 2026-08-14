@@ -100,6 +100,7 @@ jest.mock('react-i18next', () => {
 		'settings.modelServices.videoModelDescription': 'Video defaults',
 		'settings.modelServices.model': 'Model',
 		'settings.modelServices.modelDescription': 'Choose provider and model',
+		'settings.modelServices.modelPlaceholder': 'Select model',
 		'settings.modelServices.realtimeConversationConfiguration': 'Realtime conversation',
 		'settings.modelServices.realtimeConversationDescription': 'Live model and voice',
 		'settings.modelServices.loadError': 'Unable to load models',
@@ -305,7 +306,9 @@ it('leaves realtime conversation unselected when catalog defaults are disabled',
 	});
 	render(<RealtimeConversationConfiguration selectDefaultModel={false} />);
 
-	await user.click(await screen.findByRole('button', { name: /Realtime conversation/ }));
+	const trigger = await screen.findByRole('button', { name: /Realtime conversation/ });
+	expect(trigger).toHaveTextContent('Select model');
+	await user.click(trigger);
 	const selector = await screen.findByRole('combobox', { name: 'Realtime conversation' });
 	expect(selector).not.toHaveTextContent('GPT Realtime');
 	expect(realtimeSetSetup).not.toHaveBeenCalled();
