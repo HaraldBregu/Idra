@@ -52,8 +52,6 @@ it('groups assistant model services in one card', () => {
 			'true'
 		);
 	}
-	expect(assistantGroup).not.toContainElement(screen.getByTestId('setup-health'));
-	expect(assistantGroup).not.toContainElement(screen.getByTestId('setup-tasks'));
-	expect(screen.getByTestId('setup-health')).toHaveAttribute('data-grouped', 'false');
-	expect(screen.getByTestId('setup-tasks')).toHaveAttribute('data-grouped', 'false');
+	expect(screen.queryByTestId('setup-health')).not.toBeInTheDocument();
+	expect(screen.queryByTestId('setup-tasks')).not.toBeInTheDocument();
 });

@@ -64,9 +64,6 @@ export function ModelsStep({
 	const assistantServices = MODEL_SERVICE_DEFINITIONS.filter((service) =>
 		ASSISTANT_SERVICE_IDS.has(service.id)
 	);
-	const standaloneServices = MODEL_SERVICE_DEFINITIONS.filter(
-		(service) => !ASSISTANT_SERVICE_IDS.has(service.id)
-	);
 
 	return (
 		<div className="mx-auto flex min-h-full w-full min-w-0 max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
@@ -102,29 +99,6 @@ export function ModelsStep({
 						</CardContent>
 					</Card>
 				</section>
-
-				{standaloneServices.map((service) => (
-					<section key={service.id} className="min-w-0">
-						<div className="mb-2">
-							<h2 className="text-sm font-semibold text-foreground">{service.title}</h2>
-							<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-								{service.description}
-							</p>
-						</div>
-						<ModelProviderConfiguration
-							configState={toModelConfigurationState(
-								serviceStates[service.id],
-								loadingModels,
-								savingConfig
-							)}
-							idPrefix={`setup-${service.id}`}
-							description={service.description}
-							triggerTitle={getSelectionSummary(serviceStates[service.id], 'Select a model')}
-							triggerDescription="Choose a provider and model"
-							onChange={(providerId, modelId) => onServiceChange(service.id, providerId, modelId)}
-						/>
-					</section>
-				))}
 			</div>
 			<ResourcesStep />
 		</div>

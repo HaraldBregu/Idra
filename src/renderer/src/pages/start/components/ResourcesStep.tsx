@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, Database as DatabaseIcon, HardDrive, Search } from 'lucide-react';
+import { ChevronDown, HardDrive, Search } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
 	Select,
@@ -8,13 +8,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { databases } from '@/lib/providers';
 import { SEARCH_ENGINES } from '@pages/settings/pages/search/catalog';
-import type { DatabaseConfiguration } from '@shared/database_types';
 import type { SearchEngineId, SearchSettings } from '@shared/search_types';
 import type { StorageConfig, StorageConfiguration } from '@shared/storage_types';
-
-const VALUE_SEPARATOR = '\u001F';
 
 export function ResourcesStep(): React.JSX.Element {
 	const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
@@ -22,10 +18,7 @@ export function ResourcesStep(): React.JSX.Element {
 	const [storageConfiguration, setStorageConfiguration] = useState<StorageConfiguration | null>(
 		null
 	);
-	const [databaseConfiguration, setDatabaseConfiguration] = useState<DatabaseConfiguration | null>(
-		null
-	);
-	const [openSection, setOpenSection] = useState<'search' | 'storage' | 'database' | null>(null);
+	const [openSection, setOpenSection] = useState<'search' | 'storage' | null>(null);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -33,14 +26,12 @@ export function ResourcesStep(): React.JSX.Element {
 			window.search.getSettings(),
 			window.storage.getStorages(),
 			window.storage.getStorageConfiguration(),
-			window.database.getConfiguration(),
 		])
-			.then(([search, storages, storage, database]) => {
+			.then(([search, storages, storage]) => {
 				if (cancelled) return;
 				setSearchSettings(search);
 				setStorageEntries(storages);
 				setStorageConfiguration(storage);
-				setDatabaseConfiguration(database);
 			})
 			.catch(() => undefined);
 		return () => {
@@ -162,76 +153,6 @@ export function ResourcesStep(): React.JSX.Element {
 									{storageEntries.map((storage) => (
 										<SelectItem key={storage.id} value={storage.id}>
 											{storage.name || storage.id}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-					</CollapsibleContent>
-				</Collapsible>
-			</section>
-
-			<section>
-				<div className="mb-2">
-					<h2 className="text-sm font-semibold text-foreground">Database</h2>
-					<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-						Choose a database for your data.
-					</p>
-				</div>
-				<Collapsible
-					open={openSection === 'database'}
-					onOpenChange={(open) => setOpenSection(open ? 'database' : null)}
-					className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
-				>
-					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-						<div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
-							<DatabaseIcon className="size-4" aria-hidden="true" />
-						</div>
-						<div className="min-w-0 flex-1">
-							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
-								{databases().find(
-									(database) =>
-										database.provider.id === databaseConfiguration?.providerId &&
-										database.id === databaseConfiguration.databaseId
-								)?.name ?? 'No database selected'}
-							</div>
-							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-								Choose a connected database
-							</p>
-						</div>
-						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-					</CollapsibleTrigger>
-					<CollapsibleContent className="border-t border-border/60">
-						<div className="px-3 py-3">
-							<Select
-								value={
-									databaseConfiguration?.providerId && databaseConfiguration.databaseId
-										? `${databaseConfiguration.providerId}${VALUE_SEPARATOR}${databaseConfiguration.databaseId}`
-										: null
-								}
-								disabled={!databaseConfiguration || databases().length === 0}
-								onValueChange={(value) => {
-									const entry = databases().find(
-										(item) => `${item.provider.id}${VALUE_SEPARATOR}${item.id}` === value
-									);
-									if (!entry) return;
-									const next = { providerId: entry.provider.id, databaseId: entry.id, providers: databaseConfiguration?.providers ?? [] };
-									void window.database
-										.saveConfiguration(next)
-										.then(setDatabaseConfiguration)
-										.catch(() => undefined);
-								}}
-							>
-								<SelectTrigger className="w-full text-xs">
-									<SelectValue placeholder="Connect a database first" />
-								</SelectTrigger>
-								<SelectContent>
-									{databases().map((database) => (
-										<SelectItem
-											key={`${database.provider.id}${VALUE_SEPARATOR}${database.id}`}
-											value={`${database.provider.id}${VALUE_SEPARATOR}${database.id}`}
-										>
-											{database.provider.name} / {database.name || database.id}
 										</SelectItem>
 									))}
 								</SelectContent>
