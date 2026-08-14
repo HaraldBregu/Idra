@@ -17,16 +17,25 @@ export type SearchEngineSettings = {
 	enabled: boolean;
 };
 type AgentStoreSchema = {
-	providerId: string | undefined;
-	modelId: string | undefined;
-	modelOptions: Record<string, unknown>;
-	search_engine: SearchEngineSettings;
-	image_model: AgentMediaModelSettings;
-	audio_model: AgentMediaModelSettings;
-	video_model: AgentMediaModelSettings;
-	voice_model: AgentMediaModelSettings;
+	large_language_model: AgentMediaModelSettings;
+	web_search_engine: SearchEngineSettings;
+	image_generator_model: AgentMediaModelSettings;
+	audio_generator_model: AgentMediaModelSettings;
+	video_generator_model: AgentMediaModelSettings;
+	text_to_speech_model: AgentMediaModelSettings;
 	realtime_voice_model: AgentMediaModelSettings;
 	permissions: PermissionsSchema;
+};
+
+type LegacyAgentStoreSchema = Partial<AgentStoreSchema> & {
+	providerId?: string;
+	modelId?: string;
+	modelOptions?: Record<string, unknown>;
+	search_engine?: SearchEngineSettings;
+	image_model?: AgentMediaModelSettings;
+	audio_model?: AgentMediaModelSettings;
+	video_model?: AgentMediaModelSettings;
+	voice_model?: AgentMediaModelSettings;
 };
 
 const AGENT_STORE_NAME = 'agent';
@@ -44,26 +53,28 @@ const EMPTY_MEDIA_MODEL: AgentMediaModelSettings = {
 	options: {},
 };
 const DEFAULT_AGENT_STORE: AgentStoreSchema = {
-	providerId: undefined,
-	modelId: undefined,
-	modelOptions: {},
-	search_engine: { providerId: '', providerName: '', enabled: false },
-	image_model: EMPTY_MEDIA_MODEL,
-	audio_model: EMPTY_MEDIA_MODEL,
-	video_model: EMPTY_MEDIA_MODEL,
-	voice_model: EMPTY_MEDIA_MODEL,
+	large_language_model: EMPTY_MEDIA_MODEL,
+	web_search_engine: { providerId: '', providerName: '', enabled: false },
+	image_generator_model: EMPTY_MEDIA_MODEL,
+	audio_generator_model: EMPTY_MEDIA_MODEL,
+	video_generator_model: EMPTY_MEDIA_MODEL,
+	text_to_speech_model: EMPTY_MEDIA_MODEL,
 	realtime_voice_model: EMPTY_MEDIA_MODEL,
 	permissions: DEFAULT_AGENT_PERMISSIONS,
 };
 
-const MEDIA_MODEL_KEYS: Record<
-	AgentMediaModelKind,
-	'image_model' | 'audio_model' | 'video_model' | 'voice_model' | 'realtime_voice_model'
-> = {
-	image: 'image_model',
-	audio: 'audio_model',
-	video: 'video_model',
-	voice: 'voice_model',
+type MediaModelKey =
+	| 'image_generator_model'
+	| 'audio_generator_model'
+	| 'video_generator_model'
+	| 'text_to_speech_model'
+	| 'realtime_voice_model';
+
+const MEDIA_MODEL_KEYS: Record<AgentMediaModelKind, MediaModelKey> = {
+	image: 'image_generator_model',
+	audio: 'audio_generator_model',
+	video: 'video_generator_model',
+	voice: 'text_to_speech_model',
 	realtimeVoice: 'realtime_voice_model',
 };
 
@@ -74,36 +85,64 @@ const store = new Store<AgentStoreSchema>({
 	defaults: DEFAULT_AGENT_STORE,
 });
 
+const persisted = { ...store.store } as LegacyAgentStoreSchema;
+const largeLanguageModel =
+	persisted.large_language_model?.providerId || persisted.large_language_model?.modelId
+		? persisted.large_language_model
+		: {
+				providerId: persisted.providerId ?? '',
+				modelId: persisted.modelId ?? '',
+				options: persisted.modelOptions ?? {},
+			};
+store.store = {
+	large_language_model: largeLanguageModel,
+	web_search_engine:
+		persisted.web_search_engine ?? persisted.search_engine ?? DEFAULT_AGENT_STORE.web_search_engine,
+	image_generator_model:
+		persisted.image_generator_model ?? persisted.image_model ?? EMPTY_MEDIA_MODEL,
+	audio_generator_model:
+		persisted.audio_generator_model ?? persisted.audio_model ?? EMPTY_MEDIA_MODEL,
+	video_generator_model:
+		persisted.video_generator_model ?? persisted.video_model ?? EMPTY_MEDIA_MODEL,
+	text_to_speech_model:
+		persisted.text_to_speech_model ?? persisted.voice_model ?? EMPTY_MEDIA_MODEL,
+	realtime_voice_model: persisted.realtime_voice_model ?? EMPTY_MEDIA_MODEL,
+	permissions: persisted.permissions ?? DEFAULT_AGENT_PERMISSIONS,
+};
+
 export function getProviderId(): string | undefined {
-	return store.get('providerId');
+	return store.get('large_language_model').providerId || undefined;
 }
 
 export function setProviderId(providerId: string): void {
-	store.set('providerId', providerId);
+	store.set('large_language_model', { ...store.get('large_language_model'), providerId });
 }
 
 export function getModelId(): string | undefined {
-	return store.get('modelId');
+	return store.get('large_language_model').modelId || undefined;
 }
 
 export function setModelId(modelId: string): void {
-	store.set('modelId', modelId);
+	store.set('large_language_model', { ...store.get('large_language_model'), modelId });
 }
 
 export function getModelOptions(): Record<string, unknown> {
-	return store.get('modelOptions');
+	return store.get('large_language_model').options;
 }
 
 export function setModelOptions(modelOptions: Record<string, unknown>): void {
-	store.set('modelOptions', modelOptions);
+	store.set('large_language_model', {
+		...store.get('large_language_model'),
+		options: modelOptions,
+	});
 }
 
 export function getSearchEngine(): SearchEngineSettings {
-	return store.get('search_engine');
+	return store.get('web_search_engine');
 }
 
 export function setSearchEngine(searchEngine: SearchEngineSettings): void {
-	store.set('search_engine', searchEngine);
+	store.set('web_search_engine', searchEngine);
 }
 
 export function getMediaModel(kind: AgentMediaModelKind): AgentMediaModelSettings {
