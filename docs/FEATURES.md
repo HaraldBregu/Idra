@@ -359,10 +359,10 @@ The chat catalog includes Anthropic, DeepSeek, Google, Kimi, MiniMax, Mistral, O
 Reka AI, xAI, and Z.ai. Exact model names, IDs, and support notes are maintained in
 [Provider Reference](PROVIDERS.md#chat-and-research).
 
-The built-in catalog contains 27 providers across models, search, vector database, and object
+The built-in catalog contains 26 providers across models, search, vector database, and object
 storage. Model-provider entries include capability labels and an external setup link.
 
-Realtime-voice models are cataloged for Google, Luma, Qwen, and xAI, but there is no realtime-voice IPC or model execution service. Friday's current Voice API is text-to-speech, and Home's voice-conversation panel is not connected to these models.
+Realtime-voice models are cataloged for Google, Qwen, and xAI, but there is no realtime-voice IPC or model execution service. Friday's current Voice API is text-to-speech, and Home's voice-conversation panel is not connected to these models.
 
 ### Speech services
 
@@ -400,7 +400,6 @@ Media can be generated from the dedicated Settings studios or by agent tools dur
 | Available    | Black Forest Labs: FLUX.2, FLUX.1 Kontext Pro, FLUX1.1 Pro Ultra                                             |
 | Available    | Google: Gemini 3.1 Flash Image Preview, Gemini 3 Pro Image Preview                                           |
 | Available    | Ideogram: 3.0, 2a                                                                                            |
-| Available    | Luma: Uni 1.1                                                                                                |
 | Available    | Qwen: Qwen Image, Qwen Image Edit                                                                            |
 | Available    | xAI: Grok Imagine Image, Grok Imagine Image Quality                                                          |
 | Catalog only | Midjourney v8.1 and v7 are selectable, but the runtime explicitly reports that Midjourney has no public API. |
@@ -411,7 +410,6 @@ Media can be generated from the dedicated Settings studios or by agent tools dur
 | ------------ | ------------------------------------------------------------------------------------------------------------------------ |
 | Available    | Google: Veo 3.1, Veo 3.1 Fast                                                                                            |
 | Available    | Kling: 2.5 Turbo, 2.1 Master                                                                                             |
-| Available    | Luma: Ray 3, Ray 2                                                                                                       |
 | Available    | MiniMax: Hailuo 2.3, Hailuo 02                                                                                           |
 | Available    | Pika: 2.2                                                                                                                |
 | Available    | Qwen: Wan 2.5 T2V, Wan 2.2 T2V Plus                                                                                      |

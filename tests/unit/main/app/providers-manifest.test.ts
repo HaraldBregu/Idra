@@ -98,9 +98,6 @@ describe('provider manifests', () => {
 				'qwen3-omni-flash',
 			])
 		);
-		expect(
-			loadModels().find((model) => model.provider.id === 'luma' && model.type === 'realtime-voice')
-		).toBeUndefined();
 		expect(loadWebSearches()).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({

@@ -1,6 +1,6 @@
 # Provider Reference
 
-Friday ships 27 provider manifests under `resources/providers`. This page is the canonical
+Friday ships 26 provider manifests under `resources/providers`. This page is the canonical
 human-readable inventory of those built-in providers, the services they expose in the catalog,
 and whether the current runtime can execute each service.
 
@@ -69,7 +69,6 @@ manifest.
 | [Jina AI](https://jina.ai/api-dashboard)                                           | `jina`              | Embeddings                                                | Available                                                                                           |
 | [Kimi](https://platform.moonshot.ai/console/api-keys)                              | `kimi`              | Chat                                                      | Available                                                                                           |
 | [Kling AI](https://app.klingai.com/global/dev)                                     | `kling`             | Video, audio                                              | Mixed: audio is catalog only                                                                        |
-| [Luma AI](https://lumalabs.ai/dream-machine/api/keys)                              | `luma`              | Realtime voice, image, video                              | Mixed: realtime voice is catalog only                                                               |
 | [Midjourney](https://www.midjourney.com/account)                                   | `midjourney`        | Image, video                                              | Catalog only; no public execution API is integrated                                                 |
 | [MiniMax](https://platform.minimax.io/user-center/basic-information/interface-key) | `minimax`           | Chat, text to speech, video, audio                        | Mixed: audio is catalog only                                                                        |
 | [Mistral AI](https://console.mistral.ai/api-keys)                                  | `mistral`           | Chat, speech to text, text to speech                      | Available                                                                                           |
@@ -139,7 +138,6 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | Provider | Cataloged models                                                                                                |
 | -------- | --------------------------------------------------------------------------------------------------------------- |
 | Google   | Gemini 3.1 Flash Live Preview (`gemini-3.1-flash-live-preview`)                                                 |
-| Luma AI  | Uni 1.1 (`uni-1.1`)                                                                                             |
 | Qwen     | Qwen Omni Realtime (`qwen-omni-realtime`); Qwen3.5 Omni (`qwen3.5-omni`); Qwen3 Omni Flash (`qwen3-omni-flash`) |
 | xAI      | Grok Voice Latest (`grok-voice-latest`)                                                                         |
 
@@ -150,7 +148,6 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | Available    | Black Forest Labs | FLUX.2 (`FLUX.2`); FLUX.1 Kontext Pro (`FLUX.1 Kontext [pro]`); FLUX1.1 Pro Ultra (`FLUX1.1 [pro] Ultra`)                    |
 | Available    | Google            | Gemini 3.1 Flash Image Preview (`gemini-3.1-flash-image-preview`); Gemini 3 Pro Image Preview (`gemini-3-pro-image-preview`) |
 | Available    | Ideogram          | Ideogram 3.0 (`ideogram-3.0`); Ideogram 2a (`ideogram-2a`)                                                                   |
-| Available    | Luma AI           | Uni 1.1 (`uni-1.1`)                                                                                                          |
 | Catalog only | Midjourney        | Midjourney v8.1 (`midjourney-v8.1`); Midjourney v7 (`midjourney-v7`)                                                         |
 | Available    | Qwen              | Qwen Image (`qwen-image`); Qwen Image Edit (`qwen-image-edit`)                                                               |
 | Available    | xAI               | Grok Imagine Image (`grok-imagine-image`); Grok Imagine Image Quality (`grok-imagine-image-quality`)                         |
@@ -161,7 +158,6 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | ------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Available    | Google     | Veo 3.1 (`veo-3.1`); Veo 3.1 Fast (`veo-3.1-fast`)                                                                                                                                                                                                                                                                |
 | Available    | Kling AI   | Kling v2.5 Turbo (`kling-v2.5-turbo`); Kling v2.1 Master (`kling-v2.1-master`)                                                                                                                                                                                                                                    |
-| Available    | Luma AI    | Ray 3 (`ray-3`); Ray 2 (`ray-2`)                                                                                                                                                                                                                                                                                  |
 | Catalog only | Midjourney | Midjourney Video v1 (`midjourney-video-v1`)                                                                                                                                                                                                                                                                       |
 | Available    | MiniMax    | Hailuo 2.3 (`MiniMax-Hailuo-2.3`); Hailuo 02 (`MiniMax-Hailuo-02`)                                                                                                                                                                                                                                                |
 | Partial      | Pika       | Pika 2.2 (`pika-2.2`); the adapter uses fal.run while the manifest supplies Pika's URL                                                                                                                                                                                                                            |
