@@ -1,16 +1,23 @@
 import { z } from 'zod';
 import { redoFileOperation } from '../../history/redo';
+import type { FileHistory } from '../../history/types';
 import { tool } from '../tool';
 
-export const redoFileTool = tool({
-	id: 'redo_file_operation',
-	name: 'Redo file operation',
-	description:
-		'Redo the most recently undone file operation. Refuses if a file has changed since it was undone.',
-	hardApproval: true,
-	inputSchema: z.object({}),
-	execute: () => {
-		const operation = redoFileOperation();
-		return { operationId: operation.id, toolName: operation.toolName, restored: operation.after.map((file) => file.path) };
-	},
-});
+export function redoFileTool(history: FileHistory) {
+	return tool({
+		id: 'redo_file_operation',
+		name: 'Redo file operation',
+		description:
+			'Redo the most recently undone file operation in this session. Refuses if a file changed afterward.',
+		hardApproval: true,
+		inputSchema: z.object({}),
+		execute: () => {
+			const operation = redoFileOperation(history);
+			return {
+				operationId: operation.id,
+				toolName: operation.toolName,
+				restored: operation.after.map((file) => file.path),
+			};
+		},
+	});
+}

@@ -8,10 +8,8 @@ import { editTool } from '../tools/core/edit_file';
 import { execTool } from '../tools/core/exec_command';
 import { processTool } from '../tools/core/process';
 import { readTool } from '../tools/core/read_file';
-import { redoFileTool } from '../tools/core/redo_file';
 import { requestUserInputTool } from '../tools/core/request_user_input';
 import { writeTool } from '../tools/core/write_file';
-import { undoFileTool } from '../tools/core/undo_file';
 import { closeExtensionsTool } from '../tools/extensions/close_extensions';
 import { listExtensionsTool } from '../tools/extensions/list_extensions';
 import { openExtensionsTool } from '../tools/extensions/open_extensions';
@@ -57,8 +55,6 @@ export function builtinTools(
 		writeTool,
 		editTool,
 		applyPatchTool,
-		undoFileTool,
-		redoFileTool,
 		execTool(sandbox, interactionMode),
 		processTool,
 		...getSearchWebTools(),
