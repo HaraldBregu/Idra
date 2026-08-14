@@ -19,7 +19,16 @@ import type { ProviderModel } from '../../../../shared/model_types';
 import { buildSttAdapter } from './stt_factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
-import { loadProviders, providerIdsFor, providerModels, speechToTextApiTypes, speechToTextBaseUrl, speechToTextSampleRate, supportsCapability, supportsSpeechToTextApiType } from '../../../models';
+import {
+	loadProviders,
+	providerIdsFor,
+	providerModels,
+	speechToTextApiTypes,
+	speechToTextBaseUrl,
+	speechToTextSampleRate,
+	supportsCapability,
+	supportsSpeechToTextApiType,
+} from '../../../models';
 import { getProvider } from '../../../settings_store';
 import type { PublicProvider as CatalogProvider } from '../../../../shared/provider_types';
 import {
@@ -65,8 +74,7 @@ export function saveSelection(
 ): boolean {
 	const normalizedProviderId = resolveProviderId(providerId);
 	const normalizedModelId = modelId.trim();
-	const apiType =
-		mode === 'realtime' ? 'stream' : 'batch';
+	const apiType = mode === 'realtime' ? 'stream' : 'batch';
 	if (!supportsSpeechToTextApiType(normalizedProviderId, normalizedModelId, apiType)) {
 		throw new SttProviderUnsupportedError(
 			`Speech-to-text model does not support ${apiType} transcription: ${normalizedProviderId}/${normalizedModelId}`
@@ -76,15 +84,16 @@ export function saveSelection(
 	return true;
 }
 
-export async function transcribe(request: SttTranscriptionRequest): Promise<SttTranscriptionResult> {
+export async function transcribe(
+	request: SttTranscriptionRequest
+): Promise<SttTranscriptionResult> {
 	const normalized = normalizeSttTranscriptionRequest(request);
 	const providerId = resolveProviderId(
 		normalized.providerId ?? getConfiguredProviderId('transcribe')
 	);
 	const modelId = resolveModelId(
 		providerId,
-		normalized.modelId ??
-			getConfiguredModelId(providerId, 'batch', 'transcribe'),
+		normalized.modelId ?? getConfiguredModelId(providerId, 'batch', 'transcribe'),
 		'batch'
 	);
 	const provider = resolveProvider(providerId);
@@ -107,8 +116,7 @@ export async function startRealtime(
 	);
 	const modelId = resolveModelId(
 		providerId,
-		normalized.modelId ??
-			getConfiguredModelId(providerId, 'stream', 'realtime'),
+		normalized.modelId ?? getConfiguredModelId(providerId, 'stream', 'realtime'),
 		'stream'
 	);
 	const provider = resolveProvider(providerId);
@@ -173,9 +181,7 @@ function resolveProviderId(providerId: string | undefined): string {
 	if (supportsCapability(normalized, 'speech-to-text')) {
 		return normalized;
 	}
-	throw new SttProviderUnsupportedError(
-		`Speech-to-text provider is not supported: ${normalized}`
-	);
+	throw new SttProviderUnsupportedError(`Speech-to-text provider is not supported: ${normalized}`);
 }
 
 function resolveModelId(
@@ -236,9 +242,7 @@ function getConfiguredModelId(
 	const configuredProviderId = getConfiguredProviderId(mode);
 	if (!configuredProviderId || configuredProviderId !== providerId) return undefined;
 	const modelId = getTranscribeModelId(mode);
-	return modelId && supportsSpeechToTextApiType(providerId, modelId, apiType)
-		? modelId
-		: undefined;
+	return modelId && supportsSpeechToTextApiType(providerId, modelId, apiType) ? modelId : undefined;
 }
 
 function getProviderSpecFromProviderStore(providerId: string): SttProviderSpec {
@@ -268,12 +272,11 @@ function publicProvider(providerId: string): PublicProvider | undefined {
 	};
 }
 
-function findSpeechToTextModel(
-	providerId: string,
-	modelId: string
-): ProviderModel | undefined {
+function findSpeechToTextModel(providerId: string, modelId: string): ProviderModel | undefined {
 	const normalizedModelId = modelId.trim();
-	return providerModels(providerId, 'speech-to-text').find((model) => model.id === normalizedModelId);
+	return providerModels(providerId, 'speech-to-text').find(
+		(model) => model.id === normalizedModelId
+	);
 }
 
 function realtimeSampleRate(providerId: string): number {
