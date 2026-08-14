@@ -1,8 +1,10 @@
 {
   "providerId": "cloudflare",
-  "providerName": "CloudFlare",
+  "providerName": "Cloudflare",
   "apiKeyUrl": "https://dash.cloudflare.com",
   "images_url": "/images",
+  "icon_dark_url": "/images/fallback_lobehub/cloudflare-color.png",
+  "icon_light_url": "/images/fallback_lobehub/cloudflare-color.png",
   "services": [
     {
       "id": "object-storage",
@@ -37,4 +39,3 @@
     }
   ]
 }
-

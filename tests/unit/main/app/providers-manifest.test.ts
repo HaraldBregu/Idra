@@ -23,7 +23,7 @@ describe('provider manifests', () => {
 			(model) => model.provider.id === 'openai' && model.type === 'realtime-voice'
 		);
 		const providersById = new Map(
-			[...loadModels(), ...loadWebSearches()].map(
+			[...loadModels(), ...loadStorages(), ...loadWebSearches()].map(
 				(model) => [model.provider.id, model.provider] as const
 			)
 		);
@@ -71,6 +71,17 @@ describe('provider manifests', () => {
 		);
 		expect(providersById.get('tavily')?.iconLightUrl).toContain(
 			'/resources/providers/tavily/images/official/tavily-black.svg'
+		);
+		expect(providersById.get('cloudflare')).toEqual(
+			expect.objectContaining({
+				name: 'Cloudflare',
+				iconDarkUrl: expect.stringContaining(
+					'/resources/providers/cloudflare/images/fallback_lobehub/cloudflare-color.png'
+				),
+				iconLightUrl: expect.stringContaining(
+					'/resources/providers/cloudflare/images/fallback_lobehub/cloudflare-color.png'
+				),
+			})
 		);
 		expect(deepseek?.metadata).toEqual(
 			expect.objectContaining({ contextWindow: 1_048_576, defaultOutputTokens: 32_768 })
