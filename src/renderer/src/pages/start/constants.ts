@@ -193,7 +193,7 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 			"Your personal AI agent. I can help with everyday tasks, write code, and keep working in the background while you're away.",
 	},
 	modelProvider: {
-		title: 'Model providers',
+		title: 'Model API keys',
 		description:
 			'Add an API key for the model provider you want to use. You can connect more providers at any time.',
 	},

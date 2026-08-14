@@ -486,13 +486,7 @@ const ProvidersPage: React.FC<ProvidersPageProps> = ({ embedded = false, section
 						{embedded ? (
 							<div className="space-y-3 pb-4">
 								{featuredProviders.map((provider) => renderProviderCard(provider, 'models'))}
-								{otherProviders.length > 0 && (
-									<div className="mt-8 border-t border-border/80 pt-8">
-										<div className="space-y-3">
-											{otherProviders.map((provider) => renderProviderCard(provider, 'models'))}
-										</div>
-									</div>
-								)}
+								{otherProviders.map((provider) => renderProviderCard(provider, 'models'))}
 							</div>
 						) : (
 							<div className="space-y-3 pb-4">
