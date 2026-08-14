@@ -40,15 +40,33 @@ npm run build
 npm start
 ```
 
-## Docker Compose
+## Docker
 
-Start the API and its data sidecar:
+Start the API with Docker Compose:
 
 ```bash
 docker compose up --build -d
 ```
 
-The `data` service owns the shared `idra-data` volume. The `app` service mounts that volume at `/app/data`, where Idra stores settings, workspace files, sessions, and other mutable data.
+The image keeps application code in `/app` and mutable application data in `/data`. Compose mounts the persistent `idra-data` volume at `/data`, including the main settings file and workspaces:
+
+```text
+/data/
+├── settings.json
+└── workspace/
+```
+
+`IDRA_DATA_DIR` defaults to `/data` in the container. For local development it defaults to `./data` and can be overridden with the same environment variable.
+
+Application code can manage `/data/settings.json` through `SettingsService`:
+
+```ts
+const settings = new SettingsService();
+settings.set('theme', 'dark');
+settings.save();
+settings.get('theme');
+settings.getAll();
+```
 
 ```bash
 curl http://localhost:3000/
