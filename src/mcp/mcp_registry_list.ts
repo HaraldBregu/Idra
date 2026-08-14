@@ -1,4 +1,4 @@
-import type { McpRegistry, McpServerInfo } from '../../shared/mcp_types';
+import type { McpRegistry, McpServerInfo } from '../shared/mcp_types';
 import { listConfiguredMcpServers } from './mcp_configured_list';
 import { listLocalMcpServers } from './mcp_local_list';
 import { mcpLocalRoot } from './mcp_local_root';

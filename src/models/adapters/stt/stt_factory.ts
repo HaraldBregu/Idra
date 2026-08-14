@@ -1,4 +1,4 @@
-import { normalizeProviderId } from '../../../../shared/provider_types';
+import { normalizeProviderId } from '../../../shared/provider_types';
 import { createDeepgramSttAdapter } from './stt_deepgram';
 import { createElevenLabsSttAdapter } from './stt_elevenlabs';
 import { createMistralSttAdapter } from './stt_mistral';

@@ -4,7 +4,7 @@ import type {
 	SkillImportResult,
 	SkillImportSkipped,
 	SkillInfo,
-} from '../../../shared/skills_types';
+} from '../../shared/skills_types';
 import { skillsRoot } from './skills_root';
 import { readSkill } from './skills_read';
 import { pickDirectories } from './skills_pick_directories';

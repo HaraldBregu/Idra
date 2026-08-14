@@ -4,7 +4,7 @@ import type {
 	SttRealtimeSession,
 	SttRealtimeStartRequest,
 	SttTranscriptionResult,
-} from '../../../shared/stt_transcription';
+} from '../../shared/stt_transcription';
 
 export type { SttRealtimeEvent, SttRealtimeSession, SttTranscriptionResult };
 

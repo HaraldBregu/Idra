@@ -10,12 +10,12 @@ import {
 	type SandboxRuntimeConfig,
 } from '@anthropic-ai/sandbox-runtime';
 import type { ChildProcess } from 'node:child_process';
-import type { SandboxStatus } from '../../shared/sandbox';
+import type { SandboxStatus } from '../shared/sandbox';
 import { getPermissions } from './agent_store';
 import { userDataLocation } from '../shared/user_data_location';
 import { resolveUserPath } from '../shared/user_path';
 import { recursivePermissionRule } from './permissions/recursive_permission_rule';
-import type { AgentInteractionMode } from '../../shared/agent_types';
+import type { AgentInteractionMode } from '../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 
 const WINDOWS_SANDBOX_GUIDANCE =

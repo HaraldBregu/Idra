@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { SkillInfo } from '../../../shared/skills_types';
+import type { SkillInfo } from '../../shared/skills_types';
 import { skillsRoot } from './skills_root';
 import { readSkill } from './skills_read';
 

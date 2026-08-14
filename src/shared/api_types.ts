@@ -29,11 +29,11 @@ import type {
 	McpTestResult,
 } from './mcp_types';
 import type { Extension, ExtensionImportResult } from './extension_types';
-import type { TaskRuntime, TaskSchedule } from '../main/tasks/tasks_types';
-import type { HealthSettings } from '../main/agent/health/health_types';
-import type { RagIndexResult, RagMatch } from '../main/agent/knowledge/rag';
+import type { TaskRuntime, TaskSchedule } from '../tasks/tasks_types';
+import type { HealthSettings } from '../agent/health/health_types';
+import type { RagIndexResult, RagMatch } from '../agent/knowledge/rag';
 import type { RagConfiguration } from './rag_types';
-import type { PermissionsSchema } from '../main/agent/permissions/permissions_types';
+import type { PermissionsSchema } from '../agent/permissions/permissions_types';
 import type {
 	AgentHistoryMessage,
 	AgentPromptInputCapabilities,

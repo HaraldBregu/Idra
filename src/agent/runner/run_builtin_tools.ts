@@ -1,4 +1,4 @@
-import type { AgentInteractionMode } from '../../../shared/agent_types';
+import type { AgentInteractionMode } from '../../shared/agent_types';
 import type { Config, Tool } from '../types';
 import type { ExecSandbox } from '../sandbox';
 import { completeBootstrapTool } from '../tools/assistant/complete_bootstrap';

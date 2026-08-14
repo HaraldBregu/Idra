@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import type { LlmEvent } from '../models/adapters/llm';
-import type { SkillDiagnostic, SkillTrust } from '../../shared/skills_types';
+import type { SkillDiagnostic, SkillTrust } from '../shared/skills_types';
 
 export interface Config {
 	location: string;
@@ -124,7 +124,7 @@ type RuntimeInputBase = Pick<
 	providerId?: string;
 	agentId: string;
 	contextMode: 'minimal' | 'workspace';
-	interactionMode: import('../../shared/agent_types').AgentInteractionMode;
+	interactionMode: import('../shared/agent_types').AgentInteractionMode;
 	toolsDeny?: string[];
 	approvalWindowId?: number;
 	explicitSkill?: string;
@@ -178,7 +178,7 @@ export type RuntimeEvent =
 	| {
 			type: 'run_started';
 			sessionId: string;
-			interactionMode: import('../../shared/agent_types').AgentInteractionMode;
+			interactionMode: import('../shared/agent_types').AgentInteractionMode;
 			model: string;
 			providerId: string;
 			tools: string[];
@@ -190,7 +190,7 @@ export type RuntimeEvent =
 			type: 'user_input_request';
 			requestId: string;
 			toolCallId: string;
-			questions: import('../../shared/agent_types').AgentUserInputQuestion[];
+			questions: import('../shared/agent_types').AgentUserInputQuestion[];
 			expiresAt: string;
 			inputFingerprint: string;
 	  }
@@ -199,7 +199,7 @@ export type RuntimeEvent =
 			requestId: string;
 			toolCallId: string;
 			status: 'resolved' | 'interrupted';
-			answers: import('../../shared/agent_types').AgentUserInputAnswer[];
+			answers: import('../shared/agent_types').AgentUserInputAnswer[];
 	  }
 	| { type: 'assistant_message'; content: string; toolCalls: ToolCall[] }
 	| {

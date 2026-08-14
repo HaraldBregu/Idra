@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 
-import { workspaceFileType, type WorkspaceAsset } from '../../shared/workspace';
+import { workspaceFileType, type WorkspaceAsset } from '../shared/workspace';
 import { resolveWorkspaceFile } from './workspace';
 
 export async function readWorkspaceAsset(root: string, filePath: string): Promise<WorkspaceAsset> {

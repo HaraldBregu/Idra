@@ -5,10 +5,10 @@ import {
 	AGENT_MAX_TEXT_ATTACHMENT_BYTES,
 	AGENT_MAX_TEXT_ATTACHMENT_TOTAL_BYTES,
 	AGENT_TEXT_ATTACHMENT_EXTENSIONS,
-} from '../../../shared/agent_files';
-import type { AgentPromptInputCapabilities } from '../../../shared/agent_types';
-import type { PromptAttachmentRule } from '../../../shared/model_types';
-import { findModel } from '../../main/models';
+} from '../../shared/agent_files';
+import type { AgentPromptInputCapabilities } from '../../shared/agent_types';
+import type { PromptAttachmentRule } from '../../shared/model_types';
+import { findModel } from '../../models';
 
 const ADAPTER_FORMATS: Readonly<Record<string, readonly PromptAttachmentRule['kind'][]>> = {
 	openai: ['image', 'document'],

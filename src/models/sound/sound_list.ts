@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { userDataLocation } from '../../shared/user_data_location';
-import type { SoundFile } from '../../../shared/sound_types';
+import type { SoundFile } from '../../shared/sound_types';
 
 const AUDIO_EXTENSIONS = new Set(['.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac', '.webm']);
 

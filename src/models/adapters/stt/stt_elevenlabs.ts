@@ -10,7 +10,7 @@ import type {
 	SttRealtimeConnection,
 	SttRealtimeEventHandler,
 } from './stt_types';
-import type { SttTranscriptionResult } from '../../../../shared/stt_transcription';
+import type { SttTranscriptionResult } from '../../../shared/stt_transcription';
 
 const ELEVENLABS_STT_PATH = 'speech-to-text';
 const ELEVENLABS_REALTIME_STT_PATH = 'speech-to-text/realtime';

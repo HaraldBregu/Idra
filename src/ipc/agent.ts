@@ -5,11 +5,11 @@ import { realPath } from '../shared/real_path';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../event_bus';
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
-import { AgentChannels } from '../../shared/ipc_channels_definitions';
+import { AgentChannels } from '../shared/ipc_channels_definitions';
 import type { Agent } from '../agent/agent';
 import type { Conversation } from '../agent/conversation';
 import type { LoggerService } from '../shared';
-import type { PublicProvider } from '../../shared/provider_types';
+import type { PublicProvider } from '../shared/provider_types';
 import { loadProviders } from '../models';
 import type {
 	AgentContextMode,
@@ -20,8 +20,8 @@ import type {
 	AgentUserInputScope,
 	ModelReasoningEffort,
 	WorkspaceTreeEntry,
-} from '../../shared/agent_types';
-import { normalizeAgentInputFiles } from '../../shared/agent_files';
+} from '../shared/agent_types';
+import { normalizeAgentInputFiles } from '../shared/agent_files';
 import { requireUuidSessionId } from '../agent/session';
 import { workspacePath } from '../agent/system';
 import {
@@ -56,8 +56,8 @@ import {
 	type RagIndexResult,
 	type RagMatch,
 } from '../agent/knowledge/rag';
-import type { RagConfiguration } from '../../shared/rag_types';
-import type { WorkspaceAsset } from '../../shared/workspace';
+import type { RagConfiguration } from '../shared/rag_types';
+import type { WorkspaceAsset } from '../shared/workspace';
 import { readWorkspaceAsset } from './asset';
 import { createWorkspaceEntry } from './create';
 import { deleteWorkspaceFile } from './delete';

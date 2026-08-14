@@ -1,10 +1,10 @@
 import type { IpcMainInvokeEvent } from 'electron';
 
 // Re-export shared IPC result type for backward compatibility
-export type { IpcResult } from '../../../shared/ipc_types';
+export type { IpcResult } from '../../shared/ipc_types';
 
 // Import the types we need locally
-import type { IpcResult } from '../../../shared/ipc_types';
+import type { IpcResult } from '../../shared/ipc_types';
 import { toError } from './error';
 
 /**

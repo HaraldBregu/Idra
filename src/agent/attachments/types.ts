@@ -1,4 +1,4 @@
-import type { AgentPromptInputCapabilities } from '../../../shared/agent_types';
+import type { AgentPromptInputCapabilities } from '../../shared/agent_types';
 
 export type PromptAttachmentBlock =
 	| {

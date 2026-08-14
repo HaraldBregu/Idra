@@ -2,7 +2,7 @@ import { realPath } from '../shared/real_path';
 import { getWikiSettings } from '../agent/knowledge/wiki';
 import { normalizeRagIndexName } from '../agent/knowledge/rag/rag_index_name';
 import { requireUuidSessionId } from '../agent/session';
-import type { DataScope } from '../../shared/data_types';
+import type { DataScope } from '../shared/data_types';
 
 export function normalizeDataScope(value: unknown): DataScope {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) {

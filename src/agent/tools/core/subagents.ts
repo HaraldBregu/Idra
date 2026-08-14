@@ -4,7 +4,7 @@ import { KeyedLimiter } from '../../limiter';
 import { stream, type StreamOptions } from '../../runner/run_stream';
 import { createSessionState } from '../../session';
 import type { Config, RuntimeInput, Tool } from '../../types';
-import type { AgentRunType } from '../../../../shared/agent_types';
+import type { AgentRunType } from '../../../shared/agent_types';
 import { tool } from '../tool';
 
 export interface ChildRuntime extends Pick<
@@ -12,7 +12,7 @@ export interface ChildRuntime extends Pick<
 	'resources' | 'providerLimiter' | 'subagentLimiter'
 > {
 	type: AgentRunType;
-	interactionMode: import('../../../../shared/agent_types').AgentInteractionMode;
+	interactionMode: import('../../../shared/agent_types').AgentInteractionMode;
 }
 
 export async function runChild(

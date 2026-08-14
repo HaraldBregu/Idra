@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { userDataLocation } from '../../shared/user_data_location';
-import type { VideoResult } from '../../../shared/video_types';
+import type { VideoResult } from '../../shared/video_types';
 
 export async function saveVideoFile(result: VideoResult): Promise<string> {
 	const ext = result.mimeType.split('/')[1]?.split('+')[0] || 'mp4';

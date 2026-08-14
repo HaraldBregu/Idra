@@ -1,5 +1,5 @@
 import type { ChannelConnectionStatus, ChannelType } from '../shared';
-import type { SttAudioInput } from '../../shared/stt_transcription';
+import type { SttAudioInput } from '../shared/stt_transcription';
 
 export type ChannelChatType = 'dm' | 'group' | 'channel' | 'thread';
 

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import type { McpServerInfo } from '../../shared/mcp_types';
+import type { McpServerInfo } from '../shared/mcp_types';
 
 export function readLocalMcpServer(directory: string): McpServerInfo {
 	const manifestPath = path.join(directory, 'mcp.json');

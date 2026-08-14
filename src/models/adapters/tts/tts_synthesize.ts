@@ -1,9 +1,9 @@
-import { normalizeProviderId } from '../../../../shared/provider_types';
+import { normalizeProviderId } from '../../../shared/provider_types';
 import {
 	normalizeSpeechSynthesisRequest,
 	type SpeechSynthesisRequest,
 	type SpeechSynthesisResult,
-} from '../../../../shared/speech_types';
+} from '../../../shared/speech_types';
 import {
 	defaultProviderId,
 	loadProviders,

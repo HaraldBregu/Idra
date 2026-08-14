@@ -31,7 +31,7 @@ import { filterTools } from './run_tools';
 import { formatToolOutput } from './run_common';
 import { selectSkillTools } from './run_skill_tools';
 import { activateSkill, createSkillRegistrySnapshot } from '../skills';
-import type { SkillLoadResult } from '../../../shared/skills_types';
+import type { SkillLoadResult } from '../../shared/skills_types';
 import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 import type { ExecSandbox } from '../sandbox';

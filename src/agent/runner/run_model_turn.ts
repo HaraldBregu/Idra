@@ -1,7 +1,7 @@
 import { LlmContextOverflowError, LlmModel } from '../../models/adapters/llm';
 import type { LlmEvent, LlmRequest } from '../../models/adapters/llm';
 import { parseToolArgs } from '../../shared/parse_tool_args';
-import type { ResolvedProvider } from '../../../shared/provider_types';
+import type { ResolvedProvider } from '../../shared/provider_types';
 import type { Message, MessageContentBlock, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import type { ModelTurn } from './run_loop_types';
 import { setTimeout as wait } from 'node:timers/promises';

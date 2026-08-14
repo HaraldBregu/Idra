@@ -10,7 +10,7 @@ import {
 	setLanguage as setStoredLanguage,
 	getTheme,
 } from './settings_store';
-import type { AppLanguage } from '../shared/app_types';
+import type { AppLanguage } from 'shared/app_types';
 import { Menu } from './menu';
 import {
 	ensureExtensions,

@@ -1,6 +1,6 @@
 import { ensureSpeechResponseOk, responseAudioToBase64, speechResult } from './tts_audio';
 import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './tts_types';
-import type { SpeechSynthesisResult } from '../../../../shared/speech_types';
+import type { SpeechSynthesisResult } from '../../../shared/speech_types';
 
 const CARTESIA_TTS_PATH = 'tts/bytes';
 const CARTESIA_VERSION = '2026-03-01';

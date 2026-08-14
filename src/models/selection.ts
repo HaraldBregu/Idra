@@ -1,4 +1,4 @@
-import type { AgentMediaModelKind } from '../../shared/agent_types';
+import type { AgentMediaModelKind } from '../shared/agent_types';
 import {
 	getMediaModel,
 	getModelId as getAgentModelId,

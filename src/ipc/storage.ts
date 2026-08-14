@@ -1,7 +1,7 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../event_bus';
 import { registerCommand, registerQuery } from './core/gateway';
-import { StorageChannels } from '../../shared/ipc_channels_definitions';
+import { StorageChannels } from '../shared/ipc_channels_definitions';
 import {
 	deleteObject,
 	deleteStorageConfig,

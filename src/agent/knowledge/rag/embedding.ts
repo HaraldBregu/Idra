@@ -1,4 +1,4 @@
-import type { EmbeddingResult } from '../../../../shared/embedding_types';
+import type { EmbeddingResult } from '../../../shared/embedding_types';
 import { createEmbedding } from '../../../models/embedding';
 import type { EmbeddingInput, EmbeddingProvider } from './types';
 

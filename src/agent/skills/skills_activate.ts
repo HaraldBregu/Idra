@@ -1,4 +1,4 @@
-import type { SkillLoadResult, SkillRegistrySnapshot } from '../../../shared/skills_types';
+import type { SkillLoadResult, SkillRegistrySnapshot } from '../../shared/skills_types';
 import { inspectSkill } from './skills_inspect';
 
 export async function activateSkill(

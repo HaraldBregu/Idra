@@ -2,7 +2,7 @@ import { BrowserWindow, dialog, shell } from 'electron';
 import { mkdirSync } from 'node:fs';
 import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { EventBus } from '../event_bus';
-import { McpChannels } from '../../shared/ipc_channels_definitions';
+import { McpChannels } from '../shared/ipc_channels_definitions';
 import {
 	createOAuthProvider,
 	configureLocalMcpServer,
@@ -20,7 +20,7 @@ import {
 	upsertMcpServer,
 	type McpOAuthStorage,
 } from '../mcp';
-import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
+import type { McpData, McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 

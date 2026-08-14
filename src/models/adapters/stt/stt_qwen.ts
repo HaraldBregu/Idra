@@ -9,7 +9,7 @@ import type {
 	SttRealtimeConnection,
 	SttRealtimeEventHandler,
 } from './stt_types';
-import type { SttTranscriptionResult } from '../../../../shared/stt_transcription';
+import type { SttTranscriptionResult } from '../../../shared/stt_transcription';
 
 const QWEN_AUTH_SCHEME = 'Bearer';
 const QWEN_REALTIME_BETA_HEADER = 'OpenAI-Beta';

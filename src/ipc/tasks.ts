@@ -1,5 +1,5 @@
 import type { EventBus } from '../event_bus';
-import { TaskChannels } from '../../shared/ipc_channels_definitions';
+import { TaskChannels } from '../shared/ipc_channels_definitions';
 import {
 	configureScheduleCapabilities,
 	getRuntime,

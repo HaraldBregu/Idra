@@ -7,9 +7,9 @@ import {
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../event_bus';
 import { wrapIpcHandler } from './core/error_handler';
-import { WindowChannels } from '../../shared/ipc_channels_definitions';
+import { WindowChannels } from '../shared/ipc_channels_definitions';
 import type { LoggerService } from '../shared';
-import type { ContextMenuDescriptor, ContextMenuRole } from '../../shared/window_types';
+import type { ContextMenuDescriptor, ContextMenuRole } from '../shared/window_types';
 
 const contextMenuRoles = new Set<ContextMenuRole>([
 	'undo',

@@ -1,4 +1,4 @@
-import type { AgentRunStopReason } from '../../../shared/agent_types';
+import type { AgentRunStopReason } from '../../shared/agent_types';
 import type { SessionCategory, SessionResult, SessionState } from '../session';
 
 export interface AgentRunOutcome {

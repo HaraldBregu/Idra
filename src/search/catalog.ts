@@ -1,4 +1,4 @@
-import type { StoredProvider } from '../../shared/provider_types';
+import type { StoredProvider } from '../shared/provider_types';
 
 export const SEARCH_PROVIDERS: readonly Omit<StoredProvider, 'apiKey'>[] = [
 	{

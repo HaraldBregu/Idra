@@ -1,5 +1,5 @@
 import type { IpcMainInvokeEvent } from 'electron';
-import { AppChannels } from '../../shared/ipc_channels_definitions';
+import { AppChannels } from '../shared/ipc_channels_definitions';
 import type { ExtensionRegistry } from '../extensions/extension_registry';
 import type { ExtensionStorage } from '../extensions/extension_store';
 import { registerCommandWithEvent, registerQueryWithEvent } from './core/gateway';

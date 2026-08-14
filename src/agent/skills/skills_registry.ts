@@ -4,7 +4,7 @@ import type {
 	SkillDiagnostic,
 	SkillInfo,
 	SkillRegistrySnapshot,
-} from '../../../shared/skills_types';
+} from '../../shared/skills_types';
 import { skillsRoot } from './skills_root';
 import { readSkill } from './skills_read';
 import { validateSkill } from './skills_validate';

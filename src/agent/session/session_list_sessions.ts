@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
-import type { AgentSessionSummary } from '../../../shared/agent_types';
+import type { AgentSessionSummary } from '../../shared/agent_types';
 import type { SessionCategory } from './session_types';
 import { DEFAULT_CATEGORY } from './session_types';
 import { isUuid } from './session_is_uuid';

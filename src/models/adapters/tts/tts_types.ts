@@ -1,7 +1,7 @@
 import type {
 	SpeechSynthesisRequest,
 	SpeechSynthesisResult,
-} from '../../../../shared/speech_types';
+} from '../../../shared/speech_types';
 
 export interface SpeechProviderSpec {
 	id: string;

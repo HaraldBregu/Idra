@@ -1,4 +1,4 @@
-import { DEFAULT_RAG_INDEX_NAME } from '../../../../shared/rag_types';
+import { DEFAULT_RAG_INDEX_NAME } from '../../../shared/rag_types';
 import { SelectedEmbeddingProvider } from './embedding';
 import { normalizeRagIndexName } from './rag_index_name';
 import { ragVectorStore } from './vector';

@@ -8,8 +8,8 @@ import {
 	loadExtension,
 	openRoot,
 } from '../extensions/extension_index';
-import { ExtensionChannels } from '../../shared/ipc_channels_definitions';
-import type { ExtensionImportResult } from '../../shared/extension_types';
+import { ExtensionChannels } from '../shared/ipc_channels_definitions';
+import type { ExtensionImportResult } from '../shared/extension_types';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';
 

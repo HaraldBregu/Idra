@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
-import type { StoredProvider } from '../../shared/provider_types';
+import type { StoredProvider } from '../shared/provider_types';
 import type { ProvidersStoreState } from './providers_types';
 
 const defaults: ProvidersStoreState = {

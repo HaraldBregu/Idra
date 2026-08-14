@@ -1,7 +1,7 @@
 import { BrowserWindow, dialog } from 'electron';
 import path from 'node:path';
-import { DataChannels } from '../../shared/ipc_channels_definitions';
-import type { DataScope } from '../../shared/data_types';
+import { DataChannels } from '../shared/ipc_channels_definitions';
+import type { DataScope } from '../shared/data_types';
 import type { Agent } from '../agent/agent';
 import { DataController } from '../data/data_controller';
 import { normalizeDataScope } from '../data/data_scope';

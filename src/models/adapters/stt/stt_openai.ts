@@ -11,7 +11,7 @@ import type {
 	SttRealtimeConnection,
 	SttRealtimeEventHandler,
 } from './stt_types';
-import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
+import type { SttTranscriptionResult, SttUsage } from '../../../shared/stt_transcription';
 
 const OPENAI_REALTIME_PATH = 'realtime';
 const OPENAI_REALTIME_AUTH_SCHEME = 'Bearer';

@@ -1,6 +1,6 @@
 import { SpeechProviderAuthError, SpeechProviderRequestError } from './tts_errors';
 import type { SpeechAdapterRequest, SpeechProviderSpec } from './tts_types';
-import type { SpeechSynthesisResult } from '../../../../shared/speech_types';
+import type { SpeechSynthesisResult } from '../../../shared/speech_types';
 
 export async function ensureSpeechResponseOk(
 	response: Response,

@@ -1,4 +1,4 @@
-import type { ExtensionStoreValue } from '../../shared/extension_store_types';
+import type { ExtensionStoreValue } from '../shared/extension_store_types';
 
 export function isExtensionStoreValue(value: unknown): value is ExtensionStoreValue {
 	const seen = new Set<object>();

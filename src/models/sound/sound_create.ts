@@ -1,5 +1,5 @@
-import { normalizeProviderId } from '../../../shared/provider_types';
-import type { SoundRequest, SoundResult } from '../../../shared/sound_types';
+import { normalizeProviderId } from '../../shared/provider_types';
+import type { SoundRequest, SoundResult } from '../../shared/sound_types';
 import { loadProviders, providerModels, supportsCapability } from '../../models';
 import { getProvider } from '../../settings_store';
 import {

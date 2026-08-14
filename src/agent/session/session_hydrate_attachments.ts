@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
-import { AGENT_MAX_ATTACHMENT_BYTES } from '../../../shared/agent_files';
+import { AGENT_MAX_ATTACHMENT_BYTES } from '../../shared/agent_files';
 import type { Message } from '../types';
 import { sessionFolderName } from './session_session_folder_name';
 import { sessionPath } from './session_session_path';

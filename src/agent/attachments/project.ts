@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { AgentPromptInputCapabilities } from '../../../shared/agent_types';
+import type { AgentPromptInputCapabilities } from '../../shared/agent_types';
 import type { Message } from '../types';
 import { formatUploadedTextFile } from './text';
 

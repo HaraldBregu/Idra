@@ -150,35 +150,35 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.policyGet]: {
 		args: [];
-		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
+		result: import('../agent/permissions/permissions_types').PermissionsSchema;
 	};
 	[AgentChannels.policySet]: {
-		args: [permissions: import('../main/agent/permissions/permissions_types').PermissionsSchema];
-		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
+		args: [permissions: import('../agent/permissions/permissions_types').PermissionsSchema];
+		result: import('../agent/permissions/permissions_types').PermissionsSchema;
 	};
 	[AgentChannels.policyReset]: {
 		args: [];
-		result: import('../main/agent/permissions/permissions_types').PermissionsSchema;
+		result: import('../agent/permissions/permissions_types').PermissionsSchema;
 	};
 	[AgentChannels.policyPickDirectory]: { args: []; result: string | undefined };
 	[AgentChannels.policyNormalizeDirectory]: { args: [value: string]; result: string };
 	[AgentChannels.healthSettings]: {
 		args: [];
-		result: import('../main/agent/health/health_types').HealthSettings;
+		result: import('../agent/health/health_types').HealthSettings;
 	};
 	[AgentChannels.healthSaveSettings]: {
-		args: [request: Partial<import('../main/agent/health/health_types').HealthSettings>];
-		result: import('../main/agent/health/health_types').HealthSettings;
+		args: [request: Partial<import('../agent/health/health_types').HealthSettings>];
+		result: import('../agent/health/health_types').HealthSettings;
 	};
 	[AgentChannels.healthResetSettings]: {
 		args: [];
-		result: import('../main/agent/health/health_types').HealthSettings;
+		result: import('../agent/health/health_types').HealthSettings;
 	};
 	[AgentChannels.healthData]: { args: []; result: string };
 	[AgentChannels.healthSaveData]: { args: [content: string]; result: string };
 	[AgentChannels.ragIndex]: {
 		args: [];
-		result: import('../main/agent/knowledge/rag/types').RagIndexResult;
+		result: import('../agent/knowledge/rag/types').RagIndexResult;
 	};
 	[AgentChannels.ragGetConfiguration]: { args: []; result: import('./rag_types').RagConfiguration };
 	[AgentChannels.ragSaveConfiguration]: {
@@ -187,7 +187,7 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.ragSearch]: {
 		args: [query: string, topK?: number];
-		result: import('../main/agent/knowledge/rag/types').RagMatch[];
+		result: import('../agent/knowledge/rag/types').RagMatch[];
 	};
 	[AgentChannels.ragPickFolder]: { args: []; result: string | undefined };
 }
@@ -220,18 +220,18 @@ export interface RecorderEventChannelMap {
 }
 
 export interface TaskInvokeChannelMap {
-	[TaskChannels.list]: { args: []; result: import('../main/tasks').TaskSchedule[] };
+	[TaskChannels.list]: { args: []; result: import('../tasks').TaskSchedule[] };
 	[TaskChannels.getRuntime]: {
 		args: [];
-		result: import('../main/tasks').TaskRuntime | undefined;
+		result: import('../tasks').TaskRuntime | undefined;
 	};
 	[TaskChannels.setRuntime]: {
 		args: [providerId: string, modelId: string];
-		result: import('../main/tasks').TaskRuntime;
+		result: import('../tasks').TaskRuntime;
 	};
 	[TaskChannels.configureCapabilities]: {
 		args: [scheduleId: string, enabled: boolean, toolsAllow: string[]];
-		result: import('../main/tasks').TaskSchedule;
+		result: import('../tasks').TaskSchedule;
 	};
 }
 

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { readSkill } from './skills_read';
 import { resolveSkillFolder } from './skills_resolve_folder';
-import type { SkillDeleteResult } from '../../../shared/skills_types';
+import type { SkillDeleteResult } from '../../shared/skills_types';
 
 export function deleteSkill(id: string): SkillDeleteResult {
 	const folder = resolveSkillFolder(id);

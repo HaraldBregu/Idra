@@ -3,7 +3,7 @@ import path from 'node:path';
 import { isExtensionId } from './extension_id';
 import { extensionsRoot } from './extension_root';
 import { readExtensionManifestFromDirectory } from './extension_read';
-import type { ExtensionImportResult, ExtensionImportSkipped } from '../../shared/extension_types';
+import type { ExtensionImportResult, ExtensionImportSkipped } from '../shared/extension_types';
 import type { Extension } from './extension_types';
 
 function createSkipped(sourcePath: string, reason: string): ExtensionImportSkipped {

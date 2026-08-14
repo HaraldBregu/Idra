@@ -1,4 +1,4 @@
-import type { StorageConfig, StorageConfiguration } from '../../shared/storage_types';
+import type { StorageConfig, StorageConfiguration } from '../shared/storage_types';
 import { pushFiles } from './storage_push';
 import type { StorageSyncLogger } from './storage_sync_types';
 

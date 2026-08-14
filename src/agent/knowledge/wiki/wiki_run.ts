@@ -1,5 +1,5 @@
 import { mkdir } from 'node:fs/promises';
-import type { WikiRunResult } from '../../../../shared/wiki_types';
+import type { WikiRunResult } from '../../../shared/wiki_types';
 import { applyWikiUpdate } from './wiki_apply_update';
 import { collectWikiSources } from './wiki_collect_sources';
 import { buildWikiContext } from './wiki_context';

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
-import type { SkillValidationIssue, SkillValidationResult } from '../../../shared/skills_types';
+import type { SkillValidationIssue, SkillValidationResult } from '../../shared/skills_types';
 import { SKILL_FILE, SKILL_MAX_BYTES } from './skills_limits';
 
 const NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

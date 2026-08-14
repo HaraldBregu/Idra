@@ -32,7 +32,7 @@ import type {
 	AgentResponseEvent,
 	AgentRunStopReason,
 	AgentSessionSummary,
-} from '../../shared/agent_types';
+} from '../shared/agent_types';
 import { toError } from '../error';
 import { AgentRunScheduler, type AgentRunPriority } from './agent_scheduler';
 import type { SessionCategory } from './session';

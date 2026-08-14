@@ -2,7 +2,7 @@ import { Mistral } from '@mistralai/mistralai';
 import { speechResult } from './tts_audio';
 import { SpeechProviderRequestError } from './tts_errors';
 import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './tts_types';
-import type { SpeechSynthesisResult } from '../../../../shared/speech_types';
+import type { SpeechSynthesisResult } from '../../../shared/speech_types';
 
 const MISTRAL_AUDIO_TYPES: Readonly<Record<string, string>> = {
 	pcm: 'audio/pcm',

@@ -1,7 +1,7 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../event_bus';
 import { registerCommand, registerQuery } from './core/gateway';
-import { RecorderChannels } from '../../shared/ipc_channels_definitions';
+import { RecorderChannels } from '../shared/ipc_channels_definitions';
 import { camera, microphone, screen } from '../recorder';
 
 export class RecorderIpc implements IpcModule {

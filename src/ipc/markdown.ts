@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 
-import { workspaceFileType } from '../../shared/workspace';
+import { workspaceFileType } from '../shared/workspace';
 import { resolveWorkspaceFile } from './workspace';
 
 export async function writeWorkspaceMarkdown(

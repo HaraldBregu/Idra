@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { tool } from '../tool';
 import { activateSkill } from '../../skills';
-import type { SkillLoadResult, SkillRegistrySnapshot } from '../../../../shared/skills_types';
+import type { SkillLoadResult, SkillRegistrySnapshot } from '../../../shared/skills_types';
 import type { Tool } from '../../types';
 
 export function loadSkillTool(

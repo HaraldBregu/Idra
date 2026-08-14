@@ -1,4 +1,4 @@
-import { normalizeProviderId } from '../../../../shared/provider_types';
+import { normalizeProviderId } from '../../../shared/provider_types';
 import { createCartesiaSpeechAdapter } from './tts_cartesia';
 import { createDeepgramSpeechAdapter } from './tts_deepgram';
 import { createElevenLabsSpeechAdapter } from './tts_elevenlabs';

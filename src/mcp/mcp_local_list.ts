@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
-import type { McpRegistry } from '../../shared/mcp_types';
+import type { McpRegistry } from '../shared/mcp_types';
 import { readLocalMcpServer } from './mcp_local_read';
 import { mcpLocalDiscoveryRoots } from './mcp_local_root';
 

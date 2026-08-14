@@ -22,7 +22,7 @@ import { directoryPermissionTargets } from '../permissions/directory_permission_
 import type {
 	AgentInteractionMode,
 	AgentUserInputQuestion,
-} from '../../../shared/agent_types';
+} from '../../shared/agent_types';
 import { waitForUserInput } from '../user_input/user_input_pending';
 import { planCommandError } from '../plan/command';
 import { toolPermissionTargets } from '../permissions/tool_permission_targets';

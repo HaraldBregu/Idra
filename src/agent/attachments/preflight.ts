@@ -6,9 +6,9 @@ import {
 	AGENT_MAX_TEXT_ATTACHMENT_BYTES,
 	AGENT_MAX_TEXT_ATTACHMENT_TOTAL_BYTES,
 	AGENT_TEXT_ATTACHMENT_EXTENSIONS,
-} from '../../../shared/agent_files';
-import type { AgentInputFile, AgentPromptInputCapabilities } from '../../../shared/agent_types';
-import type { PromptAttachmentRule } from '../../../shared/model_types';
+} from '../../shared/agent_files';
+import type { AgentInputFile, AgentPromptInputCapabilities } from '../../shared/agent_types';
+import type { PromptAttachmentRule } from '../../shared/model_types';
 import type { PromptAttachmentBlock } from './types';
 
 const IMAGE_FORMATS = [

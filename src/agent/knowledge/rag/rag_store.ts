@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import cron from 'node-cron';
-import { DEFAULT_RAG_INDEX_NAME, type RagConfiguration } from '../../../../shared/rag_types';
+import { DEFAULT_RAG_INDEX_NAME, type RagConfiguration } from '../../../shared/rag_types';
 import { userDataLocation } from '../../../shared/user_data_location';
 import { normalizeRagIndexName } from './rag_index_name';
 

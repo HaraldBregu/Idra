@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import type { McpServerInfo, McpStdioData } from '../../shared/mcp_types';
+import type { McpServerInfo, McpStdioData } from '../shared/mcp_types';
 import { listLocalMcpServers } from './mcp_local_list';
 import { importLocalMcpServers } from './mcp_local_import';
 import { readLocalMcpServer } from './mcp_local_read';

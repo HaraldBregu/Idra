@@ -1,4 +1,4 @@
-import type { AgentPromptInputCapabilities, ModelReasoningEffort } from '../../../shared/agent_types';
+import type { AgentPromptInputCapabilities, ModelReasoningEffort } from '../../shared/agent_types';
 import type { PromptAttachmentBlock } from '../attachments';
 import type { RunContext } from '../context';
 import type { Message, MessageContentBlock, ToolCall } from '../types';

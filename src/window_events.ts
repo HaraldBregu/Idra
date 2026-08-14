@@ -1,5 +1,5 @@
 import type { BrowserWindow, WebContents } from 'electron';
-import { WindowChannels } from '../shared/ipc_channels_definitions';
+import { WindowChannels } from 'shared/ipc_channels_definitions';
 
 export function attachWindowHandlers(
 	win: BrowserWindow,

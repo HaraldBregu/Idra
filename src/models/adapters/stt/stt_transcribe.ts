@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { SpeechToTextApiType } from '../../../../shared/model_types';
+import type { SpeechToTextApiType } from '../../../shared/model_types';
 import type { PublicProvider } from '../../../shared';
 import {
 	STT_DEFAULT_REALTIME_SAMPLE_RATE,
@@ -13,9 +13,9 @@ import {
 	type SttSelectionMode,
 	type SttTranscriptionRequest,
 	type SttTranscriptionResult,
-} from '../../../../shared/stt_transcription';
-import { normalizeProviderId } from '../../../../shared/provider_types';
-import type { ProviderModel } from '../../../../shared/model_types';
+} from '../../../shared/stt_transcription';
+import { normalizeProviderId } from '../../../shared/provider_types';
+import type { ProviderModel } from '../../../shared/model_types';
 import { buildSttAdapter } from './stt_factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './stt_errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './stt_types';
@@ -30,7 +30,7 @@ import {
 	supportsSpeechToTextApiType,
 } from '../..';
 import { getProvider } from '../../../settings_store';
-import type { PublicProvider as CatalogProvider } from '../../../../shared/provider_types';
+import type { PublicProvider as CatalogProvider } from '../../../shared/provider_types';
 import {
 	getModelId as getTranscribeModelId,
 	getProviderId as getTranscribeProviderId,

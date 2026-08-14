@@ -1,5 +1,5 @@
-import type { CatalogService, StoredProvider } from '../../shared/provider_types';
-import type { DatabaseConfiguration } from '../../shared/database_types';
+import type { CatalogService, StoredProvider } from '../shared/provider_types';
+import type { DatabaseConfiguration } from '../shared/database_types';
 import { loadDatabases } from '../models';
 import { getDatabaseProvidersState, setDatabaseProvidersState } from '../providers/providers_index';
 import {

@@ -1,4 +1,4 @@
-import type { SttAudioInput } from '../../shared/stt_transcription';
+import type { SttAudioInput } from '../shared/stt_transcription';
 import type { ChannelInboundVoice } from './channels_types';
 
 export const CHANNEL_MAX_VOICE_BYTES = 20 * 1024 * 1024;

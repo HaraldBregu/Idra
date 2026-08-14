@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import { RealtimeVoiceChannels } from '../../shared/ipc_channels_definitions';
+import { RealtimeVoiceChannels } from '../shared/ipc_channels_definitions';
 import type { EventBus } from '../event_bus';
 import type { Conversation } from '../agent/conversation';
 import { registerCommandWithEvent } from './core/gateway';

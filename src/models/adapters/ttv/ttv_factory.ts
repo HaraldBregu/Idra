@@ -1,4 +1,4 @@
-import { normalizeProviderId } from '../../../../shared/provider_types';
+import { normalizeProviderId } from '../../../shared/provider_types';
 import { createGoogleVideoAdapter } from './ttv_google';
 import { createKlingVideoAdapter } from './ttv_kling';
 import { createLumaVideoAdapter } from './ttv_luma';

@@ -1,4 +1,4 @@
-import type { RealtimeVoiceEvent, RealtimeVoiceToolEvent } from '../../../shared/realtime_voice';
+import type { RealtimeVoiceEvent, RealtimeVoiceToolEvent } from '../../shared/realtime_voice';
 import { createRunContext } from '../context';
 import type { KeyedMutex } from '../mutex';
 import { formatToolOutput } from '../runner/run_common';

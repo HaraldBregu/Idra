@@ -1,5 +1,5 @@
 import { net } from 'electron';
-import type { UrlMetadata } from '../shared/app_types';
+import type { UrlMetadata } from 'shared/app_types';
 import { responseText } from './body';
 import { metadata } from './metadata';
 import { publicUrl } from './public';

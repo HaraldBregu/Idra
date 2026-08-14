@@ -1,5 +1,5 @@
-import { normalizeProviderId } from '../../../shared/provider_types';
-import { RealtimeVoiceChannels } from '../../../shared/ipc_channels_definitions';
+import { normalizeProviderId } from '../../shared/provider_types';
+import { RealtimeVoiceChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent } from '../agent';
 import { builtinTools } from '../runner/run_builtin_tools';
 import { buildSystemPrompt } from '../system';

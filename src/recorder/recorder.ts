@@ -7,7 +7,7 @@ import type {
 	Recording,
 	RecorderCaptureResult,
 	RecorderCommand,
-} from '../../shared/recorder_types';
+} from '../shared/recorder_types';
 
 const COMPLETION_GRACE_MS = 15_000;
 

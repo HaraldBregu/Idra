@@ -1,4 +1,4 @@
-import type { SkillLoadResult } from '../../../shared/skills_types';
+import type { SkillLoadResult } from '../../shared/skills_types';
 import { inspectSkill } from './skills_inspect';
 import { createSkillRegistrySnapshot } from './skills_registry';
 

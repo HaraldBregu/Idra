@@ -1,5 +1,5 @@
 import { LlmModel } from '../adapters/llm';
-import type { TextRequest } from '../../../shared/text_types';
+import type { TextRequest } from '../../shared/text_types';
 import { getProvider } from '../../settings_store';
 import { getModelId, getProviderId } from '../selection';
 

@@ -10,7 +10,7 @@ import {
 	SttChannels,
 	TextChannels,
 	VideoChannels,
-} from '../../shared/ipc_channels_definitions';
+} from '../shared/ipc_channels_definitions';
 import { embedding, image, sound, text, video, voice } from '../models/index';
 import {
 	getModelId,

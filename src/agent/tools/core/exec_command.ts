@@ -6,11 +6,11 @@ import { resolveUserPath } from '../../../shared/user_path';
 import { tool } from '../tool';
 import { registry } from './process';
 import type { ExecSandbox } from '../../sandbox';
-import type { ExecutionMode } from '../../../../shared/sandbox';
+import type { ExecutionMode } from '../../../shared/sandbox';
 import { shellQuote } from './quote';
 import { approvedExecRoots } from '../../permissions/approved_exec_roots';
 import { resolveExecRoots } from '../../permissions/resolve_exec_roots';
-import type { AgentInteractionMode } from '../../../../shared/agent_types';
+import type { AgentInteractionMode } from '../../../shared/agent_types';
 import path from 'node:path';
 import { planCommandError } from '../../plan/command';
 

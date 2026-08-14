@@ -2,9 +2,9 @@ import type {
 	RealtimeVoiceModelRef,
 	RealtimeVoiceSetup,
 	RealtimeVoiceSetupRequest,
-} from '../../../shared/realtime_voice';
-import type { CatalogModel } from '../../../shared/model_types';
-import { normalizeProviderId } from '../../../shared/provider_types';
+} from '../../shared/realtime_voice';
+import type { CatalogModel } from '../../shared/model_types';
+import { normalizeProviderId } from '../../shared/provider_types';
 import { getMediaModel, setMediaModel } from '../agent_store';
 import { findModel } from '../../models';
 import {

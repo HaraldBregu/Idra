@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { SkillRegistrySnapshot } from '../../../../shared/skills_types';
+import type { SkillRegistrySnapshot } from '../../../shared/skills_types';
 import type { Tool } from '../../types';
 import { tool } from '../tool';
 

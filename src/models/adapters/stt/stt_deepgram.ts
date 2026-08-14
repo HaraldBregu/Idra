@@ -10,7 +10,7 @@ import type {
 	SttRealtimeConnection,
 	SttRealtimeEventHandler,
 } from './stt_types';
-import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
+import type { SttTranscriptionResult, SttUsage } from '../../../shared/stt_transcription';
 
 const DEEPGRAM_LISTEN_PATH = 'listen';
 const DEEPGRAM_FLUX_LISTEN_PATH = '../v2/listen';

@@ -1,4 +1,4 @@
-import { normalizeProviderId } from '../../../../shared/provider_types';
+import { normalizeProviderId } from '../../../shared/provider_types';
 import { createElevenLabsMusicAdapter } from './tta_elevenlabs';
 import { createStabilityMusicAdapter } from './tta_stability';
 import { MusicProviderUnsupportedError } from './tta_errors';

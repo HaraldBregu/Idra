@@ -7,7 +7,7 @@ import {
 	type RealtimeVoiceSession,
 	type RealtimeVoiceStartRequest,
 	type RealtimeVoiceState,
-} from '../../../shared/realtime_voice';
+} from '../../shared/realtime_voice';
 import { rejectPendingToolPermissions } from '../permissions';
 import type { KeyedMutex } from '../mutex';
 import type {

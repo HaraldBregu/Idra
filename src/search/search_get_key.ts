@@ -1,4 +1,4 @@
-import type { SearchEngineId } from '../../shared/search_types';
+import type { SearchEngineId } from '../shared/search_types';
 import { getStoredSearchProviders } from './search_get_providers';
 
 export function getSearchKey(engineId: SearchEngineId): string | undefined {

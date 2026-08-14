@@ -1,4 +1,4 @@
-import { REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH } from '../../../../shared/realtime_voice';
+import { REALTIME_VOICE_MAX_AUDIO_BASE64_LENGTH } from '../../../shared/realtime_voice';
 import type {
 	RealtimeVoiceAdapter,
 	RealtimeVoiceAdapterEventHandler,

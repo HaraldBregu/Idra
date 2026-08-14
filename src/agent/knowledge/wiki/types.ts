@@ -1,6 +1,6 @@
 import type Store from 'electron-store';
-import type { WikiRunResult } from '../../../../shared/wiki_types';
-import type { WikiSettings } from '../../../../shared/wiki_types';
+import type { WikiRunResult } from '../../../shared/wiki_types';
+import type { WikiSettings } from '../../../shared/wiki_types';
 
 export type WikiPageType =
 	| 'source'

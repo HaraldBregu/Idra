@@ -1,13 +1,13 @@
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { AgentSessionSummary } from '../../shared/agent_types';
+import type { AgentSessionSummary } from '../shared/agent_types';
 import type {
 	DataExportResult,
 	DataPurgePreview,
 	DataPurgeResult,
 	DataScope,
-} from '../../shared/data_types';
+} from '../shared/data_types';
 import type { Config } from '../agent/types';
 import { memoryPath } from '../agent/memory';
 import { MEMORY_FILE, resolveTemplatePath } from '../agent/system';

@@ -3,7 +3,7 @@ import {
 	type SearchEngineId,
 	type SearchEngineInput,
 	type SearchSettings,
-} from '../../shared/search_types';
+} from '../shared/search_types';
 import { getSearchSettings } from './search_get_settings';
 import { getStoredSearchProviders } from './search_get_providers';
 import { SEARCH_PROVIDERS } from './catalog';

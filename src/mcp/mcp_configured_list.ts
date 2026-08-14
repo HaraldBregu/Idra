@@ -1,4 +1,4 @@
-import type { McpData, McpSettings } from '../../shared/mcp_types';
+import type { McpData, McpSettings } from '../shared/mcp_types';
 import { MCP_SECRET_KEYS } from './mcp_secret_keys';
 import { getMcpServersState } from './mcp_store_state';
 

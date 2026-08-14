@@ -1,4 +1,4 @@
-import type { McpTestResult } from '../../shared/mcp_types';
+import type { McpTestResult } from '../shared/mcp_types';
 import { close } from './mcp_client_close';
 import { connect } from './mcp_client_connect';
 import { listTools } from './mcp_client_list_tools';

@@ -1,4 +1,4 @@
-import type { McpData } from '../../shared/mcp_types';
+import type { McpData } from '../shared/mcp_types';
 import { getMcpServersState, setMcpServersState } from './mcp_store_state';
 import type { McpRecord } from './mcp_types';
 

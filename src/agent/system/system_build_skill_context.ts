@@ -1,4 +1,4 @@
-import type { SkillInfo } from '../../../shared/skills_types';
+import type { SkillInfo } from '../../shared/skills_types';
 
 const MAX_CATALOG_CHARACTERS = 8_000;
 

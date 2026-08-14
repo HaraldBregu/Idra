@@ -1,7 +1,7 @@
 import type {
 	AgentUserInputAnswer,
 	AgentUserInputScope,
-} from '../../../shared/agent_types';
+} from '../../shared/agent_types';
 
 export interface PendingUserInput extends AgentUserInputScope {
 	questionIds: string[];

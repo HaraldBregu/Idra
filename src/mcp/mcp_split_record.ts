@@ -1,4 +1,4 @@
-import type { McpData } from '../../shared/mcp_types';
+import type { McpData } from '../shared/mcp_types';
 import type { McpOAuthState, McpRecord } from './mcp_types';
 
 // ponytail: keys the OAuth flow owns; anything a server echoes back beyond these just lingers

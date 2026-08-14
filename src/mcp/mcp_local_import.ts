@@ -9,7 +9,7 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
-import type { McpLocalImportResult } from '../../shared/mcp_types';
+import type { McpLocalImportResult } from '../shared/mcp_types';
 import { readLocalMcpServer } from './mcp_local_read';
 import { mcpLocalRoot } from './mcp_local_root';
 

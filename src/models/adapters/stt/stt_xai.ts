@@ -10,7 +10,7 @@ import type {
 	SttRealtimeConnection,
 	SttRealtimeEventHandler,
 } from './stt_types';
-import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
+import type { SttTranscriptionResult, SttUsage } from '../../../shared/stt_transcription';
 
 const XAI_STT_PATH = 'stt';
 const XAI_STT_AUTH_SCHEME = 'Bearer';

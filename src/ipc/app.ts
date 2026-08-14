@@ -29,7 +29,7 @@ import type {
 	AppTheme,
 	AppThemeData,
 	AppThemeColors,
-} from '../../shared/app_types';
+} from '../shared/app_types';
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
 import { setKeepAwake as applyKeepAwake } from '../keep_awake';
 import {
@@ -42,7 +42,7 @@ import {
 	getTheme as getStoredTheme,
 	setTheme as setStoredTheme,
 } from '../settings_store';
-import { AppChannels } from '../../shared/ipc_channels_definitions';
+import { AppChannels } from '../shared/ipc_channels_definitions';
 import {
 	loadDatabases,
 	loadMcps,
@@ -54,8 +54,8 @@ import {
 	watchModels,
 } from '../models';
 import type { LoggerService } from '../shared';
-import { validateProviderManifest } from '../../shared/providers/validation';
-import type { ChannelStatusEvent, ChannelType } from '../../shared';
+import { validateProviderManifest } from '../shared/providers/validation';
+import type { ChannelStatusEvent, ChannelType } from '../shared';
 import {
 	getChannelModelSelection,
 	loadChannels,

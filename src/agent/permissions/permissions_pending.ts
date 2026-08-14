@@ -1,7 +1,7 @@
 import type {
 	AgentToolPermissionDecision,
 	AgentToolPermissionScope,
-} from '../../../shared/agent_types';
+} from '../../shared/agent_types';
 
 export interface PendingToolApproval extends AgentToolPermissionScope {
 	expiresAtMs: number;

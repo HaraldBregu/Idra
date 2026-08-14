@@ -1,4 +1,4 @@
-import type { UrlMetadata } from '../shared/app_types';
+import type { UrlMetadata } from 'shared/app_types';
 import { metaContent } from './meta';
 
 export function metadata(html: string, pageUrl: URL): UrlMetadata {

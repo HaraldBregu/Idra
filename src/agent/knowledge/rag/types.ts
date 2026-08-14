@@ -1,4 +1,4 @@
-import type { EmbeddingResult } from '../../../../shared/embedding_types';
+import type { EmbeddingResult } from '../../../shared/embedding_types';
 
 export interface EmbeddingInput {
 	texts: string[];

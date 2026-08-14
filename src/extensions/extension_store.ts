@@ -3,7 +3,7 @@ import { lstatSync, mkdirSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import Store from 'electron-store';
-import type { ExtensionStoreValue } from '../../shared/extension_store_types';
+import type { ExtensionStoreValue } from '../shared/extension_store_types';
 import { extensionDataRoot } from './extension_data_root';
 import { isExtensionId } from './extension_id';
 import { isExtensionStoreValue } from './extension_store_value';

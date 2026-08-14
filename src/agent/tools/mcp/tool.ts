@@ -1,7 +1,7 @@
 import { callTool, type McpCallResult, type McpClient } from '../../../mcp';
 import { jsonTool } from '../tool';
 import type { JSONSchema } from '../../types';
-import type { McpApprovalPolicy } from '../../../../shared/mcp_types';
+import type { McpApprovalPolicy } from '../../../shared/mcp_types';
 import { MCP_MAX_OUTPUT_BYTES, MCP_TOOL_TIMEOUT_MS } from './limits';
 import { mcpToolName } from './name';
 import { mcpOutputText } from './output';

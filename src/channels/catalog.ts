@@ -6,8 +6,8 @@ import {
 	normalizeProviderId,
 	type CatalogService,
 	type PublicProvider,
-} from '../../shared/provider_types';
-import { parseProviderManifest } from '../../shared/providers/validation';
+} from '../shared/provider_types';
+import { parseProviderManifest } from '../shared/providers/validation';
 
 export function loadChannels(): readonly CatalogService[] {
 	const directory = is.dev

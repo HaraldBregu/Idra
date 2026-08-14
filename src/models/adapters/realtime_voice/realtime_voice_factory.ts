@@ -1,4 +1,4 @@
-import { normalizeProviderId } from '../../../../shared/provider_types';
+import { normalizeProviderId } from '../../../shared/provider_types';
 import { OPENAI_REALTIME_VOICE_MODELS, OpenAIRealtimeVoiceAdapter } from './realtime_voice_openai';
 import type { RealtimeVoiceAdapter, RealtimeVoiceProviderSpec } from './realtime_voice_types';
 import { XAI_REALTIME_VOICE_MODELS, XAIRealtimeVoiceAdapter } from './realtime_voice_xai';

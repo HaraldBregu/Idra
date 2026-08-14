@@ -5,7 +5,7 @@ import type {
 	SkillDiagnostic,
 	SkillLoadResult,
 	SkillRegistrySnapshot,
-} from '../../../shared/skills_types';
+} from '../../shared/skills_types';
 import {
 	SKILL_FILE,
 	SKILL_MAX_BYTES,

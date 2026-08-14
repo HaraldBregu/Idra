@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { userDataLocation } from '../../shared/user_data_location';
-import type { SoundResult } from '../../../shared/sound_types';
+import type { SoundResult } from '../../shared/sound_types';
 
 export async function saveSoundFile(result: SoundResult): Promise<void> {
 	const ext = result.mimeType.includes('mpeg')
