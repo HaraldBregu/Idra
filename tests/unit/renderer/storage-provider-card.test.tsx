@@ -1,6 +1,10 @@
 import { render } from '@testing-library/react';
 import { ProviderCard } from '../../../src/renderer/src/pages/settings/pages/storage/ProviderCard';
 
+jest.mock('react-i18next', () => ({
+	useTranslation: () => ({ t: (key: string): string => key }),
+}));
+
 it('uses the catalog provider icon for a built-in storage provider', () => {
 	const { container } = render(
 		<ProviderCard
