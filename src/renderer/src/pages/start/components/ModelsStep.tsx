@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
+import RealtimeConversationConfiguration from '@pages/settings/pages/assistant/conversation';
 import { Search } from './Search';
 import { StepHeader } from './StepHeader';
 import { getProviderCatalogItem, MODEL_SERVICE_DEFINITIONS, STEP_COPY } from '../constants';
@@ -74,27 +75,31 @@ export function ModelsStep({
 					<Card size="sm" className="gap-0! p-0!">
 						<CardContent className="p-0!">
 							{assistantServices.map((service, index) => (
-								<ModelProviderConfiguration
-									key={service.id}
-									configState={toModelConfigurationState(
-										serviceStates[service.id],
-										loadingModels,
-										savingConfig
+								<React.Fragment key={service.id}>
+									<ModelProviderConfiguration
+										configState={toModelConfigurationState(
+											serviceStates[service.id],
+											loadingModels,
+											savingConfig
+										)}
+										idPrefix={`setup-${service.id}`}
+										description={service.description}
+										triggerTitle={service.title}
+										triggerDescription={getSelectionSummary(
+											serviceStates[service.id],
+											'Select a model'
+										)}
+										showIcon={false}
+										grouped
+										defaultOpen={index === 0}
+										onChange={(providerId, modelId) =>
+											onServiceChange(service.id, providerId, modelId)
+										}
+									/>
+									{service.id === 'assistant' && (
+										<RealtimeConversationConfiguration selectDefaultModel={false} />
 									)}
-									idPrefix={`setup-${service.id}`}
-									description={service.description}
-									triggerTitle={service.title}
-									triggerDescription={getSelectionSummary(
-										serviceStates[service.id],
-										'Select a model'
-									)}
-									showIcon={false}
-									grouped
-									defaultOpen={index === 0}
-									onChange={(providerId, modelId) =>
-										onServiceChange(service.id, providerId, modelId)
-									}
-								/>
+								</React.Fragment>
 							))}
 							<Search />
 						</CardContent>

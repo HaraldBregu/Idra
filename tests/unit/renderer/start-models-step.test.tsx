@@ -23,6 +23,15 @@ jest.mock('../../../src/renderer/src/pages/start/components/Search', () => ({
 	Search: () => <div data-testid="setup-search">Search Engine</div>,
 }));
 
+jest.mock('../../../src/renderer/src/pages/settings/pages/assistant/conversation', () => ({
+	__esModule: true,
+	default: ({ selectDefaultModel }: { selectDefaultModel?: boolean }) => (
+		<div data-default-model={String(selectDefaultModel)} data-testid="setup-realtime">
+			Realtime conversation
+		</div>
+	),
+}));
+
 const EMPTY_SERVICE = { providerId: '', modelId: '', modelGroups: [] };
 const SERVICE_STATES: ModelServiceStateMap = {
 	assistant: EMPTY_SERVICE,
@@ -54,11 +63,20 @@ it('groups model services in one card', () => {
 		);
 	}
 	expect(within(assistantGroup).getByTestId('setup-assistant')).toHaveTextContent('Model');
+	expect(within(assistantGroup).getByTestId('setup-realtime')).toHaveAttribute(
+		'data-default-model',
+		'false'
+	);
 	expect(
 		within(assistantGroup)
 			.getAllByTestId(/^setup-/)
 			.map((element) => element.dataset.testid)
-	).toEqual([...serviceIds.map((id) => `setup-${id}`), 'setup-search']);
+	).toEqual([
+		'setup-assistant',
+		'setup-realtime',
+		...serviceIds.slice(1).map((id) => `setup-${id}`),
+		'setup-search',
+	]);
 	expect(screen.queryByTestId('setup-health')).not.toBeInTheDocument();
 	expect(screen.queryByTestId('setup-tasks')).not.toBeInTheDocument();
 });

@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import AssistantPage from '../../../src/renderer/src/pages/settings/pages/assistant/Page';
+import RealtimeConversationConfiguration from '../../../src/renderer/src/pages/settings/pages/assistant/conversation';
 
 const mockProviders = [
 	{ id: 'openai', name: 'OpenAI', baseUrl: 'https://openai.example' },
@@ -292,6 +293,22 @@ it('shows only runtime-supported realtime models and saves model and voice toget
 			options: { voice: 'Ara' },
 		});
 	});
+});
+
+it('leaves realtime conversation unselected when catalog defaults are disabled', async () => {
+	const user = userEvent.setup();
+	(window.models.realtimeVoice.getSetup as jest.Mock).mockResolvedValueOnce({
+		providerId: '',
+		modelId: '',
+		options: {},
+		supportedModels: [{ providerId: 'openai', modelId: 'gpt-realtime' }],
+	});
+	render(<RealtimeConversationConfiguration selectDefaultModel={false} />);
+
+	await user.click(await screen.findByRole('button', { name: /Realtime conversation/ }));
+	const selector = await screen.findByRole('combobox', { name: 'Realtime conversation' });
+	expect(selector).not.toHaveTextContent('GPT Realtime');
+	expect(realtimeSetSetup).not.toHaveBeenCalled();
 });
 
 it('announces a realtime conversation setup save error', async () => {

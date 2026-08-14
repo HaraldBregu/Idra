@@ -11,7 +11,13 @@ import {
 } from '../../components/model-configuration-state';
 import type { ProviderModelGroup } from '../../../start/types';
 
-export default function RealtimeConversationConfiguration(): React.JSX.Element {
+interface RealtimeConversationConfigurationProps {
+	readonly selectDefaultModel?: boolean;
+}
+
+export default function RealtimeConversationConfiguration({
+	selectDefaultModel = true,
+}: RealtimeConversationConfigurationProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
 	const [options, setOptions] = useState<Record<string, unknown>>({});
@@ -55,14 +61,20 @@ export default function RealtimeConversationConfiguration(): React.JSX.Element {
 				const catalogDefault = modelsFor('realtime-voice').find(
 					(entry) => entry.default && allowed.has(`${entry.provider.id}\u001F${entry.id}`)
 				);
-				const preferredGroup =
-					(configuredModel && configuredGroup) ||
-					modelGroups.find((entry) => entry.provider.id === catalogDefault?.provider.id) ||
-					modelGroups[0];
+				const defaultGroup = modelGroups.find(
+					(entry) => entry.provider.id === catalogDefault?.provider.id
+				);
+				const preferredGroup = configuredModel
+					? configuredGroup
+					: selectDefaultModel
+						? (defaultGroup ?? modelGroups[0])
+						: undefined;
 				const preferredModel =
 					configuredModel ??
-					preferredGroup?.models.find((entry) => entry.id === catalogDefault?.id) ??
-					preferredGroup?.models[0];
+					(selectDefaultModel
+						? (preferredGroup?.models.find((entry) => entry.id === catalogDefault?.id) ??
+							preferredGroup?.models[0])
+						: undefined);
 				setState({
 					providers: modelGroups.map((entry) => entry.provider),
 					modelGroups,
@@ -89,7 +101,7 @@ export default function RealtimeConversationConfiguration(): React.JSX.Element {
 		return () => {
 			mounted = false;
 		};
-	}, [t]);
+	}, [selectDefaultModel, t]);
 
 	const save = async (
 		providerId: string,
