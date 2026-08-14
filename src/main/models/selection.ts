@@ -36,7 +36,7 @@ const AGENT_MODEL_KINDS: Record<AgentModelKind, AgentMediaModelKind> = {
 	voice: 'voice',
 	realtimeVoice: 'realtimeVoice',
 	transcribe: 'transcription',
-	realtime: 'realtimeTranscription',
+	realtime: 'transcription',
 };
 
 export function getProviderId(kind: ModelKind): string | undefined {

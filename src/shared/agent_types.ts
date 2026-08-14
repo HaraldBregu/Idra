@@ -81,8 +81,7 @@ export type AgentMediaModelKind =
 	| 'video'
 	| 'voice'
 	| 'realtimeVoice'
-	| 'transcription'
-	| 'realtimeTranscription';
+	| 'transcription';
 
 export interface AgentMediaModelSettings {
 	providerId: string;

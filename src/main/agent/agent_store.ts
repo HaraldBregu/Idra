@@ -25,7 +25,6 @@ type AgentStoreSchema = {
 	text_to_speech_model: AgentMediaModelSettings;
 	realtime_voice_model: AgentMediaModelSettings;
 	transcription_model: AgentMediaModelSettings;
-	realtime_transcription_model: AgentMediaModelSettings;
 	permissions: PermissionsSchema;
 };
 
@@ -63,7 +62,6 @@ const DEFAULT_AGENT_STORE: AgentStoreSchema = {
 	text_to_speech_model: EMPTY_MEDIA_MODEL,
 	realtime_voice_model: EMPTY_MEDIA_MODEL,
 	transcription_model: EMPTY_MEDIA_MODEL,
-	realtime_transcription_model: EMPTY_MEDIA_MODEL,
 	permissions: DEFAULT_AGENT_PERMISSIONS,
 };
 
@@ -73,8 +71,7 @@ type MediaModelKey =
 	| 'video_generator_model'
 	| 'text_to_speech_model'
 	| 'realtime_voice_model'
-	| 'transcription_model'
-	| 'realtime_transcription_model';
+	| 'transcription_model';
 
 const MEDIA_MODEL_KEYS: Record<AgentMediaModelKind, MediaModelKey> = {
 	image: 'image_generator_model',
@@ -83,7 +80,6 @@ const MEDIA_MODEL_KEYS: Record<AgentMediaModelKind, MediaModelKey> = {
 	voice: 'text_to_speech_model',
 	realtimeVoice: 'realtime_voice_model',
 	transcription: 'transcription_model',
-	realtimeTranscription: 'realtime_transcription_model',
 };
 
 const store = new Store<AgentStoreSchema>({
@@ -116,7 +112,6 @@ store.store = {
 		persisted.text_to_speech_model ?? persisted.voice_model ?? EMPTY_MEDIA_MODEL,
 	realtime_voice_model: persisted.realtime_voice_model ?? EMPTY_MEDIA_MODEL,
 	transcription_model: persisted.transcription_model ?? EMPTY_MEDIA_MODEL,
-	realtime_transcription_model: persisted.realtime_transcription_model ?? EMPTY_MEDIA_MODEL,
 	permissions: persisted.permissions ?? DEFAULT_AGENT_PERMISSIONS,
 };
 

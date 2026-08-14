@@ -63,7 +63,6 @@ beforeEach(() => {
 			options: { voice: 'marin' },
 		},
 		transcription: { providerId: 'deepgram', modelId: 'nova-3', options: {} },
-		realtimeTranscription: { providerId: 'deepgram', modelId: 'nova-3', options: {} },
 	};
 	getAgentProviderId.mockReturnValue('openai');
 	getAgentModelId.mockReturnValue('gpt-5');
@@ -161,9 +160,9 @@ it('reads and writes batch and realtime transcription through the agent store', 
 		modelId: 'nova-4',
 		options: {},
 	});
-	expect(setAgentMediaModel).toHaveBeenNthCalledWith(2, 'realtimeTranscription', {
+	expect(setAgentMediaModel).toHaveBeenNthCalledWith(2, 'transcription', {
 		providerId: 'openai',
-		modelId: 'nova-3',
+		modelId: 'nova-4',
 		options: {},
 	});
 });
