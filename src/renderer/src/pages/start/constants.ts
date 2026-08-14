@@ -198,8 +198,8 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 			'Add an API key for the model provider you want to use. You can connect more providers at any time.',
 	},
 	search: {
-		title: 'Search providers',
-		description: 'Add a search provider if you want Friday to look things up on the web.',
+		title: 'Search Engine',
+		description: 'Add an API key for the search engine you want Friday to use.',
 	},
 	storage: {
 		title: 'Storage providers',
