@@ -29,17 +29,10 @@
   "dependencies": {
     "@anthropic-ai/sandbox-runtime": "^0.0.73",
     "@anthropic-ai/sdk": "^0.117.1",
-    "@aws-sdk/client-s3": "^3.1111.0",
-    "@mistralai/mistralai": "^2.6.3",
-    "@modelcontextprotocol/sdk": "^1.30.0",
-    "@pinecone-database/pinecone": "^8.2.0",
-    "chokidar": "^5.0.0",
     "fastify": "^5.12.0",
     "gray-matter": "^4.0.3",
-    "node-cron": "^4.6.0",
     "openai": "^7.4.0",
     "tsx": "^4.23.12",
-    "ws": "^8.21.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
