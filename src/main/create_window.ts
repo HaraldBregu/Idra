@@ -4,10 +4,10 @@ import type { RendererContentOptions, WindowFactory } from './window_factory';
 import type { WindowContextManager } from './window_context';
 import { attachWindowHandlers } from './window_events';
 
-const DEFAULT_WINDOW_WIDTH = 440;
-const DEFAULT_WINDOW_HEIGHT = 600;
-const STARTUP_WINDOW_WIDTH = 440;
-const STARTUP_WINDOW_HEIGHT = 600;
+const DEFAULT_WINDOW_WIDTH = 1200;
+const DEFAULT_WINDOW_HEIGHT = 800;
+const STARTUP_WINDOW_WIDTH = 1200;
+const STARTUP_WINDOW_HEIGHT = 800;
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
 
 function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptions> {
