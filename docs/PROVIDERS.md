@@ -1,6 +1,6 @@
 # Provider Reference
 
-Friday ships 26 provider manifests under `resources/providers`. This page is the canonical
+Friday ships 24 provider manifests under `resources/providers`. This page is the canonical
 human-readable inventory of those built-in providers, the services they expose in the catalog,
 and whether the current runtime can execute each service.
 
@@ -69,7 +69,6 @@ manifest.
 | [Jina AI](https://jina.ai/api-dashboard)                                           | `jina`              | Embeddings                                                | Available                                                                                           |
 | [Kimi](https://platform.moonshot.ai/console/api-keys)                              | `kimi`              | Chat                                                      | Available                                                                                           |
 | [Kling AI](https://app.klingai.com/global/dev)                                     | `kling`             | Video, audio                                              | Mixed: audio is catalog only                                                                        |
-| [Midjourney](https://www.midjourney.com/account)                                   | `midjourney`        | Image, video                                              | Catalog only; no public execution API is integrated                                                 |
 | [MiniMax](https://platform.minimax.io/user-center/basic-information/interface-key) | `minimax`           | Chat, text to speech, video, audio                        | Mixed: audio is catalog only                                                                        |
 | [Mistral AI](https://console.mistral.ai/api-keys)                                  | `mistral`           | Chat, speech to text, text to speech                      | Available                                                                                           |
 | [OpenAI](https://platform.openai.com/api-keys)                                     | `openai`            | Chat, speech to text, text to speech, embeddings          | Available                                                                                           |
@@ -77,7 +76,6 @@ manifest.
 | [Pinecone](https://app.pinecone.io)                                                | `pinecone`          | Vector database                                           | Available for RAG                                                                                   |
 | [Qwen and Wan](https://modelstudio.console.alibabacloud.com)                       | `qwen`              | Chat, speech to text, realtime voice, image, video        | Mixed: realtime voice is catalog only                                                               |
 | [Reka AI](https://platform.reka.ai/apikeys)                                        | `reka`              | Chat                                                      | Available                                                                                           |
-| [Runway](https://dev.runwayml.com)                                                 | `runway`            | Video                                                     | Available                                                                                           |
 | [Tavily](https://app.tavily.com/home)                                              | `tavily`            | Web search                                                | Available                                                                                           |
 | [xAI](https://console.x.ai)                                                        | `xai`               | Chat, speech to text, realtime voice, image, video        | Mixed: realtime voice is catalog only                                                               |
 | [Z.ai](https://z.ai/manage-apikey/apikey-list)                                     | `zai`               | Chat                                                      | Available                                                                                           |
@@ -148,7 +146,6 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | Available    | Black Forest Labs | FLUX.2 (`FLUX.2`); FLUX.1 Kontext Pro (`FLUX.1 Kontext [pro]`); FLUX1.1 Pro Ultra (`FLUX1.1 [pro] Ultra`)                    |
 | Available    | Google            | Gemini 3.1 Flash Image Preview (`gemini-3.1-flash-image-preview`); Gemini 3 Pro Image Preview (`gemini-3-pro-image-preview`) |
 | Available    | Ideogram          | Ideogram 3.0 (`ideogram-3.0`); Ideogram 2a (`ideogram-2a`)                                                                   |
-| Catalog only | Midjourney        | Midjourney v8.1 (`midjourney-v8.1`); Midjourney v7 (`midjourney-v7`)                                                         |
 | Available    | Qwen              | Qwen Image (`qwen-image`); Qwen Image Edit (`qwen-image-edit`)                                                               |
 | Available    | xAI               | Grok Imagine Image (`grok-imagine-image`); Grok Imagine Image Quality (`grok-imagine-image-quality`)                         |
 
@@ -158,11 +155,9 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | ------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Available    | Google     | Veo 3.1 (`veo-3.1`); Veo 3.1 Fast (`veo-3.1-fast`)                                                                                                                                                                                                                                                                |
 | Available    | Kling AI   | Kling v2.5 Turbo (`kling-v2.5-turbo`); Kling v2.1 Master (`kling-v2.1-master`)                                                                                                                                                                                                                                    |
-| Catalog only | Midjourney | Midjourney Video v1 (`midjourney-video-v1`)                                                                                                                                                                                                                                                                       |
 | Available    | MiniMax    | Hailuo 2.3 (`MiniMax-Hailuo-2.3`); Hailuo 02 (`MiniMax-Hailuo-02`)                                                                                                                                                                                                                                                |
 | Partial      | Pika       | Pika 2.2 (`pika-2.2`); the adapter uses fal.run while the manifest supplies Pika's URL                                                                                                                                                                                                                            |
 | Available    | Qwen       | Wan 2.5 T2V (`wan2.5-t2v`); Wan 2.2 T2V Plus (`wan2.2-t2v-plus`)                                                                                                                                                                                                                                                  |
-| Available    | Runway     | Gen-4.5 (`gen4.5`); Seedance 2.5 (`seedance2_5`); Seedance 2.0 (`seedance2`), Fast (`seedance2_fast`), Mini (`seedance2_mini`); Grok Imagine 1.5 (`grok_imagine_1_5`); Hailuo 3 (`hailuo3`); Veo 3.1 (`veo3.1`), Fast (`veo3.1_fast`); HappyHorse 1.0 (`happyhorse_1_0`); Gemini Omni Flash (`gemini_omni_flash`) |
 | Available    | xAI        | Grok Imagine Video 1.5 (`grok-imagine-video-1.5`)                                                                                                                                                                                                                                                                 |
 
 ### Audio and sound effects

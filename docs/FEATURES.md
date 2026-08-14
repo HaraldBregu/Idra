@@ -359,7 +359,7 @@ The chat catalog includes Anthropic, DeepSeek, Google, Kimi, MiniMax, Mistral, O
 Reka AI, xAI, and Z.ai. Exact model names, IDs, and support notes are maintained in
 [Provider Reference](PROVIDERS.md#chat-and-research).
 
-The built-in catalog contains 26 providers across models, search, vector database, and object
+The built-in catalog contains 24 providers across models, search, vector database, and object
 storage. Model-provider entries include capability labels and an external setup link.
 
 Realtime-voice models are cataloged for Google, Qwen, and xAI, but there is no realtime-voice IPC or model execution service. Friday's current Voice API is text-to-speech, and Home's voice-conversation panel is not connected to these models.
@@ -402,7 +402,6 @@ Media can be generated from the dedicated Settings studios or by agent tools dur
 | Available    | Ideogram: 3.0, 2a                                                                                            |
 | Available    | Qwen: Qwen Image, Qwen Image Edit                                                                            |
 | Available    | xAI: Grok Imagine Image, Grok Imagine Image Quality                                                          |
-| Catalog only | Midjourney v8.1 and v7 are selectable, but the runtime explicitly reports that Midjourney has no public API. |
 
 ### Video adapters
 
@@ -413,9 +412,7 @@ Media can be generated from the dedicated Settings studios or by agent tools dur
 | Available    | MiniMax: Hailuo 2.3, Hailuo 02                                                                                           |
 | Available    | Pika: 2.2                                                                                                                |
 | Available    | Qwen: Wan 2.5 T2V, Wan 2.2 T2V Plus                                                                                      |
-| Available    | Runway: Gen-4.5, Seedance 2.5/2.0/Fast/Mini, Grok Imagine 1.5, Hailuo 3, Veo 3.1/Fast, HappyHorse 1.0, Gemini Omni Flash |
 | Available    | xAI: Grok Imagine Video 1.5                                                                                              |
-| Catalog only | Midjourney Video v1 is selectable, but the runtime explicitly reports that Midjourney has no public API.                 |
 
 ### Audio adapters
 
