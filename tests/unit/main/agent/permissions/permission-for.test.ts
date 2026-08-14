@@ -19,7 +19,7 @@ describe('permissionFor', () => {
 	});
 
 	it('resolves symlinks before matching', () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-permission-'));
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-permission-'));
 		const workspace = path.join(root, 'workspace');
 		const outside = path.join(root, 'outside');
 		fs.mkdirSync(workspace);

@@ -1,18 +1,18 @@
 <p align="center">
-  <img src="resources/icons/icon-rounded.png" alt="Friday logo" width="144" />
+  <img src="resources/icons/icon-rounded.png" alt="Idra logo" width="144" />
 </p>
 
-<h1 align="center">Friday</h1>
+<h1 align="center">Idra</h1>
 
 <p align="center">
   <strong>Your desktop AI copilot for everyday tasks.</strong>
 </p>
 
-Friday is a cross-platform desktop AI assistant that turns conversations into actions. Type or speak a request, attach images or PDFs, and let the agent work with files, run commands, research the web, create media, or automate a recurring task.
+Idra is a cross-platform desktop AI assistant that turns conversations into actions. Type or speak a request, attach images or PDFs, and let the agent work with files, run commands, research the web, create media, or automate a recurring task.
 
-You choose the providers and models behind each AI capability. Friday keeps its settings, provider keys, conversations, and workspace data on your machine, while requests are sent only to the AI providers and connected services you configure.
+You choose the providers and models behind each AI capability. Idra keeps its settings, provider keys, conversations, and workspace data on your machine, while requests are sent only to the AI providers and connected services you configure.
 
-## What Friday Can Do
+## What Idra Can Do
 
 - **Work with your computer** — read, create, and edit files; apply precise patches; and run commands or long-lived processes.
 - **Understand more than text** — accept image and PDF attachments, transcribe speech, and read responses aloud.
@@ -23,17 +23,17 @@ You choose the providers and models behind each AI capability. Friday keeps its 
 - **Automate routines** — create recurring schedules and periodic checklist-based health runs.
 - **Remember useful context** — maintain durable memory, personalization files, conversation history, and a local working directory.
 - **Compile persistent knowledge** — archive immutable evidence, incrementally maintain a cited Markdown wiki, query it before raw sources, and review risky changes.
-- **Chat from other apps** — connect Telegram or Discord channels to reach Friday away from the desktop app.
+- **Chat from other apps** — connect Telegram or Discord channels to reach Idra away from the desktop app.
 
-Friday runs on Windows, macOS, and Linux, with English and Italian interfaces and light, dark, and system themes.
+Idra runs on Windows, macOS, and Linux, with English and Italian interfaces and light, dark, and system themes.
 
 ## Control and Privacy
 
-- Provider API keys and Friday's application data are stored locally.
+- Provider API keys and Idra's application data are stored locally.
 - Prompts, attachments, and tool data may be sent to the providers, MCP servers, websites, or messaging channels you configure.
 - File writes, edits, patches, and command execution are governed by the agent permission policy.
 - Tool activity is streamed into the conversation so you can follow what the agent is doing.
-- Friday does not claim formal certification for regulated data.
+- Idra does not claim formal certification for regulated data.
 
 ## Technology
 
@@ -51,7 +51,7 @@ npm ci
 npm run dev
 ```
 
-The root install includes the Electron app, `@friday/sdk`, and `@friday/cli` through npm
+The root install includes the Electron app, `@idra/sdk`, and `@idra/cli` through npm
 workspaces and one lockfile.
 
 On first launch, add an API key under **Settings → Providers**, then select the provider and model for the assistant. Configure speech and media models only for the capabilities you plan to use.
@@ -64,16 +64,16 @@ npm run dev-linux
 
 ### Command-line interface
 
-The TypeScript CLI lives in `packages/cli`. It launches the desktop app, installs validated Friday
+The TypeScript CLI lives in `packages/cli`. It launches the desktop app, installs validated Idra
 plugins, and includes an interactive terminal interface:
 
 ```bash
 npm run cli:build
 npm link ./packages/cli
 
-friday
-friday install package-one
-friday tui
+idra
+idra install package-one
+idra tui
 ```
 
 Inside the TUI, enter `/install package-one`. See
@@ -107,23 +107,23 @@ npm run dist:linux:portable  # Linux AppImage and tar.gz archive
 
 ### Portable releases
 
-On Windows, download `Friday-Portable-<version>-x64.exe` and run it directly. It temporarily
-extracts its signed application files while Friday is running, but does not install shortcuts,
+On Windows, download `Idra-Portable-<version>-x64.exe` and run it directly. It temporarily
+extracts its signed application files while Idra is running, but does not install shortcuts,
 file associations, or uninstall records and does not require administrator access.
 
 On Linux, download the AppImage, mark it executable, and launch it. If AppImage mounting or FUSE
-is unavailable, extract the `.tar.gz` release and run `friday-desktop` from the extracted folder.
+is unavailable, extract the `.tar.gz` release and run `idra-desktop` from the extracted folder.
 Neither option requires a package installation.
 
-Friday settings, conversations, workspace files, and generated data remain under
-`%USERPROFILE%\.friday` on Windows or `$HOME/.friday` on Linux. Electron runtime data remains in
-`%APPDATA%\Friday` on Windows or `$XDG_CONFIG_HOME/Friday` on Linux, normally
-`$HOME/.config/Friday`. Portable updates are manual: close Friday and replace the executable or
+Idra settings, conversations, workspace files, and generated data remain under
+`%USERPROFILE%\.idra` on Windows or `$HOME/.idra` on Linux. Electron runtime data remains in
+`%APPDATA%\Idra` on Windows or `$XDG_CONFIG_HOME/Idra` on Linux, normally
+`$HOME/.config/Idra`. Portable updates are manual: close Idra and replace the executable or
 extracted application; the profile data remains in place.
 
 Portable packaging does not bypass AppLocker, WDAC, Linux `noexec`, endpoint security, or network
 policy. Protected command execution may require administrator or IT setup, and browser automation
-requires an installed, permitted Google Chrome. Friday reports these limitations without preventing
+requires an installed, permitted Google Chrome. Idra reports these limitations without preventing
 chat and other supported features from running.
 
 ## Project Structure
@@ -133,7 +133,7 @@ chat and other supported features from running.
 - `src/preload` exposes the narrow bridge between the renderer and main process.
 - `src/shared` contains cross-process types and API contracts.
 - `packages/cli` contains the publishable TypeScript command-line and terminal interface.
-- `packages/sdk` contains the publishable typed client for Friday's local API.
+- `packages/sdk` contains the publishable typed client for Idra's local API.
 - `src/main/agent` contains sessions, tools, skills, memory, schedules, health runs, sandboxing, and permission policy.
 - `src/main/models` contains provider-specific model integrations. See
   [Provider Reference](docs/PROVIDERS.md) for the built-in catalog and runtime support matrix.

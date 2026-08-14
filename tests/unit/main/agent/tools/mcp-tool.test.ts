@@ -40,7 +40,7 @@ describe('mcpTool', () => {
 		const tool = mcpTool(client, 'lookup', '', schema, 'safe', 'never');
 
 		expect(() => tool.parseInput({ query: 1 })).toThrow();
-		const input = tool.parseInput({ query: 'Friday' });
+		const input = tool.parseInput({ query: 'Idra' });
 		await expect(tool.run(input, signal)).resolves.toBe('ok');
 		expect(callToolMock).toHaveBeenCalledWith(client, 'lookup', input, 30_000, signal);
 	});
@@ -49,11 +49,11 @@ describe('mcpTool', () => {
 		const text = 'x'.repeat(MCP_MAX_OUTPUT_BYTES * 2);
 		const tool = mcpTool(client, 'lookup', '', schema, 'safe', 'never');
 		callToolMock.mockResolvedValueOnce({ content: [{ type: 'text', text }] });
-		const output = await tool.run({ query: 'Friday' });
+		const output = await tool.run({ query: 'Idra' });
 		expect(Buffer.byteLength(String(output), 'utf8')).toBeLessThanOrEqual(MCP_MAX_OUTPUT_BYTES);
 		expect(output).toContain('[truncated:');
 
 		callToolMock.mockResolvedValueOnce({ isError: true, content: [{ type: 'text', text }] });
-		await expect(tool.run({ query: 'Friday' })).rejects.toThrow('[truncated:');
+		await expect(tool.run({ query: 'Idra' })).rejects.toThrow('[truncated:');
 	});
 });

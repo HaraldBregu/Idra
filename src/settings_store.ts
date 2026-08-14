@@ -1,14 +1,14 @@
 import type { ResolvedProvider, StoredProvider } from './shared/provider_types';
 
 export function getProvider(id: string): StoredProvider | undefined {
-	const providerId = process.env.FRIDAY_PROVIDER_ID?.trim();
-	const apiKey = process.env.FRIDAY_API_KEY?.trim();
+	const providerId = process.env.IDRA_PROVIDER_ID?.trim();
+	const apiKey = process.env.IDRA_API_KEY?.trim();
 	if (!providerId || !apiKey || id.trim() !== providerId) return undefined;
 	return {
 		id: providerId,
 		name: providerId,
 		apiKey,
-		baseUrl: process.env.FRIDAY_BASE_URL?.trim() ?? '',
+		baseUrl: process.env.IDRA_BASE_URL?.trim() ?? '',
 	};
 }
 

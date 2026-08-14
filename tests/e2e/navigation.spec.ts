@@ -81,14 +81,14 @@ test('the platform shortcut creates a new chat session', async () => {
 	await expect
 		.poll(() => page.evaluate(() => localStorage.getItem('chat-session-id')))
 		.not.toBe(previousSessionId);
-	await expect(page.getByRole('textbox', { name: 'Message Friday' })).toBeFocused();
+	await expect(page.getByRole('textbox', { name: 'Message Idra' })).toBeFocused();
 });
 
 test('the leading /plan command activates Plan mode and requires prompt text', async () => {
 	await page.evaluate(() => {
 		window.location.hash = '#/home';
 	});
-	const editor = page.getByRole('textbox', { name: 'Message Friday' });
+	const editor = page.getByRole('textbox', { name: 'Message Idra' });
 	await editor.pressSequentially('/plan');
 	await expect(editor.locator('[data-plan-command]')).toHaveText('Plan');
 	await expect(page.getByRole('button', { name: 'Send message' })).toBeDisabled();
@@ -98,7 +98,7 @@ test('the leading /plan command activates Plan mode and requires prompt text', a
 	await expect
 		.poll(() =>
 			page.evaluate((sessionId) => {
-				const modes = JSON.parse(localStorage.getItem('friday-interaction-modes') ?? '{}');
+				const modes = JSON.parse(localStorage.getItem('idra-interaction-modes') ?? '{}');
 				return modes[sessionId ?? ''];
 			}, selectedSession)
 		)

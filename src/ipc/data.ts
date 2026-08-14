@@ -22,9 +22,9 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 		registerCommand(DataChannels.export, async (input) => {
 			const scope = normalizeDataScope(input);
 			const options = {
-				title: 'Export Friday data',
+				title: 'Export Idra data',
 				defaultPath: `${this.fileName(scope)}.json`,
-				filters: [{ name: 'Friday data export', extensions: ['json'] }],
+				filters: [{ name: 'Idra data export', extensions: ['json'] }],
 			};
 			const window = BrowserWindow.getFocusedWindow();
 			const result = await (window
@@ -56,7 +56,7 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 				detail: `${this.scopeDescription(scope)}\n\n${
 					remoteNamespace
 						? scope.kind === 'rag' && scope.mode === 'remote_all_namespaces'
-							? 'Every Friday-owned namespace in this Pinecone index will be deleted. The index and unrelated namespaces will remain.'
+							? 'Every Idra-owned namespace in this Pinecone index will be deleted. The index and unrelated namespaces will remain.'
 							: 'Only this exact remote namespace will be deleted. The Pinecone index will remain.'
 						: 'Remote provider data will not be deleted.'
 				}`,
@@ -71,10 +71,10 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 	}
 
 	private fileName(scope: DataScope): string {
-		if (scope.kind === 'sessions') return 'friday-sessions-export';
-		if (scope.kind === 'wiki') return 'friday-wiki-export';
-		if (scope.kind === 'memory') return 'friday-memory-export';
-		return `friday-rag-${scope.indexName}-export`;
+		if (scope.kind === 'sessions') return 'idra-sessions-export';
+		if (scope.kind === 'wiki') return 'idra-wiki-export';
+		if (scope.kind === 'memory') return 'idra-memory-export';
+		return `idra-rag-${scope.indexName}-export`;
 	}
 
 	private scopeDescription(scope: DataScope): string {
@@ -88,7 +88,7 @@ export class DataIpc implements IpcModule<DataIpcDeps> {
 			return `Remote Pinecone namespace: ${scope.indexName} / ${scope.generation}`;
 		}
 		if (scope.mode === 'remote_all_namespaces') {
-			return `All Friday-owned remote Pinecone namespaces in ${scope.indexName}`;
+			return `All Idra-owned remote Pinecone namespaces in ${scope.indexName}`;
 		}
 		return `Local RAG index: ${scope.indexName} (all local namespaces)`;
 	}

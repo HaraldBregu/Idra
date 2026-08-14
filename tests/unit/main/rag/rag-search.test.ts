@@ -22,7 +22,7 @@ beforeEach(() => {
 	jest.clearAllMocks();
 	getIndex.mockReturnValue({
 		indexName: 'knowledge-base',
-		generation: 'friday-a1b2c3d4',
+		generation: 'idra-a1b2c3d4',
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,

@@ -31,7 +31,7 @@ export class Tray {
 		);
 
 		this.tray = new ElectronTray(icon.resize({ width: 16, height: 16 }));
-		this.tray.setToolTip('Friday');
+		this.tray.setToolTip('Idra');
 
 		this.tray.on('click', () => {
 			this.callbacks.onToggleApp();
@@ -88,7 +88,7 @@ export class Tray {
 
 		this.contextMenu = Menu.buildFromTemplate([
 			{
-				label: isVisible ? m.hideFriday || 'Hide Friday' : m.showFriday || 'Show Friday',
+				label: isVisible ? m.hideIdra || 'Hide Idra' : m.showIdra || 'Show Idra',
 				click: () => this.callbacks.onToggleApp(),
 			},
 			{

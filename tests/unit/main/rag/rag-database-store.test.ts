@@ -29,7 +29,7 @@ import {
 } from '../../../../src/main/database/database_store';
 
 const ragConfiguration = {
-	indexName: 'friday',
+	indexName: 'idra',
 	databaseProviderId: 'pinecone',
 	databaseId: 'pinecone',
 	embeddingProviderId: 'openai',

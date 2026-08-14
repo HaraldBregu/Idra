@@ -1,7 +1,7 @@
 {
-	"productName": "Friday",
-	"appId": "com.friday.friday",
-	"copyright": "© 2026 Friday Project. All rights reserved.",
+	"productName": "Idra",
+	"appId": "com.idra.idra",
+	"copyright": "© 2026 Idra Project. All rights reserved.",
 	"files": [
 		"out/**",
 		"resources/**",
@@ -14,9 +14,9 @@
 	"fileAssociations": [
 		{
 			"ext": "tsrct",
-			"name": "Friday Document",
-			"description": "Friday Document File",
-			"mimeType": "application/x-friday-document",
+			"name": "Idra Document",
+			"description": "Idra Document File",
+			"mimeType": "application/x-idra-document",
 			"role": "Manager",
 			"icon": "./resources/icons/icon.png"
 		}
@@ -41,28 +41,28 @@
 		"icon": "./resources/icons/mac/icon.icns",
 		"extendInfo": {
 			"LSApplicationCategoryType": "public.app-category.utilities",
-			"NSMicrophoneUsageDescription": "Friday needs access to your microphone for audio recording features.",
-			"NSCameraUsageDescription": "Friday needs access to your camera for video recording features.",
-			"NSBluetoothAlwaysUsageDescription": "Friday needs access to Bluetooth to connect and manage Bluetooth devices.",
-			"NSBluetoothPeripheralUsageDescription": "Friday needs access to Bluetooth peripherals for device connectivity.",
+			"NSMicrophoneUsageDescription": "Idra needs access to your microphone for audio recording features.",
+			"NSCameraUsageDescription": "Idra needs access to your camera for video recording features.",
+			"NSBluetoothAlwaysUsageDescription": "Idra needs access to Bluetooth to connect and manage Bluetooth devices.",
+			"NSBluetoothPeripheralUsageDescription": "Idra needs access to Bluetooth peripherals for device connectivity.",
 			"CFBundleDocumentTypes": [
 				{
-					"CFBundleTypeName": "Friday File",
+					"CFBundleTypeName": "Idra File",
 					"CFBundleTypeIconFile": "fileIcon.icns",
 					"CFBundleTypeExtensions": ["tsrct"],
 					"CFBundleTypeRole": "Manager",
 					"LSHandlerRank": "Owner",
-					"LSItemContentTypes": ["com.friday.friday.document"]
+					"LSItemContentTypes": ["com.idra.idra.document"]
 				}
 			],
 			"UTExportedTypeDeclarations": [
 				{
-					"UTTypeIdentifier": "com.friday.friday.document",
-					"UTTypeDescription": "Friday File",
+					"UTTypeIdentifier": "com.idra.idra.document",
+					"UTTypeDescription": "Idra File",
 					"UTTypeConformsTo": ["public.data"],
 					"UTTypeTagSpecification": {
 						"public.filename-extension": ["tsrct"],
-						"public.mime-type": ["application/x-friday-document"]
+						"public.mime-type": ["application/x-idra-document"]
 					}
 				}
 			]
@@ -102,22 +102,22 @@
 		"category": "Utility",
 		"artifactName": "${productName}-${version}.${ext}",
 		"icon": "./resources/icons/png",
-		"maintainer": "Friday Project",
+		"maintainer": "Idra Project",
 		"synopsis": "Your desktop AI copilot for everyday tasks",
-		"description": "Friday is a cross-platform desktop AI assistant that turns conversations into actions. Type or speak a request, attach images or PDFs, and let the agent work with files, run commands, research the web, create media, or automate recurring tasks.",
-		"vendor": "Friday Project",
-		"executableName": "friday-desktop",
+		"description": "Idra is a cross-platform desktop AI assistant that turns conversations into actions. Type or speak a request, attach images or PDFs, and let the agent work with files, run commands, research the web, create media, or automate recurring tasks.",
+		"vendor": "Idra Project",
+		"executableName": "idra-desktop",
 		"desktop": {
 			"entry": {
 				"Type": "Application",
-				"Name": "Friday",
+				"Name": "Idra",
 				"Comment": "Your desktop AI copilot for everyday tasks",
-				"Icon": "friday",
+				"Icon": "idra",
 				"Terminal": false,
 				"Categories": "Office;WordProcessor;AI;",
-				"MimeType": "application/x-friday-document;",
+				"MimeType": "application/x-idra-document;",
 				"StartupNotify": true,
-				"StartupWMClass": "Friday"
+				"StartupWMClass": "Idra"
 			}
 		},
 		"extraResources": [
@@ -130,7 +130,7 @@
 	},
 	"deb": {
 		"packageCategory": "utils",
-		"maintainer": "Friday Project <contact@friday.org>",
+		"maintainer": "Idra Project <contact@idra.org>",
 		"depends": [
 			"libgtk-3-0",
 			"libnss3",
@@ -166,7 +166,7 @@
 		"artifactName": "${productName}.${ext}",
 		"forceCodeSigning": true,
 		"signtoolOptions": {
-			"publisherName": "Friday Project"
+			"publisherName": "Idra Project"
 		},
 		"requestedExecutionLevel": "asInvoker",
 		"extraResources": [
@@ -181,7 +181,7 @@
 		"oneClick": false,
 		"allowToChangeInstallationDirectory": true,
 		"createDesktopShortcut": true,
-		"shortcutName": "Friday",
+		"shortcutName": "Idra",
 		"multiLanguageInstaller": true,
 		"warningsAsErrors": false,
 		"deleteAppDataOnUninstall": false,

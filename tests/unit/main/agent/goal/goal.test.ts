@@ -10,7 +10,7 @@ import { updateGoalStatus } from '../../../../../src/main/agent/goal/status';
 let directory: string;
 
 beforeEach(() => {
-	directory = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-goal-'));
+	directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-goal-'));
 });
 
 afterEach(() => fs.rmSync(directory, { recursive: true, force: true }));

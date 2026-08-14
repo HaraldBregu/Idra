@@ -39,7 +39,7 @@ export class ExtensionsIpc implements IpcModule<ExtensionsIpcDeps> {
 				defaultId: 0,
 				noLink: true,
 				message: `Delete “${extension.title}”?`,
-				detail: 'This permanently deletes the extension from Friday. This action cannot be undone.',
+				detail: 'This permanently deletes the extension from Idra. This action cannot be undone.',
 			};
 			const window = BrowserWindow.fromWebContents(event.sender);
 			const result = await (window

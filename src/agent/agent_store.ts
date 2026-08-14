@@ -28,15 +28,15 @@ const store = new JsonStore<AgentStoreSchema>({
 });
 
 export function getProviderId(): string | undefined {
-	return process.env.FRIDAY_PROVIDER_ID?.trim() || undefined;
+	return process.env.IDRA_PROVIDER_ID?.trim() || undefined;
 }
 
 export function getModelId(): string | undefined {
-	return process.env.FRIDAY_MODEL_ID?.trim() || undefined;
+	return process.env.IDRA_MODEL_ID?.trim() || undefined;
 }
 
 export function getModelOptions(): Record<string, unknown> {
-	const value = process.env.FRIDAY_MODEL_OPTIONS?.trim();
+	const value = process.env.IDRA_MODEL_OPTIONS?.trim();
 	if (!value) return {};
 	try {
 		const parsed = JSON.parse(value) as unknown;
@@ -44,7 +44,7 @@ export function getModelOptions(): Record<string, unknown> {
 			? (parsed as Record<string, unknown>)
 			: {};
 	} catch {
-		throw new Error('FRIDAY_MODEL_OPTIONS must be a JSON object.');
+		throw new Error('IDRA_MODEL_OPTIONS must be a JSON object.');
 	}
 }
 

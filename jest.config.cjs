@@ -1,5 +1,5 @@
 /**
- * Jest configuration for Friday.
+ * Jest configuration for Idra.
  *
  * Uses a multi-project setup:
  *   - "main"     : tests for the Electron main process (Node environment)

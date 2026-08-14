@@ -83,7 +83,7 @@ describe('extension discovery and loading', () => {
 	};
 
 	beforeEach(() => {
-		appLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-extensions-'));
+		appLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-extensions-'));
 	});
 
 	afterEach(() => {
@@ -107,7 +107,7 @@ describe('extension discovery and loading', () => {
 			metadata: {
 				...projectManifest.metadata,
 				entry: 'pages/project.html',
-				author: 'Friday',
+				author: 'Idra',
 			},
 		};
 		installExtension(appLocation, 'project', manifest);

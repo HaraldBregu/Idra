@@ -89,8 +89,8 @@ describe('Start cloud storage step', () => {
 		expect(storageApi.getStorages).toHaveBeenCalledTimes(1);
 
 		fireEvent.click(await screen.findByRole('button', { name: 'Add provider' }));
-		await user.type(await screen.findByLabelText('Name'), 'Friday backup');
-		await user.type(screen.getByLabelText('Bucket'), 'friday-data');
+		await user.type(await screen.findByLabelText('Name'), 'Idra backup');
+		await user.type(screen.getByLabelText('Bucket'), 'idra-data');
 		await user.type(screen.getByLabelText('Access key ID'), 'access-key');
 		await user.type(screen.getByLabelText('Secret access key'), 'secret-key');
 		await user.click(screen.getByRole('button', { name: 'Save' }));
@@ -98,8 +98,8 @@ describe('Start cloud storage step', () => {
 		await waitFor(() =>
 			expect(storageApi.saveStorageConfig).toHaveBeenCalledWith(
 				expect.objectContaining({
-					name: 'Friday backup',
-					bucket: 'friday-data',
+					name: 'Idra backup',
+					bucket: 'idra-data',
 					accessKeyId: 'access-key',
 					secretAccessKey: 'secret-key',
 				})
@@ -111,12 +111,12 @@ describe('Start cloud storage step', () => {
 		const user = userEvent.setup();
 		const storage = {
 			id: 'backup',
-			name: 'Friday backup',
+			name: 'Idra backup',
 			endpoint: 'https://storage.example.com',
 			region: 'us-east-1',
 			accessKeyId: 'access',
 			secretAccessKey: 'secret',
-			bucket: 'friday',
+			bucket: 'idra',
 			forcePathStyle: false,
 			paths: [],
 			syncEnabled: false,

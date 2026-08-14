@@ -2,7 +2,7 @@ const mockSetTaskRunner = jest.fn();
 const mockStartTask = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('../../../../src/main/shared/agent_location', () => ({
-	agentLocation: () => '/tmp/friday-agent-tasks',
+	agentLocation: () => '/tmp/idra-agent-tasks',
 }));
 jest.mock('../../../../src/main/tasks', () => ({
 	initTask: jest.fn(),

@@ -13,10 +13,10 @@ beforeEach(() => {
 	readFileSync.mockReset();
 });
 
-it('reads a Friday-owned versioned artifact from the local RAG directory', () => {
+it('reads a Idra-owned versioned artifact from the local RAG directory', () => {
 	const artifact = {
 		indexName: 'knowledge-base',
-		activeNamespace: 'friday-a1b2c3d4',
+		activeNamespace: 'idra-a1b2c3d4',
 		providerId: 'openai',
 		modelId: 'text-embedding-3-small',
 		dimensions: 2,
@@ -24,14 +24,14 @@ it('reads a Friday-owned versioned artifact from the local RAG directory', () =>
 	};
 	readFileSync.mockReturnValue(JSON.stringify(artifact));
 
-	expect(readRagArtifact('embeddings-friday-a1b2c3d4.json')).toEqual(artifact);
+	expect(readRagArtifact('embeddings-idra-a1b2c3d4.json')).toEqual(artifact);
 	expect(readFileSync).toHaveBeenCalledWith(
-		path.join('/user/data/rag', 'embeddings-friday-a1b2c3d4.json'),
+		path.join('/user/data/rag', 'embeddings-idra-a1b2c3d4.json'),
 		'utf8'
 	);
 });
 
 it('rejects artifact paths outside the local RAG directory', () => {
-	expect(readRagArtifact('../embeddings-friday-a1b2c3d4.json')).toBeUndefined();
+	expect(readRagArtifact('../embeddings-idra-a1b2c3d4.json')).toBeUndefined();
 	expect(readFileSync).not.toHaveBeenCalled();
 });

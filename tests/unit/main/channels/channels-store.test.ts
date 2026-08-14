@@ -1,5 +1,5 @@
 jest.mock('../../../../src/main/shared/user_data_location', () => ({
-	userDataLocation: () => '/tmp/friday-user-data',
+	userDataLocation: () => '/tmp/idra-user-data',
 }));
 
 import {
@@ -19,7 +19,7 @@ describe('channels store', () => {
 			baseUrl: '',
 		};
 
-		expect(channelsStorePath).toBe('/tmp/friday-user-data/settings/channels.json');
+		expect(channelsStorePath).toBe('/tmp/idra-user-data/settings/channels.json');
 		expect(listChannelProviders()).toEqual([]);
 
 		setChannelProvider(provider);

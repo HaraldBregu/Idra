@@ -36,8 +36,8 @@ describe('sessionPath', () => {
 	});
 
 	it('rejects a UUID symlink that resolves outside the sessions root', () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-sessions-'));
-		const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-outside-'));
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-sessions-'));
+		const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-outside-'));
 		try {
 			fs.symlinkSync(outside, path.join(root, SESSION_ID), process.platform === 'win32' ? 'junction' : 'dir');
 			expect(() => sessionPath(root, SESSION_ID)).toThrow(
@@ -50,8 +50,8 @@ describe('sessionPath', () => {
 	});
 
 	it('rejects a session file symlink that resolves outside the sessions root', () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-sessions-'));
-		const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-outside-'));
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-sessions-'));
+		const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-outside-'));
 		try {
 			const folder = path.join(root, SESSION_ID);
 			fs.mkdirSync(folder);

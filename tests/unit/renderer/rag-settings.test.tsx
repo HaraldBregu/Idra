@@ -11,14 +11,14 @@ jest.mock('react-i18next', () => {
 		'settings.rag.enabledDescription': 'Allow document indexing and assistant search.',
 		'settings.rag.embeddingConsent': 'Send document text for embeddings',
 		'settings.rag.embeddingConsentDescription':
-			'Allow Friday to send document chunks to the selected embedding provider.',
+			'Allow Idra to send document chunks to the selected embedding provider.',
 		'settings.rag.embeddingModelTitle': 'Embedding model',
 		'settings.rag.embeddingModelDescription':
 			'Model used to embed RAG documents for vector search.',
 		'settings.rag.configurationTitle': 'Configuration',
 		'settings.rag.indexName': 'Index name',
 		'settings.rag.indexNameDescription': 'Pinecone index.',
-		'settings.rag.indexNamePlaceholder': 'friday',
+		'settings.rag.indexNamePlaceholder': 'idra',
 		'settings.rag.documentsDescription': 'Documents to index.',
 		'settings.rag.sourceFolder': 'Source folders',
 		'settings.rag.sourcePlaceholder': 'Choose source folders',
@@ -100,13 +100,13 @@ const dataControls = {
 			kind: 'rag',
 			mode: 'local_namespace',
 			indexName: 'knowledge-base',
-			generation: 'friday-generation',
+			generation: 'idra-generation',
 		},
 		{
 			kind: 'rag',
 			mode: 'remote_namespace',
 			indexName: 'knowledge-base',
-			generation: 'friday-generation',
+			generation: 'idra-generation',
 		},
 		{ kind: 'rag', mode: 'remote_all_namespaces', indexName: 'knowledge-base' },
 	]),
@@ -142,7 +142,7 @@ beforeEach(() => {
 	});
 	agentApi.ragGetConfiguration.mockResolvedValue({
 		enabled: false,
-		indexName: 'friday',
+		indexName: 'idra',
 		databaseProviderId: '',
 		databaseId: '',
 		embeddingProviderId: 'openai',
@@ -257,7 +257,7 @@ it('groups providers, model, index, and folder paths in one configuration card',
 		providers: [],
 	});
 	agentApi.ragGetConfiguration.mockResolvedValue({
-		indexName: 'friday',
+		indexName: 'idra',
 		databaseProviderId: 'pinecone',
 		databaseId: 'pinecone',
 		embeddingProviderId: 'openai',
@@ -280,7 +280,7 @@ it('groups providers, model, index, and folder paths in one configuration card',
 	const configuration = within(configurationCard as HTMLElement);
 	expect(configuration.getByRole('combobox', { name: 'Vector database' })).toBeInTheDocument();
 	expect(configuration.getByRole('combobox', { name: 'Embedding model' })).toBeInTheDocument();
-	expect(configuration.getByLabelText('Index name')).toHaveValue('friday');
+	expect(configuration.getByLabelText('Index name')).toHaveValue('idra');
 	expect(configuration.getByText('/Users/example/docs')).toBeInTheDocument();
 	expect(configuration.getByRole('button', { name: 'Choose folder' })).toBeInTheDocument();
 	expect(screen.getAllByText('Configuration')).toHaveLength(1);
@@ -292,7 +292,7 @@ it('saves the selected RAG index name from the configuration card', async () => 
 
 	expect(await screen.findByText('Configuration')).toBeInTheDocument();
 	const indexName = screen.getByLabelText('Index name');
-	await waitFor(() => expect(indexName).toHaveValue('friday'));
+	await waitFor(() => expect(indexName).toHaveValue('idra'));
 	await user.clear(indexName);
 	await user.type(indexName, 'knowledge-base');
 	expect(indexName).toHaveValue('knowledge-base');
@@ -308,7 +308,7 @@ it('saves the selected RAG index name from the configuration card', async () => 
 it('saves a friendly automation schedule preset', async () => {
 	const user = userEvent.setup();
 	agentApi.ragGetConfiguration.mockResolvedValue({
-		indexName: 'friday',
+		indexName: 'idra',
 		databaseProviderId: '',
 		databaseId: '',
 		embeddingProviderId: 'openai',

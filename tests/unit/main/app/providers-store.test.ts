@@ -113,7 +113,7 @@ describe('storages in app settings', () => {
 		region: 'us-east-1',
 		accessKeyId: 'access',
 		secretAccessKey: 'secret',
-		bucket: 'friday',
+		bucket: 'idra',
 		forcePathStyle: true,
 		paths: ['/data/agent'],
 		syncEnabled: true,

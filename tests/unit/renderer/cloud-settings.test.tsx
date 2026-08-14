@@ -60,12 +60,12 @@ it('shows storage controls without the provider CTA when a provider exists', asy
 	storageApi.getStorages.mockResolvedValue([
 		{
 			id: 'backup',
-			name: 'Friday backup',
+			name: 'Idra backup',
 			endpoint: 'https://storage.example.com',
 			region: 'us-east-1',
 			accessKeyId: 'access',
 			secretAccessKey: 'secret',
-			bucket: 'friday',
+			bucket: 'idra',
 			forcePathStyle: false,
 		},
 	]);
