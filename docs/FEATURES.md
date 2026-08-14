@@ -359,7 +359,7 @@ The chat catalog includes Anthropic, DeepSeek, Google, Kimi, MiniMax, Mistral, O
 Reka AI, xAI, and Z.ai. Exact model names, IDs, and support notes are maintained in
 [Provider Reference](PROVIDERS.md#chat-and-research).
 
-The built-in catalog contains 29 providers across models, search, vector database, and object
+The built-in catalog contains 27 providers across models, search, vector database, and object
 storage. Model-provider entries include capability labels and an external setup link.
 
 Realtime-voice models are cataloged for Google, Luma, Qwen, and xAI, but there is no realtime-voice IPC or model execution service. Friday's current Voice API is text-to-speech, and Home's voice-conversation panel is not connected to these models.
@@ -402,7 +402,6 @@ Media can be generated from the dedicated Settings studios or by agent tools dur
 | Available    | Ideogram: 3.0, 2a                                                                                            |
 | Available    | Luma: Uni 1.1                                                                                                |
 | Available    | Qwen: Qwen Image, Qwen Image Edit                                                                            |
-| Available    | Stability AI: Stable Image Ultra, Stable Image Core                                                          |
 | Available    | xAI: Grok Imagine Image, Grok Imagine Image Quality                                                          |
 | Catalog only | Midjourney v8.1 and v7 are selectable, but the runtime explicitly reports that Midjourney has no public API. |
 
@@ -425,13 +424,11 @@ Media can be generated from the dedicated Settings studios or by agent tools dur
 | Status       | Provider and models                                               |
 | ------------ | ----------------------------------------------------------------- |
 | Available    | ElevenLabs: Eleven Music, ElevenLabs Sound Effects                |
-| Available    | Stability AI: Stable Audio 2.5                                    |
 | Catalog only | Google: Lyria 3 Pro Preview, Lyria 3 Clip Preview, Lyria Realtime |
 | Catalog only | Kling Audio                                                       |
 | Catalog only | MiniMax Music 2.6, Music Cover                                    |
-| Catalog only | Suno v5.5, v4.5 All                                               |
 
-The audio catalog presents all six providers, but only ElevenLabs and Stability AI currently have executable adapters.
+The audio catalog presents four providers, but only ElevenLabs currently has an executable adapter.
 
 ### Unified media library
 

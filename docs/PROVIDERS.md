@@ -1,6 +1,6 @@
 # Provider Reference
 
-Friday ships 29 provider manifests under `resources/providers`. This page is the canonical
+Friday ships 27 provider manifests under `resources/providers`. This page is the canonical
 human-readable inventory of those built-in providers, the services they expose in the catalog,
 and whether the current runtime can execute each service.
 
@@ -79,8 +79,6 @@ manifest.
 | [Qwen and Wan](https://modelstudio.console.alibabacloud.com)                       | `qwen`              | Chat, speech to text, realtime voice, image, video        | Mixed: realtime voice is catalog only                                                               |
 | [Reka AI](https://platform.reka.ai/apikeys)                                        | `reka`              | Chat                                                      | Available                                                                                           |
 | [Runway](https://dev.runwayml.com)                                                 | `runway`            | Video                                                     | Available                                                                                           |
-| [Stability AI](https://platform.stability.ai/account/keys)                         | `stability-ai`      | Image, audio                                              | Available                                                                                           |
-| [Suno](https://suno.com/account)                                                   | `suno`              | Audio                                                     | Catalog only                                                                                        |
 | [Tavily](https://app.tavily.com/home)                                              | `tavily`            | Web search                                                | Available                                                                                           |
 | [xAI](https://console.x.ai)                                                        | `xai`               | Chat, speech to text, realtime voice, image, video        | Mixed: realtime voice is catalog only                                                               |
 | [Z.ai](https://z.ai/manage-apikey/apikey-list)                                     | `zai`               | Chat                                                      | Available                                                                                           |
@@ -155,7 +153,6 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | Available    | Luma AI           | Uni 1.1 (`uni-1.1`)                                                                                                          |
 | Catalog only | Midjourney        | Midjourney v8.1 (`midjourney-v8.1`); Midjourney v7 (`midjourney-v7`)                                                         |
 | Available    | Qwen              | Qwen Image (`qwen-image`); Qwen Image Edit (`qwen-image-edit`)                                                               |
-| Available    | Stability AI      | Stable Image Ultra (`stable-image-ultra`); Stable Image Core (`stable-image-core`)                                           |
 | Available    | xAI               | Grok Imagine Image (`grok-imagine-image`); Grok Imagine Image Quality (`grok-imagine-image-quality`)                         |
 
 ### Video
@@ -180,8 +177,6 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | Catalog only | Google       | Lyria 3 Pro Preview (`lyria-3-pro-preview`); Lyria 3 Clip Preview (`lyria-3-clip-preview`); Lyria Realtime (`lyria-realtime`) |
 | Catalog only | Kling AI     | Kling Audio (`kling-audio`)                                                                                                   |
 | Catalog only | MiniMax      | Music 2.6 (`music-2.6`); Music Cover (`music-cover`)                                                                          |
-| Available    | Stability AI | Stable Audio 2.5 (`stable-audio-2.5`)                                                                                         |
-| Catalog only | Suno         | Suno v5.5 (`suno-v5.5`); Suno v4.5 All (`suno-v4.5-all`)                                                                      |
 
 ### Embeddings
 

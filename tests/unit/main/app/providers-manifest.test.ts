@@ -19,9 +19,6 @@ describe('provider manifests', () => {
 		const deepseek = loadModels().find(
 			(model) => model.provider.id === 'deepseek' && model.id === 'deepseek-v4-flash'
 		);
-		const stableImage = loadModels().find(
-			(model) => model.provider.id === 'stability-ai' && model.id === 'stable-image-core'
-		);
 		const runwayVideoModels = loadModels().filter(
 			(model) => model.provider.id === 'runway' && model.type === 'text-to-video'
 		);
@@ -29,13 +26,6 @@ describe('provider manifests', () => {
 			(model) => model.provider.id === 'openai' && model.type === 'realtime-voice'
 		);
 		const realtimeVoiceModels = loadModels().filter((model) => model.type === 'realtime-voice');
-		expect(stableImage?.metadata).toEqual(
-			expect.objectContaining({
-				documentationUrl: 'https://platform.stability.ai/docs/api-reference',
-				documentationStatus: 'verified',
-				inputs: expect.objectContaining({ aspect_ratio: expect.any(Object) }),
-			})
-		);
 		expect(openAi?.provider.iconDarkUrl).toMatch(/^local-resource:\/\/file/);
 		expect(openAi?.provider.iconDarkUrl).toContain(
 			'/resources/providers/openai/images/fallback_lobehub/png_dark/openai.png'
