@@ -28,10 +28,7 @@ export async function loadModelServiceState(
 	};
 }
 
-export function useModelServices(
-	state: SetupState,
-	dispatch: Dispatch<SetupAction>
-) {
+export function useModelServices(state: SetupState, dispatch: Dispatch<SetupAction>) {
 	const { step, serviceStates, savingConfig } = state;
 	const modelsLoadedRef = useRef(false);
 
