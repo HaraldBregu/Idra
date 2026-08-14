@@ -1,25 +1,16 @@
 {
 	"compilerOptions": {
-		"paths": {
-			"@/*": ["./src/renderer/src/*"],
-			"@utils/*": ["./src/renderer/src/utils/*"],
-			"@pages/*": ["./src/renderer/src/pages/*"],
-			"@store/*": ["./src/renderer/src/store/*"],
-			"@components/*": ["./src/renderer/src/components/*"],
-			"@icons/*": ["./src/renderer/src/components/icons/*"],
-			"@shared": ["./src/shared/index.ts"],
-			"@resources/*": ["./resources/*"]
-		},
-		"jsx": "react-jsx",
-		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
-		"moduleResolution": "bundler",
-		"target": "es2016",
-		"module": "esnext",
-		"lib": ["dom", "dom.iterable", "esnext"],
+		"target": "ES2022",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"outDir": "dist",
+		"rootDir": "src",
 		"strict": true,
-		"skipLibCheck": true
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"types": ["node"]
 	},
-	"files": [],
-	"references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules", "dist"]
 }

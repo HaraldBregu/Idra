@@ -10,7 +10,7 @@
 		"resources/*.json",
 		"src/env.d.ts",
 		"src/example"
-	],
+, "src/agent", "src/channels", "src/data", "src/database", "src/extensions", "src/ipc", "src/mcp", "src/models", "src/providers", "src/recorder", "src/search", "src/shared", "src/storage", "src/tasks", "src/app_state.ts", "src/body.ts", "src/bootstrap.ts", "src/config.ts", "src/create_window.ts", "src/error.ts", "src/event_bus.ts", "src/external.ts", "src/i18n.ts", "src/index.ts", "src/keep_awake.ts", "src/lifecycle.ts", "src/menu.ts", "src/meta.ts", "src/metadata.ts", "src/models.ts", "src/pdf.ts", "src/private.ts", "src/protocol.ts", "src/public.ts", "src/request.ts", "src/runtime.ts", "src/server.ts", "src/set_tray_enabled.ts", "src/settings_store.ts", "src/shortcuts.ts", "src/tray.ts", "src/unfurl.ts", "src/window_context.ts", "src/window_events.ts", "src/window_factory.ts", "src/window_scoped_service_factory.ts"	],
 	"compilerOptions": {
 		"composite": true,
 		"outDir": "./dist",
