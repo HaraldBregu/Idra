@@ -207,8 +207,8 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 			'Connect an S3-compatible object storage provider. Only S3-compatible services are supported.',
 	},
 	database: {
-		title: 'Database providers',
-		description: 'Add a database provider if you want Friday to work with your data.',
+		title: 'Vector Databases',
+		description: 'Connect a vector database to store embedding vectors.',
 	},
 	models: {
 		title: 'Select your services',
