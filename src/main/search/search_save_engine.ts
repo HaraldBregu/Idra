@@ -4,7 +4,6 @@ import {
 	type SearchEngineInput,
 	type SearchSettings,
 } from '../../shared/search_types';
-import { setSearchEngine } from '../agent/agent_store';
 import { getSearchSettings } from './search_get_settings';
 import { getStoredSearchProviders } from './search_get_providers';
 import { SEARCH_PROVIDERS } from './catalog';
@@ -18,7 +17,6 @@ export function saveSearchEngine(
 	const apiKey = typeof input?.apiKey === 'string' ? input.apiKey.trim() : '';
 	if (!apiKey) throw new Error('A search engine API key is required.');
 
-	const previousSettings = getSearchSettings();
 	const catalogProvider = SEARCH_PROVIDERS.find((provider) => provider.id === engineId);
 	if (!catalogProvider) throw new Error('Unknown search engine.');
 	const providersById = new Map(getStoredSearchProviders().map((provider) => [provider.id, provider]));
@@ -29,9 +27,6 @@ export function saveSearchEngine(
 		return [{ ...provider, apiKey: stored.apiKey }];
 	});
 	setSearchProviders(providers);
-	if (!previousSettings.configured[previousSettings.engineId]) {
-		setSearchEngine({ providerId: engineId, providerName: catalogProvider.name, enabled: true });
-	}
 
 	return getSearchSettings();
 }

@@ -7,7 +7,7 @@ export interface SearchEngineInput {
 }
 
 export interface SearchSettings {
-	engineId: SearchEngineId;
+	engineId: SearchEngineId | null;
 	configured: Record<SearchEngineId, boolean>;
 }
 

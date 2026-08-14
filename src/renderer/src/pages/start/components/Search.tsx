@@ -28,7 +28,7 @@ export function Search(): React.JSX.Element {
 	}, []);
 
 	const selectedEngineId =
-		settings && settings.configured[settings.engineId] ? settings.engineId : null;
+		settings?.engineId && settings.configured[settings.engineId] ? settings.engineId : null;
 	const selectedEngine = SEARCH_ENGINES.find((engine) => engine.id === selectedEngineId);
 
 	return (

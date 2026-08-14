@@ -8,11 +8,11 @@ import { getStoredSearchProviders } from './search_get_providers';
 
 export function getSearchSettings(): SearchSettings {
 	const providers = getStoredSearchProviders();
-	const { providerId } = getSearchEngine();
+	const { providerId, enabled } = getSearchEngine();
 	const engineId =
-		typeof providerId === 'string' && SEARCH_ENGINE_IDS.includes(providerId as SearchEngineId)
+		enabled && typeof providerId === 'string' && SEARCH_ENGINE_IDS.includes(providerId as SearchEngineId)
 			? (providerId as SearchEngineId)
-			: 'brave';
+			: null;
 	const configured = Object.fromEntries(
 		SEARCH_ENGINE_IDS.map((id) => {
 			return [id, providers.some((provider) => provider.id === id && provider.apiKey.trim())];

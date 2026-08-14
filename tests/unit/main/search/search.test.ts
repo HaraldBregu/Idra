@@ -55,14 +55,15 @@ afterAll(() => {
 describe('search settings', () => {
 	it('stores providers independently and preserves explicit selection', () => {
 		expect(getSearchSettings()).toEqual({
-			engineId: 'brave',
+			engineId: null,
 			configured: { brave: false, tavily: false },
 		});
 
 		expect(saveSearchEngine('tavily', { apiKey: ' tavily-key ' })).toEqual({
-			engineId: 'tavily',
+			engineId: null,
 			configured: { brave: false, tavily: true },
 		});
+		expect(selectSearchEngine('tavily').engineId).toBe('tavily');
 		saveSearchEngine('brave', { apiKey: 'brave-key' });
 		expect(getSearchProviders()).toEqual([
 			{
@@ -101,7 +102,7 @@ describe('search settings', () => {
 			{ id: 'brave', name: 'Brave', apiKey: 42, baseUrl: 'https://brave.test' },
 		] as never);
 		expect(getSearchSettings()).toEqual({
-			engineId: 'brave',
+			engineId: null,
 			configured: { brave: false, tavily: false },
 		});
 	});
@@ -174,16 +175,23 @@ describe('generic web search', () => {
 		expect(getSearchWebTools()).toEqual([]);
 	});
 
+	it('omits web_search when an API key is configured but no engine is selected', () => {
+		saveSearchEngine('brave', { apiKey: 'brave-key' });
+		expect(getSearchWebTools()).toEqual([]);
+	});
+
 	it.each([
 		['brave', 'brave-key'],
 		['tavily', 'tavily-key'],
-	] as const)('includes web_search when the %s API key is stored', (engineId, apiKey) => {
+	] as const)('includes web_search when %s is configured and selected', (engineId, apiKey) => {
 		saveSearchEngine(engineId, { apiKey });
+		selectSearchEngine(engineId);
 		expect(getSearchWebTools().map((searchTool) => searchTool.id)).toEqual(['search_web']);
 	});
 
 	it('dispatches to the selected provider at execution time', async () => {
 		saveSearchEngine('tavily', { apiKey: 'tavily-key' });
+		selectSearchEngine('tavily');
 		(global.fetch as jest.Mock).mockResolvedValue(response({ results: [] }));
 		const controller = new AbortController();
 
@@ -199,6 +207,7 @@ describe('generic web search', () => {
 
 	it('keeps the web_search tool output contract and default count', async () => {
 		saveSearchEngine('brave', { apiKey: 'brave-key' });
+		selectSearchEngine('brave');
 		(global.fetch as jest.Mock).mockResolvedValue(response({ web: { results: [] } }));
 
 		const [webSearchTool] = getSearchWebTools();
@@ -208,9 +217,9 @@ describe('generic web search', () => {
 		expect(url.searchParams.get('count')).toBe('5');
 	});
 
-	it('explains how to configure a missing selected provider', async () => {
+	it('explains how to select a search engine', async () => {
 		await expect(searchWeb({ query: 'friday' })).rejects.toThrow(
-			'Configure Brave in Settings > Search engine'
+			'Select a search engine in Settings > Agent'
 		);
 	});
 });

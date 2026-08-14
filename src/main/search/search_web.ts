@@ -15,6 +15,9 @@ export async function searchWeb(
 	signal?: AbortSignal
 ): Promise<SearchResponse> {
 	const { engineId } = getSearchSettings();
+	if (!engineId) {
+		throw new Error('Select a search engine in Settings > Agent before using search_web.');
+	}
 	const apiKey = getSearchKey(engineId);
 	if (!apiKey) {
 		throw new Error(

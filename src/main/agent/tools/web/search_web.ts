@@ -25,6 +25,6 @@ const searchWebTool = tool({
 });
 
 export function getSearchWebTools(): Tool[] {
-	const { configured } = getSearchSettings();
-	return configured.brave || configured.tavily ? [searchWebTool] : [];
+	const { engineId, configured } = getSearchSettings();
+	return engineId && configured[engineId] ? [searchWebTool] : [];
 }

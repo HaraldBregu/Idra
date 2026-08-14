@@ -14,11 +14,11 @@ beforeEach(() => {
 	});
 });
 
-it('stays empty when the fallback search engine is not configured', async () => {
+it('stays empty when a provider is configured but no search engine is selected', async () => {
 	const user = userEvent.setup();
 	searchApi.getSettings.mockResolvedValue({
-		engineId: 'brave',
-		configured: { brave: false, tavily: false },
+		engineId: null,
+		configured: { brave: true, tavily: false },
 	});
 	render(<Search />);
 
