@@ -19,7 +19,7 @@ export function PresentationStep(): React.JSX.Element {
 			</h1>
 			<p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{description}</p>
 
-			<div className="mt-8 w-full border-t border-border/80 pt-5">
+			<div className="mt-8 w-full pt-5">
 				<ol
 					className="flex items-center justify-center gap-4 sm:gap-8"
 					aria-label="Setup overview"
