@@ -9,14 +9,19 @@ jest.mock('react-i18next', () => ({
 }));
 
 class ResizeObserverMock {
-	observe(): void {}
-	unobserve(): void {}
-	disconnect(): void {}
+	observe = jest.fn();
+	unobserve = jest.fn();
+	disconnect = jest.fn();
 }
 
 Object.defineProperty(globalThis, 'ResizeObserver', {
 	configurable: true,
 	value: ResizeObserverMock,
+});
+
+Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+	configurable: true,
+	value: jest.fn(),
 });
 
 it.each(['/home', '/home/session/1', '/settings', '/settings/providers/models'])(
