@@ -1,10 +1,9 @@
-import { loadFileHistory } from './load';
+import type { FileHistory } from './types';
 
-export function fileHistoryTargets(direction: 'undo' | 'redo'): string[] {
-	const operations = loadFileHistory().operations;
+export function fileHistoryTargets(history: FileHistory, direction: 'undo' | 'redo'): string[] {
 	const operation = direction === 'undo'
-		? [...operations].reverse().find((candidate) => candidate.state === 'applied')
-		: operations.find((candidate) => candidate.state === 'undone');
+		? [...history.operations].reverse().find((candidate) => candidate.state === 'applied')
+		: history.operations.find((candidate) => candidate.state === 'undone');
 	if (!operation) return [];
 	return [...new Set([...operation.before, ...operation.after].map((snapshot) => snapshot.path))];
 }
