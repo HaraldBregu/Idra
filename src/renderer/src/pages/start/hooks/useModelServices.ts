@@ -78,13 +78,36 @@ export function useModelServices(state: SetupState, dispatch: Dispatch<SetupActi
 		};
 	}, [step, dispatch]);
 
-	function handleServiceChange(
+	async function handleServiceChange(
 		serviceId: ModelServiceId,
 		providerId: string,
 		modelId: string
-	): void {
+	): Promise<void> {
 		dispatch({ type: 'CLEAR_ERROR' });
 		dispatch({ type: 'CHANGE_SERVICE_SELECTION', serviceId, providerId, modelId });
+
+		const service = MODEL_SERVICE_DEFINITIONS.find((item) => item.id === serviceId);
+		if (!service?.saveOnChange) return;
+		const selected = getSelectedServiceModel({
+			...serviceStates[serviceId],
+			providerId,
+			modelId,
+		});
+		if (!selected) return;
+
+		dispatch({ type: 'SET_SAVING_CONFIG', saving: true });
+		try {
+			const saved = await service.saveSelection(selected.provider, selected.model);
+			if (!saved) throw new Error(`Could not save the selected ${service.title} model.`);
+		} catch (error) {
+			console.error('[useModelServices] Failed to save model service config:', error);
+			dispatch({
+				type: 'SET_ERROR',
+				message: getErrorMessage(error, `Could not save the selected ${service.title} model.`),
+			});
+		} finally {
+			dispatch({ type: 'SET_SAVING_CONFIG', saving: false });
+		}
 	}
 
 	async function handleSaveModels(): Promise<boolean> {

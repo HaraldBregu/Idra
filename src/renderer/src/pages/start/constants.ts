@@ -126,6 +126,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		id: 'voice',
 		title: 'Voice',
 		description: 'Read responses aloud.',
+		saveOnChange: true,
 		loadModelGroups: () => Promise.resolve(toModelGroups('text-to-speech')),
 		...toIdSelectionHandlers(() => window.models.voice),
 	},
@@ -133,6 +134,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		id: 'transcription',
 		title: 'Transcription',
 		description: 'Speech to text.',
+		saveOnChange: true,
 		getSelection: async () => {
 			const selection = await window.models.transcribe.getSelection();
 			return selection

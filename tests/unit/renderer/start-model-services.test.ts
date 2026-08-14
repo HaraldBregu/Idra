@@ -1,5 +1,11 @@
-import { loadModelServiceState } from '../../../src/renderer/src/pages/start/hooks/useModelServices';
+import { act, renderHook } from '@testing-library/react';
+import {
+	loadModelServiceState,
+	useModelServices,
+} from '../../../src/renderer/src/pages/start/hooks/useModelServices';
+import { createInitialModelServiceState } from '../../../src/renderer/src/pages/start/constants';
 import type { ModelServiceDefinition } from '../../../src/renderer/src/pages/start/types';
+import type { SetupState } from '../../../src/renderer/src/pages/start/state/types';
 
 const provider = { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' };
 const model = { id: 'gpt-5', name: 'GPT-5' };
@@ -34,5 +40,72 @@ describe('onboarding model service state', () => {
 			modelId: model.id,
 			modelGroups,
 		});
+	});
+
+	it('persists voice and transcription selections when they change', async () => {
+		const voiceProvider = {
+			id: 'elevenlabs',
+			name: 'ElevenLabs',
+			baseUrl: 'https://api.elevenlabs.io',
+		};
+		const voiceModel = { id: 'eleven_v3', name: 'Eleven v3' };
+		const transcriptionProvider = {
+			id: 'deepgram',
+			name: 'Deepgram',
+			baseUrl: 'https://api.deepgram.com/v1',
+		};
+		const transcriptionModel = { id: 'nova-3', name: 'Nova 3' };
+		const setVoiceProviderId = jest.fn().mockResolvedValue(undefined);
+		const setVoiceModelId = jest.fn().mockResolvedValue(undefined);
+		const saveTranscriptionSelection = jest.fn().mockResolvedValue(true);
+		Object.defineProperty(window, 'models', {
+			configurable: true,
+			value: {
+				voice: {
+					setProviderId: setVoiceProviderId,
+					setModelId: setVoiceModelId,
+				},
+				transcribe: { saveSelection: saveTranscriptionSelection },
+			},
+		});
+
+		const serviceStates = createInitialModelServiceState();
+		serviceStates.voice = {
+			providerId: '',
+			modelId: '',
+			modelGroups: [{ provider: voiceProvider, models: [voiceModel] }],
+		};
+		serviceStates.transcription = {
+			providerId: '',
+			modelId: '',
+			modelGroups: [
+				{ provider: transcriptionProvider, models: [transcriptionModel] },
+			],
+		};
+		const state: SetupState = {
+			step: 'presentation',
+			serviceStates,
+			loadingModels: false,
+			savingConfig: false,
+			errorMessage: '',
+		};
+		const dispatch = jest.fn();
+		const { result } = renderHook(() => useModelServices(state, dispatch));
+
+		await act(async () => {
+			await result.current.handleServiceChange('voice', voiceProvider.id, voiceModel.id);
+			await result.current.handleServiceChange(
+				'transcription',
+				transcriptionProvider.id,
+				transcriptionModel.id
+			);
+		});
+
+		expect(setVoiceProviderId).toHaveBeenCalledWith(voiceProvider.id);
+		expect(setVoiceModelId).toHaveBeenCalledWith(voiceModel.id);
+		expect(saveTranscriptionSelection).toHaveBeenCalledWith(
+			transcriptionProvider.id,
+			transcriptionModel.id
+		);
 	});
 });

@@ -47,6 +47,7 @@ export type ModelServiceDefinition = {
 	id: ModelServiceId;
 	title: string;
 	description: string;
+	saveOnChange?: boolean;
 	getSelection: () => Promise<ModelServiceSelection | undefined>;
 	loadModelGroups: () => Promise<ProviderModelGroup[]>;
 	saveSelection: (provider: PublicProvider, model: Model) => Promise<boolean>;
