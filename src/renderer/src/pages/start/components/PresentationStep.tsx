@@ -20,27 +20,21 @@ export function PresentationStep(): React.JSX.Element {
 			<p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{description}</p>
 
 			<div className="mt-8 w-full border-t border-border/80 pt-5">
-				<ol className="grid gap-3 sm:grid-cols-3">
-					<li className="flex items-start gap-2.5 text-left">
-						<KeyRound className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-						<span className="text-xs leading-5 text-muted-foreground">
-							<span className="block font-medium text-foreground">Connect</span>
-							Add a provider key.
-						</span>
+				<ol
+					className="flex items-center justify-center gap-4 sm:gap-8"
+					aria-label="Setup overview"
+				>
+					<li className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+						<KeyRound className="size-4 shrink-0 text-primary" aria-hidden="true" />
+						<span>Connect</span>
 					</li>
-					<li className="flex items-start gap-2.5 text-left">
-						<SlidersHorizontal className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-						<span className="text-xs leading-5 text-muted-foreground">
-							<span className="block font-medium text-foreground">Choose</span>
-							Pick your assistant model.
-						</span>
+					<li className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+						<SlidersHorizontal className="size-4 shrink-0 text-primary" aria-hidden="true" />
+						<span>Choose</span>
 					</li>
-					<li className="flex items-start gap-2.5 text-left">
-						<MessageSquareText className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-						<span className="text-xs leading-5 text-muted-foreground">
-							<span className="block font-medium text-foreground">Start</span>
-							Take on your first task.
-						</span>
+					<li className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+						<MessageSquareText className="size-4 shrink-0 text-primary" aria-hidden="true" />
+						<span>Start</span>
 					</li>
 				</ol>
 			</div>
