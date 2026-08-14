@@ -48,6 +48,14 @@ Start the API with Docker Compose:
 docker compose up --build -d
 ```
 
+Or run the image directly with the same persistent data layout:
+
+```bash
+docker build -t idra .
+docker volume create idra-data
+docker run --name idra -d -p 3000:3000 --volume idra-data:/data idra
+```
+
 The image keeps application code in `/app` and mutable application data in `/data`. Compose mounts the persistent `idra-data` volume at `/data`, including the main settings file and workspaces:
 
 ```text
@@ -61,6 +69,8 @@ The image keeps application code in `/app` and mutable application data in `/dat
 Application code can manage `/data/settings.json` through `SettingsService`:
 
 ```ts
+import { SettingsService } from './settings';
+
 const settings = new SettingsService();
 settings.set('theme', 'dark');
 settings.save();

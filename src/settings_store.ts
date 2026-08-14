@@ -1,4 +1,7 @@
 import type { ResolvedProvider, StoredProvider } from './shared/provider_types';
+import { SettingsService } from './settings';
+
+export const settingsService = new SettingsService();
 
 export function getProvider(id: string): StoredProvider | undefined {
 	const providerId = process.env.IDRA_PROVIDER_ID?.trim();
