@@ -1,16 +1,21 @@
-import {
-	taskConfigurationStorePath,
-	getTaskConfiguration,
-	setTaskConfiguration,
-} from '../settings_store';
-import type { PersistedTaskState } from './tasks_types';
+import path from 'node:path';
+import { JsonStore } from '../shared/store';
+import { userDataLocation } from '../shared/user_data_location';
+import { DEFAULT_TASK_STATE, type PersistedTaskState } from './tasks_types';
 
-export const taskStorePath = taskConfigurationStorePath;
+const store = new JsonStore<PersistedTaskState>({
+	name: 'tasks',
+	cwd: path.resolve(userDataLocation(), 'settings'),
+	defaults: DEFAULT_TASK_STATE,
+});
+
+export const taskStorePath = store.path;
 
 export function getTaskState(): PersistedTaskState {
-	return getTaskConfiguration();
+	const state = store.store;
+	return { ...state, schedules: [...state.schedules] };
 }
 
 export function setTaskState(value: PersistedTaskState): void {
-	setTaskConfiguration(value);
+	store.store = value;
 }
