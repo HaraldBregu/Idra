@@ -9,6 +9,7 @@ import { toolPermissionTargets } from './tool_permission_targets';
 import { getWikiSettings } from '../knowledge/wiki/wiki_get_settings';
 import { resolveExecRoots } from './resolve_exec_roots';
 import { fileHistoryTargets } from '../history/targets';
+import type { FileHistory } from '../history/types';
 
 const AGENT_FILES: Record<string, string> = {
 	save_memory: 'MEMORY.md',
@@ -38,13 +39,14 @@ const WIKI_TOOLS = new Set([
 export function directoryPermissionTargets(
 	toolName: string,
 	args: Record<string, unknown>,
-	baseDir: string
+	baseDir: string,
+	history?: FileHistory
 ): string[] {
 	if (toolName === 'exec_command') {
 		return resolveExecRoots(args, baseDir);
 	}
-	if (toolName === 'undo_file_operation') return fileHistoryTargets('undo');
-	if (toolName === 'redo_file_operation') return fileHistoryTargets('redo');
+	if (toolName === 'undo_file_operation') return history ? fileHistoryTargets(history, 'undo') : [];
+	if (toolName === 'redo_file_operation') return history ? fileHistoryTargets(history, 'redo') : [];
 	if (toolName === 'process') {
 		const session = typeof args.sessionId === 'string' ? registry.get(args.sessionId) : undefined;
 		return session && session.executionMode === 'sandbox'

@@ -7,6 +7,7 @@ import { toolPermissionTargets } from './tool_permission_targets';
 import type { PermissionKind, PermissionMode, PermissionsSchema } from './permissions_types';
 import type { ToolPermissionResolution } from './permission_resolution';
 import { toolApprovalTargets } from './tool_approval_targets';
+import type { FileHistory } from '../history/types';
 
 const WRITE_TOOLS = new Set([
 	'write_file',
@@ -23,7 +24,8 @@ export function resolveToolPermissionDetails(
 	context?: FileAccessContext,
 	reuseContext = true,
 	fallback: PermissionMode = 'ask',
-	configuredPermissions?: PermissionsSchema
+	configuredPermissions?: PermissionsSchema,
+	history?: FileHistory
 ): ToolPermissionResolution {
 	let kind: PermissionKind | undefined;
 	if (toolName === 'read_file') kind = 'read';
@@ -54,14 +56,14 @@ export function resolveToolPermissionDetails(
 
 	const permissions = configuredPermissions ?? getPermissions();
 	const targets = kind === 'write' || kind === 'exec'
-		? directoryPermissionTargets(toolName, args, AGENT_DIRECTORY)
+		? directoryPermissionTargets(toolName, args, AGENT_DIRECTORY, history)
 		: toolPermissionTargets(toolName, args, AGENT_DIRECTORY);
 	const decisions = targets.map((target) =>
 		permissionFor(permissions[kind], target, kind, args.elevated === true)
 	);
 	const approvalTargets = [
 		...new Set(
-			toolApprovalTargets(toolName, args, AGENT_DIRECTORY).filter(
+			toolApprovalTargets(toolName, args, AGENT_DIRECTORY, history).filter(
 				(_target, index) => decisions[index] !== 'allow'
 			)
 		),
@@ -89,7 +91,8 @@ export function resolveToolPermission(
 	context?: FileAccessContext,
 	reuseContext = true,
 	fallback: PermissionMode = 'ask',
-	configuredPermissions?: PermissionsSchema
+	configuredPermissions?: PermissionsSchema,
+	history?: FileHistory
 ): PermissionMode {
 	return resolveToolPermissionDetails(
 		toolName,
@@ -97,6 +100,7 @@ export function resolveToolPermission(
 		context,
 		reuseContext,
 		fallback,
-		configuredPermissions
+		configuredPermissions,
+		history
 	).mode;
 }
