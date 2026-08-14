@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
-import { ResourcesStep } from './ResourcesStep';
+import { Search } from './Search';
 import { StepHeader } from './StepHeader';
 import { getProviderCatalogItem, MODEL_SERVICE_DEFINITIONS, STEP_COPY } from '../constants';
 import type { ModelConfigurationState } from '@pages/settings/components/model-configuration-state';
@@ -96,11 +96,11 @@ export function ModelsStep({
 									}
 								/>
 							))}
+							<Search />
 						</CardContent>
 					</Card>
 				</section>
 			</div>
-			<ResourcesStep />
 		</div>
 	);
 }

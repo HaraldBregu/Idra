@@ -19,8 +19,8 @@ jest.mock('@pages/settings/components/model-configuration', () => ({
 	),
 }));
 
-jest.mock('../../../src/renderer/src/pages/start/components/ResourcesStep', () => ({
-	ResourcesStep: () => <div>Resources</div>,
+jest.mock('../../../src/renderer/src/pages/start/components/Search', () => ({
+	Search: () => <div data-testid="setup-search">Search Engine</div>,
 }));
 
 const EMPTY_SERVICE = { providerId: '', modelId: '', modelGroups: [] };
@@ -46,12 +46,18 @@ it('groups assistant model services in one card', () => {
 	);
 
 	const assistantGroup = screen.getByRole('region', { name: 'Assistant providers' });
-	for (const id of ['assistant', 'voice', 'transcription', 'image', 'video', 'audio']) {
+	const serviceIds = ['assistant', 'voice', 'transcription', 'image', 'video', 'audio'];
+	for (const id of serviceIds) {
 		expect(within(assistantGroup).getByTestId(`setup-${id}`)).toHaveAttribute(
 			'data-grouped',
 			'true'
 		);
 	}
+	expect(
+		within(assistantGroup)
+			.getAllByTestId(/^setup-/)
+			.map((element) => element.dataset.testid)
+	).toEqual([...serviceIds.map((id) => `setup-${id}`), 'setup-search']);
 	expect(screen.queryByTestId('setup-health')).not.toBeInTheDocument();
 	expect(screen.queryByTestId('setup-tasks')).not.toBeInTheDocument();
 });
