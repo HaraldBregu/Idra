@@ -35,10 +35,19 @@ curl -N http://localhost:3000/agents/messages \
 
 ```bash
 npm run dev
+npm test
+npm run test:watch
+npm run test:coverage
 npm run typecheck
 npm run build
 npm start
 ```
+
+## API tests
+
+`npm test` runs the automated test suite with Node's built-in test runner. The API tests use Fastify request injection, so they exercise the real routes, validation, headers, and NDJSON streaming without a browser, a listening server, or provider credentials.
+
+Use `npm run test:watch` while developing and `npm run test:coverage` for a coverage report. The same test, typecheck, and build commands run automatically in GitHub Actions on pushes and pull requests.
 
 ## Docker
 

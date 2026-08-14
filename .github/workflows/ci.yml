@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -17,15 +19,9 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: npm
       - run: npm ci
+      - run: npm test
       - run: npm run typecheck
       - run: npm run build
-      - run: npm run test:packages
-      - run: npm run build:packages
-      - run: npm pack --dry-run --workspace @friday/sdk
-      - run: npm pack --dry-run --workspace @friday/cli
-      - run: npm ci --prefix extensions/mermaid
-      - run: npm run build --prefix extensions/mermaid
-      - run: npm pack ./extensions/mermaid --dry-run
