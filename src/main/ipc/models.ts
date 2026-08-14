@@ -19,7 +19,7 @@ import {
 	setModelId,
 	setOptions,
 	setProviderId,
-} from '../models/models_store';
+} from '../models/selection';
 import {
 	appendRealtimeAudio,
 	cancelRealtime,

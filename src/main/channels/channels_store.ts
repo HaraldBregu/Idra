@@ -2,7 +2,7 @@ import path from 'node:path';
 import Store from 'electron-store';
 import type { ChannelModelKind, ChannelModelSelection, StoredBotProvider } from '../../shared';
 import { userDataLocation } from '../shared/user_data_location';
-import { getModelId, getProviderId } from '../models/models_store';
+import { getModelId, getProviderId } from '../models/selection';
 
 type ChannelModelKeys = {
 	providerId: keyof ChannelsStoreState;

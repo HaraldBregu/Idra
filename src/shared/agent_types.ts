@@ -75,7 +75,14 @@ export type AgentToolEffect =
 	| 'paid'
 	| 'persistence';
 
-export type AgentMediaModelKind = 'image' | 'audio' | 'video' | 'voice' | 'realtimeVoice';
+export type AgentMediaModelKind =
+	| 'image'
+	| 'audio'
+	| 'video'
+	| 'voice'
+	| 'realtimeVoice'
+	| 'transcription'
+	| 'realtimeTranscription';
 
 export interface AgentMediaModelSettings {
 	providerId: string;

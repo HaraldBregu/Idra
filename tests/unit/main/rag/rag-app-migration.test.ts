@@ -1,10 +1,11 @@
 const mockOperations: string[] = [];
 let mockAppStore: Record<string, unknown> = {};
-let mockModelsStore: Record<string, unknown> = {};
 let mockSavedRag: Record<string, unknown> | undefined;
+const mockStoreNames: string[] = [];
 
 jest.mock('electron-store', () =>
 	jest.fn().mockImplementation(({ name, defaults }) => {
+		mockStoreNames.push(name);
 		let backing: Record<string, unknown> =
 			name === 'app'
 				? {
@@ -27,7 +28,6 @@ jest.mock('electron-store', () =>
 					}
 				: { ...defaults };
 		if (name === 'app') mockAppStore = backing;
-		if (name === 'models') mockModelsStore = backing;
 		return {
 			path: `/settings/${name}.json`,
 			get(key: string) {
@@ -45,7 +45,6 @@ jest.mock('electron-store', () =>
 					mockAppStore = backing;
 					mockOperations.push('app');
 				}
-				if (name === 'models') mockModelsStore = backing;
 			},
 		};
 	})
@@ -83,6 +82,5 @@ it('moves legacy database and embedding selections before cleaning app settings'
 	expect(mockOperations).toEqual(['rag', 'app']);
 	expect(mockAppStore).not.toHaveProperty('databaseConfiguration');
 	expect(mockAppStore).not.toHaveProperty('modelSelections');
-	expect(mockModelsStore).not.toHaveProperty('embedding');
-	expect(mockModelsStore).not.toHaveProperty('text');
+	expect(mockStoreNames).not.toContain('models');
 });

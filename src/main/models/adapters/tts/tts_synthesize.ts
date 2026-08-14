@@ -13,7 +13,7 @@ import {
 import { getProvider } from '../../../settings_store';
 import { buildSpeechAdapter } from './tts_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
-import { getModelId, getProviderId, resolveOptions } from '../../models_store';
+import { getModelId, getProviderId, resolveOptions } from '../../selection';
 import type { SpeechProviderSpec } from './tts_types';
 
 export async function synthesize(request: SpeechSynthesisRequest): Promise<SpeechSynthesisResult> {

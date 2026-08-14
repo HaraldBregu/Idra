@@ -1,5 +1,3 @@
-const getAppModelSelections = jest.fn();
-const setAppModelSelections = jest.fn();
 const getAgentProviderId = jest.fn();
 const setAgentProviderId = jest.fn();
 const getAgentModelId = jest.fn();
@@ -9,10 +7,6 @@ const setAgentMediaModel = jest.fn();
 const getRagConfiguration = jest.fn();
 const saveRagConfiguration = jest.fn();
 
-jest.mock('../../../../src/main/settings_store', () => ({
-	getAppModelSelections,
-	setAppModelSelections,
-}));
 jest.mock('../../../../src/main/agent/agent_store', () => ({
 	getProviderId: getAgentProviderId,
 	setProviderId: setAgentProviderId,
@@ -32,24 +26,13 @@ jest.mock('../../../../src/main/agent/knowledge/rag/rag_store', () => ({
 
 import {
 	getModelId,
-	getModelsStore,
 	getOptions,
 	getProviderId,
 	resolveOptions,
 	setModelId,
 	setOptions,
 	setProviderId,
-} from '../../../../src/main/models/models_store';
-
-const appSelections = {
-	sound: { providerId: '', modelId: '' },
-	image: { providerId: '', modelId: '' },
-	video: { providerId: '', modelId: '' },
-	voice: { providerId: '', modelId: '' },
-	realtimeVoice: { providerId: '', modelId: '' },
-	transcribe: { providerId: '', modelId: '' },
-	realtime: { providerId: '', modelId: '' },
-};
+} from '../../../../src/main/models/selection';
 
 const ragConfiguration = {
 	indexName: 'friday',
@@ -79,8 +62,9 @@ beforeEach(() => {
 			modelId: 'gpt-realtime-2.1',
 			options: { voice: 'marin' },
 		},
+		transcription: { providerId: 'deepgram', modelId: 'nova-3', options: {} },
+		realtimeTranscription: { providerId: 'deepgram', modelId: 'nova-3', options: {} },
 	};
-	getAppModelSelections.mockReturnValue(appSelections);
 	getAgentProviderId.mockReturnValue('openai');
 	getAgentModelId.mockReturnValue('gpt-5');
 	getAgentMediaModel.mockImplementation((kind: keyof typeof mediaModels) => mediaModels[kind]);
@@ -112,7 +96,6 @@ it('reads and writes embedding selection through the RAG store', () => {
 		embeddingProviderId: 'voyage',
 		embeddingModelId: 'voyage-3',
 	});
-	expect(setAppModelSelections).not.toHaveBeenCalled();
 });
 
 it('reads and writes text selection through the agent store', () => {
@@ -122,7 +105,6 @@ it('reads and writes text selection through the agent store', () => {
 	setModelId('text', 'gpt-5.1');
 
 	expect(setAgentModelId).toHaveBeenCalledWith('gpt-5.1');
-	expect(setAppModelSelections).not.toHaveBeenCalled();
 	expect(saveRagConfiguration).not.toHaveBeenCalled();
 });
 
@@ -150,24 +132,39 @@ it('reads and writes media selections and options through the agent store', () =
 		modelId: 'veo-3.1',
 		options: {},
 	});
-	expect(setAppModelSelections).not.toHaveBeenCalled();
 });
 
 it('reads and writes voice selection and options through the agent store', () => {
 	expect(getProviderId('voice')).toBe('openai');
 	expect(getModelId('voice')).toBe('gpt-4o-mini-tts');
 	expect(getOptions('voice')).toEqual({ voice: 'cedar' });
-	expect(getModelsStore().voice).toEqual({
-		providerId: 'openai',
-		modelId: 'gpt-4o-mini-tts',
-	});
-
 	setOptions('voice', { voice: 'marin', speed: 1.1 });
 
 	expect(setAgentMediaModel).toHaveBeenCalledWith('voice', {
 		providerId: 'openai',
 		modelId: 'gpt-4o-mini-tts',
 		options: { voice: 'marin', speed: 1.1 },
+	});
+});
+
+it('reads and writes batch and realtime transcription through the agent store', () => {
+	expect(getProviderId('transcribe')).toBe('deepgram');
+	expect(getModelId('transcribe')).toBe('nova-3');
+	expect(getProviderId('realtime')).toBe('deepgram');
+	expect(getModelId('realtime')).toBe('nova-3');
+
+	setModelId('transcribe', 'nova-4');
+	setProviderId('realtime', 'openai');
+
+	expect(setAgentMediaModel).toHaveBeenNthCalledWith(1, 'transcription', {
+		providerId: 'deepgram',
+		modelId: 'nova-4',
+		options: {},
+	});
+	expect(setAgentMediaModel).toHaveBeenNthCalledWith(2, 'realtimeTranscription', {
+		providerId: 'openai',
+		modelId: 'nova-3',
+		options: {},
 	});
 });
 

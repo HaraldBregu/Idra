@@ -52,6 +52,8 @@ it('migrates legacy agent settings to descriptive keys', () => {
 			modelId: 'tts-1',
 			options: { voice: 'alloy' },
 		},
+		transcription_model: { providerId: '', modelId: '', options: {} },
+		realtime_transcription_model: { providerId: '', modelId: '', options: {} },
 	});
 	expect(persisted).not.toHaveProperty('providerId');
 	expect(persisted).not.toHaveProperty('modelId');

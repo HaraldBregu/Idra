@@ -16,7 +16,7 @@ jest.mock('../../../../src/main/models', () => ({
 jest.mock('../../../../src/main/settings_store', () => ({
 	getProvider: () => ({ name: 'Provider', apiKey: 'secret' }),
 }));
-jest.mock('../../../../src/main/models/models_store', () => ({
+jest.mock('../../../../src/main/models/selection', () => ({
 	getProviderId,
 	getModelId,
 	resolveOptions,

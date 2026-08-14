@@ -8,7 +8,7 @@ import {
 	VideoProviderRequestError,
 	VideoProviderUnsupportedError,
 } from '../adapters/ttv';
-import { getModelId, getProviderId, resolveOptions } from '../models_store';
+import { getModelId, getProviderId, resolveOptions } from '../selection';
 
 const DEFAULT_VIDEO_PROVIDER_ID = 'google';
 

@@ -8,7 +8,7 @@ import {
 	ImageProviderRequestError,
 	ImageProviderUnsupportedError,
 } from '../adapters/tti';
-import { getModelId, getProviderId, resolveOptions } from '../models_store';
+import { getModelId, getProviderId, resolveOptions } from '../selection';
 
 const DEFAULT_IMAGE_PROVIDER_ID = 'google';
 

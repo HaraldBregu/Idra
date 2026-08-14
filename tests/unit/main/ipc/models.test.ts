@@ -23,7 +23,7 @@ jest.mock('../../../../src/main/models/index', () => ({
 	video: { createVideo: jest.fn(), saveVideoFile: jest.fn() },
 	voice: { synthesize: jest.fn() },
 }));
-jest.mock('../../../../src/main/models/models_store', () => ({
+jest.mock('../../../../src/main/models/selection', () => ({
 	getModelId,
 	getOptions,
 	getProviderId,

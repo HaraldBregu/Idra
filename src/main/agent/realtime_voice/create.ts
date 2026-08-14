@@ -10,7 +10,7 @@ import {
 	realtimeVoiceDefaultVoice,
 	supportsRealtimeVoiceModel,
 } from '../../models/adapters/realtime_voice';
-import { getModelId, getOptions, getProviderId } from '../../models/models_store';
+import { getModelId, getOptions, getProviderId } from '../../models/selection';
 import { getProvider } from '../../settings_store';
 import type { WindowFactory } from '../../window_factory';
 import { realtimeVoiceConversationFactory } from './conversation';

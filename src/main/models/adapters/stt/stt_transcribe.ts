@@ -26,7 +26,7 @@ import {
 	getModelId as getTranscribeModelId,
 	getProviderId as getTranscribeProviderId,
 	setSelection as setTranscribeSelection,
-} from '../../models_store';
+} from '../../selection';
 
 const realtimeSessions = new Map<string, SttActiveRealtimeSession>();
 

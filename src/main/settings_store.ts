@@ -12,38 +12,6 @@ import type { AppLanguage, AppTheme } from '../shared/app_types';
 import { getModelProvidersState, setModelProvidersState, getDatabaseProvidersState, setDatabaseProvidersState, getStorageProvidersState, setStorageProvidersState, type StoredStorage } from './providers/providers_index';
 import { getRagConfiguration, saveRagConfiguration } from './agent/knowledge/rag/rag_store';
 
-export type ModelKind =
-	| 'text'
-	| 'sound'
-	| 'image'
-	| 'video'
-	| 'voice'
-	| 'realtimeVoice'
-	| 'transcribe'
-	| 'realtime'
-	| 'embedding';
-
-export type ModelSelection = {
-	providerId: string;
-	modelId: string;
-};
-
-export type ModelsStoreState = Record<ModelKind, ModelSelection>;
-
-export type AppModelSelections = Omit<ModelsStoreState, 'embedding' | 'text'>;
-
-const EMPTY_MODEL_SELECTION: ModelSelection = { providerId: '', modelId: '' };
-
-const DEFAULT_MODEL_SELECTIONS: AppModelSelections = {
-	sound: EMPTY_MODEL_SELECTION,
-	image: EMPTY_MODEL_SELECTION,
-	video: EMPTY_MODEL_SELECTION,
-	voice: EMPTY_MODEL_SELECTION,
-	realtimeVoice: EMPTY_MODEL_SELECTION,
-	transcribe: EMPTY_MODEL_SELECTION,
-	realtime: EMPTY_MODEL_SELECTION,
-};
-
 export type AppSettingsState = {
 	trayEnabled: boolean;
 	keepAwake: boolean;
@@ -83,17 +51,15 @@ const store = new Store<AppSettingsState>({
 
 type LegacyAppSettingsState = AppSettingsState & {
 	databaseConfiguration?: { providerId?: string; databaseId?: string };
-	modelSelections?: Partial<AppModelSelections> & {
-		embedding?: ModelSelection;
-		text?: ModelSelection;
+	modelSelections?: {
+		embedding?: { providerId: string; modelId: string };
 	};
 	storageConfiguration?: StorageConfiguration;
 };
 
 const persistedSettings = { ...store.store } as LegacyAppSettingsState;
-const persistedModelSelections = { ...persistedSettings.modelSelections };
 const legacyDatabase = persistedSettings.databaseConfiguration;
-const legacyEmbedding = persistedModelSelections.embedding;
+const legacyEmbedding = persistedSettings.modelSelections?.embedding;
 const legacyStorageConfiguration = persistedSettings.storageConfiguration;
 if (legacyDatabase || legacyEmbedding) {
 	const configuration = getRagConfiguration();
@@ -130,24 +96,12 @@ if (legacyDatabase || legacyEmbedding) {
 migrateMcpStoreFromProviders();
 delete persistedSettings.databaseConfiguration;
 delete persistedSettings.modelSelections;
-delete persistedModelSelections.embedding;
-delete persistedModelSelections.text;
 if (legacyStorageConfiguration) persistedSettings.cloud = legacyStorageConfiguration;
 delete persistedSettings.storageConfiguration;
 store.store = {
 	...DEFAULT_APP_SETTINGS,
 	...persistedSettings,
 };
-
-const modelsStore = new Store<AppModelSelections>({
-	name: 'models',
-	cwd: settingsDirectory,
-	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_MODEL_SELECTIONS,
-});
-if (Object.keys(persistedModelSelections).length > 0) {
-	modelsStore.store = { ...DEFAULT_MODEL_SELECTIONS, ...persistedModelSelections };
-}
 
 export const appSettingsStorePath = store.path;
 
@@ -191,14 +145,6 @@ export function getTheme(): AppTheme {
 
 export function setTheme(theme: AppTheme): void {
 	store.set('theme', theme);
-}
-
-export function getAppModelSelections(): AppModelSelections {
-	return modelsStore.store;
-}
-
-export function setAppModelSelections(value: AppModelSelections): void {
-	modelsStore.store = value;
 }
 
 function readProviders(kind: StoredProviderKind): StoredProvider[] {

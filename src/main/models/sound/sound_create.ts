@@ -8,7 +8,7 @@ import {
 	MusicProviderRequestError,
 	MusicProviderUnsupportedError,
 } from '../adapters/tta';
-import { getModelId, getProviderId, resolveOptions } from '../models_store';
+import { getModelId, getProviderId, resolveOptions } from '../selection';
 
 const DEFAULT_SOUND_PROVIDER_ID = 'elevenlabs';
 
