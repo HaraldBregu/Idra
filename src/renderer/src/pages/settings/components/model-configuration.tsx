@@ -16,6 +16,7 @@ interface ModelProviderConfigurationProps {
 	readonly triggerDescription?: ReactNode;
 	readonly showInlineError?: boolean;
 	readonly showIcon?: boolean;
+	readonly showFieldLabel?: boolean;
 	readonly grouped?: boolean;
 	readonly collapsible?: boolean;
 	readonly defaultOpen?: boolean;
@@ -31,6 +32,7 @@ export function ModelProviderConfiguration({
 	triggerDescription,
 	showInlineError = false,
 	showIcon = true,
+	showFieldLabel = true,
 	grouped = false,
 	collapsible = true,
 	defaultOpen = false,
@@ -66,6 +68,7 @@ export function ModelProviderConfiguration({
 				modelId={configState.modelId}
 				onChange={onChange}
 				disabled={configState.loading || configState.saving || configState.modelGroups.length === 0}
+				showFieldLabel={showFieldLabel}
 				labels={{
 					label: selectLabel,
 					description,

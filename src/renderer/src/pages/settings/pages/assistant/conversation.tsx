@@ -13,10 +13,12 @@ import type { ProviderModelGroup } from '../../../start/types';
 
 interface RealtimeConversationConfigurationProps {
 	readonly selectDefaultModel?: boolean;
+	readonly showFieldLabel?: boolean;
 }
 
 export default function RealtimeConversationConfiguration({
 	selectDefaultModel = true,
+	showFieldLabel = true,
 }: RealtimeConversationConfigurationProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
@@ -170,6 +172,7 @@ export default function RealtimeConversationConfiguration({
 				description={t('settings.modelServices.realtimeConversationDescription')}
 				showInlineError
 				showIcon={false}
+				showFieldLabel={showFieldLabel}
 				grouped
 				onChange={handleModelChange}
 			>

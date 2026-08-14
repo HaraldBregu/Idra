@@ -65,6 +65,7 @@ interface ModelProviderSelectProps {
 	readonly onChange: (nextProviderId: string, nextModelId: string) => void;
 	readonly disabled?: boolean;
 	readonly inline?: boolean;
+	readonly showFieldLabel?: boolean;
 	readonly labels?: ModelProviderSelectLabels;
 }
 
@@ -76,6 +77,7 @@ export function ModelProviderSelect({
 	onChange,
 	disabled = false,
 	inline = false,
+	showFieldLabel = true,
 	labels,
 }: ModelProviderSelectProps): React.JSX.Element {
 	const { t } = useTranslation();
@@ -96,7 +98,11 @@ export function ModelProviderSelect({
 			<SelectTrigger
 				id={`${idPrefix}-model`}
 				className={inline ? 'w-56 max-w-full text-xs' : 'w-full min-w-0 max-w-full text-xs'}
-				aria-label={inline ? (labels?.label ?? t('settings.modelServices.model')) : undefined}
+				aria-label={
+					inline || !showFieldLabel
+						? (labels?.label ?? t('settings.modelServices.model'))
+						: undefined
+				}
 			>
 				<SelectValue
 					className="min-w-0 overflow-hidden"
@@ -120,7 +126,7 @@ export function ModelProviderSelect({
 		</Select>
 	);
 
-	if (inline) return select;
+	if (inline || !showFieldLabel) return select;
 
 	return (
 		<SettingsField

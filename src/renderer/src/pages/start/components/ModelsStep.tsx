@@ -90,6 +90,7 @@ export function ModelsStep({
 											'Select a model'
 										)}
 										showIcon={false}
+										showFieldLabel={false}
 										grouped
 										defaultOpen={index === 0}
 										onChange={(providerId, modelId) =>
@@ -97,7 +98,10 @@ export function ModelsStep({
 										}
 									/>
 									{service.id === 'assistant' && (
-										<RealtimeConversationConfiguration selectDefaultModel={false} />
+										<RealtimeConversationConfiguration
+											selectDefaultModel={false}
+											showFieldLabel={false}
+										/>
 									)}
 								</React.Fragment>
 							))}

@@ -7,13 +7,19 @@ jest.mock('@pages/settings/components/model-configuration', () => ({
 	ModelProviderConfiguration: ({
 		idPrefix,
 		grouped,
+		showFieldLabel,
 		triggerTitle,
 	}: {
 		idPrefix: string;
 		grouped?: boolean;
+		showFieldLabel?: boolean;
 		triggerTitle: React.ReactNode;
 	}) => (
-		<div data-testid={idPrefix} data-grouped={grouped ? 'true' : 'false'}>
+		<div
+			data-testid={idPrefix}
+			data-grouped={grouped ? 'true' : 'false'}
+			data-show-field-label={String(showFieldLabel)}
+		>
 			{triggerTitle}
 		</div>
 	),
@@ -25,8 +31,18 @@ jest.mock('../../../src/renderer/src/pages/start/components/Search', () => ({
 
 jest.mock('../../../src/renderer/src/pages/settings/pages/assistant/conversation', () => ({
 	__esModule: true,
-	default: ({ selectDefaultModel }: { selectDefaultModel?: boolean }) => (
-		<div data-default-model={String(selectDefaultModel)} data-testid="setup-realtime">
+	default: ({
+		selectDefaultModel,
+		showFieldLabel,
+	}: {
+		selectDefaultModel?: boolean;
+		showFieldLabel?: boolean;
+	}) => (
+		<div
+			data-default-model={String(selectDefaultModel)}
+			data-show-field-label={String(showFieldLabel)}
+			data-testid="setup-realtime"
+		>
 			Realtime conversation
 		</div>
 	),
@@ -61,10 +77,18 @@ it('groups model services in one card', () => {
 			'data-grouped',
 			'true'
 		);
+		expect(within(assistantGroup).getByTestId(`setup-${id}`)).toHaveAttribute(
+			'data-show-field-label',
+			'false'
+		);
 	}
 	expect(within(assistantGroup).getByTestId('setup-assistant')).toHaveTextContent('Model');
 	expect(within(assistantGroup).getByTestId('setup-realtime')).toHaveAttribute(
 		'data-default-model',
+		'false'
+	);
+	expect(within(assistantGroup).getByTestId('setup-realtime')).toHaveAttribute(
+		'data-show-field-label',
 		'false'
 	);
 	expect(
