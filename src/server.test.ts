@@ -83,7 +83,10 @@ test('API routes work through Fastify request injection', async () => {
 		assert.equal(call.options.streaming, true);
 		assert.equal(call.options.contextMode, 'workspace');
 		assert.equal(call.options.interactionMode, 'default');
-		assert.match(call.options.runId ?? '', /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+		assert.match(
+			call.options.runId ?? '',
+			/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+		);
 		assert.equal(events[0].runId, call.options.runId);
 
 		await server.inject({
