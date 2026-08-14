@@ -27,7 +27,9 @@ export function Search(): React.JSX.Element {
 		};
 	}, []);
 
-	const selectedEngine = SEARCH_ENGINES.find((engine) => engine.id === settings?.engineId);
+	const selectedEngineId =
+		settings && settings.configured[settings.engineId] ? settings.engineId : null;
+	const selectedEngine = SEARCH_ENGINES.find((engine) => engine.id === selectedEngineId);
 
 	return (
 		<Collapsible className="min-w-0 max-w-full overflow-hidden border-b border-border/60 last:border-b-0">
@@ -48,7 +50,7 @@ export function Search(): React.JSX.Element {
 			<CollapsibleContent className="border-t border-border/60">
 				<div className="px-3 py-3">
 					<Select
-						value={settings?.engineId ?? null}
+						value={selectedEngineId}
 						disabled={!settings}
 						onValueChange={(value) => {
 							if (!value) return;
