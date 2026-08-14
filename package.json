@@ -46,7 +46,6 @@
     "music-metadata": "^11.14.0",
     "node-cron": "^4.6.0",
     "openai": "^6.33.0",
-    "playwright-core": "^1.52.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "ws": "^8.20.0",
