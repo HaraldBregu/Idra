@@ -22,6 +22,9 @@ describe('provider manifests', () => {
 		const openAiRealtime = loadModels().filter(
 			(model) => model.provider.id === 'openai' && model.type === 'realtime-voice'
 		);
+		const providersById = new Map(
+			loadModels().map((model) => [model.provider.id, model.provider] as const)
+		);
 		const realtimeVoiceModels = loadModels().filter((model) => model.type === 'realtime-voice');
 		expect(openAi?.provider.iconDarkUrl).toMatch(/^local-resource:\/\/file/);
 		expect(openAi?.provider.iconDarkUrl).toContain(
@@ -30,6 +33,24 @@ describe('provider manifests', () => {
 		expect(openAi?.provider.iconLightUrl).toMatch(/^local-resource:\/\/file/);
 		expect(openAi?.provider.iconLightUrl).toContain(
 			'/resources/providers/openai/images/fallback_lobehub/png_light/openai.png'
+		);
+		expect(providersById.get('reka')?.iconDarkUrl).toContain(
+			'/resources/providers/reka/images/official/reka-dark.jpg'
+		);
+		expect(providersById.get('reka')?.iconLightUrl).toContain(
+			'/resources/providers/reka/images/official/reka-light.jpg'
+		);
+		expect(providersById.get('pika')?.iconDarkUrl).toContain(
+			'/resources/providers/pika/images/fallback_lobehub/png_dark/pika.png'
+		);
+		expect(providersById.get('pika')?.iconLightUrl).toContain(
+			'/resources/providers/pika/images/fallback_lobehub/png_light/pika.png'
+		);
+		expect(providersById.get('jina')?.iconDarkUrl).toContain(
+			'/resources/providers/jina/images/official/jina-white.png'
+		);
+		expect(providersById.get('jina')?.iconLightUrl).toContain(
+			'/resources/providers/jina/images/official/jina-color.png'
 		);
 		expect(deepseek?.metadata).toEqual(
 			expect.objectContaining({ contextWindow: 1_048_576, defaultOutputTokens: 32_768 })

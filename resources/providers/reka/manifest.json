@@ -3,6 +3,8 @@
 	"providerName": "Reka AI",
 	"apiKeyUrl": "https://platform.reka.ai/apikeys",
 	"images_url": "/images",
+	"icon_dark_url": "/images/official/reka-dark.jpg",
+	"icon_light_url": "/images/official/reka-light.jpg",
 	"services": [
 		{
 			"id": "reka-flash",
