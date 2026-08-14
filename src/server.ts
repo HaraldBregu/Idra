@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import FastifyVite from '@fastify/vite';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { AgentSendOptions } from './agent/agent';
 import type { AgentResponseEvent } from './shared/agent_types';
@@ -13,9 +14,16 @@ interface AgentRequest {
 	sessionId?: string;
 }
 
-export function createApiServer(agent: AgentPort): FastifyInstance {
+export async function createApiServer(agent: AgentPort): Promise<FastifyInstance> {
 	const server = Fastify({ logger: true });
 
+	await server.register(FastifyVite, {
+		root: import.meta.dirname,
+		dev: process.argv.includes('--dev'),
+		spa: true,
+	});
+
+	server.get('/', (_request, reply) => reply.html());
 	server.get('/health', async () => ({ status: 'ok' }));
 
 	server.post<{ Body: AgentRequest }>('/agents/messages', {
@@ -68,5 +76,6 @@ export function createApiServer(agent: AgentPort): FastifyInstance {
 		}
 	});
 
+	await server.vite.ready();
 	return server;
 }

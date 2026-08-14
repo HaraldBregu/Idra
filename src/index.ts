@@ -5,7 +5,7 @@ import { createApiServer } from './server';
 
 const config = loadConfig();
 const agent = new Agent(new ExecSandbox());
-const server = createApiServer(agent);
+const server = await createApiServer(agent);
 
 await server.listen({ port: config.port, host: '0.0.0.0' });
 
