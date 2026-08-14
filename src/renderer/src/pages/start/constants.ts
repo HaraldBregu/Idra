@@ -151,18 +151,18 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		...toIdSelectionHandlers(() => window.models.image),
 	},
 	{
-		id: 'video',
-		title: 'Video',
-		description: 'Generate videos.',
-		loadModelGroups: () => Promise.resolve(toModelGroups('text-to-video')),
-		...toIdSelectionHandlers(() => window.models.video),
-	},
-	{
 		id: 'audio',
 		title: 'Audio',
 		description: 'Generate music and sounds.',
 		loadModelGroups: () => Promise.resolve(toModelGroups('text-to-audio')),
 		...toIdSelectionHandlers(() => window.models.sound),
+	},
+	{
+		id: 'video',
+		title: 'Video',
+		description: 'Generate videos.',
+		loadModelGroups: () => Promise.resolve(toModelGroups('text-to-video')),
+		...toIdSelectionHandlers(() => window.models.video),
 	},
 ];
 

@@ -71,7 +71,7 @@ it('groups model services in one card', () => {
 	);
 
 	const assistantGroup = screen.getByRole('region', { name: 'Model providers' });
-	const serviceIds = ['assistant', 'voice', 'transcription', 'image', 'video', 'audio'];
+	const serviceIds = ['assistant', 'voice', 'transcription', 'image', 'audio', 'video'];
 	for (const id of serviceIds) {
 		expect(within(assistantGroup).getByTestId(`setup-${id}`)).toHaveAttribute(
 			'data-grouped',
