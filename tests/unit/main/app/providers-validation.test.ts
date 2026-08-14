@@ -17,7 +17,7 @@ const PDF_RULE = {
 };
 
 function expectedPromptAttachments(providerId: string, modelId: string): unknown[] {
-	if (['anthropic', 'openai', 'perplexity', 'reka'].includes(providerId)) {
+	if (['anthropic', 'openai', 'reka'].includes(providerId)) {
 		return [IMAGE_RULE, PDF_RULE];
 	}
 	if (['google', 'kimi', 'xai'].includes(providerId)) return [IMAGE_RULE];
@@ -233,7 +233,7 @@ describe('provider manifest validation', () => {
 				}));
 		});
 
-		expect(promptModels).toHaveLength(43);
+		expect(promptModels).toHaveLength(39);
 		for (const { providerId, service } of promptModels) {
 			expect(service.metadata.promptAttachments).toEqual(
 				expectedPromptAttachments(providerId, service.id)

@@ -1,6 +1,6 @@
 # Provider Reference
 
-Friday ships 32 provider manifests under `resources/providers`. This page is the canonical
+Friday ships 30 provider manifests under `resources/providers`. This page is the canonical
 human-readable inventory of those built-in providers, the services they expose in the catalog,
 and whether the current runtime can execute each service.
 
@@ -73,9 +73,7 @@ manifest.
 | [Midjourney](https://www.midjourney.com/account)                                   | `midjourney`        | Image, video                                              | Catalog only; no public execution API is integrated                                                 |
 | [MiniMax](https://platform.minimax.io/user-center/basic-information/interface-key) | `minimax`           | Chat, text to speech, video, audio                        | Mixed: audio is catalog only                                                                        |
 | [Mistral AI](https://console.mistral.ai/api-keys)                                  | `mistral`           | Chat, speech to text, text to speech                      | Available                                                                                           |
-| [Nomic](https://atlas.nomic.ai)                                                    | `nomic`             | Embeddings                                                | Available                                                                                           |
 | [OpenAI](https://platform.openai.com/api-keys)                                     | `openai`            | Chat, speech to text, text to speech, embeddings          | Available                                                                                           |
-| [Perplexity](https://www.perplexity.ai/settings/api)                               | `perplexity`        | Research chat                                             | Partial: onboarding can select it, but the main Assistant, Tasks, and Health settings filter it out |
 | [Pika](https://pika.art)                                                           | `pika`              | Video                                                     | Partial: the adapter uses fal.run while the manifest supplies Pika's URL                            |
 | [Pinecone](https://app.pinecone.io)                                                | `pinecone`          | Vector database                                           | Available for RAG                                                                                   |
 | [Qwen and Wan](https://modelstudio.console.alibabacloud.com)                       | `qwen`              | Chat, speech to text, realtime voice, image, video        | Mixed: realtime voice is catalog only                                                               |
@@ -98,10 +96,6 @@ Friday's settings and sent to provider adapters.
 Anthropic uses its native Messages API, OpenAI uses the Responses API, and every other chat
 provider uses an OpenAI-compatible Chat Completions path.
 
-Perplexity's research models share that compatible runtime path and appear during first-run setup,
-but the main Assistant, Tasks, and Health settings currently list only `large-language-model`
-entries. They therefore omit Perplexity's `research-chat-model` entries.
-
 | Provider   | Cataloged models                                                                                                                                                                                                                                              |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Anthropic  | Claude Fable 5 (`claude-fable-5`); Claude Opus 5 (`claude-opus-5`); Claude Sonnet 5 (`claude-sonnet-5`); Claude Opus 4.7 (`claude-opus-4-7`); Claude Sonnet 4.6 (`claude-sonnet-4-6`); Claude Haiku 4.5 20251001 (`claude-haiku-4-5-20251001`)                |
@@ -115,7 +109,6 @@ entries. They therefore omit Perplexity's `research-chat-model` entries.
 | Reka AI    | Reka Flash (`reka-flash`); Reka Edge 2603 (`reka-edge-2603`)                                                                                                                                                                                                  |
 | xAI        | Grok 4.3 (`grok-4.3`); Grok Build 0.1 (`grok-build-0.1`)                                                                                                                                                                                                      |
 | Z.ai       | GLM-5.1 (`glm-5.1`); GLM-5 (`glm-5`); GLM-5 Turbo (`glm-5-turbo`)                                                                                                                                                                                             |
-| Perplexity | Sonar Deep Research (`sonar-deep-research`); Sonar Reasoning Pro (`sonar-reasoning-pro`); Sonar Pro (`sonar-pro`); Sonar (`sonar`)                                                                                                                            |
 
 ### Speech to text
 
@@ -197,7 +190,6 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | --------- | --------- | ---------------------------------------------------------------------------------------------------- |
 | Available | Cohere    | Embed v4 (`embed-v4.0`)                                                                              |
 | Available | Jina AI   | Jina Embeddings v3 (`jina-embeddings-v3`)                                                            |
-| Available | Nomic     | Nomic Embed v2 (`nomic-embed-text-v2-moe`)                                                           |
 | Available | OpenAI    | Text Embedding 3 Large (`text-embedding-3-large`); Text Embedding 3 Small (`text-embedding-3-small`) |
 | Available | Voyage AI | Voyage 3 Large (`voyage-3-large`)                                                                    |
 | Code only | BGE-M3    | No bundled manifest or model ID                                                                      |

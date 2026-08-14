@@ -356,11 +356,10 @@ IDs, credential requirements, and the distinction between catalog entries and ex
 Provider routing uses the native Anthropic Messages API for Anthropic, the OpenAI Responses API for OpenAI, and the OpenAI-compatible Chat Completions path for every other chat provider.
 
 The chat catalog includes Anthropic, DeepSeek, Google, Kimi, MiniMax, Mistral, OpenAI, Qwen,
-Reka AI, xAI, and Z.ai. Perplexity supplies the research-chat catalog, but the main Assistant,
-Tasks, and Health settings currently filter those entries out. Exact model names, IDs, and support
-notes are maintained in [Provider Reference](PROVIDERS.md#chat-and-research).
+Reka AI, xAI, and Z.ai. Exact model names, IDs, and support notes are maintained in
+[Provider Reference](PROVIDERS.md#chat-and-research).
 
-The built-in catalog contains 32 providers across models, search, vector database, and object
+The built-in catalog contains 30 providers across models, search, vector database, and object
 storage. Model-provider entries include capability labels and an external setup link.
 
 Realtime-voice models are cataloged for Google, Luma, Qwen, and xAI, but there is no realtime-voice IPC or model execution service. Friday's current Voice API is text-to-speech, and Home's voice-conversation panel is not connected to these models.
