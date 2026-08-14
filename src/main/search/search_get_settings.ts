@@ -10,7 +10,9 @@ export function getSearchSettings(): SearchSettings {
 	const providers = getStoredSearchProviders();
 	const { providerId, enabled } = getSearchEngine();
 	const engineId =
-		enabled && typeof providerId === 'string' && SEARCH_ENGINE_IDS.includes(providerId as SearchEngineId)
+		enabled &&
+		typeof providerId === 'string' &&
+		SEARCH_ENGINE_IDS.includes(providerId as SearchEngineId)
 			? (providerId as SearchEngineId)
 			: null;
 	const configured = Object.fromEntries(

@@ -82,8 +82,11 @@ describe('search settings', () => {
 		expect(getSearchSettings().engineId).toBe('tavily');
 		expect(getSearchKey('tavily')).toBe('tavily-key');
 		expect(selectSearchEngine('brave').engineId).toBe('brave');
-		expect(getSearchEngine()).toEqual({ providerId: 'brave', providerName: 'Brave', enabled: true });
-
+		expect(getSearchEngine()).toEqual({
+			providerId: 'brave',
+			providerName: 'Brave',
+			enabled: true,
+		});
 	});
 
 	it('rejects empty credentials and unconfigured selections', () => {
@@ -195,7 +198,9 @@ describe('generic web search', () => {
 		(global.fetch as jest.Mock).mockResolvedValue(response({ results: [] }));
 		const controller = new AbortController();
 
-		await expect(searchWeb({ query: 'current events', count: 2 }, controller.signal)).resolves.toEqual({
+		await expect(
+			searchWeb({ query: 'current events', count: 2 }, controller.signal)
+		).resolves.toEqual({
 			query: 'current events',
 			results: [],
 		});
