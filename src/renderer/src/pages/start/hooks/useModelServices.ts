@@ -10,18 +10,19 @@ import type { ModelServiceDefinition, ModelServiceId, ModelServiceState } from '
 import type { SetupAction } from '../state/actions';
 import type { SetupState } from '../state/types';
 
-async function loadServiceState(service: ModelServiceDefinition): Promise<ModelServiceState> {
+export async function loadModelServiceState(
+	service: ModelServiceDefinition
+): Promise<ModelServiceState> {
 	const [selection, modelGroups] = await Promise.all([
 		service.getSelection().catch(() => undefined),
 		service.loadModelGroups().catch(() => []),
 	]);
-	const selectedGroup =
-		modelGroups.find((group) => group.provider.id === selection?.providerId) ?? modelGroups[0];
-	const selectedModel =
-		selectedGroup?.models.find((model) => model.id === selection?.modelId) ??
-		selectedGroup?.models[0];
+	const selectedGroup = selection
+		? modelGroups.find((group) => group.provider.id === selection.providerId)
+		: undefined;
+	const selectedModel = selectedGroup?.models.find((model) => model.id === selection?.modelId);
 	return {
-		providerId: selectedGroup?.provider.id ?? '',
+		providerId: selectedModel ? (selectedGroup?.provider.id ?? '') : '',
 		modelId: selectedModel?.id ?? '',
 		modelGroups,
 	};
@@ -50,7 +51,7 @@ export function useModelServices(
 			dispatch({ type: 'CLEAR_ERROR' });
 			try {
 				const loadedStates = await Promise.all(
-					MODEL_SERVICE_DEFINITIONS.map((service) => loadServiceState(service))
+					MODEL_SERVICE_DEFINITIONS.map((service) => loadModelServiceState(service))
 				);
 				if (cancelled) return;
 				const nextServiceStates = createInitialModelServiceState();
