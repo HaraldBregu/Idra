@@ -6,7 +6,7 @@ import { attachWindowHandlers } from './window_events';
 
 const DEFAULT_WINDOW_WIDTH = 462;
 const DEFAULT_WINDOW_HEIGHT = 600;
-const STARTUP_WINDOW_WIDTH = 440;
+const STARTUP_WINDOW_WIDTH = 462;
 const STARTUP_WINDOW_HEIGHT = 600;
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
 
