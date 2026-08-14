@@ -26,15 +26,15 @@ export function PresentationStep(): React.JSX.Element {
 				>
 					<li className="flex items-center gap-1.5 text-xs font-medium text-foreground">
 						<KeyRound className="size-4 shrink-0 text-primary" aria-hidden="true" />
-						<span>Connect</span>
+						<span>Connect providers</span>
 					</li>
 					<li className="flex items-center gap-1.5 text-xs font-medium text-foreground">
 						<SlidersHorizontal className="size-4 shrink-0 text-primary" aria-hidden="true" />
-						<span>Choose</span>
+						<span>Setup settings</span>
 					</li>
 					<li className="flex items-center gap-1.5 text-xs font-medium text-foreground">
 						<MessageSquareText className="size-4 shrink-0 text-primary" aria-hidden="true" />
-						<span>Start</span>
+						<span>Start working</span>
 					</li>
 				</ol>
 			</div>
