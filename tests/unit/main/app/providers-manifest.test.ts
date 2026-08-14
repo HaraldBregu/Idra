@@ -23,7 +23,9 @@ describe('provider manifests', () => {
 			(model) => model.provider.id === 'openai' && model.type === 'realtime-voice'
 		);
 		const providersById = new Map(
-			loadModels().map((model) => [model.provider.id, model.provider] as const)
+			[...loadModels(), ...loadWebSearches()].map(
+				(model) => [model.provider.id, model.provider] as const
+			)
 		);
 		const realtimeVoiceModels = loadModels().filter((model) => model.type === 'realtime-voice');
 		expect(openAi?.provider.iconDarkUrl).toMatch(/^local-resource:\/\/file/);
@@ -57,6 +59,18 @@ describe('provider manifests', () => {
 		);
 		expect(providersById.get('deepgram')?.iconLightUrl).toContain(
 			'/resources/providers/deepgram/images/official/deepgram-light.svg'
+		);
+		expect(providersById.get('brave')?.iconDarkUrl).toContain(
+			'/resources/providers/brave/images/official/brave-search.svg'
+		);
+		expect(providersById.get('brave')?.iconLightUrl).toContain(
+			'/resources/providers/brave/images/official/brave-search.svg'
+		);
+		expect(providersById.get('tavily')?.iconDarkUrl).toContain(
+			'/resources/providers/tavily/images/official/tavily-offwhite.svg'
+		);
+		expect(providersById.get('tavily')?.iconLightUrl).toContain(
+			'/resources/providers/tavily/images/official/tavily-black.svg'
 		);
 		expect(deepseek?.metadata).toEqual(
 			expect.objectContaining({ contextWindow: 1_048_576, defaultOutputTokens: 32_768 })
