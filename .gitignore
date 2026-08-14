@@ -1,23 +1,6 @@
 node_modules
-.cache
-out
 dist
 .env
 .DS_Store
 *.tsbuildinfo
-
-# Local notes
-todo/
-
-# Claude worktrees
-.claude/worktrees/
-
-# Test artifacts
-coverage
-playwright-report
-test-results
-tests/.tmp
-.test-electron
-packages/cli/.test-dist
-
 data/
