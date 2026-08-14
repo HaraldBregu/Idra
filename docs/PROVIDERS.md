@@ -1,6 +1,6 @@
 # Provider Reference
 
-Friday ships 30 provider manifests under `resources/providers`. This page is the canonical
+Friday ships 29 provider manifests under `resources/providers`. This page is the canonical
 human-readable inventory of those built-in providers, the services they expose in the catalog,
 and whether the current runtime can execute each service.
 
@@ -82,7 +82,6 @@ manifest.
 | [Stability AI](https://platform.stability.ai/account/keys)                         | `stability-ai`      | Image, audio                                              | Available                                                                                           |
 | [Suno](https://suno.com/account)                                                   | `suno`              | Audio                                                     | Catalog only                                                                                        |
 | [Tavily](https://app.tavily.com/home)                                              | `tavily`            | Web search                                                | Available                                                                                           |
-| [Voyage AI](https://dashboard.voyageai.com)                                        | `voyage`            | Embeddings                                                | Available                                                                                           |
 | [xAI](https://console.x.ai)                                                        | `xai`               | Chat, speech to text, realtime voice, image, video        | Mixed: realtime voice is catalog only                                                               |
 | [Z.ai](https://z.ai/manage-apikey/apikey-list)                                     | `zai`               | Chat                                                      | Available                                                                                           |
 
@@ -191,7 +190,6 @@ These models are catalog only. Friday has no realtime-voice IPC or execution ser
 | Available | Cohere    | Embed v4 (`embed-v4.0`)                                                                              |
 | Available | Jina AI   | Jina Embeddings v3 (`jina-embeddings-v3`)                                                            |
 | Available | OpenAI    | Text Embedding 3 Large (`text-embedding-3-large`); Text Embedding 3 Small (`text-embedding-3-small`) |
-| Available | Voyage AI | Voyage 3 Large (`voyage-3-large`)                                                                    |
 | Code only | BGE-M3    | No bundled manifest or model ID                                                                      |
 
 The `bge` adapter targets a self-hosted OpenAI-compatible embeddings endpoint. It defaults to

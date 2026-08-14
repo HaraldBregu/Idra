@@ -359,7 +359,7 @@ The chat catalog includes Anthropic, DeepSeek, Google, Kimi, MiniMax, Mistral, O
 Reka AI, xAI, and Z.ai. Exact model names, IDs, and support notes are maintained in
 [Provider Reference](PROVIDERS.md#chat-and-research).
 
-The built-in catalog contains 30 providers across models, search, vector database, and object
+The built-in catalog contains 29 providers across models, search, vector database, and object
 storage. Model-provider entries include capability labels and an external setup link.
 
 Realtime-voice models are cataloged for Google, Luma, Qwen, and xAI, but there is no realtime-voice IPC or model execution service. Friday's current Voice API is text-to-speech, and Home's voice-conversation panel is not connected to these models.
