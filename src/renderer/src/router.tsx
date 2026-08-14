@@ -128,7 +128,7 @@ function RootRouteComponent(): React.JSX.Element {
 							<Outlet />
 						</PageTransition>
 					</div>
-					<CommandMenu />
+					<CommandMenu key={location.pathname} />
 				</div>
 			</ChatSessionContext.Provider>
 		</ChatModeContext.Provider>

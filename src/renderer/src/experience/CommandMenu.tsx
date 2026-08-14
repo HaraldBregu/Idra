@@ -254,10 +254,6 @@ export function CommandMenu(): React.JSX.Element {
 	);
 
 	useEffect(() => {
-		if (!searchEnabled) handleOpenChange(false);
-	}, [handleOpenChange, searchEnabled]);
-
-	useEffect(() => {
 		const handler = (e: KeyboardEvent): void => {
 			const isSettingsShortcut =
 				e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey && e.key === ',';
@@ -281,7 +277,7 @@ export function CommandMenu(): React.JSX.Element {
 
 	return (
 		<CommandDialog
-			open={open}
+			open={searchEnabled && open}
 			onOpenChange={handleOpenChange}
 			label={t('command.label', 'Route search')}
 			filter={filterCommandItem}

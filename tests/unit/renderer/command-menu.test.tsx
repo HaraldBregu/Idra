@@ -8,6 +8,17 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
+class ResizeObserverMock {
+	observe(): void {}
+	unobserve(): void {}
+	disconnect(): void {}
+}
+
+Object.defineProperty(globalThis, 'ResizeObserver', {
+	configurable: true,
+	value: ResizeObserverMock,
+});
+
 it.each(['/home', '/home/session/1', '/settings', '/settings/providers/models'])(
 	'opens command search on %s',
 	(path) => {
@@ -19,7 +30,7 @@ it.each(['/home', '/home/session/1', '/settings', '/settings/providers/models'])
 
 		fireEvent.keyDown(window, { key: 'f', ctrlKey: true });
 
-		expect(screen.getByRole('dialog', { name: 'Route search' })).toBeInTheDocument();
+		expect(screen.getByPlaceholderText('Search routes and settings...')).toBeInTheDocument();
 	}
 );
 
@@ -34,6 +45,6 @@ it.each(['/start', '/homepage', '/settings-old'])(
 
 		fireEvent.keyDown(window, { key: 'f', ctrlKey: true });
 
-		expect(screen.queryByRole('dialog', { name: 'Route search' })).not.toBeInTheDocument();
+		expect(screen.queryByPlaceholderText('Search routes and settings...')).not.toBeInTheDocument();
 	}
 );
