@@ -1,6 +1,6 @@
 # Idra
 
-Idra is a Fastify application that exposes an AI agent over a streaming REST API and serves a React client through `@fastify/vite`.
+Idra is a Fastify REST API that exposes a streaming AI agent.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ The server listens on port `3000` by default. Set `PORT` or `IDRA_PORT` to overr
 
 ## Endpoints
 
-- `GET /` — React client
+- `GET /` — service information
 - `GET /health` — service health
 - `POST /agents/messages` — streams agent events as NDJSON
 

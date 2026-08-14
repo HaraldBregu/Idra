@@ -9,18 +9,14 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "types": [
-      "node",
-      "vite/client"
-    ],
-    "jsx": "react-jsx"
+      "node"
+    ]
   },
   "exclude": [
     "node_modules",
     "dist"
   ],
   "files": [
-    "src/index.ts",
-    "client/src/main.tsx",
-    "vite.config.ts"
+    "src/index.ts"
   ]
 }

@@ -12,8 +12,7 @@ npm run dev
 ## Project layout
 
 - `src/agent` — agent runtime, tools, sessions, permissions, and system prompts
-- `src/server.ts` — Fastify REST routes and Vite integration
-- `client` — React client
+- `src/server.ts` — Fastify REST routes
 - `resources/templates` — agent workspace templates
 
 ## Quality checks
