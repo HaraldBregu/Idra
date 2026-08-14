@@ -1,0 +1,29 @@
+services:
+  data:
+    image: alpine:3.22
+    command: >-
+      sh -c "mkdir -p /data && chown -R 1000:1000 /data &&
+      touch /tmp/ready && tail -f /dev/null"
+    volumes:
+      - idra-data:/data
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/ready"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - idra-data:/app/data
+    depends_on:
+      data:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  idra-data:

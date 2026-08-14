@@ -40,26 +40,18 @@ npm run build
 npm start
 ```
 
-## Docker
+## Docker Compose
 
-Build the image:
-
-```bash
-docker build -t idra .
-```
-
-Run the API on port 3000 with persistent application data:
+Start the API and its data sidecar:
 
 ```bash
-docker run --rm \
-  --name idra \
-  --publish 3000:3000 \
-  --volume idra-data:/home/node/.idra \
-  idra
+docker compose up --build -d
 ```
 
-Verify it:
+The `data` service owns the shared `idra-data` volume. The `app` service mounts that volume at `/app/data`, where Idra stores settings, workspace files, sessions, and other mutable data.
 
 ```bash
 curl http://localhost:3000/
+docker compose down
+docker compose down --volumes # also delete stored data
 ```
