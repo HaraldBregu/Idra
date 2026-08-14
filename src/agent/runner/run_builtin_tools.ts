@@ -8,9 +8,6 @@ import { execTool } from '../tools/core/exec_command';
 import { processTool } from '../tools/core/process';
 import { readTool } from '../tools/core/read_file';
 import { writeTool } from '../tools/core/write_file';
-import { forgetMemoryTool } from '../tools/memory/forget_memory';
-import { listMemoriesTool } from '../tools/memory/list_memories';
-import { saveMemoryTool } from '../tools/memory/save_memory';
 import { fetchWebPageTool } from '../tools/web/fetch_web_page';
 
 export function builtinTools(
@@ -26,9 +23,6 @@ export function builtinTools(
 		execTool(sandbox, interactionMode),
 		processTool,
 		fetchWebPageTool,
-		saveMemoryTool(config),
-		forgetMemoryTool(config),
-		listMemoriesTool(config),
 		completeBootstrapTool,
 	];
 }

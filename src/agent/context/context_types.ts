@@ -20,10 +20,7 @@ export interface FileAccessContext {
 	createdFiles: Set<string>;
 }
 
-import type { FileHistory } from '../history/types';
-
 export interface RunContext {
 	loadedSkills: LoadedSkill[];
 	fileAccess: FileAccessContext;
-	fileHistory: FileHistory;
 }

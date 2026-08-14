@@ -8,8 +8,6 @@ import { registry } from './process';
 import type { ExecSandbox } from '../../sandbox';
 import type { ExecutionMode } from '../../../shared/sandbox';
 import { shellQuote } from './quote';
-import { approvedExecRoots } from '../../permissions/approved_exec_roots';
-import { resolveExecRoots } from '../../permissions/resolve_exec_roots';
 import type { AgentInteractionMode } from '../../../shared/agent_types';
 import path from 'node:path';
 import { planCommandError } from '../../plan/command';
@@ -130,8 +128,8 @@ async function runExec(
 		}
 	}
 
-	const roots = resolveExecRoots(input, agentLocation());
-	const cwd = roots[0] ?? resolveUserPath(workdir ?? '.', agentLocation());
+	const cwd = resolveUserPath(workdir ?? '.', agentLocation());
+	const roots = [cwd, ...(input.additionalRoots ?? []).map((root) => resolveUserPath(root, cwd))];
 	if (planMode) {
 		const relative = path.relative(agentLocation(), cwd);
 		if (relative.startsWith('..') || path.isAbsolute(relative))
@@ -164,7 +162,7 @@ async function runExec(
 			? `script -q /dev/null ${shellQuote(process.env.SHELL ?? '/bin/sh')} -lc ${shellQuote(command)}`
 			: `script -q -e -c ${shellQuote(command)} /dev/null`;
 	const commandId = randomUUID();
-	const approvedRoots = approvedExecRoots.getStore() ?? [];
+	const approvedRoots: string[] = [];
 	const wrapped =
 		executionMode === 'sandbox'
 			? interactionMode === 'plan'

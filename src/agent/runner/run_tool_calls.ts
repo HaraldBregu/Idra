@@ -1,8 +1,7 @@
-import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import type { FileAccessContext } from '../context';
-import { runToolCall, type ToolCallSecurityContext } from './run_tool_call';
 import type { KeyedMutex } from '../mutex';
-import type { FileHistory } from '../history/types';
+import type { RuntimeEvent, Tool, ToolCall } from '../types';
+import { runToolCall, type ToolCallSecurityContext } from './run_tool_call';
 
 export async function* runToolCalls(
 	tools: Tool[],
@@ -10,21 +9,17 @@ export async function* runToolCalls(
 	signal?: AbortSignal,
 	context?: FileAccessContext,
 	security?: ToolCallSecurityContext,
-	resources?: KeyedMutex,
-	history?: FileHistory
+	resources?: KeyedMutex
 ): AsyncGenerator<RuntimeEvent, void> {
 	for (const toolCall of toolCalls) {
-		for await (const event of runToolCall(
+		yield* runToolCall(
 			tools.find((tool) => tool.id === toolCall.name),
 			toolCall,
 			signal,
 			context,
 			security,
-			resources,
-			history
-		)) {
-			yield event;
-		}
+			resources
+		);
 		if (signal?.aborted) break;
 	}
 }

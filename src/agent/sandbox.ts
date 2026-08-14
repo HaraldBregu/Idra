@@ -11,10 +11,7 @@ import {
 } from '@anthropic-ai/sandbox-runtime';
 import type { ChildProcess } from 'node:child_process';
 import type { SandboxStatus } from '../shared/sandbox';
-import { getPermissions } from './agent_store';
 import { userDataLocation } from '../shared/user_data_location';
-import { resolveUserPath } from '../shared/user_path';
-import { recursivePermissionRule } from './permissions/recursive_permission_rule';
 import type { AgentInteractionMode } from '../shared/agent_types';
 import { agentLocation } from '../shared/agent_location';
 
@@ -55,7 +52,7 @@ export class ExecSandbox {
 			);
 		}
 		const { config } = await this.configuration();
-		const approvedPatterns = approvedRoots.map(recursivePermissionRule);
+		const approvedPatterns = approvedRoots.map((root) => `${path.resolve(root)}/**`);
 		const customConfig = process.platform !== 'win32' || approvedPatterns.length > 0
 			? {
 					filesystem: {
@@ -220,16 +217,11 @@ export class ExecSandbox {
 		config: SandboxRuntimeConfig;
 		fingerprint: string;
 	}> {
-		const permissions = getPermissions();
-		const resolveRules = (rules: string[]): string[] =>
-			rules.map((rule) => resolveUserPath(rule, os.homedir()));
-		const allowRead = resolveRules(permissions.exec.allow);
-		const allowWrite = [
-			...resolveRules(permissions.exec.allow),
-			this.temporaryDirectory,
-		];
-		const denyWrite = resolveRules(permissions.exec.deny);
-		const denyRead = [os.homedir(), ...resolveRules(permissions.exec.deny)];
+		const workspace = agentLocation();
+		const allowRead = [workspace];
+		const allowWrite = [workspace, this.temporaryDirectory];
+		const denyWrite: string[] = [];
+		const denyRead = [os.homedir()];
 		const windowsPath = this.vendoredWindowsPath();
 		const seccompPath = this.vendoredSeccompPath();
 		const config: SandboxRuntimeConfig = {

@@ -20,8 +20,6 @@ import { applyGoalCommand } from './goal/apply';
 import { parseGoalCommand } from './goal/parse';
 import { stream } from './runner/run_stream';
 import { agentLocation } from '../shared/agent_location';
-import { rejectPendingToolPermissions } from './permissions';
-import { interruptPendingUserInput } from './user_input/user_input_pending';
 import { parseSkillCommand } from './skills';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
@@ -345,14 +343,10 @@ export class Agent {
 		if (!record || (windowId !== undefined && record.request.windowId !== windowId)) return false;
 		const cancelled = cancelRun(record, new DOMException('Run cancelled.', 'AbortError'));
 		if (!cancelled) return false;
-		rejectPendingToolPermissions(runId);
-		interruptPendingUserInput(runId);
 		return true;
 	}
 
 	cancelAll(): void {
-		rejectPendingToolPermissions();
-		interruptPendingUserInput();
 		for (const record of this.runs.values()) {
 			cancelRun(record, new DOMException('Application shutting down.', 'AbortError'));
 		}
