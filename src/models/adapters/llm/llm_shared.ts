@@ -8,7 +8,6 @@ import type {
 } from 'openai/resources/responses/responses';
 import type { Message } from '../../../agent/types';
 import { hasAssistantPayload } from '../../../agent/session/session_has_assistant_payload';
-import { formatUploadedTextFile } from '../../../agent/attachments/text';
 import type {
 	LlmContentBlock,
 	LlmStreamRequest,
@@ -53,6 +52,14 @@ export function llmToTranscriptEntry(message: Message): LlmTranscriptEntry[] {
 		return entries;
 	}
 	return [{ role: 'user', content: toUserContent(message.content) }];
+}
+
+
+function formatUploadedTextFile(text: string): string {
+	return `[Complete contents of the uploaded text file]
+--- BEGIN UPLOADED CONTENT ---
+${text}
+--- END UPLOADED CONTENT ---`;
 }
 
 function toUserContent(content: Message['content']): string | LlmUserContentBlock[] {

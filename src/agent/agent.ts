@@ -26,7 +26,6 @@ import type {
 	AgentRunOptions,
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
-	AgentPromptInputCapabilities,
 	AgentResponseEvent,
 	AgentRunStopReason,
 	AgentSessionSummary,
@@ -47,7 +46,6 @@ import {
 	type AgentRunRecord,
 } from './state';
 import { getModelId, getProviderId } from './agent_store';
-import { preflightPromptAttachments, resolvePromptInputCapabilities } from './attachments';
 
 const RUN_PRIORITIES: Record<SessionCategory, AgentRunPriority> = {
 	main: 'high',
@@ -164,14 +162,6 @@ export class Agent {
 			);
 			const providerId = options.providerId;
 			const modelId = options.model ?? options.modelId;
-			const promptCapabilities = resolvePromptInputCapabilities(providerId, modelId);
-			const files = options.files?.length
-				? promptCapabilities
-					? preflightPromptAttachments(options.files, promptCapabilities)
-					: (() => {
-							throw new Error('Attachments require a valid configured prompt model.');
-						})()
-				: [];
 
 			const baseInput: Omit<RuntimeInput, 'type' | 'toolsAllow'> = {
 				runId: request.id,
@@ -185,9 +175,6 @@ export class Agent {
 					request.category === 'main' && options.interactionMode === 'plan' ? 'plan' : 'default',
 				...(options.effort ? { effort: options.effort } : {}),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
-				...(files.length ? { files } : {}),
-				...(promptCapabilities ? { promptCapabilities } : {}),
-				...(files.length ? { deferPersist: true } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.legacySessionId ? { legacySessionId: options.legacySessionId } : {}),
 				...(providerId ? { providerId } : {}),
@@ -293,9 +280,6 @@ export class Agent {
 			.flatMap(toHistoryMessages);
 	}
 
-	getPromptInputCapabilities(): AgentPromptInputCapabilities | null {
-		return resolvePromptInputCapabilities(getProviderId(), getModelId());
-	}
 
 	editUserMessage(sessionId: string, userOffsetFromEnd: number, content: string): Promise<boolean> {
 		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);

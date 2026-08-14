@@ -1,5 +1,4 @@
-import type { Config, Message, MessageContentBlock } from '../types';
-import type { PromptAttachmentBlock } from '../attachments';
+import type { Config } from '../types';
 import type { SessionInput, SessionCategory, SessionState } from './session_types';
 import { loadMessagesBySessionId } from './session_load_messages_by_session_id';
 import { persist } from './session_persist';
@@ -29,9 +28,7 @@ export function init(
 		...(storedMessages.length > 0 ? storedMessages : legacyMessages),
 		...(input.messages ?? []),
 	]);
-	if (input.message || (input.files?.length ?? 0) > 0) {
-		state.messages.push({ role: 'user', content: toUserContent(input.message, input.files ?? []) });
-	}
+	if (input.message) state.messages.push({ role: 'user', content: input.message });
 	state.model = input.model ?? 'default';
 	state.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 	state.toolCalls = [];
@@ -43,10 +40,3 @@ export function init(
 	if (!input.deferPersist) persist(state);
 }
 
-function toUserContent(message: string, files: PromptAttachmentBlock[]): Message['content'] {
-	if (files.length === 0) return message;
-	const blocks: MessageContentBlock[] = [];
-	if (message) blocks.push({ type: 'text', text: message });
-	blocks.push(...files);
-	return blocks;
-}

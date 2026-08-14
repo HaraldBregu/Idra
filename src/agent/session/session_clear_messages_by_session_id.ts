@@ -1,4 +1,4 @@
-import { existsSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { isUuid } from './session_is_uuid';
 import { legacyFilePath } from './session_legacy_file_path';
 import { messagesBackupFile } from './session_messages_backup_file';
@@ -17,8 +17,6 @@ export function clearMessagesBySessionId(sessionId: string, location: string): v
 		const backupPath = messagesBackupFile(root, sessionId);
 		writeMessagesFile(filePath, backupPath, '[]\n');
 		writeFileSync(backupPath, '[]\n', 'utf8');
-		const attachmentsPath = sessionPath(root, sessionFolderName(sessionId), 'attachments');
-		if (existsSync(attachmentsPath)) rmSync(attachmentsPath, { recursive: true, force: true });
 	}
 	else writeFileSync(filePath, '[]\n', 'utf8');
 

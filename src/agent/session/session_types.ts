@@ -1,5 +1,4 @@
 import type { AgentPromptInputCapabilities, ModelReasoningEffort } from '../../shared/agent_types';
-import type { PromptAttachmentBlock } from '../attachments';
 import type { RunContext } from '../context';
 import type { Message, MessageContentBlock, ToolCall } from '../types';
 
@@ -28,8 +27,6 @@ export interface SessionResult {
 export interface SessionInput {
 	task: string;
 	message: string;
-	files?: PromptAttachmentBlock[];
-	promptCapabilities?: AgentPromptInputCapabilities;
 	deferPersist?: boolean;
 	sessionId?: string;
 	legacySessionId?: string;

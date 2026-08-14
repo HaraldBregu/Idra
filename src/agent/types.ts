@@ -113,8 +113,6 @@ type RuntimeInputBase = Pick<
 	| 'effort'
 	| 'maxTurns'
 	| 'maxIterations'
-	| 'files'
-	| 'promptCapabilities'
 	| 'deferPersist'
 > & {
 	legacySessionId?: string;

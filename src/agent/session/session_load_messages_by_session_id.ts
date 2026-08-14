@@ -4,7 +4,6 @@ import { isUuid } from './session_is_uuid';
 import { legacyFilePath } from './session_legacy_file_path';
 import { messagesBackupFile } from './session_messages_backup_file';
 import { messagesFile } from './session_messages_file';
-import { hydrateAttachments } from './session_hydrate_attachments';
 import { parseMessages } from './session_parse_messages';
 import { sessionsRoot } from './session_sessions_root';
 
@@ -21,7 +20,7 @@ export function loadMessagesBySessionId(sessionId: string, location?: string): M
 		if (!candidate || !existsSync(candidate)) continue;
 		const messages = parseMessages(readFileSync(candidate, 'utf8'));
 		if (messages !== undefined)
-			return isUuid(sessionId) ? hydrateAttachments(messages, root, sessionId) : messages;
+			return messages;
 	}
 	return [];
 }

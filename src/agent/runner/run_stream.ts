@@ -39,7 +39,6 @@ import { builtinTools } from './run_builtin_tools';
 import { addPlanPrompt } from '../plan/context';
 import { isPlanOutputValid } from '../plan/output';
 import { filterPlanTools } from '../plan/tools';
-import { projectPromptAttachments, resolvePromptInputCapabilities } from '../attachments';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -128,9 +127,6 @@ async function* loop(
 			: { skills: [], diagnostics: [] };
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
-	const promptCapabilities =
-		input.promptCapabilities ?? resolvePromptInputCapabilities(provider.id, modelId);
-
 	if (!options.tools && !options.sandbox) throw new Error('Agent command sandbox is unavailable.');
 
 	let tools: Tool[] = options.tools
@@ -242,9 +238,7 @@ async function* loop(
 			const runtimeContext = [workspaceContext, skillContext, activeGoalContext]
 				.filter(Boolean)
 				.join('\n\n');
-			const messages = promptCapabilities
-				? projectPromptAttachments(session.messages, promptCapabilities)
-				: session.messages;
+			const messages = session.messages;
 			const turn = yield* runModelTurn(
 				input,
 				provider,
