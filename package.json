@@ -1,11 +1,11 @@
 {
-  "name": "idra-api",
+  "name": "idra",
   "homepage": "https://github.com/HaraldBregu/idra",
   "repository": {
     "type": "git",
     "url": "https://github.com/HaraldBregu/idra.git"
   },
-  "description": "Fastify REST API for the Idra AI agent",
+  "description": "Idra",
   "author": "Harald Bregu <harald.bregu@gmail.com>",
   "version": "1.0.2",
   "private": true,
