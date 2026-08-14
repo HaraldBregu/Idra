@@ -70,7 +70,7 @@ export function ModelsStep({
 			<StepHeader title={STEP_COPY.models.title} description={STEP_COPY.models.description} />
 
 			<div className="mt-8 grid min-w-0 gap-6">
-				<section aria-label="Assistant providers" className="min-w-0">
+				<section aria-label="Model providers" className="min-w-0">
 					<Card size="sm" className="gap-0! p-0!">
 						<CardContent className="p-0!">
 							{assistantServices.map((service, index) => (

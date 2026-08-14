@@ -35,7 +35,7 @@ const SERVICE_STATES: ModelServiceStateMap = {
 	audio: EMPTY_SERVICE,
 };
 
-it('groups assistant model services in one card', () => {
+it('groups model services in one card', () => {
 	render(
 		<ModelsStep
 			serviceStates={SERVICE_STATES}
@@ -45,7 +45,7 @@ it('groups assistant model services in one card', () => {
 		/>
 	);
 
-	const assistantGroup = screen.getByRole('region', { name: 'Assistant providers' });
+	const assistantGroup = screen.getByRole('region', { name: 'Model providers' });
 	const serviceIds = ['assistant', 'voice', 'transcription', 'image', 'video', 'audio'];
 	for (const id of serviceIds) {
 		expect(within(assistantGroup).getByTestId(`setup-${id}`)).toHaveAttribute(
@@ -53,6 +53,7 @@ it('groups assistant model services in one card', () => {
 			'true'
 		);
 	}
+	expect(within(assistantGroup).getByTestId('setup-assistant')).toHaveTextContent('Model');
 	expect(
 		within(assistantGroup)
 			.getAllByTestId(/^setup-/)

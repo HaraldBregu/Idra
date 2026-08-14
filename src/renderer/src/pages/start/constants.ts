@@ -75,7 +75,7 @@ async function getTranscriptionModelGroups(): Promise<ProviderModelGroup[]> {
 export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: 'assistant',
-		title: 'Assistant',
+		title: 'Model',
 		description: 'Chat, reasoning, and planning.',
 		getSelection: async () => {
 			const [provider, modelId] = await Promise.all([
