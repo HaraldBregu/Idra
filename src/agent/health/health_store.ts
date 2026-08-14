@@ -1,12 +1,12 @@
 import path from 'node:path';
-import Store from 'electron-store';
+import { JsonStore } from '../../shared/store';
 import { userDataLocation } from '../../shared/user_data_location';
 import { DEFAULT_HEALTH_SETTINGS, type HealthSettings } from './health_types';
 
 const HEALTH_STORE_NAME = 'health';
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
 
-const store = new Store<HealthSettings>({
+const store = new JsonStore<HealthSettings>({
 	name: HEALTH_STORE_NAME,
 	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,

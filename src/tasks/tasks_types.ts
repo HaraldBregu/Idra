@@ -77,7 +77,6 @@ export interface TaskRuntime {
 	modelId: string;
 }
 
-/** Shape persisted to the tasks electron-store file. */
 export interface PersistedTaskState {
 	enabled?: boolean;
 	providerId?: string;

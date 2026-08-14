@@ -1,27 +1,26 @@
 {
-	"compilerOptions": {
-		"target": "ES2022",
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"outDir": "dist",
-		"strict": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"sourceMap": true,
-		"types": [
-			"node",
-			"vite/client"
-		],
-		"jsx": "react-jsx"
-	},
-	"include": [
-		"src/**/*.ts",
-		"client/**/*.ts",
-		"client/**/*.tsx",
-		"vite.config.ts"
-	],
-	"exclude": [
-		"node_modules",
-		"dist"
-	]
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "types": [
+      "node",
+      "vite/client"
+    ],
+    "jsx": "react-jsx"
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "files": [
+    "src/index.ts",
+    "client/src/main.tsx",
+    "vite.config.ts"
+  ]
 }

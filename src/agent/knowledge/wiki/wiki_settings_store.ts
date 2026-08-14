@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import Store from 'electron-store';
+import { JsonStore } from '../../../shared/store';
 import type { WikiSettings } from '../../../shared/wiki_types';
 import { userDataLocation } from '../../../shared/user_data_location';
 import { wikiLocation } from './wiki_location';
@@ -26,7 +26,7 @@ const settingsPath = path.resolve(settingsDirectory, 'wiki.json');
 const legacySettingsPath = path.resolve(wikiLocation(), 'settings.json');
 const shouldMigrateLegacySettings = !existsSync(settingsPath) && existsSync(legacySettingsPath);
 
-export const wikiSettingsStore = new Store<WikiSettings>({
+export const wikiSettingsStore = new JsonStore<WikiSettings>({
 	name: 'wiki',
 	cwd: settingsDirectory,
 	accessPropertiesByDotNotation: false,

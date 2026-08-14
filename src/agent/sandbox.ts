@@ -318,7 +318,6 @@ export class ExecSandbox {
 			command: process.execPath,
 			args: [cliPath, '--settings', settingsPath, '-c', command],
 			env: {
-				ELECTRON_RUN_AS_NODE: '1',
 				HOME: this.temporaryDirectory,
 				TMPDIR: this.temporaryDirectory,
 				TMP: this.temporaryDirectory,
