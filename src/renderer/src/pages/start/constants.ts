@@ -211,7 +211,7 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 		description: 'Connect a vector database to store embedding vectors.',
 	},
 	models: {
-		title: 'Select providers',
+		title: 'Assistant setup',
 		description:
 			'Choose the model each service should use. Only the model is required — you can change any of these later in settings.',
 	},
