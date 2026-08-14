@@ -20,7 +20,11 @@ type ModelsStepProps = {
 	readonly serviceStates: ModelServiceStateMap;
 	readonly loadingModels: boolean;
 	readonly savingConfig: boolean;
-	readonly onServiceChange: (serviceId: ModelServiceId, providerId: string, modelId: string) => void;
+	readonly onServiceChange: (
+		serviceId: ModelServiceId,
+		providerId: string,
+		modelId: string
+	) => void;
 };
 
 function toModelConfigurationState(

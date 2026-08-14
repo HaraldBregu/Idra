@@ -1,9 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { ModelsStep } from '../../../src/renderer/src/pages/start/components/ModelsStep';
-import type {
-	ModelServiceStateMap,
-} from '../../../src/renderer/src/pages/start/types';
+import type { ModelServiceStateMap } from '../../../src/renderer/src/pages/start/types';
 
 jest.mock('@pages/settings/components/model-configuration', () => ({
 	ModelProviderConfiguration: ({
