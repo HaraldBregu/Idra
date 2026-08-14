@@ -3,6 +3,8 @@
   "providerName": "Pinecone",
   "apiKeyUrl": "https://app.pinecone.io",
   "images_url": "/images",
+  "icon_dark_url": "/images/official/pinecone.png",
+  "icon_light_url": "/images/official/pinecone.png",
   "services": [
     {
       "id": "vector-database",
@@ -31,4 +33,3 @@
     }
   ]
 }
-

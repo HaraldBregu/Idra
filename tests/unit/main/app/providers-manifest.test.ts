@@ -23,7 +23,7 @@ describe('provider manifests', () => {
 			(model) => model.provider.id === 'openai' && model.type === 'realtime-voice'
 		);
 		const providersById = new Map(
-			[...loadModels(), ...loadStorages(), ...loadWebSearches()].map(
+			[...loadModels(), ...loadDatabases(), ...loadStorages(), ...loadWebSearches()].map(
 				(model) => [model.provider.id, model.provider] as const
 			)
 		);
@@ -80,6 +80,17 @@ describe('provider manifests', () => {
 				),
 				iconLightUrl: expect.stringContaining(
 					'/resources/providers/cloudflare/images/fallback_lobehub/cloudflare-color.png'
+				),
+			})
+		);
+		expect(providersById.get('pinecone')).toEqual(
+			expect.objectContaining({
+				name: 'Pinecone',
+				iconDarkUrl: expect.stringContaining(
+					'/resources/providers/pinecone/images/official/pinecone.png'
+				),
+				iconLightUrl: expect.stringContaining(
+					'/resources/providers/pinecone/images/official/pinecone.png'
 				),
 			})
 		);
