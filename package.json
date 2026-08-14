@@ -9,10 +9,10 @@
   "author": "Harald Bregu <harald.bregu@gmail.com>",
   "version": "1.0.2",
   "private": true,
-  "packageManager": "npm@11.13.0",
+  "packageManager": "npm@12.0.2",
   "engines": {
-    "node": ">=22.14",
-    "npm": ">=11.5.1"
+    "node": ">=26.7.0",
+    "npm": ">=12.0.2"
   },
   "copyright": "© 2026 Idra Project. All rights reserved.",
   "type": "module",
@@ -27,24 +27,24 @@
     "format:check": "prettier --check src"
   },
   "dependencies": {
-    "@anthropic-ai/sandbox-runtime": "0.0.71",
-    "@anthropic-ai/sdk": "^0.92.0",
-    "@aws-sdk/client-s3": "^3.1092.0",
-    "@mistralai/mistralai": "^2.5.0",
+    "@anthropic-ai/sandbox-runtime": "^0.0.73",
+    "@anthropic-ai/sdk": "^0.117.1",
+    "@aws-sdk/client-s3": "^3.1111.0",
+    "@mistralai/mistralai": "^2.6.3",
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@pinecone-database/pinecone": "^8.1.0",
+    "@pinecone-database/pinecone": "^8.2.0",
     "chokidar": "^5.0.0",
-    "fastify": "^5.6.2",
+    "fastify": "^5.12.0",
     "gray-matter": "^4.0.3",
     "node-cron": "^4.6.0",
-    "openai": "^6.33.0",
+    "openai": "^7.4.0",
     "tsx": "^4.23.12",
-    "ws": "^8.20.0",
+    "ws": "^8.21.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^26.1.2",
-    "prettier": "^3.8.1",
-    "typescript": "^5.9.2"
+    "@types/node": "^26.2.0",
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2"
   }
 }
