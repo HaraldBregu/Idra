@@ -202,8 +202,9 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 		description: 'Add an API key for the search engine you want Friday to use.',
 	},
 	storage: {
-		title: 'Storage providers',
-		description: 'Add storage if you want Friday to access files in an external bucket.',
+		title: 'Object Storage',
+		description:
+			'Connect an S3-compatible object storage provider. Only S3-compatible services are supported.',
 	},
 	database: {
 		title: 'Database providers',
