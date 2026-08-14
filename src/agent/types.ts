@@ -1,6 +1,5 @@
 import type { z } from 'zod';
 import type { LlmEvent } from '../models/adapters/llm';
-import type { SkillDiagnostic, SkillTrust } from '../shared/skills_types';
 
 export interface Config {
 	location: string;
@@ -125,7 +124,6 @@ type RuntimeInputBase = Pick<
 	interactionMode: import('../shared/agent_types').AgentInteractionMode;
 	toolsDeny?: string[];
 	approvalWindowId?: number;
-	explicitSkill?: string;
 };
 
 export type RuntimeInput = RuntimeInputBase &
@@ -181,8 +179,6 @@ export type RuntimeEvent =
 			providerId: string;
 			tools: string[];
 			mcpDiscovery?: McpDiscoveryDiagnostics;
-			skillDiagnostics?: readonly SkillDiagnostic[];
-			skillActivations?: { id: string; name: string; hash: string; trust: SkillTrust }[];
 	  }
 	| {
 			type: 'user_input_request';

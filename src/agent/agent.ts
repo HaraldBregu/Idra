@@ -15,12 +15,8 @@ import {
 	addAssistantMessage,
 	sessionDir,
 } from './session';
-import { accountGoalRun } from './goal/account';
-import { applyGoalCommand } from './goal/apply';
-import { parseGoalCommand } from './goal/parse';
 import { stream } from './runner/run_stream';
 import { agentLocation } from '../shared/agent_location';
-import { parseSkillCommand } from './skills';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
 	AgentRunOptions,
@@ -155,24 +151,18 @@ export class Agent {
 		let result: SessionResult | undefined;
 		try {
 			if (controller.signal.aborted) return { text: '', stopReason: 'cancelled' };
-			const parsedGoalCommand =
-				request.category === 'main' ? parseGoalCommand(request.message) : undefined;
-			const parsedSkillCommand = parseSkillCommand(
-				parsedGoalCommand?.action === 'create' ? parsedGoalCommand.objective : request.message
-			);
 			const providerId = options.providerId;
 			const modelId = options.model ?? options.modelId;
 
 			const baseInput: Omit<RuntimeInput, 'type' | 'toolsAllow'> = {
 				runId: request.id,
 				task: 'chat',
-				message: parsedSkillCommand.message,
+				message: request.message,
 				agentId: request.agentId,
 				contextMode:
 					options.contextMode ??
 					(options.lightContext === true || request.category !== 'main' ? 'minimal' : 'workspace'),
-				interactionMode:
-					request.category === 'main' && options.interactionMode === 'plan' ? 'plan' : 'default',
+				interactionMode: 'default',
 				...(options.effort ? { effort: options.effort } : {}),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
@@ -182,9 +172,6 @@ export class Agent {
 				...(options.windowId === undefined || options.streamEvent === undefined
 					? {}
 					: { approvalWindowId: options.windowId }),
-				...(parsedSkillCommand.explicitSkill
-					? { explicitSkill: parsedSkillCommand.explicitSkill }
-					: {}),
 			};
 			const input: RuntimeInput =
 				options.type === 'background'
@@ -200,23 +187,6 @@ export class Agent {
 						};
 
 			init(session, this.config, input, request.category);
-			if (parsedGoalCommand) {
-				const reply = applyGoalCommand(sessionDir(session), parsedGoalCommand);
-				if (parsedGoalCommand.action === 'create') {
-					response = reply;
-				} else {
-					addAssistantMessage(session, reply, []);
-				options.streamEvent?.({ type: 'text_delta', delta: reply, agentId: request.agentId, runId: request.id });
-				options.streamEvent?.({
-					type: 'run_finished',
-					stopReason: 'end_turn',
-					outputChars: reply.length,
-					agentId: request.agentId,
-					runId: request.id,
-				});
-					return { text: reply, stopReason: 'end_turn' };
-				}
-			}
 			tryAppendRun(session, {
 				type: 'run_queue_metrics',
 				queueDelayMs: Date.now() - request.queuedAt,
@@ -248,9 +218,6 @@ export class Agent {
 				)) {
 					options.streamEvent?.(responseEvent);
 				}
-			}
-			if (result && request.category === 'main' && session.folderName !== '') {
-				accountGoalRun(sessionDir(session), result.usage ?? { inputTokens: 0, outputTokens: 0 }, result.toolCalls.length);
 			}
 			return {
 				text: response,
@@ -346,14 +313,6 @@ export class Agent {
 		return [...this.runs.values()].some((record) => record.request.agentId === agentId);
 	}
 
-	runningSkill(): string | undefined {
-		for (const record of this.runs.values()) {
-			if (record.lifecycle.status !== 'running') continue;
-			const skill = record.lifecycle.session.runContext.loadedSkills.at(-1);
-			if (skill) return skill.name;
-		}
-		return undefined;
-	}
 
 	private cancelSession(sessionId: string): Promise<AgentRunOutcome>[] {
 		const matching = [...this.runs.values()].filter(

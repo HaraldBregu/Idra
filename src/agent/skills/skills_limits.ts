@@ -1,9 +1,0 @@
-export const SKILL_FILE = 'SKILL.md';
-export const SKILL_MAX_BYTES = 256 * 1024;
-export const SKILL_RECOMMENDED_LINES = 500;
-export const SKILL_RECOMMENDED_TOKENS = 5_000;
-export const SKILL_RESOURCE_LIST_LIMIT = 100;
-export const SKILL_PACKAGE_MAX_FILES = 1_000;
-export const SKILL_PACKAGE_MAX_BYTES = 50 * 1024 * 1024;
-export const SKILL_RESOURCE_MAX_BYTES = 10 * 1024 * 1024;
-export const SKILL_PACKAGE_MAX_DEPTH = 12;

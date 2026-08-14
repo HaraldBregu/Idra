@@ -11,34 +11,20 @@ import {
 	persist,
 	sessionDir,
 } from '../session';
-import { goalContext } from '../goal/context';
-import { goalTools } from '../goal/tools';
-import { readGoal } from '../goal/read';
-import { rememberSkill } from '../context';
 import {
-	buildLoadedSkillPrompt,
-	buildSkillContext,
 	buildSystemPrompt,
 	buildWorkspaceContext,
 } from '../system';
-import { listSkillsTool } from '../tools/skills/list_skills';
-import { loadSkillTool } from '../tools/skills/load_skill';
 import { subagentTool, subagentsTool } from '../tools/core/subagents';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 import { filterTools } from './run_tools';
 import { formatToolOutput } from './run_common';
-import { selectSkillTools } from './run_skill_tools';
-import { activateSkill, createSkillRegistrySnapshot } from '../skills';
-import type { SkillLoadResult } from '../../shared/skills_types';
 import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 import type { ExecSandbox } from '../sandbox';
 import { builtinTools } from './run_builtin_tools';
-import { addPlanPrompt } from '../plan/context';
-import { isPlanOutputValid } from '../plan/output';
-import { filterPlanTools } from '../plan/tools';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -115,16 +101,7 @@ async function* loop(
 	const modelOptions = getModelOptions();
 	const contextMode = input.contextMode;
 	const runId = input.runId ?? session.id;
-	const skillLoadingEnabled =
-		(input.toolsAllow === undefined || input.toolsAllow.includes('load_skill')) &&
-		!input.toolsDeny?.includes('load_skill');
-	const skillListingEnabled =
-		(input.toolsAllow === undefined || input.toolsAllow.includes('list_skills')) &&
-		!input.toolsDeny?.includes('list_skills');
-	const skillSnapshot =
-		skillLoadingEnabled || skillListingEnabled
-			? createSkillRegistrySnapshot()
-			: { skills: [], diagnostics: [] };
+
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 	if (!options.tools && !options.sandbox) throw new Error('Agent command sandbox is unavailable.');
@@ -132,41 +109,7 @@ async function* loop(
 	let tools: Tool[] = options.tools
 		? [...options.tools]
 		: builtinTools(config, options.sandbox!, input.interactionMode);
-	if (
-		!options.tools &&
-		session.category === 'main' &&
-		input.interactionMode !== 'plan' &&
-		session.folderName !== '' &&
-		readGoal(sessionDir(session))?.status === 'active'
-	) {
-		tools.push(...goalTools(sessionDir(session)));
-	}
-	tools = filterPlanTools(tools, input.interactionMode);
-	const applyActivatedSkill = (skill: SkillLoadResult): void => {
-		rememberSkill(session.runContext, {
-			id: skill.id,
-			name: skill.name,
-			canonicalRoot: skill.canonicalRoot,
-			instructions: skill.instructions,
-			trust: skill.trust,
-			hash: skill.hash,
-			resources: skill.resources,
-			warnings: skill.warnings,
-		});
-		tools.splice(
-			0,
-			tools.length,
-			...filterPlanTools(
-				filterTools(selectSkillTools(tools, skill.allowedTools), input.toolsAllow, input.toolsDeny),
-				input.interactionMode
-			)
-		);
-	};
-	if (!options.tools && skillListingEnabled) tools.push(listSkillsTool(skillSnapshot));
-	if (!options.tools && skillLoadingEnabled) {
-		const activationTool = loadSkillTool(skillSnapshot, applyActivatedSkill);
-		if (activationTool) tools.push(activationTool);
-	}
+
 
 	if (!options.tools) {
 		const childTools = filterTools(tools, input.toolsAllow, input.toolsDeny);
@@ -183,11 +126,7 @@ async function* loop(
 		);
 	}
 	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
-	tools = filterPlanTools(tools, input.interactionMode);
-	if (input.explicitSkill && !skillLoadingEnabled)
-		throw new Error('Skill loading is unavailable for this run.');
-	if (input.explicitSkill)
-		applyActivatedSkill(await activateSkill(skillSnapshot, input.explicitSkill));
+
 
 	yield {
 		type: 'run_started',
@@ -196,13 +135,6 @@ async function* loop(
 		model: modelId,
 		providerId: provider.id,
 		tools: tools.map((tool) => tool.id),
-		skillDiagnostics: skillSnapshot.diagnostics,
-		skillActivations: session.runContext.loadedSkills.map((skill) => ({
-			id: skill.id,
-			name: skill.name,
-			hash: skill.hash,
-			trust: skill.trust,
-		})),
 	};
 
 	{
@@ -214,28 +146,14 @@ async function* loop(
 			const systemPrompt = await buildSystemPrompt(
 				config,
 				tools,
-				session.runContext.loadedSkills,
 				options.instructions,
-				contextMode,
-				tools.some((tool) => tool.id === 'load_skill')
+				contextMode
 			);
-			const loadedSkillPrompt = buildLoadedSkillPrompt(session.runContext.loadedSkills);
-			const protectedSkillPrompt =
-				input.interactionMode === 'plan' ? addPlanPrompt(loadedSkillPrompt) : loadedSkillPrompt;
 			const workspaceContext =
 				contextMode === 'workspace' && options.instructions === undefined
 					? await buildWorkspaceContext(config)
 					: '';
-			const skillContext = tools.some((tool) => tool.id === 'load_skill')
-				? buildSkillContext(skillSnapshot.skills)
-				: '';
-			const activeGoalContext =
-				session.category === 'main' &&
-				input.interactionMode !== 'plan' &&
-				session.folderName !== ''
-					? goalContext(sessionDir(session))
-					: '';
-			const runtimeContext = [workspaceContext, skillContext, activeGoalContext]
+			const runtimeContext = [workspaceContext]
 				.filter(Boolean)
 				.join('\n\n');
 			const messages = session.messages;
@@ -249,7 +167,7 @@ async function* loop(
 				signal,
 				modelOptions,
 				undefined,
-				protectedSkillPrompt,
+				undefined,
 				runtimeContext ? [{ role: 'user', content: runtimeContext }] : [],
 				options.streaming ?? true,
 				options.providerLimiter,
@@ -257,15 +175,6 @@ async function* loop(
 			);
 
 			recordTurn(session, turn);
-			if (
-				turn.toolCalls.length === 0 &&
-				input.interactionMode === 'plan' &&
-				!isPlanOutputValid(turn.content)
-			) {
-				throw new Error(
-					'Plan response must contain exactly one non-empty <proposed_plan> envelope and no other text.'
-				);
-			}
 
 			yield {
 				type: 'assistant_message',

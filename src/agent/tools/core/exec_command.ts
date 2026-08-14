@@ -9,8 +9,6 @@ import type { ExecSandbox } from '../../sandbox';
 import type { ExecutionMode } from '../../../shared/sandbox';
 import { shellQuote } from './quote';
 import type { AgentInteractionMode } from '../../../shared/agent_types';
-import path from 'node:path';
-import { planCommandError } from '../../plan/command';
 
 interface ExecResult {
 	command: string;
@@ -99,12 +97,6 @@ async function runExec(
 		elevated: elevatedInput,
 		host: hostInput,
 	} = input;
-	const planMode = interactionMode === 'plan';
-	if (planMode) {
-		const policyError = planCommandError(input, agentLocation());
-		if (policyError) throw new Error(policyError);
-	}
-
 	if (hostInput === 'gateway' || hostInput === 'node') {
 		throw new Error(`exec host '${hostInput}' is not available in this runtime.`);
 	}
@@ -112,16 +104,7 @@ async function runExec(
 		throw new Error("exec host 'sandbox' cannot be combined with elevated mode.");
 	}
 
-	const env: NodeJS.ProcessEnv = planMode
-		? {
-				PATH: process.env.PATH,
-				LANG: process.env.LANG,
-				LC_ALL: process.env.LC_ALL,
-				SystemRoot: process.env.SystemRoot,
-				ComSpec: process.env.ComSpec,
-				PATHEXT: process.env.PATHEXT,
-			}
-		: { ...process.env };
+	const env: NodeJS.ProcessEnv = { ...process.env };
 	if (envInput) {
 		for (const [key, value] of Object.entries(envInput)) {
 			env[key] = value;
@@ -130,18 +113,8 @@ async function runExec(
 
 	const cwd = resolveUserPath(workdir ?? '.', agentLocation());
 	const roots = [cwd, ...(input.additionalRoots ?? []).map((root) => resolveUserPath(root, cwd))];
-	if (planMode) {
-		const relative = path.relative(agentLocation(), cwd);
-		if (relative.startsWith('..') || path.isAbsolute(relative))
-			throw new Error('Plan commands must run inside the workspace.');
-	}
-	const planTimeoutSeconds = Math.min(timeoutInput ?? 60, 120);
 	const yieldMs = yieldMsInput ?? 10000;
-	const timeoutMs = planMode
-		? planTimeoutSeconds * 1000
-		: timeoutInput === undefined
-			? undefined
-			: timeoutInput * 1000;
+	const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
 	const startedAt = Date.now();
 	const pty = ptyInput === true;
 	const executionMode: ExecutionMode = elevatedInput === true ? 'host' : 'sandbox';
@@ -163,25 +136,9 @@ async function runExec(
 			: `script -q -e -c ${shellQuote(command)} /dev/null`;
 	const commandId = randomUUID();
 	const approvedRoots: string[] = [];
-	const wrapped =
-		executionMode === 'sandbox'
-			? interactionMode === 'plan'
-				? await sandbox.wrap(
-						pty ? ptyCommand : command,
-						cwd,
-						commandId,
-						abortSignal,
-						approvedRoots,
-						'plan'
-					)
-				: await sandbox.wrap(
-						pty ? ptyCommand : command,
-						cwd,
-						commandId,
-						abortSignal,
-						approvedRoots
-					)
-			: undefined;
+	const wrapped = executionMode === 'sandbox'
+		? await sandbox.wrap(pty ? ptyCommand : command, cwd, commandId, abortSignal, approvedRoots)
+		: undefined;
 	const spawnCommand = wrapped?.command ?? hostCommand;
 	const spawnArgs = wrapped?.args ?? hostArgs;
 	const shell = wrapped ? false : !pty;
@@ -257,10 +214,10 @@ async function runExec(
 		cwd,
 		env,
 		shell,
-		detached: planMode && process.platform !== 'win32',
+		detached: process.platform !== 'win32',
 	});
 	const terminateChild = (signal: NodeJS.Signals): void => {
-		if (planMode && process.platform !== 'win32' && child.pid) {
+		if (process.platform !== 'win32' && child.pid) {
 			try {
 				process.kill(-child.pid, signal);
 				return;
@@ -304,7 +261,7 @@ async function runExec(
 		let ownedSessionId: string | undefined;
 		let timeoutTimer: NodeJS.Timeout | undefined;
 		let hardKillTimer: NodeJS.Timeout | undefined;
-		const yieldTimer = planMode ? undefined : setTimeout(() => {
+		const yieldTimer = setTimeout(() => {
 			if (settled || aborted) return;
 			settled = true;
 
@@ -363,7 +320,7 @@ async function runExec(
 		const abort = (): void => {
 			aborted = true;
 			terminateChild('SIGTERM');
-			if (planMode) hardKillTimer = setTimeout(() => terminateChild('SIGKILL'), 1_000);
+			hardKillTimer = setTimeout(() => terminateChild('SIGKILL'), 1_000);
 			if (ownedSessionId) registry.remove(ownedSessionId);
 		};
 		abortSignal?.addEventListener('abort', abort, { once: true });
@@ -373,7 +330,7 @@ async function runExec(
 			timeoutTimer = setTimeout(() => {
 				timedOut = true;
 				terminateChild('SIGTERM');
-				if (planMode) hardKillTimer = setTimeout(() => terminateChild('SIGKILL'), 1_000);
+				hardKillTimer = setTimeout(() => terminateChild('SIGKILL'), 1_000);
 			}, timeoutMs);
 		}
 
@@ -434,7 +391,7 @@ export function execTool(
 		description:
 			'Run a shell command in a filesystem sandbox. Commands are trusted by working directory. Declare every directory accessed outside workdir in additionalRoots so Idra can request permission before execution. ' +
 			'For an intentional host operation, retry with elevated: true to request approval. Set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
-		planSafe: interactionMode === 'plan',
+		planSafe: false,
 		inputSchema: execInputSchema,
 		execute: (input, signal) => runExec(sandbox, input, signal, interactionMode),
 	});

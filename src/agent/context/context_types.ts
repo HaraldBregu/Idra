@@ -1,14 +1,3 @@
-export interface LoadedSkill {
-	id: string;
-	name: string;
-	canonicalRoot: string;
-	instructions: string;
-	trust: 'user-controlled';
-	hash: string;
-	resources: string[];
-	warnings?: { code: string; message: string }[];
-}
-
 export interface FileToolState {
 	toolName: string;
 	path: string;
@@ -21,6 +10,5 @@ export interface FileAccessContext {
 }
 
 export interface RunContext {
-	loadedSkills: LoadedSkill[];
 	fileAccess: FileAccessContext;
 }

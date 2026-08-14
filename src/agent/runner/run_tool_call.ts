@@ -3,7 +3,6 @@ import type { AgentInteractionMode } from '../../shared/agent_types';
 import type { FileAccessContext } from '../context';
 import { fileToolState, isFileCreation, rememberTool } from '../context';
 import type { KeyedMutex } from '../mutex';
-import { planCommandError } from '../plan/command';
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import { formatToolOutput } from './run_common';
 import { limitToolOutput } from './run_limit_output';
@@ -53,16 +52,7 @@ export async function* runToolCall(
 	} else if (parseError) {
 		output = `Error: invalid input for '${toolCall.name}': ${parseError instanceof Error ? parseError.message : String(parseError)}`;
 		isError = true;
-	} else if (security.interactionMode === 'plan' && tool.planSafe !== true) {
-		output = `Error: tool '${toolCall.name}' is unavailable in Plan mode`;
-		isError = true;
-	} else if (
-		security.interactionMode === 'plan' &&
-		toolCall.name === 'exec_command' &&
-		planCommandError(canonicalInput, agentLocation())
-	) {
-		output = `Error: ${planCommandError(canonicalInput, agentLocation())}`;
-		isError = true;
+
 	} else {
 		let release = (): void => undefined;
 		try {

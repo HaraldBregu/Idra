@@ -1,10 +1,7 @@
 export { addBasePrompt } from './system_add_base_prompt';
 export { addFilesystemPrompt } from './system_add_filesystem_prompt';
-export { addSkillPrompt } from './system_add_skill_prompt';
 export { addToolsPrompt } from './system_add_tools_prompt';
 export { addWorkspacePrompt } from './system_add_workspace_prompt';
-export { buildSkillContext } from './system_build_skill_context';
-export { buildLoadedSkillPrompt } from './system_build_loaded_skill_prompt';
 export { buildSystemPrompt } from './system_build_prompt';
 export { buildWorkspaceContext } from './system_build_workspace_context';
 export { ensureWorkspaceFile } from './system_ensure_workspace_file';
