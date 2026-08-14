@@ -38,6 +38,8 @@ import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 import type { ExecSandbox } from '../sandbox';
 import { builtinTools } from './run_builtin_tools';
+import { undoFileTool } from '../tools/core/undo_file';
+import { redoFileTool } from '../tools/core/redo_file';
 import { addPlanPrompt } from '../plan/context';
 import { isPlanOutputValid } from '../plan/output';
 import { filterPlanTools } from '../plan/tools';
@@ -139,6 +141,12 @@ async function* loop(
 	let tools: Tool[] = options.tools
 		? [...options.tools]
 		: builtinTools(config, options.sandbox!, options.windowFactory, input.interactionMode);
+	if (!options.tools && input.interactionMode !== 'plan') {
+		tools.push(
+			undoFileTool(session.runContext.fileHistory),
+			redoFileTool(session.runContext.fileHistory)
+		);
+	}
 	if (
 		!options.tools &&
 		session.category === 'main' &&
