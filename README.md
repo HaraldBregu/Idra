@@ -39,3 +39,27 @@ npm run typecheck
 npm run build
 npm start
 ```
+
+## Docker
+
+Build the image:
+
+```bash
+docker build -t idra .
+```
+
+Run the API on port 3000 with persistent application data:
+
+```bash
+docker run --rm \
+  --name idra \
+  --publish 3000:3000 \
+  --volume idra-data:/home/node/.idra \
+  idra
+```
+
+Verify it:
+
+```bash
+curl http://localhost:3000/
+```
