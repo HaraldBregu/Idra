@@ -357,7 +357,8 @@ async function* loop(
 					interactionMode: input.interactionMode,
 					...(input.approvalWindowId === undefined ? {} : { windowId: input.approvalWindowId }),
 				},
-				options.resources
+				options.resources,
+				session.runContext.fileHistory
 			)) {
 				yield event;
 				if (event.type !== 'tool_call_end') continue;

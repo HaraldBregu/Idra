@@ -28,6 +28,7 @@ import { planCommandError } from '../plan/command';
 import { toolPermissionTargets } from '../permissions/tool_permission_targets';
 import { captureFiles } from '../history/capture';
 import { recordFileOperation } from '../history/record';
+import type { FileHistory } from '../history/types';
 
 export interface ToolCallSecurityContext {
 	runId: string;
@@ -41,7 +42,8 @@ export async function* runToolCall(
 	signal?: AbortSignal,
 	context?: FileAccessContext,
 	security: ToolCallSecurityContext = { runId: 'internal' },
-	resources?: KeyedMutex
+	resources?: KeyedMutex,
+	history?: FileHistory
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 	let canonicalInput = toolCall.args;
@@ -139,7 +141,9 @@ export async function* runToolCall(
 			canonicalInput,
 			context,
 			true,
-			'ask'
+			'ask',
+			undefined,
+			history
 		);
 		const hardApproval = typeof tool.hardApproval === 'function'
 			? tool.hardApproval(canonicalInput)
@@ -226,7 +230,8 @@ export async function* runToolCall(
 				const resourceTargets = directoryPermissionTargets(
 					tool.id,
 					canonicalInput,
-					agentLocation()
+					agentLocation(),
+					history
 				);
 				const release = resources
 					? await resources.acquire(resourceTargets, toolSignal)
@@ -249,8 +254,9 @@ export async function* runToolCall(
 						approvedExecRoots.run(approvedRoots, run),
 						aborted,
 					]);
-					if (historyTargets.length > 0) {
+					if (history && historyTargets.length > 0) {
 						recordFileOperation(
+							history,
 							security.runId,
 							toolCall.id,
 							toolCall.name,
