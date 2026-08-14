@@ -50,7 +50,6 @@ export type AppSettingsState = {
 	language: AppLanguage;
 	theme: AppTheme;
 	cloud: StorageConfiguration;
-	modelSelections: AppModelSelections;
 };
 
 const APP_SETTINGS_STORE_NAME = 'app';
@@ -71,7 +70,6 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	language: 'en',
 	theme: 'system',
 	cloud: DEFAULT_STORAGE_CONFIGURATION,
-	modelSelections: DEFAULT_MODEL_SELECTIONS,
 };
 
 const settingsDirectory = path.resolve(userDataLocation(), 'settings');
@@ -85,7 +83,7 @@ const store = new Store<AppSettingsState>({
 
 type LegacyAppSettingsState = AppSettingsState & {
 	databaseConfiguration?: { providerId?: string; databaseId?: string };
-	modelSelections: AppModelSelections & {
+	modelSelections?: Partial<AppModelSelections> & {
 		embedding?: ModelSelection;
 		text?: ModelSelection;
 	};
@@ -131,6 +129,7 @@ if (legacyDatabase || legacyEmbedding) {
 }
 migrateMcpStoreFromProviders();
 delete persistedSettings.databaseConfiguration;
+delete persistedSettings.modelSelections;
 delete persistedModelSelections.embedding;
 delete persistedModelSelections.text;
 if (legacyStorageConfiguration) persistedSettings.cloud = legacyStorageConfiguration;
@@ -138,8 +137,17 @@ delete persistedSettings.storageConfiguration;
 store.store = {
 	...DEFAULT_APP_SETTINGS,
 	...persistedSettings,
-	modelSelections: { ...DEFAULT_MODEL_SELECTIONS, ...persistedModelSelections },
 };
+
+const modelsStore = new Store<AppModelSelections>({
+	name: 'models',
+	cwd: settingsDirectory,
+	accessPropertiesByDotNotation: false,
+	defaults: DEFAULT_MODEL_SELECTIONS,
+});
+if (Object.keys(persistedModelSelections).length > 0) {
+	modelsStore.store = { ...DEFAULT_MODEL_SELECTIONS, ...persistedModelSelections };
+}
 
 export const appSettingsStorePath = store.path;
 
@@ -186,11 +194,11 @@ export function setTheme(theme: AppTheme): void {
 }
 
 export function getAppModelSelections(): AppModelSelections {
-	return store.get('modelSelections');
+	return modelsStore.store;
 }
 
 export function setAppModelSelections(value: AppModelSelections): void {
-	store.set('modelSelections', value);
+	modelsStore.store = value;
 }
 
 function readProviders(kind: StoredProviderKind): StoredProvider[] {
