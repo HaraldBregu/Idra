@@ -52,6 +52,12 @@ describe('provider manifests', () => {
 		expect(providersById.get('jina')?.iconLightUrl).toContain(
 			'/resources/providers/jina/images/official/jina-color.png'
 		);
+		expect(providersById.get('deepgram')?.iconDarkUrl).toContain(
+			'/resources/providers/deepgram/images/official/deepgram-dark.svg'
+		);
+		expect(providersById.get('deepgram')?.iconLightUrl).toContain(
+			'/resources/providers/deepgram/images/official/deepgram-light.svg'
+		);
 		expect(deepseek?.metadata).toEqual(
 			expect.objectContaining({ contextWindow: 1_048_576, defaultOutputTokens: 32_768 })
 		);
