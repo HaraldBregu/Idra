@@ -1,10 +1,20 @@
 import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
 import { ResourcesStep } from './ResourcesStep';
 import { StepHeader } from './StepHeader';
 import { getProviderCatalogItem, MODEL_SERVICE_DEFINITIONS, STEP_COPY } from '../constants';
 import type { ModelConfigurationState } from '@pages/settings/components/model-configuration-state';
 import type { ModelServiceId, ModelServiceState, ModelServiceStateMap } from '../types';
+
+const ASSISTANT_SERVICE_IDS = new Set<ModelServiceId>([
+	'assistant',
+	'voice',
+	'transcription',
+	'image',
+	'video',
+	'audio',
+]);
 
 type ModelsStepProps = {
 	readonly serviceStates: ModelServiceStateMap;
@@ -47,12 +57,49 @@ export function ModelsStep({
 	savingConfig,
 	onServiceChange,
 }: ModelsStepProps): React.JSX.Element {
+	const assistantServices = MODEL_SERVICE_DEFINITIONS.filter((service) =>
+		ASSISTANT_SERVICE_IDS.has(service.id)
+	);
+	const standaloneServices = MODEL_SERVICE_DEFINITIONS.filter(
+		(service) => !ASSISTANT_SERVICE_IDS.has(service.id)
+	);
+
 	return (
 		<div className="mx-auto flex min-h-full w-full min-w-0 max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
 			<StepHeader title={STEP_COPY.models.title} description={STEP_COPY.models.description} />
 
 			<div className="mt-8 grid min-w-0 gap-6">
-				{MODEL_SERVICE_DEFINITIONS.map((service, index) => (
+				<section aria-label="Assistant providers" className="min-w-0">
+					<Card size="sm" className="gap-0! p-0!">
+						<CardContent className="p-0!">
+							{assistantServices.map((service, index) => (
+								<ModelProviderConfiguration
+									key={service.id}
+									configState={toModelConfigurationState(
+										serviceStates[service.id],
+										loadingModels,
+										savingConfig
+									)}
+									idPrefix={`setup-${service.id}`}
+									description={service.description}
+									triggerTitle={service.title}
+									triggerDescription={getSelectionSummary(
+										serviceStates[service.id],
+										'Select a model'
+									)}
+									showIcon={false}
+									grouped
+									defaultOpen={index === 0}
+									onChange={(providerId, modelId) =>
+										onServiceChange(service.id, providerId, modelId)
+									}
+								/>
+							))}
+						</CardContent>
+					</Card>
+				</section>
+
+				{standaloneServices.map((service) => (
 					<section key={service.id} className="min-w-0">
 						<div className="mb-2">
 							<h2 className="text-sm font-semibold text-foreground">{service.title}</h2>
@@ -70,7 +117,6 @@ export function ModelsStep({
 							description={service.description}
 							triggerTitle={getSelectionSummary(serviceStates[service.id], 'Select a model')}
 							triggerDescription="Choose a provider and model"
-							defaultOpen={index === 0}
 							onChange={(providerId, modelId) => onServiceChange(service.id, providerId, modelId)}
 						/>
 					</section>
