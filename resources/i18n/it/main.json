@@ -1138,7 +1138,7 @@
 			"transcribeProviderDescription": "Provider usato per la trascrizione di audio registrato.",
 			"transcribeModelDescription": "Modello batch usato per trascrivere audio registrato.",
 			"test": "Prova",
-			"testRealtimeHint": "Esempio: premi Avvia e parla — la trascrizione appare in tempo reale mentre parli.",
+			"testRealtimeHint": "Esempio: premi Avvia e parla; la trascrizione appare in tempo reale mentre parli.",
 			"testRealtimeListening": "In ascolto…",
 			"testRealtimeStart": "Avvia",
 			"testRealtimeStop": "Ferma",
