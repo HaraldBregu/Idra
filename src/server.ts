@@ -16,7 +16,7 @@ interface AgentRequest {
 export async function createApiServer(agent: AgentPort): Promise<FastifyInstance> {
 	const server = Fastify({ logger: true });
 
-	server.get('/', async () => ({ name: 'Idra', status: 'ok' }));
+	server.get('/', async () => ({ test: true }));
 	server.get('/health', async () => ({ status: 'ok' }));
 
 	server.post<{ Body: AgentRequest }>('/agents/messages', {
