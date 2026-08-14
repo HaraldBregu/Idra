@@ -7,5 +7,6 @@ export function createRunContext(): RunContext {
 			readDirectories: new Set(),
 			createdFiles: new Set(),
 		},
+		fileHistory: { operations: [] },
 	};
 }
