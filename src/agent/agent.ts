@@ -15,7 +15,7 @@ import {
 	addAssistantMessage,
 	sessionDir,
 } from './session';
-import { stream } from './runner/run_stream';
+import { stream } from './runner/stream';
 import { agentLocation } from '../shared/agent_location';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {

@@ -4,8 +4,8 @@ import type { FileAccessContext } from '../state';
 import { fileToolState, isFileCreation, rememberTool } from '../state';
 import type { KeyedMutex } from '../mutex';
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
-import { formatToolOutput } from './run_common';
-import { limitToolOutput } from './run_limit_output';
+import { formatToolOutput } from './format_tool_output';
+import { limitToolOutput } from './limit_tool_output';
 
 const MAX_TOOL_OUTPUT_BYTES = 200_000;
 

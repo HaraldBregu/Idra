@@ -3,14 +3,14 @@ import type { LlmEvent, LlmRequest } from '../adapters/llm';
 import { parseToolArgs } from '../../shared/parse_tool_args';
 import type { ResolvedProvider } from '../../shared/provider_types';
 import type { Message, MessageContentBlock, RuntimeEvent, RuntimeInput, Tool } from '../types';
-import type { ModelTurn } from './run_loop_types';
+import type { ModelTurn } from './model_turn';
 import { setTimeout as wait } from 'node:timers/promises';
-import { isTransientModelError } from './run_is_transient_model_error';
-import { modelOutputLimit } from './run_model_output_limit';
-import { modelInputLimit } from './run_model_input_limit';
-import { fitModelContext } from './run_model_context_budget';
+import { isTransientModelError } from './is_transient_model_error';
+import { modelOutputLimit } from './model_output_limit';
+import { modelInputLimit } from './model_input_limit';
+import { fitModelContext } from './fit_model_context';
 import type { KeyedLimiter } from '../limiter';
-import { retryAfterMs } from './run_retry_after';
+import { retryAfterMs } from './retry_after_ms';
 
 export interface ModelTurnStream {
 	stream(request: LlmRequest): AsyncIterable<LlmEvent>;

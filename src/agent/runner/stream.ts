@@ -18,11 +18,11 @@ import {
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
-import { filterTools } from './run_tools';
-import { formatToolOutput } from './run_common';
+import { filterTools } from './filter_tools';
+import { formatToolOutput } from './format_tool_output';
 import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
-import { builtinTools } from './run_builtin_tools';
+import { builtinTools } from './builtin_tools';
 
 export interface StreamOptions {
 	tools?: Tool[];
