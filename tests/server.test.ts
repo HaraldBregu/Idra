@@ -168,7 +168,7 @@ test('admin token protects provider configuration and agent prompts', async () =
 	}
 });
 
-test('a real HTTP prompt stays active after its request body is received', async () => {
+test('a real HTTP prompt stays active after its request body is received', async (context) => {
 	let cancelled = false;
 	const agent = {
 		async send(_message: string, agentId: string, options: AgentSendOptions): Promise<string> {
@@ -191,7 +191,15 @@ test('a real HTTP prompt stays active after its request body is received', async
 	const server = await createApiServer(agent, { storageApiToken: null });
 	server.log.level = 'silent';
 	try {
-		await server.listen({ host: '127.0.0.1', port: 0 });
+		try {
+			await server.listen({ host: '127.0.0.1', port: 0 });
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code === 'EPERM') {
+				context.skip('The execution sandbox does not allow local listening sockets.');
+				return;
+			}
+			throw error;
+		}
 		const address = server.server.address();
 		assert.ok(address && typeof address === 'object');
 		const response = await fetch(`http://127.0.0.1:${address.port}/agents/messages`, {
