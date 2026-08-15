@@ -17,7 +17,7 @@ export IDRA_API_KEY=your-api-key
 npm run dev
 ```
 
-The server listens on port `3000` by default. Set `PORT` or `IDRA_PORT` to override it.
+The server listens on port `3000`.
 
 ## Endpoints
 
@@ -58,7 +58,7 @@ Start the API with Docker Compose. Setting an admin token enables and protects t
 
 ```bash
 export IDRA_ADMIN_TOKEN=local-volume-test-token
-docker compose up --build -d
+docker compose up --build --wait -d
 ```
 
 Or run the image directly with the same persistent data layout:
@@ -103,7 +103,7 @@ Start with a fresh named volume:
 ```bash
 docker compose down --volumes
 export IDRA_ADMIN_TOKEN=local-volume-test-token
-docker compose up --build -d
+docker compose up --build --wait -d
 curl --fail http://localhost:3000/storage \
   --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
 ```
@@ -137,7 +137,7 @@ Recreate only the container. `docker compose down` keeps the named volume becaus
 
 ```bash
 docker compose down
-docker compose up -d
+docker compose up --wait -d
 curl --fail http://localhost:3000/settings \
   --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
 curl --fail 'http://localhost:3000/files?path=checks%2Fpersistence.txt' \
@@ -166,9 +166,3 @@ docker compose down --volumes
 ```
 
 File paths are relative to `/data/files`. Absolute paths, `..` traversal, directories, and symbolic-link traversal are rejected.
-
-```bash
-curl http://localhost:3000/
-docker compose down
-docker compose down --volumes # also delete stored data
-```
