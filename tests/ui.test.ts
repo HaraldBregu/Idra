@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import Fastify from 'fastify';
-import { registerStorageRoutes } from '../src/server/storage/routes';
+import { registerStorageRoutes } from '../src/main/server/storage/routes';
 import { PersistenceMarker } from '../src/ui/marker.js';
 import { runSuite } from '../src/ui/suite.js';
 

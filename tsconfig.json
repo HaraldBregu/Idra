@@ -18,6 +18,6 @@
     "dist"
   ],
   "files": [
-    "src/server/index.ts"
+    "src/main/server/index.ts"
   ]
 }

@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import Fastify from 'fastify';
-import { registerStorageRoutes } from '../src/server/storage/routes';
+import { registerStorageRoutes } from '../src/main/server/storage/routes';
 
 test('storage API manages persistent settings and files inside the data directory', async () => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-storage-'));

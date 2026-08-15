@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { SettingsService } from '../src/shared/settings';
+import { SettingsService } from '../src/main/shared/settings';
 
 test('SettingsService manages a persistent JSON settings file', () => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-settings-'));

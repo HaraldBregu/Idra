@@ -11,9 +11,9 @@ const securityHeaders = {
 };
 
 export function registerUiRoutes(server: FastifyInstance): void {
-	const indexPath = fileURLToPath(new URL('../ui/index.html', import.meta.url));
+	const indexPath = fileURLToPath(new URL('../../ui/index.html', import.meta.url));
 	const assetPath = (name: string): string =>
-		fileURLToPath(new URL(`../ui/${name}`, import.meta.url));
+		fileURLToPath(new URL(`../../ui/${name}`, import.meta.url));
 	const sendIndex = async (
 		_request: unknown,
 		reply: {
