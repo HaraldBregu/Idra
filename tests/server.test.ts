@@ -167,3 +167,42 @@ test('admin token protects provider configuration and agent prompts', async () =
 		fs.rmSync(directory, { recursive: true, force: true });
 	}
 });
+
+test('a real HTTP prompt stays active after its request body is received', async () => {
+	let cancelled = false;
+	const agent = {
+		async send(_message: string, agentId: string, options: AgentSendOptions): Promise<string> {
+			await new Promise((resolve) => setTimeout(resolve, 20));
+			if (!cancelled) {
+				options.streamEvent?.({
+					type: 'text_delta',
+					delta: 'Live response',
+					agentId,
+					runId: options.runId ?? 'missing-run',
+				});
+			}
+			return 'Live response';
+		},
+		cancel(): boolean {
+			cancelled = true;
+			return true;
+		},
+	};
+	const server = await createApiServer(agent, { storageApiToken: null });
+	server.log.level = 'silent';
+	try {
+		await server.listen({ host: '127.0.0.1', port: 0 });
+		const address = server.server.address();
+		assert.ok(address && typeof address === 'object');
+		const response = await fetch(`http://127.0.0.1:${address.port}/agents/messages`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ message: 'hello' }),
+		});
+		assert.equal(response.status, 200);
+		assert.match(await response.text(), /"delta":"Live response"/);
+		assert.equal(cancelled, false);
+	} finally {
+		await server.close();
+	}
+});

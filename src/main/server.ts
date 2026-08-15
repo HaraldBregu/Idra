@@ -61,9 +61,12 @@ export async function createApiServer(
 			const runId = randomUUID();
 			let completed = false;
 
-			request.raw.once('close', () => {
-				if (!completed) agent.cancel(runId);
-			});
+		request.raw.once('aborted', () => {
+			if (!completed) agent.cancel(runId);
+		});
+		reply.raw.once('close', () => {
+			if (!completed && !reply.raw.writableEnded) agent.cancel(runId);
+		});
 
 			reply.hijack();
 			reply.raw.writeHead(200, {
