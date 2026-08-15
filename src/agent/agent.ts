@@ -26,7 +26,7 @@ import type {
 	AgentRunStopReason,
 	AgentSessionSummary,
 } from '../shared/agent_types';
-import { toError } from '../error';
+import { toError } from '../shared/error';
 import { AgentRunScheduler, type AgentRunPriority } from './agent_scheduler';
 import type { SessionCategory } from './session';
 import { KeyedLimiter } from './limiter';

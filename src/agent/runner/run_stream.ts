@@ -1,4 +1,4 @@
-import { getResolvedProvider } from '../../settings_store';
+import { getResolvedProvider } from '../settings_store';
 import { getModelId, getModelOptions, getProviderId } from '../agent_store';
 import {
 	addAssistantMessage,

@@ -1,4 +1,4 @@
-import { findModel } from '../../models';
+import { findModel } from '../models/catalog';
 
 export const DEFAULT_MODEL_OUTPUT_TOKENS = 8_192;
 

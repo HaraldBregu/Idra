@@ -78,7 +78,7 @@ The image keeps application code in `/app` and mutable application data in `/dat
 Application code can manage `/data/settings.json` through `SettingsService`:
 
 ```ts
-import { SettingsService } from './settings';
+import { SettingsService } from './src/shared/settings';
 
 const settings = new SettingsService();
 settings.set('theme', 'dark');

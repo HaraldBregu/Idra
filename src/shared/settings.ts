@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { userDataLocation } from './shared/user_data_location';
+import { userDataLocation } from './user_data_location';
 
 export type Settings = Record<string, unknown>;
 

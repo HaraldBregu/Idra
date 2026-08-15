@@ -1,5 +1,5 @@
-import type { ResolvedProvider, StoredProvider } from './shared/provider_types';
-import { SettingsService } from './settings';
+import type { ResolvedProvider, StoredProvider } from '../shared/provider_types';
+import { SettingsService } from '../shared/settings';
 
 export const settingsService = new SettingsService();
 

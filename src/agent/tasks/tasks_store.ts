@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { JsonStore } from '../shared/store';
-import { userDataLocation } from '../shared/user_data_location';
+import { JsonStore } from '../../shared/store';
+import { userDataLocation } from '../../shared/user_data_location';
 import { DEFAULT_TASK_STATE, type PersistedTaskState } from './tasks_types';
 
 const store = new JsonStore<PersistedTaskState>({

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import Fastify, { type FastifyInstance } from 'fastify';
-import type { AgentSendOptions } from './agent/agent';
-import type { AgentResponseEvent } from './shared/agent_types';
+import type { AgentSendOptions } from '../agent/agent';
+import type { AgentResponseEvent } from '../shared/agent_types';
 
 interface AgentPort {
 	send(message: string, agentId: string, options: AgentSendOptions): Promise<string>;

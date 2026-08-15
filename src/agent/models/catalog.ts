@@ -1,4 +1,4 @@
-import type { CatalogModel, ModelCapability } from './shared/model_types';
+import type { CatalogModel, ModelCapability } from '../../shared/model_types';
 
 export function findModel(
 	_providerId: string,

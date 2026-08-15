@@ -1,5 +1,5 @@
-import { Agent } from './agent/agent';
-import { ExecSandbox } from './agent/sandbox';
+import { Agent } from '../agent/agent';
+import { ExecSandbox } from '../agent/sandbox';
 import { createApiServer } from './server';
 
 const agent = new Agent(new ExecSandbox());

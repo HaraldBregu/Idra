@@ -17,17 +17,17 @@
   "copyright": "© 2026 Idra Project. All rights reserved.",
   "type": "module",
   "license": "MIT",
-  "main": "./src/index.ts",
+  "main": "./src/server/index.ts",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts",
-    "test": "node --import tsx --test src/*.test.ts",
-    "test:watch": "node --import tsx --test --watch src/*.test.ts",
-    "test:coverage": "node --import tsx --test --experimental-test-coverage src/*.test.ts",
+    "dev": "tsx watch src/server/index.ts",
+    "start": "tsx src/server/index.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:watch": "node --import tsx --test --watch tests/*.test.ts",
+    "test:coverage": "node --import tsx --test --experimental-test-coverage tests/*.test.ts",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "format": "prettier --write src",
-    "format:check": "prettier --check src"
+    "format": "prettier --write src tests",
+    "format:check": "prettier --check src tests"
   },
   "dependencies": {
     "@anthropic-ai/sandbox-runtime": "^0.0.73",

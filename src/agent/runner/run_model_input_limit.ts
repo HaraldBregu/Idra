@@ -1,4 +1,4 @@
-import { findModel } from '../../models';
+import { findModel } from '../models/catalog';
 
 export const DEFAULT_MODEL_CONTEXT_TOKENS = 32_768;
 export const MODEL_CONTEXT_SAFETY_TOKENS = 1_024;

@@ -1,4 +1,4 @@
-import type { ModelReasoningEffort } from '../shared/agent_types';
+import type { ModelReasoningEffort } from '../../shared/agent_types';
 
 export interface TaskJobInfo {
 	readonly id: string;
