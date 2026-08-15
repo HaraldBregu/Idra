@@ -1,5 +1,5 @@
-import { timingSafeEqual } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
+import { createAdminAuthentication } from '../admin/authenticate';
 import { deleteFile } from './file_delete';
 import { listFiles } from './file_list';
 import { readFile } from './file_read';
@@ -28,23 +28,7 @@ export function registerStorageRoutes(
 	dataDirectory: string,
 	adminToken: string
 ): void {
-	const expectedAuthorization = Buffer.from(`Bearer ${adminToken}`);
-	const authenticate = async (
-		request: { headers: { authorization?: string } },
-		reply: {
-			code(statusCode: number): {
-				header(name: string, value: string): { send(payload: object): unknown };
-			};
-		}
-	): Promise<unknown> => {
-		const authorization = Buffer.from(request.headers.authorization ?? '');
-		if (
-			authorization.length !== expectedAuthorization.length ||
-			!timingSafeEqual(authorization, expectedAuthorization)
-		) {
-			return reply.code(401).header('www-authenticate', 'Bearer').send({ error: 'Unauthorized' });
-		}
-	};
+	const authenticate = createAdminAuthentication(adminToken);
 
 	server.get('/storage', { onRequest: authenticate }, async () => storageStatus(dataDirectory));
 

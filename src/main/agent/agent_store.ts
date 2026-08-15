@@ -1,14 +1,16 @@
 import path from 'node:path';
 import { agentLocation } from '../shared/agent_location';
+import { userDataLocation } from '../shared/user_data_location';
+import { readProvider } from '../provider/read';
 
 export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 export function getProviderId(): string | undefined {
-	return process.env.IDRA_PROVIDER_ID?.trim() || undefined;
+	return readProvider(userDataLocation())?.provider ?? process.env.IDRA_PROVIDER_ID?.trim() ?? undefined;
 }
 
 export function getModelId(): string | undefined {
-	return process.env.IDRA_MODEL_ID?.trim() || undefined;
+	return readProvider(userDataLocation())?.model ?? process.env.IDRA_MODEL_ID?.trim() ?? undefined;
 }
 
 export function getModelOptions(): Record<string, unknown> {
