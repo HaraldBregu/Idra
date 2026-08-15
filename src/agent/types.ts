@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { LlmEvent } from './adapters/llm';
+import type { LlmEvent } from './core/adapters/llm';
 
 export interface Config {
 	location: string;
