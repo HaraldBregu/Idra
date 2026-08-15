@@ -13,7 +13,10 @@ test('UI workflows exercise storage safely and restore existing data', async () 
 	const server = Fastify();
 	registerStorageRoutes(server, directory, 'ui-test-token');
 	const api = {
-		async request(endpoint: string, options: { method?: string; body?: unknown } = {}): Promise<any> {
+		async request(
+			endpoint: string,
+			options: { method?: string; body?: unknown } = {}
+		): Promise<any> {
 			const response = await server.inject({
 				method: options.method ?? 'GET',
 				url: endpoint,
