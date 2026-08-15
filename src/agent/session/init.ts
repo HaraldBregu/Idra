@@ -1,11 +1,10 @@
+import { sessionFolderName, sessionsRoot } from './common';
 import type { Config } from '../types';
 import type { SessionInput, SessionCategory, SessionState } from './types';
 import { loadMessagesBySessionId } from './load_messages_by_session_id';
 import { persist } from './persist';
 import { resolveSessionId } from './resolve_session_id';
 import { sanitizeMessages } from './sanitize_messages';
-import { sessionFolderName } from './common';
-import { sessionsRoot } from './common';
 import { DEFAULT_CATEGORY } from './types';
 
 export function init(

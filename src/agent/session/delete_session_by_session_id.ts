@@ -1,9 +1,6 @@
+import { isUuid, sessionFolderName, sessionPath, sessionsRoot } from './common';
 import { existsSync, rmSync } from 'node:fs';
-import { isUuid } from './common';
 import { legacyFilePath } from './legacy_file_path';
-import { sessionFolderName } from './common';
-import { sessionPath } from './common';
-import { sessionsRoot } from './common';
 
 export function deleteSessionBySessionId(sessionId: string, location: string): void {
 	const root = sessionsRoot(location);
