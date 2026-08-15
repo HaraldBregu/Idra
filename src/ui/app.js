@@ -298,7 +298,8 @@ elements['run-suite'].addEventListener('click', async () => {
 	setBusy(elements['run-suite'], true, 'Running suite…');
 	const hooks = {
 		reset() {
-			for (const step of document.querySelectorAll('[data-suite-step]')) step.dataset.state = 'pending';
+			for (const step of document.querySelectorAll('[data-suite-step]'))
+				step.dataset.state = 'pending';
 			elements['suite-result'].textContent = 'Running safe storage checks…';
 			elements['suite-result'].dataset.kind = 'info';
 		},
@@ -339,7 +340,8 @@ elements['persistence-verify'].addEventListener('click', async () => {
 			`Persistence verified. Settings and ${result.filePath} contain marker ${result.id}.`;
 		elements['persistence-result'].dataset.kind = 'success';
 	} catch (error) {
-		elements['persistence-result'].textContent = error instanceof Error ? error.message : String(error);
+		elements['persistence-result'].textContent =
+			error instanceof Error ? error.message : String(error);
 		elements['persistence-result'].dataset.kind = 'error';
 		handleError(error);
 	}
@@ -374,7 +376,10 @@ for (const editor of [elements['settings-json'], elements['file-content']]) {
 	editor.addEventListener('keydown', (event) => {
 		if (!(event.ctrlKey || event.metaKey) || event.key !== 'Enter') return;
 		event.preventDefault();
-		(editor === elements['settings-json'] ? elements['save-settings'] : elements['save-file']).click();
+		(editor === elements['settings-json']
+			? elements['save-settings']
+			: elements['save-file']
+		).click();
 	});
 }
 

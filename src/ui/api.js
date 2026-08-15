@@ -43,7 +43,7 @@ export class StorageApi {
 			if (!response.ok) {
 				const message =
 					typeof data === 'object' && data !== null
-						? data.message ?? data.error ?? `Request failed with status ${response.status}`
+						? (data.message ?? data.error ?? `Request failed with status ${response.status}`)
 						: String(data || `Request failed with status ${response.status}`);
 				const error = new Error(message);
 				error.status = response.status;

@@ -27,7 +27,12 @@
 						<p class="section-kicker">Access</p>
 						<h2 id="connection-title">Connect to the admin API</h2>
 					</div>
-					<button id="refresh-all" class="button button-secondary" type="button" data-requires-token>
+					<button
+						id="refresh-all"
+						class="button button-secondary"
+						type="button"
+						data-requires-token
+					>
 						Refresh all
 					</button>
 				</div>
@@ -54,7 +59,9 @@
 						</button>
 					</div>
 				</form>
-				<p class="helper">The token stays in this page only and is cleared when you disconnect or close it.</p>
+				<p class="helper">
+					The token stays in this page only and is cleared when you disconnect or close it.
+				</p>
 			</section>
 
 			<div id="notice" class="notice" data-kind="info" aria-live="polite">
@@ -88,16 +95,20 @@
 						</button>
 					</div>
 					<p class="section-copy">
-						Runs settings and file create, read, list, overwrite, and delete checks. Existing settings are
-						snapshotted and restored.
+						Runs settings and file create, read, list, overwrite, and delete checks. Existing
+						settings are snapshotted and restored.
 					</p>
 					<ol class="step-list">
 						<li data-suite-step="status" data-state="pending">Authenticate and inspect storage</li>
 						<li data-suite-step="snapshot" data-state="pending">Snapshot existing settings</li>
 						<li data-suite-step="settings" data-state="pending">Write and read settings marker</li>
-						<li data-suite-step="files" data-state="pending">Create, read, list, and overwrite a file</li>
+						<li data-suite-step="files" data-state="pending">
+							Create, read, list, and overwrite a file
+						</li>
 						<li data-suite-step="delete" data-state="pending">Delete and verify file absence</li>
-						<li data-suite-step="restore" data-state="pending">Restore settings and refresh status</li>
+						<li data-suite-step="restore" data-state="pending">
+							Restore settings and refresh status
+						</li>
 					</ol>
 					<p id="suite-result" class="result-box" data-kind="info" aria-live="polite">
 						Ready to run.
@@ -112,20 +123,35 @@
 						</div>
 					</div>
 					<p class="section-copy">
-						Prepare a paired settings and file marker, recreate the container without deleting its volume,
-						then reconnect and verify.
+						Prepare a paired settings and file marker, recreate the container without deleting its
+						volume, then reconnect and verify.
 					</p>
 					<div class="command-box" aria-label="Container recreation command">
 						<code>docker compose down &amp;&amp; docker compose up --wait -d</code>
 					</div>
 					<div class="button-row button-row-wrap">
-						<button id="persistence-prepare" class="button button-primary" type="button" data-requires-token>
+						<button
+							id="persistence-prepare"
+							class="button button-primary"
+							type="button"
+							data-requires-token
+						>
 							1. Prepare marker
 						</button>
-						<button id="persistence-verify" class="button button-secondary" type="button" data-requires-token>
+						<button
+							id="persistence-verify"
+							class="button button-secondary"
+							type="button"
+							data-requires-token
+						>
 							2. Verify after restart
 						</button>
-						<button id="persistence-clean" class="button button-quiet" type="button" data-requires-token>
+						<button
+							id="persistence-clean"
+							class="button button-quiet"
+							type="button"
+							data-requires-token
+						>
 							3. Clean marker
 						</button>
 					</div>
@@ -143,17 +169,37 @@
 					</div>
 					<div class="field">
 						<label for="settings-json">settings.json</label>
-						<textarea id="settings-json" class="code-editor" rows="12" spellcheck="false"></textarea>
+						<textarea
+							id="settings-json"
+							class="code-editor"
+							rows="12"
+							spellcheck="false"
+						></textarea>
 						<p class="helper">Must be a JSON object. Press Ctrl/⌘ + Enter to save.</p>
 					</div>
 					<div class="button-row button-row-wrap">
-						<button id="load-settings" class="button button-secondary" type="button" data-requires-token>
+						<button
+							id="load-settings"
+							class="button button-secondary"
+							type="button"
+							data-requires-token
+						>
 							Load
 						</button>
-						<button id="save-settings" class="button button-primary" type="button" data-requires-token>
+						<button
+							id="save-settings"
+							class="button button-primary"
+							type="button"
+							data-requires-token
+						>
 							Save
 						</button>
-						<button id="delete-settings" class="button button-danger" type="button" data-requires-token>
+						<button
+							id="delete-settings"
+							class="button button-danger"
+							type="button"
+							data-requires-token
+						>
 							Delete settings file
 						</button>
 					</div>
@@ -165,7 +211,12 @@
 							<p class="section-kicker">Manual test</p>
 							<h2 id="files-title">Volume files</h2>
 						</div>
-						<button id="refresh-files" class="button button-secondary" type="button" data-requires-token>
+						<button
+							id="refresh-files"
+							class="button button-secondary"
+							type="button"
+							data-requires-token
+						>
 							Refresh list
 						</button>
 					</div>
@@ -176,14 +227,20 @@
 					</div>
 					<div class="field">
 						<label for="file-content">UTF-8 content</label>
-						<textarea id="file-content" class="code-editor" rows="7" spellcheck="false">Hello from the storage test console.</textarea>
+						<textarea id="file-content" class="code-editor" rows="7" spellcheck="false">
+Hello from the storage test console.</textarea>
 						<p class="helper">Press Ctrl/⌘ + Enter to save.</p>
 					</div>
 					<div class="button-row button-row-wrap">
 						<button id="save-file" class="button button-primary" type="button" data-requires-token>
 							Create or overwrite
 						</button>
-						<button id="read-file" class="button button-secondary" type="button" data-requires-token>
+						<button
+							id="read-file"
+							class="button button-secondary"
+							type="button"
+							data-requires-token
+						>
 							Read file
 						</button>
 						<button id="delete-file" class="button button-danger" type="button" data-requires-token>
@@ -192,12 +249,20 @@
 					</div>
 					<div class="table-wrap">
 						<table>
-							<caption>Files currently stored in the application volume</caption>
+							<caption>
+								Files currently stored in the application volume
+							</caption>
 							<thead>
-								<tr><th scope="col">Path</th><th scope="col">Size</th><th scope="col">Action</th></tr>
+								<tr>
+									<th scope="col">Path</th>
+									<th scope="col">Size</th>
+									<th scope="col">Action</th>
+								</tr>
 							</thead>
 							<tbody id="file-list">
-								<tr><td class="empty-cell" colspan="3">Connect to load files.</td></tr>
+								<tr>
+									<td class="empty-cell" colspan="3">Connect to load files.</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -215,7 +280,9 @@
 						<button id="clear-log" class="button button-quiet" type="button">Clear</button>
 					</div>
 				</div>
-				<p class="section-copy">Authorization headers are never included. Newest requests appear first.</p>
+				<p class="section-copy">
+					Authorization headers are never included. Newest requests appear first.
+				</p>
 				<ol id="activity-list" class="activity-list" aria-live="polite"></ol>
 			</section>
 		</main>

@@ -24,7 +24,10 @@ export class PersistenceMarker {
 		});
 		await this.#api.request('/files', {
 			method: 'PUT',
-			body: { path: filePath, content: JSON.stringify({ id, createdAt: marker.createdAt }, null, 2) },
+			body: {
+				path: filePath,
+				content: JSON.stringify({ id, createdAt: marker.createdAt }, null, 2),
+			},
 		});
 		return marker;
 	}

@@ -27,7 +27,8 @@ export async function runSuite(api, hooks) {
 			},
 		});
 		const settings = await api.request('/settings');
-		if (settings.settings?._idraStorageTest?.id !== id) throw new Error('Settings marker mismatch.');
+		if (settings.settings?._idraStorageTest?.id !== id)
+			throw new Error('Settings marker mismatch.');
 		hooks.step('settings', 'passed');
 
 		hooks.step('files', 'running');
@@ -36,15 +37,18 @@ export async function runSuite(api, hooks) {
 			body: { path: filePath, content: firstContent },
 		});
 		const createdFile = await api.request(`/files?${new URLSearchParams({ path: filePath })}`);
-		if (createdFile.file?.content !== firstContent) throw new Error('Created file content mismatch.');
+		if (createdFile.file?.content !== firstContent)
+			throw new Error('Created file content mismatch.');
 		const files = await api.request('/files');
-		if (!files.files?.some((file) => file.path === filePath)) throw new Error('File missing from list.');
+		if (!files.files?.some((file) => file.path === filePath))
+			throw new Error('File missing from list.');
 		await api.request('/files', {
 			method: 'PUT',
 			body: { path: filePath, content: secondContent },
 		});
 		const overwrittenFile = await api.request(`/files?${new URLSearchParams({ path: filePath })}`);
-		if (overwrittenFile.file?.content !== secondContent) throw new Error('Overwritten file mismatch.');
+		if (overwrittenFile.file?.content !== secondContent)
+			throw new Error('Overwritten file mismatch.');
 		hooks.step('files', 'passed');
 
 		hooks.step('delete', 'running');
