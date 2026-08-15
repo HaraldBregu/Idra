@@ -7,6 +7,8 @@ import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import { formatToolOutput } from './run_common';
 import { limitToolOutput } from './run_limit_output';
 
+const MAX_TOOL_OUTPUT_BYTES = 200_000;
+
 export interface ToolCallSecurityContext {
 	runId: string;
 	windowId?: number;
@@ -57,24 +59,11 @@ export async function* runToolCall(
 		let release = (): void => undefined;
 		try {
 			signal?.throwIfAborted();
-			const timeoutController = new AbortController();
-			const timeout = setTimeout(
-				() => timeoutController.abort(new DOMException('Tool call timed out.', 'TimeoutError')),
-				tool.timeoutMs
-			);
-			timeout.unref?.();
-			const toolSignal = signal
-				? AbortSignal.any([signal, timeoutController.signal])
-				: timeoutController.signal;
-			release = resources ? await resources.acquire([], toolSignal) : release;
-			try {
-				output = await tool.run(canonicalInput, toolSignal);
-				output = limitToolOutput(output, tool.maxOutputBytes);
-				if (state && (toolCall.name === 'read_file' || isFileCreation(state))) {
-					rememberTool(context, state);
-				}
-			} finally {
-				clearTimeout(timeout);
+			release = resources ? await resources.acquire([], signal) : release;
+			output = await tool.run(canonicalInput);
+			output = limitToolOutput(output, MAX_TOOL_OUTPUT_BYTES);
+			if (state && (toolCall.name === 'read_file' || isFileCreation(state))) {
+				rememberTool(context, state);
 			}
 		} catch (error) {
 			if (signal?.aborted) throw error;

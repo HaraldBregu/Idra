@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import fsPromises from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
@@ -12,7 +11,6 @@ export const writeTool = tool({
 	name: 'Write file',
 	description:
 		'Create or overwrite a UTF-8 text file with exact content, creating parent directories when needed.',
-	hardApproval: ({ path: filePath }) => fs.existsSync(resolveUserPath(filePath, agentLocation())),
 	inputSchema: z.object({
 		path: z
 			.string()

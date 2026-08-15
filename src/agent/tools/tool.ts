@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { JSONSchema, JsonToolConfig, Tool, ToolConfig } from '../types';
+import type { JSONSchema, Tool, ToolConfig } from '../types';
 
 function toJsonSchema(schema: z.ZodType): JSONSchema {
 	const jsonSchema = { ...z.toJSONSchema(schema) } as JSONSchema;
@@ -11,10 +11,6 @@ export function tool<T extends z.ZodType>({
 	id,
 	name,
 	description,
-	timeoutMs = 10 * 60_000,
-	maxOutputBytes = 200_000,
-	planSafe,
-	hardApproval,
 	inputSchema,
 	execute,
 }: ToolConfig<T>): Tool {
@@ -22,52 +18,12 @@ export function tool<T extends z.ZodType>({
 		id,
 		name,
 		description,
-		timeoutMs,
-		maxOutputBytes,
-		planSafe,
-		hardApproval: typeof hardApproval === 'function'
-			? (input) => hardApproval(inputSchema.parse(input))
-			: hardApproval,
 		schema: toJsonSchema(inputSchema),
 		parseInput(input: unknown) {
 			return inputSchema.parse(input) as Record<string, unknown>;
 		},
-		async run(input: Record<string, unknown>, signal?: AbortSignal) {
-			return execute(inputSchema.parse(input), signal);
-		},
-	};
-}
-
-export function jsonTool({
-	id,
-	name,
-	description,
-	timeoutMs = 10 * 60_000,
-	maxOutputBytes = 200_000,
-	planSafe,
-	hardApproval,
-	parseInput,
-	schema,
-	execute,
-}: JsonToolConfig): Tool {
-	return {
-		id,
-		name,
-		description,
-		timeoutMs,
-		maxOutputBytes,
-		planSafe,
-		hardApproval,
-		schema,
-		parseInput(input: unknown) {
-			if (parseInput) return parseInput(input);
-			if (!input || typeof input !== 'object' || Array.isArray(input)) {
-				throw new Error('Tool input must be an object.');
-			}
-			return input as Record<string, unknown>;
-		},
-		async run(input: Record<string, unknown>, signal?: AbortSignal) {
-			return execute(parseInput ? parseInput(input) : input, signal);
+		run(input: Record<string, unknown>) {
+			return execute(inputSchema.parse(input));
 		},
 	};
 }
