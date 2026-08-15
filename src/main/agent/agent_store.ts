@@ -6,7 +6,9 @@ import { readProvider } from '../provider/read';
 export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 export function getProviderId(): string | undefined {
-	return readProvider(userDataLocation())?.provider ?? process.env.IDRA_PROVIDER_ID?.trim() ?? undefined;
+	return (
+		readProvider(userDataLocation())?.provider ?? process.env.IDRA_PROVIDER_ID?.trim() ?? undefined
+	);
 }
 
 export function getModelId(): string | undefined {

@@ -6,19 +6,19 @@ import { runSuite } from './suite.js';
 const elements = Object.fromEntries(
 	[
 		'activity-list',
-			'admin-token',
-			'agent-output',
-			'agent-prompt',
-			'agent-session',
-			'agent-state',
+		'admin-token',
+		'agent-output',
+		'agent-prompt',
+		'agent-session',
+		'agent-state',
 		'clear-log',
 		'connect-button',
 		'connection-form',
 		'connection-status',
 		'copy-log',
 		'data-directory',
-			'delete-file',
-			'delete-provider',
+		'delete-file',
+		'delete-provider',
 		'delete-settings',
 		'disconnect-button',
 		'file-content',
@@ -26,29 +26,29 @@ const elements = Object.fromEntries(
 		'file-list',
 		'file-path',
 		'load-settings',
-			'notice',
-			'new-session',
+		'notice',
+		'new-session',
 		'persistence-clean',
 		'persistence-prepare',
 		'persistence-result',
 		'persistence-verify',
-			'read-file',
+		'read-file',
 		'refresh-all',
 		'refresh-files',
 		'run-suite',
-			'save-file',
-			'save-provider',
+		'save-file',
+		'save-provider',
 		'save-settings',
 		'settings-json',
 		'settings-state',
-			'show-token',
-			'show-provider-key',
-			'provider-form',
-			'provider-key',
-			'provider-model',
-			'provider-select',
-			'provider-state',
-			'send-prompt',
+		'show-token',
+		'show-provider-key',
+		'provider-form',
+		'provider-key',
+		'provider-model',
+		'provider-select',
+		'provider-state',
+		'send-prompt',
 		'suite-result',
 	].map((id) => [id, document.getElementById(id)])
 );
@@ -307,7 +307,8 @@ elements['send-prompt'].addEventListener('click', async () => {
 			if (event.type === 'run_started') {
 				sessionId = event.sessionId;
 				elements['agent-session'].textContent = `Session ${sessionId}`;
-				elements['agent-state'].textContent = `Running with ${event.providerId ?? 'provider'} · ${event.model ?? 'model'}`;
+				elements['agent-state'].textContent =
+					`Running with ${event.providerId ?? 'provider'} · ${event.model ?? 'model'}`;
 				elements['new-session'].disabled = false;
 			} else if (event.type === 'text_delta') {
 				receivedDelta = true;
