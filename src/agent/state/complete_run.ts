@@ -1,4 +1,4 @@
-import type { AgentRunRecord, AgentRunRegistry } from './state_types';
+import type { AgentRunRecord, AgentRunRegistry } from './types';
 
 export function completeRun<TOptions>(
 	registry: AgentRunRegistry<TOptions>,

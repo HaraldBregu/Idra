@@ -1,4 +1,4 @@
-import type { RunContext } from './context_types';
+import type { RunContext } from './types';
 
 export function createRunContext(): RunContext {
 	return {

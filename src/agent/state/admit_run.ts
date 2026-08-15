@@ -1,4 +1,4 @@
-import type { AgentRunRecord, AgentRunRegistry, AgentRunRequest } from './state_types';
+import type { AgentRunRecord, AgentRunRegistry, AgentRunRequest } from './types';
 
 export function admitRun<TOptions>(
 	registry: AgentRunRegistry<TOptions>,

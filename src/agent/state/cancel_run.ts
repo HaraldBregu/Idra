@@ -1,4 +1,4 @@
-import type { AgentRunRecord } from './state_types';
+import type { AgentRunRecord } from './types';
 
 export function cancelRun(record: AgentRunRecord, reason: Error): boolean {
 	if (record.lifecycle.status === 'cancelling') return false;

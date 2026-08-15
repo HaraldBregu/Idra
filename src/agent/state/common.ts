@@ -1,7 +1,8 @@
+import type { FileAccessContext, FileToolState } from './types';
+
 import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
-import type { FileToolState } from './context_types';
 
 export function fileToolState(
 	toolName: string,
@@ -15,4 +16,18 @@ export function fileToolState(
 		path: resolved,
 		directory: path.dirname(resolved),
 	};
+}
+
+export function hasCreatedFile(
+	context: FileAccessContext | undefined,
+	filePath: string
+): boolean {
+	return context?.createdFiles.has(filePath) ?? false;
+}
+
+export function hasToolPermission(
+	context: FileAccessContext | undefined,
+	directory: string
+): boolean {
+	return context?.readDirectories.has(directory) ?? false;
 }

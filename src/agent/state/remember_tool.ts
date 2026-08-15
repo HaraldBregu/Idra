@@ -1,4 +1,4 @@
-import type { FileAccessContext, FileToolState } from './context_types';
+import type { FileAccessContext, FileToolState } from './types';
 
 export function rememberTool(
 	context: FileAccessContext | undefined,

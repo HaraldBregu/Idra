@@ -1,7 +1,5 @@
-import { fileToolState } from './context_file_tool_state';
-import { hasCreatedFile } from './context_has_created_file';
-import { hasToolPermission } from './context_has_tool_permission';
-import type { FileAccessContext } from './context_types';
+import { fileToolState, hasCreatedFile, hasToolPermission } from './common';
+import type { FileAccessContext } from './types';
 
 export function contextAllowsTool(
 	context: FileAccessContext | undefined,

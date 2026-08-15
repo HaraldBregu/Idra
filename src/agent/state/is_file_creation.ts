@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { FileToolState } from './context_types';
+import type { FileToolState } from './types';
 
 export function isFileCreation(state: FileToolState): boolean {
 	if (state.toolName !== 'write_file') return false;
