@@ -1,5 +1,5 @@
-import { USER_FILE } from './system_types';
-import { readTextFile } from './system_read_text_file';
+import { USER_FILE } from './types';
+import { readTextFile } from './common';
 
 export function readUser(workspacePath: string): Promise<string> {
 	return readTextFile(workspacePath, USER_FILE);

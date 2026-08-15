@@ -1,5 +1,5 @@
-import { BOOTSTRAP_FILE } from './system_types';
-import { readTextFile } from './system_read_text_file';
+import { BOOTSTRAP_FILE } from './types';
+import { readTextFile } from './common';
 
 export function readBootstrap(workspacePath: string): Promise<string> {
 	return readTextFile(workspacePath, BOOTSTRAP_FILE);

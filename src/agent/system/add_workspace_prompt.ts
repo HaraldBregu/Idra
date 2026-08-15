@@ -1,5 +1,5 @@
 import type { Config } from '../types';
-import { workspacePath } from './system_workspace_path';
+import { workspacePath } from './workspace_path';
 
 export async function addWorkspacePrompt(config: Config, prompt: string): Promise<string> {
 	const resolvedWorkspacePath = workspacePath(config);

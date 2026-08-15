@@ -1,5 +1,19 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { WorkspaceFile } from './system_types';
+import type { WorkspaceFile } from './types';
+
+export async function readTextFile(workspacePath: string, filePath: WorkspaceFile): Promise<string> {
+	try {
+		return await fs.readFile(resolveWorkspacePath(workspacePath, filePath), 'utf8');
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') return '';
+		throw error;
+	}
+}
+
+export function resolveTemplatePath(filePath: WorkspaceFile): string {
+	return path.resolve(process.cwd(), 'resources', 'templates', filePath);
+}
 
 export function resolveWorkspacePath(workspacePath: string, filePath: WorkspaceFile): string {
 	if (path.isAbsolute(filePath) || path.win32.isAbsolute(filePath)) {

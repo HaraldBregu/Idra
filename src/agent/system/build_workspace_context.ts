@@ -1,11 +1,11 @@
 import type { Config } from '../types';
-import { readAgent } from './system_read_agent';
-import { readBootstrap } from './system_read_bootstrap';
-import { readIdentity } from './system_read_identity';
-import { readMemory } from './system_read_memory';
-import { readSoul } from './system_read_soul';
-import { readUser } from './system_read_user';
-import { workspacePath } from './system_workspace_path';
+import { readAgent } from './read_agent';
+import { readBootstrap } from './read_bootstrap';
+import { readIdentity } from './read_identity';
+import { readMemory } from './read_memory';
+import { readSoul } from './read_soul';
+import { readUser } from './read_user';
+import { workspacePath } from './workspace_path';
 
 export async function buildWorkspaceContext(config: Config): Promise<string> {
 	const resolvedWorkspacePath = workspacePath(config);

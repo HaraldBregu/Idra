@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
-import { BOOTSTRAP_FILE, USER_FILE, WORKSPACE_FILES } from './system_types';
-import { ensureWorkspaceFile } from './system_ensure_workspace_file';
-import { resolveWorkspacePath } from './system_resolve_workspace_path';
+import { BOOTSTRAP_FILE, USER_FILE, WORKSPACE_FILES } from './types';
+import { ensureWorkspaceFile } from './ensure_workspace_file';
+import { resolveWorkspacePath } from './common';
 
 export function ensureWorkspaceFiles(workspacePath: string): void {
 	// A missing USER.md marks a fresh workspace; BOOTSTRAP.md is only seeded then,
