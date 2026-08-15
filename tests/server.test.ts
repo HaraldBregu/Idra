@@ -29,7 +29,7 @@ test('API routes work through Fastify request injection', async () => {
 			return true;
 		},
 	};
-	const server = await createApiServer(agent);
+	const server = await createApiServer(agent, { storageApiEnabled: false });
 	server.log.level = 'silent';
 
 	try {
@@ -40,6 +40,7 @@ test('API routes work through Fastify request injection', async () => {
 		const health = await server.inject({ method: 'GET', url: '/health' });
 		assert.equal(health.statusCode, 200);
 		assert.deepEqual(health.json(), { status: 'ok' });
+		assert.equal((await server.inject({ method: 'GET', url: '/storage' })).statusCode, 404);
 
 		for (const payload of [{}, { message: '' }, { message: 'hello', sessionId: '' }]) {
 			const response = await server.inject({

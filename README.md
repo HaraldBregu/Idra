@@ -24,6 +24,9 @@ The server listens on port `3000` by default. Set `PORT` or `IDRA_PORT` to overr
 - `GET /` — service information
 - `GET /health` — service health
 - `POST /agents/messages` — streams agent events as NDJSON
+- `GET /storage` — reports persistent-volume status when the storage API is enabled
+- `GET`, `PUT`, `DELETE /settings` — reads, replaces, or deletes `settings.json`
+- `GET`, `PUT`, `DELETE /files` — lists, reads, creates, replaces, or deletes volume files
 
 ```bash
 curl -N http://localhost:3000/agents/messages \
@@ -51,10 +54,10 @@ Use `npm run test:watch` while developing and `npm run test:coverage` for a cove
 
 ## Docker
 
-Start the API with Docker Compose:
+Start the API with Docker Compose. Enable the storage API only while managing or testing the persistent volume:
 
 ```bash
-docker compose up --build -d
+IDRA_STORAGE_API_ENABLED=true docker compose up --build -d
 ```
 
 Or run the image directly with the same persistent data layout:
@@ -62,7 +65,9 @@ Or run the image directly with the same persistent data layout:
 ```bash
 docker build -t idra .
 docker volume create idra-data
-docker run --name idra -d -p 3000:3000 --volume idra-data:/data idra
+docker run --name idra -d -p 3000:3000 \
+  --env IDRA_STORAGE_API_ENABLED=true \
+  --volume idra-data:/data idra
 ```
 
 The image keeps application code in `/app` and mutable application data in `/data`. Compose mounts the persistent `idra-data` volume at `/data`, including the main settings file and workspaces:
@@ -70,6 +75,7 @@ The image keeps application code in `/app` and mutable application data in `/dat
 ```text
 /data/
 ├── settings.json
+├── files/
 └── workspace/
 ```
 
@@ -86,6 +92,65 @@ settings.save();
 settings.get('theme');
 settings.getAll();
 ```
+
+### Test Docker volume persistence through the API
+
+The storage API is disabled by default because it can change persistent application data. The commands below enable it, create settings and a file, recreate the container without deleting the named volume, verify persistence, and then delete the data through the API.
+
+Start with a fresh named volume:
+
+```bash
+docker compose down --volumes
+IDRA_STORAGE_API_ENABLED=true docker compose up --build -d
+curl --fail http://localhost:3000/storage
+```
+
+Create the settings document and a nested UTF-8 file:
+
+```bash
+curl --fail --request PUT http://localhost:3000/settings \
+  --header 'content-type: application/json' \
+  --data '{"settings":{"theme":"dark","volumeTest":true}}'
+
+curl --fail --request PUT http://localhost:3000/files \
+  --header 'content-type: application/json' \
+  --data '{"path":"checks/persistence.txt","content":"survives container recreation"}'
+```
+
+Read both resources through the server:
+
+```bash
+curl --fail http://localhost:3000/settings
+curl --fail 'http://localhost:3000/files?path=checks%2Fpersistence.txt'
+curl --fail http://localhost:3000/files
+```
+
+Recreate only the container. `docker compose down` keeps the named volume because `--volumes` is intentionally omitted:
+
+```bash
+docker compose down
+IDRA_STORAGE_API_ENABLED=true docker compose up -d
+curl --fail http://localhost:3000/settings
+curl --fail 'http://localhost:3000/files?path=checks%2Fpersistence.txt'
+```
+
+The responses must still contain `"theme":"dark"` and `survives container recreation`. Delete the resources through the server and verify the resulting empty state:
+
+```bash
+curl --fail --request DELETE 'http://localhost:3000/files?path=checks%2Fpersistence.txt'
+curl --fail --request DELETE http://localhost:3000/settings
+curl --fail http://localhost:3000/storage
+curl --fail http://localhost:3000/files
+curl --fail http://localhost:3000/settings
+```
+
+Expected final state: the storage status reports `settings.exists` as `false` and `files.count` as `0`; the file list is empty and the settings response contains `"exists":false`. Remove the test container and named volume when finished:
+
+```bash
+docker compose down --volumes
+```
+
+File paths are relative to `/data/files`. Absolute paths, `..` traversal, directories, and symbolic-link traversal are rejected.
 
 ```bash
 curl http://localhost:3000/

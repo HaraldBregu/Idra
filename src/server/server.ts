@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { AgentSendOptions } from '../agent/agent';
 import type { AgentResponseEvent } from '../shared/agent_types';
+import { userDataLocation } from '../shared/user_data_location';
+import { registerStorageRoutes } from './storage/routes';
 
 interface AgentPort {
 	send(message: string, agentId: string, options: AgentSendOptions): Promise<string>;
@@ -13,11 +15,25 @@ interface AgentRequest {
 	sessionId?: string;
 }
 
-export async function createApiServer(agent: AgentPort): Promise<FastifyInstance> {
+interface ServerOptions {
+	dataDirectory?: string;
+	storageApiEnabled?: boolean;
+}
+
+export async function createApiServer(
+	agent: AgentPort,
+	options: ServerOptions = {}
+): Promise<FastifyInstance> {
 	const server = Fastify({ logger: true });
 
 	server.get('/', async () => ({ test: true }));
 	server.get('/health', async () => ({ status: 'ok' }));
+	const storageApiEnabled =
+		options.storageApiEnabled ??
+		process.env.IDRA_STORAGE_API_ENABLED?.trim().toLowerCase() === 'true';
+	if (storageApiEnabled) {
+		registerStorageRoutes(server, options.dataDirectory ?? userDataLocation());
+	}
 
 	server.post<{ Body: AgentRequest }>('/agents/messages', {
 		schema: {

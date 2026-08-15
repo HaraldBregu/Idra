@@ -4,6 +4,8 @@ services:
       context: .
     ports:
       - "3000:3000"
+    environment:
+      IDRA_STORAGE_API_ENABLED: ${IDRA_STORAGE_API_ENABLED:-false}
     volumes:
       - idra-data:/data
     restart: unless-stopped
