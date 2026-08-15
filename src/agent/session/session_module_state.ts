@@ -1,4 +1,4 @@
-import { createRunContext } from '../context';
+import { createRunContext } from '../state';
 import { DEFAULT_CATEGORY, type SessionState } from './session_types';
 
 export function createSessionState(): SessionState {

@@ -1,7 +1,7 @@
 import { agentLocation } from '../../shared/agent_location';
 import type { AgentInteractionMode } from '../../shared/agent_types';
-import type { FileAccessContext } from '../context';
-import { fileToolState, isFileCreation, rememberTool } from '../context';
+import type { FileAccessContext } from '../state';
+import { fileToolState, isFileCreation, rememberTool } from '../state';
 import type { KeyedMutex } from '../mutex';
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import { formatToolOutput } from './run_common';

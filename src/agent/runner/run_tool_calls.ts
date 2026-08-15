@@ -1,4 +1,4 @@
-import type { FileAccessContext } from '../context';
+import type { FileAccessContext } from '../state';
 import type { KeyedMutex } from '../mutex';
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import { runToolCall, type ToolCallSecurityContext } from './run_tool_call';

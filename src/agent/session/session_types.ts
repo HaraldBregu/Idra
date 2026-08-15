@@ -1,5 +1,5 @@
 import type { AgentPromptInputCapabilities, ModelReasoningEffort } from '../../shared/agent_types';
-import type { RunContext } from '../context';
+import type { RunContext } from '../state';
 import type { Message, MessageContentBlock, ToolCall } from '../types';
 
 export const DEFAULT_CATEGORY: SessionCategory = 'main';
