@@ -11,26 +11,28 @@ Idra is a Fastify REST API that exposes a streaming AI agent.
 
 ```bash
 npm ci
-export IDRA_PROVIDER_ID=openai
-export IDRA_MODEL_ID=gpt-4.1-mini
-export IDRA_API_KEY=your-api-key
+export IDRA_ADMIN_TOKEN=local-admin-token
 npm run dev
 ```
 
-The server listens on port `3000`.
+The server listens on port `3000`. Open [http://localhost:3000](http://localhost:3000), connect with the admin token, then configure Anthropic, OpenAI, or DeepSeek from the **Provider and model** panel. The model field accepts the provider's current model ID and the API key remains server-side.
+
+`IDRA_PROVIDER_ID`, `IDRA_MODEL_ID`, `IDRA_API_KEY`, and `IDRA_BASE_URL` remain available as an environment-variable fallback when no UI configuration exists.
 
 ## Endpoints
 
-- `GET /` — opens the storage test console
-- `GET /storage-test` — alternate URL for the storage test console
+- `GET /` — opens the agent and storage console
+- `GET /storage-test` — alternate URL for the agent and storage console
 - `GET /health` — service health
-- `POST /agents/messages` — streams agent events as NDJSON
+- `POST /agents/messages` — streams agent events as NDJSON; requires the admin bearer token when configured
+- `GET`, `PUT`, `DELETE /provider` — manages the write-only provider configuration
 - `GET /storage` — reports persistent-volume status when the storage API is enabled
 - `GET`, `PUT`, `DELETE /settings` — reads, replaces, or deletes `settings.json`
 - `GET`, `PUT`, `DELETE /files` — lists, reads, creates, replaces, or deletes volume files
 
 ```bash
 curl -N http://localhost:3000/agents/messages \
+  -H "authorization: Bearer $IDRA_ADMIN_TOKEN" \
   -H 'content-type: application/json' \
   -d '{"message":"Hello"}'
 ```
@@ -64,6 +66,8 @@ docker compose up --build --wait -d
 
 Open [http://localhost:3000](http://localhost:3000), enter the same admin token, and select **Connect**. The page provides:
 
+- provider, model, and write-only API-key setup for Anthropic, OpenAI, and DeepSeek;
+- a prompt editor with live streamed agent responses and follow-up session continuity;
 - live volume, settings, and file status;
 - manual settings load, save, and deletion;
 - manual file creation, reading, listing, overwriting, and deletion;
@@ -87,10 +91,13 @@ The image keeps application code in `/app` and mutable application data in `/dat
 
 ```text
 /data/
+├── provider.json
 ├── settings.json
 ├── files/
 └── workspace/
 ```
+
+`provider.json` is written atomically with file mode `0600`. Its API key is never returned by `GET /provider` or populated back into the browser. It is stored as a volume secret, not encrypted at rest, so protect access to the Docker volume and the admin token.
 
 `IDRA_DATA_DIR` defaults to `/data` in the container. For local development it defaults to `./data` and can be overridden with the same environment variable.
 
