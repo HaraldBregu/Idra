@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { atomicWrite } from '../../shared/atomic_write';
+import { atomicWrite } from '../shared/atomic_write';
 import { storagePath } from './path';
 import type { StoredFile } from './types';
 

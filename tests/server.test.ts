@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { AgentSendOptions } from '../src/main/agent/agent';
-import { createApiServer } from '../src/main/server/server';
+import { createApiServer } from '../src/main/server';
 import type { AgentResponseEvent } from '../src/main/shared/agent_types';
 
 test('API routes work through Fastify request injection', async () => {

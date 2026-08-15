@@ -12,7 +12,7 @@ npm run dev
 ## Project layout
 
 - `src/main/agent` — agent runtime, tools, sessions, permissions, and system prompts
-- `src/main/server` — application entrypoint and Fastify REST routes
+- `src/main` — application entrypoint and Fastify REST routes
 - `src/main/shared` — cross-cutting utilities and types
 - `src/ui` — user interface modules
 - `tests` — automated tests

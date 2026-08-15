@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import Fastify, { type FastifyInstance } from 'fastify';
-import type { AgentSendOptions } from '../agent/agent';
-import type { AgentResponseEvent } from '../shared/agent_types';
-import { userDataLocation } from '../shared/user_data_location';
+import type { AgentSendOptions } from './agent/agent';
+import type { AgentResponseEvent } from './shared/agent_types';
+import { userDataLocation } from './shared/user_data_location';
 import { registerStorageRoutes } from './storage/routes';
 import { registerUiRoutes } from './ui';
 

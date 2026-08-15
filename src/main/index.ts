@@ -1,4 +1,4 @@
-import { Agent } from '../agent/agent';
+import { Agent } from './agent/agent';
 import { createApiServer } from './server';
 
 const agent = new Agent();
