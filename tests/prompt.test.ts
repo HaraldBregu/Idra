@@ -15,7 +15,9 @@ test('agent UI client authenticates, reuses sessions, and parses chunked NDJSON'
 		return new Response(
 			new ReadableStream({
 				start(controller) {
-					controller.enqueue(encoder.encode('{"type":"run_started","sessionId":"session-1"}\n{"type":"text_'));
+					controller.enqueue(
+						encoder.encode('{"type":"run_started","sessionId":"session-1"}\n{"type":"text_')
+					);
 					controller.enqueue(encoder.encode('delta","delta":"Hello"}\n{"type":"run_finished"}'));
 					controller.close();
 				},
@@ -54,11 +56,17 @@ test('agent UI client surfaces HTTP and streamed agent errors', async () => {
 				status: 401,
 				headers: { 'content-type': 'application/json' },
 			});
-		await assert.rejects(new AgentApi().prompt('Hello', '', () => {}), /Unauthorized/);
+		await assert.rejects(
+			new AgentApi().prompt('Hello', '', () => {}),
+			/Unauthorized/
+		);
 
 		globalThis.fetch = async () =>
 			new Response('{"type":"error","message":"provider failed"}\n', { status: 200 });
-		await assert.rejects(new AgentApi().prompt('Hello', '', () => {}), /provider failed/);
+		await assert.rejects(
+			new AgentApi().prompt('Hello', '', () => {}),
+			/provider failed/
+		);
 	} finally {
 		globalThis.fetch = originalFetch;
 	}

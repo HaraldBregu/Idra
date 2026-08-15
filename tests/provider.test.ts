@@ -18,10 +18,12 @@ test('provider API persists only supported provider configurations without retur
 
 	try {
 		assert.equal((await server.inject({ method: 'GET', url: '/provider' })).statusCode, 401);
-		assert.deepEqual(
-			(await server.inject({ method: 'GET', url: '/provider', headers })).json(),
-			{ configured: false, provider: null, model: null, hasApiKey: false }
-		);
+		assert.deepEqual((await server.inject({ method: 'GET', url: '/provider', headers })).json(), {
+			configured: false,
+			provider: null,
+			model: null,
+			hasApiKey: false,
+		});
 
 		for (const payload of [
 			{ provider: 'custom', model: 'model', apiKey: secret },
@@ -69,7 +71,10 @@ test('provider API persists only supported provider configurations without retur
 		});
 		assert.equal(updated.statusCode, 200);
 		assert.equal(updated.body.includes(secret), false);
-		assert.equal(JSON.parse(fs.readFileSync(path.join(directory, 'provider.json'), 'utf8')).apiKey, secret);
+		assert.equal(
+			JSON.parse(fs.readFileSync(path.join(directory, 'provider.json'), 'utf8')).apiKey,
+			secret
+		);
 
 		const changedWithoutKey = await server.inject({
 			method: 'PUT',
