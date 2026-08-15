@@ -134,10 +134,10 @@ test('storage API manages persistent settings and files inside the data director
 			).statusCode,
 			404
 		);
-		assert.deepEqual(
-			(await server.inject({ method: 'GET', url: '/settings', headers })).json(),
-			{ exists: false, settings: {} }
-		);
+		assert.deepEqual((await server.inject({ method: 'GET', url: '/settings', headers })).json(), {
+			exists: false,
+			settings: {},
+		});
 	} finally {
 		await server.close();
 		fs.rmSync(directory, { recursive: true, force: true });
