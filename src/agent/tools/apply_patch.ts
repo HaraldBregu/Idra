@@ -1,10 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
-import { agentLocation } from '../../../shared/agent_location';
-import { resolveUserPath } from '../../../shared/user_path';
-import { tool } from '../../core/tool';
-import { atomicWrite } from '../../../shared/atomic_write';
+import { agentLocation } from '../../shared/agent_location';
+import { resolveUserPath } from '../../shared/user_path';
+import { tool } from '../core/tool';
+import { atomicWrite } from '../../shared/atomic_write';
 
 const BEGIN_PATCH_MARKER = '*** Begin Patch';
 const END_PATCH_MARKER = '*** End Patch';

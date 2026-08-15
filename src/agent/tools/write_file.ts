@@ -1,10 +1,10 @@
 import fsPromises from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
-import { agentLocation } from '../../../shared/agent_location';
-import { resolveUserPath } from '../../../shared/user_path';
-import { tool } from '../../core/tool';
-import { atomicWrite } from '../../../shared/atomic_write';
+import { agentLocation } from '../../shared/agent_location';
+import { resolveUserPath } from '../../shared/user_path';
+import { tool } from '../core/tool';
+import { atomicWrite } from '../../shared/atomic_write';
 
 export const writeTool = tool({
 	id: 'write_file',
