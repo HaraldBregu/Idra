@@ -1,18 +1,24 @@
 import { StorageApi } from './api.js';
+import { AgentApi } from './agent.js';
 import { PersistenceMarker } from './marker.js';
 import { runSuite } from './suite.js';
 
 const elements = Object.fromEntries(
 	[
 		'activity-list',
-		'admin-token',
+			'admin-token',
+			'agent-output',
+			'agent-prompt',
+			'agent-session',
+			'agent-state',
 		'clear-log',
 		'connect-button',
 		'connection-form',
 		'connection-status',
 		'copy-log',
 		'data-directory',
-		'delete-file',
+			'delete-file',
+			'delete-provider',
 		'delete-settings',
 		'disconnect-button',
 		'file-content',
@@ -20,28 +26,41 @@ const elements = Object.fromEntries(
 		'file-list',
 		'file-path',
 		'load-settings',
-		'notice',
+			'notice',
+			'new-session',
 		'persistence-clean',
 		'persistence-prepare',
 		'persistence-result',
 		'persistence-verify',
-		'read-file',
+			'read-file',
 		'refresh-all',
 		'refresh-files',
 		'run-suite',
-		'save-file',
+			'save-file',
+			'save-provider',
 		'save-settings',
 		'settings-json',
 		'settings-state',
-		'show-token',
+			'show-token',
+			'show-provider-key',
+			'provider-form',
+			'provider-key',
+			'provider-model',
+			'provider-select',
+			'provider-state',
+			'send-prompt',
 		'suite-result',
 	].map((id) => [id, document.getElementById(id)])
 );
 
 const requiresToken = [...document.querySelectorAll('[data-requires-token]')];
+const requiresProvider = [...document.querySelectorAll('[data-requires-provider]')];
 const api = new StorageApi(logResult);
+const agentApi = new AgentApi();
 const marker = new PersistenceMarker(api);
 let connected = false;
+let providerConfigured = false;
+let sessionId = '';
 
 function format(value) {
 	return JSON.stringify(value, null, 2);
@@ -77,6 +96,8 @@ function setConnected(value, label) {
 	elements['connection-status'].dataset.connected = String(value);
 	for (const control of requiresToken) control.disabled = !value;
 	elements['disconnect-button'].disabled = !value;
+	for (const control of requiresProvider) control.disabled = !value || !providerConfigured;
+	elements['new-session'].disabled = !value || !providerConfigured || !sessionId;
 }
 
 function setBusy(button, busy, busyLabel) {
@@ -137,9 +158,30 @@ async function loadFiles() {
 	return result;
 }
 
+async function loadProvider() {
+	const result = await api.request('/provider');
+	providerConfigured = result.configured;
+	elements['provider-state'].textContent = result.configured
+		? `${result.provider} · ${result.model}`
+		: 'Not configured';
+	elements['provider-state'].dataset.connected = String(result.configured);
+	if (result.provider) elements['provider-select'].value = result.provider;
+	if (result.model) elements['provider-model'].value = result.model;
+	elements['provider-key'].value = '';
+	elements['provider-key'].placeholder = result.hasApiKey
+		? 'Saved key · leave blank to keep'
+		: 'Enter API key';
+	elements['agent-state'].textContent = result.configured
+		? 'Ready to send a prompt.'
+		: 'Configure a provider first.';
+	setConnected(connected, elements['connection-status'].textContent);
+	return result;
+}
+
 async function refreshAll(updateEditor = true) {
 	const [storage] = await Promise.all([
 		api.request('/storage'),
+		loadProvider(),
 		loadSettings(updateEditor),
 		loadFiles(),
 	]);
@@ -170,6 +212,7 @@ elements['connection-form'].addEventListener('submit', async (event) => {
 		return;
 	}
 	api.setToken(token);
+	agentApi.setToken(token);
 	setBusy(elements['connect-button'], true, 'Connecting…');
 	try {
 		await refreshAll();
@@ -188,11 +231,114 @@ elements['show-token'].addEventListener('change', () => {
 
 elements['disconnect-button'].addEventListener('click', () => {
 	api.setToken('');
+	agentApi.setToken('');
 	elements['admin-token'].value = '';
 	elements['show-token'].checked = false;
 	elements['admin-token'].type = 'password';
+	elements['provider-key'].value = '';
+	elements['provider-key'].type = 'password';
+	elements['show-provider-key'].checked = false;
 	setConnected(false, 'Not connected');
 	announce('Disconnected. The token was cleared from this page.', 'info');
+});
+
+elements['show-provider-key'].addEventListener('change', () => {
+	elements['provider-key'].type = elements['show-provider-key'].checked ? 'text' : 'password';
+});
+
+elements['provider-select'].addEventListener('change', () => {
+	const placeholders = {
+		anthropic: 'claude-sonnet-4-5',
+		openai: 'gpt-5.6',
+		deepseek: 'deepseek-v4-flash',
+	};
+	elements['provider-model'].placeholder = placeholders[elements['provider-select'].value];
+	elements['provider-key'].value = '';
+});
+
+elements['provider-form'].addEventListener('submit', async (event) => {
+	event.preventDefault();
+	setBusy(elements['save-provider'], true, 'Saving…');
+	try {
+		const provider = elements['provider-select'].value;
+		const model = elements['provider-model'].value.trim();
+		const apiKey = elements['provider-key'].value;
+		if (!model) throw new Error('Enter a model name.');
+		await api.request('/provider', {
+			method: 'PUT',
+			body: { provider, model, ...(apiKey ? { apiKey } : {}) },
+		});
+		await loadProvider();
+		announce(`${provider} is configured for ${model}.`, 'success');
+	} catch (error) {
+		handleError(error);
+	} finally {
+		setBusy(elements['save-provider'], false, 'Save configuration');
+	}
+});
+
+elements['delete-provider'].addEventListener('click', async () => {
+	if (!window.confirm('Remove the saved provider, model, and API key?')) return;
+	try {
+		await api.request('/provider', { method: 'DELETE' });
+		providerConfigured = false;
+		sessionId = '';
+		elements['provider-model'].value = '';
+		elements['agent-session'].textContent = 'No session';
+		await loadProvider();
+		announce('Provider configuration was removed.', 'success');
+	} catch (error) {
+		handleError(error);
+	}
+});
+
+elements['send-prompt'].addEventListener('click', async () => {
+	const message = elements['agent-prompt'].value.trim();
+	if (!message) {
+		announce('Enter a prompt first.', 'error');
+		return;
+	}
+	setBusy(elements['send-prompt'], true, 'Running…');
+	elements['agent-output'].textContent = '';
+	elements['agent-state'].textContent = 'Waiting for the agent…';
+	let receivedDelta = false;
+	try {
+		await agentApi.prompt(message, sessionId, (event) => {
+			if (event.type === 'run_started') {
+				sessionId = event.sessionId;
+				elements['agent-session'].textContent = `Session ${sessionId}`;
+				elements['agent-state'].textContent = `Running with ${event.providerId ?? 'provider'} · ${event.model ?? 'model'}`;
+				elements['new-session'].disabled = false;
+			} else if (event.type === 'text_delta') {
+				receivedDelta = true;
+				elements['agent-output'].textContent += event.delta;
+			} else if (event.type === 'assistant_message' && !receivedDelta) {
+				elements['agent-output'].textContent = event.content;
+			} else if (event.type === 'run_finished') {
+				elements['agent-state'].textContent = 'Completed.';
+			}
+		});
+		if (!elements['agent-output'].textContent) {
+			elements['agent-output'].textContent = 'The agent completed without a text response.';
+		}
+		announce('Agent response completed.', 'success');
+	} catch (error) {
+		elements['agent-state'].textContent = 'Run failed.';
+		if (!elements['agent-output'].textContent) {
+			elements['agent-output'].textContent = error instanceof Error ? error.message : String(error);
+		}
+		handleError(error);
+	} finally {
+		setBusy(elements['send-prompt'], false, 'Send prompt');
+	}
+});
+
+elements['new-session'].addEventListener('click', () => {
+	sessionId = '';
+	elements['agent-session'].textContent = 'No session';
+	elements['agent-output'].textContent = 'The streamed response will appear here.';
+	elements['agent-state'].textContent = 'Ready to start a new session.';
+	elements['new-session'].disabled = true;
 });
 
 elements['refresh-all'].addEventListener('click', async () => {
@@ -372,17 +518,25 @@ elements['copy-log'].addEventListener('click', async () => {
 	}
 });
 
-for (const editor of [elements['settings-json'], elements['file-content']]) {
+for (const editor of [
+	elements['settings-json'],
+	elements['file-content'],
+	elements['agent-prompt'],
+]) {
 	editor.addEventListener('keydown', (event) => {
 		if (!(event.ctrlKey || event.metaKey) || event.key !== 'Enter') return;
 		event.preventDefault();
-		(editor === elements['settings-json']
-			? elements['save-settings']
-			: elements['save-file']
-		).click();
+		const button =
+			editor === elements['settings-json']
+				? elements['save-settings']
+				: editor === elements['file-content']
+					? elements['save-file']
+					: elements['send-prompt'];
+		button.click();
 	});
 }
 
 setConnected(false, 'Not connected');
 elements['settings-json'].value = '{}';
 elements['file-content'].value = 'Hello from the storage test console.';
+elements['provider-select'].dispatchEvent(new Event('change'));

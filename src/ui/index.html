@@ -4,7 +4,7 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="color-scheme" content="light dark" />
-		<title>Idra Storage Test Console</title>
+		<title>Idra Agent Console</title>
 		<link rel="stylesheet" href="/ui/styles.css" />
 		<script type="module" src="/ui/app.js"></script>
 	</head>
@@ -12,8 +12,8 @@
 		<header class="app-header">
 			<div>
 				<p class="eyebrow">Idra administrative tools</p>
-				<h1>Storage test console</h1>
-				<p class="lede">Inspect and exercise settings and files on the persistent Docker volume.</p>
+					<h1>Agent console</h1>
+					<p class="lede">Configure an AI provider, talk to the agent, and inspect persistent storage.</p>
 			</div>
 			<div id="connection-status" class="status-badge" data-connected="false" role="status">
 				Not connected
@@ -64,11 +64,114 @@
 				</p>
 			</section>
 
-			<div id="notice" class="notice" data-kind="info" aria-live="polite">
-				Enter the token configured as IDRA_ADMIN_TOKEN, then connect.
-			</div>
+				<div id="notice" class="notice" data-kind="info" aria-live="polite">
+					Enter the token configured as IDRA_ADMIN_TOKEN, then connect.
+				</div>
 
-			<section class="overview" aria-label="Storage overview">
+				<div class="agent-grid">
+					<section class="panel" aria-labelledby="provider-title">
+						<div class="section-heading">
+							<div>
+								<p class="section-kicker">AI setup</p>
+								<h2 id="provider-title">Provider and model</h2>
+							</div>
+							<span id="provider-state" class="status-badge" data-connected="false" role="status">
+								Not configured
+							</span>
+						</div>
+						<form id="provider-form">
+							<div class="field">
+								<label for="provider-select">Provider</label>
+								<select id="provider-select" data-requires-token disabled>
+									<option value="anthropic">Anthropic</option>
+									<option value="openai">OpenAI</option>
+									<option value="deepseek">DeepSeek</option>
+								</select>
+							</div>
+							<div class="field">
+								<label for="provider-model">Model</label>
+								<input
+									id="provider-model"
+									type="text"
+									maxlength="200"
+									autocomplete="off"
+									spellcheck="false"
+									data-requires-token
+									disabled
+								/>
+							</div>
+							<div class="field">
+								<label for="provider-key">API key</label>
+								<div class="secret-field">
+									<input
+										id="provider-key"
+										type="password"
+										autocomplete="new-password"
+										spellcheck="false"
+										data-requires-token
+										disabled
+									/>
+									<label class="check-control">
+										<input id="show-provider-key" type="checkbox" />
+										<span>Show</span>
+									</label>
+								</div>
+								<p class="helper">Stored server-side in provider.json with mode 0600. Leave blank to keep the current key.</p>
+							</div>
+							<div class="button-row button-row-wrap">
+								<button id="save-provider" class="button button-primary" type="submit" data-requires-token>
+									Save configuration
+								</button>
+								<button
+									id="delete-provider"
+									class="button button-danger"
+									type="button"
+									data-requires-token
+								>
+									Remove configuration
+								</button>
+							</div>
+						</form>
+					</section>
+
+					<section class="panel prompt-panel" aria-labelledby="prompt-title">
+						<div class="section-heading">
+							<div>
+								<p class="section-kicker">Agent</p>
+								<h2 id="prompt-title">Prompt</h2>
+							</div>
+							<button id="new-session" class="button button-secondary" type="button" disabled>
+								New session
+							</button>
+						</div>
+						<div class="field">
+							<label for="agent-prompt">Message</label>
+							<textarea
+								id="agent-prompt"
+								rows="5"
+								placeholder="Ask the agent to help with your workspace…"
+								data-requires-provider
+								disabled
+							></textarea>
+							<p class="helper">Press Ctrl/⌘ + Enter to send. Follow-up prompts continue the same session.</p>
+						</div>
+						<div class="button-row prompt-actions">
+							<button id="send-prompt" class="button button-primary" type="button" data-requires-provider disabled>
+								Send prompt
+							</button>
+							<span id="agent-state" class="helper" role="status" aria-live="polite">Configure a provider first.</span>
+						</div>
+						<div class="response-box" aria-label="Agent response">
+							<div class="response-meta">
+								<strong>Response</strong>
+								<span id="agent-session">No session</span>
+							</div>
+							<pre id="agent-output" aria-live="polite">The streamed response will appear here.</pre>
+						</div>
+					</section>
+				</div>
+
+				<section class="overview" aria-label="Storage overview">
 				<article class="metric-card">
 					<span class="metric-label">Data directory</span>
 					<strong id="data-directory" class="metric-value path-value">—</strong>

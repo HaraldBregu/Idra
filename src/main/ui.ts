@@ -32,6 +32,7 @@ export function registerUiRoutes(server: FastifyInstance): void {
 		['api.js', 'text/javascript; charset=utf-8'],
 		['suite.js', 'text/javascript; charset=utf-8'],
 		['marker.js', 'text/javascript; charset=utf-8'],
+		['agent.js', 'text/javascript; charset=utf-8'],
 		['app.js', 'text/javascript; charset=utf-8'],
 	] as const) {
 		server.get(`/ui/${name}`, async (_request, reply) => {
