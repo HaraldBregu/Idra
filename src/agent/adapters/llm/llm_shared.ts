@@ -6,8 +6,8 @@ import type {
 	ResponseInputItem,
 	ResponseOutputItem,
 } from 'openai/resources/responses/responses';
-import type { Message } from '../../../types';
-import { hasAssistantPayload } from '../../../session/session_has_assistant_payload';
+import type { Message } from '../../types';
+import { hasAssistantPayload } from '../../session/session_has_assistant_payload';
 import type {
 	LlmContentBlock,
 	LlmStreamRequest,

@@ -1,5 +1,5 @@
-import { LlmContextOverflowError, LlmModel } from '../models/adapters/llm';
-import type { LlmEvent, LlmRequest } from '../models/adapters/llm';
+import { LlmContextOverflowError, LlmModel } from '../adapters/llm';
+import type { LlmEvent, LlmRequest } from '../adapters/llm';
 import { parseToolArgs } from '../../shared/parse_tool_args';
 import type { ResolvedProvider } from '../../shared/provider_types';
 import type { Message, MessageContentBlock, RuntimeEvent, RuntimeInput, Tool } from '../types';
@@ -35,14 +35,14 @@ export async function* runModelTurn(
 	onContextAccepted?: () => void
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	const maxRetries = 2;
-	const maxTokens = modelOutputLimit(provider.id, modelId, modelOptions);
+	const maxTokens = modelOutputLimit(modelOptions);
 	const context = fitModelContext({
 		systemPrompt,
 		protectedSystemPrompt,
 		contextMessages,
 		messages,
 		tools,
-		maxInputTokens: modelInputLimit(provider.id, modelId, maxTokens),
+		maxInputTokens: modelInputLimit(maxTokens),
 	});
 	onContextAccepted?.();
 	for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
