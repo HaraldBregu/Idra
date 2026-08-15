@@ -1,4 +1,4 @@
-import { isUuid } from './is_uuid';
+import { isUuid } from './common';
 
 export function requireUuidSessionId(value: unknown): string {
 	const sessionId = typeof value === 'string' ? value.trim() : '';

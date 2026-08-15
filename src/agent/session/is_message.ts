@@ -1,6 +1,6 @@
 import type { Message } from '../types';
 import { isMessageContent } from './is_message_content';
-import { isRecord } from './is_record';
+import { isRecord } from './common';
 import { isToolCall } from './is_tool_call';
 
 export function isMessage(value: unknown): value is Message {

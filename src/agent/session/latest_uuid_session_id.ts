@@ -1,8 +1,8 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import type { SessionCategory } from './types';
-import { sessionPath } from './session_path';
+import { sessionPath } from './common';
 import { sessionType } from './session_type';
-import { isUuid } from './is_uuid';
+import { isUuid } from './common';
 
 export function latestUuidSessionId(
 	sessionsPath: string,

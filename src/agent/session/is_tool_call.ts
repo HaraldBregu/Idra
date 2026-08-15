@@ -1,5 +1,5 @@
 import type { ToolCall } from '../types';
-import { isRecord } from './is_record';
+import { isRecord } from './common';
 import { isToolResult } from './is_tool_result';
 
 export function isToolCall(value: unknown): value is ToolCall {

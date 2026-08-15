@@ -2,11 +2,11 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import type { AgentSessionSummary } from '../../shared/agent_types';
 import type { SessionCategory } from './types';
 import { DEFAULT_CATEGORY } from './types';
-import { isUuid } from './is_uuid';
+import { isUuid } from './common';
 import { loadMessagesBySessionId } from './load_messages_by_session_id';
-import { sessionPath } from './session_path';
+import { sessionPath } from './common';
 import { sessionType } from './session_type';
-import { sessionsRoot } from './sessions_root';
+import { sessionsRoot } from './common';
 
 function sessionTitle(sessionId: string, location: string): string {
 	const firstUserMessage = loadMessagesBySessionId(sessionId, location).find(

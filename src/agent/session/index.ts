@@ -19,9 +19,9 @@ export { requireUuidSessionId } from './require_uuid_session_id';
 export { resolveSessionId } from './resolve_session_id';
 export { resolveStoredSessionId } from './resolve_stored_session_id';
 export { sessionDir } from './session_dir';
-export { sessionFolderName } from './session_folder_name';
-export { sessionPath } from './session_path';
-export { sessionsRoot } from './sessions_root';
+export { sessionFolderName } from './common';
+export { sessionPath } from './common';
+export { sessionsRoot } from './common';
 export { toResult } from './to_result';
 export {
 	DEFAULT_CATEGORY,

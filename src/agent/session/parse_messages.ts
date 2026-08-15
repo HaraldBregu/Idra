@@ -1,6 +1,6 @@
 import type { Message } from '../types';
 import { isMessage } from './is_message';
-import { isRecord } from './is_record';
+import { isRecord } from './common';
 
 export function parseMessages(content: string): Message[] | undefined {
 	try {

@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { messagesBackupFile } from './messages_backup_file';
 import { messagesFile } from './messages_file';
 import { parseMessages } from './parse_messages';
-import { sessionsRoot } from './sessions_root';
+import { sessionsRoot } from './common';
 import { writeMessagesFile } from './write_messages_file';
 
 export function updateUserMessageBySessionId(

@@ -1,11 +1,11 @@
 import { existsSync, writeFileSync } from 'node:fs';
-import { isUuid } from './is_uuid';
+import { isUuid } from './common';
 import { legacyFilePath } from './legacy_file_path';
 import { messagesBackupFile } from './messages_backup_file';
 import { messagesFile } from './messages_file';
-import { sessionFolderName } from './session_folder_name';
-import { sessionPath } from './session_path';
-import { sessionsRoot } from './sessions_root';
+import { sessionFolderName } from './common';
+import { sessionPath } from './common';
+import { sessionsRoot } from './common';
 import { writeMessagesFile } from './write_messages_file';
 
 export function clearMessagesBySessionId(sessionId: string, location: string): void {
