@@ -1,28 +1,9 @@
-import type { AgentInteractionMode } from '../../shared/agent_types';
-import type { Config, Tool } from '../types';
-import type { ExecSandbox } from '../sandbox';
-import { completeBootstrapTool } from '../tools/assistant/complete_bootstrap';
+import type { Tool } from '../types';
 import { applyPatchTool } from '../tools/core/apply_patch';
 import { editTool } from '../tools/core/edit_file';
-import { execTool } from '../tools/core/exec_command';
-import { processTool } from '../tools/core/process';
 import { readTool } from '../tools/core/read_file';
 import { writeTool } from '../tools/core/write_file';
-import { fetchWebPageTool } from '../tools/web/fetch_web_page';
 
-export function builtinTools(
-	config: Config,
-	sandbox: ExecSandbox,
-	interactionMode: AgentInteractionMode = 'default'
-): Tool[] {
-	return [
-		readTool,
-		writeTool,
-		editTool,
-		applyPatchTool,
-		execTool(sandbox, interactionMode),
-		processTool,
-		fetchWebPageTool,
-		completeBootstrapTool,
-	];
+export function builtinTools(): Tool[] {
+	return [readTool, writeTool, editTool, applyPatchTool];
 }
