@@ -385,3 +385,4 @@ for (const editor of [elements['settings-json'], elements['file-content']]) {
 
 setConnected(false, 'Not connected');
 elements['settings-json'].value = '{}';
+elements['file-content'].value = 'Hello from the storage test console.';
