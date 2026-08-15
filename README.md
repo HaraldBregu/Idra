@@ -57,7 +57,7 @@ Use `npm run test:watch` while developing and `npm run test:coverage` for a cove
 
 ## Docker
 
-Start the API with Docker Compose. Setting an admin token enables and protects the storage API:
+Start the API with Docker Compose. Setting an admin token enables and protects provider setup, agent prompts, and the storage API:
 
 ```bash
 export IDRA_ADMIN_TOKEN=local-volume-test-token

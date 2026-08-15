@@ -308,7 +308,7 @@ elements['send-prompt'].addEventListener('click', async () => {
 				sessionId = event.sessionId;
 				elements['agent-session'].textContent = `Session ${sessionId}`;
 				elements['agent-state'].textContent =
-					`Running with ${event.providerId ?? 'provider'} · ${event.model ?? 'model'}`;
+					`Running with ${elements['provider-select'].value} · ${elements['provider-model'].value}`;
 				elements['new-session'].disabled = false;
 			} else if (event.type === 'text_delta') {
 				receivedDelta = true;
