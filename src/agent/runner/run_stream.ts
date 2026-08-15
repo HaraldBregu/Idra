@@ -22,7 +22,6 @@ import { filterTools } from './run_tools';
 import { formatToolOutput } from './run_common';
 import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
-import type { ExecSandbox } from '../sandbox';
 import { builtinTools } from './run_builtin_tools';
 
 export interface StreamOptions {
@@ -32,7 +31,6 @@ export interface StreamOptions {
 	resources?: KeyedMutex;
 	providerLimiter?: KeyedLimiter;
 	subagentLimiter?: KeyedLimiter;
-	sandbox?: ExecSandbox;
 }
 
 const MAX_TOOL_CALLS = 100;

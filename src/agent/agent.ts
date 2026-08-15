@@ -31,7 +31,6 @@ import { AgentRunScheduler, type AgentRunPriority } from './agent_scheduler';
 import type { SessionCategory } from './session';
 import { KeyedLimiter } from './limiter';
 import { KeyedMutex } from './mutex';
-import type { ExecSandbox } from './sandbox';
 import {
 	admitRun,
 	beginRun,
@@ -81,7 +80,7 @@ export class Agent {
 	private isStarted = false;
 	readonly config: Config;
 
-	constructor(readonly sandbox: ExecSandbox) {
+	constructor() {
 		this.config = { location: path.resolve(agentLocation()) };
 	}
 
@@ -92,7 +91,6 @@ export class Agent {
 
 	destroy(): void {
 		this.cancelAll();
-		void this.sandbox.reset();
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions): Promise<string> {
@@ -197,7 +195,6 @@ export class Agent {
 			const events = stream(this.config, session, input, runSignal, {
 				streaming: options.streaming ?? true,
 				resources: this.resources,
-				sandbox: this.sandbox,
 				providerLimiter: this.providerLimiter,
 				subagentLimiter: this.subagentLimiter,
 			});
