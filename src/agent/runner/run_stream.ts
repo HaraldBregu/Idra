@@ -15,7 +15,6 @@ import {
 	buildSystemPrompt,
 	buildWorkspaceContext,
 } from '../system';
-import { subagentTool, subagentsTool } from '../tools/core/subagents';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
@@ -104,27 +103,8 @@ async function* loop(
 
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
-	if (!options.tools && !options.sandbox) throw new Error('Agent command sandbox is unavailable.');
 
-	let tools: Tool[] = options.tools
-		? [...options.tools]
-		: builtinTools(config, options.sandbox!, input.interactionMode);
-
-
-	if (!options.tools) {
-		const childTools = filterTools(tools, input.toolsAllow, input.toolsDeny);
-		const childRuntime = {
-			type: input.type,
-			interactionMode: input.interactionMode,
-			...(options.resources ? { resources: options.resources } : {}),
-			...(options.providerLimiter ? { providerLimiter: options.providerLimiter } : {}),
-			...(options.subagentLimiter ? { subagentLimiter: options.subagentLimiter } : {}),
-		};
-		tools.push(
-			subagentTool(config, childTools, childRuntime),
-			subagentsTool(config, childTools, childRuntime, options.subagentLimiter)
-		);
-	}
+	let tools: Tool[] = options.tools ? [...options.tools] : builtinTools();
 	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
 
 
