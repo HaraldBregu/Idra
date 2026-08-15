@@ -35,7 +35,19 @@ test('API routes work through Fastify request injection', async () => {
 	try {
 		const root = await server.inject({ method: 'GET', url: '/' });
 		assert.equal(root.statusCode, 200);
-		assert.deepEqual(root.json(), { test: true });
+		assert.match(root.headers['content-type'] ?? '', /^text\/html/);
+		assert.match(root.body, /Storage test console/);
+		assert.match(root.headers['content-security-policy'] ?? '', /default-src 'self'/);
+
+		const storageTest = await server.inject({ method: 'GET', url: '/storage-test' });
+		assert.equal(storageTest.statusCode, 200);
+		assert.equal(storageTest.body, root.body);
+
+		for (const asset of ['styles.css', 'api.js', 'suite.js', 'marker.js', 'app.js']) {
+			const response = await server.inject({ method: 'GET', url: `/ui/${asset}` });
+			assert.equal(response.statusCode, 200);
+			assert.equal(response.headers['cache-control'], 'no-store');
+		}
 
 		const health = await server.inject({ method: 'GET', url: '/health' });
 		assert.equal(health.statusCode, 200);

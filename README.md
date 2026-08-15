@@ -21,7 +21,8 @@ The server listens on port `3000`.
 
 ## Endpoints
 
-- `GET /` — service information
+- `GET /` — opens the storage test console
+- `GET /storage-test` — alternate URL for the storage test console
 - `GET /health` — service health
 - `POST /agents/messages` — streams agent events as NDJSON
 - `GET /storage` — reports persistent-volume status when the storage API is enabled
@@ -60,6 +61,17 @@ Start the API with Docker Compose. Setting an admin token enables and protects t
 export IDRA_ADMIN_TOKEN=local-volume-test-token
 docker compose up --build --wait -d
 ```
+
+Open [http://localhost:3000](http://localhost:3000), enter the same admin token, and select **Connect**. The page provides:
+
+- live volume, settings, and file status;
+- manual settings load, save, and deletion;
+- manual file creation, reading, listing, overwriting, and deletion;
+- a safe full API suite that restores existing settings after it finishes;
+- a persistence checkpoint for verifying data after container recreation;
+- a request log with status codes, timings, and response bodies.
+
+For the persistence checkpoint, select **Prepare marker**, run the displayed container recreation command, reconnect with the token, select **Verify after restart**, and finally select **Clean marker**.
 
 Or run the image directly with the same persistent data layout:
 
@@ -113,12 +125,12 @@ Create the settings document and a nested UTF-8 file:
 ```bash
 curl --fail --request PUT http://localhost:3000/settings \
   --header "authorization: Bearer $IDRA_ADMIN_TOKEN" \
-	  --header 'content-type: application/json' \
+  --header 'content-type: application/json' \
   --data '{"settings":{"theme":"dark","volumeTest":true}}'
 
 curl --fail --request PUT http://localhost:3000/files \
   --header "authorization: Bearer $IDRA_ADMIN_TOKEN" \
-	  --header 'content-type: application/json' \
+  --header 'content-type: application/json' \
   --data '{"path":"checks/persistence.txt","content":"survives container recreation"}'
 ```
 

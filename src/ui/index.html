@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="light dark" />
+		<title>Idra Storage Test Console</title>
+		<link rel="stylesheet" href="/ui/styles.css" />
+		<script type="module" src="/ui/app.js"></script>
+	</head>
+	<body>
+		<header class="app-header">
+			<div>
+				<p class="eyebrow">Idra administrative tools</p>
+				<h1>Storage test console</h1>
+				<p class="lede">Inspect and exercise settings and files on the persistent Docker volume.</p>
+			</div>
+			<div id="connection-status" class="status-badge" data-connected="false" role="status">
+				Not connected
+			</div>
+		</header>
+
+		<main class="app-shell">
+			<section class="panel connection-panel" aria-labelledby="connection-title">
+				<div class="section-heading">
+					<div>
+						<p class="section-kicker">Access</p>
+						<h2 id="connection-title">Connect to the admin API</h2>
+					</div>
+					<button id="refresh-all" class="button button-secondary" type="button" data-requires-token>
+						Refresh all
+					</button>
+				</div>
+				<form id="connection-form" class="connection-form">
+					<div class="field token-field">
+						<label for="admin-token">Admin token</label>
+						<input
+							id="admin-token"
+							name="admin-token"
+							type="password"
+							autocomplete="off"
+							spellcheck="false"
+							placeholder="IDRA_ADMIN_TOKEN"
+						/>
+					</div>
+					<label class="check-control">
+						<input id="show-token" type="checkbox" />
+						<span>Show token</span>
+					</label>
+					<div class="button-row">
+						<button id="connect-button" class="button button-primary" type="submit">Connect</button>
+						<button id="disconnect-button" class="button button-secondary" type="button" disabled>
+							Disconnect
+						</button>
+					</div>
+				</form>
+				<p class="helper">The token stays in this page only and is cleared when you disconnect or close it.</p>
+			</section>
+
+			<div id="notice" class="notice" data-kind="info" aria-live="polite">
+				Enter the token configured as IDRA_ADMIN_TOKEN, then connect.
+			</div>
+
+			<section class="overview" aria-label="Storage overview">
+				<article class="metric-card">
+					<span class="metric-label">Data directory</span>
+					<strong id="data-directory" class="metric-value path-value">—</strong>
+				</article>
+				<article class="metric-card">
+					<span class="metric-label">Settings</span>
+					<strong id="settings-state" class="metric-value" data-exists="false">Unknown</strong>
+				</article>
+				<article class="metric-card">
+					<span class="metric-label">Stored files</span>
+					<strong id="file-count" class="metric-value">—</strong>
+				</article>
+			</section>
+
+			<div class="workspace-grid">
+				<section class="panel" aria-labelledby="suite-title">
+					<div class="section-heading">
+						<div>
+							<p class="section-kicker">Automated</p>
+							<h2 id="suite-title">Safe API test suite</h2>
+						</div>
+						<button id="run-suite" class="button button-primary" type="button" data-requires-token>
+							Run full API suite
+						</button>
+					</div>
+					<p class="section-copy">
+						Runs settings and file create, read, list, overwrite, and delete checks. Existing settings are
+						snapshotted and restored.
+					</p>
+					<ol class="step-list">
+						<li data-suite-step="status" data-state="pending">Authenticate and inspect storage</li>
+						<li data-suite-step="snapshot" data-state="pending">Snapshot existing settings</li>
+						<li data-suite-step="settings" data-state="pending">Write and read settings marker</li>
+						<li data-suite-step="files" data-state="pending">Create, read, list, and overwrite a file</li>
+						<li data-suite-step="delete" data-state="pending">Delete and verify file absence</li>
+						<li data-suite-step="restore" data-state="pending">Restore settings and refresh status</li>
+					</ol>
+					<p id="suite-result" class="result-box" data-kind="info" aria-live="polite">
+						Ready to run.
+					</p>
+				</section>
+
+				<section class="panel" aria-labelledby="persistence-title">
+					<div class="section-heading">
+						<div>
+							<p class="section-kicker">Docker lifecycle</p>
+							<h2 id="persistence-title">Persistence checkpoint</h2>
+						</div>
+					</div>
+					<p class="section-copy">
+						Prepare a paired settings and file marker, recreate the container without deleting its volume,
+						then reconnect and verify.
+					</p>
+					<div class="command-box" aria-label="Container recreation command">
+						<code>docker compose down &amp;&amp; docker compose up --wait -d</code>
+					</div>
+					<div class="button-row button-row-wrap">
+						<button id="persistence-prepare" class="button button-primary" type="button" data-requires-token>
+							1. Prepare marker
+						</button>
+						<button id="persistence-verify" class="button button-secondary" type="button" data-requires-token>
+							2. Verify after restart
+						</button>
+						<button id="persistence-clean" class="button button-quiet" type="button" data-requires-token>
+							3. Clean marker
+						</button>
+					</div>
+					<p id="persistence-result" class="result-box" data-kind="info" aria-live="polite">
+						No persistence marker prepared.
+					</p>
+				</section>
+
+				<section class="panel" aria-labelledby="settings-title">
+					<div class="section-heading">
+						<div>
+							<p class="section-kicker">Manual test</p>
+							<h2 id="settings-title">Settings document</h2>
+						</div>
+					</div>
+					<div class="field">
+						<label for="settings-json">settings.json</label>
+						<textarea id="settings-json" class="code-editor" rows="12" spellcheck="false"></textarea>
+						<p class="helper">Must be a JSON object. Press Ctrl/⌘ + Enter to save.</p>
+					</div>
+					<div class="button-row button-row-wrap">
+						<button id="load-settings" class="button button-secondary" type="button" data-requires-token>
+							Load
+						</button>
+						<button id="save-settings" class="button button-primary" type="button" data-requires-token>
+							Save
+						</button>
+						<button id="delete-settings" class="button button-danger" type="button" data-requires-token>
+							Delete settings file
+						</button>
+					</div>
+				</section>
+
+				<section class="panel" aria-labelledby="files-title">
+					<div class="section-heading">
+						<div>
+							<p class="section-kicker">Manual test</p>
+							<h2 id="files-title">Volume files</h2>
+						</div>
+						<button id="refresh-files" class="button button-secondary" type="button" data-requires-token>
+							Refresh list
+						</button>
+					</div>
+					<div class="field">
+						<label for="file-path">Relative file path</label>
+						<input id="file-path" type="text" value="checks/manual.txt" spellcheck="false" />
+						<p class="helper">Paths are contained under /data/files.</p>
+					</div>
+					<div class="field">
+						<label for="file-content">UTF-8 content</label>
+						<textarea id="file-content" class="code-editor" rows="7" spellcheck="false">Hello from the storage test console.</textarea>
+						<p class="helper">Press Ctrl/⌘ + Enter to save.</p>
+					</div>
+					<div class="button-row button-row-wrap">
+						<button id="save-file" class="button button-primary" type="button" data-requires-token>
+							Create or overwrite
+						</button>
+						<button id="read-file" class="button button-secondary" type="button" data-requires-token>
+							Read file
+						</button>
+						<button id="delete-file" class="button button-danger" type="button" data-requires-token>
+							Delete file
+						</button>
+					</div>
+					<div class="table-wrap">
+						<table>
+							<caption>Files currently stored in the application volume</caption>
+							<thead>
+								<tr><th scope="col">Path</th><th scope="col">Size</th><th scope="col">Action</th></tr>
+							</thead>
+							<tbody id="file-list">
+								<tr><td class="empty-cell" colspan="3">Connect to load files.</td></tr>
+							</tbody>
+						</table>
+					</div>
+				</section>
+			</div>
+
+			<section class="panel activity-panel" aria-labelledby="activity-title">
+				<div class="section-heading">
+					<div>
+						<p class="section-kicker">Diagnostics</p>
+						<h2 id="activity-title">Request activity</h2>
+					</div>
+					<div class="button-row">
+						<button id="copy-log" class="button button-secondary" type="button">Copy</button>
+						<button id="clear-log" class="button button-quiet" type="button">Clear</button>
+					</div>
+				</div>
+				<p class="section-copy">Authorization headers are never included. Newest requests appear first.</p>
+				<ol id="activity-list" class="activity-list" aria-live="polite"></ol>
+			</section>
+		</main>
+	</body>
+</html>

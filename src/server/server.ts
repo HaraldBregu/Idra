@@ -4,6 +4,7 @@ import type { AgentSendOptions } from '../agent/agent';
 import type { AgentResponseEvent } from '../shared/agent_types';
 import { userDataLocation } from '../shared/user_data_location';
 import { registerStorageRoutes } from './storage/routes';
+import { registerUiRoutes } from './ui';
 
 interface AgentPort {
 	send(message: string, agentId: string, options: AgentSendOptions): Promise<string>;
@@ -26,7 +27,7 @@ export async function createApiServer(
 ): Promise<FastifyInstance> {
 	const server = Fastify({ logger: true });
 
-	server.get('/', async () => ({ test: true }));
+	registerUiRoutes(server);
 	server.get('/health', async () => ({ status: 'ok' }));
 	const storageApiToken =
 		options.storageApiToken === undefined
