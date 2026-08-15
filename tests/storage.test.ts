@@ -10,10 +10,15 @@ test('storage API manages persistent settings and files inside the data director
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-storage-'));
 	const outsideFile = path.join(directory, '..', `idra-outside-${path.basename(directory)}.txt`);
 	const server = Fastify();
-	registerStorageRoutes(server, directory);
+	const headers = { authorization: 'Bearer storage-test-token' };
+	registerStorageRoutes(server, directory, 'storage-test-token');
 
 	try {
-		const initial = await server.inject({ method: 'GET', url: '/storage' });
+		const unauthorized = await server.inject({ method: 'GET', url: '/storage' });
+		assert.equal(unauthorized.statusCode, 401);
+		assert.equal(unauthorized.headers['www-authenticate'], 'Bearer');
+
+		const initial = await server.inject({ method: 'GET', url: '/storage', headers });
 		assert.equal(initial.statusCode, 200);
 		assert.deepEqual(initial.json(), {
 			dataDirectory: directory,
@@ -24,6 +29,7 @@ test('storage API manages persistent settings and files inside the data director
 		const settings = await server.inject({
 			method: 'PUT',
 			url: '/settings',
+			headers,
 			payload: { settings: { theme: 'dark', nested: { enabled: true } } },
 		});
 		assert.equal(settings.statusCode, 200);
@@ -35,6 +41,7 @@ test('storage API manages persistent settings and files inside the data director
 		const created = await server.inject({
 			method: 'PUT',
 			url: '/files',
+			headers,
 			payload: { path: 'notes/example.txt', content: 'persistent content' },
 		});
 		assert.equal(created.statusCode, 201);
@@ -44,20 +51,26 @@ test('storage API manages persistent settings and files inside the data director
 		});
 
 		const restartedServer = Fastify();
-		registerStorageRoutes(restartedServer, directory);
+		registerStorageRoutes(restartedServer, directory, 'storage-test-token');
 		try {
-			const persistedSettings = await restartedServer.inject({ method: 'GET', url: '/settings' });
+			const persistedSettings = await restartedServer.inject({
+				method: 'GET',
+				url: '/settings',
+				headers,
+			});
 			assert.deepEqual(persistedSettings.json(), settings.json());
 			const persistedFile = await restartedServer.inject({
 				method: 'GET',
 				url: '/files?path=notes%2Fexample.txt',
+				headers,
 			});
 			assert.deepEqual(persistedFile.json(), {
 				file: { path: 'notes/example.txt', size: 18, content: 'persistent content' },
 			});
-			assert.deepEqual((await restartedServer.inject({ method: 'GET', url: '/files' })).json(), {
-				files: [{ path: 'notes/example.txt', size: 18 }],
-			});
+			assert.deepEqual(
+				(await restartedServer.inject({ method: 'GET', url: '/files', headers })).json(),
+				{ files: [{ path: 'notes/example.txt', size: 18 }] }
+			);
 		} finally {
 			await restartedServer.close();
 		}
@@ -65,15 +78,17 @@ test('storage API manages persistent settings and files inside the data director
 		const overwritten = await server.inject({
 			method: 'PUT',
 			url: '/files',
+			headers,
 			payload: { path: 'notes/example.txt', content: 'updated' },
 		});
 		assert.equal(overwritten.statusCode, 200);
 		assert.equal(overwritten.json().created, false);
 
-		for (const invalidPath of ['../escape.txt', outsideFile]) {
+		for (const invalidPath of ['../escape.txt', outsideFile, 'C:\\escape.txt']) {
 			const rejected = await server.inject({
 				method: 'PUT',
 				url: '/files',
+				headers,
 				payload: { path: invalidPath, content: 'escape' },
 			});
 			assert.equal(rejected.statusCode, 400);
@@ -86,6 +101,7 @@ test('storage API manages persistent settings and files inside the data director
 			const rejectedLink = await server.inject({
 				method: 'PUT',
 				url: '/files',
+				headers,
 				payload: { path: 'link/escape.txt', content: 'escape' },
 			});
 			assert.equal(rejectedLink.statusCode, 400);
@@ -95,17 +111,33 @@ test('storage API manages persistent settings and files inside the data director
 		}
 
 		assert.deepEqual(
-			(await server.inject({ method: 'DELETE', url: '/files?path=notes%2Fexample.txt' })).json(),
+			(
+				await server.inject({
+					method: 'DELETE',
+					url: '/files?path=notes%2Fexample.txt',
+					headers,
+				})
+			).json(),
 			{ deleted: true }
 		);
-		assert.deepEqual((await server.inject({ method: 'DELETE', url: '/settings' })).json(), {
-			deleted: true,
-		});
-		assert.equal((await server.inject({ method: 'GET', url: '/files?path=missing.txt' })).statusCode, 404);
-		assert.deepEqual((await server.inject({ method: 'GET', url: '/settings' })).json(), {
-			exists: false,
-			settings: {},
-		});
+		assert.deepEqual(
+			(await server.inject({ method: 'DELETE', url: '/settings', headers })).json(),
+			{ deleted: true }
+		);
+		assert.equal(
+			(
+				await server.inject({
+					method: 'GET',
+					url: '/files?path=missing.txt',
+					headers,
+				})
+			).statusCode,
+			404
+		);
+		assert.deepEqual(
+			(await server.inject({ method: 'GET', url: '/settings', headers })).json(),
+			{ exists: false, settings: {} }
+		);
 	} finally {
 		await server.close();
 		fs.rmSync(directory, { recursive: true, force: true });

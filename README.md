@@ -4,8 +4,8 @@ Idra is a Fastify REST API that exposes a streaming AI agent.
 
 ## Requirements
 
-- Node.js 22.14+
-- npm 11.5.1+
+- Node.js 26.7+
+- npm 12.0.2+
 
 ## Setup
 
@@ -54,10 +54,11 @@ Use `npm run test:watch` while developing and `npm run test:coverage` for a cove
 
 ## Docker
 
-Start the API with Docker Compose. Enable the storage API only while managing or testing the persistent volume:
+Start the API with Docker Compose. Setting an admin token enables and protects the storage API:
 
 ```bash
-IDRA_STORAGE_API_ENABLED=true docker compose up --build -d
+export IDRA_ADMIN_TOKEN=local-volume-test-token
+docker compose up --build -d
 ```
 
 Or run the image directly with the same persistent data layout:
@@ -66,7 +67,7 @@ Or run the image directly with the same persistent data layout:
 docker build -t idra .
 docker volume create idra-data
 docker run --name idra -d -p 3000:3000 \
-  --env IDRA_STORAGE_API_ENABLED=true \
+  --env IDRA_ADMIN_TOKEN=local-volume-test-token \
   --volume idra-data:/data idra
 ```
 
@@ -95,53 +96,67 @@ settings.getAll();
 
 ### Test Docker volume persistence through the API
 
-The storage API is disabled by default because it can change persistent application data. The commands below enable it, create settings and a file, recreate the container without deleting the named volume, verify persistence, and then delete the data through the API.
+The storage API is disabled when `IDRA_ADMIN_TOKEN` is unset because it can change persistent application data. The commands below enable it, create settings and a file, recreate the container without deleting the named volume, verify persistence, and then delete the data through the API. Use a disposable local token, never a production secret.
 
 Start with a fresh named volume:
 
 ```bash
 docker compose down --volumes
-IDRA_STORAGE_API_ENABLED=true docker compose up --build -d
-curl --fail http://localhost:3000/storage
+export IDRA_ADMIN_TOKEN=local-volume-test-token
+docker compose up --build -d
+curl --fail http://localhost:3000/storage \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
 ```
 
 Create the settings document and a nested UTF-8 file:
 
 ```bash
 curl --fail --request PUT http://localhost:3000/settings \
-  --header 'content-type: application/json' \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN" \
+	  --header 'content-type: application/json' \
   --data '{"settings":{"theme":"dark","volumeTest":true}}'
 
 curl --fail --request PUT http://localhost:3000/files \
-  --header 'content-type: application/json' \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN" \
+	  --header 'content-type: application/json' \
   --data '{"path":"checks/persistence.txt","content":"survives container recreation"}'
 ```
 
 Read both resources through the server:
 
 ```bash
-curl --fail http://localhost:3000/settings
-curl --fail 'http://localhost:3000/files?path=checks%2Fpersistence.txt'
-curl --fail http://localhost:3000/files
+curl --fail http://localhost:3000/settings \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
+curl --fail 'http://localhost:3000/files?path=checks%2Fpersistence.txt' \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
+curl --fail http://localhost:3000/files \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
 ```
 
 Recreate only the container. `docker compose down` keeps the named volume because `--volumes` is intentionally omitted:
 
 ```bash
 docker compose down
-IDRA_STORAGE_API_ENABLED=true docker compose up -d
-curl --fail http://localhost:3000/settings
-curl --fail 'http://localhost:3000/files?path=checks%2Fpersistence.txt'
+docker compose up -d
+curl --fail http://localhost:3000/settings \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
+curl --fail 'http://localhost:3000/files?path=checks%2Fpersistence.txt' \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
 ```
 
 The responses must still contain `"theme":"dark"` and `survives container recreation`. Delete the resources through the server and verify the resulting empty state:
 
 ```bash
-curl --fail --request DELETE 'http://localhost:3000/files?path=checks%2Fpersistence.txt'
-curl --fail --request DELETE http://localhost:3000/settings
-curl --fail http://localhost:3000/storage
-curl --fail http://localhost:3000/files
-curl --fail http://localhost:3000/settings
+curl --fail --request DELETE 'http://localhost:3000/files?path=checks%2Fpersistence.txt' \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
+curl --fail --request DELETE http://localhost:3000/settings \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
+curl --fail http://localhost:3000/storage \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
+curl --fail http://localhost:3000/files \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
+curl --fail http://localhost:3000/settings \
+  --header "authorization: Bearer $IDRA_ADMIN_TOKEN"
 ```
 
 Expected final state: the storage status reports `settings.exists` as `false` and `files.count` as `0`; the file list is empty and the settings response contains `"exists":false`. Remove the test container and named volume when finished:

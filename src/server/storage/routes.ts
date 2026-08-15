@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { deleteFile } from './file_delete';
 import { listFiles } from './file_list';
@@ -22,11 +23,34 @@ interface SettingsBody {
 	settings: StoredSettings;
 }
 
-export function registerStorageRoutes(server: FastifyInstance, dataDirectory: string): void {
-	server.get('/storage', async () => storageStatus(dataDirectory));
+export function registerStorageRoutes(
+	server: FastifyInstance,
+	dataDirectory: string,
+	adminToken: string
+): void {
+	const expectedAuthorization = Buffer.from(`Bearer ${adminToken}`);
+	const authenticate = async (request: { headers: { authorization?: string } }, reply: {
+		code(statusCode: number): {
+			header(name: string, value: string): { send(payload: object): unknown };
+		};
+	}): Promise<unknown> => {
+		const authorization = Buffer.from(request.headers.authorization ?? '');
+		if (
+			authorization.length !== expectedAuthorization.length ||
+			!timingSafeEqual(authorization, expectedAuthorization)
+		) {
+			return reply
+				.code(401)
+				.header('www-authenticate', 'Bearer')
+				.send({ error: 'Unauthorized' });
+		}
+	};
 
-	server.get('/settings', async () => readSettings(dataDirectory));
+	server.get('/storage', { onRequest: authenticate }, async () => storageStatus(dataDirectory));
+
+	server.get('/settings', { onRequest: authenticate }, async () => readSettings(dataDirectory));
 	server.put<{ Body: SettingsBody }>('/settings', {
+		onRequest: authenticate,
 		schema: {
 			body: {
 				type: 'object',
@@ -39,9 +63,12 @@ export function registerStorageRoutes(server: FastifyInstance, dataDirectory: st
 		writeSettings(dataDirectory, request.body.settings);
 		return readSettings(dataDirectory);
 	});
-	server.delete('/settings', async () => ({ deleted: deleteSettings(dataDirectory) }));
+	server.delete('/settings', { onRequest: authenticate }, async () => ({
+		deleted: deleteSettings(dataDirectory),
+	}));
 
 	server.get<{ Querystring: FileQuery }>('/files', {
+		onRequest: authenticate,
 		schema: {
 			querystring: {
 				type: 'object',
@@ -55,6 +82,7 @@ export function registerStorageRoutes(server: FastifyInstance, dataDirectory: st
 			: { files: listFiles(dataDirectory) };
 	});
 	server.put<{ Body: FileBody }>('/files', {
+		onRequest: authenticate,
 		schema: {
 			body: {
 				type: 'object',
@@ -71,6 +99,7 @@ export function registerStorageRoutes(server: FastifyInstance, dataDirectory: st
 		return reply.code(result.created ? 201 : 200).send(result);
 	});
 	server.delete<{ Querystring: Required<FileQuery> }>('/files', {
+		onRequest: authenticate,
 		schema: {
 			querystring: {
 				type: 'object',

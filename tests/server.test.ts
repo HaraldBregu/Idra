@@ -29,7 +29,7 @@ test('API routes work through Fastify request injection', async () => {
 			return true;
 		},
 	};
-	const server = await createApiServer(agent, { storageApiEnabled: false });
+	const server = await createApiServer(agent, { storageApiToken: null });
 	server.log.level = 'silent';
 
 	try {

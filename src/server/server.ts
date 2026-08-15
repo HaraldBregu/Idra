@@ -17,7 +17,7 @@ interface AgentRequest {
 
 interface ServerOptions {
 	dataDirectory?: string;
-	storageApiEnabled?: boolean;
+	storageApiToken?: string | null;
 }
 
 export async function createApiServer(
@@ -28,11 +28,12 @@ export async function createApiServer(
 
 	server.get('/', async () => ({ test: true }));
 	server.get('/health', async () => ({ status: 'ok' }));
-	const storageApiEnabled =
-		options.storageApiEnabled ??
-		process.env.IDRA_STORAGE_API_ENABLED?.trim().toLowerCase() === 'true';
-	if (storageApiEnabled) {
-		registerStorageRoutes(server, options.dataDirectory ?? userDataLocation());
+	const storageApiToken =
+		options.storageApiToken === undefined
+			? process.env.IDRA_ADMIN_TOKEN?.trim()
+			: options.storageApiToken?.trim();
+	if (storageApiToken) {
+		registerStorageRoutes(server, options.dataDirectory ?? userDataLocation(), storageApiToken);
 	}
 
 	server.post<{ Body: AgentRequest }>('/agents/messages', {

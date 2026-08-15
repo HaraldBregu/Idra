@@ -3,9 +3,9 @@ services:
     build:
       context: .
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
-      IDRA_STORAGE_API_ENABLED: ${IDRA_STORAGE_API_ENABLED:-false}
+      IDRA_ADMIN_TOKEN: ${IDRA_ADMIN_TOKEN:-}
     volumes:
       - idra-data:/data
     restart: unless-stopped
