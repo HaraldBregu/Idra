@@ -36,7 +36,11 @@ test('API routes work through Fastify request injection', async () => {
 		const root = await server.inject({ method: 'GET', url: '/' });
 		assert.equal(root.statusCode, 200);
 		assert.match(root.headers['content-type'] ?? '', /^text\/html/);
-		assert.match(root.body, /Storage test console/);
+		assert.match(root.body, /Agent console/);
+		assert.match(root.body, /value="anthropic"/);
+		assert.match(root.body, /value="openai"/);
+		assert.match(root.body, /value="deepseek"/);
+		assert.match(root.body, /id="agent-prompt"/);
 		assert.match(root.headers['content-security-policy'] ?? '', /default-src 'self'/);
 
 		const storageTest = await server.inject({ method: 'GET', url: '/storage-test' });
@@ -48,6 +52,7 @@ test('API routes work through Fastify request injection', async () => {
 			['api.js', /^text\/javascript/],
 			['suite.js', /^text\/javascript/],
 			['marker.js', /^text\/javascript/],
+			['agent.js', /^text\/javascript/],
 			['app.js', /^text\/javascript/],
 		] as const) {
 			const response = await server.inject({ method: 'GET', url: `/ui/${asset}` });
@@ -127,5 +132,35 @@ test('API routes work through Fastify request injection', async () => {
 		]);
 	} finally {
 		await server.close();
+	}
+});
+
+test('admin token protects provider configuration and agent prompts', async () => {
+	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-server-auth-'));
+	const agent = {
+		async send(): Promise<string> {
+			return 'unused';
+		},
+		cancel(): boolean {
+			return true;
+		},
+	};
+	const server = await createApiServer(agent, {
+		dataDirectory: directory,
+		storageApiToken: 'admin-test-token',
+	});
+	server.log.level = 'silent';
+	try {
+		for (const [method, url, payload] of [
+			['GET', '/provider', undefined],
+			['POST', '/agents/messages', { message: 'hello' }],
+		] as const) {
+			const response = await server.inject({ method, url, ...(payload ? { payload } : {}) });
+			assert.equal(response.statusCode, 401);
+			assert.equal(response.headers['www-authenticate'], 'Bearer');
+		}
+	} finally {
+		await server.close();
+		fs.rmSync(directory, { recursive: true, force: true });
 	}
 });
