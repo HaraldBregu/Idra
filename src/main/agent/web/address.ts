@@ -6,7 +6,7 @@ type Lookup = (
 	options: { all: true; verbatim: true }
 ) => Promise<{ address: string; family: number }[]>;
 
-const blockedAddresses = new BlockList();
+const blockedIpv4Addresses = new BlockList();
 for (const [network, prefix] of [
 	['0.0.0.0', 8],
 	['10.0.0.0', 8],
@@ -20,7 +20,8 @@ for (const [network, prefix] of [
 	['224.0.0.0', 4],
 	['240.0.0.0', 4],
 ] as const)
-	blockedAddresses.addSubnet(network, prefix, 'ipv4');
+	blockedIpv4Addresses.addSubnet(network, prefix, 'ipv4');
+const blockedIpv6Addresses = new BlockList();
 for (const [network, prefix] of [
 	['::', 128],
 	['::1', 128],
@@ -29,7 +30,7 @@ for (const [network, prefix] of [
 	['fe80::', 10],
 	['ff00::', 8],
 ] as const)
-	blockedAddresses.addSubnet(network, prefix, 'ipv6');
+	blockedIpv6Addresses.addSubnet(network, prefix, 'ipv6');
 
 export async function publicWebUrl(rawUrl: string, lookup: Lookup = dns.lookup): Promise<URL> {
 	const url = new URL(rawUrl);
@@ -48,8 +49,11 @@ export async function publicWebUrl(rawUrl: string, lookup: Lookup = dns.lookup):
 		: await lookup(hostname, { all: true, verbatim: true });
 	if (addresses.length === 0) throw new Error('Website host did not resolve.');
 	for (const address of addresses) {
-		const addressFamily = address.family === 6 ? 'ipv6' : 'ipv4';
-		if (blockedAddresses.check(address.address, addressFamily)) {
+		const blocked =
+			address.family === 6
+				? blockedIpv6Addresses.check(address.address, 'ipv6')
+				: blockedIpv4Addresses.check(address.address, 'ipv4');
+		if (blocked) {
 			throw new Error('Website URL must not resolve to a private or local address.');
 		}
 	}

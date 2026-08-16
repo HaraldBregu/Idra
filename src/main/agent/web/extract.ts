@@ -37,7 +37,7 @@ export function extractWebsite(html: string, pageUrl: string, maxChars: number, 
 		.filter((link): link is { text: string; url: string } => link !== undefined);
 	return {
 		title: $('title').first().text().replace(/\s+/g, ' ').trim(),
-		text: text.length > maxChars ? `${text.slice(0, maxChars)}\n[truncated]` : text,
+		text: text.length > maxChars ? `${text.slice(0, maxChars).trimEnd()}\n[truncated]` : text,
 		links,
 	};
 }
