@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { browserTool } from '../src/main/agent/tools/browser';
 import { downloadWebsite } from '../src/main/agent/web/download';
 import { extractWebsite } from '../src/main/agent/web/extract';
 import { publicWebUrl } from '../src/main/agent/web/address';
@@ -61,7 +60,7 @@ test('website extraction removes active content and returns bounded text and lin
 	assert.deepEqual(result.links, [{ text: 'Next', url: 'https://example.test/next' }]);
 });
 
-test('built-in tools expose scraping and Playwright while validating browser inputs', () => {
+test('built-in tools expose website scraping', () => {
 	assert.deepEqual(
 		builtinTools().map((tool) => tool.id),
 		[
@@ -71,8 +70,6 @@ test('built-in tools expose scraping and Playwright while validating browser inp
 			'apply_patch',
 			'execute_command',
 			'scrape_website',
-			'browser',
 		]
 	);
-	assert.throws(() => browserTool.parseInput({ action: 'unknown' }));
 });

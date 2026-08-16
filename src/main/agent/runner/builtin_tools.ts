@@ -1,6 +1,5 @@
 import type { Tool } from '../types';
 import { applyPatchTool } from '../tools/apply_patch';
-import { browserTool } from '../tools/browser';
 import { editTool } from '../tools/edit_file';
 import { executeCommandTool } from '../tools/execute_command';
 import { readTool } from '../tools/read_file';
@@ -15,6 +14,5 @@ export function builtinTools(): Tool[] {
 		applyPatchTool,
 		executeCommandTool,
 		scrapeWebsiteTool,
-		browserTool,
 	];
 }

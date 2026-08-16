@@ -2,8 +2,6 @@ services:
   app:
     build:
       context: .
-    init: true
-    shm_size: 1gb
     ports:
       - '127.0.0.1:3000:3000'
     environment:
