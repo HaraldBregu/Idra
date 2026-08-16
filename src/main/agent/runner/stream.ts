@@ -11,10 +11,7 @@ import {
 	persist,
 	sessionDir,
 } from '../session';
-import {
-	buildSystemPrompt,
-	buildWorkspaceContext,
-} from '../system';
+import { buildSystemPrompt, buildWorkspaceContext } from '../system';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
@@ -101,7 +98,6 @@ async function* loop(
 	const contextMode = input.contextMode;
 	const runId = input.runId ?? session.id;
 
-
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	let tools: Tool[] = options.tools
@@ -110,7 +106,6 @@ async function* loop(
 			? builtinTools()
 			: workspaceTools(options.workspaceRoot);
 	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
-
 
 	yield {
 		type: 'run_started',
@@ -137,9 +132,7 @@ async function* loop(
 				contextMode === 'workspace' && options.instructions === undefined
 					? await buildWorkspaceContext(config)
 					: '';
-			const runtimeContext = [workspaceContext]
-				.filter(Boolean)
-				.join('\n\n');
+			const runtimeContext = [workspaceContext].filter(Boolean).join('\n\n');
 			const messages = session.messages;
 			const turn = yield* runModelTurn(
 				input,
