@@ -28,13 +28,12 @@ test('agent UI client authenticates, reuses sessions, and parses chunked NDJSON'
 
 	try {
 		const api = new AgentApi();
-		api.setToken('ui-admin-token');
 		const events: Array<Record<string, unknown>> = [];
 		await api.prompt('Hello', 'session-existing', (event) => events.push(event));
 
 		assert.deepEqual(requests, [
 			{
-				authorization: 'Bearer ui-admin-token',
+				authorization: null,
 				body: { message: 'Hello', sessionId: 'session-existing' },
 			},
 		]);

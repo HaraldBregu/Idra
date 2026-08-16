@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import Fastify from 'fastify';
+import { createAdminAuthentication } from '../src/main/admin/authenticate';
 import { getModelId, getProviderId } from '../src/main/agent/agent_store';
 import { getResolvedProvider } from '../src/main/agent/settings_store';
 import { providerBaseUrl } from '../src/main/provider/base';
@@ -14,7 +15,8 @@ test('provider API persists only supported provider configurations without retur
 	const server = Fastify();
 	const headers = { authorization: 'Bearer provider-test-token' };
 	const secret = 'sk-provider-secret-sentinel';
-	registerProviderRoutes(server, directory, 'provider-test-token');
+	const authenticate = createAdminAuthentication(directory, 'provider-test-token');
+	registerProviderRoutes(server, directory, authenticate);
 
 	try {
 		assert.equal((await server.inject({ method: 'GET', url: '/provider' })).statusCode, 401);
@@ -85,7 +87,7 @@ test('provider API persists only supported provider configurations without retur
 		assert.equal(changedWithoutKey.statusCode, 400);
 
 		const restartedServer = Fastify();
-		registerProviderRoutes(restartedServer, directory, 'provider-test-token');
+		registerProviderRoutes(restartedServer, directory, authenticate);
 		try {
 			const persisted = await restartedServer.inject({ method: 'GET', url: '/provider', headers });
 			assert.deepEqual(persisted.json(), updated.json());

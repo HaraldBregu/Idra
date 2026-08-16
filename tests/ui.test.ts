@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import Fastify from 'fastify';
+import { createAdminAuthentication } from '../src/main/admin/authenticate';
 import { registerStorageRoutes } from '../src/main/storage/routes';
 import { PersistenceMarker } from '../src/ui/marker.js';
 import { runSuite } from '../src/ui/suite.js';
@@ -11,7 +12,7 @@ import { runSuite } from '../src/ui/suite.js';
 test('UI workflows exercise storage safely and restore existing data', async () => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-ui-'));
 	const server = Fastify();
-	registerStorageRoutes(server, directory, 'ui-test-token');
+	registerStorageRoutes(server, directory, createAdminAuthentication(directory, 'ui-test-token'));
 	const api = {
 		async request(
 			endpoint: string,

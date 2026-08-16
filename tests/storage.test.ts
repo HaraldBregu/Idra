@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import Fastify from 'fastify';
+import { createAdminAuthentication } from '../src/main/admin/authenticate';
 import { registerStorageRoutes } from '../src/main/storage/routes';
 
 test('storage API manages persistent settings and files inside the data directory', async () => {
@@ -11,7 +12,8 @@ test('storage API manages persistent settings and files inside the data director
 	const outsideFile = path.join(directory, '..', `idra-outside-${path.basename(directory)}.txt`);
 	const server = Fastify();
 	const headers = { authorization: 'Bearer storage-test-token' };
-	registerStorageRoutes(server, directory, 'storage-test-token');
+	const authenticate = createAdminAuthentication(directory, 'storage-test-token');
+	registerStorageRoutes(server, directory, authenticate);
 
 	try {
 		const unauthorized = await server.inject({ method: 'GET', url: '/storage' });
@@ -51,7 +53,7 @@ test('storage API manages persistent settings and files inside the data director
 		});
 
 		const restartedServer = Fastify();
-		registerStorageRoutes(restartedServer, directory, 'storage-test-token');
+		registerStorageRoutes(restartedServer, directory, authenticate);
 		try {
 			const persistedSettings = await restartedServer.inject({
 				method: 'GET',
