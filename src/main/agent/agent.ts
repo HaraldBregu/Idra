@@ -163,6 +163,7 @@ export class Agent {
 				interactionMode: 'default',
 				...(options.effort ? { effort: options.effort } : {}),
 				...(options.toolsDeny ? { toolsDeny: options.toolsDeny } : {}),
+				...(options.workspaceRoot ? { workspaceRoot: options.workspaceRoot } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.legacySessionId ? { legacySessionId: options.legacySessionId } : {}),
 				...(providerId ? { providerId } : {}),
@@ -194,6 +195,7 @@ export class Agent {
 			const runSignal = AbortSignal.any([controller.signal, timeoutSignal]);
 			const events = stream(this.config, session, input, runSignal, {
 				streaming: options.streaming ?? true,
+				...(input.workspaceRoot ? { workspaceRoot: input.workspaceRoot } : {}),
 				resources: this.resources,
 				providerLimiter: this.providerLimiter,
 				subagentLimiter: this.subagentLimiter,

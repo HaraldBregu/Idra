@@ -23,9 +23,11 @@ import { formatToolOutput } from './format_tool_output';
 import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 import { builtinTools } from './builtin_tools';
+import { workspaceTools } from '../workspace/tools';
 
 export interface StreamOptions {
 	tools?: Tool[];
+	workspaceRoot?: string;
 	instructions?: string;
 	streaming?: boolean;
 	resources?: KeyedMutex;
@@ -102,7 +104,11 @@ async function* loop(
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
-	let tools: Tool[] = options.tools ? [...options.tools] : builtinTools();
+	let tools: Tool[] = options.tools
+		? [...options.tools]
+		: options.workspaceRoot === undefined
+			? builtinTools()
+			: workspaceTools(options.workspaceRoot);
 	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
 
 

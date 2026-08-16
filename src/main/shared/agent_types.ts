@@ -119,6 +119,7 @@ export interface AgentRunOptions {
 	interactionMode?: AgentInteractionMode;
 	toolsAllow?: string[];
 	toolsDeny?: string[];
+	workspaceRoot?: string;
 	files?: AgentInputFile[];
 	/** @deprecated Use contextMode. */
 	lightContext?: boolean;

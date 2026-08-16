@@ -92,6 +92,7 @@ type RuntimeInputBase = Pick<
 	| 'maxTurns'
 	| 'maxIterations'
 	| 'deferPersist'
+	| 'workspaceRoot'
 > & {
 	legacySessionId?: string;
 	runId: string;
