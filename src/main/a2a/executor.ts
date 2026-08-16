@@ -88,7 +88,8 @@ export class IdraExecutor implements AgentExecutor {
 				streamEvent: (event) => this.handleEvent(requestContext.taskId, event),
 			});
 			if (!state.terminal) {
-				if (!state.pendingDelta && !state.artifactStarted && response) state.pendingDelta = response;
+				if (!state.pendingDelta && !state.artifactStarted && response)
+					state.pendingDelta = response;
 				this.finish(requestContext.taskId, 'end_turn');
 			}
 		} catch {
@@ -214,7 +215,5 @@ function agentMessage(taskId: string, contextId: string, text: string): Message 
 }
 
 function isUuid(value: string): boolean {
-	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-		value
-	);
+	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }

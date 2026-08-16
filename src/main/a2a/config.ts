@@ -16,8 +16,7 @@ interface A2aConfigInput {
 
 export function resolveA2aConfig(input: A2aConfigInput): A2aConfig | undefined {
 	const token = input.token === undefined ? process.env.IDRA_AGENT_TOKEN : input.token;
-	const publicUrl =
-		input.publicUrl === undefined ? process.env.IDRA_PUBLIC_URL : input.publicUrl;
+	const publicUrl = input.publicUrl === undefined ? process.env.IDRA_PUBLIC_URL : input.publicUrl;
 	const hasToken = typeof token === 'string' && token.length > 0;
 	const hasPublicUrl = typeof publicUrl === 'string' && publicUrl.trim().length > 0;
 
