@@ -35,9 +35,17 @@ test('PersistentTaskStore saves, loads, filters, and paginates secure task files
 		const files = fs.readdirSync(directory);
 		assert.equal(files.length, 3);
 		assert.ok(files.every((name) => name.endsWith('.json')));
-		assert.ok(files.every((name) => (fs.statSync(path.join(directory, name)).mode & 0o777) === 0o600));
-		assert.equal(files.some((name) => name.includes('task-')), false);
-		assert.equal(files.some((name) => name.endsWith('.tmp')), false);
+		assert.ok(
+			files.every((name) => (fs.statSync(path.join(directory, name)).mode & 0o777) === 0o600)
+		);
+		assert.equal(
+			files.some((name) => name.includes('task-')),
+			false
+		);
+		assert.equal(
+			files.some((name) => name.endsWith('.tmp')),
+			false
+		);
 
 		const loaded = await store.load('task-a', context);
 		assert.deepEqual(loaded, tasks[0]);
@@ -54,14 +62,20 @@ test('PersistentTaskStore saves, loads, filters, and paginates secure task files
 			}),
 			context
 		);
-		assert.deepEqual(filtered.tasks.map((task) => task.id), ['task-a']);
+		assert.deepEqual(
+			filtered.tasks.map((task) => task.id),
+			['task-a']
+		);
 		assert.equal(filtered.tasks[0]?.artifacts.length, 1);
 
 		const firstPage = await store.list(
 			listRequest({ pageSize: 2, includeArtifacts: false, historyLength: 1 }),
 			context
 		);
-		assert.deepEqual(firstPage.tasks.map((task) => task.id), ['task-c', 'task-b']);
+		assert.deepEqual(
+			firstPage.tasks.map((task) => task.id),
+			['task-c', 'task-b']
+		);
 		assert.equal(firstPage.totalSize, 3);
 		assert.equal(firstPage.pageSize, 2);
 		assert.ok(firstPage.nextPageToken);
@@ -72,7 +86,10 @@ test('PersistentTaskStore saves, loads, filters, and paginates secure task files
 			listRequest({ pageSize: 2, pageToken: firstPage.nextPageToken }),
 			context
 		);
-		assert.deepEqual(secondPage.tasks.map((task) => task.id), ['task-a']);
+		assert.deepEqual(
+			secondPage.tasks.map((task) => task.id),
+			['task-a']
+		);
 		assert.equal(secondPage.totalSize, 3);
 		assert.equal(secondPage.nextPageToken, '');
 		await assert.rejects(
@@ -109,14 +126,20 @@ test('PersistentTaskStore prunes expired terminal tasks and fails interrupted ta
 		await store.save(active, context);
 
 		assert.equal(await store.load('old-terminal', context), undefined);
-		assert.equal((await store.load('interrupted', context))?.status?.state, TaskState.TASK_STATE_WORKING);
+		assert.equal(
+			(await store.load('interrupted', context))?.status?.state,
+			TaskState.TASK_STATE_WORKING
+		);
 
 		const restarted = new PersistentTaskStore(directory);
 		const recovered = await restarted.load('interrupted', context);
 		assert.equal(recovered?.status?.state, TaskState.TASK_STATE_FAILED);
 		assert.match(text(recovered?.status?.message), /server restarted/i);
 		assert.doesNotMatch(text(recovered?.status?.message), /stack|provider|token|secret/i);
-		assert.equal(fs.readdirSync(directory).some((name) => name.endsWith('.tmp')), false);
+		assert.equal(
+			fs.readdirSync(directory).some((name) => name.endsWith('.tmp')),
+			false
+		);
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true });
 	}
@@ -149,7 +172,12 @@ function createTask(id: string, contextId: string, state: TaskState, timestamp: 
 	};
 }
 
-function createMessage(messageId: string, taskId: string, contextId: string, value: string): Message {
+function createMessage(
+	messageId: string,
+	taskId: string,
+	contextId: string,
+	value: string
+): Message {
 	return {
 		messageId,
 		taskId,

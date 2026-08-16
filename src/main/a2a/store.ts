@@ -44,10 +44,7 @@ export class PersistentTaskStore implements TaskStore {
 		return task?.id === taskId ? structuredClone(task) : undefined;
 	}
 
-	async list(
-		params: ListTasksRequest,
-		_context: ServerCallContext
-	): Promise<ListTasksResponse> {
+	async list(params: ListTasksRequest, _context: ServerCallContext): Promise<ListTasksResponse> {
 		this.maintain(false);
 		let tasks = this.readAll();
 
@@ -64,9 +61,7 @@ export class PersistentTaskStore implements TaskStore {
 		}
 
 		tasks.sort((left, right) => {
-			const timestamp = (right.status?.timestamp ?? '').localeCompare(
-				left.status?.timestamp ?? ''
-			);
+			const timestamp = (right.status?.timestamp ?? '').localeCompare(left.status?.timestamp ?? '');
 			return timestamp || right.id.localeCompare(left.id);
 		});
 
@@ -85,8 +80,7 @@ export class PersistentTaskStore implements TaskStore {
 			const copy = structuredClone(task);
 			if (!params.includeArtifacts) copy.artifacts = [];
 			if (params.historyLength !== undefined) {
-				copy.history =
-					params.historyLength === 0 ? [] : copy.history.slice(-params.historyLength);
+				copy.history = params.historyLength === 0 ? [] : copy.history.slice(-params.historyLength);
 			}
 			return copy;
 		});
