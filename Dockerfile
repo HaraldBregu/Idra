@@ -4,6 +4,20 @@ ENV NODE_ENV=production \
 	IDRA_DATA_DIR=/data
 WORKDIR /app
 
+RUN apt-get update && apt-get install --yes --no-install-recommends \
+	build-essential \
+	ca-certificates \
+	curl \
+	git \
+	jq \
+	python3 \
+	python3-pip \
+	python3-venv \
+	unzip \
+	wget \
+	zip \
+	&& rm -rf /var/lib/apt/lists/*
+
 RUN npm install --global npm@12.0.2
 
 COPY package.json package-lock.json ./

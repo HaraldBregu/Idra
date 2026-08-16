@@ -248,6 +248,8 @@ docker run --name idra -d -p 3000:3000 \
 
 The image keeps application code in `/app` and mutable application data in `/data`. Compose mounts the persistent `idra-data` volume at `/data`, including the main settings file and workspaces:
 
+The runtime image includes Bash, Node.js/npm/npx, TypeScript through `tsx`, Python 3 with `pip` and `venv`, Git, curl, wget, jq, zip/unzip, and native build tools. Python dependencies should be installed in a workspace virtual environment rather than into the system interpreter.
+
 ```text
 /data/
 ├── a2a/
