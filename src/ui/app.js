@@ -22,6 +22,7 @@ const elements = Object.fromEntries(
 		'file-list',
 		'file-path',
 		'load-settings',
+		'logout',
 		'notice',
 		'new-session',
 		'persistence-clean',
@@ -306,6 +307,21 @@ elements['refresh-all'].addEventListener('click', async () => {
 		handleError(error);
 	} finally {
 		setBusy(elements['refresh-all'], false, 'Refresh all');
+	}
+});
+
+elements.logout.addEventListener('click', async () => {
+	setBusy(elements.logout, true, 'Logging out…');
+	try {
+		const response = await fetch('/access/session', {
+			method: 'DELETE',
+			credentials: 'same-origin',
+		});
+		if (!response.ok) throw new Error(`Logout failed with status ${response.status}.`);
+		window.location.replace('/access');
+	} catch (error) {
+		handleError(error);
+		setBusy(elements.logout, false, 'Log out');
 	}
 });
 

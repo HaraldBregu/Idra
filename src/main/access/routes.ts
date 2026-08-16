@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { isAdminAuthenticated } from '../admin/authenticated';
+import { clearAccessSessionHeader } from './clear';
 import { accessSessionHeader } from './header';
 import { readAccess } from './read';
 import { createAccessSession } from './session';
@@ -53,4 +54,11 @@ export function registerAccessRoutes(
 				.send();
 		}
 	);
+	server.delete('/access/session', async (request, reply) => {
+		return reply
+			.header('cache-control', 'no-store')
+			.header('set-cookie', clearAccessSessionHeader(request.protocol === 'https'))
+			.code(204)
+			.send();
+	});
 }

@@ -82,6 +82,7 @@ test('first-run access setup protects the UI and persists login across restarts'
 		});
 		assert.equal(authenticatedRoot.statusCode, 200);
 		assert.match(authenticatedRoot.body, /Agent console/);
+		assert.match(authenticatedRoot.body, /id="logout"/);
 		assert.doesNotMatch(authenticatedRoot.body, /admin-token|Connect to the admin API/);
 		assert.equal(
 			(await server.inject({ method: 'GET', url: '/access', headers: { cookie } })).statusCode,
@@ -109,6 +110,23 @@ test('first-run access setup protects the UI and persists login across restarts'
 		assert.deepEqual(
 			(await server.inject({ method: 'GET', url: '/access/status', headers: { cookie } })).json(),
 			{ configured: true, authenticated: true }
+		);
+
+		const logout = await server.inject({
+			method: 'DELETE',
+			url: '/access/session',
+			headers: { cookie },
+		});
+		assert.equal(logout.statusCode, 204);
+		assert.match(logout.headers['set-cookie'] ?? '', /^idra_session=;/);
+		assert.match(logout.headers['set-cookie'] ?? '', /HttpOnly/);
+		assert.match(logout.headers['set-cookie'] ?? '', /SameSite=Strict/);
+		assert.match(logout.headers['set-cookie'] ?? '', /Max-Age=0/);
+		const clearedCookie = (logout.headers['set-cookie'] ?? '').split(';', 1)[0];
+		assert.equal(
+			(await server.inject({ method: 'GET', url: '/', headers: { cookie: clearedCookie } }))
+				.statusCode,
+			302
 		);
 
 		const originalAccessFile = fs.readFileSync(accessFile, 'utf8');

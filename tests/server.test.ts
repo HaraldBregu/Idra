@@ -44,6 +44,7 @@ test('API routes work through Fastify request injection', async () => {
 		assert.match(root.body, /value="openai"/);
 		assert.match(root.body, /value="deepseek"/);
 		assert.match(root.body, /id="agent-prompt"/);
+		assert.match(root.body, /id="logout"/);
 		assert.match(root.headers['content-security-policy'] ?? '', /default-src 'self'/);
 
 		const storageTest = await server.inject({ method: 'GET', url: '/storage-test' });
