@@ -1,13 +1,5 @@
 export type BrowserAction =
-	| 'navigate'
-	| 'snapshot'
-	| 'click'
-	| 'type'
-	| 'press'
-	| 'screenshot'
-	| 'back'
-	| 'reload'
-	| 'close';
+	'navigate' | 'snapshot' | 'click' | 'type' | 'press' | 'screenshot' | 'back' | 'reload' | 'close';
 
 export interface BrowserInput {
 	action: BrowserAction;

@@ -7,10 +7,9 @@ import { publicWebUrl } from '../src/main/agent/web/address';
 import { builtinTools } from '../src/main/agent/runner/builtin_tools';
 
 test('web URL policy accepts public HTTP(S) hosts and rejects local destinations', async () => {
-	const publicUrl = await publicWebUrl(
-		'https://public.example/path',
-		async () => [{ address: '8.8.8.8', family: 4 }]
-	);
+	const publicUrl = await publicWebUrl('https://public.example/path', async () => [
+		{ address: '8.8.8.8', family: 4 },
+	]);
 	assert.equal(publicUrl.toString(), 'https://public.example/path');
 	await assert.rejects(publicWebUrl('http://127.0.0.1/private'), /private or local/);
 	await assert.rejects(publicWebUrl('http://localhost/private'), /public host/);
