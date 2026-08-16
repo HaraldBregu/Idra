@@ -6,6 +6,8 @@ services:
       - '127.0.0.1:3000:3000'
     environment:
       IDRA_ADMIN_TOKEN: ${IDRA_ADMIN_TOKEN:-}
+      IDRA_AGENT_TOKEN: ${IDRA_AGENT_TOKEN:-}
+      IDRA_PUBLIC_URL: ${IDRA_PUBLIC_URL:-}
     volumes:
       - idra-data:/data
     restart: unless-stopped

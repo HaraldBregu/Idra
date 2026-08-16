@@ -3,16 +3,14 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import { registerAccessRoutes } from './access/routes';
 import { createAdminAuthentication } from './admin/authenticate';
 import type { AgentSendOptions } from './agent/agent';
+import { resolveA2aConfig } from './a2a/config';
+import { registerA2aRoutes } from './a2a/routes';
+import type { AgentPort } from './a2a/executor';
 import { registerProviderRoutes } from './provider/routes';
 import type { AgentResponseEvent } from './shared/agent_types';
 import { userDataLocation } from './shared/user_data_location';
 import { registerStorageRoutes } from './storage/routes';
 import { registerUiRoutes } from './ui';
-
-interface AgentPort {
-	send(message: string, agentId: string, options: AgentSendOptions): Promise<string>;
-	cancel(runId: string): boolean;
-}
 
 interface AgentRequest {
 	message: string;
@@ -21,7 +19,9 @@ interface AgentRequest {
 
 interface ServerOptions {
 	accessControl?: boolean;
+	agentToken?: string | null;
 	dataDirectory?: string;
+	publicUrl?: string | null;
 	storageApiToken?: string | null;
 }
 
@@ -29,14 +29,20 @@ export async function createApiServer(
 	agent: AgentPort,
 	options: ServerOptions = {}
 ): Promise<FastifyInstance> {
-	const server = Fastify({ logger: true });
+	const server = Fastify({ logger: { redact: ['req.headers.authorization'] } });
 	const dataDirectory = options.dataDirectory ?? userDataLocation();
+	const a2aConfig = resolveA2aConfig({
+		dataDirectory,
+		token: options.agentToken,
+		publicUrl: options.publicUrl,
+	});
 	const adminToken =
 		options.storageApiToken === undefined
 			? process.env.IDRA_ADMIN_TOKEN?.trim()
 			: options.storageApiToken?.trim();
 	const accessControl = options.accessControl ?? options.storageApiToken !== null;
 	const adminAuthentication = createAdminAuthentication(dataDirectory, adminToken);
+	if (a2aConfig) await registerA2aRoutes(server, agent, a2aConfig);
 
 	registerUiRoutes(server, { accessControl, adminToken, dataDirectory });
 	server.get('/health', async () => ({ status: 'ok' }));
