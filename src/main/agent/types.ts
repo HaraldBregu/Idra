@@ -92,7 +92,6 @@ type RuntimeInputBase = Pick<
 	| 'maxTurns'
 	| 'maxIterations'
 	| 'deferPersist'
-	| 'workspaceRoot'
 > & {
 	legacySessionId?: string;
 	runId: string;
@@ -102,6 +101,7 @@ type RuntimeInputBase = Pick<
 	agentId: string;
 	contextMode: 'minimal' | 'workspace';
 	interactionMode: import('../shared/agent_types').AgentInteractionMode;
+	workspaceRoot?: string;
 	toolsDeny?: string[];
 	approvalWindowId?: number;
 };
