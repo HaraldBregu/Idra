@@ -1,10 +1,7 @@
 import fastifyExpress from '@fastify/express';
+import { AgentCard as A2aAgentCard } from '@a2a-js/sdk';
 import { DefaultRequestHandler } from '@a2a-js/sdk/server';
-import {
-	UserBuilder,
-	agentCardHandler,
-	restHandler,
-} from '@a2a-js/sdk/server/express';
+import { UserBuilder, restHandler } from '@a2a-js/sdk/server/express';
 import { Router } from 'express';
 import type { FastifyInstance } from 'fastify';
 import { allowA2aOperations } from './allowed';
@@ -28,13 +25,9 @@ export async function registerA2aRoutes(
 		new IdraExecutor(agent, config.workspaceDirectory)
 	);
 
-	const cardRouter = Router();
-	cardRouter.use((request, response, next) => {
-		if (request.method === 'GET' && request.path === '/') return next();
-		response.status(404).json({ error: 'Not Found' });
+	server.get('/.well-known/agent-card.json', async (_request, reply) => {
+		return reply.send(A2aAgentCard.toJSON(card));
 	});
-	cardRouter.use(agentCardHandler({ agentCardProvider: handler }));
-	server.use('/.well-known/agent-card.json', cardRouter);
 
 	const router = Router();
 	router.use(allowA2aOperations());

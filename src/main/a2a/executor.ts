@@ -1,12 +1,11 @@
-import { validate as validateUuid } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import {
 	AgentEvent,
-	TaskNotCancelableError,
 	type AgentExecutor,
 	type ExecutionEventBus,
 	type RequestContext,
 } from '@a2a-js/sdk/server';
-import { RequestMalformedError } from '@a2a-js/sdk/errors';
+import { RequestMalformedError, TaskNotCancelableError } from '@a2a-js/sdk/errors';
 import {
 	Role,
 	TaskState,
@@ -44,7 +43,10 @@ export class IdraExecutor implements AgentExecutor {
 
 	async execute(requestContext: RequestContext, eventBus: ExecutionEventBus): Promise<void> {
 		const message = textMessage(requestContext.userMessage);
-		if (!validateUuid(requestContext.contextId)) {
+		if (!isUuid(requestContext.userMessage.messageId)) {
+			throw new RequestMalformedError('message.messageId must be a UUID.');
+		}
+		if (!isUuid(requestContext.contextId)) {
 			throw new RequestMalformedError('message.contextId must be a UUID when provided.');
 		}
 		const state: ActiveRun = {
@@ -200,7 +202,7 @@ function status(state: TaskState, message?: Message): TaskStatus {
 
 function agentMessage(taskId: string, contextId: string, text: string): Message {
 	return {
-		messageId: crypto.randomUUID(),
+		messageId: randomUUID(),
 		contextId,
 		taskId,
 		role: Role.ROLE_AGENT,
@@ -209,4 +211,10 @@ function agentMessage(taskId: string, contextId: string, text: string): Message 
 		extensions: [],
 		referenceTaskIds: [],
 	};
+}
+
+function isUuid(value: string): boolean {
+	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+		value
+	);
 }
