@@ -4,12 +4,17 @@ import { AgentApi } from '../src/ui/agent.js';
 
 test('agent UI client authenticates, reuses sessions, and parses chunked NDJSON', async () => {
 	const originalFetch = globalThis.fetch;
-	const requests: Array<{ authorization: string | null; body: unknown }> = [];
+	const requests: Array<{
+		authorization: string | null;
+		body: unknown;
+		credentials: RequestCredentials | undefined;
+	}> = [];
 	globalThis.fetch = async (_input, init) => {
 		const headers = new Headers(init?.headers);
 		requests.push({
 			authorization: headers.get('authorization'),
 			body: JSON.parse(String(init?.body)),
+			credentials: init?.credentials,
 		});
 		const encoder = new TextEncoder();
 		return new Response(
@@ -35,6 +40,7 @@ test('agent UI client authenticates, reuses sessions, and parses chunked NDJSON'
 			{
 				authorization: null,
 				body: { message: 'Hello', sessionId: 'session-existing' },
+				credentials: 'same-origin',
 			},
 		]);
 		assert.deepEqual(events, [

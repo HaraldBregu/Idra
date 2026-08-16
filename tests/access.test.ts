@@ -91,6 +91,21 @@ test('first-run access setup protects the UI and persists login across restarts'
 			(await server.inject({ method: 'GET', url: '/storage', headers: { cookie } })).statusCode,
 			200
 		);
+		assert.equal(
+			(await server.inject({ method: 'GET', url: '/provider', headers: { cookie } })).statusCode,
+			200
+		);
+		assert.equal(
+			(
+				await server.inject({
+					method: 'POST',
+					url: '/agents/messages',
+					headers: { cookie },
+					payload: { message: 'hello' },
+				})
+			).statusCode,
+			200
+		);
 		assert.deepEqual(
 			(await server.inject({ method: 'GET', url: '/access/status', headers: { cookie } })).json(),
 			{ configured: true, authenticated: true }

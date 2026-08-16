@@ -19,10 +19,12 @@ export function writeAccess(dataDirectory: string, accessKey: string): AccessRec
 	};
 	fs.mkdirSync(resolvedDirectory, { recursive: true });
 	let descriptor: number | undefined;
+	let completed = false;
 	try {
 		descriptor = fs.openSync(filePath, 'wx', 0o600);
 		fs.writeFileSync(descriptor, `${JSON.stringify(record, null, 2)}\n`);
 		fs.fsyncSync(descriptor);
+		completed = true;
 	} catch (error) {
 		if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
 			throw new AccessError(409, 'Access has already been configured.');
@@ -30,6 +32,7 @@ export function writeAccess(dataDirectory: string, accessKey: string): AccessRec
 		throw error;
 	} finally {
 		if (descriptor !== undefined) fs.closeSync(descriptor);
+		if (descriptor !== undefined && !completed) fs.rmSync(filePath, { force: true });
 	}
 	return record;
 }

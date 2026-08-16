@@ -56,6 +56,8 @@ test('API routes work through Fastify request injection', async () => {
 			['suite.js', /^text\/javascript/],
 			['marker.js', /^text\/javascript/],
 			['agent.js', /^text\/javascript/],
+			['key.js', /^text\/javascript/],
+			['access.js', /^text\/javascript/],
 			['app.js', /^text\/javascript/],
 		] as const) {
 			const response = await server.inject({ method: 'GET', url: `/ui/${asset}` });
