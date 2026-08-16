@@ -5,12 +5,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import {
-	Role,
-	TaskState,
-	type SendMessageRequest,
-	type StreamResponse,
-} from '@a2a-js/sdk';
+import { Role, TaskState, type SendMessageRequest, type StreamResponse } from '@a2a-js/sdk';
 import { ClientFactory, RestTransportFactory } from '@a2a-js/sdk/client';
 import { createApiServer } from '../src/main/server';
 import type { AgentSendOptions } from '../src/main/agent/agent';
@@ -132,10 +127,7 @@ test('the official A2A REST client discovers Idra and streams continuous context
 		if (firstEvents.at(-1)?.payload?.$case !== 'statusUpdate') {
 			assert.fail('Expected a terminal status update.');
 		}
-		assert.equal(
-			firstEvents.at(-1)?.payload.value.status?.state,
-			TaskState.TASK_STATE_COMPLETED
-		);
+		assert.equal(firstEvents.at(-1)?.payload.value.status?.state, TaskState.TASK_STATE_COMPLETED);
 		assert.equal(
 			firstEvents
 				.filter((event) => event.payload?.$case === 'artifactUpdate')
