@@ -250,8 +250,6 @@ The image keeps application code in `/app` and mutable application data in `/dat
 
 The runtime image includes Bash, Node.js/npm/npx, TypeScript through `tsx`, Python 3 with `pip` and `venv`, Git, curl, wget, jq, zip/unzip, and native build tools. Python dependencies should be installed in a workspace virtual environment rather than into the system interpreter.
 
-The built-in `scrape_website` tool extracts readable text and links from one public HTTP(S) page while rejecting loopback and private-network destinations. It is available to the built-in console agent but remains excluded from the A2A file-only tool allowlist.
-
 ```text
 /data/
 ├── a2a/
