@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { StorageError } from './error';
 
-export function storagePath(root: string, requestedPath: string): string {
+export function storagePath(
+	root: string,
+	requestedPath: string,
+	createRoot = false
+): string {
 	if (
 		!requestedPath.trim() ||
 		requestedPath.includes('\0') ||
@@ -13,8 +17,8 @@ export function storagePath(root: string, requestedPath: string): string {
 	}
 
 	const resolvedRoot = path.resolve(root);
-	fs.mkdirSync(resolvedRoot, { recursive: true });
-	if (fs.lstatSync(resolvedRoot).isSymbolicLink()) {
+	if (createRoot) fs.mkdirSync(resolvedRoot, { recursive: true });
+	if (fs.existsSync(resolvedRoot) && fs.lstatSync(resolvedRoot).isSymbolicLink()) {
 		throw new StorageError(400, 'The files directory cannot be a symbolic link.');
 	}
 

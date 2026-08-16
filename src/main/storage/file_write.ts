@@ -10,7 +10,7 @@ export async function writeFile(
 	content: string
 ): Promise<{ created: boolean; file: StoredFile }> {
 	const root = path.join(path.resolve(dataDirectory), 'files');
-	const filePath = storagePath(root, requestedPath);
+	const filePath = storagePath(root, requestedPath, true);
 	const created = !fs.existsSync(filePath);
 	fs.mkdirSync(path.dirname(filePath), { recursive: true });
 	await atomicWrite(filePath, content);

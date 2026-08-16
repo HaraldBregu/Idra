@@ -27,6 +27,7 @@ test('storage API manages persistent settings and files inside the data director
 			settings: { path: 'settings.json', exists: false },
 			files: { directory: 'files', count: 0 },
 		});
+		assert.equal(fs.existsSync(path.join(directory, 'files')), false);
 
 		const settings = await server.inject({
 			method: 'PUT',
@@ -51,6 +52,7 @@ test('storage API manages persistent settings and files inside the data director
 			created: true,
 			file: { path: 'notes/example.txt', size: 18 },
 		});
+		assert.equal(fs.existsSync(path.join(directory, 'files')), true);
 
 		const restartedServer = Fastify();
 		registerStorageRoutes(restartedServer, directory, authenticate);

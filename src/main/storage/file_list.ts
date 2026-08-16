@@ -5,7 +5,7 @@ import type { StoredFile } from './types';
 
 export function listFiles(dataDirectory: string): StoredFile[] {
 	const root = path.join(path.resolve(dataDirectory), 'files');
-	fs.mkdirSync(root, { recursive: true });
+	if (!fs.existsSync(root)) return [];
 	if (fs.lstatSync(root).isSymbolicLink()) {
 		throw new StorageError(400, 'The files directory cannot be a symbolic link.');
 	}
