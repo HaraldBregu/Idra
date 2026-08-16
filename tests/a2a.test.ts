@@ -556,14 +556,18 @@ test('A2A request handler supports immediate and blocking sends, polling, listin
 		);
 		assert.equal(canceled.status?.state, TaskState.TASK_STATE_CANCELED);
 		assert.deepEqual(cancellations, [immediate.id]);
-		const subscriptionResult = await subscribedEvent;
-		assert.equal(subscriptionResult.done, false);
-		const payload = subscriptionResult.value?.payload;
-		const subscriptionState =
-			payload?.$case === 'statusUpdate' || payload?.$case === 'task'
-				? payload.value.status?.state
-				: undefined;
-		assert.equal(subscriptionState, TaskState.TASK_STATE_CANCELED);
+		let subscriptionResult = await subscribedEvent;
+		const subscriptionStates: TaskState[] = [];
+		while (!subscriptionResult.done) {
+			const payload = subscriptionResult.value.payload;
+			if (payload?.$case === 'statusUpdate' || payload?.$case === 'task') {
+				const state = payload.value.status?.state;
+				if (state !== undefined) subscriptionStates.push(state);
+				if (state === TaskState.TASK_STATE_CANCELED) break;
+			}
+			subscriptionResult = await subscription.next();
+		}
+		assert.equal(subscriptionStates.at(-1), TaskState.TASK_STATE_CANCELED);
 		await subscription.return(undefined);
 
 		for (const [message, configuration] of [
