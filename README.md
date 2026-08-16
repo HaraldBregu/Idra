@@ -257,8 +257,8 @@ The runtime image includes Bash, Node.js/npm/npx, TypeScript through `tsx`, Pyth
 ├── access.json
 ├── provider.json
 ├── settings.json
-├── files/
 └── workspace/
+    └── AGENTS.md
 ```
 
 `access.json` is created with file mode `0600` and contains a salted scrypt verifier plus a session-signing secret, never the plaintext access key. `provider.json` is also written with mode `0600`; its API key is never returned by `GET /provider` or populated back into the browser. Protect access to the Docker volume.

@@ -24,7 +24,6 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY src ./src
-COPY resources/templates ./resources/templates
 
 RUN mkdir -p /data/workspace && chown -R node:node /app /data
 

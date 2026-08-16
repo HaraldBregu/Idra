@@ -11,10 +11,6 @@ export async function readTextFile(workspacePath: string, filePath: WorkspaceFil
 	}
 }
 
-export function resolveTemplatePath(filePath: WorkspaceFile): string {
-	return path.resolve(process.cwd(), 'resources', 'templates', filePath);
-}
-
 export function resolveWorkspacePath(workspacePath: string, filePath: WorkspaceFile): string {
 	if (path.isAbsolute(filePath) || path.win32.isAbsolute(filePath)) {
 		throw new Error(`Workspace file path must be relative: ${filePath}`);

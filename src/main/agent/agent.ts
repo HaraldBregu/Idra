@@ -41,6 +41,7 @@ import {
 	type AgentRunRecord,
 } from './state';
 import { getModelId, getProviderId } from './agent_store';
+import { ensureWorkspaceFile } from './system/ensure_workspace_file';
 
 const RUN_PRIORITIES: Record<SessionCategory, AgentRunPriority> = {
 	main: 'high',
@@ -82,6 +83,7 @@ export class Agent {
 
 	constructor() {
 		this.config = { location: path.resolve(agentLocation()) };
+		ensureWorkspaceFile(this.config.location);
 	}
 
 	start(): void {
