@@ -248,7 +248,9 @@ docker run --name idra -d -p 3000:3000 \
 
 The image keeps application code in `/app` and mutable application data in `/data`. Compose mounts the persistent `idra-data` volume at `/data`, including the main settings file and workspaces:
 
-The runtime image includes Bash, Node.js/npm/npx, TypeScript through `tsx`, Python 3 with `pip` and `venv`, Git, curl, wget, jq, zip/unzip, and native build tools. Python dependencies should be installed in a workspace virtual environment rather than into the system interpreter.
+The runtime image includes Bash, Node.js/npm/npx, TypeScript through `tsx`, Python 3 with `pip` and `venv`, Git, curl, wget, jq, zip/unzip, native build tools, and Playwright Chromium. Python dependencies should be installed in a workspace virtual environment rather than into the system interpreter.
+
+The built-in `scrape_website` tool extracts readable text and links from one public HTTP(S) page. The `browser` tool keeps a Playwright Chromium session in memory for navigation, snapshots, clicks, typing, keyboard input, and screenshots. Both reject loopback and private-network destinations; browser screenshots are restricted to the workspace. These tools are available to the built-in console agent but remain excluded from the A2A file-only tool allowlist.
 
 ```text
 /data/

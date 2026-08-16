@@ -42,6 +42,7 @@ import {
 } from './state';
 import { getModelId, getProviderId } from './agent_store';
 import { ensureWorkspaceFile } from './system/ensure_workspace_file';
+import { browserController } from './browser/controller';
 
 const RUN_PRIORITIES: Record<SessionCategory, AgentRunPriority> = {
 	main: 'high',
@@ -93,6 +94,7 @@ export class Agent {
 
 	destroy(): void {
 		this.cancelAll();
+		void browserController.close();
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions): Promise<string> {
