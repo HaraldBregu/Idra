@@ -1,20 +1,12 @@
-import { timingSafeEqual } from 'node:crypto';
+import { isAdminAuthenticated } from './authenticated';
+import type { AdminAuthentication } from './types';
 
-export function createAdminAuthentication(adminToken: string) {
-	const expectedAuthorization = Buffer.from(`Bearer ${adminToken}`);
-	return async (
-		request: { headers: { authorization?: string } },
-		reply: {
-			code(statusCode: number): {
-				header(name: string, value: string): { send(payload: object): unknown };
-			};
-		}
-	): Promise<unknown> => {
-		const authorization = Buffer.from(request.headers.authorization ?? '');
-		if (
-			authorization.length !== expectedAuthorization.length ||
-			!timingSafeEqual(authorization, expectedAuthorization)
-		) {
+export function createAdminAuthentication(
+	dataDirectory: string,
+	adminToken?: string
+): AdminAuthentication {
+	return async (request, reply): Promise<unknown> => {
+		if (!isAdminAuthenticated(request, dataDirectory, adminToken)) {
 			return reply.code(401).header('www-authenticate', 'Bearer').send({ error: 'Unauthorized' });
 		}
 	};

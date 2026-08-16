@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { createAdminAuthentication } from '../admin/authenticate';
+import type { AdminAuthentication } from '../admin/types';
 import { deleteFile } from './file_delete';
 import { listFiles } from './file_list';
 import { readFile } from './file_read';
@@ -26,9 +26,8 @@ interface SettingsBody {
 export function registerStorageRoutes(
 	server: FastifyInstance,
 	dataDirectory: string,
-	adminToken: string
+	authenticate: AdminAuthentication
 ): void {
-	const authenticate = createAdminAuthentication(adminToken);
 
 	server.get('/storage', { onRequest: authenticate }, async () => storageStatus(dataDirectory));
 

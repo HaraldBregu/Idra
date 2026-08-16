@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { createAdminAuthentication } from '../admin/authenticate';
+import type { AdminAuthentication } from '../admin/types';
 import { deleteProvider } from './delete';
 import { ProviderError } from './error';
 import { publicProvider } from './public';
@@ -16,9 +16,8 @@ interface ProviderBody {
 export function registerProviderRoutes(
 	server: FastifyInstance,
 	dataDirectory: string,
-	adminToken: string
+	authenticate: AdminAuthentication
 ): void {
-	const authenticate = createAdminAuthentication(adminToken);
 	server.get('/provider', { onRequest: authenticate }, async () =>
 		publicProvider(readProvider(dataDirectory))
 	);

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import Fastify, { type FastifyInstance } from 'fastify';
+import { registerAccessRoutes } from './access/routes';
 import { createAdminAuthentication } from './admin/authenticate';
 import type { AgentSendOptions } from './agent/agent';
 import { registerProviderRoutes } from './provider/routes';
@@ -19,6 +20,7 @@ interface AgentRequest {
 }
 
 interface ServerOptions {
+	accessControl?: boolean;
 	dataDirectory?: string;
 	storageApiToken?: string | null;
 }
@@ -28,23 +30,26 @@ export async function createApiServer(
 	options: ServerOptions = {}
 ): Promise<FastifyInstance> {
 	const server = Fastify({ logger: true });
-
-	registerUiRoutes(server);
-	server.get('/health', async () => ({ status: 'ok' }));
+	const dataDirectory = options.dataDirectory ?? userDataLocation();
 	const adminToken =
 		options.storageApiToken === undefined
 			? process.env.IDRA_ADMIN_TOKEN?.trim()
 			: options.storageApiToken?.trim();
-	if (adminToken) {
-		const dataDirectory = options.dataDirectory ?? userDataLocation();
-		registerStorageRoutes(server, dataDirectory, adminToken);
-		registerProviderRoutes(server, dataDirectory, adminToken);
+	const accessControl = options.accessControl ?? options.storageApiToken !== null;
+	const adminAuthentication = createAdminAuthentication(dataDirectory, adminToken);
+
+	registerUiRoutes(server, { accessControl, adminToken, dataDirectory });
+	server.get('/health', async () => ({ status: 'ok' }));
+	if (accessControl) registerAccessRoutes(server, dataDirectory, adminToken);
+	if (accessControl || adminToken) {
+		registerStorageRoutes(server, dataDirectory, adminAuthentication);
+		registerProviderRoutes(server, dataDirectory, adminAuthentication);
 	}
 
 	server.post<{ Body: AgentRequest }>(
 		'/agents/messages',
 		{
-			...(adminToken ? { onRequest: createAdminAuthentication(adminToken) } : {}),
+			...(accessControl || adminToken ? { onRequest: adminAuthentication } : {}),
 			schema: {
 				body: {
 					type: 'object',
