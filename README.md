@@ -11,20 +11,30 @@ Idra is a Fastify REST API that exposes a streaming AI agent.
 
 ```bash
 npm ci
-export IDRA_ADMIN_TOKEN=local-admin-token
 npm run dev
 ```
 
-The server listens on port `3000`. Open [http://localhost:3000](http://localhost:3000), connect with the admin token, then configure Anthropic, OpenAI, or DeepSeek from the **Provider and model** panel. The model field accepts the provider's current model ID and the API key remains server-side.
+The server listens on port `3000`. Open [http://localhost:3000](http://localhost:3000). On first run:
 
-`IDRA_PROVIDER_ID`, `IDRA_MODEL_ID`, `IDRA_API_KEY`, and `IDRA_BASE_URL` remain available as an environment-variable fallback when no UI configuration exists.
+1. Select **Generate access key**.
+2. Copy the generated key and store it somewhere safe.
+3. Paste it into the access field and select **Save and continue**.
+
+The browser receives a one-year, `HttpOnly` login cookie and redirects to the agent console. Later visits open the console directly while that login remains valid. If the browser login is cleared, enter the saved access key again.
+
+After login, configure Anthropic, OpenAI, or DeepSeek from the **Provider and model** panel. The model field accepts the provider's current model ID and the provider API key remains server-side.
+
+`IDRA_ADMIN_TOKEN` remains an optional bearer token for CLI/API access. `IDRA_PROVIDER_ID`, `IDRA_MODEL_ID`, `IDRA_API_KEY`, and `IDRA_BASE_URL` remain available as an environment-variable fallback when no UI provider configuration exists.
 
 ## Endpoints
 
-- `GET /` — opens the agent and storage console
+- `GET /` — opens the protected agent and storage console
+- `GET /access` — opens first-run setup or login
+- `GET /access/status` — reports whether access is configured and authenticated
+- `POST /access/session` — saves the first access key or logs in with the existing key
 - `GET /storage-test` — alternate URL for the agent and storage console
 - `GET /health` — service health
-- `POST /agents/messages` — streams agent events as NDJSON; requires the admin bearer token when configured
+- `POST /agents/messages` — streams agent events as NDJSON; requires the login cookie or admin bearer token
 - `GET`, `PUT`, `DELETE /provider` — manages the write-only provider configuration
 - `GET /storage` — reports persistent-volume status when the storage API is enabled
 - `GET`, `PUT`, `DELETE /settings` — reads, replaces, or deletes `settings.json`
@@ -57,14 +67,13 @@ Use `npm run test:watch` while developing and `npm run test:coverage` for a cove
 
 ## Docker
 
-Start the API with Docker Compose. Setting an admin token enables and protects provider setup, agent prompts, and the storage API:
+Start the API with Docker Compose:
 
 ```bash
-export IDRA_ADMIN_TOKEN=local-volume-test-token
 docker compose up --build --wait -d
 ```
 
-Open [http://localhost:3000](http://localhost:3000), enter the same admin token, and select **Connect**. The page provides:
+Open [http://localhost:3000](http://localhost:3000), generate and save the first access key, and keep your copy in a safe place. The page then provides:
 
 - provider, model, and write-only API-key setup for Anthropic, OpenAI, and DeepSeek;
 - a prompt editor with live streamed agent responses and follow-up session continuity;
@@ -75,7 +84,7 @@ Open [http://localhost:3000](http://localhost:3000), enter the same admin token,
 - a persistence checkpoint for verifying data after container recreation;
 - a request log with status codes, timings, and response bodies.
 
-For the persistence checkpoint, select **Prepare marker**, run the displayed container recreation command, reconnect with the token, select **Verify after restart**, and finally select **Clean marker**.
+For the persistence checkpoint, select **Prepare marker**, run the displayed container recreation command, reopen the page, select **Verify after restart**, and finally select **Clean marker**.
 
 Or run the image directly with the same persistent data layout:
 
@@ -83,7 +92,6 @@ Or run the image directly with the same persistent data layout:
 docker build -t idra .
 docker volume create idra-data
 docker run --name idra -d -p 3000:3000 \
-  --env IDRA_ADMIN_TOKEN=local-volume-test-token \
   --volume idra-data:/data idra
 ```
 
@@ -91,13 +99,16 @@ The image keeps application code in `/app` and mutable application data in `/dat
 
 ```text
 /data/
+├── access.json
 ├── provider.json
 ├── settings.json
 ├── files/
 └── workspace/
 ```
 
-`provider.json` is written atomically with file mode `0600`. Its API key is never returned by `GET /provider` or populated back into the browser. It is stored as a volume secret, not encrypted at rest, so protect access to the Docker volume and the admin token.
+`access.json` is created with file mode `0600` and contains a salted scrypt verifier plus a session-signing secret, never the plaintext access key. `provider.json` is also written with mode `0600`; its API key is never returned by `GET /provider` or populated back into the browser. Protect access to the Docker volume.
+
+If the access key is lost, stop the app and deliberately remove only `/data/access.json` from the volume to return to first-run setup. Anyone who can reach an unconfigured app can claim its first key, so complete setup before exposing the service beyond the Compose default of `127.0.0.1`.
 
 `IDRA_DATA_DIR` defaults to `/data` in the container. For local development it defaults to `./data` and can be overridden with the same environment variable.
 
@@ -115,7 +126,7 @@ settings.getAll();
 
 ### Test Docker volume persistence through the API
 
-The storage API is disabled when `IDRA_ADMIN_TOKEN` is unset because it can change persistent application data. The commands below enable it, create settings and a file, recreate the container without deleting the named volume, verify persistence, and then delete the data through the API. Use a disposable local token, never a production secret.
+The browser uses its access-session cookie. For command-line volume tests, set the optional `IDRA_ADMIN_TOKEN`; its bearer token can access the same protected endpoints. The commands below create settings and a file, recreate the container without deleting the named volume, verify persistence, and then delete the data through the API. Use a disposable local token, never a production secret.
 
 Start with a fresh named volume:
 
