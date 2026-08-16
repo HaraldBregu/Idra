@@ -33,10 +33,12 @@
     "@a2a-js/sdk": "^1.0.1",
     "@anthropic-ai/sdk": "^0.117.1",
     "@fastify/express": "^4.0.7",
+    "cheerio": "^1.2.0",
     "express": "^5.2.1",
     "fastify": "^5.12.0",
     "gray-matter": "^4.0.3",
     "openai": "^7.4.0",
+    "playwright": "^1.62.1",
     "tsx": "^4.23.12",
     "zod": "^4.4.3"
   },
