@@ -79,6 +79,7 @@ test('PersistentTaskStore saves, loads, filters, and paginates secure task files
 		assert.equal(firstPage.totalSize, 3);
 		assert.equal(firstPage.pageSize, 2);
 		assert.ok(firstPage.nextPageToken);
+		assert.doesNotMatch(firstPage.nextPageToken, /task-[abc]/);
 		assert.ok(firstPage.tasks.every((task) => task.artifacts.length === 0));
 		assert.ok(firstPage.tasks.every((task) => task.history.length === 1));
 
@@ -140,6 +141,27 @@ test('PersistentTaskStore prunes expired terminal tasks and fails interrupted ta
 			fs.readdirSync(directory).some((name) => name.endsWith('.tmp')),
 			false
 		);
+
+		const startupExpired = createTask(
+			'startup-expired',
+			'context-a',
+			TaskState.TASK_STATE_COMPLETED,
+			new Date().toISOString()
+		);
+		await restarted.save(startupExpired, context);
+		const startupExpiredFile = fs
+			.readdirSync(directory)
+			.map((name) => path.join(directory, name))
+			.find((filePath) => fs.readFileSync(filePath, 'utf8').includes('startup-expired'));
+		assert.ok(startupExpiredFile);
+		const persisted = JSON.parse(fs.readFileSync(startupExpiredFile, 'utf8')) as {
+			status: { timestamp: string };
+		};
+		persisted.status.timestamp = new Date(Date.now() - 31 * 24 * 60 * 60 * 1_000).toISOString();
+		fs.writeFileSync(startupExpiredFile, `${JSON.stringify(persisted)}\n`, { mode: 0o600 });
+
+		const prunedAtStartup = await createTaskStore(directory);
+		assert.equal(await prunedAtStartup.load('startup-expired', context), undefined);
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true });
 	}
