@@ -3,9 +3,9 @@ import { z } from 'zod';
 import { agentLocation } from '../../shared/agent_location';
 import { tool } from '../core/tool';
 
-export const executeCommandTool = tool({
-	id: 'execute_command',
-	name: 'Execute command',
+export const execTool = tool({
+	id: 'exec',
+	name: 'Exec',
 	description: 'Execute a shell command in the agent workspace and return its output and exit code.',
 	inputSchema: z.object({
 		command: z.string().min(1).describe('Shell command to execute.'),
@@ -17,7 +17,8 @@ export const executeCommandTool = tool({
 				{ cwd: agentLocation(), timeout: 120_000, maxBuffer: 1_000_000 },
 				(error, stdout, stderr) => {
 					resolve({
-						exitCode: error && 'code' in error && typeof error.code === 'number' ? error.code : 0,
+						exitCode:
+							error && 'code' in error && typeof error.code === 'number' ? error.code : 0,
 						stdout,
 						stderr,
 					});
