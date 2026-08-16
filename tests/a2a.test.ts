@@ -516,7 +516,7 @@ test('A2A request handler supports immediate and blocking sends, polling, listin
 		gates.set('immediate', immediateGate);
 		starts.set('immediate', immediateStart);
 		const immediate = await handler.sendMessage(
-			sendRequest(['immediate'], { returnImmediately: true }),
+			sendRequest(['immediate'], sendConfiguration(true)),
 			context
 		);
 		assert.ok('id' in immediate);
@@ -572,7 +572,7 @@ test('A2A request handler supports immediate and blocking sends, polling, listin
 
 		for (const [message, configuration] of [
 			['omitted', undefined],
-			['false', { returnImmediately: false }],
+			['false', sendConfiguration(false)],
 		] as const) {
 			const gate = deferred();
 			gates.set(message, gate);
@@ -635,7 +635,7 @@ function requestContext(
 	parts: Part[],
 	taskId = randomUUID(),
 	contextId = randomUUID(),
-	messageId = randomUUID()
+	messageId: string = randomUUID()
 ): RequestContext {
 	const message: Message = {
 		messageId,
@@ -718,6 +718,16 @@ function sendRequest(
 		},
 		configuration,
 		metadata: {},
+	};
+}
+
+function sendConfiguration(
+	returnImmediately: boolean
+): NonNullable<SendMessageRequest['configuration']> {
+	return {
+		acceptedOutputModes: [],
+		taskPushNotificationConfig: undefined,
+		returnImmediately,
 	};
 }
 
