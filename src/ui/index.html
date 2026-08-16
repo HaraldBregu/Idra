@@ -17,57 +17,24 @@
 					Configure an AI provider, talk to the agent, and inspect persistent storage.
 				</p>
 			</div>
-			<div id="connection-status" class="status-badge" data-connected="false" role="status">
-				Not connected
+			<div class="header-actions">
+				<div id="connection-status" class="status-badge" data-connected="true" role="status">
+					Access granted
+				</div>
+				<button
+					id="refresh-all"
+					class="button button-secondary"
+					type="button"
+					data-requires-token
+				>
+					Refresh all
+				</button>
 			</div>
 		</header>
 
 		<main class="app-shell">
-			<section class="panel connection-panel" aria-labelledby="connection-title">
-				<div class="section-heading">
-					<div>
-						<p class="section-kicker">Access</p>
-						<h2 id="connection-title">Connect to the admin API</h2>
-					</div>
-					<button
-						id="refresh-all"
-						class="button button-secondary"
-						type="button"
-						data-requires-token
-					>
-						Refresh all
-					</button>
-				</div>
-				<form id="connection-form" class="connection-form">
-					<div class="field token-field">
-						<label for="admin-token">Admin token</label>
-						<input
-							id="admin-token"
-							name="admin-token"
-							type="password"
-							autocomplete="off"
-							spellcheck="false"
-							placeholder="IDRA_ADMIN_TOKEN"
-						/>
-					</div>
-					<label class="check-control">
-						<input id="show-token" type="checkbox" />
-						<span>Show token</span>
-					</label>
-					<div class="button-row">
-						<button id="connect-button" class="button button-primary" type="submit">Connect</button>
-						<button id="disconnect-button" class="button button-secondary" type="button" disabled>
-							Disconnect
-						</button>
-					</div>
-				</form>
-				<p class="helper">
-					The token stays in this page only and is cleared when you disconnect or close it.
-				</p>
-			</section>
-
 			<div id="notice" class="notice" data-kind="info" aria-live="polite">
-				Enter the token configured as IDRA_ADMIN_TOKEN, then connect.
+				Loading your workspace…
 			</div>
 
 			<div class="agent-grid">

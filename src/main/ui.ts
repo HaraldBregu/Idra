@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { isAdminAuthenticated } from './admin/authenticated';
 
 const securityHeaders = {
@@ -23,17 +23,17 @@ export function registerUiRoutes(server: FastifyInstance, options: UiOptions): v
 	const assetPath = (name: string): string =>
 		fileURLToPath(new URL(`../ui/${name}`, import.meta.url));
 	const sendIndex = async (
-		_request: unknown,
-		reply: {
-			headers(values: Record<string, string>): unknown;
-			type(value: string): { send(value: string): unknown };
-		}
+		_request: FastifyRequest,
+		reply: FastifyReply
 	): Promise<unknown> => {
 		reply.headers(securityHeaders);
 		return reply.type('text/html; charset=utf-8').send(fs.readFileSync(indexPath, 'utf8'));
 	};
 
-	const sendProtectedIndex = async (request: Parameters<typeof isAdminAuthenticated>[0], reply: any) => {
+	const sendProtectedIndex = async (
+		request: FastifyRequest,
+		reply: FastifyReply
+	): Promise<unknown> => {
 		if (
 			options.accessControl &&
 			!isAdminAuthenticated(request, options.dataDirectory, options.adminToken)

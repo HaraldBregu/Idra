@@ -15,10 +15,11 @@ export class StorageApi {
 		const startedAt = performance.now();
 		let recorded = false;
 		try {
-			const headers = { authorization: `Bearer ${this.#token}` };
+			const headers = this.#token ? { authorization: `Bearer ${this.#token}` } : {};
 			if (options.body !== undefined) headers['content-type'] = 'application/json';
 			const response = await fetch(endpoint, {
 				method,
+				credentials: 'same-origin',
 				headers,
 				body: options.body === undefined ? undefined : JSON.stringify(options.body),
 			});

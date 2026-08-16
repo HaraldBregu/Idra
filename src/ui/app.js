@@ -6,21 +6,17 @@ import { runSuite } from './suite.js';
 const elements = Object.fromEntries(
 	[
 		'activity-list',
-		'admin-token',
 		'agent-output',
 		'agent-prompt',
 		'agent-session',
 		'agent-state',
 		'clear-log',
-		'connect-button',
-		'connection-form',
 		'connection-status',
 		'copy-log',
 		'data-directory',
 		'delete-file',
 		'delete-provider',
 		'delete-settings',
-		'disconnect-button',
 		'file-content',
 		'file-count',
 		'file-list',
@@ -41,7 +37,6 @@ const elements = Object.fromEntries(
 		'save-settings',
 		'settings-json',
 		'settings-state',
-		'show-token',
 		'show-provider-key',
 		'provider-form',
 		'provider-key',
@@ -95,7 +90,6 @@ function setConnected(value, label) {
 	elements['connection-status'].textContent = label;
 	elements['connection-status'].dataset.connected = String(value);
 	for (const control of requiresToken) control.disabled = !value;
-	elements['disconnect-button'].disabled = !value;
 	for (const control of requiresProvider) control.disabled = !value || !providerConfigured;
 	elements['new-session'].disabled = !value || !providerConfigured || !sessionId;
 }
@@ -193,54 +187,15 @@ async function refreshAll(updateEditor = true) {
 function handleError(error) {
 	const message = error instanceof Error ? error.message : String(error);
 	if (error?.status === 401) {
-		setConnected(false, 'Authentication failed');
-		announce('The admin token was rejected. Check IDRA_ADMIN_TOKEN and try again.', 'error');
+		window.location.replace('/access');
 	} else if (error?.status === 404) {
-		announce('The storage API is disabled. Set IDRA_ADMIN_TOKEN and restart the server.', 'error');
+		announce('The requested application service is unavailable.', 'error');
 	} else if (error?.status === 0 || error instanceof TypeError) {
 		announce('The server is offline or restarting. Reconnect when it is available.', 'error');
 	} else {
 		announce(message, 'error');
 	}
 }
-
-elements['connection-form'].addEventListener('submit', async (event) => {
-	event.preventDefault();
-	const token = elements['admin-token'].value;
-	if (!token) {
-		announce('Enter the admin token first.', 'error');
-		return;
-	}
-	api.setToken(token);
-	agentApi.setToken(token);
-	setBusy(elements['connect-button'], true, 'Connecting…');
-	try {
-		await refreshAll();
-		setConnected(true, 'Connected');
-		announce('Connected. Storage data is ready to inspect.', 'success');
-	} catch (error) {
-		handleError(error);
-	} finally {
-		setBusy(elements['connect-button'], false, 'Connect');
-	}
-});
-
-elements['show-token'].addEventListener('change', () => {
-	elements['admin-token'].type = elements['show-token'].checked ? 'text' : 'password';
-});
-
-elements['disconnect-button'].addEventListener('click', () => {
-	api.setToken('');
-	agentApi.setToken('');
-	elements['admin-token'].value = '';
-	elements['show-token'].checked = false;
-	elements['admin-token'].type = 'password';
-	elements['provider-key'].value = '';
-	elements['provider-key'].type = 'password';
-	elements['show-provider-key'].checked = false;
-	setConnected(false, 'Not connected');
-	announce('Disconnected. The token was cleared from this page.', 'info');
-});
 
 elements['show-provider-key'].addEventListener('change', () => {
 	elements['provider-key'].type = elements['show-provider-key'].checked ? 'text' : 'password';
@@ -537,7 +492,13 @@ for (const editor of [
 	});
 }
 
-setConnected(false, 'Not connected');
+setConnected(true, 'Access granted');
 elements['settings-json'].value = '{}';
 elements['file-content'].value = 'Hello from the storage test console.';
 elements['provider-select'].dispatchEvent(new Event('change'));
+try {
+	await refreshAll();
+	announce('Workspace ready.', 'success');
+} catch (error) {
+	handleError(error);
+}

@@ -143,13 +143,6 @@ textarea:focus-visible {
 	margin: -6px 0 18px;
 }
 
-.connection-form {
-	display: grid;
-	grid-template-columns: minmax(220px, 1fr) auto auto;
-	align-items: end;
-	gap: 14px;
-}
-
 .field {
 	display: grid;
 	gap: 7px;
@@ -378,6 +371,79 @@ textarea {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 18px;
 	align-items: start;
+}
+
+.header-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.access-body {
+	display: grid;
+	place-items: center;
+	padding: 24px;
+}
+
+.access-shell {
+	width: min(100%, 460px);
+}
+
+.access-card {
+	padding: 30px;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--surface);
+	box-shadow: var(--shadow);
+}
+
+.access-card h1 {
+	margin: 6px 0 8px;
+	font-size: clamp(1.7rem, 5vw, 2.1rem);
+	letter-spacing: -0.035em;
+}
+
+.access-subtitle {
+	margin: 0 0 24px;
+	color: var(--muted);
+}
+
+.access-actions {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+
+.generated-access {
+	display: grid;
+	gap: 9px;
+	margin-bottom: 20px;
+	padding: 13px;
+	border: 1px solid var(--border);
+	border-radius: 9px;
+	background: var(--surface-subtle);
+}
+
+.generated-access[hidden] {
+	display: none;
+}
+
+.generated-access span {
+	color: var(--muted);
+	font-size: 0.78rem;
+	font-weight: 700;
+}
+
+.generated-access output {
+	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+	font-size: 0.82rem;
+	overflow-wrap: anywhere;
+	user-select: all;
+}
+
+.access-notice {
+	margin: 18px 0 0;
+	font-size: 0.84rem;
 }
 
 .agent-grid {
@@ -622,8 +688,16 @@ td:first-child {
 		padding-top: 24px;
 	}
 
-	.connection-form,
 	.overview {
+		grid-template-columns: 1fr;
+	}
+
+	.header-actions {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.access-actions {
 		grid-template-columns: 1fr;
 	}
 

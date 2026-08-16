@@ -8,6 +8,7 @@ export class AgentApi {
 	async prompt(message, sessionId, onEvent) {
 		const response = await fetch('/agents/messages', {
 			method: 'POST',
+			credentials: 'same-origin',
 			headers: {
 				'content-type': 'application/json',
 				...(this.#token ? { authorization: `Bearer ${this.#token}` } : {}),
