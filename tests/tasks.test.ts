@@ -13,7 +13,7 @@ import {
 } from '@a2a-js/sdk';
 import { RequestMalformedError } from '@a2a-js/sdk/errors';
 import { ServerCallContext } from '@a2a-js/sdk/server';
-import { PersistentTaskStore } from '../src/main/a2a/tasks';
+import { PersistentTaskStore, createTaskStore } from '../src/main/a2a/store';
 
 const context = new ServerCallContext({ requestedVersion: '1.0' });
 
@@ -22,7 +22,7 @@ test('PersistentTaskStore saves, loads, filters, and paginates secure task files
 	const directory = path.join(root, 'a2a', 'tasks');
 
 	try {
-		const store = new PersistentTaskStore(directory);
+		const store = await createTaskStore(directory);
 		assert.equal(fs.statSync(directory).mode & 0o777, 0o700);
 
 		const tasks = [

@@ -213,3 +213,7 @@ export class PersistentTaskStore implements TaskStore {
 		}
 	}
 }
+
+export async function createTaskStore(tasksDirectory: string): Promise<PersistentTaskStore> {
+	return new PersistentTaskStore(tasksDirectory);
+}
