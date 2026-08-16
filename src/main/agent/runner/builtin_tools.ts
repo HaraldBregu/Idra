@@ -7,12 +7,5 @@ import { scrapeWebsiteTool } from '../tools/scrape_website';
 import { writeTool } from '../tools/write_file';
 
 export function builtinTools(): Tool[] {
-	return [
-		readTool,
-		writeTool,
-		editTool,
-		applyPatchTool,
-		executeCommandTool,
-		scrapeWebsiteTool,
-	];
+	return [readTool, writeTool, editTool, applyPatchTool, executeCommandTool, scrapeWebsiteTool];
 }

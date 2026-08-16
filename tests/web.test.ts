@@ -63,13 +63,6 @@ test('website extraction removes active content and returns bounded text and lin
 test('built-in tools expose website scraping', () => {
 	assert.deepEqual(
 		builtinTools().map((tool) => tool.id),
-		[
-			'read_file',
-			'write_file',
-			'edit_file',
-			'apply_patch',
-			'execute_command',
-			'scrape_website',
-		]
+		['read_file', 'write_file', 'edit_file', 'apply_patch', 'execute_command', 'scrape_website']
 	);
 });
