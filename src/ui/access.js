@@ -18,11 +18,13 @@ elements['generate-access'].addEventListener('click', async () => {
 	const accessKey = generateAccessKey();
 	elements['generated-key'].textContent = accessKey;
 	elements['generated-access'].hidden = false;
-	elements['access-notice'].textContent = 'Access key generated. Copy it, then paste it into the access field.';
+	elements['access-notice'].textContent =
+		'Access key generated. Copy it, then paste it into the access field.';
 	elements['access-notice'].dataset.kind = 'success';
 	try {
 		await navigator.clipboard.writeText(accessKey);
-		elements['access-notice'].textContent = 'Access key copied. Paste it into the access field, then save.';
+		elements['access-notice'].textContent =
+			'Access key copied. Paste it into the access field, then save.';
 	} catch {}
 	elements['access-input'].focus();
 });
@@ -30,10 +32,12 @@ elements['generate-access'].addEventListener('click', async () => {
 elements['access-copy'].addEventListener('click', async () => {
 	try {
 		await navigator.clipboard.writeText(elements['generated-key'].textContent);
-		elements['access-notice'].textContent = 'Access key copied. Paste it into the access field, then save.';
+		elements['access-notice'].textContent =
+			'Access key copied. Paste it into the access field, then save.';
 		elements['access-notice'].dataset.kind = 'success';
 	} catch {
-		elements['access-notice'].textContent = 'Copy was blocked. Select the generated key and copy it manually.';
+		elements['access-notice'].textContent =
+			'Copy was blocked. Select the generated key and copy it manually.';
 		elements['access-notice'].dataset.kind = 'error';
 	}
 });
@@ -72,9 +76,11 @@ try {
 	if (status.configured) {
 		elements['generate-access'].hidden = true;
 		elements['access-subtitle'].textContent = 'Enter your saved access key to continue.';
-		elements['access-notice'].textContent = 'This app is protected. Your login remains active on this browser.';
+		elements['access-notice'].textContent =
+			'This app is protected. Your login remains active on this browser.';
 	}
 } catch {
-	elements['access-notice'].textContent = 'The app is unavailable. Retry when the server is running.';
+	elements['access-notice'].textContent =
+		'The app is unavailable. Retry when the server is running.';
 	elements['access-notice'].dataset.kind = 'error';
 }

@@ -28,7 +28,6 @@ export function registerStorageRoutes(
 	dataDirectory: string,
 	authenticate: AdminAuthentication
 ): void {
-
 	server.get('/storage', { onRequest: authenticate }, async () => storageStatus(dataDirectory));
 
 	server.get('/settings', { onRequest: authenticate }, async () => readSettings(dataDirectory));

@@ -22,10 +22,7 @@ export function registerUiRoutes(server: FastifyInstance, options: UiOptions): v
 	const accessPath = fileURLToPath(new URL('../ui/access.html', import.meta.url));
 	const assetPath = (name: string): string =>
 		fileURLToPath(new URL(`../ui/${name}`, import.meta.url));
-	const sendIndex = async (
-		_request: FastifyRequest,
-		reply: FastifyReply
-	): Promise<unknown> => {
+	const sendIndex = async (_request: FastifyRequest, reply: FastifyReply): Promise<unknown> => {
 		reply.headers(securityHeaders);
 		return reply.type('text/html; charset=utf-8').send(fs.readFileSync(indexPath, 'utf8'));
 	};

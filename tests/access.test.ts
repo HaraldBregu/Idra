@@ -42,10 +42,10 @@ test('first-run access setup protects the UI and persists login across restarts'
 		assert.match(accessPage.body, /id="generate-access"/);
 		assert.match(accessPage.body, /id="access-save"/);
 		assert.doesNotMatch(accessPage.body, /Provider and model|Storage document/);
-		assert.deepEqual(
-			(await server.inject({ method: 'GET', url: '/access/status' })).json(),
-			{ configured: false, authenticated: false }
-		);
+		assert.deepEqual((await server.inject({ method: 'GET', url: '/access/status' })).json(), {
+			configured: false,
+			authenticated: false,
+		});
 		assert.equal((await server.inject({ method: 'GET', url: '/health' })).statusCode, 200);
 		assert.equal((await server.inject({ method: 'GET', url: '/storage' })).statusCode, 401);
 
@@ -92,9 +92,7 @@ test('first-run access setup protects the UI and persists login across restarts'
 			200
 		);
 		assert.deepEqual(
-			(
-				await server.inject({ method: 'GET', url: '/access/status', headers: { cookie } })
-			).json(),
+			(await server.inject({ method: 'GET', url: '/access/status', headers: { cookie } })).json(),
 			{ configured: true, authenticated: true }
 		);
 
@@ -114,9 +112,8 @@ test('first-run access setup protects the UI and persists login across restarts'
 
 		const tamperedCookie = `${cookie.slice(0, -1)}x`;
 		assert.equal(
-			(
-				await server.inject({ method: 'GET', url: '/', headers: { cookie: tamperedCookie } })
-			).statusCode,
+			(await server.inject({ method: 'GET', url: '/', headers: { cookie: tamperedCookie } }))
+				.statusCode,
 			302
 		);
 
@@ -128,9 +125,7 @@ test('first-run access setup protects the UI and persists login across restarts'
 		restartedServer.log.level = 'silent';
 		try {
 			assert.equal(
-				(
-					await restartedServer.inject({ method: 'GET', url: '/', headers: { cookie } })
-				).statusCode,
+				(await restartedServer.inject({ method: 'GET', url: '/', headers: { cookie } })).statusCode,
 				200
 			);
 			const relogin = await restartedServer.inject({
