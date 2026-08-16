@@ -51,8 +51,8 @@ export function resolveA2aConfig(input: A2aConfigInput): A2aConfig | undefined {
 	return {
 		token,
 		publicUrl: url.origin,
-		tasksDirectory: path.join(input.dataDirectory, 'a2a', 'tasks'),
-		workspaceDirectory: path.join(input.dataDirectory, 'workspace'),
+		tasksDirectory: path.join(path.resolve(input.dataDirectory), 'a2a', 'tasks'),
+		workspaceDirectory: path.join(path.resolve(input.dataDirectory), 'workspace'),
 	};
 }
 
