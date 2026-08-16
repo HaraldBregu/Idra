@@ -141,7 +141,7 @@ test(
 					type: 'tool_call_input',
 					iteration: 0,
 					toolCallId: 'tool-call',
-					toolName: 'read_file',
+					toolName: 'read',
 					input: { secret },
 					argsText: secret,
 					name: 'Read file',
@@ -315,7 +315,7 @@ test(
 			assert.equal(events[3]?.statusUpdate.status.state, 'TASK_STATE_COMPLETED');
 			assert.equal(streamBody.includes(secret), false);
 			assert.equal(calls.length, 1);
-			assert.deepEqual(calls[0]?.options.toolsAllow, ['read_file', 'write_file', 'edit_file']);
+			assert.deepEqual(calls[0]?.options.toolsAllow, ['read', 'write', 'edit']);
 			assert.equal(calls[0]?.options.workspaceRoot, path.join(directory, 'workspace'));
 		} finally {
 			await server.close();
@@ -334,7 +334,7 @@ test('A2A executor validates text input, preserves order, and exposes only respo
 				type: 'tool_call_result',
 				iteration: 0,
 				toolCallId: 'tool-call',
-				toolName: 'read_file',
+				toolName: 'read',
 				input: { path: secret },
 				output: secret,
 				outputText: secret,
@@ -375,7 +375,7 @@ test('A2A executor validates text input, preserves order, and exposes only respo
 	assert.equal(calls[0]?.message, 'one\ntwo');
 	assert.equal(calls[0]?.options.runId, taskId);
 	assert.equal(calls[0]?.options.sessionId, contextId);
-	assert.deepEqual(calls[0]?.options.toolsAllow, ['read_file', 'write_file', 'edit_file']);
+	assert.deepEqual(calls[0]?.options.toolsAllow, ['read', 'write', 'edit']);
 	assert.equal(calls[0]?.options.workspaceRoot, workspace);
 	assert.deepEqual(
 		events.map((event) => event.kind),

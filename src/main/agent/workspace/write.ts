@@ -8,8 +8,8 @@ import { workspaceFilePath } from './path';
 
 export function createWorkspaceWriteTool(rootPath: string): Tool {
 	return tool({
-		id: 'write_file',
-		name: 'Write file',
+		id: 'write',
+		name: 'Write',
 		description: 'Create or overwrite a UTF-8 text file inside the workspace.',
 		inputSchema: z.object({
 			path: z.string().min(1).describe('Path relative to the workspace root.'),

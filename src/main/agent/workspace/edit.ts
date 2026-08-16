@@ -7,8 +7,8 @@ import { workspaceFilePath } from './path';
 
 export function createWorkspaceEditTool(rootPath: string): Tool {
 	return tool({
-		id: 'edit_file',
-		name: 'Edit file',
+		id: 'edit',
+		name: 'Edit',
 		description: 'Replace one exact text match in a UTF-8 file inside the workspace.',
 		inputSchema: z.object({
 			path: z.string().min(1).describe('Path relative to the workspace root.'),

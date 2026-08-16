@@ -8,6 +8,6 @@ test('built-in command tool is named exec throughout the registry', () => {
 	assert.equal(execTool.name, 'Exec');
 	assert.deepEqual(
 		builtinTools().map((tool) => tool.id),
-		['read_file', 'write_file', 'edit_file', 'apply_patch', 'exec']
+		['read', 'write', 'edit', 'apply_patch', 'exec']
 	);
 });

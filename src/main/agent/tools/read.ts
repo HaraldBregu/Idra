@@ -5,8 +5,8 @@ import { resolveUserPath } from '../../shared/user_path';
 import { tool } from '../core/tool';
 
 export const readTool = tool({
-	id: 'read_file',
-	name: 'Read file',
+	id: 'read',
+	name: 'Read',
 	description:
 		'Read the full UTF-8 contents of a single text file. Use this before editing when you need the current file contents.',
 	inputSchema: z.object({

@@ -67,7 +67,7 @@ The public Agent Card is available at `GET /.well-known/agent-card.json`. Authen
 - `POST /a2a/tasks/:id:cancel`
 - `POST /a2a/tasks/:id:subscribe`
 
-Requests must send `A2A-Version: 1.0` and `Authorization: Bearer ...`. External runs accept ordered `text/plain` parts up to 32 KiB and can use only `read_file`, `write_file`, and `edit_file` inside `/data/workspace`. Task files are retained for 30 days under `/data/a2a/tasks`.
+Requests must send `A2A-Version: 1.0` and `Authorization: Bearer ...`. External runs accept ordered `text/plain` parts up to 32 KiB and can use only `read`, `write`, and `edit` inside `/data/workspace`. Task files are retained for 30 days under `/data/a2a/tasks`.
 
 ### HTTPS reverse proxy
 

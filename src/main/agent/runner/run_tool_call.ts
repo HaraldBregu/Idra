@@ -62,7 +62,7 @@ export async function* runToolCall(
 			release = resources ? await resources.acquire([], signal) : release;
 			output = await tool.run(canonicalInput);
 			output = limitToolOutput(output, MAX_TOOL_OUTPUT_BYTES);
-			if (state && (toolCall.name === 'read_file' || isFileCreation(state))) {
+			if (state && (toolCall.name === 'read' || isFileCreation(state))) {
 				rememberTool(context, state);
 			}
 		} catch (error) {

@@ -6,8 +6,8 @@ import { workspaceFilePath } from './path';
 
 export function createWorkspaceReadTool(rootPath: string): Tool {
 	return tool({
-		id: 'read_file',
-		name: 'Read file',
+		id: 'read',
+		name: 'Read',
 		description: 'Read the full UTF-8 contents of a text file inside the workspace.',
 		inputSchema: z.object({
 			path: z.string().min(1).describe('Path relative to the workspace root.'),

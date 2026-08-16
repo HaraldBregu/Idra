@@ -14,16 +14,16 @@ test('root-bound workspace tools read, write, and edit relative files', async ()
 	const tools = new Map(workspaceTools(root).map((tool) => [tool.id, tool]));
 
 	try {
-		assert.deepEqual([...tools.keys()], ['read_file', 'write_file', 'edit_file']);
-		assert.equal(await requireTool(tools, 'read_file').run({ path: 'existing.txt' }), 'before');
+		assert.deepEqual([...tools.keys()], ['read', 'write', 'edit']);
+		assert.equal(await requireTool(tools, 'read').run({ path: 'existing.txt' }), 'before');
 
-		await requireTool(tools, 'write_file').run({
+		await requireTool(tools, 'write').run({
 			path: 'nested/created.txt',
 			content: 'created',
 		});
 		assert.equal(fs.readFileSync(path.join(root, 'nested', 'created.txt'), 'utf8'), 'created');
 
-		await requireTool(tools, 'edit_file').run({
+		await requireTool(tools, 'edit').run({
 			path: 'existing.txt',
 			oldText: 'before',
 			newText: 'after',
@@ -80,7 +80,7 @@ function requireTool(tools: Map<string, Tool>, id: string): Tool {
 }
 
 function toolInput(toolId: string, filePath: string): Record<string, unknown> {
-	if (toolId === 'write_file') return { path: filePath, content: 'changed' };
-	if (toolId === 'edit_file') return { path: filePath, oldText: 'untouched', newText: 'changed' };
+	if (toolId === 'write') return { path: filePath, content: 'changed' };
+	if (toolId === 'edit') return { path: filePath, oldText: 'untouched', newText: 'changed' };
 	return { path: filePath };
 }
