@@ -30,7 +30,10 @@
     "format:check": "prettier --check src tests"
   },
   "dependencies": {
+    "@a2a-js/sdk": "^1.0.1",
     "@anthropic-ai/sdk": "^0.117.1",
+    "@fastify/express": "^4.0.7",
+    "express": "^5.2.1",
     "fastify": "^5.12.0",
     "gray-matter": "^4.0.3",
     "openai": "^7.4.0",
