@@ -104,11 +104,12 @@ async function* loop(
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
-	let tools: Tool[] = options.tools
-		? [...options.tools]
-		: options.workspaceRoot === undefined
-			? builtinTools()
-			: workspaceTools(options.workspaceRoot);
+	let tools: Tool[] =
+		options.workspaceRoot !== undefined
+			? workspaceTools(options.workspaceRoot)
+			: options.tools
+				? [...options.tools]
+				: builtinTools();
 	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
 
 

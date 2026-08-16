@@ -57,6 +57,11 @@ test('root-bound workspace tools reject invalid and escaping paths', async () =>
 	];
 
 	try {
+		for (const invalidRoot of ['', 'relative-workspace']) {
+			await assert.rejects(async () =>
+				workspaceTools(invalidRoot)[0].run({ path: 'sentinel.txt' })
+			);
+		}
 		for (const tool of tools) {
 			for (const invalidPath of invalidPaths) {
 				await assert.rejects(async () => tool.run(toolInput(tool.id, invalidPath)));

@@ -3,6 +3,9 @@ import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 
 export function workspaceFilePath(rootPath: string, requestedPath: string): string {
+	if (!rootPath || rootPath.includes('\0') || !path.isAbsolute(rootPath)) {
+		throw new Error('Workspace root must be an absolute path.');
+	}
 	if (
 		!requestedPath ||
 		requestedPath.includes('\0') ||
