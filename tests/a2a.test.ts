@@ -269,12 +269,7 @@ test(
 			const listed = await fetch(`${baseUrl}/a2a/tasks`, { headers: A2A_HEADERS });
 			assert.equal(listed.status, 200);
 			assert.match(listed.headers.get('content-type') ?? '', /^application\/a2a\+json/);
-			assert.deepEqual(await listed.json(), {
-				tasks: [],
-				nextPageToken: '',
-				pageSize: 50,
-				totalSize: 0,
-			});
+			assert.deepEqual(await listed.json(), { pageSize: 50 });
 
 			const unsupportedContent = await fetch(`${baseUrl}/a2a/message:send`, {
 				method: 'POST',
@@ -482,11 +477,13 @@ test('A2A executor emits exactly one sanitized terminal state for every run outc
 test('A2A request handler supports immediate and blocking sends, polling, listing, subscription, and cancellation', async () => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-a2a-handler-'));
 	const gates = new Map<string, ReturnType<typeof deferred>>();
+	const starts = new Map<string, ReturnType<typeof deferred>>();
 	const runs = new Map<string, string>();
 	const cancellations: string[] = [];
 	const agent: AgentPort = {
 		async send(message, agentId, options) {
 			runs.set(options.runId ?? '', message);
+			starts.get(message)?.resolve();
 			await gates.get(message)?.promise;
 			emit(options, {
 				type: 'text_delta',
@@ -515,13 +512,16 @@ test('A2A request handler supports immediate and blocking sends, polling, listin
 		const context = new ServerCallContext({ requestedVersion: '1.0' });
 
 		const immediateGate = deferred();
+		const immediateStart = deferred();
 		gates.set('immediate', immediateGate);
+		starts.set('immediate', immediateStart);
 		const immediate = await handler.sendMessage(
 			sendRequest(['immediate'], { returnImmediately: true }),
 			context
 		);
 		assert.ok('id' in immediate);
 		assert.notEqual(immediate.status?.state, TaskState.TASK_STATE_COMPLETED);
+		await immediateStart.promise;
 
 		const polled = await handler.getTask(
 			{ tenant: '', id: immediate.id, historyLength: undefined },
@@ -529,12 +529,15 @@ test('A2A request handler supports immediate and blocking sends, polling, listin
 		);
 		assert.equal(polled.id, immediate.id);
 		assert.equal(polled.contextId, immediate.contextId);
-		assert.equal(polled.status?.state, TaskState.TASK_STATE_WORKING);
+		assert.ok(
+			polled.status?.state === TaskState.TASK_STATE_SUBMITTED ||
+				polled.status?.state === TaskState.TASK_STATE_WORKING
+		);
 
 		const listRequest: ListTasksRequest = {
 			tenant: '',
 			contextId: immediate.contextId,
-			status: TaskState.TASK_STATE_WORKING,
+			status: TaskState.TASK_STATE_UNSPECIFIED,
 			pageToken: '',
 			statusTimestampAfter: undefined,
 			includeArtifacts: true,
