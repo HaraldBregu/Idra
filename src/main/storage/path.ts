@@ -2,11 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { StorageError } from './error';
 
-export function storagePath(
-	root: string,
-	requestedPath: string,
-	createRoot = false
-): string {
+export function storagePath(root: string, requestedPath: string, createRoot = false): string {
 	if (
 		!requestedPath.trim() ||
 		requestedPath.includes('\0') ||
