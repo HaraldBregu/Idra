@@ -25,10 +25,7 @@ import { IdraExecutor, type AgentPort } from '../src/main/a2a/executor';
 import { createAgentCard } from '../src/main/a2a/card';
 import { createTaskStore } from '../src/main/a2a/store';
 import type { AgentSendOptions } from '../src/main/agent/agent';
-import type {
-	AgentResponseEvent,
-	AgentRunStopReason,
-} from '../src/main/shared/agent_types';
+import type { AgentResponseEvent, AgentRunStopReason } from '../src/main/shared/agent_types';
 import { createApiServer } from '../src/main/server';
 
 const AGENT_TOKEN = 'agent-token-123456789012345678901';
@@ -81,11 +78,7 @@ test('A2A configuration is disabled or validates paired secure settings', async 
 			workspaceDirectory: path.join(directory, 'workspace'),
 		}
 	);
-	for (const publicUrl of [
-		'http://localhost:3000',
-		'http://127.0.0.1:3000',
-		'http://[::1]:3000',
-	]) {
+	for (const publicUrl of ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://[::1]:3000']) {
 		assert.equal(
 			resolveA2aConfig({ dataDirectory: directory, token: AGENT_TOKEN, publicUrl })?.publicUrl,
 			publicUrl
@@ -214,9 +207,19 @@ test(
 			assert.deepEqual(card.defaultOutputModes, ['text/plain']);
 			assert.equal(card.securitySchemes.bearerAuth.httpAuthSecurityScheme.scheme, 'Bearer');
 			assert.deepEqual(card.securityRequirements, [{ schemes: { bearerAuth: {} } }]);
-			assert.deepEqual(card.skills.map((skill: { id: string }) => skill.id), ['workspace-files']);
+			assert.deepEqual(
+				card.skills.map((skill: { id: string }) => skill.id),
+				['workspace-files']
+			);
 
-			for (const authorization of [undefined, '', 'Basic value', 'Bearer', 'Bearer wrong', 'Bearer a b']) {
+			for (const authorization of [
+				undefined,
+				'',
+				'Basic value',
+				'Bearer',
+				'Bearer wrong',
+				'Bearer a b',
+			]) {
 				const response = await fetch(`${baseUrl}/a2a/tasks`, {
 					headers: {
 						'a2a-version': '1.0',
@@ -308,12 +311,10 @@ test(
 			assert.equal(streamResponse.headers.get('x-accel-buffering'), 'no');
 			const streamBody = await streamResponse.text();
 			const events = sseEvents(streamBody);
-			assert.deepEqual(events.map((event) => Object.keys(event)[0]), [
-				'task',
-				'statusUpdate',
-				'artifactUpdate',
-				'statusUpdate',
-			]);
+			assert.deepEqual(
+				events.map((event) => Object.keys(event)[0]),
+				['task', 'statusUpdate', 'artifactUpdate', 'statusUpdate']
+			);
 			assert.equal(events[1]?.statusUpdate.status.state, 'TASK_STATE_WORKING');
 			assert.equal(events[2]?.artifactUpdate.artifact.parts[0].text, 'Hello from Idra');
 			assert.equal(events[3]?.statusUpdate.status.state, 'TASK_STATE_COMPLETED');
@@ -381,13 +382,10 @@ test('A2A executor validates text input, preserves order, and exposes only respo
 	assert.equal(calls[0]?.options.sessionId, contextId);
 	assert.deepEqual(calls[0]?.options.toolsAllow, ['read_file', 'write_file', 'edit_file']);
 	assert.equal(calls[0]?.options.workspaceRoot, workspace);
-	assert.deepEqual(events.map((event) => event.kind), [
-		'task',
-		'statusUpdate',
-		'artifactUpdate',
-		'artifactUpdate',
-		'statusUpdate',
-	]);
+	assert.deepEqual(
+		events.map((event) => event.kind),
+		['task', 'statusUpdate', 'artifactUpdate', 'artifactUpdate', 'statusUpdate']
+	);
 	const artifactEvents = events.filter((event) => event.kind === 'artifactUpdate');
 	assert.deepEqual(
 		artifactEvents.map((event) => ({
@@ -403,16 +401,10 @@ test('A2A executor validates text input, preserves order, and exposes only respo
 	assert.equal(JSON.stringify(events).includes(secret), false);
 
 	const exactLimit = 'a'.repeat(16_384);
-	await execute(
-		executor,
-		requestContext([textPart(exactLimit), textPart('b'.repeat(16_383))])
-	);
+	await execute(executor, requestContext([textPart(exactLimit), textPart('b'.repeat(16_383))]));
 	assert.equal(Buffer.byteLength(calls.at(-1)?.message ?? ''), 32 * 1024);
 	await assert.rejects(
-		execute(
-			executor,
-			requestContext([textPart(exactLimit), textPart('b'.repeat(16_384))])
-		),
+		execute(executor, requestContext([textPart(exactLimit), textPart('b'.repeat(16_384))])),
 		RequestMalformedError
 	);
 	await assert.rejects(
@@ -430,7 +422,10 @@ test('A2A executor validates text input, preserves order, and exposes only respo
 		RequestMalformedError
 	);
 	await assert.rejects(
-		execute(executor, requestContext([textPart('hello')], randomUUID(), randomUUID(), 'not-a-uuid')),
+		execute(
+			executor,
+			requestContext([textPart('hello')], randomUUID(), randomUUID(), 'not-a-uuid')
+		),
 		RequestMalformedError
 	);
 });
@@ -545,11 +540,17 @@ test('A2A request handler supports immediate and blocking sends, polling, listin
 			includeArtifacts: true,
 		};
 		const listed = await handler.listTasks(listRequest, context);
-		assert.deepEqual(listed.tasks.map((task) => task.id), [immediate.id]);
+		assert.deepEqual(
+			listed.tasks.map((task) => task.id),
+			[immediate.id]
+		);
 
 		const subscription = handler.resubscribe({ tenant: '', id: immediate.id }, context);
 		const subscribedEvent = subscription.next();
-		const canceled = await handler.cancelTask({ tenant: '', id: immediate.id, metadata: {} }, context);
+		const canceled = await handler.cancelTask(
+			{ tenant: '', id: immediate.id, metadata: {} },
+			context
+		);
 		assert.equal(canceled.status?.state, TaskState.TASK_STATE_CANCELED);
 		assert.deepEqual(cancellations, [immediate.id]);
 		const subscriptionResult = await subscribedEvent;
@@ -604,7 +605,12 @@ function protoRequest(parts: string[]): Record<string, unknown> {
 function sseEvents(body: string): Array<Record<string, any>> {
 	return body
 		.split('\n\n')
-		.map((block) => block.split('\n').find((line) => line.startsWith('data: '))?.slice(6))
+		.map((block) =>
+			block
+				.split('\n')
+				.find((line) => line.startsWith('data: '))
+				?.slice(6)
+		)
 		.filter((data): data is string => data !== undefined)
 		.map((data) => JSON.parse(data) as Record<string, any>);
 }
@@ -642,7 +648,10 @@ function requestContext(
 	);
 }
 
-async function execute(executor: IdraExecutor, context: RequestContext): Promise<AgentExecutionEvent[]> {
+async function execute(
+	executor: IdraExecutor,
+	context: RequestContext
+): Promise<AgentExecutionEvent[]> {
 	const events: AgentExecutionEvent[] = [];
 	const eventBus = new DefaultExecutionEventBus();
 	eventBus.on('event', (event) => events.push(event));
