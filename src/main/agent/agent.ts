@@ -246,6 +246,7 @@ export class Agent {
 			.flatMap(toHistoryMessages);
 	}
 
+
 	editUserMessage(sessionId: string, userOffsetFromEnd: number, content: string): Promise<boolean> {
 		const resolvedSessionId = resolveStoredSessionId(sessionId, this.config.location);
 		return this.scheduler.run(
@@ -310,6 +311,7 @@ export class Agent {
 	isBusy(agentId: string): boolean {
 		return [...this.runs.values()].some((record) => record.request.agentId === agentId);
 	}
+
 
 	private cancelSession(sessionId: string): Promise<AgentRunOutcome>[] {
 		const matching = [...this.runs.values()].filter(

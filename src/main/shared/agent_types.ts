@@ -67,10 +67,21 @@ export type AgentContextMode = 'minimal' | 'workspace';
 export type AgentToolRisk = 'low' | 'medium' | 'high' | 'critical';
 
 export type AgentToolEffect =
-	'read' | 'write' | 'execute' | 'external' | 'sensor' | 'paid' | 'persistence';
+	| 'read'
+	| 'write'
+	| 'execute'
+	| 'external'
+	| 'sensor'
+	| 'paid'
+	| 'persistence';
 
 export type AgentMediaModelKind =
-	'image' | 'audio' | 'video' | 'voice' | 'realtimeVoice' | 'transcription';
+	| 'image'
+	| 'audio'
+	| 'video'
+	| 'voice'
+	| 'realtimeVoice'
+	| 'transcription';
 
 export interface AgentMediaModelSettings {
 	providerId: string;
@@ -202,7 +213,10 @@ export interface AgentIntentResolutionSummary {
 }
 
 export type AgentCapabilityDecisionMode =
-	'direct_answer' | 'use_tools' | 'use_skills' | 'use_tools_and_skills';
+	| 'direct_answer'
+	| 'use_tools'
+	| 'use_skills'
+	| 'use_tools_and_skills';
 
 export interface AgentCapabilityDecisionSummary {
 	mode: AgentCapabilityDecisionMode;
