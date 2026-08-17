@@ -1,26 +1,20 @@
-export const MCP_PACKAGES = [
-	'@modelcontextprotocol/server-memory',
-	'@modelcontextprotocol/server-filesystem',
-	'@modelcontextprotocol/server-everything',
-] as const;
-
-export type McpPackage = (typeof MCP_PACKAGES)[number];
-
-export const MCP_EXECUTABLES: Record<McpPackage, string> = {
-	'@modelcontextprotocol/server-memory':
-		'node_modules/@modelcontextprotocol/server-memory/dist/index.js',
-	'@modelcontextprotocol/server-filesystem':
-		'node_modules/@modelcontextprotocol/server-filesystem/dist/index.js',
-	'@modelcontextprotocol/server-everything':
-		'node_modules/@modelcontextprotocol/server-everything/dist/index.js',
-};
-
-export interface McpServer {
+export interface McpStdioServer {
 	id: string;
-	package: McpPackage;
+	transport: 'stdio';
+	command: string;
 	args: string[];
 	enabled: boolean;
 }
+
+export interface McpHttpServer {
+	id: string;
+	transport: 'http';
+	url: string;
+	headers?: Record<string, string>;
+	enabled: boolean;
+}
+
+export type McpServer = McpStdioServer | McpHttpServer;
 
 export interface McpDocument {
 	servers: McpServer[];
