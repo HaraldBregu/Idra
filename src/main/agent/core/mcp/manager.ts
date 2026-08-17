@@ -9,17 +9,19 @@ export class McpManager {
 	private clients: Client[] = [];
 	private servers: McpServer[] = [];
 	private loading?: Promise<Tool[]>;
+	private resetting: Promise<void> = Promise.resolve();
 	readonly errors: Error[] = [];
 
 	configure(servers: McpServer[]): void {
 		if (JSON.stringify(servers) === JSON.stringify(this.servers)) return;
-		void this.close();
+		this.resetting = this.close();
 		this.servers = structuredClone(servers);
 		this.loading = undefined;
 		this.errors.length = 0;
 	}
 
-	tools(): Promise<Tool[]> {
+	async tools(): Promise<Tool[]> {
+		await this.resetting;
 		this.loading ??= this.load();
 		return this.loading;
 	}
