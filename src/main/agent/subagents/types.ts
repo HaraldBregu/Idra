@@ -26,6 +26,7 @@ export interface SubagentRuntime {
 	resources?: KeyedMutex;
 	providerLimiter?: KeyedLimiter;
 	execute?: (
+		runtime: SubagentRuntime,
 		request: SubagentRequest,
 		tools: Tool[],
 		signal: AbortSignal

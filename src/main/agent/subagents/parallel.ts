@@ -11,12 +11,12 @@ export async function runSubagents(
 			const startedAt = Date.now();
 			let lease;
 			try {
-				lease = await runtime.limiter.acquire(runtime.parentInput.runId, signal);
+				lease = await runtime.limiter.acquire('subagents', signal);
 				const requested = new Set(request.tools ?? ['read']);
 				const tools = runtime.availableTools.filter(
 					(tool) => requested.has(tool.id) && tool.id !== 'subagents'
 				);
-				const result = await runSubagent(runtime, request, tools, signal);
+				const result = await (runtime.execute ?? runSubagent)(runtime, request, tools, signal);
 				return {
 					id: request.id,
 					status: 'completed',
