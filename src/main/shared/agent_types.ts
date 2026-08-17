@@ -183,11 +183,6 @@ export interface AgentToolCapabilitySummary {
 	serviceId?: string;
 }
 
-export interface AgentSelectedSkillSummary {
-	name: string;
-	reason: string;
-}
-
 export type AgentIntentResolutionStatus = 'recognized' | 'ambiguous' | 'missing_slots' | 'unknown';
 
 export interface AgentIntentAlternativeSummary {
@@ -212,11 +207,7 @@ export interface AgentIntentResolutionSummary {
 	slots?: AgentIntentSlotSummary[];
 }
 
-export type AgentCapabilityDecisionMode =
-	| 'direct_answer'
-	| 'use_tools'
-	| 'use_skills'
-	| 'use_tools_and_skills';
+export type AgentCapabilityDecisionMode = 'direct_answer' | 'use_tools';
 
 export interface AgentCapabilityDecisionSummary {
 	mode: AgentCapabilityDecisionMode;
@@ -240,7 +231,6 @@ export interface AgentRouteResolutionSummary {
 export interface AgentCapabilityResolutionSummary {
 	tools: string[];
 	services?: AgentCapabilityServiceSummary[];
-	skills: AgentSelectedSkillSummary[];
 	directAnswer: boolean;
 	decision: AgentCapabilityDecisionSummary;
 	intent?: AgentIntentResolutionSummary;
