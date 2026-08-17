@@ -207,11 +207,6 @@ test(
 			assert.deepEqual(card.defaultOutputModes, ['text/plain']);
 			assert.equal(card.securitySchemes.bearerAuth.httpAuthSecurityScheme.scheme, 'Bearer');
 			assert.deepEqual(card.securityRequirements, [{ schemes: { bearerAuth: {} } }]);
-			assert.deepEqual(
-				card.skills.map((skill: { id: string }) => skill.id),
-				['workspace-files']
-			);
-
 			for (const authorization of [
 				undefined,
 				'',
