@@ -1,7 +1,7 @@
-import path from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { MCP_EXECUTABLES, type McpServer } from '../../../mcp/types';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import type { McpServer } from '../../../mcp/types';
 import type { Tool } from '../../types';
 import { mcpResult } from './result';
 
@@ -47,11 +47,16 @@ export class McpManager {
 
 	private async connect(server: McpServer): Promise<Tool[]> {
 		const client = new Client({ name: 'idra', version: '1.0.2' });
-		const transport = new StdioClientTransport({
-			command: process.execPath,
-			args: [path.resolve(process.cwd(), MCP_EXECUTABLES[server.package]), ...server.args],
-			stderr: 'pipe',
-		});
+		const transport =
+			server.transport === 'stdio'
+				? new StdioClientTransport({
+						command: server.command,
+						args: server.args,
+						stderr: 'pipe',
+					})
+				: new StreamableHTTPClientTransport(new URL(server.url), {
+						...(server.headers ? { requestInit: { headers: server.headers } } : {}),
+					});
 		await client.connect(transport);
 		this.clients.push(client);
 		const { tools } = await client.listTools();
@@ -61,8 +66,9 @@ export class McpManager {
 			description: candidate.description ?? `MCP tool ${candidate.name}`,
 			schema: candidate.inputSchema,
 			parseInput(input: unknown): Record<string, unknown> {
-				if (!input || typeof input !== 'object' || Array.isArray(input))
+				if (!input || typeof input !== 'object' || Array.isArray(input)) {
 					throw new Error('MCP tool input must be an object.');
+				}
 				return input as Record<string, unknown>;
 			},
 			async run(input: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> {
