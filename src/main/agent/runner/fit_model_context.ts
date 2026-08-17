@@ -121,9 +121,7 @@ export function fitModelContext(input: ModelContextBudgetInput): ModelContextBud
 		) + 32;
 	if (mandatoryTokens > maxInputTokens) {
 		throw new Error(
-			protectedSystemPrompt
-				? 'The active skill instructions, current user turn, and available tool schemas exceed the model context budget.'
-				: 'The current user turn and available tool schemas exceed the model context budget.'
+			'The current user turn and available tool schemas exceed the model context budget.'
 		);
 	}
 

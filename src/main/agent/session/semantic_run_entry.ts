@@ -25,20 +25,6 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 				? { interactionMode: event.interactionMode }
 				: {}),
 			toolCount: Array.isArray(event.tools) ? event.tools.length : 0,
-			skillDiagnosticCount: Array.isArray(event.skillDiagnostics)
-				? event.skillDiagnostics.length
-				: 0,
-			skillActivations: Array.isArray(event.skillActivations)
-				? event.skillActivations.slice(0, 16).map((activation) => {
-						const skill = activation as Record<string, unknown>;
-						return {
-							...(typeof skill.id === 'string' ? { id: skill.id } : {}),
-							...(typeof skill.name === 'string' ? { name: skill.name } : {}),
-							...(typeof skill.hash === 'string' ? { hash: skill.hash } : {}),
-							...(typeof skill.trust === 'string' ? { trust: skill.trust } : {}),
-						};
-					})
-				: [],
 			...(mcp
 				? {
 						mcpDiscovery: {
@@ -108,10 +94,6 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 		};
 	}
 	if (event.type === 'tool_call_end') {
-		const output =
-			event.output && typeof event.output === 'object' && !Array.isArray(event.output)
-				? (event.output as Record<string, unknown>)
-				: undefined;
 		return {
 			type: event.type,
 			...(typeof event.toolCallId === 'string' ? { toolCallId: event.toolCallId } : {}),
@@ -120,14 +102,6 @@ export function semanticRunEntry(entry: unknown): Record<string, unknown> | unde
 			...(typeof event.durationMs === 'number' ? { durationMs: event.durationMs } : {}),
 			...(typeof event.permissionOutcome === 'string'
 				? { permissionOutcome: event.permissionOutcome }
-				: {}),
-			...(event.toolName === 'load_skill' && output?.activated === true
-				? {
-						skillActivation: {
-							...(typeof output.id === 'string' ? { id: output.id } : {}),
-							...(typeof output.hash === 'string' ? { hash: output.hash } : {}),
-						},
-					}
 				: {}),
 		};
 	}
