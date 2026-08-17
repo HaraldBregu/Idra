@@ -36,7 +36,7 @@ export interface Tool {
 	readonly description: string;
 	readonly schema: JSONSchema;
 	parseInput(input: unknown): Record<string, unknown>;
-	run(input: Record<string, unknown>): Promise<unknown> | unknown;
+	run(input: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> | unknown;
 }
 
 export type ToolConfig<T extends z.ZodType> = {
@@ -44,7 +44,7 @@ export type ToolConfig<T extends z.ZodType> = {
 	name: string;
 	description: string;
 	inputSchema: T;
-	execute: (input: z.infer<T>) => Promise<unknown> | unknown;
+	execute: (input: z.infer<T>, signal?: AbortSignal) => Promise<unknown> | unknown;
 };
 
 export interface MessageContentBlock {

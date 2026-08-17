@@ -12,6 +12,7 @@ interface Connection {
 export class McpManager {
 	private readonly connections: Connection[] = [];
 	private loading?: Promise<Tool[]>;
+	readonly errors: Error[] = [];
 
 	constructor(private readonly servers: McpServerConfig[]) {}
 
@@ -27,7 +28,14 @@ export class McpManager {
 	}
 
 	private async load(): Promise<Tool[]> {
-		const discovered = await Promise.all(this.servers.map((server) => this.connect(server)));
+		const discovered = await Promise.all(
+			this.servers.map((server) =>
+				this.connect(server).catch((error) => {
+					this.errors.push(error instanceof Error ? error : new Error(String(error)));
+					return [];
+				})
+			)
+		);
 		return discovered.flat();
 	}
 
@@ -55,8 +63,12 @@ export class McpManager {
 					}
 					return input as Record<string, unknown>;
 				},
-				async run(input: Record<string, unknown>): Promise<unknown> {
-					const result = await client.callTool({ name: candidate.name, arguments: input });
+				async run(input: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> {
+					const result = await client.callTool(
+						{ name: candidate.name, arguments: input },
+						undefined,
+						{ signal, timeout: 120_000 }
+					);
 					return mcpResult(result);
 				},
 			}));

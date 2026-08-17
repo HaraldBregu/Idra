@@ -22,8 +22,8 @@ export function tool<T extends z.ZodType>({
 		parseInput(input: unknown) {
 			return inputSchema.parse(input) as Record<string, unknown>;
 		},
-		run(input: Record<string, unknown>) {
-			return execute(inputSchema.parse(input));
+		run(input: Record<string, unknown>, signal?: AbortSignal) {
+			return execute(inputSchema.parse(input), signal);
 		},
 	};
 }
