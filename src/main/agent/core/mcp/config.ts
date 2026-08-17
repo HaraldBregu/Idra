@@ -9,8 +9,12 @@ export function mcpConfig(location: string, enabled?: boolean): McpServerConfig[
 	return [
 		{
 			id: 'playwright',
-			command: 'npx',
-			args: ['-y', '@playwright/mcp@0.0.68', '--headless', '--isolated'],
+			command: process.execPath,
+			args: [
+				path.resolve(process.cwd(), 'node_modules', '@playwright', 'mcp', 'cli.js'),
+				'--headless',
+				'--isolated',
+			],
 			cwd: path.resolve(location),
 		},
 	];
