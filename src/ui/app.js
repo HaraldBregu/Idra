@@ -23,12 +23,8 @@ const elements = Object.fromEntries(
 		'file-path',
 		'load-settings',
 		'logout',
-		'mcp-args',
-		'mcp-enabled',
-		'mcp-form',
-		'mcp-id',
-		'mcp-list',
-		'mcp-package',
+		'load-mcp',
+		'mcp-json',
 		'mcp-state',
 		'notice',
 		'new-session',
@@ -161,23 +157,10 @@ async function loadFiles() {
 	return result;
 }
 
-async function loadMcp() {
+async function loadMcp(updateEditor = true) {
 	const result = await api.request('/mcp');
 	elements['mcp-state'].textContent = `${result.servers.length} configured`;
-	elements['mcp-list'].replaceChildren();
-	for (const server of result.servers) {
-		const row = document.createElement('div');
-		row.className = 'button-row button-row-wrap';
-		const label = document.createElement('span');
-		label.textContent = `${server.id} · ${server.package} · ${server.enabled ? 'enabled' : 'disabled'}`;
-		const remove = document.createElement('button');
-		remove.type = 'button';
-		remove.className = 'button button-danger button-small';
-		remove.textContent = 'Remove';
-		remove.dataset.mcpId = server.id;
-		row.append(label, remove);
-		elements['mcp-list'].append(row);
-	}
+	if (updateEditor) elements['mcp-json'].value = format(result);
 	return result;
 }
 
@@ -205,7 +188,7 @@ async function refreshAll(updateEditor = true) {
 	const [storage] = await Promise.all([
 		api.request('/storage'),
 		loadProvider(),
-		loadMcp(),
+		loadMcp(updateEditor),
 		loadSettings(updateEditor),
 		loadFiles(),
 	]);
@@ -227,38 +210,26 @@ function handleError(error) {
 	}
 }
 
-elements['mcp-form'].addEventListener('submit', async (event) => {
-	event.preventDefault();
-	setBusy(elements['save-mcp'], true, 'Saving…');
+elements['load-mcp'].addEventListener('click', async () => {
 	try {
-		const id = elements['mcp-id'].value.trim();
-		const args = elements['mcp-args'].value.split('\n').map((value) => value.trim()).filter(Boolean);
-		await api.request(`/mcp/${encodeURIComponent(id)}`, {
-			method: 'PUT',
-			body: {
-				package: elements['mcp-package'].value,
-				args,
-				enabled: elements['mcp-enabled'].checked,
-			},
-		});
 		await loadMcp();
-		announce(`MCP server ${id} was saved.`, 'success');
+		announce('MCP configuration reloaded.', 'success');
 	} catch (error) {
 		handleError(error);
-	} finally {
-		setBusy(elements['save-mcp'], false, 'Save server');
 	}
 });
 
-elements['mcp-list'].addEventListener('click', async (event) => {
-	const button = event.target.closest('[data-mcp-id]');
-	if (!button) return;
+elements['save-mcp'].addEventListener('click', async () => {
+	setBusy(elements['save-mcp'], true, 'Saving…');
 	try {
-		await api.request(`/mcp/${encodeURIComponent(button.dataset.mcpId)}`, { method: 'DELETE' });
+		const document = JSON.parse(elements['mcp-json'].value);
+		await api.request('/mcp', { method: 'PUT', body: document });
 		await loadMcp();
-		announce(`MCP server ${button.dataset.mcpId} was removed.`, 'success');
+		announce('MCP configuration was saved and reloaded.', 'success');
 	} catch (error) {
 		handleError(error);
+	} finally {
+		setBusy(elements['save-mcp'], false, 'Save MCP configuration');
 	}
 });
 
@@ -556,6 +527,7 @@ elements['copy-log'].addEventListener('click', async () => {
 
 for (const editor of [
 	elements['settings-json'],
+	elements['mcp-json'],
 	elements['file-content'],
 	elements['agent-prompt'],
 ]) {
@@ -565,6 +537,8 @@ for (const editor of [
 		const button =
 			editor === elements['settings-json']
 				? elements['save-settings']
+				: editor === elements['mcp-json']
+					? elements['save-mcp']
 				: editor === elements['file-content']
 					? elements['save-file']
 					: elements['send-prompt'];
@@ -574,6 +548,7 @@ for (const editor of [
 
 setConnected(true, 'Access granted');
 elements['settings-json'].value = '{}';
+elements['mcp-json'].value = '{\n  \"servers\": []\n}';
 elements['file-content'].value = 'Hello from the storage test console.';
 elements['provider-select'].dispatchEvent(new Event('change'));
 try {
