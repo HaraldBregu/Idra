@@ -29,6 +29,8 @@ const elements = Object.fromEntries(
 		'persistence-prepare',
 		'persistence-result',
 		'persistence-verify',
+		'playwright-mcp',
+		'playwright-mcp-state',
 		'read-file',
 		'refresh-all',
 		'refresh-files',
@@ -153,6 +155,15 @@ async function loadFiles() {
 	return result;
 }
 
+async function loadPlaywrightMcp() {
+	const result = await api.request('/mcp/playwright');
+	elements['playwright-mcp'].checked = result.enabled;
+	elements['playwright-mcp-state'].textContent = result.enabled
+		? 'Enabled. Playwright browser tools load with the next agent run.'
+		: 'Disabled. Browser automation tools are not loaded.';
+	return result;
+}
+
 async function loadProvider() {
 	const result = await api.request('/provider');
 	providerConfigured = result.configured;
@@ -177,6 +188,7 @@ async function refreshAll(updateEditor = true) {
 	const [storage] = await Promise.all([
 		api.request('/storage'),
 		loadProvider(),
+		loadPlaywrightMcp(),
 		loadSettings(updateEditor),
 		loadFiles(),
 	]);
@@ -197,6 +209,21 @@ function handleError(error) {
 		announce(message, 'error');
 	}
 }
+
+elements['playwright-mcp'].addEventListener('change', async () => {
+	const enabled = elements['playwright-mcp'].checked;
+	elements['playwright-mcp'].disabled = true;
+	try {
+		await api.request('/mcp/playwright', { method: 'PUT', body: { enabled } });
+		await loadPlaywrightMcp();
+		announce(`Playwright MCP ${enabled ? 'enabled' : 'disabled'}.`, 'success');
+	} catch (error) {
+		elements['playwright-mcp'].checked = !enabled;
+		handleError(error);
+	} finally {
+		elements['playwright-mcp'].disabled = !connected;
+	}
+});
 
 elements['show-provider-key'].addEventListener('change', () => {
 	elements['provider-key'].type = elements['show-provider-key'].checked ? 'text' : 'password';
