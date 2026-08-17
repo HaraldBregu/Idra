@@ -31,7 +31,6 @@ export interface StreamOptions {
 	instructions?: string;
 	streaming?: boolean;
 	resources?: KeyedMutex;
-	mcpTools?: () => Promise<Tool[]>;
 	providerLimiter?: KeyedLimiter;
 	subagentLimiter?: KeyedLimiter;
 }
@@ -111,8 +110,7 @@ async function* loop(
 			: options.tools
 				? [...options.tools]
 				: builtinTools();
-	const mcpTools = options.mcpTools ? await options.mcpTools() : [];
-	let tools = filterTools([...baseTools, ...mcpTools], input.toolsAllow, input.toolsDeny);
+	let tools = filterTools(baseTools, input.toolsAllow, input.toolsDeny);
 
 
 	yield {

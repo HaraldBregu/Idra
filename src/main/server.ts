@@ -7,7 +7,6 @@ import { resolveA2aConfig } from './a2a/config';
 import { registerA2aRoutes } from './a2a/routes';
 import type { AgentPort } from './a2a/executor';
 import { registerProviderRoutes } from './provider/routes';
-import { registerMcpRoutes } from './mcp/routes';
 import type { AgentResponseEvent } from './shared/agent_types';
 import { userDataLocation } from './shared/user_data_location';
 import { registerStorageRoutes } from './storage/routes';
@@ -51,7 +50,6 @@ export async function createApiServer(
 	if (accessControl || adminToken) {
 		registerStorageRoutes(server, dataDirectory, adminAuthentication);
 		registerProviderRoutes(server, dataDirectory, adminAuthentication);
-		registerMcpRoutes(server, dataDirectory, adminAuthentication, agent);
 	}
 
 	server.post<{ Body: AgentRequest }>(

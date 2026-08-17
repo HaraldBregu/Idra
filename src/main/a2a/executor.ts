@@ -23,7 +23,6 @@ const EXTERNAL_TOOLS = ['read', 'write', 'edit'];
 export interface AgentPort {
 	send(message: string, agentId: string, options: AgentSendOptions): Promise<string>;
 	cancel(runId: string): boolean;
-	configurePlaywrightMcp?(enabled: boolean): Promise<void>;
 }
 
 interface ActiveRun {
