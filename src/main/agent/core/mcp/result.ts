@@ -3,7 +3,14 @@ export function mcpResult(result: Record<string, unknown>): unknown {
 		const content = Array.isArray(result.content) ? result.content : [];
 		const message = content
 			.filter((item): item is { type: 'text'; text: string } =>
-				Boolean(item && typeof item === 'object' && 'type' in item && item.type === 'text' && 'text' in item && typeof item.text === 'string')
+				Boolean(
+					item &&
+					typeof item === 'object' &&
+					'type' in item &&
+					item.type === 'text' &&
+					'text' in item &&
+					typeof item.text === 'string'
+				)
 			)
 			.map((item) => item.text)
 			.join('\n');

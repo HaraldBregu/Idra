@@ -1,5 +1,8 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport, getDefaultEnvironment } from '@modelcontextprotocol/sdk/client/stdio.js';
+import {
+	StdioClientTransport,
+	getDefaultEnvironment,
+} from '@modelcontextprotocol/sdk/client/stdio.js';
 import type { Tool } from '../../types';
 import { mcpResult } from './result';
 import type { McpServerConfig } from './types';
@@ -74,7 +77,9 @@ export class McpManager {
 			}));
 		} catch (error) {
 			await transport.close().catch(() => undefined);
-			throw new Error(`Failed to connect MCP server '${server.id}': ${error instanceof Error ? error.message : String(error)}`);
+			throw new Error(
+				`Failed to connect MCP server '${server.id}': ${error instanceof Error ? error.message : String(error)}`
+			);
 		}
 	}
 }
