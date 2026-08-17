@@ -16,6 +16,9 @@ export function mcpConfig(location: string, enabled?: boolean): McpServerConfig[
 				'--isolated',
 			],
 			cwd: path.resolve(location),
+			...(process.env.PLAYWRIGHT_BROWSERS_PATH
+				? { env: { PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH } }
+				: {}),
 		},
 	];
 }
