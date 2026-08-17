@@ -8,11 +8,12 @@ import { createApiServer } from '../src/main/server';
 import { mcpResult } from '../src/main/agent/core/mcp/result';
 
 test('Playwright MCP uses the pinned local server', () => {
-	const [server] = mcpConfig(process.cwd(), true);
+	const [server] = mcpConfig(process.cwd(), true, '/ms-playwright');
 	assert.ok(server);
 	assert.equal(server.command, process.execPath);
 	assert.match(server.args[0] ?? '', /node_modules[/\\]@playwright[/\\]mcp[/\\]cli\.js$/);
 	assert.equal(fs.existsSync(server.args[0] ?? ''), true);
+	assert.deepEqual(server.env, { PLAYWRIGHT_BROWSERS_PATH: '/ms-playwright' });
 });
 
 test('MCP manager has no tools when no servers are configured', async () => {
