@@ -1,6 +1,7 @@
+import path from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import type { McpServer } from '../../../mcp/types';
+import { MCP_EXECUTABLES, type McpServer } from '../../../mcp/types';
 import type { Tool } from '../../types';
 import { mcpResult } from './result';
 
@@ -45,8 +46,8 @@ export class McpManager {
 	private async connect(server: McpServer): Promise<Tool[]> {
 		const client = new Client({ name: 'idra', version: '1.0.2' });
 		const transport = new StdioClientTransport({
-			command: 'npx',
-			args: ['-y', server.package, ...server.args],
+			command: process.execPath,
+			args: [path.resolve(process.cwd(), MCP_EXECUTABLES[server.package]), ...server.args],
 			stderr: 'pipe',
 		});
 		await client.connect(transport);

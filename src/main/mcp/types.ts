@@ -7,9 +7,12 @@ export const MCP_PACKAGES = [
 export type McpPackage = (typeof MCP_PACKAGES)[number];
 
 export const MCP_EXECUTABLES: Record<McpPackage, string> = {
-	'@modelcontextprotocol/server-memory': 'node_modules/@modelcontextprotocol/server-memory/dist/index.js',
-	'@modelcontextprotocol/server-filesystem': 'node_modules/@modelcontextprotocol/server-filesystem/dist/index.js',
-	'@modelcontextprotocol/server-everything': 'node_modules/@modelcontextprotocol/server-everything/dist/index.js',
+	'@modelcontextprotocol/server-memory':
+		'node_modules/@modelcontextprotocol/server-memory/dist/index.js',
+	'@modelcontextprotocol/server-filesystem':
+		'node_modules/@modelcontextprotocol/server-filesystem/dist/index.js',
+	'@modelcontextprotocol/server-everything':
+		'node_modules/@modelcontextprotocol/server-everything/dist/index.js',
 };
 
 export interface McpServer {
