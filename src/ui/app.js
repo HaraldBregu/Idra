@@ -23,6 +23,13 @@ const elements = Object.fromEntries(
 		'file-path',
 		'load-settings',
 		'logout',
+		'mcp-args',
+		'mcp-enabled',
+		'mcp-form',
+		'mcp-id',
+		'mcp-list',
+		'mcp-package',
+		'mcp-state',
 		'notice',
 		'new-session',
 		'persistence-clean',
@@ -34,6 +41,7 @@ const elements = Object.fromEntries(
 		'refresh-files',
 		'run-suite',
 		'save-file',
+		'save-mcp',
 		'save-provider',
 		'save-settings',
 		'settings-json',
@@ -153,6 +161,26 @@ async function loadFiles() {
 	return result;
 }
 
+async function loadMcp() {
+	const result = await api.request('/mcp');
+	elements['mcp-state'].textContent = `${result.servers.length} configured`;
+	elements['mcp-list'].replaceChildren();
+	for (const server of result.servers) {
+		const row = document.createElement('div');
+		row.className = 'button-row button-row-wrap';
+		const label = document.createElement('span');
+		label.textContent = `${server.id} · ${server.package} · ${server.enabled ? 'enabled' : 'disabled'}`;
+		const remove = document.createElement('button');
+		remove.type = 'button';
+		remove.className = 'button button-danger button-small';
+		remove.textContent = 'Remove';
+		remove.dataset.mcpId = server.id;
+		row.append(label, remove);
+		elements['mcp-list'].append(row);
+	}
+	return result;
+}
+
 async function loadProvider() {
 	const result = await api.request('/provider');
 	providerConfigured = result.configured;
@@ -177,6 +205,7 @@ async function refreshAll(updateEditor = true) {
 	const [storage] = await Promise.all([
 		api.request('/storage'),
 		loadProvider(),
+		loadMcp(),
 		loadSettings(updateEditor),
 		loadFiles(),
 	]);
@@ -197,6 +226,41 @@ function handleError(error) {
 		announce(message, 'error');
 	}
 }
+
+elements['mcp-form'].addEventListener('submit', async (event) => {
+	event.preventDefault();
+	setBusy(elements['save-mcp'], true, 'Saving…');
+	try {
+		const id = elements['mcp-id'].value.trim();
+		const args = elements['mcp-args'].value.split('\n').map((value) => value.trim()).filter(Boolean);
+		await api.request(`/mcp/${encodeURIComponent(id)}`, {
+			method: 'PUT',
+			body: {
+				package: elements['mcp-package'].value,
+				args,
+				enabled: elements['mcp-enabled'].checked,
+			},
+		});
+		await loadMcp();
+		announce(`MCP server ${id} was saved.`, 'success');
+	} catch (error) {
+		handleError(error);
+	} finally {
+		setBusy(elements['save-mcp'], false, 'Save server');
+	}
+});
+
+elements['mcp-list'].addEventListener('click', async (event) => {
+	const button = event.target.closest('[data-mcp-id]');
+	if (!button) return;
+	try {
+		await api.request(`/mcp/${encodeURIComponent(button.dataset.mcpId)}`, { method: 'DELETE' });
+		await loadMcp();
+		announce(`MCP server ${button.dataset.mcpId} was removed.`, 'success');
+	} catch (error) {
+		handleError(error);
+	}
+});
 
 elements['show-provider-key'].addEventListener('change', () => {
 	elements['provider-key'].type = elements['show-provider-key'].checked ? 'text' : 'password';
