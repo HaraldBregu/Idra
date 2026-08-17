@@ -81,7 +81,7 @@ export class Agent {
 	private readonly lastMessagesLimit = 50;
 	private isStarted = false;
 	readonly config: Config;
-	private readonly mcp: McpManager;
+	private mcp: McpManager;
 
 	constructor() {
 		this.config = { location: path.resolve(agentLocation()) };
@@ -97,6 +97,11 @@ export class Agent {
 	destroy(): void {
 		this.cancelAll();
 		void this.mcp.close();
+	}
+
+	async configurePlaywrightMcp(enabled: boolean): Promise<void> {
+		await this.mcp.close();
+		this.mcp = new McpManager(mcpConfig(this.config.location, enabled));
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions): Promise<string> {
