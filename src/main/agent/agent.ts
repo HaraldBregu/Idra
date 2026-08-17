@@ -41,6 +41,7 @@ import {
 	type AgentRunRecord,
 } from './state';
 import { getModelId, getProviderId } from './agent_store';
+import { McpManager, mcpConfig } from './core/mcp';
 import { ensureWorkspaceFile } from './system/ensure_workspace_file';
 
 const RUN_PRIORITIES: Record<SessionCategory, AgentRunPriority> = {
@@ -80,9 +81,11 @@ export class Agent {
 	private readonly lastMessagesLimit = 50;
 	private isStarted = false;
 	readonly config: Config;
+	private readonly mcp: McpManager;
 
 	constructor() {
 		this.config = { location: path.resolve(agentLocation()) };
+		this.mcp = new McpManager(mcpConfig(this.config.location));
 		ensureWorkspaceFile(this.config.location);
 	}
 
@@ -93,6 +96,7 @@ export class Agent {
 
 	destroy(): void {
 		this.cancelAll();
+		void this.mcp.close();
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions): Promise<string> {
@@ -199,6 +203,7 @@ export class Agent {
 				streaming: options.streaming ?? true,
 				...(input.workspaceRoot === undefined ? {} : { workspaceRoot: input.workspaceRoot }),
 				resources: this.resources,
+				mcpTools: () => this.mcp.tools(),
 				providerLimiter: this.providerLimiter,
 				subagentLimiter: this.subagentLimiter,
 			});
