@@ -31,6 +31,7 @@ export interface StreamOptions {
 	instructions?: string;
 	streaming?: boolean;
 	resources?: KeyedMutex;
+	mcpTools?: () => Promise<Tool[]>;
 	providerLimiter?: KeyedLimiter;
 	subagentLimiter?: KeyedLimiter;
 }
@@ -104,13 +105,14 @@ async function* loop(
 
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
-	let tools: Tool[] =
+	const baseTools =
 		options.workspaceRoot !== undefined
 			? workspaceTools(options.workspaceRoot)
 			: options.tools
 				? [...options.tools]
 				: builtinTools();
-	tools = filterTools(tools, input.toolsAllow, input.toolsDeny);
+	const mcpTools = options.mcpTools ? await options.mcpTools() : [];
+	let tools = filterTools([...baseTools, ...mcpTools], input.toolsAllow, input.toolsDeny);
 
 
 	yield {
