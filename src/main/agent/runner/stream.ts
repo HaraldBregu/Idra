@@ -32,6 +32,7 @@ export interface StreamOptions {
 	mcpTools?: () => Promise<Tool[]>;
 	providerLimiter?: KeyedLimiter;
 	subagentLimiter?: KeyedLimiter;
+	ephemeral?: boolean;
 }
 
 const MAX_TOOL_CALLS = 100;
@@ -49,7 +50,7 @@ export async function* stream(
 	let terminal = false;
 	try {
 		for await (const event of loop(config, session, input, signal, options)) {
-			tryAppendRun(session, event);
+			if (!options.ephemeral) tryAppendRun(session, event);
 			yield event;
 			if (event.type === 'run_finished') terminal = true;
 		}
@@ -58,7 +59,7 @@ export async function* stream(
 			type: 'run_error',
 			message: error instanceof Error ? error.message : String(error),
 		} as const;
-		tryAppendRun(session, errorEvent);
+		if (!options.ephemeral) tryAppendRun(session, errorEvent);
 		yield errorEvent;
 		if (!terminal) {
 			session.stopReason = signal.aborted
@@ -67,7 +68,7 @@ export async function* stream(
 					: 'cancelled'
 				: 'error';
 			const event = { type: 'run_finished', result: toResult(session, 'success') } as const;
-			tryAppendRun(session, event);
+			if (!options.ephemeral) tryAppendRun(session, event);
 			yield event;
 			terminal = true;
 		}
@@ -81,7 +82,7 @@ export async function* stream(
 				: 'cancelled'
 			: 'error';
 		const event = { type: 'run_finished', result: toResult(session, 'success') } as const;
-		tryAppendRun(session, event);
+		if (!options.ephemeral) tryAppendRun(session, event);
 		yield event;
 		terminal = true;
 	}
@@ -169,7 +170,7 @@ async function* loop(
 				runtimeContext ? [{ role: 'user', content: runtimeContext }] : [],
 				options.streaming ?? true,
 				options.providerLimiter,
-				input.deferPersist ? () => persist(session) : undefined
+				input.deferPersist && !options.ephemeral ? () => persist(session) : undefined
 			);
 
 			recordTurn(session, turn);
@@ -179,10 +180,17 @@ async function* loop(
 				content: turn.content,
 				toolCalls: turn.toolCalls,
 			};
-			addAssistantMessage(session, turn.content, turn.toolCalls, turn.providerItems, {
-				inputTokens: turn.usage?.inputTokens ?? 0,
-				outputTokens: turn.usage?.outputTokens ?? 0,
-			});
+			addAssistantMessage(
+				session,
+				turn.content,
+				turn.toolCalls,
+				turn.providerItems,
+				{
+					inputTokens: turn.usage?.inputTokens ?? 0,
+					outputTokens: turn.usage?.outputTokens ?? 0,
+				},
+				!options.ephemeral
+			);
 
 			if (turn.toolCalls.length === 0) {
 				const result = toResult(session, 'success');
@@ -244,7 +252,7 @@ async function* loop(
 					break;
 				}
 			}
-			addToolResults(session, turn.toolCalls);
+			addToolResults(session, turn.toolCalls, !options.ephemeral);
 			if (outputBudgetExceeded) {
 				session.stopReason = 'budget_exhausted';
 				yield { type: 'run_finished', result: toResult(session, 'success') };

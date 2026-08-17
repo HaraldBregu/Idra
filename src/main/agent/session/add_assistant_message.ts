@@ -8,7 +8,8 @@ export function addAssistantMessage(
 	content: string,
 	toolCalls: ToolCall[],
 	providerItems: MessageContentBlock[] = [],
-	usage?: SessionUsage
+	usage?: SessionUsage,
+	persistState = true
 ): void {
 	if (!hasAssistantPayload(content, toolCalls)) return;
 	const contentBlocks: MessageContentBlock[] = [...providerItems];
@@ -21,5 +22,5 @@ export function addAssistantMessage(
 		...(toolCalls.length > 0 ? { toolCalls } : {}),
 		...(usage ? { usage } : {}),
 	});
-	persist(state);
+	if (persistState) persist(state);
 }

@@ -31,6 +31,7 @@ export async function runSubagent(
 		streaming: false,
 		resources: runtime.resources,
 		providerLimiter: runtime.providerLimiter,
+		ephemeral: true,
 	})) {
 		if (event.type === 'run_finished') result = event.result;
 	}
