@@ -1,7 +1,8 @@
 FROM node:26.7.0-bookworm-slim
 
 ENV NODE_ENV=production \
-	IDRA_DATA_DIR=/data
+	IDRA_DATA_DIR=/data \
+	PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 WORKDIR /app
 
 RUN apt-get update && apt-get install --yes --no-install-recommends \
@@ -21,7 +22,11 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
 RUN npm install --global npm@12.0.2
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts \
+	&& npx playwright install --with-deps chromium \
+	&& chmod -R a+rX /ms-playwright \
+	&& npm cache clean --force \
+	&& rm -rf /var/lib/apt/lists/*
 
 COPY src ./src
 
