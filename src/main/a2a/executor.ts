@@ -15,6 +15,7 @@ import {
 	type TaskStatus,
 } from '@a2a-js/sdk';
 import type { AgentSendOptions } from '../agent/agent';
+import type { McpServer } from '../mcp/types';
 import type { AgentResponseEvent, AgentRunStopReason } from '../shared/agent_types';
 
 const MAX_MESSAGE_BYTES = 32 * 1024;
@@ -23,6 +24,7 @@ const EXTERNAL_TOOLS = ['read', 'write', 'edit'];
 export interface AgentPort {
 	send(message: string, agentId: string, options: AgentSendOptions): Promise<string>;
 	cancel(runId: string): boolean;
+	configureMcp?(servers: McpServer[]): void;
 }
 
 interface ActiveRun {
