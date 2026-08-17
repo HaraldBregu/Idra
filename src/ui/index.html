@@ -107,6 +107,40 @@
 					</form>
 				</section>
 
+				<section class="panel" aria-labelledby="mcp-title">
+					<div class="section-heading">
+						<div>
+							<p class="section-kicker">Tools</p>
+							<h2 id="mcp-title">MCP servers</h2>
+						</div>
+						<span id="mcp-state" class="status-badge" role="status">0 configured</span>
+					</div>
+					<form id="mcp-form">
+						<div class="field">
+							<label for="mcp-id">Server ID</label>
+							<input id="mcp-id" pattern="[a-z0-9][a-z0-9_-]{0,63}" required data-requires-token disabled />
+						</div>
+						<div class="field">
+							<label for="mcp-package">Package</label>
+							<select id="mcp-package" data-requires-token disabled>
+								<option value="@modelcontextprotocol/server-memory">Memory</option>
+								<option value="@modelcontextprotocol/server-filesystem">Filesystem</option>
+								<option value="@modelcontextprotocol/server-everything">Everything (test)</option>
+							</select>
+						</div>
+						<div class="field">
+							<label for="mcp-args">Arguments</label>
+							<input id="mcp-args" placeholder="One argument per line" data-requires-token disabled />
+							<p class="helper">Separate arguments with new lines. Filesystem servers require an allowed directory.</p>
+						</div>
+						<label class="check-control"><input id="mcp-enabled" type="checkbox" checked data-requires-token disabled /><span>Enabled</span></label>
+						<div class="button-row">
+							<button id="save-mcp" class="button button-primary" type="submit" data-requires-token disabled>Save server</button>
+						</div>
+					</form>
+					<div id="mcp-list" class="field"></div>
+				</section>
+
 				<section class="panel prompt-panel" aria-labelledby="prompt-title">
 					<div class="section-heading">
 						<div>
