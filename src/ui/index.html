@@ -115,30 +115,18 @@
 						</div>
 						<span id="mcp-state" class="status-badge" role="status">0 configured</span>
 					</div>
-					<form id="mcp-form">
-						<div class="field">
-							<label for="mcp-id">Server ID</label>
-							<input id="mcp-id" pattern="[a-z0-9][a-z0-9_-]{0,63}" required data-requires-token disabled />
-						</div>
-						<div class="field">
-							<label for="mcp-package">Package</label>
-							<select id="mcp-package" data-requires-token disabled>
-								<option value="@modelcontextprotocol/server-memory">Memory</option>
-								<option value="@modelcontextprotocol/server-filesystem">Filesystem</option>
-								<option value="@modelcontextprotocol/server-everything">Everything (test)</option>
-							</select>
-						</div>
-						<div class="field">
-							<label for="mcp-args">Arguments</label>
-							<textarea id="mcp-args" rows="2" placeholder="One argument per line" data-requires-token disabled></textarea>
-							<p class="helper">Separate arguments with new lines. Filesystem servers require an allowed directory.</p>
-						</div>
-						<label class="check-control"><input id="mcp-enabled" type="checkbox" checked data-requires-token disabled /><span>Enabled</span></label>
-						<div class="button-row">
-							<button id="save-mcp" class="button button-primary" type="submit" data-requires-token disabled>Save server</button>
-						</div>
-					</form>
-					<div id="mcp-list" class="field"></div>
+					<div class="field">
+						<label for="mcp-json">mcp.json</label>
+						<textarea id="mcp-json" rows="14" spellcheck="false" data-requires-token disabled></textarea>
+						<p class="helper">
+							HTTP servers accept a URL and optional headers. API keys are stored server-side in
+							mcp.json with mode 0600.
+						</p>
+					</div>
+					<div class="button-row button-row-wrap">
+						<button id="load-mcp" class="button button-secondary" type="button" data-requires-token disabled>Reload</button>
+						<button id="save-mcp" class="button button-primary" type="button" data-requires-token disabled>Save MCP configuration</button>
+					</div>
 				</section>
 
 				<section class="panel prompt-panel" aria-labelledby="prompt-title">
