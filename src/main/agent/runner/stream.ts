@@ -21,7 +21,7 @@ import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 import { builtinTools } from './builtin_tools';
 import { workspaceTools } from '../workspace/tools';
-import { subagentsTool } from '../subagents/tool';
+import { subagentsTool } from '../tools/subagents';
 
 export interface StreamOptions {
 	tools?: Tool[];

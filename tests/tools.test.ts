@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { builtinTools } from '../src/main/agent/runner/builtin_tools';
-import { execTool } from '../src/main/agent/tools/exec';
+import { bashTool } from '../src/main/agent/tools/bash';
 
-test('built-in command tool is named exec throughout the registry', () => {
-	assert.equal(execTool.id, 'exec');
-	assert.equal(execTool.name, 'Exec');
+test('built-in command tool is named bash throughout the registry', () => {
+	assert.equal(bashTool.id, 'bash');
+	assert.equal(bashTool.name, 'Bash');
 	assert.deepEqual(
 		builtinTools().map((tool) => tool.id),
-		['read', 'write', 'edit', 'apply_patch', 'exec']
+		['read', 'write', 'edit', 'patch', 'bash']
 	);
 });

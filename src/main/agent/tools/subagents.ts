@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { tool } from '../core/tool';
-import { runSubagents } from './parallel';
-import type { SubagentRuntime } from './types';
+import { runSubagents } from '../subagents/parallel';
+import type { SubagentRuntime } from '../subagents/types';
 
 export function subagentsTool(runtime: SubagentRuntime) {
 	return tool({

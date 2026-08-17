@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { KeyedLimiter } from '../src/main/agent/limiter';
 import { runSubagents } from '../src/main/agent/subagents/parallel';
-import { subagentsTool } from '../src/main/agent/subagents/tool';
+import { subagentsTool } from '../src/main/agent/tools/subagents';
 import type { SubagentRuntime } from '../src/main/agent/subagents/types';
 import type { RuntimeInput, Tool } from '../src/main/agent/types';
 
-const tools = ['read', 'exec', 'write', 'subagents'].map((id): Tool => ({
+const tools = ['read', 'bash', 'write', 'subagents'].map((id): Tool => ({
 	id,
 	name: id,
 	description: id,
@@ -45,7 +45,7 @@ test('parallel subagents preserve order, isolate failures, and enforce concurren
 		agentRuntime,
 		[
 			{ id: 'a', task: 'A' },
-			{ id: 'b', task: 'B', tools: ['exec', 'subagents'] },
+			{ id: 'b', task: 'B', tools: ['bash', 'subagents'] },
 			{ id: 'c', task: 'C' },
 			{ id: 'd', task: 'D' },
 		],
@@ -62,7 +62,7 @@ test('parallel subagents preserve order, isolate failures, and enforce concurren
 	);
 	assert.equal(results[2]?.error, 'Subagent failed.');
 	assert.deepEqual(selected.get('a'), ['read']);
-	assert.deepEqual(selected.get('b'), ['exec']);
+	assert.deepEqual(selected.get('b'), ['bash']);
 });
 
 test('subagents tool rejects duplicate IDs and oversized batches', () => {

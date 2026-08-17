@@ -3,9 +3,9 @@ import { z } from 'zod';
 import { agentLocation } from '../../shared/agent_location';
 import { tool } from '../core/tool';
 
-export const execTool = tool({
-	id: 'exec',
-	name: 'Exec',
+export const bashTool = tool({
+	id: 'bash',
+	name: 'Bash',
 	description:
 		'Execute a shell command in the agent workspace and return its output and exit code.',
 	inputSchema: z.object({
