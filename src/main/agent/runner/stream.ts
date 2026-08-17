@@ -11,10 +11,7 @@ import {
 	persist,
 	sessionDir,
 } from '../session';
-import {
-	buildSystemPrompt,
-	buildWorkspaceContext,
-} from '../system';
+import { buildSystemPrompt, buildWorkspaceContext } from '../system';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
@@ -24,6 +21,7 @@ import type { KeyedLimiter } from '../limiter';
 import type { KeyedMutex } from '../mutex';
 import { builtinTools } from './builtin_tools';
 import { workspaceTools } from '../workspace/tools';
+import { subagentsTool } from '../subagents/tool';
 
 export interface StreamOptions {
 	tools?: Tool[];
@@ -102,7 +100,6 @@ async function* loop(
 	const contextMode = input.contextMode;
 	const runId = input.runId ?? session.id;
 
-
 	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const baseTools =
@@ -113,7 +110,23 @@ async function* loop(
 				: builtinTools();
 	const mcpTools = options.mcpTools ? await options.mcpTools() : [];
 	let tools = filterTools([...baseTools, ...mcpTools], input.toolsAllow, input.toolsDeny);
-
+	if (!options.tools && options.subagentLimiter) {
+		tools = filterTools(
+			[
+				...tools,
+				subagentsTool({
+					config,
+					parentInput: input,
+					availableTools: tools,
+					limiter: options.subagentLimiter,
+					resources: options.resources,
+					providerLimiter: options.providerLimiter,
+				}),
+			],
+			input.toolsAllow,
+			input.toolsDeny
+		);
+	}
 
 	yield {
 		type: 'run_started',
@@ -140,9 +153,7 @@ async function* loop(
 				contextMode === 'workspace' && options.instructions === undefined
 					? await buildWorkspaceContext(config)
 					: '';
-			const runtimeContext = [workspaceContext]
-				.filter(Boolean)
-				.join('\n\n');
+			const runtimeContext = [workspaceContext].filter(Boolean).join('\n\n');
 			const messages = session.messages;
 			const turn = yield* runModelTurn(
 				input,
