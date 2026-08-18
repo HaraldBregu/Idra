@@ -2,7 +2,7 @@
   <tr>
     <td width="100%" align="center" bgcolor="#0d1117">
       <br>
-      <img src="public/logo.png" alt="Idra logo" width="180">
+      <img src="public/logo.png" alt="Idra logo" width="320">
       <br><br>
     </td>
   </tr>
