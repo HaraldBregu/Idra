@@ -1,6 +1,6 @@
 <table width="100%">
   <tr>
-    <td align="center" bgcolor="#0d1117">
+    <td width="100%" align="center" bgcolor="#0d1117">
       <br>
       <img src="public/logo.png" alt="Idra logo" width="180">
       <br><br>
