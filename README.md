@@ -1,12 +1,4 @@
-<table width="100%">
-  <tr>
-    <td width="100%" align="center" bgcolor="#0d1117">
-      <br>
-      <img src="public/logo.png" alt="Idra logo" width="320">
-      <br><br>
-    </td>
-  </tr>
-</table>
+<img src="public/generated/idra-header-mesh-left-logo.png" alt="Idra — a self-hosted AI workspace for getting real work done" width="100%">
 
 # Idra
 
