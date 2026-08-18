@@ -1,6 +1,14 @@
-# Idra
+<table width="100%">
+  <tr>
+    <td align="center" bgcolor="#0d1117">
+      <br>
+      <img src="public/logo.png" alt="Idra logo" width="180">
+      <br><br>
+    </td>
+  </tr>
+</table>
 
-<img src="public/logo.png" alt="Idra logo" width="180">
+# Idra
 
 Idra is a Fastify REST API that exposes a streaming AI agent.
 
