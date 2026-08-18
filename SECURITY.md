@@ -4,10 +4,10 @@
 
 Security fixes are provided for the latest tagged release only.
 
-| Release | Supported |
-| --- | --- |
-| `v1.0.2` | Yes |
-| Earlier releases, development branches, and forks | No |
+| Release                                           | Supported |
+| ------------------------------------------------- | --------- |
+| `v1.0.2`                                          | Yes       |
+| Earlier releases, development branches, and forks | No        |
 
 Before reporting a vulnerability, confirm that it can be reproduced on the latest release or the current default branch.
 
