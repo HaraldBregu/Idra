@@ -1,8 +1,8 @@
-<img src="public/generated/idra-header-mesh-left-logo.png" alt="Idra — a self-hosted AI workspace for getting real work done" width="100%">
+<img src="public/generated/idra-header-mesh-left-logo.png" alt="Idra — an AI agent with unlimited powers" width="100%">
 
 # Idra
 
-Idra is a self-hosted AI workspace for getting real work done with your own models, files, and tools. It gives you a focused browser console where an agent can understand a persistent workspace, act on its contents, and continue the conversation across follow-up prompts.
+Idra is an AI agent with unlimited powers. It gives you a focused browser console where an agent can understand a persistent workspace, act on its contents, and continue the conversation across follow-up prompts.
 
 ## What you can do
 
