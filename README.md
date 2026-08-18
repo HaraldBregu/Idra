@@ -66,4 +66,4 @@ Protect the Docker volume and keep access, provider, MCP, admin, and A2A tokens 
 Idra is available under the [MIT License](LICENSE).
 
 - Learn how to set up the development environment and submit changes in [CONTRIBUTING.md](CONTRIBUTING.md).
-- Read the supported versions, security baseline, and private reporting process in [SECURITY.md](SECURITY.md).
+- Read the supported versions, vulnerability scope, and private reporting process in [SECURITY.md](SECURITY.md).
