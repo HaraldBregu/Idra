@@ -1,47 +1,52 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-| Version | Supported |
-| ------- | --------- |
-| 1.x (latest release) | ✅ |
-| Older releases | ❌ |
+Security fixes are provided for the latest tagged release only.
 
-Only the latest release receives security fixes.
+| Release | Supported |
+| --- | --- |
+| `v1.0.2` | Yes |
+| Earlier releases, development branches, and forks | No |
 
-## Reporting a Vulnerability
+Before reporting a vulnerability, confirm that it can be reproduced on the latest release or the current default branch.
 
-Please do **not** report security vulnerabilities through public GitHub issues.
+## Report a vulnerability
 
-Instead, email **harald.bregu@gmail.com** with:
+Do not disclose suspected vulnerabilities in a public GitHub issue, discussion, or pull request.
 
-- A description of the vulnerability and its impact.
-- Steps to reproduce (proof of concept if possible).
-- The affected version, platform, and configuration.
+Email **harald.bregu@gmail.com** with:
 
-You should receive an acknowledgment within a few days. Please allow a reasonable disclosure window for a fix to be developed and released before any public disclosure.
+- a concise description of the vulnerability and its impact;
+- the affected Idra version or commit;
+- the deployment environment and relevant configuration;
+- reproducible steps or a minimal proof of concept;
+- any privileges, user interaction, or preconditions required; and
+- suggested remediation, if known.
+
+Remove API keys, access keys, tokens, personal data, and other secrets from the report. The maintainer may request additional information while validating the finding. No response or resolution time is guaranteed.
 
 ## Scope
 
-Idra handles the following sensitive data locally on the user's machine:
+Relevant reports include vulnerabilities in Idra that could cause:
 
-- AI provider API keys
-- Connector credentials (Google, Microsoft, Dropbox)
-- Channel configuration and secrets (e.g. bot tokens)
-- Agent conversation history and session data
-- Local workspace files
+- authentication or authorization bypass in the browser console, administrative APIs, or A2A interface;
+- exposure or unauthorized use of access keys, bearer tokens, provider credentials, MCP configuration, conversations, or workspace data;
+- escape from storage or workspace path boundaries;
+- unintended command execution or access beyond the permissions granted to the agent; or
+- an exploitable security failure in a direct dependency as used by Idra.
 
-Reports involving exposure, exfiltration, unauthorized use, API access-control bypasses, or agent permission-check bypasses are in scope.
+The following are outside this policy:
 
-## Security Baseline
+- vulnerabilities in AI providers, MCP servers, container runtimes, operating systems, or other third-party services that Idra does not maintain;
+- model quality issues or prompt injection that does not cross an Idra authentication, authorization, data, or execution boundary;
+- findings that require prior full control of the Idra host or data volume and do not provide additional access; and
+- unsupported releases or modified forks that cannot be reproduced in the supported Idra release.
 
-The application is built against the following hardening baseline:
+Test only against systems and data you own or are explicitly authorized to assess. Do not disrupt services, access other users' data, or retain sensitive data beyond what is necessary to demonstrate the issue.
 
-- The Fastify server validates request bodies and exposes only explicit HTTP routes.
-- Secrets are not committed, logged, rendered, or stored in plaintext where avoidable; API keys are not shown back in plain text after saving.
-- Tool and connector actions that write, delete, publish, or access private data must pass explicit permission checks; non-interactive runs deny permission-requiring actions by default.
-- Channels enforce per-channel access control (e.g. direct-message allowlists).
+## Disclosure
 
-## Disclaimer
+Keep the report and supporting details private while the finding is investigated and, when applicable, a fix is prepared. Coordinate the timing and content of any public disclosure with the maintainer. A confirmed issue may be documented in a release note or GitHub security advisory when appropriate.
 
-Idra does not currently claim any formal regulated-data certification. Data sent to third-party AI providers or connected services is governed by those providers' own terms.
+Idra does not claim certification for regulated or sensitive-data workloads. Data sent to an AI provider or connected MCP service is subject to that service's security and privacy practices.
