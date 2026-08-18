@@ -1,29 +1,78 @@
 # Contributing to Idra
 
-## Setup
+Thank you for helping improve Idra. Keep each contribution focused on one problem and make the
+smallest change that solves it.
 
-Requirements: Node.js 22.14+ and npm 11.5.1+.
+## Prerequisites
+
+- Node.js 26.7 or later
+- npm 12.0.2 or later
+
+## Set up the project
 
 ```bash
+git clone https://github.com/HaraldBregu/idra.git
+cd idra
 npm ci
 npm run dev
 ```
 
+The development server listens on [http://localhost:3000](http://localhost:3000). On the first
+visit, create and save an access key. Provider credentials are needed only when exercising live
+model requests; the automated tests do not require them.
+
 ## Project layout
 
-- `src/main/agent` — agent runtime, tools, sessions, permissions, and system prompts
-- `src/main` — application entrypoint and Fastify REST routes
-- `src/main/shared` — cross-cutting utilities and types
-- `src/ui` — user interface modules
-- `tests` — automated tests
-- `resources/templates` — agent workspace templates
+- `src/main/agent` contains the agent runtime, tools, sessions, and model adapters.
+- `src/main/a2a` contains the A2A interface and task handling.
+- `src/main/access`, `admin`, `provider`, and `storage` contain the server-side APIs.
+- `src/main/shared` contains shared utilities and types.
+- `src/ui` contains the browser interface.
+- `tests` contains the Node test suites.
+- `public` contains public assets such as the Idra logo.
 
-## Quality checks
+## Make a change
+
+1. Start from an up-to-date branch based on `main`.
+2. Keep the change limited to the behavior being addressed.
+3. Add or update a test when behavior changes or a bug is fixed.
+4. Run the relevant test while developing. For example:
+
+   ```bash
+   node --import tsx --test tests/server.test.ts
+   ```
+
+5. Format source and test files before running the full verification suite:
+
+   ```bash
+   npm run format
+   ```
+
+Follow the repository conventions in [AGENTS.md](AGENTS.md): prefer simple, direct implementations;
+keep responsibilities in separate modules; use one function per file; and avoid unrelated cleanup,
+speculative abstractions, or unrequested comments. Match the existing TypeScript and UI style in the
+area you change.
+
+## Verify the change
+
+Run all checks before opening a pull request:
 
 ```bash
+npm test
 npm run typecheck
 npm run build
 npm run format:check
 ```
 
-Never commit credentials or environment files. Keep changes focused and follow [AGENTS.md](AGENTS.md).
+Use `npm run test:watch` for feedback during development or `npm run test:coverage` when you need a
+coverage report.
+
+## Open a pull request
+
+- Use a clear title and explain the user-visible problem and solution.
+- List the verification commands you ran and their results.
+- Include screenshots for changes to the browser interface.
+- Keep unrelated changes out of the pull request.
+- Never commit API keys, access tokens, credentials, or environment files.
+
+Report vulnerabilities according to [SECURITY.md](SECURITY.md) instead of opening a public issue.
