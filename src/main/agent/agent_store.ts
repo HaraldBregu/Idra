@@ -7,12 +7,12 @@ export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 export function getProviderId(): string | undefined {
 	return (
-		readProvider(userDataLocation())?.provider ?? process.env.IDRA_PROVIDER_ID?.trim() ?? undefined
+		process.env.IDRA_PROVIDER_ID?.trim() ?? readProvider(userDataLocation())?.provider ?? undefined
 	);
 }
 
 export function getModelId(): string | undefined {
-	return readProvider(userDataLocation())?.model ?? process.env.IDRA_MODEL_ID?.trim() ?? undefined;
+	return process.env.IDRA_MODEL_ID?.trim() ?? readProvider(userDataLocation())?.model ?? undefined;
 }
 
 export function getModelOptions(): Record<string, unknown> {

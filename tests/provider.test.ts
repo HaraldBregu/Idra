@@ -107,7 +107,7 @@ test('provider API persists only supported provider configurations without retur
 	}
 });
 
-test('runtime resolves persisted provider settings before environment fallback', () => {
+test('runtime resolves environment provider settings before persisted fallback', () => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-provider-runtime-'));
 	const previous = {
 		dataDirectory: process.env.IDRA_DATA_DIR,
@@ -127,6 +127,16 @@ test('runtime resolves persisted provider settings before environment fallback',
 			{ mode: 0o600 }
 		);
 
+		assert.equal(getProviderId(), 'openai');
+		assert.equal(getModelId(), 'environment-model');
+		assert.deepEqual(getResolvedProvider('openai'), {
+			id: 'openai',
+			apiKey: 'environment-key',
+			baseURL: 'https://api.openai.com/v1',
+		});
+		delete process.env.IDRA_PROVIDER_ID;
+		delete process.env.IDRA_MODEL_ID;
+		delete process.env.IDRA_API_KEY;
 		assert.equal(getProviderId(), 'deepseek');
 		assert.equal(getModelId(), 'deepseek-model');
 		assert.deepEqual(getResolvedProvider('deepseek'), {
