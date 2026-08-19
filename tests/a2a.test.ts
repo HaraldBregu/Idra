@@ -522,10 +522,7 @@ test('A2A executor validates text input, preserves order, and exposes only respo
 		RequestMalformedError
 	);
 	await assert.rejects(
-		execute(
-			executor,
-			requestContext([textPart('hello')], randomUUID(), 'not-a-uuid')
-		),
+		execute(executor, requestContext([textPart('hello')], randomUUID(), 'not-a-uuid')),
 		RequestMalformedError
 	);
 	await execute(
