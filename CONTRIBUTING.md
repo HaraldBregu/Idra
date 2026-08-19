@@ -14,12 +14,13 @@ smallest change that solves it.
 git clone https://github.com/HaraldBregu/idra.git
 cd idra
 npm ci
+cp .env.example .env
 npm run dev
 ```
 
-The development server listens on [http://localhost:3000](http://localhost:3000). On the first
-visit, create and save an access key. Provider credentials are needed only when exercising live
-model requests; the automated tests do not require them.
+Set the A2A public URL to `http://127.0.0.1:3000` and add development A2A/provider credentials to
+`.env`. The development server exposes the same A2A-only interface as the container. Automated tests
+do not require live provider credentials.
 
 ## Project layout
 

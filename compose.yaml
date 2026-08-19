@@ -1,16 +1,29 @@
 services:
-  app:
-    build:
-      context: .
-    ports:
-      - '127.0.0.1:3000:3000'
-    environment:
-      IDRA_ADMIN_TOKEN: ${IDRA_ADMIN_TOKEN:-}
-      IDRA_AGENT_TOKEN: ${IDRA_AGENT_TOKEN:-}
-      IDRA_PUBLIC_URL: ${IDRA_PUBLIC_URL:-}
-    volumes:
-      - idra-data:/data
-    restart: unless-stopped
+	app:
+		build:
+			context: .
+		init: true
+		ports:
+			- '${IDRA_BIND_ADDRESS:-127.0.0.1}:${IDRA_PORT:-3000}:3000'
+		environment:
+			IDRA_AGENT_TOKEN: ${IDRA_AGENT_TOKEN:?set IDRA_AGENT_TOKEN in .env}
+			IDRA_PUBLIC_URL: ${IDRA_PUBLIC_URL:?set IDRA_PUBLIC_URL in .env}
+			IDRA_PROVIDER_ID: ${IDRA_PROVIDER_ID:?set IDRA_PROVIDER_ID in .env}
+			IDRA_MODEL_ID: ${IDRA_MODEL_ID:?set IDRA_MODEL_ID in .env}
+			IDRA_API_KEY: ${IDRA_API_KEY:?set IDRA_API_KEY in .env}
+			IDRA_BASE_URL: ${IDRA_BASE_URL:-}
+			IDRA_MODEL_OPTIONS: ${IDRA_MODEL_OPTIONS:-}
+		volumes:
+			- idra-data:/data
+		read_only: true
+		tmpfs:
+			- /tmp:rw,noexec,nosuid,nodev,size=64m
+		cap_drop:
+			- ALL
+		security_opt:
+			- no-new-privileges:true
+		restart: unless-stopped
+		stop_grace_period: 30s
 
 volumes:
-  idra-data:
+	idra-data:

@@ -1,57 +1,108 @@
-<img src="public/generated/idra-header-mesh-left-logo.png" alt="Idra — an AI agent with unlimited powers" width="100%">
+<img src="public/generated/idra-header-mesh-left-logo.png" alt="Idra A2A agent" width="100%">
 
 # Idra
 
-Idra is an AI agent with unlimited powers. It gives you a focused browser console where an agent can understand a persistent workspace, act on its contents, and continue the conversation across follow-up prompts.
+Idra is a self-hosted AI agent exposed only through the [A2A 1.0 protocol](https://a2a-protocol.org/v1.0.0/specification/). The server has no browser console, legacy messaging endpoint, or remote configuration API. A2A clients can discover it, send or stream messages, continue contexts, inspect tasks, and cancel active work.
 
-## What you can do
+## Deploy with Docker Compose
 
-- **Work with your files.** Ask Idra to read, create, edit, and organize files in its persistent workspace or run commands needed to complete a task.
-- **Choose your model.** Connect Anthropic, OpenAI, or DeepSeek and select the model you want to use.
-- **Keep context between prompts.** Responses stream into the console, and follow-up messages continue in the same saved session until you start a new one.
-- **Connect more tools.** Add local or remote MCP servers to give the agent access to the services and capabilities you choose.
-- **Delegate larger jobs.** Idra can split independent work across parallel subagents and bring the results back into the main task.
-- **Keep work across restarts.** Workspace files, conversations, settings, and configuration live in a persistent data volume.
+Docker Compose is the supported server installation. It pins the runtime, runs Idra as a non-root user, keeps the application filesystem read-only, and stores durable state in a named volume.
 
-## Get started
-
-You need Docker with Docker Compose.
+You need Docker with Docker Compose, an API key for Anthropic, OpenAI, or DeepSeek, and an HTTPS hostname for production.
 
 ```bash
 git clone https://github.com/HaraldBregu/idra.git
 cd idra
+cp .env.example .env
+openssl rand -hex 32
+chmod 600 .env
+```
+
+Put the generated token and provider settings in `.env`:
+
+```dotenv
+IDRA_PUBLIC_URL=https://agent.example.com
+IDRA_AGENT_TOKEN=<generated-token>
+IDRA_PROVIDER_ID=openai
+IDRA_MODEL_ID=<current-model-id>
+IDRA_API_KEY=<provider-api-key>
+```
+
+`IDRA_PUBLIC_URL` is the public origin, without `/a2a` or a trailing path. It must use HTTPS except for loopback development. `IDRA_AGENT_TOKEN` must contain at least 32 UTF-8 bytes. `IDRA_BASE_URL` and JSON-object `IDRA_MODEL_OPTIONS` are optional.
+
+Validate and start the service:
+
+```bash
+docker compose config --quiet
 docker compose up --build --wait -d
 ```
 
-Open [http://localhost:3000](http://localhost:3000), then:
+Compose binds `127.0.0.1:3000` by default. Terminate TLS at a reverse proxy and forward the public hostname to that address. For example, a Caddy site can use:
 
-1. Select **Generate access key**, copy the key, and store it somewhere safe.
-2. Paste the key into the access field and select **Save and continue**.
-3. In **Provider and model**, choose Anthropic, OpenAI, or DeepSeek, enter a current model ID and your provider API key, then save the configuration.
-4. Ask Idra to help with something in your workspace. Follow-up prompts continue the same session; select **New session** when you want a fresh conversation.
+```caddyfile
+agent.example.com {
+	reverse_proxy 127.0.0.1:3000 {
+		flush_interval -1
+	}
+}
+```
+
+Keep SSE buffering disabled and choose a proxy idle timeout long enough for agent runs.
+
+## Use the A2A interface
+
+Discovery is public at:
+
+```text
+GET /.well-known/agent-card.json
+```
+
+All operations under `/a2a` require both headers:
+
+```http
+A2A-Version: 1.0
+Authorization: Bearer <IDRA_AGENT_TOKEN>
+```
+
+For example, stream a prompt with an A2A HTTP+JSON request:
+
+```bash
+curl -N https://agent.example.com/a2a/message:stream \
+  -H 'A2A-Version: 1.0' \
+  -H 'Authorization: Bearer <IDRA_AGENT_TOKEN>' \
+  -H 'Content-Type: application/a2a+json' \
+  -H 'Accept: text/event-stream' \
+  --data '{"message":{"messageId":"request-1","role":"ROLE_USER","parts":[{"text":"Summarize the workspace.","mediaType":"text/plain"}]}}'
+```
+
+Use the returned `contextId` in a later message to continue the same conversation. The official JavaScript SDK can discover Idra with `ClientFactory` and `RestTransportFactory` from `@a2a-js/sdk`.
+
+Only the Agent Card and A2A routes are registered. `/`, `/access`, `/ui`, `/agents/messages`, `/provider`, `/storage`, `/mcp`, and `/health` are not available. The container health check uses the Agent Card endpoint.
+
+## Data and capabilities
 
 Idra stores its working data in the `idra-data` Docker volume. Recreating the container with `docker compose down` followed by `docker compose up --wait -d` keeps that volume and its contents. Do not add `--volumes` unless you intend to remove the stored data.
 
-## Make Idra yours
+The workspace is `/data/workspace`. Its `AGENTS.md` file contains durable guidance for the agent. A2A requests can use only the workspace-bound `read`, `write`, and `edit` tools. Shell commands, MCP servers, subagents, and administrative operations are unavailable through the server channel.
 
-The workspace is created at `/data/workspace`. Its `AGENTS.md` file contains durable guidance for the agent, so you can describe how you want it to work and keep related files alongside that guidance.
+Task records and conversations persist under `/data`, and terminal A2A tasks are retained for 30 days. Provider requests still send relevant prompt content to the configured model provider.
 
-The **MCP servers** panel accepts an `mcp.json` configuration for enabled stdio or HTTP MCP servers. Connected tools become available to the agent on later runs.
+## Security
 
-For trusted backend integrations, Idra can also expose an opt-in A2A 1.0 interface. It remains disabled until both `IDRA_AGENT_TOKEN` and `IDRA_PUBLIC_URL` are configured. Keep its bearer token in backend secret storage and expose the integration only over HTTPS.
+- Keep `.env` mode `0600` and never commit it.
+- Use a dedicated, randomly generated A2A token and rotate it if exposed.
+- Keep port 3000 on loopback and expose it only through an HTTPS reverse proxy.
+- Anyone holding the single A2A token is the same trusted principal and can access every stored task and context.
+- Back up and protect the Docker volume; it contains workspace and conversation data.
+- Review your model provider's data-handling policy.
 
-## Privacy and trust
+Stop or update the deployment with:
 
-Idra is designed to run under your control:
-
-- Docker Compose binds the app to `127.0.0.1:3000` by default instead of exposing it to the network.
-- The browser console is protected by an access key. Idra stores a salted verifier rather than the plaintext key and uses an `HttpOnly` session cookie after login.
-- Provider and MCP credentials stay server-side in files created with mode `0600`; saved provider keys are not returned to the browser.
-- Conversations, workspace files, and configuration remain in your Idra data volume unless you deliberately move or delete them.
-- Requests and relevant content are still sent to the AI provider you configure, and connected MCP tools may receive data needed to perform a task. Review those services' policies and grant only the access you intend.
-- A2A access is separate from console access and is off by default.
-
-Protect the Docker volume and keep access, provider, MCP, admin, and A2A tokens out of source control. If an access key is lost, remove only `/data/access.json` from the stopped app's volume to return to first-run setup; complete setup before making the service reachable beyond localhost.
+```bash
+docker compose down
+docker compose pull
+docker compose up --build --wait -d
+```
 
 ## Project
 
