@@ -5,6 +5,7 @@ import { UserBuilder, restHandler } from '@a2a-js/sdk/server/express';
 import { Router } from 'express';
 import type { FastifyInstance } from 'fastify';
 import { createBearerAuthentication } from './auth';
+import { rejectUnsupportedCapabilities } from './capabilities';
 import { createAgentCard } from './card';
 import type { A2aConfig } from './config';
 import { IdraExecutor, type AgentPort } from './executor';
@@ -31,6 +32,7 @@ export async function registerA2aRoutes(
 
 	const router = Router();
 	router.use(createBearerAuthentication(config.token));
+	router.use(rejectUnsupportedCapabilities());
 	router.use(includeListResponseFields());
 	router.use(
 		restHandler({

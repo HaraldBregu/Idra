@@ -379,7 +379,7 @@ test(
 				headers: A2A_HEADERS,
 			});
 			assert.equal(extendedCard.status, 400);
-			assert.match(await extendedCard.text(), /UnsupportedOperationError/);
+			assert.match(await extendedCard.text(), /UNSUPPORTED_OPERATION/);
 			for (const [method, route] of [
 				['GET', '/a2a/tasks/task/pushNotificationConfigs'],
 				['POST', '/a2a/tasks/task/pushNotificationConfigs'],
@@ -393,7 +393,7 @@ test(
 					...(method === 'POST' ? { body: '{}' } : {}),
 				});
 				assert.equal(response.status, 400);
-				assert.match(await response.text(), /PushNotificationNotSupportedError/);
+				assert.match(await response.text(), /PUSH_NOTIFICATION_NOT_SUPPORTED/);
 			}
 
 			const streamResponse = await fetch(`${baseUrl}/a2a/message:stream`, {
