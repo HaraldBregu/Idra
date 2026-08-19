@@ -1,49 +1,49 @@
 {
-  "name": "idra",
-  "homepage": "https://github.com/HaraldBregu/idra",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/HaraldBregu/idra.git"
-  },
-  "description": "Idra",
-  "author": "Harald Bregu <harald.bregu@gmail.com>",
-  "version": "1.0.2",
-  "private": true,
-  "packageManager": "npm@12.0.2",
-  "engines": {
-    "node": ">=26.7.0",
-    "npm": ">=12.0.2"
-  },
-  "copyright": "© 2026 Idra Project. All rights reserved.",
-  "type": "module",
-  "license": "MIT",
-  "main": "./src/main/index.ts",
-  "scripts": {
-    "dev": "node --env-file-if-exists=.env --import tsx --watch src/main/index.ts",
-    "start": "node --env-file-if-exists=.env --import tsx src/main/index.ts",
-    "test": "node --import tsx --test tests/*.test.ts",
-    "test:watch": "node --import tsx --test --watch tests/*.test.ts",
-    "test:coverage": "node --import tsx --test --experimental-test-coverage tests/*.test.ts",
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "format": "prettier --write src tests",
-    "format:check": "prettier --check src tests"
-  },
-  "dependencies": {
-    "@a2a-js/sdk": "^1.0.1",
-    "@anthropic-ai/sdk": "^0.117.1",
-    "@fastify/express": "^4.0.7",
-    "@modelcontextprotocol/sdk": "^1.30.0",
-    "express": "^5.2.1",
-    "fastify": "^5.12.0",
-    "openai": "^7.4.0",
-    "tsx": "^4.23.12",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/node": "^26.2.0",
-    "prettier": "^3.9.6",
-    "typescript": "^7.0.2"
-  }
+	"name": "idra",
+	"homepage": "https://github.com/HaraldBregu/idra",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/HaraldBregu/idra.git"
+	},
+	"description": "Idra",
+	"author": "Harald Bregu <harald.bregu@gmail.com>",
+	"version": "1.0.2",
+	"private": true,
+	"packageManager": "npm@12.0.2",
+	"engines": {
+		"node": ">=26.7.0",
+		"npm": ">=12.0.2"
+	},
+	"copyright": "© 2026 Idra Project. All rights reserved.",
+	"type": "module",
+	"license": "MIT",
+	"main": "./src/main/index.ts",
+	"scripts": {
+		"dev": "node --env-file-if-exists=.env --import tsx --watch src/main/index.ts",
+		"start": "node --env-file-if-exists=.env --import tsx src/main/index.ts",
+		"test": "node --import tsx --test tests/*.test.ts",
+		"test:watch": "node --import tsx --test --watch tests/*.test.ts",
+		"test:coverage": "node --import tsx --test --experimental-test-coverage tests/*.test.ts",
+		"build": "tsc -p tsconfig.json",
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"format": "prettier --write src tests",
+		"format:check": "prettier --check src tests"
+	},
+	"dependencies": {
+		"@a2a-js/sdk": "^1.0.1",
+		"@anthropic-ai/sdk": "^0.117.1",
+		"@fastify/express": "^4.0.7",
+		"@modelcontextprotocol/sdk": "^1.30.0",
+		"express": "^5.2.1",
+		"fastify": "^5.12.0",
+		"openai": "^7.4.0",
+		"tsx": "^4.23.12",
+		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.6",
+		"@types/node": "^26.2.0",
+		"prettier": "^3.9.6",
+		"typescript": "^7.0.2"
+	}
 }
