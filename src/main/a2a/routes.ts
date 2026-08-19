@@ -4,11 +4,11 @@ import { DefaultRequestHandler } from '@a2a-js/sdk/server';
 import { UserBuilder, restHandler } from '@a2a-js/sdk/server/express';
 import { Router } from 'express';
 import type { FastifyInstance } from 'fastify';
-import { allowA2aOperations } from './allowed';
 import { createBearerAuthentication } from './auth';
 import { createAgentCard } from './card';
 import type { A2aConfig } from './config';
 import { IdraExecutor, type AgentPort } from './executor';
+import { includeListResponseFields } from './list';
 import { createTaskStore } from './store';
 
 export async function registerA2aRoutes(
@@ -26,12 +26,12 @@ export async function registerA2aRoutes(
 	);
 
 	server.get('/.well-known/agent-card.json', async (_request, reply) => {
-		return reply.send(A2aAgentCard.toJSON(card));
+		return reply.header('cache-control', 'public, max-age=300').send(A2aAgentCard.toJSON(card));
 	});
 
 	const router = Router();
-	router.use(allowA2aOperations());
 	router.use(createBearerAuthentication(config.token));
+	router.use(includeListResponseFields());
 	router.use(
 		restHandler({
 			requestHandler: handler,

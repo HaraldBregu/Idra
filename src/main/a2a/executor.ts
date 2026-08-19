@@ -45,9 +45,6 @@ export class IdraExecutor implements AgentExecutor {
 
 	async execute(requestContext: RequestContext, eventBus: ExecutionEventBus): Promise<void> {
 		const message = textMessage(requestContext.userMessage);
-		if (!isUuid(requestContext.userMessage.messageId)) {
-			throw new RequestMalformedError('message.messageId must be a UUID.');
-		}
 		if (!isUuid(requestContext.contextId)) {
 			throw new RequestMalformedError('message.contextId must be a UUID when provided.');
 		}

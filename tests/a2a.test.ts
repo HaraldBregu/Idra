@@ -21,8 +21,10 @@ import {
 	type AgentExecutionEvent,
 } from '@a2a-js/sdk/server';
 import { resolveA2aConfig } from '../src/main/a2a/config';
+import { requireProviderEnvironment } from '../src/main/a2a/environment';
 import { IdraExecutor, type AgentPort } from '../src/main/a2a/executor';
 import { createAgentCard } from '../src/main/a2a/card';
+import { createA2aServer } from '../src/main/a2a/server';
 import { createTaskStore } from '../src/main/a2a/store';
 import type { AgentSendOptions } from '../src/main/agent/agent';
 import type { AgentResponseEvent, AgentRunStopReason } from '../src/main/shared/agent_types';
@@ -118,6 +120,83 @@ test('A2A configuration is disabled or validates paired secure settings', async 
 	}
 });
 
+test('A2A server fails closed and exposes no alternate agent channel', async () => {
+	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-a2a-only-'));
+	await assert.rejects(
+		createA2aServer(unusedAgent(), {
+			dataDirectory: directory,
+			agentToken: null,
+			publicUrl: null,
+		}),
+		/A2A server requires/
+	);
+
+	const server = await createA2aServer(unusedAgent(), {
+		dataDirectory: directory,
+		agentToken: AGENT_TOKEN,
+		publicUrl: 'https://idra.example',
+	});
+	server.log.level = 'silent';
+	try {
+		assert.equal(
+			(await server.inject({ method: 'GET', url: '/.well-known/agent-card.json' })).statusCode,
+			200
+		);
+		assert.equal(
+			(
+				await server.inject({
+					method: 'GET',
+					url: '/a2a/tasks',
+					headers: A2A_HEADERS,
+				})
+			).statusCode,
+			200
+		);
+		for (const [method, url] of [
+			['GET', '/'],
+			['GET', '/access'],
+			['GET', '/storage-test'],
+			['GET', '/ui/app.js'],
+			['GET', '/storage'],
+			['GET', '/settings'],
+			['GET', '/files'],
+			['GET', '/provider'],
+			['GET', '/mcp'],
+			['GET', '/health'],
+			['POST', '/agents/messages'],
+		] as const) {
+			const response = await server.inject({
+				method,
+				url,
+				headers: { authorization: `Bearer ${AGENT_TOKEN}` },
+			});
+			assert.equal(response.statusCode, 404, `${method} ${url}`);
+		}
+	} finally {
+		await server.close();
+		fs.rmSync(directory, { recursive: true, force: true });
+	}
+});
+
+test('A2A server requires headless provider configuration', () => {
+	const names = ['IDRA_PROVIDER_ID', 'IDRA_MODEL_ID', 'IDRA_API_KEY'] as const;
+	const previous = Object.fromEntries(names.map((name) => [name, process.env[name]]));
+	try {
+		for (const name of names) delete process.env[name];
+		assert.throws(requireProviderEnvironment, /IDRA_PROVIDER_ID, IDRA_MODEL_ID, IDRA_API_KEY/);
+		process.env.IDRA_PROVIDER_ID = 'openai';
+		process.env.IDRA_MODEL_ID = 'model';
+		process.env.IDRA_API_KEY = 'key';
+		assert.doesNotThrow(requireProviderEnvironment);
+	} finally {
+		for (const name of names) {
+			const value = previous[name];
+			if (value === undefined) delete process.env[name];
+			else process.env[name] = value;
+		}
+	}
+});
+
 test(
 	'A2A HTTP routes expose discovery while enforcing protocol, authentication, and allowlists',
 	{ timeout: 15_000 },
@@ -188,6 +267,7 @@ test(
 			const cardResponse = await fetch(`${baseUrl}/.well-known/agent-card.json`);
 			assert.equal(cardResponse.status, 200);
 			assert.match(cardResponse.headers.get('content-type') ?? '', /^application\/json/);
+			assert.equal(cardResponse.headers.get('cache-control'), 'public, max-age=300');
 			assert.equal(cardResponse.headers.get('access-control-allow-origin'), null);
 			const card = (await cardResponse.json()) as Record<string, any>;
 			assert.equal(card.name, 'Idra');
@@ -205,6 +285,17 @@ test(
 			});
 			assert.deepEqual(card.defaultInputModes, ['text/plain']);
 			assert.deepEqual(card.defaultOutputModes, ['text/plain']);
+			assert.deepEqual(card.skills, [
+				{
+					id: 'workspace-assistance',
+					name: 'Workspace assistance',
+					description: 'Answer questions and read, create, or edit files in a private workspace.',
+					tags: ['assistant', 'files', 'workspace'],
+					examples: ['Summarize the files in the workspace.'],
+					inputModes: ['text/plain'],
+					outputModes: ['text/plain'],
+				},
+			]);
 			assert.equal(card.securitySchemes.bearerAuth.httpAuthSecurityScheme.scheme, 'Bearer');
 			assert.deepEqual(card.securityRequirements, [{ schemes: { bearerAuth: {} } }]);
 			for (const authorization of [
@@ -264,7 +355,12 @@ test(
 			const listed = await fetch(`${baseUrl}/a2a/tasks`, { headers: A2A_HEADERS });
 			assert.equal(listed.status, 200);
 			assert.match(listed.headers.get('content-type') ?? '', /^application\/a2a\+json/);
-			assert.deepEqual(await listed.json(), { pageSize: 50 });
+			assert.deepEqual(await listed.json(), {
+				tasks: [],
+				nextPageToken: '',
+				pageSize: 50,
+				totalSize: 0,
+			});
 
 			const unsupportedContent = await fetch(`${baseUrl}/a2a/message:send`, {
 				method: 'POST',
@@ -275,15 +371,29 @@ test(
 			assert.match(unsupportedContent.headers.get('content-type') ?? '', /^application\/a2a\+json/);
 			assert.match(await unsupportedContent.text(), /CONTENT_TYPE_NOT_SUPPORTED/);
 
-			for (const [method, route] of [
-				['GET', '/a2a/extendedAgentCard'],
-				['GET', '/a2a/tasks/task:subscribe'],
-				['GET', '/a2a/tasks/task/pushNotificationConfigs'],
-				['POST', '/a2a/tasks/task/pushNotificationConfigs'],
-				['DELETE', '/a2a/tasks/task'],
-			] as const) {
+			for (const [method, route] of [['DELETE', '/a2a/tasks/task']] as const) {
 				const response = await fetch(`${baseUrl}${route}`, { method, headers: A2A_HEADERS });
 				assert.equal(response.status, 404);
+			}
+			const extendedCard = await fetch(`${baseUrl}/a2a/extendedAgentCard`, {
+				headers: A2A_HEADERS,
+			});
+			assert.equal(extendedCard.status, 400);
+			assert.match(await extendedCard.text(), /UnsupportedOperationError/);
+			for (const [method, route] of [
+				['GET', '/a2a/tasks/task/pushNotificationConfigs'],
+				['POST', '/a2a/tasks/task/pushNotificationConfigs'],
+			] as const) {
+				const response = await fetch(`${baseUrl}${route}`, {
+					method,
+					headers: {
+						...A2A_HEADERS,
+						...(method === 'POST' ? { 'content-type': 'application/a2a+json' } : {}),
+					},
+					...(method === 'POST' ? { body: '{}' } : {}),
+				});
+				assert.equal(response.status, 400);
+				assert.match(await response.text(), /PushNotificationNotSupportedError/);
 			}
 
 			const streamResponse = await fetch(`${baseUrl}/a2a/message:stream`, {
@@ -414,9 +524,13 @@ test('A2A executor validates text input, preserves order, and exposes only respo
 	await assert.rejects(
 		execute(
 			executor,
-			requestContext([textPart('hello')], randomUUID(), randomUUID(), 'not-a-uuid')
+			requestContext([textPart('hello')], randomUUID(), 'not-a-uuid')
 		),
 		RequestMalformedError
+	);
+	await execute(
+		executor,
+		requestContext([textPart('hello')], randomUUID(), randomUUID(), 'client-message-1')
 	);
 });
 

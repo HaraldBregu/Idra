@@ -86,9 +86,9 @@ export class Agent {
 	readonly config: Config;
 	private readonly mcp = new McpManager();
 
-	constructor() {
+	constructor(options: { mcpEnabled?: boolean } = {}) {
 		this.config = { location: path.resolve(agentLocation()) };
-		this.mcp.configure(readMcp(userDataLocation()).servers);
+		if (options.mcpEnabled !== false) this.mcp.configure(readMcp(userDataLocation()).servers);
 		ensureWorkspaceFile(this.config.location);
 	}
 

@@ -1,8 +1,10 @@
 import { Agent } from './agent/agent';
-import { createApiServer } from './server';
+import { requireProviderEnvironment } from './a2a/environment';
+import { createA2aServer } from './a2a/server';
 
-const agent = new Agent();
-const server = await createApiServer(agent);
+requireProviderEnvironment();
+const agent = new Agent({ mcpEnabled: false });
+const server = await createA2aServer(agent);
 
 await server.listen({ port: 3000, host: '0.0.0.0' });
 

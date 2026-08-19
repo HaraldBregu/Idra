@@ -7,7 +7,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { Role, TaskState, type SendMessageRequest, type StreamResponse } from '@a2a-js/sdk';
 import { ClientFactory, RestTransportFactory } from '@a2a-js/sdk/client';
-import { createApiServer } from '../src/main/server';
+import { createA2aServer } from '../src/main/a2a/server';
 import type { AgentSendOptions } from '../src/main/agent/agent';
 
 test('the official A2A REST client discovers Idra and streams continuous contexts', async (context) => {
@@ -55,11 +55,10 @@ test('the official A2A REST client discovers Idra and streams continuous context
 	}
 
 	const baseUrl = `http://127.0.0.1:${port}`;
-	const server = await createApiServer(agent, {
+	const server = await createA2aServer(agent, {
 		agentToken: token,
 		dataDirectory: directory,
 		publicUrl: baseUrl,
-		storageApiToken: null,
 	});
 	server.log.level = 'silent';
 

@@ -35,7 +35,18 @@ export function createAgentCard(publicUrl: string): AgentCard {
 		securityRequirements: [{ schemes: { bearerAuth: { list: [] } } }],
 		defaultInputModes: ['text/plain'],
 		defaultOutputModes: ['text/plain'],
-		skills: [],
+		skills: [
+			{
+				id: 'workspace-assistance',
+				name: 'Workspace assistance',
+				description: 'Answer questions and read, create, or edit files in a private workspace.',
+				tags: ['assistant', 'files', 'workspace'],
+				examples: ['Summarize the files in the workspace.'],
+				inputModes: ['text/plain'],
+				outputModes: ['text/plain'],
+				securityRequirements: [],
+			},
+		],
 		signatures: [],
 	};
 }
