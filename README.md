@@ -108,5 +108,6 @@ docker compose up --build --wait -d
 
 Idra is available under the [MIT License](LICENSE).
 
+- Follow [Using Idra over A2A](USAGE.md) for prompts, continued conversations, task management, and official SDK examples.
 - Learn how to set up the development environment and submit changes in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Read the supported versions, vulnerability scope, and private reporting process in [SECURITY.md](SECURITY.md).
