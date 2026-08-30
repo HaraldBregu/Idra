@@ -21,7 +21,6 @@ import {
 	type AgentExecutionEvent,
 } from '@a2a-js/sdk/server';
 import { resolveA2aConfig } from '../src/main/a2a/config';
-import { requireProviderEnvironment } from '../src/main/a2a/environment';
 import { IdraExecutor, type AgentPort } from '../src/main/a2a/executor';
 import { createAgentCard } from '../src/main/a2a/card';
 import { createA2aServer } from '../src/main/a2a/server';
@@ -31,7 +30,8 @@ import type { AgentResponseEvent, AgentRunStopReason } from '../src/main/shared/
 import { createApiServer } from '../src/main/server';
 
 const AGENT_TOKEN = 'agent-token-123456789012345678901';
-const ADMIN_TOKEN = 'admin-token-for-tests';
+const ADMIN_TOKEN = 'admin-token-for-tests-1234567890123456';
+const CONFIGURATION_KEY = '11'.repeat(32);
 const A2A_HEADERS = {
 	authorization: `Bearer ${AGENT_TOKEN}`,
 	'a2a-version': '1.0',
@@ -120,20 +120,22 @@ test('A2A configuration is disabled or validates paired secure settings', async 
 	}
 });
 
-test('A2A server fails closed and exposes no alternate agent channel', async () => {
+test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A', async () => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-a2a-only-'));
 	await assert.rejects(
 		createA2aServer(unusedAgent(), {
 			dataDirectory: directory,
-			agentToken: null,
+			adminToken: null,
+			configurationKey: null,
 			publicUrl: null,
 		}),
-		/A2A server requires/
+		/IDRA_ADMIN_TOKEN/
 	);
 
 	const server = await createA2aServer(unusedAgent(), {
 		dataDirectory: directory,
-		agentToken: AGENT_TOKEN,
+		adminToken: ADMIN_TOKEN,
+		configurationKey: CONFIGURATION_KEY,
 		publicUrl: 'https://idra.example',
 	});
 	server.log.level = 'silent';
@@ -142,16 +144,30 @@ test('A2A server fails closed and exposes no alternate agent channel', async () 
 			(await server.inject({ method: 'GET', url: '/.well-known/agent-card.json' })).statusCode,
 			200
 		);
-		assert.equal(
-			(
-				await server.inject({
-					method: 'GET',
-					url: '/a2a/tasks',
-					headers: A2A_HEADERS,
-				})
-			).statusCode,
-			200
+		const challenge = await server.inject({
+			method: 'GET',
+			url: '/a2a/tasks',
+			headers: { 'a2a-version': '1.0' },
+		});
+		assert.equal(challenge.statusCode, 401);
+		assert.match(
+			challenge.headers['www-authenticate'] ?? '',
+			/resource_metadata="https:\/\/idra\.example\/\.well-known\/oauth-protected-resource\/a2a"/
 		);
+		assert.equal((await server.inject({ method: 'GET', url: '/config' })).statusCode, 401);
+		const config = await server.inject({
+			method: 'GET',
+			url: '/config',
+			headers: { authorization: `Bearer ${ADMIN_TOKEN}` },
+		});
+		assert.equal(config.statusCode, 200);
+		assert.equal(config.headers['cache-control'], 'no-store');
+		assert.deepEqual(config.json().provider, {
+			configured: false,
+			hasApiKey: false,
+			provider: null,
+			model: null,
+		});
 		for (const [method, url] of [
 			['GET', '/'],
 			['GET', '/access'],
@@ -165,35 +181,12 @@ test('A2A server fails closed and exposes no alternate agent channel', async () 
 			['GET', '/health'],
 			['POST', '/agents/messages'],
 		] as const) {
-			const response = await server.inject({
-				method,
-				url,
-				headers: { authorization: `Bearer ${AGENT_TOKEN}` },
-			});
+			const response = await server.inject({ method, url });
 			assert.equal(response.statusCode, 404, `${method} ${url}`);
 		}
 	} finally {
 		await server.close();
 		fs.rmSync(directory, { recursive: true, force: true });
-	}
-});
-
-test('A2A server requires headless provider configuration', () => {
-	const names = ['IDRA_PROVIDER_ID', 'IDRA_MODEL_ID', 'IDRA_API_KEY'] as const;
-	const previous = Object.fromEntries(names.map((name) => [name, process.env[name]]));
-	try {
-		for (const name of names) delete process.env[name];
-		assert.throws(requireProviderEnvironment, /IDRA_PROVIDER_ID, IDRA_MODEL_ID, IDRA_API_KEY/);
-		process.env.IDRA_PROVIDER_ID = 'openai';
-		process.env.IDRA_MODEL_ID = 'model';
-		process.env.IDRA_API_KEY = 'key';
-		assert.doesNotThrow(requireProviderEnvironment);
-	} finally {
-		for (const name of names) {
-			const value = previous[name];
-			if (value === undefined) delete process.env[name];
-			else process.env[name] = value;
-		}
 	}
 });
 
@@ -479,7 +472,11 @@ test('A2A executor validates text input, preserves order, and exposes only respo
 	);
 	assert.equal(calls[0]?.message, 'one\ntwo');
 	assert.equal(calls[0]?.options.runId, taskId);
-	assert.equal(calls[0]?.options.sessionId, contextId);
+	assert.match(
+		calls[0]?.options.sessionId ?? '',
+		/^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$/
+	);
+	assert.notEqual(calls[0]?.options.sessionId, contextId);
 	assert.deepEqual(calls[0]?.options.toolsAllow, ['read', 'write', 'edit']);
 	assert.equal(calls[0]?.options.workspaceRoot, workspace);
 	assert.deepEqual(
@@ -615,7 +612,10 @@ test('A2A request handler supports immediate and blocking sends, polling, listin
 			await createTaskStore(path.join(directory, 'tasks')),
 			new IdraExecutor(agent, path.join(directory, 'workspace'))
 		);
-		const context = new ServerCallContext({ requestedVersion: '1.0' });
+		const context = new ServerCallContext({
+			requestedVersion: '1.0',
+			user: { isAuthenticated: true, userName: 'handler-test-client' },
+		});
 
 		const immediateGate = deferred();
 		const immediateStart = deferred();
@@ -757,7 +757,10 @@ function requestContext(
 		{ tenant: '', message, configuration: undefined, metadata: {} },
 		taskId,
 		contextId,
-		new ServerCallContext({ requestedVersion: '1.0' })
+		new ServerCallContext({
+			requestedVersion: '1.0',
+			user: { isAuthenticated: true, userName: 'executor-test-client' },
+		})
 	);
 }
 
