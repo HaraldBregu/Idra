@@ -32,7 +32,6 @@ export function createTokenRouter(issuer: OAuthIssuer, limiter: RequestLimiter):
 						error instanceof OAuthError
 							? error
 							: new OAuthError(400, 'invalid_request', 'The token request is invalid.');
-					if (oauth.statusCode === 401) response.setHeader('WWW-Authenticate', 'Bearer');
 					response
 						.status(oauth.statusCode)
 						.setHeader('Cache-Control', 'no-store')

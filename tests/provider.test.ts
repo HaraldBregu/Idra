@@ -7,6 +7,7 @@ import Fastify from 'fastify';
 import { createAdminAuthentication } from '../src/main/admin/authenticate';
 import { getModelId, getProviderId } from '../src/main/agent/agent_store';
 import { getResolvedProvider } from '../src/main/agent/settings_store';
+import { ConfigurationStore } from '../src/main/config/store';
 import { providerBaseUrl } from '../src/main/provider/base';
 import { registerProviderRoutes } from '../src/main/provider/routes';
 
@@ -107,7 +108,7 @@ test('provider API persists only supported provider configurations without retur
 	}
 });
 
-test('runtime resolves environment provider settings before persisted fallback', () => {
+test('runtime resolves legacy provider settings only when secure configuration is inactive', () => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-provider-runtime-'));
 	const previous = {
 		dataDirectory: process.env.IDRA_DATA_DIR,
@@ -115,6 +116,7 @@ test('runtime resolves environment provider settings before persisted fallback',
 		model: process.env.IDRA_MODEL_ID,
 		apiKey: process.env.IDRA_API_KEY,
 		baseUrl: process.env.IDRA_BASE_URL,
+		configurationKey: process.env.IDRA_CONFIG_KEY,
 	};
 	try {
 		process.env.IDRA_DATA_DIR = directory;
@@ -144,6 +146,31 @@ test('runtime resolves environment provider settings before persisted fallback',
 			apiKey: 'deepseek-key',
 			baseURL: 'https://api.deepseek.com',
 		});
+
+		process.env.IDRA_PROVIDER_ID = 'openai';
+		process.env.IDRA_MODEL_ID = 'environment-model';
+		process.env.IDRA_API_KEY = 'environment-key';
+		process.env.IDRA_CONFIG_KEY = '44'.repeat(32);
+		const secureStore = new ConfigurationStore(directory, Buffer.from('44'.repeat(32), 'hex'));
+		assert.equal(getProviderId(), undefined);
+		assert.equal(getModelId(), undefined);
+		assert.equal(getResolvedProvider('openai'), undefined);
+		secureStore.setProvider({
+			provider: 'anthropic',
+			model: 'secure-model',
+			apiKey: 'secure-key',
+		});
+		assert.equal(getProviderId(), 'anthropic');
+		assert.equal(getModelId(), 'secure-model');
+		assert.deepEqual(getResolvedProvider('anthropic'), {
+			id: 'anthropic',
+			apiKey: 'secure-key',
+			baseURL: 'https://api.anthropic.com',
+		});
+		assert.equal(secureStore.deleteProvider(), true);
+		assert.equal(getProviderId(), undefined);
+		assert.equal(getModelId(), undefined);
+		assert.equal(getResolvedProvider('openai'), undefined);
 		assert.equal(providerBaseUrl('anthropic'), 'https://api.anthropic.com');
 		assert.equal(providerBaseUrl('openai'), 'https://api.openai.com/v1');
 		assert.equal(providerBaseUrl('deepseek'), 'https://api.deepseek.com');
@@ -154,6 +181,7 @@ test('runtime resolves environment provider settings before persisted fallback',
 			['IDRA_MODEL_ID', previous.model],
 			['IDRA_API_KEY', previous.apiKey],
 			['IDRA_BASE_URL', previous.baseUrl],
+			['IDRA_CONFIG_KEY', previous.configurationKey],
 		] as const) {
 			if (value === undefined) delete process.env[name];
 			else process.env[name] = value;

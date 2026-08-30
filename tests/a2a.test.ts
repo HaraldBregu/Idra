@@ -146,13 +146,23 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 		);
 		const challenge = await server.inject({
 			method: 'GET',
-			url: '/a2a/tasks',
+			url: '/a2a',
 			headers: { 'a2a-version': '1.0' },
 		});
 		assert.equal(challenge.statusCode, 401);
 		assert.match(
 			challenge.headers['www-authenticate'] ?? '',
 			/resource_metadata="https:\/\/idra\.example\/\.well-known\/oauth-protected-resource\/a2a"/
+		);
+		assert.doesNotMatch(
+			(
+				await server.inject({
+					method: 'GET',
+					url: '/a2a/tasks',
+					headers: { 'a2a-version': '1.0' },
+				})
+			).headers['www-authenticate'] ?? '',
+			/resource_metadata=/
 		);
 		assert.equal((await server.inject({ method: 'GET', url: '/config' })).statusCode, 401);
 		const config = await server.inject({

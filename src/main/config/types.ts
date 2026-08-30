@@ -15,7 +15,13 @@ export interface StoredClient {
 	publicKey: JWK;
 }
 
+export interface StoredAssertion {
+	expiresAt: number;
+	key: string;
+}
+
 export interface StoredConfiguration {
+	assertions: StoredAssertion[];
 	clients: StoredClient[];
 	provider?: SealedValue;
 	signingPrivateKey: SealedValue;

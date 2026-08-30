@@ -7,6 +7,7 @@ import { configuredProvider } from '../config/provider';
 
 export function getProvider(id: string): StoredProvider | undefined {
 	const configured = configuredProvider();
+	if (configured === null) return undefined;
 	if (configured && id.trim() === configured.provider) {
 		return {
 			id: configured.provider,

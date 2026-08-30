@@ -8,6 +8,7 @@ export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 export function getProviderId(): string | undefined {
 	const configured = configuredProvider();
+	if (configured === null) return undefined;
 	return (
 		configured?.provider ??
 		process.env.IDRA_PROVIDER_ID?.trim() ??
@@ -17,8 +18,10 @@ export function getProviderId(): string | undefined {
 }
 
 export function getModelId(): string | undefined {
+	const configured = configuredProvider();
+	if (configured === null) return undefined;
 	return (
-		configuredProvider()?.model ??
+		configured?.model ??
 		process.env.IDRA_MODEL_ID?.trim() ??
 		readProvider(userDataLocation())?.model ??
 		undefined

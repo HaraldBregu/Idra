@@ -8,14 +8,23 @@ export function createOAuthAuthentication(
 	identity: RequestIdentity,
 	limiter: RequestLimiter
 ): RequestHandler {
+	const resourceUrl = issuer.resource;
 	return (request, response, next): void => {
 		response.setHeader('Cache-Control', 'no-store');
+		if (!limiter.consume(`a2a-source:${request.socket.remoteAddress ?? 'unknown'}`, 600, 60_000)) {
+			response.setHeader('Retry-After', '60').status(429).json({ error: 'Too Many Requests' });
+			return;
+		}
+		const resourceMetadata =
+			new URL(request.originalUrl, issuer.issuer).href === resourceUrl
+				? `, resource_metadata="${issuer.protectedResourceUrl}"`
+				: '';
 		const match = /^Bearer ([^\s]+)$/i.exec(request.header('authorization') ?? '');
 		if (!match) {
 			response
 				.setHeader(
 					'WWW-Authenticate',
-					`Bearer realm="a2a", resource_metadata="${issuer.protectedResourceUrl}", scope="${issuer.scope}"`
+					`Bearer realm="a2a"${resourceMetadata}, scope="${issuer.scope}"`
 				)
 				.status(401)
 				.json({ error: 'Unauthorized' });
@@ -35,7 +44,7 @@ export function createOAuthAuthentication(
 				response
 					.setHeader(
 						'WWW-Authenticate',
-						`Bearer realm="a2a", error="invalid_token", resource_metadata="${issuer.protectedResourceUrl}", scope="${issuer.scope}"`
+						`Bearer realm="a2a", error="invalid_token"${resourceMetadata}, scope="${issuer.scope}"`
 					)
 					.status(401)
 					.json({ error: 'Unauthorized' });

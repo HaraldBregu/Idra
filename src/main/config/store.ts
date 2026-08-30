@@ -1,4 +1,4 @@
-import { generateKeyPairSync, randomUUID } from 'node:crypto';
+import { createHash, generateKeyPairSync, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { importJWK, type JWK } from 'jose';
@@ -35,6 +35,7 @@ export class ConfigurationStore {
 		const privateKey = pair.privateKey.export({ format: 'jwk' }) as JWK;
 		this.document = {
 			version: 1,
+			assertions: [],
 			clients: [],
 			signingPublicKey: { ...publicKey, alg: 'EdDSA', use: 'sig', kid: keyId },
 			signingPrivateKey: seal(
@@ -126,6 +127,18 @@ export class ConfigurationStore {
 		return true;
 	}
 
+	consumeAssertion(clientId: string, jti: string, expiresAt: number, now: number): boolean {
+		const key = createHash('sha256').update(clientId).update('\0').update(jti).digest('base64url');
+		const assertions = this.document.assertions.filter((assertion) => assertion.expiresAt >= now);
+		if (assertions.some((assertion) => assertion.key === key) || assertions.length >= 10_000) {
+			return false;
+		}
+		assertions.push({ expiresAt, key });
+		this.document.assertions = assertions;
+		this.write();
+		return true;
+	}
+
 	publicSigningKey(): JWK {
 		return structuredClone(this.document.signingPublicKey);
 	}
@@ -140,8 +153,17 @@ export class ConfigurationStore {
 			throw new Error('The secure configuration is invalid.');
 		}
 		const document = value as Partial<StoredConfiguration>;
+		const assertions = document.assertions ?? [];
 		if (
 			document.version !== 1 ||
+			!Array.isArray(assertions) ||
+			assertions.some(
+				(assertion) =>
+					!assertion ||
+					!Number.isInteger(assertion.expiresAt) ||
+					typeof assertion.key !== 'string' ||
+					!/^[A-Za-z0-9_-]{43}$/.test(assertion.key)
+			) ||
 			!Array.isArray(document.clients) ||
 			!this.sealed(document.signingPrivateKey) ||
 			!document.signingPublicKey ||
@@ -160,7 +182,7 @@ export class ConfigurationStore {
 		) {
 			throw new Error('The secure configuration is invalid.');
 		}
-		return structuredClone(document as StoredConfiguration);
+		return structuredClone({ ...document, assertions } as StoredConfiguration);
 	}
 
 	private sealed(value: unknown): value is SealedValue {

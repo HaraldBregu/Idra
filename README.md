@@ -103,6 +103,7 @@ Task records and conversations persist under `/data`, are scoped to the authenti
 - Delete a client through `/config/clients/:clientId` to revoke all of its access tokens immediately.
 - Keep port 3000 on loopback and expose it only through an HTTPS reverse proxy.
 - Access tokens expire after five minutes and cannot authorize `/config`.
+- Treat access tokens as secrets: they are bearer credentials and remain replayable until expiry.
 - Back up and protect the Docker volume; it contains workspace and conversation data.
 - Review your model provider's data-handling policy.
 

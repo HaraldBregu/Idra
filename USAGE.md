@@ -81,7 +81,9 @@ import { generateKeyPairSync } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 
 const { privateKey, publicKey } = generateKeyPairSync('ed25519');
-writeFileSync('client-private.jwk', JSON.stringify(privateKey.export({ format: 'jwk' })));
+writeFileSync('client-private.jwk', JSON.stringify(privateKey.export({ format: 'jwk' })), {
+	mode: 0o600,
+});
 writeFileSync('client-public.jwk', JSON.stringify(publicKey.export({ format: 'jwk' })));
 ```
 
@@ -164,7 +166,7 @@ Acquire a token immediately before calling A2A:
 export IDRA_TOKEN="$(node get-token.mjs)"
 ```
 
-The token expires after five minutes. Generate a new assertion with a unique `jti` for every token request; assertions cannot be replayed. Deleting the client through `DELETE /config/clients/<clientId>` revokes its current tokens immediately.
+The token expires after five minutes. Generate a new assertion with a unique `jti` for every token request. Idra records used assertion identifiers in its secure configuration and rejects reuse across normal restarts. Run one Idra replica per data volume unless replay state is moved to shared transactional storage. Deleting the client through `DELETE /config/clients/<clientId>` revokes its current tokens immediately.
 
 ## Verify discovery
 

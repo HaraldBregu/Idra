@@ -10,6 +10,9 @@ import { ClientFactory, RestTransportFactory } from '@a2a-js/sdk/client';
 import { importJWK, SignJWT, type JWK } from 'jose';
 import { createA2aServer } from '../src/main/a2a/server';
 import type { AgentSendOptions } from '../src/main/agent/agent';
+import { ConfigurationStore } from '../src/main/config/store';
+import { OAuthError } from '../src/main/oauth/error';
+import { OAuthIssuer } from '../src/main/oauth/issuer';
 
 test('the official A2A REST client discovers Idra and streams continuous contexts', async (context) => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-a2a-client-'));
@@ -113,7 +116,7 @@ test('the official A2A REST client discovers Idra and streams continuous context
 			`${baseUrl}/.well-known/oauth-authorization-server`
 		);
 
-		const challenge = await fetch(`${baseUrl}/a2a/tasks`, {
+		const challenge = await fetch(`${baseUrl}/a2a`, {
 			headers: { 'a2a-version': '1.0' },
 		});
 		assert.equal(challenge.status, 401);
@@ -177,9 +180,17 @@ test('the official A2A REST client discovers Idra and streams continuous context
 		});
 		assert.equal(replay.status, 400);
 		assert.deepEqual(await replay.json(), {
-			error: 'invalid_grant',
-			error_description: 'The client assertion was already used.',
+			error: 'invalid_client',
+			error_description: 'Client authentication failed.',
 		});
+		const restartedIssuer = new OAuthIssuer(
+			new ConfigurationStore(directory, Buffer.from(configurationKey, 'hex')),
+			baseUrl
+		);
+		await assert.rejects(
+			restartedIssuer.issue(Object.fromEntries(tokenForm)),
+			(error: unknown) => error instanceof OAuthError && error.code === 'invalid_client'
+		);
 		assert.equal(
 			(
 				await fetch(`${baseUrl}/config`, {

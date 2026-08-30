@@ -25,7 +25,6 @@ export class OAuthIssuer {
 	readonly resource: string;
 	readonly scope = 'a2a.invoke';
 	readonly tokenEndpoint: string;
-	private readonly usedAssertions = new Map<string, number>();
 
 	constructor(
 		readonly store: ConfigurationStore,
@@ -39,12 +38,19 @@ export class OAuthIssuer {
 	}
 
 	async issue(body: Record<string, string>): Promise<TokenResponse> {
+		if (!body.grant_type) {
+			throw new OAuthError(400, 'invalid_request', 'grant_type is required.');
+		}
+		if (body.grant_type !== 'client_credentials') {
+			throw new OAuthError(400, 'unsupported_grant_type', 'The grant type is not supported.');
+		}
+		if (body.resource !== undefined && body.resource !== this.resource) {
+			throw new OAuthError(400, 'invalid_target', 'The requested resource is not supported.');
+		}
 		if (
-			body.grant_type !== 'client_credentials' ||
 			body.client_assertion_type !== ASSERTION_TYPE ||
 			!body.client_id ||
-			!body.client_assertion ||
-			(body.resource !== undefined && body.resource !== this.resource)
+			!body.client_assertion
 		) {
 			throw new OAuthError(
 				400,
@@ -56,7 +62,7 @@ export class OAuthIssuer {
 			throw new OAuthError(400, 'invalid_scope', `The only supported scope is ${this.scope}.`);
 		}
 		const client = this.store.client(body.client_id);
-		if (!client) throw new OAuthError(401, 'invalid_client', 'Client authentication failed.');
+		if (!client) throw new OAuthError(400, 'invalid_client', 'Client authentication failed.');
 
 		try {
 			const key = await importJWK(client.publicKey, 'EdDSA');
@@ -79,19 +85,14 @@ export class OAuthIssuer {
 			) {
 				throw new Error('Invalid assertion claims.');
 			}
-			const replayKey = `${client.clientId}:${payload.jti}`;
 			const now = Math.floor(Date.now() / 1000);
 			if (payload.iat > now + 5) throw new Error('Assertion issued in the future.');
-			for (const [key, expiry] of this.usedAssertions) {
-				if (expiry < now) this.usedAssertions.delete(key);
+			if (!this.store.consumeAssertion(client.clientId, payload.jti, payload.exp + 5, now)) {
+				throw new OAuthError(400, 'invalid_client', 'Client authentication failed.');
 			}
-			if (this.usedAssertions.has(replayKey)) {
-				throw new OAuthError(400, 'invalid_grant', 'The client assertion was already used.');
-			}
-			this.usedAssertions.set(replayKey, payload.exp);
 		} catch (error) {
 			if (error instanceof OAuthError) throw error;
-			throw new OAuthError(401, 'invalid_client', 'Client authentication failed.');
+			throw new OAuthError(400, 'invalid_client', 'Client authentication failed.');
 		}
 
 		const now = Math.floor(Date.now() / 1000);

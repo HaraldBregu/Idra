@@ -8,7 +8,6 @@ export function registerOAuthRoutes(server: FastifyInstance, issuer: OAuthIssuer
 			token_endpoint: issuer.tokenEndpoint,
 			jwks_uri: `${issuer.issuer}/.well-known/jwks.json`,
 			grant_types_supported: ['client_credentials'],
-			response_types_supported: [],
 			scopes_supported: [issuer.scope],
 			token_endpoint_auth_methods_supported: ['private_key_jwt'],
 			token_endpoint_auth_signing_alg_values_supported: ['EdDSA'],
