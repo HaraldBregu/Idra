@@ -190,9 +190,7 @@ export class PersistentTaskStore implements TaskStore {
 				(parsed as Partial<StoredTaskRecord>).task
 			) {
 				const task = A2aTask.fromJSON((parsed as Partial<StoredTaskRecord>).task);
-				return task.id
-					? { owner: (parsed as StoredTaskRecord).owner, task }
-					: undefined;
+				return task.id ? { owner: (parsed as StoredTaskRecord).owner, task } : undefined;
 			}
 			const task = A2aTask.fromJSON(parsed);
 			return task.id ? { owner: 'legacy-shared-token', task } : undefined;
@@ -212,9 +210,9 @@ export class PersistentTaskStore implements TaskStore {
 				temporaryPath,
 				`${JSON.stringify({ owner: record.owner, task: A2aTask.toJSON(record.task) }, null, 2)}\n`,
 				{
-				encoding: 'utf8',
-				flag: 'wx',
-				mode: 0o600,
+					encoding: 'utf8',
+					flag: 'wx',
+					mode: 0o600,
 				}
 			);
 			fs.renameSync(temporaryPath, filePath);

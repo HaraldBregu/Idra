@@ -20,7 +20,9 @@ interface SecureA2aConfigInput {
 
 export function resolveSecureA2aConfig(input: SecureA2aConfigInput): SecureA2aConfig {
 	const adminToken =
-		input.adminToken === undefined ? process.env.IDRA_ADMIN_TOKEN?.trim() : input.adminToken?.trim();
+		input.adminToken === undefined
+			? process.env.IDRA_ADMIN_TOKEN?.trim()
+			: input.adminToken?.trim();
 	const rawKey =
 		input.configurationKey === undefined
 			? process.env.IDRA_CONFIG_KEY?.trim()

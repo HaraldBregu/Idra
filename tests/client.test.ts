@@ -273,7 +273,10 @@ test('the official A2A REST client discovers Idra and streams continuous context
 		if (secondEvents[0].payload?.$case !== 'task') assert.fail('Expected the follow-up task.');
 		assert.equal(secondEvents[0].payload.value.contextId, firstTask.contextId);
 		assert.notEqual(secondEvents[0].payload.value.id, firstTask.id);
-		assert.deepEqual(requests.map((request) => request.message), ['first', 'second']);
+		assert.deepEqual(
+			requests.map((request) => request.message),
+			['first', 'second']
+		);
 		assert.equal(requests[0]?.options.runId, firstTask.id);
 		assert.equal(requests[1]?.options.runId, secondEvents[0].payload.value.id);
 		assert.match(

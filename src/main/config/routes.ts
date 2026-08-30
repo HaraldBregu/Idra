@@ -94,7 +94,11 @@ export function registerConfigurationRoutes(
 		async (request, reply) => {
 			try {
 				const normalized = await normalizePublicKey(request.body.publicKeyJwk);
-				const client = store.addClient(request.body.name.trim(), normalized.key, normalized.thumbprint);
+				const client = store.addClient(
+					request.body.name.trim(),
+					normalized.key,
+					normalized.thumbprint
+				);
 				request.log.info({ event: 'config.client.created', clientId: client.clientId });
 				const { publicKey: _publicKey, ...result } = client;
 				return reply.code(201).header('cache-control', 'no-store').send(result);

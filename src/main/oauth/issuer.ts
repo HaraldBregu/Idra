@@ -46,7 +46,11 @@ export class OAuthIssuer {
 			!body.client_assertion ||
 			(body.resource !== undefined && body.resource !== this.resource)
 		) {
-			throw new OAuthError(400, 'invalid_request', 'A valid client credentials request is required.');
+			throw new OAuthError(
+				400,
+				'invalid_request',
+				'A valid client credentials request is required.'
+			);
 		}
 		if (body.scope !== this.scope) {
 			throw new OAuthError(400, 'invalid_scope', `The only supported scope is ${this.scope}.`);

@@ -28,7 +28,9 @@ export async function createA2aServer(
 	});
 	const server = Fastify({
 		bodyLimit: 100 * 1024,
-		logger: { redact: ['req.headers.authorization', 'req.body.apiKey', 'req.body.client_assertion'] },
+		logger: {
+			redact: ['req.headers.authorization', 'req.body.apiKey', 'req.body.client_assertion'],
+		},
 	});
 	const store = new ConfigurationStore(config.dataDirectory, config.encryptionKey);
 	const issuer = new OAuthIssuer(store, config.publicUrl);
