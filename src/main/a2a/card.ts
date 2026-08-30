@@ -1,6 +1,9 @@
 import type { AgentCard } from '@a2a-js/sdk';
 
-export function createAgentCard(publicUrl: string): AgentCard {
+export function createAgentCard(
+	publicUrl: string,
+	oauth?: { metadataUrl: string; tokenEndpoint: string; scope: string }
+): AgentCard {
 	return {
 		name: 'Idra',
 		description: 'A personal assistant that can work with files in its private workspace.',
@@ -20,19 +23,43 @@ export function createAgentCard(publicUrl: string): AgentCard {
 			extendedAgentCard: false,
 			extensions: [],
 		},
-		securitySchemes: {
-			bearerAuth: {
-				scheme: {
-					$case: 'httpAuthSecurityScheme',
-					value: {
-						description: 'Dedicated Idra agent token.',
-						scheme: 'Bearer',
-						bearerFormat: '',
+		securitySchemes: oauth
+			? {
+					oauth2: {
+						scheme: {
+							$case: 'oauth2SecurityScheme',
+							value: {
+								description: 'OAuth 2.0 client credentials using private_key_jwt.',
+								oauth2MetadataUrl: oauth.metadataUrl,
+								flows: {
+									flow: {
+										$case: 'clientCredentials',
+										value: {
+											tokenUrl: oauth.tokenEndpoint,
+											refreshUrl: '',
+											scopes: { [oauth.scope]: 'Invoke Idra and access caller-owned tasks.' },
+										},
+									},
+								},
+							},
+						},
+					},
+				}
+			: {
+					bearerAuth: {
+						scheme: {
+							$case: 'httpAuthSecurityScheme',
+							value: {
+								description: 'Dedicated Idra agent token.',
+								scheme: 'Bearer',
+								bearerFormat: '',
+							},
+						},
 					},
 				},
-			},
-		},
-		securityRequirements: [{ schemes: { bearerAuth: { list: [] } } }],
+		securityRequirements: [
+			{ schemes: oauth ? { oauth2: { list: [oauth.scope] } } : { bearerAuth: { list: [] } } },
+		],
 		defaultInputModes: ['text/plain'],
 		defaultOutputModes: ['text/plain'],
 		skills: [

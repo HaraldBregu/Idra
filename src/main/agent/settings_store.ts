@@ -3,8 +3,18 @@ import { providerBaseUrl } from '../provider/base';
 import { readProvider } from '../provider/read';
 import { PROVIDERS, type ProviderId } from '../provider/types';
 import { userDataLocation } from '../shared/user_data_location';
+import { configuredProvider } from '../config/provider';
 
 export function getProvider(id: string): StoredProvider | undefined {
+	const configured = configuredProvider();
+	if (configured && id.trim() === configured.provider) {
+		return {
+			id: configured.provider,
+			name: configured.provider,
+			apiKey: configured.apiKey,
+			baseUrl: providerBaseUrl(configured.provider),
+		};
+	}
 	const providerId = process.env.IDRA_PROVIDER_ID?.trim();
 	const apiKey = process.env.IDRA_API_KEY?.trim();
 	if (providerId && apiKey && id.trim() === providerId) {

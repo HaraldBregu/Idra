@@ -1,12 +1,13 @@
 import { Agent } from './agent/agent';
-import { requireProviderEnvironment } from './a2a/environment';
 import { createA2aServer } from './a2a/server';
 
-requireProviderEnvironment();
 const agent = new Agent({ mcpEnabled: false });
 const server = await createA2aServer(agent);
 
-await server.listen({ port: 3000, host: '0.0.0.0' });
+await server.listen({
+	port: Number(process.env.IDRA_PORT ?? 3000),
+	host: process.env.IDRA_LISTEN_ADDRESS?.trim() || '127.0.0.1',
+});
 
 const shutdown = async (): Promise<void> => {
 	agent.destroy();

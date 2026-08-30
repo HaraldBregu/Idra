@@ -1,7 +1,7 @@
 import fastifyExpress from '@fastify/express';
 import { AgentCard as A2aAgentCard } from '@a2a-js/sdk';
 import { DefaultRequestHandler } from '@a2a-js/sdk/server';
-import { UserBuilder, restHandler } from '@a2a-js/sdk/server/express';
+import { restHandler } from '@a2a-js/sdk/server/express';
 import { Router } from 'express';
 import type { FastifyInstance } from 'fastify';
 import { createBearerAuthentication } from './auth';
@@ -11,14 +11,28 @@ import type { A2aConfig } from './config';
 import { IdraExecutor, type AgentPort } from './executor';
 import { includeListResponseFields } from './list';
 import { createTaskStore } from './store';
+import type { OAuthIssuer } from '../oauth/issuer';
+import { RequestIdentity } from '../oauth/identity';
+import { RequestLimiter } from '../oauth/limit';
+import { createOAuthAuthentication } from '../oauth/auth';
 
 export async function registerA2aRoutes(
 	server: FastifyInstance,
 	agent: AgentPort,
-	config: A2aConfig
+	config: A2aConfig,
+	issuer?: OAuthIssuer
 ): Promise<void> {
 	await server.register(fastifyExpress);
-	const card = createAgentCard(config.publicUrl);
+	const card = createAgentCard(
+		config.publicUrl,
+		issuer
+			? {
+					metadataUrl: issuer.metadataUrl,
+					tokenEndpoint: issuer.tokenEndpoint,
+					scope: issuer.scope,
+				}
+			: undefined
+	);
 	const taskStore = await createTaskStore(config.tasksDirectory);
 	const handler = new DefaultRequestHandler(
 		card,
@@ -31,13 +45,23 @@ export async function registerA2aRoutes(
 	});
 
 	const router = Router();
-	router.use(createBearerAuthentication(config.token));
+	const identity = new RequestIdentity();
+	const limiter = new RequestLimiter();
+	router.use(
+		issuer
+			? createOAuthAuthentication(issuer, identity, limiter)
+			: createBearerAuthentication(config.token, identity)
+	);
+	router.use((_request, response, next) => {
+		response.setHeader('Cache-Control', 'no-store');
+		next();
+	});
 	router.use(rejectUnsupportedCapabilities());
 	router.use(includeListResponseFields());
 	router.use(
 		restHandler({
 			requestHandler: handler,
-			userBuilder: UserBuilder.noAuthentication,
+			userBuilder: identity.user,
 		})
 	);
 	server.use('/a2a', router);
