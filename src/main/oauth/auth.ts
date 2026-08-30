@@ -9,7 +9,8 @@ export function createOAuthAuthentication(
 	limiter: RequestLimiter
 ): RequestHandler {
 	return (request, response, next): void => {
-		const match = /^Bearer ([^\s]+)$/.exec(request.header('authorization') ?? '');
+		response.setHeader('Cache-Control', 'no-store');
+		const match = /^Bearer ([^\s]+)$/i.exec(request.header('authorization') ?? '');
 		if (!match) {
 			response
 				.setHeader(

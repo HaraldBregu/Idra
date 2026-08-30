@@ -58,12 +58,14 @@ export function registerConfigurationRoutes(
 		async (request, reply) => {
 			const existing = store.provider();
 			const apiKey = request.body.apiKey?.trim();
+			const model = request.body.model.trim();
+			if (!model) return reply.code(400).send({ error: 'A model is required.' });
 			if (!apiKey && (!existing || existing.provider !== request.body.provider)) {
 				return reply.code(400).send({ error: 'An API key is required for this provider.' });
 			}
 			store.setProvider({
 				provider: request.body.provider,
-				model: request.body.model.trim(),
+				model,
 				apiKey: apiKey ?? existing?.apiKey ?? '',
 			});
 			request.log.info({ event: 'config.provider.updated', provider: request.body.provider });
@@ -92,13 +94,11 @@ export function registerConfigurationRoutes(
 			},
 		},
 		async (request, reply) => {
+			const name = request.body.name.trim();
+			if (!name) return reply.code(400).send({ error: 'A client name is required.' });
 			try {
 				const normalized = await normalizePublicKey(request.body.publicKeyJwk);
-				const client = store.addClient(
-					request.body.name.trim(),
-					normalized.key,
-					normalized.thumbprint
-				);
+				const client = store.addClient(name, normalized.key, normalized.thumbprint);
 				request.log.info({ event: 'config.client.created', clientId: client.clientId });
 				const { publicKey: _publicKey, ...result } = client;
 				return reply.code(201).header('cache-control', 'no-store').send(result);

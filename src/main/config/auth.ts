@@ -8,6 +8,7 @@ export function createConfigurationAuthentication(
 ): onRequestHookHandler {
 	const expected = Buffer.from(`Bearer ${token}`);
 	return async (request, reply): Promise<unknown> => {
+		reply.header('cache-control', 'no-store');
 		if (!limiter.consume(`config:${request.ip}`, 30, 60_000)) {
 			return reply.code(429).header('retry-after', '60').send({ error: 'Too Many Requests' });
 		}
