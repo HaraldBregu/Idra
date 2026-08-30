@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import Fastify from 'fastify';
 import {
 	Role,
 	TaskState,
@@ -28,6 +29,10 @@ import { createTaskStore } from '../src/main/a2a/store';
 import type { AgentSendOptions } from '../src/main/agent/agent';
 import type { AgentResponseEvent, AgentRunStopReason } from '../src/main/shared/agent_types';
 import { createApiServer } from '../src/main/server';
+import { ConfigurationStore } from '../src/main/config/store';
+import { OAuthError } from '../src/main/oauth/error';
+import { OAuthIssuer } from '../src/main/oauth/issuer';
+import { registerOAuthRoutes } from '../src/main/oauth/routes';
 
 const AGENT_TOKEN = 'agent-token-123456789012345678901';
 const ADMIN_TOKEN = 'admin-token-for-tests-1234567890123456';
@@ -164,38 +169,6 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 			).headers['www-authenticate'] ?? '',
 			/resource_metadata=/
 		);
-		const authorizationMetadata = (
-			await server.inject({ method: 'GET', url: '/.well-known/oauth-authorization-server' })
-		).json<Record<string, unknown>>();
-		assert.equal('response_types_supported' in authorizationMetadata, false);
-		assert.deepEqual(
-			(
-				await server.inject({
-					method: 'POST',
-					url: '/a2a/oauth/token',
-					headers: { 'content-type': 'application/x-www-form-urlencoded' },
-					payload: 'grant_type=authorization_code',
-				})
-			).json(),
-			{
-				error: 'unsupported_grant_type',
-				error_description: 'The grant type is not supported.',
-			}
-		);
-		assert.deepEqual(
-			(
-				await server.inject({
-					method: 'POST',
-					url: '/a2a/oauth/token',
-					headers: { 'content-type': 'application/x-www-form-urlencoded' },
-					payload: `grant_type=client_credentials&resource=${encodeURIComponent('https://other.example/a2a')}`,
-				})
-			).json(),
-			{
-				error: 'invalid_target',
-				error_description: 'The requested resource is not supported.',
-			}
-		);
 		assert.equal((await server.inject({ method: 'GET', url: '/config' })).statusCode, 401);
 		const config = await server.inject({
 			method: 'GET',
@@ -221,6 +194,33 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 			const response = await server.inject({ method, url });
 			assert.equal(response.statusCode, 404, `${method} ${url}`);
 		}
+	} finally {
+		await server.close();
+		fs.rmSync(directory, { recursive: true, force: true });
+	}
+});
+
+test('OAuth metadata and token errors follow the client-credentials profile', async () => {
+	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-oauth-metadata-'));
+	const server = Fastify();
+	const issuer = new OAuthIssuer(
+		new ConfigurationStore(directory, Buffer.from(CONFIGURATION_KEY, 'hex')),
+		'https://idra.example'
+	);
+	registerOAuthRoutes(server, issuer);
+	try {
+		const metadata = (
+			await server.inject({ method: 'GET', url: '/.well-known/oauth-authorization-server' })
+		).json<Record<string, unknown>>();
+		assert.equal('response_types_supported' in metadata, false);
+		await assert.rejects(
+			issuer.issue({ grant_type: 'authorization_code' }),
+			(error: unknown) => error instanceof OAuthError && error.code === 'unsupported_grant_type'
+		);
+		await assert.rejects(
+			issuer.issue({ grant_type: 'client_credentials', resource: 'https://other.example/a2a' }),
+			(error: unknown) => error instanceof OAuthError && error.code === 'invalid_target'
+		);
 	} finally {
 		await server.close();
 		fs.rmSync(directory, { recursive: true, force: true });
