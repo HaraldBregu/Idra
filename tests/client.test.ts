@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { randomUUID } from 'node:crypto';
+import { generateKeyPairSync, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import net from 'node:net';
 import os from 'node:os';
@@ -7,12 +7,14 @@ import path from 'node:path';
 import test from 'node:test';
 import { Role, TaskState, type SendMessageRequest, type StreamResponse } from '@a2a-js/sdk';
 import { ClientFactory, RestTransportFactory } from '@a2a-js/sdk/client';
+import { importJWK, SignJWT, type JWK } from 'jose';
 import { createA2aServer } from '../src/main/a2a/server';
 import type { AgentSendOptions } from '../src/main/agent/agent';
 
 test('the official A2A REST client discovers Idra and streams continuous contexts', async (context) => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-a2a-client-'));
-	const token = 'official-client-test-token-32-bytes-long';
+	const adminToken = 'official-client-admin-token-32-bytes-long';
+	const configurationKey = '22'.repeat(32);
 	const requests: Array<{ message: string; options: AgentSendOptions }> = [];
 	const agent = {
 		async send(message: string, agentId: string, options: AgentSendOptions): Promise<string> {
@@ -56,7 +58,8 @@ test('the official A2A REST client discovers Idra and streams continuous context
 
 	const baseUrl = `http://127.0.0.1:${port}`;
 	const server = await createA2aServer(agent, {
-		agentToken: token,
+		adminToken,
+		configurationKey,
 		dataDirectory: directory,
 		publicUrl: baseUrl,
 	});
@@ -79,13 +82,76 @@ test('the official A2A REST client discovers Idra and streams continuous context
 		assert.equal(card.supportedInterfaces[0].url, `${baseUrl}/a2a`);
 		assert.equal(card.supportedInterfaces[0].protocolBinding, 'HTTP+JSON');
 		assert.equal(card.supportedInterfaces[0].protocolVersion, '1.0');
-		assert.equal(card.securitySchemes.bearerAuth.httpAuthSecurityScheme.scheme, 'Bearer');
+		assert.equal(
+			card.securitySchemes.oauth2.oauth2SecurityScheme.flows.clientCredentials.tokenUrl,
+			`${baseUrl}/a2a/oauth/token`
+		);
+		assert.equal(
+			card.securitySchemes.oauth2.oauth2SecurityScheme.oauth2MetadataUrl,
+			`${baseUrl}/.well-known/oauth-authorization-server`
+		);
+
+		const challenge = await fetch(`${baseUrl}/a2a/tasks`, {
+			headers: { 'a2a-version': '1.0' },
+		});
+		assert.equal(challenge.status, 401);
+		assert.match(
+			challenge.headers.get('www-authenticate') ?? '',
+			/resource_metadata="http:\/\/127\.0\.0\.1:\d+\/\.well-known\/oauth-protected-resource\/a2a"/
+		);
+
+		const pair = generateKeyPairSync('ed25519');
+		const publicKey = pair.publicKey.export({ format: 'jwk' }) as JWK;
+		const privateKey = pair.privateKey.export({ format: 'jwk' }) as JWK;
+		const registered = await fetch(`${baseUrl}/config/clients`, {
+			method: 'POST',
+			headers: {
+				authorization: `Bearer ${adminToken}`,
+				'content-type': 'application/json',
+			},
+			body: JSON.stringify({ name: 'official-sdk-test', publicKeyJwk: publicKey }),
+		});
+		assert.equal(registered.status, 201);
+		const registration = (await registered.json()) as { clientId: string };
+		const now = Math.floor(Date.now() / 1000);
+		const assertion = await new SignJWT()
+			.setProtectedHeader({ alg: 'EdDSA', typ: 'JWT' })
+			.setIssuer(registration.clientId)
+			.setSubject(registration.clientId)
+			.setAudience(`${baseUrl}/a2a/oauth/token`)
+			.setIssuedAt(now)
+			.setExpirationTime(now + 120)
+			.setJti(randomUUID())
+			.sign(await importJWK(privateKey, 'EdDSA'));
+		const tokenResponse = await fetch(`${baseUrl}/a2a/oauth/token`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			body: new URLSearchParams({
+				grant_type: 'client_credentials',
+				client_id: registration.clientId,
+				client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+				client_assertion: assertion,
+				scope: 'a2a.invoke',
+				resource: `${baseUrl}/a2a`,
+			}),
+		});
+		assert.equal(tokenResponse.status, 200);
+		assert.equal(tokenResponse.headers.get('cache-control'), 'no-store');
+		const token = (await tokenResponse.json()) as {
+			access_token: string;
+			expires_in: number;
+			scope: string;
+			token_type: string;
+		};
+		assert.equal(token.token_type, 'Bearer');
+		assert.equal(token.scope, 'a2a.invoke');
+		assert.equal(token.expires_in, 300);
 
 		const client = await new ClientFactory({
 			transports: [new RestTransportFactory()],
 		}).createFromUrl(baseUrl);
 		const requestOptions = {
-			serviceParameters: { Authorization: `Bearer ${token}` },
+			serviceParameters: { Authorization: `Bearer ${token.access_token}` },
 		};
 		const firstRequest: SendMessageRequest = {
 			tenant: '',
@@ -165,20 +231,32 @@ test('the official A2A REST client discovers Idra and streams continuous context
 		if (secondEvents[0].payload?.$case !== 'task') assert.fail('Expected the follow-up task.');
 		assert.equal(secondEvents[0].payload.value.contextId, firstTask.contextId);
 		assert.notEqual(secondEvents[0].payload.value.id, firstTask.id);
-		assert.deepEqual(
-			requests.map((request) => ({
-				message: request.message,
-				runId: request.options.runId,
-				sessionId: request.options.sessionId,
-			})),
-			[
-				{ message: 'first', runId: firstTask.id, sessionId: firstTask.contextId },
-				{
-					message: 'second',
-					runId: secondEvents[0].payload.value.id,
-					sessionId: firstTask.contextId,
-				},
-			]
+		assert.deepEqual(requests.map((request) => request.message), ['first', 'second']);
+		assert.equal(requests[0]?.options.runId, firstTask.id);
+		assert.equal(requests[1]?.options.runId, secondEvents[0].payload.value.id);
+		assert.match(
+			requests[0]?.options.sessionId ?? '',
+			/^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$/
+		);
+		assert.equal(requests[1]?.options.sessionId, requests[0]?.options.sessionId);
+		assert.notEqual(requests[0]?.options.sessionId, firstTask.contextId);
+
+		const revoked = await fetch(`${baseUrl}/config/clients/${registration.clientId}`, {
+			method: 'DELETE',
+			headers: { authorization: `Bearer ${adminToken}` },
+		});
+		assert.equal(revoked.status, 200);
+		assert.deepEqual(await revoked.json(), { deleted: true });
+		assert.equal(
+			(
+				await fetch(`${baseUrl}/a2a/tasks`, {
+					headers: {
+						authorization: `Bearer ${token.access_token}`,
+						'a2a-version': '1.0',
+					},
+				})
+			).status,
+			401
 		);
 	} finally {
 		await server.close();
