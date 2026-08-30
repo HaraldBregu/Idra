@@ -4,7 +4,14 @@ import path from 'node:path';
 import { importJWK, type JWK } from 'jose';
 import { PROVIDERS, type ProviderConfiguration, type ProviderId } from '../provider/types';
 import { seal } from './seal';
-import type { PublicConfiguration, SealedValue, StoredClient, StoredConfiguration } from './types';
+import type {
+	AdministratorCredentials,
+	ConfigurationSession,
+	PublicConfiguration,
+	SealedValue,
+	StoredClient,
+	StoredConfiguration,
+} from './types';
 import { unseal } from './unseal';
 
 const FILE_NAME = 'secure-config.json';
@@ -26,6 +33,7 @@ export class ConfigurationStore {
 			}
 			this.document = this.parse(JSON.parse(fs.readFileSync(this.filePath, 'utf8')));
 			unseal(this.document.signingPrivateKey, this.encryptionKey, 'signing-key');
+			if (this.document.administrator) this.administrator();
 			return;
 		}
 
@@ -37,6 +45,7 @@ export class ConfigurationStore {
 			version: 1,
 			assertions: [],
 			clients: [],
+			sessions: [],
 			signingPublicKey: { ...publicKey, alg: 'EdDSA', use: 'sig', kid: keyId },
 			signingPrivateKey: seal(
 				{ ...privateKey, alg: 'EdDSA', use: 'sig', kid: keyId },
@@ -45,6 +54,44 @@ export class ConfigurationStore {
 			),
 		};
 		this.write();
+	}
+
+	administrator(): AdministratorCredentials | undefined {
+		if (!this.document.administrator) return undefined;
+		const value = unseal(this.document.administrator, this.encryptionKey, 'administrator');
+		if (!this.validAdministrator(value)) {
+			throw new Error('The encrypted administrator credentials are invalid.');
+		}
+		return structuredClone(value);
+	}
+
+	setAdministrator(administrator: AdministratorCredentials): boolean {
+		if (this.document.administrator) return false;
+		this.document.administrator = seal(administrator, this.encryptionKey, 'administrator');
+		this.write();
+		return true;
+	}
+
+	addSession(session: ConfigurationSession, now: number): void {
+		this.document.sessions = this.document.sessions
+			.filter((stored) => stored.expiresAt > now)
+			.slice(-7);
+		this.document.sessions.push(session);
+		this.write();
+	}
+
+	hasSession(tokenHash: string, now: number): boolean {
+		return this.document.sessions.some(
+			(session) => session.tokenHash === tokenHash && session.expiresAt > now
+		);
+	}
+
+	deleteSession(tokenHash: string): boolean {
+		const sessions = this.document.sessions.filter((session) => session.tokenHash !== tokenHash);
+		if (sessions.length === this.document.sessions.length) return false;
+		this.document.sessions = sessions;
+		this.write();
+		return true;
 	}
 
 	publicConfiguration(): PublicConfiguration {
@@ -154,6 +201,7 @@ export class ConfigurationStore {
 		}
 		const document = value as Partial<StoredConfiguration>;
 		const assertions = document.assertions ?? [];
+		const sessions = document.sessions ?? [];
 		if (
 			document.version !== 1 ||
 			!Array.isArray(assertions) ||
@@ -165,10 +213,20 @@ export class ConfigurationStore {
 					!/^[A-Za-z0-9_-]{43}$/.test(assertion.key)
 			) ||
 			!Array.isArray(document.clients) ||
+			!Array.isArray(sessions) ||
+			sessions.some(
+				(session) =>
+					!session ||
+					typeof session.createdAt !== 'string' ||
+					!Number.isInteger(session.expiresAt) ||
+					typeof session.tokenHash !== 'string' ||
+					!/^[A-Za-z0-9_-]{43}$/.test(session.tokenHash)
+			) ||
 			!this.sealed(document.signingPrivateKey) ||
 			!document.signingPublicKey ||
 			typeof document.signingPublicKey !== 'object' ||
 			(document.provider !== undefined && !this.sealed(document.provider)) ||
+			(document.administrator !== undefined && !this.sealed(document.administrator)) ||
 			document.clients.some(
 				(client) =>
 					!client ||
@@ -182,7 +240,23 @@ export class ConfigurationStore {
 		) {
 			throw new Error('The secure configuration is invalid.');
 		}
-		return structuredClone({ ...document, assertions } as StoredConfiguration);
+		return structuredClone({ ...document, assertions, sessions } as StoredConfiguration);
+	}
+
+	private validAdministrator(value: unknown): value is AdministratorCredentials {
+		if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+		const administrator = value as Partial<AdministratorCredentials>;
+		return (
+			administrator.version === 1 &&
+			typeof administrator.createdAt === 'string' &&
+			typeof administrator.digest === 'string' &&
+			/^[A-Za-z0-9_-]{86}$/.test(administrator.digest) &&
+			typeof administrator.salt === 'string' &&
+			/^[A-Za-z0-9_-]{22}$/.test(administrator.salt) &&
+			typeof administrator.sessionSecret === 'string' &&
+			/^[A-Za-z0-9_-]{43}$/.test(administrator.sessionSecret) &&
+			typeof administrator.username === 'string'
+		);
 	}
 
 	private sealed(value: unknown): value is SealedValue {

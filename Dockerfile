@@ -12,6 +12,7 @@ RUN npm ci --omit=dev --ignore-scripts \
 	&& npm cache clean --force
 
 COPY src/main ./src/main
+COPY src/ui ./src/ui
 
 RUN mkdir -p /data/workspace && chown -R node:node /app /data
 

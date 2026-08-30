@@ -20,13 +20,38 @@ export interface StoredAssertion {
 	key: string;
 }
 
+export interface AdministratorCredentials {
+	createdAt: string;
+	digest: string;
+	salt: string;
+	sessionSecret: string;
+	username: string;
+	version: 1;
+}
+
+export interface ConfigurationSession {
+	createdAt: string;
+	expiresAt: number;
+	tokenHash: string;
+}
+
 export interface StoredConfiguration {
+	administrator?: SealedValue;
 	assertions: StoredAssertion[];
 	clients: StoredClient[];
 	provider?: SealedValue;
+	sessions: ConfigurationSession[];
 	signingPrivateKey: SealedValue;
 	signingPublicKey: JWK;
 	version: 1;
+}
+
+export interface OAuthConfiguration {
+	issuer: string;
+	resource: string;
+	scope: string;
+	tokenEndpoint: string;
+	tokenEndpointAuthMethod: 'private_key_jwt';
 }
 
 export interface PublicConfiguration {
@@ -37,4 +62,8 @@ export interface PublicConfiguration {
 		model: string | null;
 		provider: ProviderConfiguration['provider'] | null;
 	};
+}
+
+export interface ConfigurationResponse extends PublicConfiguration {
+	oauth: OAuthConfiguration;
 }

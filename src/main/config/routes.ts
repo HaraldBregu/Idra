@@ -1,6 +1,5 @@
 import type { FastifyInstance } from 'fastify';
 import type { RequestLimiter } from '../oauth/limit';
-import type { OAuthIssuer } from '../oauth/issuer';
 import type { ProviderId } from '../provider/types';
 import { createConfigurationAuthentication } from './auth';
 import { normalizePublicKey } from './jwk';
@@ -21,23 +20,11 @@ export function registerConfigurationRoutes(
 	server: FastifyInstance,
 	store: ConfigurationStore,
 	adminToken: string,
-	issuer: OAuthIssuer,
+	publicUrl: string,
 	limiter: RequestLimiter
 ): void {
-	const authenticate = createConfigurationAuthentication(adminToken, limiter);
+	const authenticate = createConfigurationAuthentication(store, adminToken, publicUrl, limiter);
 	const options = { onRequest: authenticate };
-	server.get('/config', options, async (_request, reply) =>
-		reply.header('cache-control', 'no-store').send({
-			...store.publicConfiguration(),
-			oauth: {
-				issuer: issuer.issuer,
-				resource: issuer.resource,
-				scope: issuer.scope,
-				tokenEndpoint: issuer.tokenEndpoint,
-				tokenEndpointAuthMethod: 'private_key_jwt',
-			},
-		})
-	);
 	server.put<{ Body: ProviderBody }>(
 		'/config/provider',
 		{

@@ -1,6 +1,6 @@
 # Using Idra over A2A
 
-This guide shows how to configure Idra, register a calling agent, obtain a short-lived OAuth token, send prompts through A2A, continue a conversation, and manage tasks. Idra has no browser interface or alternate agent API: discovery uses the Agent Card, configuration uses the administrator-only `/config` API, and every agent operation uses A2A 1.0 HTTP+JSON.
+This guide shows how to configure Idra, register a calling agent, obtain a short-lived OAuth token, send prompts through A2A, continue a conversation, and manage tasks. Idra provides a focused browser interface at `/config` and an administrator-only configuration API; every agent operation uses A2A 1.0 HTTP+JSON.
 
 ## Prerequisites
 
@@ -62,9 +62,16 @@ Idra exposes four distinct REST surfaces:
 | `/.well-known/*`          | Public                               | Agent Card, OAuth metadata, protected-resource metadata, and signing-key discovery |
 | `/a2a/oauth/token`        | Registered Ed25519 `private_key_jwt` | Issue a short-lived A2A access token                                               |
 | `/a2a` and `/a2a/*`       | A2A bearer token with `a2a.invoke`   | Send messages and manage caller-owned tasks                                        |
-| `/config` and `/config/*` | Administrator bearer token           | Configure the provider and calling-agent public keys                               |
+| `/config` (browser)       | Administrator username and password  | Register or sign in, then configure the provider and calling-agent public keys      |
+| `/config` and `/config/*` | Administrator bearer token           | Automate provider and calling-agent configuration                                  |
 
-The administrator token cannot invoke A2A, and an A2A token cannot access `/config`. `IDRA_ADMIN_TOKEN` and `IDRA_CONFIG_KEY` are bootstrap secrets managed through the deployment environment, not through `/config`. The configuration API is not a general-purpose secret vault: it stores the supported model-provider credential and registered client public keys.
+The administrator token cannot invoke A2A, and an A2A token cannot access `/config`. `IDRA_ADMIN_TOKEN` is also the one-time setup token required by the registration page. `IDRA_CONFIG_KEY` encrypts the administrator credentials and provider key at rest. Both remain deployment secrets and are not managed through `/config`.
+
+## Create the administrator
+
+Open `https://agent.example.com/config` in a browser. On the first visit, enter the value of `IDRA_ADMIN_TOKEN`, choose a username, and create a password of at least 12 characters. Registration is available only once. Later visits show the username and password login page; after login, the configuration page provides provider, OAuth, and calling-agent settings.
+
+Browser sessions last 12 hours, use an HTTP-only same-site cookie, and are revoked when you log out. The setup token and password are never stored in browser storage. Keep the setup token available for API automation after registration, or rotate it through the deployment environment if API bearer access must be revoked.
 
 ## Configure the model provider
 
