@@ -1,4 +1,4 @@
-import { generateKeyPairSync, randomUUID, type KeyObject } from 'node:crypto';
+import { generateKeyPairSync, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { importJWK, type JWK } from 'jose';
@@ -129,7 +129,7 @@ export class ConfigurationStore {
 		return structuredClone(this.document.signingPublicKey);
 	}
 
-	async privateSigningKey(): Promise<KeyObject | CryptoKey> {
+	async privateSigningKey(): Promise<Awaited<ReturnType<typeof importJWK>>> {
 		const value = unseal(this.document.signingPrivateKey, this.encryptionKey, 'signing-key');
 		return importJWK(value as JWK, 'EdDSA');
 	}

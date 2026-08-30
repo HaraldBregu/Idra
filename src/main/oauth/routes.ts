@@ -14,7 +14,7 @@ export function registerOAuthRoutes(
 		(_request, body, done) => {
 			try {
 				const parsed: Record<string, string> = {};
-				for (const [key, value] of new URLSearchParams(body)) {
+				for (const [key, value] of new URLSearchParams(body.toString())) {
 					if (Object.hasOwn(parsed, key)) throw new Error('Duplicate form field.');
 					parsed[key] = value;
 				}
