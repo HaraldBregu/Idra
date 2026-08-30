@@ -218,11 +218,18 @@ if (!cardResponse.ok) throw new Error(await cardResponse.text());
 const card = await cardResponse.json();
 const metadataUrl = card.securitySchemes?.oauth2?.oauth2SecurityScheme?.oauth2MetadataUrl;
 if (typeof metadataUrl !== 'string') throw new Error('Agent Card has no OAuth metadata URL.');
+if (new URL(metadataUrl).origin !== baseUrl) {
+	throw new Error('OAuth metadata URL does not match IDRA_URL.');
+}
 
 const metadataResponse = await fetch(metadataUrl);
 if (!metadataResponse.ok) throw new Error(await metadataResponse.text());
 const metadata = await metadataResponse.json();
-if (metadata.issuer !== baseUrl || typeof metadata.token_endpoint !== 'string') {
+if (
+	metadata.issuer !== baseUrl ||
+	typeof metadata.token_endpoint !== 'string' ||
+	new URL(metadata.token_endpoint).origin !== baseUrl
+) {
 	throw new Error('OAuth metadata does not match IDRA_URL.');
 }
 if (!metadata.token_endpoint_auth_methods_supported?.includes('private_key_jwt')) {
@@ -232,7 +239,11 @@ if (!metadata.token_endpoint_auth_methods_supported?.includes('private_key_jwt')
 const resourceResponse = await fetch(`${baseUrl}/.well-known/oauth-protected-resource/a2a`);
 if (!resourceResponse.ok) throw new Error(await resourceResponse.text());
 const resourceMetadata = await resourceResponse.json();
-if (resourceMetadata.resource !== `${baseUrl}/a2a`) {
+if (
+	resourceMetadata.resource !== `${baseUrl}/a2a` ||
+	!resourceMetadata.authorization_servers?.includes(baseUrl) ||
+	!resourceMetadata.scopes_supported?.includes('a2a.invoke')
+) {
 	throw new Error('Protected-resource metadata does not match IDRA_URL.');
 }
 
@@ -500,7 +511,7 @@ Idra's persistent workspace is `/data/workspace` inside the container. The A2A a
 
 Shell commands, MCP servers, subagents, administrative APIs, and configuration changes are unavailable through A2A. Put durable behavioral instructions in the workspace's `AGENTS.md` file by asking Idra to create or update it.
 
-Message text is limited to 32 KiB, the complete HTTP request body is limited to 100 KiB, and only `text/plain` message parts are accepted. Task-list `pageSize` and `historyLength` cannot exceed 100. Terminal task records are retained for 30 days, and task/conversation data persists in the `idra-data` Docker volume.
+Message text is limited to 32 KiB, general HTTP request bodies are limited to 100 KiB, and only `text/plain` message parts are accepted. The token form has a smaller 8 KiB and 12-parameter limit. Task-list `pageSize` and `historyLength` cannot exceed 100. Terminal task records are retained for 30 days, and task/conversation data persists in the `idra-data` Docker volume.
 
 The in-memory rate limits are 30 configuration requests per minute per source IP, 10 token requests per minute per source IP and client, 60 authenticated A2A requests per minute per client, and 600 pre-authentication A2A requests per minute per network source. A limited response returns `429 Too Many Requests` and `Retry-After: 60`. Limits reset when Idra restarts.
 
