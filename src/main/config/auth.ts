@@ -1,4 +1,4 @@
-import type { onRequestHookHandler } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { RequestLimiter } from '../oauth/limit';
 import { csrfToken } from './session';
 import { equalText } from './equal';
@@ -11,6 +11,7 @@ export function createConfigurationAuthentication(
 	publicUrl: string,
 	limiter: RequestLimiter
 ): onRequestHookHandler {
+
 	return async (request, reply): Promise<unknown> => {
 		reply.header('cache-control', 'no-store');
 		if (!limiter.consume(`config:${request.ip}`, 30, 60_000)) {
