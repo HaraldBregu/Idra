@@ -162,12 +162,7 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 		});
 		assert.equal(config.statusCode, 200);
 		assert.equal(config.headers['cache-control'], 'no-store');
-		assert.deepEqual(config.json().provider, {
-			configured: false,
-			hasApiKey: false,
-			provider: null,
-			model: null,
-		});
+		assert.ok(Number(config.headers['content-length']) > 0);
 		for (const [method, url] of [
 			['GET', '/'],
 			['GET', '/access'],

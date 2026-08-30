@@ -135,9 +135,10 @@ test('the official A2A REST client discovers Idra and streams continuous context
 				resource: `${baseUrl}/a2a`,
 			}),
 		});
-		assert.equal(tokenResponse.status, 200);
+		const tokenBody = await tokenResponse.text();
+		assert.equal(tokenResponse.status, 200, tokenBody);
 		assert.equal(tokenResponse.headers.get('cache-control'), 'no-store');
-		const token = (await tokenResponse.json()) as {
+		const token = JSON.parse(tokenBody) as {
 			access_token: string;
 			expires_in: number;
 			scope: string;
