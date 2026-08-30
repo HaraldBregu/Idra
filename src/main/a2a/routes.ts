@@ -15,6 +15,7 @@ import type { OAuthIssuer } from '../oauth/issuer';
 import { RequestIdentity } from '../oauth/identity';
 import { RequestLimiter } from '../oauth/limit';
 import { createOAuthAuthentication } from '../oauth/auth';
+import { createTokenRouter } from '../oauth/token';
 
 export async function registerA2aRoutes(
 	server: FastifyInstance,
@@ -47,6 +48,7 @@ export async function registerA2aRoutes(
 	const router = Router();
 	const identity = new RequestIdentity();
 	const limiter = new RequestLimiter();
+	if (issuer) router.use(createTokenRouter(issuer, limiter));
 	router.use(
 		issuer
 			? createOAuthAuthentication(issuer, identity, limiter)
