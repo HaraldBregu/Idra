@@ -2,7 +2,7 @@
 
 # Idra
 
-Idra is a self-hosted AI agent exposed only through the [A2A 1.0 protocol](https://a2a-protocol.org/v1.0.0/specification/). The server has no browser console, legacy messaging endpoint, or remote configuration API. A2A clients can discover it, send or stream messages, continue contexts, inspect tasks, and cancel active work.
+Idra is a self-hosted AI agent exposed only through the [A2A 1.0 protocol](https://a2a-protocol.org/v1.0.0/specification/) and an administrator-only `/config` REST API. It has no browser console or alternate messaging endpoint. Calling agents authenticate with OAuth 2.0 client credentials and asymmetric `private_key_jwt` assertions, then use short-lived, audience- and scope-restricted access tokens.
 
 ## Deploy with Docker Compose
 
@@ -14,21 +14,25 @@ You need Docker with Docker Compose, an API key for Anthropic, OpenAI, or DeepSe
 git clone https://github.com/HaraldBregu/idra.git
 cd idra
 cp .env.example .env
-openssl rand -hex 32
 chmod 600 .env
 ```
 
-Put the generated token and provider settings in `.env`:
+Generate independent administrator and encryption secrets:
+
+```bash
+openssl rand -hex 32
+openssl rand -hex 32
+```
+
+Put them in `.env`. Provider settings are optional because they can be written later through `/config`:
 
 ```dotenv
 IDRA_PUBLIC_URL=https://agent.example.com
-IDRA_AGENT_TOKEN=<generated-token>
-IDRA_PROVIDER_ID=openai
-IDRA_MODEL_ID=<current-model-id>
-IDRA_API_KEY=<provider-api-key>
+IDRA_ADMIN_TOKEN=<first-generated-value>
+IDRA_CONFIG_KEY=<second-generated-value>
 ```
 
-`IDRA_PUBLIC_URL` is the public origin, without `/a2a` or a trailing path. It must use HTTPS except for loopback development. `IDRA_AGENT_TOKEN` must contain at least 32 UTF-8 bytes. `IDRA_BASE_URL` and JSON-object `IDRA_MODEL_OPTIONS` are optional.
+`IDRA_PUBLIC_URL` is the public origin, without `/a2a` or a trailing path. It must use HTTPS except for loopback development. `IDRA_ADMIN_TOKEN` must contain at least 32 UTF-8 bytes. `IDRA_CONFIG_KEY` must encode exactly 32 random bytes and is used to encrypt provider and signing secrets at rest. Losing or changing it makes the encrypted configuration unreadable.
 
 Validate and start the service:
 
@@ -49,35 +53,39 @@ agent.example.com {
 
 Keep SSE buffering disabled and choose a proxy idle timeout long enough for agent runs.
 
+Configure a provider after the HTTPS proxy is active:
+
+```bash
+curl --fail-with-body -X PUT https://agent.example.com/config/provider \
+  -H 'Authorization: Bearer <IDRA_ADMIN_TOKEN>' \
+  -H 'Content-Type: application/json' \
+  --data '{"provider":"openai","model":"<current-model-id>","apiKey":"<provider-api-key>"}'
+```
+
+The API never returns the API key. It persists encrypted inside the data volume.
+
 ## Use the A2A interface
 
-Discovery is public at:
+Agent Card and OAuth discovery are public at:
 
 ```text
 GET /.well-known/agent-card.json
+GET /.well-known/oauth-authorization-server
+GET /.well-known/oauth-protected-resource/a2a
 ```
 
-All operations under `/a2a` require both headers:
+An administrator registers each calling agent's Ed25519 public JWK through `POST /config/clients`. The calling agent keeps its private key, authenticates at `/a2a/oauth/token` with `private_key_jwt`, and receives a five-minute token for audience `https://agent.example.com/a2a` and scope `a2a.invoke`.
+
+Every A2A operation then requires:
 
 ```http
 A2A-Version: 1.0
-Authorization: Bearer <IDRA_AGENT_TOKEN>
+Authorization: Bearer <short-lived-access-token>
 ```
 
-For example, stream a prompt with an A2A HTTP+JSON request:
+Follow [Using Idra over A2A](USAGE.md) for key generation, client registration, token acquisition, prompts, task operations, and an official JavaScript SDK example.
 
-```bash
-curl -N https://agent.example.com/a2a/message:stream \
-  -H 'A2A-Version: 1.0' \
-  -H 'Authorization: Bearer <IDRA_AGENT_TOKEN>' \
-  -H 'Content-Type: application/a2a+json' \
-  -H 'Accept: text/event-stream' \
-  --data '{"message":{"messageId":"request-1","role":"ROLE_USER","parts":[{"text":"Summarize the workspace.","mediaType":"text/plain"}]}}'
-```
-
-Use the returned `contextId` in a later message to continue the same conversation. The official JavaScript SDK can discover Idra with `ClientFactory` and `RestTransportFactory` from `@a2a-js/sdk`.
-
-Only the Agent Card and A2A routes are registered. `/`, `/access`, `/ui`, `/agents/messages`, `/provider`, `/storage`, `/mcp`, and `/health` are not available. The container health check uses the Agent Card endpoint.
+Only public discovery, `/a2a`, and administrator-authenticated `/config` routes are registered. `/`, `/access`, `/ui`, `/agents/messages`, `/provider`, `/storage`, `/mcp`, and `/health` are unavailable. The container health check uses the Agent Card endpoint.
 
 ## Data and capabilities
 
@@ -85,14 +93,16 @@ Idra stores its working data in the `idra-data` Docker volume. Recreating the co
 
 The workspace is `/data/workspace`. Its `AGENTS.md` file contains durable guidance for the agent. A2A requests can use only the workspace-bound `read`, `write`, and `edit` tools. Shell commands, MCP servers, subagents, and administrative operations are unavailable through the server channel.
 
-Task records and conversations persist under `/data`, and terminal A2A tasks are retained for 30 days. Provider requests still send relevant prompt content to the configured model provider.
+Task records and conversations persist under `/data`, are scoped to the authenticated client, and terminal A2A tasks are retained for 30 days. Provider requests still send relevant prompt content to the configured model provider.
 
 ## Security
 
 - Keep `.env` mode `0600` and never commit it.
-- Use a dedicated, randomly generated A2A token and rotate it if exposed.
+- Keep the administrator token and configuration encryption key separate and offline from calling agents.
+- Register one Ed25519 public key per calling agent; Idra never stores client private keys.
+- Delete a client through `/config/clients/:clientId` to revoke all of its access tokens immediately.
 - Keep port 3000 on loopback and expose it only through an HTTPS reverse proxy.
-- Anyone holding the single A2A token is the same trusted principal and can access every stored task and context.
+- Access tokens expire after five minutes and cannot authorize `/config`.
 - Back up and protect the Docker volume; it contains workspace and conversation data.
 - Review your model provider's data-handling policy.
 
