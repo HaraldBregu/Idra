@@ -1,5 +1,5 @@
-import net from 'node:net';
 import path from 'node:path';
+import { resolvePublicUrl } from './public_url';
 
 export interface A2aConfig {
 	token: string;
@@ -28,34 +28,10 @@ export function resolveA2aConfig(input: A2aConfigInput): A2aConfig | undefined {
 		throw new Error('IDRA_AGENT_TOKEN must contain at least 32 UTF-8 bytes.');
 	}
 
-	let url: URL;
-	try {
-		url = new URL(publicUrl.trim());
-	} catch {
-		throw new Error('IDRA_PUBLIC_URL must be a valid URL origin.');
-	}
-	if (
-		url.username ||
-		url.password ||
-		url.pathname !== '/' ||
-		url.search ||
-		url.hash ||
-		(url.protocol !== 'https:' && !(url.protocol === 'http:' && isLoopback(url.hostname)))
-	) {
-		throw new Error(
-			'IDRA_PUBLIC_URL must be an HTTPS origin without credentials, path, query, or fragment; HTTP is allowed only for loopback development.'
-		);
-	}
-
 	return {
 		token,
-		publicUrl: url.origin,
+		publicUrl: resolvePublicUrl(publicUrl),
 		tasksDirectory: path.join(path.resolve(input.dataDirectory), 'a2a', 'tasks'),
 		workspaceDirectory: path.join(path.resolve(input.dataDirectory), 'workspace'),
 	};
-}
-
-function isLoopback(hostname: string): boolean {
-	if (hostname === 'localhost' || hostname === '[::1]' || hostname === '::1') return true;
-	return net.isIP(hostname) === 4 && hostname.startsWith('127.');
 }
