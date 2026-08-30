@@ -5,13 +5,17 @@ import { equalText } from './equal';
 import { configurationPrincipal } from './principal';
 import type { ConfigurationStore } from './store';
 
+type ConfigurationAuthentication = (
+	request: FastifyRequest,
+	reply: FastifyReply
+) => Promise<unknown>;
+
 export function createConfigurationAuthentication(
 	store: ConfigurationStore,
 	adminToken: string,
 	publicUrl: string,
 	limiter: RequestLimiter
-): onRequestHookHandler {
-
+): ConfigurationAuthentication {
 	return async (request, reply): Promise<unknown> => {
 		reply.header('cache-control', 'no-store');
 		if (!limiter.consume(`config:${request.ip}`, 30, 60_000)) {
