@@ -39,7 +39,9 @@ IDRA_ADMIN_TOKEN=<first-generated-value>
 IDRA_CONFIG_KEY=<second-generated-value>
 ```
 
-`IDRA_PUBLIC_URL` is the public origin only. Do not add `/a2a` to it. Production URLs must use HTTPS; local development may use `http://127.0.0.1:3000`. Keep both generated values out of calling-agent environments.
+`IDRA_PUBLIC_URL` is the public origin only. Do not add `/a2a` to it. Production URLs must use HTTPS. Loopback HTTP such as `http://127.0.0.1:3000` is for isolated testing only; never send real administrator credentials, client assertions, or access tokens over HTTP. Keep both generated values out of calling-agent environments.
+
+Back up the exact `IDRA_CONFIG_KEY` in a protected secret manager before starting Idra. It encrypts the persisted provider and token-signing secrets. Losing or replacing it makes the existing secure configuration unreadable and prevents startup. Online rotation of this key is not currently supported.
 
 Validate and start the container:
 
@@ -49,7 +51,20 @@ docker compose up --build --wait -d
 docker compose ps
 ```
 
-The service is ready when Compose reports it as healthy. The health check reads the standard Agent Card rather than a separate health API.
+The HTTP endpoint is ready when Compose reports it as healthy. The health check reads the standard Agent Card rather than a separate health API. Agent runs are ready only after a model provider is configured.
+
+## Understand the API boundaries
+
+Idra exposes four distinct REST surfaces:
+
+| Surface | Authentication | Purpose |
+| --- | --- | --- |
+| `/.well-known/*` | Public | Agent Card, OAuth metadata, protected-resource metadata, and signing-key discovery |
+| `/a2a/oauth/token` | Registered Ed25519 `private_key_jwt` | Issue a short-lived A2A access token |
+| `/a2a` and `/a2a/*` | A2A bearer token with `a2a.invoke` | Send messages and manage caller-owned tasks |
+| `/config` and `/config/*` | Administrator bearer token | Configure the provider and calling-agent public keys |
+
+The administrator token cannot invoke A2A, and an A2A token cannot access `/config`. `IDRA_ADMIN_TOKEN` and `IDRA_CONFIG_KEY` are bootstrap secrets managed through the deployment environment, not through `/config`. The configuration API is not a general-purpose secret vault: it stores the supported model-provider credential and registered client public keys.
 
 ## Configure the model provider
 
@@ -71,6 +86,59 @@ curl --fail-with-body -X PUT "$IDRA_URL/config/provider" \
 
 The response contains only provider metadata and `hasApiKey`; it never returns the key. Idra encrypts the provider configuration with `IDRA_CONFIG_KEY` before writing it to the data volume.
 
+Inspect the current provider state, registered clients, and OAuth coordinates from the trusted operator shell:
+
+```bash
+curl --fail-with-body "$IDRA_URL/config" \
+  -H "Authorization: Bearer $IDRA_ADMIN_TOKEN"
+```
+
+To change only the model for the currently configured provider, omit `apiKey`; Idra keeps the encrypted key already stored for that provider:
+
+```bash
+curl --fail-with-body -X PUT "$IDRA_URL/config/provider" \
+  -H "Authorization: Bearer $IDRA_ADMIN_TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data '{"provider":"openai","model":"<new-model-id>"}'
+```
+
+Changing to a different provider requires that provider's API key. To remove the provider configuration:
+
+```bash
+curl --fail-with-body -X DELETE "$IDRA_URL/config/provider" \
+  -H "Authorization: Bearer $IDRA_ADMIN_TOKEN"
+```
+
+Removing the provider prevents new agent runs until another provider is configured.
+
+## Verify discovery
+
+Fetch the public Agent Card and OAuth documents before registering or requesting a token:
+
+```bash
+curl --fail-with-body "$IDRA_URL/.well-known/agent-card.json"
+curl --fail-with-body "$IDRA_URL/.well-known/oauth-authorization-server"
+curl --fail-with-body "$IDRA_URL/.well-known/oauth-protected-resource/a2a"
+curl --fail-with-body "$IDRA_URL/.well-known/jwks.json"
+```
+
+Verify that the documents advertise:
+
+- `HTTP+JSON` protocol binding and protocol version `1.0`;
+- the exact interface URL `$IDRA_URL/a2a`;
+- the exact OAuth issuer `$IDRA_URL` and the metadata-provided token endpoint;
+- `private_key_jwt` client authentication with EdDSA;
+- the exact protected resource `$IDRA_URL/a2a` and scope `a2a.invoke`; and
+- streaming support.
+
+An unauthenticated request to the exact A2A resource returns the protected-resource discovery challenge. The `401 Unauthorized` response is expected:
+
+```bash
+curl -i "$IDRA_URL/a2a"
+```
+
+Calling agents should follow the Agent Card's `oauth2MetadataUrl` and use the returned `token_endpoint` instead of assuming Idra's endpoint path.
+
 ## Register a calling agent
 
 Generate an Ed25519 key pair in a trusted client environment. The private JWK remains on that client; only the public JWK is registered with Idra:
@@ -82,10 +150,15 @@ import { writeFileSync } from 'node:fs';
 
 const { privateKey, publicKey } = generateKeyPairSync('ed25519');
 writeFileSync('client-private.jwk', JSON.stringify(privateKey.export({ format: 'jwk' })), {
+	flag: 'wx',
 	mode: 0o600,
 });
-writeFileSync('client-public.jwk', JSON.stringify(publicKey.export({ format: 'jwk' })));
+writeFileSync('client-public.jwk', JSON.stringify(publicKey.export({ format: 'jwk' })), {
+	flag: 'wx',
+});
 ```
+
+Transfer only `client-public.jwk` to the trusted operator environment. `client-private.jwk` must remain on the calling-agent host and should be stored in a platform keystore or secret manager when available. The script refuses to overwrite an existing key file.
 
 Create `register-client.mjs` in the trusted operator environment:
 
@@ -107,12 +180,20 @@ if (!response.ok) throw new Error(await response.text());
 console.log(await response.text());
 ```
 
-Run it and give the returned `clientId` to the calling agent. The response contains a public-key thumbprint but no private material:
+Run the registration from the operator environment. The response contains the new `clientId`, creation time, name, and public-key thumbprint, but no key material:
 
 ```bash
 node register-client.mjs
+```
+
+Return the `clientId` and public Idra URL to the calling-agent environment through a trusted channel:
+
+```bash
+export IDRA_URL='https://agent.example.com'
 export IDRA_CLIENT_ID='<returned-clientId>'
 ```
+
+The administrator can confirm the registration with authenticated `GET /config`. Registering the same public key again creates a new client identity; it does not restore access to tasks owned by a deleted identity.
 
 ## Obtain an A2A access token
 
@@ -127,11 +208,35 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { importJWK, SignJWT } from 'jose';
 
-const baseUrl = process.env.IDRA_URL;
+const configuredUrl = process.env.IDRA_URL;
 const clientId = process.env.IDRA_CLIENT_ID;
-if (!baseUrl || !clientId) throw new Error('IDRA_URL and IDRA_CLIENT_ID are required.');
+if (!configuredUrl || !clientId) throw new Error('IDRA_URL and IDRA_CLIENT_ID are required.');
 
-const tokenEndpoint = `${baseUrl}/a2a/oauth/token`;
+const baseUrl = new URL(configuredUrl).origin;
+const cardResponse = await fetch(`${baseUrl}/.well-known/agent-card.json`);
+if (!cardResponse.ok) throw new Error(await cardResponse.text());
+const card = await cardResponse.json();
+const metadataUrl = card.securitySchemes?.oauth2?.oauth2SecurityScheme?.oauth2MetadataUrl;
+if (typeof metadataUrl !== 'string') throw new Error('Agent Card has no OAuth metadata URL.');
+
+const metadataResponse = await fetch(metadataUrl);
+if (!metadataResponse.ok) throw new Error(await metadataResponse.text());
+const metadata = await metadataResponse.json();
+if (metadata.issuer !== baseUrl || typeof metadata.token_endpoint !== 'string') {
+	throw new Error('OAuth metadata does not match IDRA_URL.');
+}
+if (!metadata.token_endpoint_auth_methods_supported?.includes('private_key_jwt')) {
+	throw new Error('Idra does not advertise private_key_jwt.');
+}
+
+const resourceResponse = await fetch(`${baseUrl}/.well-known/oauth-protected-resource/a2a`);
+if (!resourceResponse.ok) throw new Error(await resourceResponse.text());
+const resourceMetadata = await resourceResponse.json();
+if (resourceMetadata.resource !== `${baseUrl}/a2a`) {
+	throw new Error('Protected-resource metadata does not match IDRA_URL.');
+}
+
+const tokenEndpoint = metadata.token_endpoint;
 const now = Math.floor(Date.now() / 1000);
 const privateJwk = JSON.parse(readFileSync('client-private.jwk', 'utf8'));
 const assertion = await new SignJWT()
@@ -157,7 +262,18 @@ const response = await fetch(tokenEndpoint, {
 	}),
 });
 if (!response.ok) throw new Error(await response.text());
-console.log((await response.json()).access_token);
+const token = await response.json();
+if (
+	typeof token.access_token !== 'string' ||
+	token.access_token.length === 0 ||
+	token.token_type?.toLowerCase() !== 'bearer' ||
+	token.scope !== 'a2a.invoke' ||
+	!Number.isInteger(token.expires_in) ||
+	token.expires_in <= 0
+) {
+	throw new Error('Token response is invalid.');
+}
+process.stdout.write(token.access_token);
 ```
 
 Acquire a token immediately before calling A2A:
@@ -166,23 +282,9 @@ Acquire a token immediately before calling A2A:
 export IDRA_TOKEN="$(node get-token.mjs)"
 ```
 
-The token expires after five minutes. Generate a new assertion with a unique `jti` for every token request. Idra records used assertion identifiers in its secure configuration and rejects reuse across normal restarts. Run one Idra replica per data volume unless replay state is moved to shared transactional storage. Deleting the client through `DELETE /config/clients/<clientId>` revokes its current tokens immediately.
+The token expires after five minutes and there is no refresh token. Generate a fresh assertion with a unique `jti` for every token request. Idra persists a SHA-256 digest of the client ID and assertion `jti`, then rejects reuse across normal restarts.
 
-## Verify discovery
-
-The Agent Card is public because A2A clients use it to discover the protocol endpoint, version, authentication scheme, and capabilities:
-
-```bash
-curl --fail-with-body "$IDRA_URL/.well-known/agent-card.json"
-```
-
-The response should advertise:
-
-- `HTTP+JSON` protocol binding;
-- protocol version `1.0`;
-- an interface URL ending in `/a2a`;
-- OAuth 2.0 client credentials with scope `a2a.invoke`; and
-- streaming support.
+`private_key_jwt` protects token acquisition, but the resulting access token is an ordinary bearer credential. Keep it in memory, never log or persist it, discard it at expiry, and send it only over HTTPS. Run a single Idra replica. Multi-replica operation requires coordinated signing keys and shared transactional client, assertion-replay, task, and conversation state.
 
 ## Send your first prompt
 
@@ -211,9 +313,9 @@ curl -N "$IDRA_URL/a2a/message:stream" \
 Use a unique `messageId` for every message. A streamed run normally produces events in this order:
 
 1. `task` — contains the new task `id` and conversation `contextId`;
-2. `statusUpdate` — reports that the task is working;
+2. `statusUpdate` — reports `TASK_STATE_WORKING`;
 3. one or more `artifactUpdate` events — contain Idra's text response; and
-4. a terminal `statusUpdate` — reports `COMPLETED`, `FAILED`, or `CANCELED`.
+4. a terminal `statusUpdate` — reports `TASK_STATE_COMPLETED`, `TASK_STATE_FAILED`, or `TASK_STATE_CANCELED`.
 
 Internal reasoning and tool details are not returned through A2A.
 
@@ -242,7 +344,7 @@ curl -N "$IDRA_URL/a2a/message:stream" \
   }'
 ```
 
-Idra creates a new task for each message but reuses the conversation associated with the supplied `contextId`. Omit `contextId` to start a new conversation.
+Idra creates a new task for each message but reuses the conversation associated with the supplied `contextId`. Omit `contextId` to start a new conversation. Conversations are scoped to the authenticated client; learning another client's `contextId` does not grant access to it.
 
 ## Send without streaming
 
@@ -274,7 +376,7 @@ With `returnImmediately: false`, the request waits for the task to reach a termi
 
 ## Manage tasks
 
-All commands in this section require the A2A version and bearer token headers.
+All commands in this section require the A2A version and bearer token headers. Tasks are scoped to the authenticated client; a task ID is not an authorization credential.
 
 ### List tasks
 
@@ -312,6 +414,19 @@ curl --fail-with-body -X POST "$IDRA_URL/a2a/tasks/$TASK_ID:cancel" \
 ```
 
 Cancellation can fail if the task is already terminal or is no longer active.
+
+## Revoke a calling agent
+
+Delete the client registration from the trusted operator environment:
+
+```bash
+export REVOKED_CLIENT_ID='<client-id>'
+
+curl --fail-with-body -X DELETE "$IDRA_URL/config/clients/$REVOKED_CLIENT_ID" \
+  -H "Authorization: Bearer $IDRA_ADMIN_TOKEN"
+```
+
+Subsequent requests using that client's access tokens are rejected immediately. Revocation does not terminate an already admitted HTTP request, active stream, or running task. Deleting a client also makes its existing tasks and conversations inaccessible through the API; the stored records remain until their normal retention cleanup, and registering a new client does not inherit them.
 
 ## Use the official JavaScript client
 
@@ -385,7 +500,9 @@ Idra's persistent workspace is `/data/workspace` inside the container. The A2A a
 
 Shell commands, MCP servers, subagents, administrative APIs, and configuration changes are unavailable through A2A. Put durable behavioral instructions in the workspace's `AGENTS.md` file by asking Idra to create or update it.
 
-Message text is limited to 32 KiB. Only `text/plain` message parts are accepted. Terminal task records are retained for 30 days, and task/conversation data persists in the `idra-data` Docker volume.
+Message text is limited to 32 KiB, the complete HTTP request body is limited to 100 KiB, and only `text/plain` message parts are accepted. Task-list `pageSize` and `historyLength` cannot exceed 100. Terminal task records are retained for 30 days, and task/conversation data persists in the `idra-data` Docker volume.
+
+The in-memory rate limits are 30 configuration requests per minute per source IP, 10 token requests per minute per source IP and client, 60 authenticated A2A requests per minute per client, and 600 pre-authentication A2A requests per minute per network source. A limited response returns `429 Too Many Requests` and `Retry-After: 60`. Limits reset when Idra restarts.
 
 ## Stop, restart, or update Idra
 
@@ -414,7 +531,7 @@ Do not use `docker compose down --volumes` unless you intend to delete the works
 
 ### Compose reports a missing variable
 
-`IDRA_PUBLIC_URL`, `IDRA_ADMIN_TOKEN`, and `IDRA_CONFIG_KEY` must have non-empty values. Provider variables are optional when `/config/provider` is used. Check the file, then run:
+`IDRA_PUBLIC_URL`, `IDRA_ADMIN_TOKEN`, and `IDRA_CONFIG_KEY` must have non-empty values. The secure production workflow configures the provider through `PUT /config/provider`; `IDRA_PROVIDER_ID`, `IDRA_MODEL_ID`, and `IDRA_API_KEY` are legacy fallbacks only when secure configuration is inactive. Check the file, then run:
 
 ```bash
 docker compose config --quiet
@@ -428,11 +545,22 @@ Inspect the container log:
 docker compose logs app
 ```
 
-Common causes are an administrator token shorter than 32 bytes, a configuration key that does not encode exactly 32 bytes, or an invalid `IDRA_PUBLIC_URL`. Production public URLs must use HTTPS and must not contain a path, query, credentials, or fragment.
+Common causes are an administrator token shorter than 32 bytes, a configuration key that does not encode exactly 32 bytes, replacing the key that encrypted the existing `secure-config.json`, or an invalid `IDRA_PUBLIC_URL`. Restore the exact backed-up configuration key when persisted data already exists. Production public URLs must use HTTPS and must not contain a path, query, credentials, or fragment.
 
 ### An A2A request returns `401 Unauthorized`
 
-Acquire a fresh token with `get-token.mjs`. Confirm that the client is still listed by `GET /config`, that its assertion uses the exact token-endpoint audience, and that the request uses `Authorization: Bearer <token>`.
+Acquire a fresh token with `get-token.mjs` and confirm that the request uses `Authorization: Bearer <token>`. From the trusted operator shell, check that the client still exists with:
+
+```bash
+curl --fail-with-body "$IDRA_URL/config" \
+  -H "Authorization: Bearer $IDRA_ADMIN_TOKEN"
+```
+
+An A2A access token cannot perform this configuration check.
+
+### The token endpoint returns `invalid_client`
+
+Confirm that the request uses the registered private key and `clientId`; `iss` and `sub` both equal that `clientId`; `aud` exactly equals the discovered token endpoint; the assertion is currently valid; its `jti` has not been used; and the client clock is synchronized. Create a new assertion rather than retrying the same one.
 
 ### An A2A request returns a version error
 
@@ -446,6 +574,10 @@ This is expected. Idra intentionally has no page at `/`. Use `/.well-known/agent
 
 Disable response buffering in the HTTPS reverse proxy and increase its idle timeout. A2A streaming uses `text/event-stream`.
 
+### A request returns `429 Too Many Requests`
+
+Wait for the number of seconds in `Retry-After` before retrying. Repeated immediate retries extend load without bypassing the limit.
+
 ### The task fails after reaching `WORKING`
 
-Check `docker compose logs app`, then verify the provider API key, provider ID, model ID, model availability, and provider account limits.
+The A2A response intentionally hides internal provider errors. Use authenticated `GET /config` to verify the configured provider and model, then check the provider API key, model availability, account limits, and provider status. `docker compose logs app` is useful for server lifecycle failures but may not contain the underlying model-run error.
