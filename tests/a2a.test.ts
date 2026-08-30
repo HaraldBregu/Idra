@@ -164,6 +164,38 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 			).headers['www-authenticate'] ?? '',
 			/resource_metadata=/
 		);
+		const authorizationMetadata = (
+			await server.inject({ method: 'GET', url: '/.well-known/oauth-authorization-server' })
+		).json<Record<string, unknown>>();
+		assert.equal('response_types_supported' in authorizationMetadata, false);
+		assert.deepEqual(
+			(
+				await server.inject({
+					method: 'POST',
+					url: '/a2a/oauth/token',
+					headers: { 'content-type': 'application/x-www-form-urlencoded' },
+					payload: 'grant_type=authorization_code',
+				})
+			).json(),
+			{
+				error: 'unsupported_grant_type',
+				error_description: 'The grant type is not supported.',
+			}
+		);
+		assert.deepEqual(
+			(
+				await server.inject({
+					method: 'POST',
+					url: '/a2a/oauth/token',
+					headers: { 'content-type': 'application/x-www-form-urlencoded' },
+					payload: `grant_type=client_credentials&resource=${encodeURIComponent('https://other.example/a2a')}`,
+				})
+			).json(),
+			{
+				error: 'invalid_target',
+				error_description: 'The requested resource is not supported.',
+			}
+		);
 		assert.equal((await server.inject({ method: 'GET', url: '/config' })).statusCode, 401);
 		const config = await server.inject({
 			method: 'GET',
