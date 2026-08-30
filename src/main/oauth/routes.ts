@@ -1,12 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { OAuthIssuer } from './issuer';
-import type { RequestLimiter } from './limit';
 
-export function registerOAuthRoutes(
-	server: FastifyInstance,
-	issuer: OAuthIssuer,
-	limiter: RequestLimiter
-): void {
+export function registerOAuthRoutes(server: FastifyInstance, issuer: OAuthIssuer): void {
 	server.get('/.well-known/oauth-authorization-server', async (_request, reply) =>
 		reply.header('cache-control', 'public, max-age=300').send({
 			issuer: issuer.issuer,

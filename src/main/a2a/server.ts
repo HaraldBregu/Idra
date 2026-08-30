@@ -33,7 +33,7 @@ export async function createA2aServer(
 	const store = new ConfigurationStore(config.dataDirectory, config.encryptionKey);
 	const issuer = new OAuthIssuer(store, config.publicUrl);
 	const limiter = new RequestLimiter();
-	registerOAuthRoutes(server, issuer, limiter);
+	registerOAuthRoutes(server, issuer);
 	registerConfigurationRoutes(server, store, config.adminToken, issuer, limiter);
 	await registerA2aRoutes(
 		server,
