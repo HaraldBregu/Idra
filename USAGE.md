@@ -412,7 +412,7 @@ Do not use `docker compose down --volumes` unless you intend to delete the works
 
 ### Compose reports a missing variable
 
-Every A2A and provider variable in `.env` must have a non-empty value. Check the file, then run:
+`IDRA_PUBLIC_URL`, `IDRA_ADMIN_TOKEN`, and `IDRA_CONFIG_KEY` must have non-empty values. Provider variables are optional when `/config/provider` is used. Check the file, then run:
 
 ```bash
 docker compose config --quiet
@@ -426,7 +426,7 @@ Inspect the container log:
 docker compose logs app
 ```
 
-Common causes are a missing provider setting, an A2A token shorter than 32 bytes, or an invalid `IDRA_PUBLIC_URL`. Production public URLs must use HTTPS and must not contain a path, query, credentials, or fragment.
+Common causes are an administrator token shorter than 32 bytes, a configuration key that does not encode exactly 32 bytes, or an invalid `IDRA_PUBLIC_URL`. Production public URLs must use HTTPS and must not contain a path, query, credentials, or fragment.
 
 ### An A2A request returns `401 Unauthorized`
 
