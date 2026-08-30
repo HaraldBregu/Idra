@@ -8,8 +8,9 @@ export function atomicWriteFile(filePath: string, content: string): void {
 		`.${path.basename(filePath)}.${randomUUID()}.tmp`
 	);
 	try {
-		fs.writeFileSync(temporaryPath, content, 'utf8');
+		fs.writeFileSync(temporaryPath, content, { encoding: 'utf8', mode: 0o600 });
 		fs.renameSync(temporaryPath, filePath);
+		fs.chmodSync(filePath, 0o600);
 	} finally {
 		if (fs.existsSync(temporaryPath)) fs.rmSync(temporaryPath, { force: true });
 	}

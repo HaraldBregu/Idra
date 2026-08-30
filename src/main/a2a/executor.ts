@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import {
 	AgentEvent,
 	type AgentExecutor,
@@ -48,6 +48,10 @@ export class IdraExecutor implements AgentExecutor {
 		if (!isUuid(requestContext.contextId)) {
 			throw new RequestMalformedError('message.contextId must be a UUID when provided.');
 		}
+		const userName = requestContext.context.user?.userName ?? '';
+		if (!requestContext.context.user?.isAuthenticated || !userName) {
+			throw new RequestMalformedError('An authenticated A2A client is required.');
+		}
 		const state: ActiveRun = {
 			contextId: requestContext.contextId,
 			eventBus,
@@ -78,7 +82,7 @@ export class IdraExecutor implements AgentExecutor {
 			const response = await this.agent.send(message, 'main', {
 				type: 'default',
 				runId: requestContext.taskId,
-				sessionId: requestContext.contextId,
+				sessionId: scopedSessionId(userName, requestContext.contextId),
 				streaming: true,
 				contextMode: 'workspace',
 				interactionMode: 'default',
@@ -215,4 +219,9 @@ function agentMessage(taskId: string, contextId: string, text: string): Message 
 
 function isUuid(value: string): boolean {
 	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function scopedSessionId(userName: string, contextId: string): string {
+	const digest = createHash('sha256').update(userName).update('\0').update(contextId).digest('hex');
+	return `${digest.slice(0, 8)}-${digest.slice(8, 12)}-5${digest.slice(13, 16)}-a${digest.slice(17, 20)}-${digest.slice(20, 32)}`;
 }

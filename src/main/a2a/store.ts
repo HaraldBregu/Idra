@@ -26,27 +26,47 @@ interface PageCursor {
 	id: string;
 }
 
+interface StoredTaskRecord {
+	owner: string;
+	task: Task;
+}
+
 export class PersistentTaskStore implements TaskStore {
 	constructor(private readonly directory: string) {
 		this.secureDirectory();
 		this.maintain(true);
 	}
 
-	async save(task: Task, _context: ServerCallContext): Promise<void> {
+	async save(task: Task, context: ServerCallContext): Promise<void> {
 		if (!task.id) throw new RequestMalformedError('Task ID must not be empty.');
 		this.maintain(false);
-		this.write(task);
+		const owner = this.owner(context);
+		const existing = this.read(this.filePath(task.id));
+		if (existing && existing.owner !== owner) {
+			throw new RequestMalformedError('Task ID is already owned by another client.');
+		}
+		this.write({ owner, task });
 	}
 
-	async load(taskId: string, _context: ServerCallContext): Promise<Task | undefined> {
+	async load(taskId: string, context: ServerCallContext): Promise<Task | undefined> {
 		this.maintain(false);
-		const task = this.read(this.filePath(taskId));
-		return task?.id === taskId ? structuredClone(task) : undefined;
+		const record = this.read(this.filePath(taskId));
+		return record?.owner === this.owner(context) && record.task.id === taskId
+			? structuredClone(record.task)
+			: undefined;
 	}
 
-	async list(params: ListTasksRequest, _context: ServerCallContext): Promise<ListTasksResponse> {
+	async list(params: ListTasksRequest, context: ServerCallContext): Promise<ListTasksResponse> {
 		this.maintain(false);
-		let tasks = this.readAll();
+		if ((params.pageSize ?? DEFAULT_PAGE_SIZE) > 100) {
+			throw new RequestMalformedError('pageSize must not exceed 100.');
+		}
+		if ((params.historyLength ?? 0) > 100) {
+			throw new RequestMalformedError('historyLength must not exceed 100.');
+		}
+		let tasks = this.readAll()
+			.filter((record) => record.owner === this.owner(context))
+			.map((record) => record.task);
 
 		if (params.contextId) tasks = tasks.filter((task) => task.contextId === params.contextId);
 		if (params.status !== TaskState.TASK_STATE_UNSPECIFIED) {
@@ -102,30 +122,34 @@ export class PersistentTaskStore implements TaskStore {
 		this.secureDirectory();
 		const cutoff = Date.now() - RETENTION_MS;
 		for (const filePath of this.files()) {
-			const task = this.read(filePath);
-			if (!task) continue;
+			const record = this.read(filePath);
+			if (!record) continue;
+			const { task } = record;
 			if (recover && !TERMINAL_STATES.has(task.status?.state ?? TaskState.TASK_STATE_UNSPECIFIED)) {
 				this.write({
-					...task,
-					status: {
-						state: TaskState.TASK_STATE_FAILED,
-						timestamp: new Date().toISOString(),
-						message: {
-							messageId: randomUUID(),
-							contextId: task.contextId,
-							taskId: task.id,
-							role: Role.ROLE_AGENT,
-							parts: [
-								{
-									content: { $case: 'text', value: 'Task failed because the server restarted.' },
-									metadata: undefined,
-									filename: '',
-									mediaType: 'text/plain',
-								},
-							],
-							metadata: undefined,
-							extensions: [],
-							referenceTaskIds: [],
+					owner: record.owner,
+					task: {
+						...task,
+						status: {
+							state: TaskState.TASK_STATE_FAILED,
+							timestamp: new Date().toISOString(),
+							message: {
+								messageId: randomUUID(),
+								contextId: task.contextId,
+								taskId: task.id,
+								role: Role.ROLE_AGENT,
+								parts: [
+									{
+										content: { $case: 'text', value: 'Task failed because the server restarted.' },
+										metadata: undefined,
+										filename: '',
+										mediaType: 'text/plain',
+									},
+								],
+								metadata: undefined,
+								extensions: [],
+								referenceTaskIds: [],
+							},
 						},
 					},
 				});
@@ -148,34 +172,51 @@ export class PersistentTaskStore implements TaskStore {
 			.map((entry) => path.join(this.directory, entry.name));
 	}
 
-	private readAll(): Task[] {
+	private readAll(): StoredTaskRecord[] {
 		return this.files().flatMap((filePath) => {
 			const task = this.read(filePath);
 			return task ? [task] : [];
 		});
 	}
 
-	private read(filePath: string): Task | undefined {
+	private read(filePath: string): StoredTaskRecord | undefined {
 		try {
-			const parsed = A2aTask.fromJSON(JSON.parse(fs.readFileSync(filePath, 'utf8')));
-			return parsed.id ? parsed : undefined;
+			const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as unknown;
+			if (
+				parsed &&
+				typeof parsed === 'object' &&
+				!Array.isArray(parsed) &&
+				typeof (parsed as Partial<StoredTaskRecord>).owner === 'string' &&
+				(parsed as Partial<StoredTaskRecord>).task
+			) {
+				const task = A2aTask.fromJSON((parsed as Partial<StoredTaskRecord>).task);
+				return task.id
+					? { owner: (parsed as StoredTaskRecord).owner, task }
+					: undefined;
+			}
+			const task = A2aTask.fromJSON(parsed);
+			return task.id ? { owner: 'legacy-shared-token', task } : undefined;
 		} catch {
 			return undefined;
 		}
 	}
 
-	private write(task: Task): void {
-		const filePath = this.filePath(task.id);
+	private write(record: StoredTaskRecord): void {
+		const filePath = this.filePath(record.task.id);
 		const temporaryPath = path.join(
 			this.directory,
 			`.${path.basename(filePath)}.${randomUUID()}.tmp`
 		);
 		try {
-			fs.writeFileSync(temporaryPath, `${JSON.stringify(A2aTask.toJSON(task), null, 2)}\n`, {
+			fs.writeFileSync(
+				temporaryPath,
+				`${JSON.stringify({ owner: record.owner, task: A2aTask.toJSON(record.task) }, null, 2)}\n`,
+				{
 				encoding: 'utf8',
 				flag: 'wx',
 				mode: 0o600,
-			});
+				}
+			);
 			fs.renameSync(temporaryPath, filePath);
 		} finally {
 			fs.rmSync(temporaryPath, { force: true });
@@ -205,6 +246,12 @@ export class PersistentTaskStore implements TaskStore {
 		} catch (error) {
 			throw new RequestMalformedError({ message: 'Invalid page token.', cause: error });
 		}
+	}
+
+	private owner(context: ServerCallContext): string {
+		return context.user?.isAuthenticated && context.user.userName
+			? context.user.userName
+			: 'anonymous';
 	}
 }
 
