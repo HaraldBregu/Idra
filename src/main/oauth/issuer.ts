@@ -77,6 +77,7 @@ export class OAuthIssuer {
 			}
 			const replayKey = `${client.clientId}:${payload.jti}`;
 			const now = Math.floor(Date.now() / 1000);
+			if (payload.iat > now + 5) throw new Error('Assertion issued in the future.');
 			for (const [key, expiry] of this.usedAssertions) {
 				if (expiry < now) this.usedAssertions.delete(key);
 			}

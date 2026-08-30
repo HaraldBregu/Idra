@@ -25,6 +25,7 @@ export class ConfigurationStore {
 				throw new Error('The secure configuration cannot be a symbolic link.');
 			}
 			this.document = this.parse(JSON.parse(fs.readFileSync(this.filePath, 'utf8')));
+			unseal(this.document.signingPrivateKey, this.encryptionKey, 'signing-key');
 			return;
 		}
 
