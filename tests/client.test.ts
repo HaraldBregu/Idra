@@ -75,6 +75,28 @@ test('the official A2A REST client discovers Idra and streams continuous context
 			}
 			throw error;
 		}
+		const providerSecret = 'provider-secret-must-never-be-returned';
+		const configuredProvider = await fetch(`${baseUrl}/config/provider`, {
+			method: 'PUT',
+			headers: {
+				authorization: `Bearer ${adminToken}`,
+				'content-type': 'application/json',
+			},
+			body: JSON.stringify({ provider: 'openai', model: 'test-model', apiKey: providerSecret }),
+		});
+		assert.equal(configuredProvider.status, 200);
+		const providerBody = await configuredProvider.text();
+		assert.doesNotMatch(providerBody, new RegExp(providerSecret));
+		assert.deepEqual(JSON.parse(providerBody), {
+			configured: true,
+			hasApiKey: true,
+			provider: 'openai',
+			model: 'test-model',
+		});
+		assert.doesNotMatch(
+			fs.readFileSync(path.join(directory, 'secure-config.json'), 'utf8'),
+			new RegExp(providerSecret)
+		);
 
 		const cardResponse = await fetch(`${baseUrl}/.well-known/agent-card.json`);
 		assert.equal(cardResponse.status, 200);
@@ -123,17 +145,18 @@ test('the official A2A REST client discovers Idra and streams continuous context
 			.setExpirationTime(now + 120)
 			.setJti(randomUUID())
 			.sign(await importJWK(privateKey, 'EdDSA'));
+		const tokenForm = new URLSearchParams({
+			grant_type: 'client_credentials',
+			client_id: registration.clientId,
+			client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+			client_assertion: assertion,
+			scope: 'a2a.invoke',
+			resource: `${baseUrl}/a2a`,
+		});
 		const tokenResponse = await fetch(`${baseUrl}/a2a/oauth/token`, {
 			method: 'POST',
 			headers: { 'content-type': 'application/x-www-form-urlencoded' },
-			body: new URLSearchParams({
-				grant_type: 'client_credentials',
-				client_id: registration.clientId,
-				client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-				client_assertion: assertion,
-				scope: 'a2a.invoke',
-				resource: `${baseUrl}/a2a`,
-			}),
+			body: tokenForm,
 		});
 		const tokenBody = await tokenResponse.text();
 		assert.equal(tokenResponse.status, 200, tokenBody);
@@ -147,6 +170,24 @@ test('the official A2A REST client discovers Idra and streams continuous context
 		assert.equal(token.token_type, 'Bearer');
 		assert.equal(token.scope, 'a2a.invoke');
 		assert.equal(token.expires_in, 300);
+		const replay = await fetch(`${baseUrl}/a2a/oauth/token`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			body: tokenForm,
+		});
+		assert.equal(replay.status, 400);
+		assert.deepEqual(await replay.json(), {
+			error: 'invalid_grant',
+			error_description: 'The client assertion was already used.',
+		});
+		assert.equal(
+			(
+				await fetch(`${baseUrl}/config`, {
+					headers: { authorization: `Bearer ${token.access_token}` },
+				})
+			).status,
+			401
+		);
 
 		const client = await new ClientFactory({
 			transports: [new RestTransportFactory()],

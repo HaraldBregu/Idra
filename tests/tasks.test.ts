@@ -15,7 +15,14 @@ import { RequestMalformedError } from '@a2a-js/sdk/errors';
 import { ServerCallContext } from '@a2a-js/sdk/server';
 import { PersistentTaskStore, createTaskStore } from '../src/main/a2a/store';
 
-const context = new ServerCallContext({ requestedVersion: '1.0' });
+const context = new ServerCallContext({
+	requestedVersion: '1.0',
+	user: { isAuthenticated: true, userName: 'client-a' },
+});
+const otherContext = new ServerCallContext({
+	requestedVersion: '1.0',
+	user: { isAuthenticated: true, userName: 'client-b' },
+});
 
 test('PersistentTaskStore saves, loads, filters, and paginates secure task files', async () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-a2a-tasks-'));
@@ -52,6 +59,9 @@ test('PersistentTaskStore saves, loads, filters, and paginates secure task files
 		loaded?.artifacts.splice(0);
 		assert.equal((await store.load('task-a', context))?.artifacts.length, 1);
 		assert.equal(await store.load('../outside', context), undefined);
+		assert.equal(await store.load('task-a', otherContext), undefined);
+		assert.deepEqual((await store.list(listRequest(), otherContext)).tasks, []);
+		await assert.rejects(store.save(tasks[0], otherContext), RequestMalformedError);
 
 		const filtered = await store.list(
 			listRequest({
@@ -95,6 +105,14 @@ test('PersistentTaskStore saves, loads, filters, and paginates secure task files
 		assert.equal(secondPage.nextPageToken, '');
 		await assert.rejects(
 			store.list(listRequest({ pageToken: 'not-a-cursor' }), context),
+			RequestMalformedError
+		);
+		await assert.rejects(
+			store.list(listRequest({ pageSize: 101 }), context),
+			RequestMalformedError
+		);
+		await assert.rejects(
+			store.list(listRequest({ historyLength: 101 }), context),
 			RequestMalformedError
 		);
 
@@ -155,9 +173,11 @@ test('PersistentTaskStore prunes expired terminal tasks and fails interrupted ta
 			.find((filePath) => fs.readFileSync(filePath, 'utf8').includes('startup-expired'));
 		assert.ok(startupExpiredFile);
 		const persisted = JSON.parse(fs.readFileSync(startupExpiredFile, 'utf8')) as {
-			status: { timestamp: string };
+			task: { status: { timestamp: string } };
 		};
-		persisted.status.timestamp = new Date(Date.now() - 31 * 24 * 60 * 60 * 1_000).toISOString();
+		persisted.task.status.timestamp = new Date(
+			Date.now() - 31 * 24 * 60 * 60 * 1_000
+		).toISOString();
 		fs.writeFileSync(startupExpiredFile, `${JSON.stringify(persisted)}\n`, { mode: 0o600 });
 
 		const prunedAtStartup = await createTaskStore(directory);
