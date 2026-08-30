@@ -12,7 +12,7 @@ export async function normalizePublicKey(value: unknown): Promise<{
 		candidate.kty !== 'OKP' ||
 		candidate.crv !== 'Ed25519' ||
 		typeof candidate.x !== 'string' ||
-		!^[A-Za-z0-9_-]{43}$/.test(candidate.x) ||
+		!/^[A-Za-z0-9_-]{43}$/.test(candidate.x) ||
 		Buffer.from(candidate.x, 'base64url').length !== 32 ||
 		'd' in candidate ||
 		(candidate.alg !== undefined && candidate.alg !== 'EdDSA') ||
