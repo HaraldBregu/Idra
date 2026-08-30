@@ -83,7 +83,7 @@ A2A-Version: 1.0
 Authorization: Bearer <short-lived-access-token>
 ```
 
-Follow [Using Idra over A2A](USAGE.md) for key generation, client registration, token acquisition, prompts, task operations, and an official JavaScript SDK example.
+Follow [Using Idra over A2A](docs/USAGE.md) for key generation, client registration, token acquisition, prompts, task operations, and an official JavaScript SDK example.
 
 Only public discovery, `/a2a`, and administrator-authenticated `/config` routes are registered. `/`, `/access`, `/ui`, `/agents/messages`, `/provider`, `/storage`, `/mcp`, and `/health` are unavailable. The container health check uses the Agent Card endpoint.
 
@@ -119,6 +119,8 @@ docker compose up --build --wait -d
 
 Idra is available under the [MIT License](LICENSE).
 
-- Follow [Using Idra over A2A](USAGE.md) for prompts, continued conversations, task management, and official SDK examples.
-- Learn how to set up the development environment and submit changes in [CONTRIBUTING.md](CONTRIBUTING.md).
-- Read the supported versions, vulnerability scope, and private reporting process in [SECURITY.md](SECURITY.md).
+- Browse the [documentation index](docs/README.md).
+- Follow [Using Idra over A2A](docs/USAGE.md) for prompts, continued conversations, task management, and official SDK examples.
+- Learn how to set up the development environment and submit changes in [Contributing to Idra](docs/CONTRIBUTING.md).
+- Read the supported versions, vulnerability scope, and private reporting process in the [security policy](docs/SECURITY.md).
+- Review release changes in the [changelog](docs/CHANGELOG.md).

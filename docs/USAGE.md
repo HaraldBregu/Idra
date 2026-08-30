@@ -11,7 +11,7 @@ You need:
 - Node.js to generate and sign the calling agent's Ed25519 key; and
 - an HTTPS hostname and reverse proxy for a production server.
 
-For the complete reverse-proxy and security setup, see the [deployment guide](README.md#deploy-with-docker-compose).
+For the complete reverse-proxy and security setup, see the [deployment guide](../README.md#deploy-with-docker-compose).
 
 ## Configure and start Idra
 

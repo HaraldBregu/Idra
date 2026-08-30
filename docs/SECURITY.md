@@ -50,3 +50,5 @@ Test only against systems and data you own or are explicitly authorized to asses
 Keep the report and supporting details private while the finding is investigated and, when applicable, a fix is prepared. Coordinate the timing and content of any public disclosure with the maintainer. A confirmed issue may be documented in a release note or GitHub security advisory when appropriate.
 
 Idra does not claim certification for regulated or sensitive-data workloads. Data sent to an AI provider or connected MCP service is subject to that service's security and privacy practices.
+
+For deployment and usage guidance, see the [documentation index](README.md).

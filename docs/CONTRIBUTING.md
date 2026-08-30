@@ -49,7 +49,7 @@ do not require live provider credentials.
    npm run format
    ```
 
-Follow the repository conventions in [AGENTS.md](AGENTS.md): prefer simple, direct implementations;
+Follow the repository conventions in [AGENTS.md](../AGENTS.md): prefer simple, direct implementations;
 keep responsibilities in separate modules; use one function per file; and avoid unrelated cleanup,
 speculative abstractions, or unrequested comments. Match the existing TypeScript and UI style in the
 area you change.
