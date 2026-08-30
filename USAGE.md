@@ -57,12 +57,12 @@ The HTTP endpoint is ready when Compose reports it as healthy. The health check 
 
 Idra exposes four distinct REST surfaces:
 
-| Surface | Authentication | Purpose |
-| --- | --- | --- |
-| `/.well-known/*` | Public | Agent Card, OAuth metadata, protected-resource metadata, and signing-key discovery |
-| `/a2a/oauth/token` | Registered Ed25519 `private_key_jwt` | Issue a short-lived A2A access token |
-| `/a2a` and `/a2a/*` | A2A bearer token with `a2a.invoke` | Send messages and manage caller-owned tasks |
-| `/config` and `/config/*` | Administrator bearer token | Configure the provider and calling-agent public keys |
+| Surface                   | Authentication                       | Purpose                                                                            |
+| ------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------- |
+| `/.well-known/*`          | Public                               | Agent Card, OAuth metadata, protected-resource metadata, and signing-key discovery |
+| `/a2a/oauth/token`        | Registered Ed25519 `private_key_jwt` | Issue a short-lived A2A access token                                               |
+| `/a2a` and `/a2a/*`       | A2A bearer token with `a2a.invoke`   | Send messages and manage caller-owned tasks                                        |
+| `/config` and `/config/*` | Administrator bearer token           | Configure the provider and calling-agent public keys                               |
 
 The administrator token cannot invoke A2A, and an A2A token cannot access `/config`. `IDRA_ADMIN_TOKEN` and `IDRA_CONFIG_KEY` are bootstrap secrets managed through the deployment environment, not through `/config`. The configuration API is not a general-purpose secret vault: it stores the supported model-provider credential and registered client public keys.
 
