@@ -1,14 +1,14 @@
 # Using Idra over A2A
 
-This guide shows how to start Idra, send prompts through A2A, continue a conversation, and manage tasks. Idra has no browser interface or alternate agent API: discovery uses the Agent Card, and every agent operation uses A2A 1.0 HTTP+JSON.
+This guide shows how to configure Idra, register a calling agent, obtain a short-lived OAuth token, send prompts through A2A, continue a conversation, and manage tasks. Idra has no browser interface or alternate agent API: discovery uses the Agent Card, configuration uses the administrator-only `/config` API, and every agent operation uses A2A 1.0 HTTP+JSON.
 
 ## Prerequisites
 
 You need:
 
 - Docker with Docker Compose;
-- an Anthropic, OpenAI, or DeepSeek API key;
-- a current model ID for that provider; and
+- an Anthropic, OpenAI, or DeepSeek API key and current model ID;
+- Node.js to generate and sign the calling agent's Ed25519 key; and
 - an HTTPS hostname and reverse proxy for a production server.
 
 For the complete reverse-proxy and security setup, see the [deployment guide](README.md#deploy-with-docker-compose).
@@ -21,21 +21,25 @@ Clone the repository and create the local environment file:
 git clone https://github.com/HaraldBregu/idra.git
 cd idra
 cp .env.example .env
-openssl rand -hex 32
 chmod 600 .env
 ```
 
-Copy the generated token into `.env` and add your provider configuration:
+Generate two independent 32-byte values:
+
+```bash
+openssl rand -hex 32
+openssl rand -hex 32
+```
+
+Copy them into `.env`:
 
 ```dotenv
 IDRA_PUBLIC_URL=https://agent.example.com
-IDRA_AGENT_TOKEN=<generated-token>
-IDRA_PROVIDER_ID=openai
-IDRA_MODEL_ID=<current-model-id>
-IDRA_API_KEY=<provider-api-key>
+IDRA_ADMIN_TOKEN=<first-generated-value>
+IDRA_CONFIG_KEY=<second-generated-value>
 ```
 
-`IDRA_PUBLIC_URL` is the public origin only. Do not add `/a2a` to it. Production URLs must use HTTPS; local development may use `http://127.0.0.1:3000`.
+`IDRA_PUBLIC_URL` is the public origin only. Do not add `/a2a` to it. Production URLs must use HTTPS; local development may use `http://127.0.0.1:3000`. Keep both generated values out of calling-agent environments.
 
 Validate and start the container:
 
@@ -47,16 +51,120 @@ docker compose ps
 
 The service is ready when Compose reports it as healthy. The health check reads the standard Agent Card rather than a separate health API.
 
-## Set client variables
+## Configure the model provider
 
-The examples below use these shell variables. Set them to the same public URL and A2A token configured in `.env`:
+Set administrator variables only in the trusted operator shell, then write the provider key:
 
 ```bash
 export IDRA_URL='https://agent.example.com'
-export IDRA_TOKEN='<generated-token>'
+export IDRA_ADMIN_TOKEN='<first-generated-value>'
+
+curl --fail-with-body -X PUT "$IDRA_URL/config/provider" \
+  -H "Authorization: Bearer $IDRA_ADMIN_TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "provider": "openai",
+    "model": "<current-model-id>",
+    "apiKey": "<provider-api-key>"
+  }'
 ```
 
-Treat `IDRA_TOKEN` like a password. Anyone holding it can access every task and conversation stored by this single-user deployment.
+The response contains only provider metadata and `hasApiKey`; it never returns the key. Idra encrypts the provider configuration with `IDRA_CONFIG_KEY` before writing it to the data volume.
+
+## Register a calling agent
+
+Generate an Ed25519 key pair in a trusted client environment. The private JWK remains on that client; only the public JWK is registered with Idra:
+
+```js
+// save as generate-key.mjs and run: node generate-key.mjs
+import { generateKeyPairSync } from 'node:crypto';
+import { writeFileSync } from 'node:fs';
+
+const { privateKey, publicKey } = generateKeyPairSync('ed25519');
+writeFileSync('client-private.jwk', JSON.stringify(privateKey.export({ format: 'jwk' })));
+writeFileSync('client-public.jwk', JSON.stringify(publicKey.export({ format: 'jwk' })));
+```
+
+Create `register-client.mjs` in the trusted operator environment:
+
+```js
+import { readFileSync } from 'node:fs';
+
+const response = await fetch(`${process.env.IDRA_URL}/config/clients`, {
+	method: 'POST',
+	headers: {
+		Authorization: `Bearer ${process.env.IDRA_ADMIN_TOKEN}`,
+		'Content-Type': 'application/json',
+	},
+	body: JSON.stringify({
+		name: 'my-calling-agent',
+		publicKeyJwk: JSON.parse(readFileSync('client-public.jwk', 'utf8')),
+	}),
+});
+if (!response.ok) throw new Error(await response.text());
+console.log(await response.text());
+```
+
+Run it and give the returned `clientId` to the calling agent. The response contains a public-key thumbprint but no private material:
+
+```bash
+node register-client.mjs
+export IDRA_CLIENT_ID='<returned-clientId>'
+```
+
+## Obtain an A2A access token
+
+Install JOSE in the calling-agent project and create `get-token.mjs`:
+
+```bash
+npm install jose
+```
+
+```js
+import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { importJWK, SignJWT } from 'jose';
+
+const baseUrl = process.env.IDRA_URL;
+const clientId = process.env.IDRA_CLIENT_ID;
+if (!baseUrl || !clientId) throw new Error('IDRA_URL and IDRA_CLIENT_ID are required.');
+
+const tokenEndpoint = `${baseUrl}/a2a/oauth/token`;
+const now = Math.floor(Date.now() / 1000);
+const privateJwk = JSON.parse(readFileSync('client-private.jwk', 'utf8'));
+const assertion = await new SignJWT()
+	.setProtectedHeader({ alg: 'EdDSA', typ: 'JWT' })
+	.setIssuer(clientId)
+	.setSubject(clientId)
+	.setAudience(tokenEndpoint)
+	.setIssuedAt(now)
+	.setExpirationTime(now + 120)
+	.setJti(randomUUID())
+	.sign(await importJWK(privateJwk, 'EdDSA'));
+
+const response = await fetch(tokenEndpoint, {
+	method: 'POST',
+	headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+	body: new URLSearchParams({
+		grant_type: 'client_credentials',
+		client_id: clientId,
+		client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+		client_assertion: assertion,
+		scope: 'a2a.invoke',
+		resource: `${baseUrl}/a2a`,
+	}),
+});
+if (!response.ok) throw new Error(await response.text());
+console.log((await response.json()).access_token);
+```
+
+Acquire a token immediately before calling A2A:
+
+```bash
+export IDRA_TOKEN="$(node get-token.mjs)"
+```
+
+The token expires after five minutes. Generate a new assertion with a unique `jti` for every token request; assertions cannot be replayed. Deleting the client through `DELETE /config/clients/<clientId>` revokes its current tokens immediately.
 
 ## Verify discovery
 
@@ -71,7 +179,7 @@ The response should advertise:
 - `HTTP+JSON` protocol binding;
 - protocol version `1.0`;
 - an interface URL ending in `/a2a`;
-- bearer authentication; and
+- OAuth 2.0 client credentials with scope `a2a.invoke`; and
 - streaming support.
 
 ## Send your first prompt
@@ -208,7 +316,7 @@ Cancellation can fail if the task is already terminal or is no longer active.
 Install the official A2A SDK in your client project:
 
 ```bash
-npm install @a2a-js/sdk
+npm install @a2a-js/sdk jose
 ```
 
 Create a client that discovers Idra from its Agent Card and streams a prompt:
@@ -322,7 +430,7 @@ Common causes are a missing provider setting, an A2A token shorter than 32 bytes
 
 ### An A2A request returns `401 Unauthorized`
 
-Confirm that the request uses `Authorization: Bearer <token>` and that the token exactly matches `IDRA_AGENT_TOKEN`.
+Acquire a fresh token with `get-token.mjs`. Confirm that the client is still listed by `GET /config`, that its assertion uses the exact token-endpoint audience, and that the request uses `Authorization: Bearer <token>`.
 
 ### An A2A request returns a version error
 
