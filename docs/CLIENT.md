@@ -22,6 +22,127 @@ The client must never receive or send the model provider API key, `IDRA_ADMIN_TO
 5. The client sends A2A requests with that bearer token and `A2A-Version: 1.0`.
 6. The client obtains a new token when the current token expires.
 
+## Client quick start
+
+Create a Node.js client project and install JOSE:
+
+```bash
+mkdir idra-client && cd idra-client
+npm init -y
+npm install jose
+```
+
+Generate the client's Ed25519 key pair once:
+
+```js
+// generate-key.mjs
+import { generateKeyPairSync } from 'node:crypto';
+import { writeFileSync } from 'node:fs';
+
+const { privateKey, publicKey } = generateKeyPairSync('ed25519');
+writeFileSync('client-private.jwk', JSON.stringify(privateKey.export({ format: 'jwk' })), {
+	flag: 'wx',
+	mode: 0o600,
+});
+writeFileSync('client-public.jwk', JSON.stringify(publicKey.export({ format: 'jwk' })), {
+	flag: 'wx',
+});
+```
+
+```bash
+node generate-key.mjs
+```
+
+Give `client-public.jwk` to the Idra administrator. Never send `client-private.jwk`. After the administrator registers the public key, set the returned client ID and Idra URL:
+
+```bash
+export IDRA_URL='https://agent.example.com'
+export IDRA_CLIENT_ID='<registered-client-id>'
+```
+
+Create the following complete client:
+
+```js
+// invoke.mjs
+import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { importJWK, SignJWT } from 'jose';
+
+const baseUrl = new URL(process.env.IDRA_URL).origin;
+const clientId = process.env.IDRA_CLIENT_ID;
+if (!clientId) throw new Error('IDRA_CLIENT_ID is required.');
+
+const cardResponse = await fetch(`${baseUrl}/.well-known/agent-card.json`);
+if (!cardResponse.ok) throw new Error(await cardResponse.text());
+const card = await cardResponse.json();
+const metadataUrl = card.securitySchemes?.oauth2?.oauth2SecurityScheme?.oauth2MetadataUrl;
+if (typeof metadataUrl !== 'string' || new URL(metadataUrl).origin !== baseUrl) {
+	throw new Error('Agent Card contains invalid OAuth metadata.');
+}
+
+const metadataResponse = await fetch(metadataUrl);
+if (!metadataResponse.ok) throw new Error(await metadataResponse.text());
+const metadata = await metadataResponse.json();
+const tokenEndpoint = metadata.token_endpoint;
+if (metadata.issuer !== baseUrl || new URL(tokenEndpoint).origin !== baseUrl) {
+	throw new Error('OAuth metadata does not match IDRA_URL.');
+}
+
+const privateJwk = JSON.parse(readFileSync('client-private.jwk', 'utf8'));
+const now = Math.floor(Date.now() / 1000);
+const assertion = await new SignJWT()
+	.setProtectedHeader({ alg: 'EdDSA', typ: 'JWT' })
+	.setIssuer(clientId)
+	.setSubject(clientId)
+	.setAudience(tokenEndpoint)
+	.setIssuedAt(now)
+	.setExpirationTime(now + 120)
+	.setJti(randomUUID())
+	.sign(await importJWK(privateJwk, 'EdDSA'));
+
+const tokenResponse = await fetch(tokenEndpoint, {
+	method: 'POST',
+	headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+	body: new URLSearchParams({
+		grant_type: 'client_credentials',
+		client_id: clientId,
+		client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+		client_assertion: assertion,
+		scope: 'a2a.invoke',
+		resource: `${baseUrl}/a2a`,
+	}),
+});
+if (!tokenResponse.ok) throw new Error(await tokenResponse.text());
+const { access_token: accessToken } = await tokenResponse.json();
+
+const messageResponse = await fetch(`${baseUrl}/a2a/message:send`, {
+	method: 'POST',
+	headers: {
+		Authorization: `Bearer ${accessToken}`,
+		'A2A-Version': '1.0',
+		'Content-Type': 'application/a2a+json',
+	},
+	body: JSON.stringify({
+		message: {
+			messageId: randomUUID(),
+			role: 'ROLE_USER',
+			parts: [{ text: process.argv.slice(2).join(' ') || 'Hello.', mediaType: 'text/plain' }],
+		},
+		configuration: { returnImmediately: false },
+	}),
+});
+if (!messageResponse.ok) throw new Error(await messageResponse.text());
+console.log(JSON.stringify(await messageResponse.json(), null, 2));
+```
+
+Invoke Idra:
+
+```bash
+node invoke.mjs 'Summarize the workspace.'
+```
+
+The script discovers OAuth configuration, creates a new one-time assertion, obtains a five-minute access token, and sends an authenticated A2A message. In a long-running client, cache the access token only in memory until shortly before expiry, then repeat the token exchange with a new assertion.
+
 ## 1. Discover Idra
 
 Start with the Agent Card rather than hard-coding A2A or OAuth endpoints:
