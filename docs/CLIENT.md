@@ -71,15 +71,15 @@ The response includes the `clientId` needed during token acquisition. This regis
 
 Create a JWT signed with the registered Ed25519 private key. Its claims must include:
 
-| Field | Value |
-| --- | --- |
-| `alg` | `EdDSA` |
-| `typ` | `JWT` |
-| `iss` | Registered client ID |
-| `sub` | Registered client ID |
-| `aud` | Discovered token endpoint |
-| `iat` | Current Unix time |
-| `exp` | No more than five minutes after `iat` |
+| Field | Value                                  |
+| ----- | -------------------------------------- |
+| `alg` | `EdDSA`                                |
+| `typ` | `JWT`                                  |
+| `iss` | Registered client ID                   |
+| `sub` | Registered client ID                   |
+| `aud` | Discovered token endpoint              |
+| `iat` | Current Unix time                      |
+| `exp` | No more than five minutes after `iat`  |
 | `jti` | A new unique value for every assertion |
 
 Exchange the assertion at the discovered token endpoint, currently `/a2a/oauth/token`:
@@ -100,10 +100,10 @@ A successful response is:
 
 ```json
 {
-  "access_token": "<signed-access-token>",
-  "token_type": "Bearer",
-  "expires_in": 300,
-  "scope": "a2a.invoke"
+	"access_token": "<signed-access-token>",
+	"token_type": "Bearer",
+	"expires_in": 300,
+	"scope": "a2a.invoke"
 }
 ```
 
@@ -155,15 +155,17 @@ Take the `contextId` from the first task event and include it in the next messag
 
 ```json
 {
-  "message": {
-    "messageId": "another-unique-message-id",
-    "contextId": "<context-id>",
-    "role": "ROLE_USER",
-    "parts": [{
-      "text": "Now save that summary to a file.",
-      "mediaType": "text/plain"
-    }]
-  }
+	"message": {
+		"messageId": "another-unique-message-id",
+		"contextId": "<context-id>",
+		"role": "ROLE_USER",
+		"parts": [
+			{
+				"text": "Now save that summary to a file.",
+				"mediaType": "text/plain"
+			}
+		]
+	}
 }
 ```
 
