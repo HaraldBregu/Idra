@@ -47,9 +47,7 @@ export function registerConfigurationUiRoutes(
 	);
 	server.get('/config', async (request, reply) => {
 		if (request.headers.accept?.toLowerCase().includes('text/html')) {
-			if (
-				configurationPrincipal(request, store, adminToken, publicUrl)?.method !== 'ui-session'
-			) {
+			if (configurationPrincipal(request, store, adminToken, publicUrl)?.method !== 'ui-session') {
 				return reply
 					.header('cache-control', 'no-store')
 					.header('vary', 'Accept')
