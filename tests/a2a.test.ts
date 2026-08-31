@@ -175,8 +175,8 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 			url: '/config',
 			headers: { accept: 'text/html' },
 		});
-		assert.equal(configPage.statusCode, 200);
-		assert.match(configPage.headers['content-type'] ?? '', /^text\/html/);
+		assert.equal(configPage.statusCode, 302);
+		assert.equal(configPage.headers.location, '/config/register');
 		assert.equal(configPage.headers['cache-control'], 'no-store');
 		const config = await server.inject({
 			method: 'GET',

@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import type { RequestLimiter } from '../oauth/limit';
 import type { OAuthIssuer } from '../oauth/issuer';
 import { createConfigurationAuthentication } from './auth';
+import { configurationPrincipal } from './principal';
 import { configurationResponse } from './response';
 import type { ConfigurationStore } from './store';
 
@@ -20,6 +21,18 @@ export function registerConfigurationUiRoutes(
 	limiter: RequestLimiter
 ): void {
 	const authenticate = createConfigurationAuthentication(store, adminToken, publicUrl, limiter);
+	const sendPage = (reply: Parameters<Parameters<FastifyInstance['get']>[1]>[1]) =>
+		reply
+			.header('cache-control', 'no-store')
+			.header(
+				'content-security-policy',
+				"default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+			)
+			.header('referrer-policy', 'no-referrer')
+			.header('x-content-type-options', 'nosniff')
+			.header('x-frame-options', 'DENY')
+			.type('text/html; charset=utf-8')
+			.send(html);
 	server.get('/config/assets/styles.css', async (_request, reply) =>
 		reply.header('cache-control', 'public, max-age=3600').type('text/css').send(sharedStyles)
 	);
@@ -34,18 +47,15 @@ export function registerConfigurationUiRoutes(
 	);
 	server.get('/config', async (request, reply) => {
 		if (request.headers.accept?.toLowerCase().includes('text/html')) {
-			return reply
-				.header('cache-control', 'no-store')
-				.header(
-					'content-security-policy',
-					"default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
-				)
-				.header('referrer-policy', 'no-referrer')
-				.header('x-content-type-options', 'nosniff')
-				.header('x-frame-options', 'DENY')
-				.header('vary', 'Accept')
-				.type('text/html; charset=utf-8')
-				.send(html);
+			if (
+				configurationPrincipal(request, store, adminToken, publicUrl)?.method !== 'ui-session'
+			) {
+				return reply
+					.header('cache-control', 'no-store')
+					.header('vary', 'Accept')
+					.redirect(store.administrator() ? '/config/login' : '/config/register');
+			}
+			return sendPage(reply.header('vary', 'Accept'));
 		}
 		await authenticate(request, reply);
 		if (reply.sent) return;
@@ -54,4 +64,22 @@ export function registerConfigurationUiRoutes(
 	server.get('/config/api', { onRequest: authenticate }, async (_request, reply) =>
 		reply.header('cache-control', 'no-store').send(configurationResponse(store, issuer))
 	);
+	server.get('/config/register', async (request, reply) => {
+		if (configurationPrincipal(request, store, adminToken, publicUrl)?.method === 'ui-session') {
+			return reply.header('cache-control', 'no-store').redirect('/config');
+		}
+		if (store.administrator()) {
+			return reply.header('cache-control', 'no-store').redirect('/config/login');
+		}
+		return sendPage(reply);
+	});
+	server.get('/config/login', async (request, reply) => {
+		if (configurationPrincipal(request, store, adminToken, publicUrl)?.method === 'ui-session') {
+			return reply.header('cache-control', 'no-store').redirect('/config');
+		}
+		if (!store.administrator()) {
+			return reply.header('cache-control', 'no-store').redirect('/config/register');
+		}
+		return sendPage(reply);
+	});
 }

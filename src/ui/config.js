@@ -136,16 +136,12 @@ elements['register-form'].addEventListener('submit', async (event) => {
 		return showNotice('Passwords do not match.', 'error');
 	setBusy(form, true);
 	try {
-		const result = await request('/config/auth/register', {
+		await request('/config/auth/register', {
 			method: 'POST',
 			headers: { authorization: `Bearer ${data.get('setupToken')}` },
 			body: JSON.stringify({ username: data.get('username'), password: data.get('password') }),
 		});
-		csrf = result.csrfToken;
-		form.reset();
-		showView('config', result.username);
-		await loadConfiguration();
-		showNotice('Administrator created.');
+		window.location.replace('/config');
 	} catch (error) {
 		showNotice(error.message, 'error');
 	} finally {
@@ -159,14 +155,11 @@ elements['login-form'].addEventListener('submit', async (event) => {
 	const data = new FormData(form);
 	setBusy(form, true);
 	try {
-		const result = await request('/config/auth/session', {
+		await request('/config/auth/session', {
 			method: 'POST',
 			body: JSON.stringify({ username: data.get('username'), password: data.get('password') }),
 		});
-		csrf = result.csrfToken;
-		form.reset();
-		showView('config', result.username);
-		await loadConfiguration();
+		window.location.replace('/config');
 	} catch (error) {
 		showNotice(error.message, 'error');
 	} finally {
@@ -177,9 +170,7 @@ elements['login-form'].addEventListener('submit', async (event) => {
 elements['logout-button'].addEventListener('click', async () => {
 	try {
 		await request('/config/auth/session', { method: 'DELETE' });
-		csrf = '';
-		showView('login');
-		showNotice('You are logged out.');
+		window.location.replace('/config/login');
 	} catch (error) {
 		showNotice(error.message, 'error');
 	}

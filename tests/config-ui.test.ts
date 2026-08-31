@@ -22,11 +22,15 @@ test('config UI registers one administrator and protects browser sessions', asyn
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-config-ui-'));
 	let server = createServer(directory);
 	try {
-		const html = await server.inject({
+		const protectedPage = await server.inject({
 			method: 'GET',
 			url: '/config',
 			headers: { accept: 'text/html,application/xhtml+xml' },
 		});
+		assert.equal(protectedPage.statusCode, 302);
+		assert.equal(protectedPage.headers.location, '/config/register');
+		assert.equal(protectedPage.headers['cache-control'], 'no-store');
+		const html = await server.inject({ method: 'GET', url: '/config/register' });
 		assert.equal(html.statusCode, 200);
 		assert.match(html.headers['content-type'] ?? '', /^text\/html/);
 		assert.match(html.headers['content-security-policy'] ?? '', /frame-ancestors 'none'/);
@@ -34,6 +38,9 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		assert.match(html.body, /Create the administrator/);
 		assert.match(html.body, /autocomplete="new-password"/);
 		assert.doesNotMatch(html.body, new RegExp(ADMIN_TOKEN));
+		const prematureLogin = await server.inject({ method: 'GET', url: '/config/login' });
+		assert.equal(prematureLogin.statusCode, 302);
+		assert.equal(prematureLogin.headers.location, '/config/register');
 
 		assert.equal(
 			(await server.inject({ method: 'GET', url: '/config/assets/config.js' })).statusCode,
@@ -73,6 +80,22 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		assert.match(registration.headers['set-cookie'] ?? '', /HttpOnly/);
 		assert.match(registration.headers['set-cookie'] ?? '', /SameSite=Strict/);
 		assert.match(registration.headers['set-cookie'] ?? '', /Secure/);
+		const signedOutPage = await server.inject({
+			method: 'GET',
+			url: '/config',
+			headers: { accept: 'text/html' },
+		});
+		assert.equal(signedOutPage.statusCode, 302);
+		assert.equal(signedOutPage.headers.location, '/config/login');
+		const completedRegistration = await server.inject({
+			method: 'GET',
+			url: '/config/register',
+		});
+		assert.equal(completedRegistration.statusCode, 302);
+		assert.equal(completedRegistration.headers.location, '/config/login');
+		const loginPage = await server.inject({ method: 'GET', url: '/config/login' });
+		assert.equal(loginPage.statusCode, 200);
+		assert.match(loginPage.body, /<h2>Log in<\/h2>/);
 
 		assert.equal(
 			(
@@ -96,6 +119,20 @@ test('config UI registers one administrator and protects browser sessions', asyn
 			username: USERNAME,
 			csrfToken: registrationBody.csrfToken,
 		});
+		const authenticatedPage = await server.inject({
+			method: 'GET',
+			url: '/config',
+			headers: { accept: 'text/html', cookie },
+		});
+		assert.equal(authenticatedPage.statusCode, 200);
+		assert.match(authenticatedPage.body, /id="config-view"/);
+		const authenticatedLogin = await server.inject({
+			method: 'GET',
+			url: '/config/login',
+			headers: { cookie },
+		});
+		assert.equal(authenticatedLogin.statusCode, 302);
+		assert.equal(authenticatedLogin.headers.location, '/config');
 		assert.equal(
 			(
 				await server.inject({
