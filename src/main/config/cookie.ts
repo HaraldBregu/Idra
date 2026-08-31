@@ -4,7 +4,10 @@ export function configurationCookieName(publicUrl: string): string {
 	return new URL(publicUrl).protocol === 'https:' ? '__Host-idra_config' : 'idra_config_session';
 }
 
-export function readConfigurationCookie(header: string | undefined, publicUrl: string): string | undefined {
+export function readConfigurationCookie(
+	header: string | undefined,
+	publicUrl: string
+): string | undefined {
 	const name = configurationCookieName(publicUrl);
 	for (const item of header?.split(';') ?? []) {
 		const [key, ...value] = item.trim().split('=');

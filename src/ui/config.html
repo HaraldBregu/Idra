@@ -27,7 +27,9 @@
 			<section class="access-card auth-card" id="register-view" hidden>
 				<p class="section-kicker">First-time setup</p>
 				<h2>Create the administrator</h2>
-				<p class="access-subtitle">Use the setup token from <code>IDRA_ADMIN_TOKEN</code>. Registration is available once.</p>
+				<p class="access-subtitle">
+					Use the setup token from <code>IDRA_ADMIN_TOKEN</code>. Registration is available once.
+				</p>
 				<form id="register-form">
 					<div class="field">
 						<label for="setup-token">Setup token</label>
@@ -35,16 +37,38 @@
 					</div>
 					<div class="field">
 						<label for="register-username">Username</label>
-						<input id="register-username" name="username" autocomplete="username" minlength="3" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,63}" required />
+						<input
+							id="register-username"
+							name="username"
+							autocomplete="username"
+							minlength="3"
+							maxlength="64"
+							pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,63}"
+							required
+						/>
 						<p class="helper">3–64 letters, numbers, dots, dashes, or underscores.</p>
 					</div>
 					<div class="field">
 						<label for="register-password">Password</label>
-						<input id="register-password" name="password" type="password" autocomplete="new-password" minlength="12" required />
+						<input
+							id="register-password"
+							name="password"
+							type="password"
+							autocomplete="new-password"
+							minlength="12"
+							required
+						/>
 					</div>
 					<div class="field">
 						<label for="register-confirm">Confirm password</label>
-						<input id="register-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="12" required />
+						<input
+							id="register-confirm"
+							name="confirmPassword"
+							type="password"
+							autocomplete="new-password"
+							minlength="12"
+							required
+						/>
 					</div>
 					<button class="button button-primary" type="submit">Create administrator</button>
 				</form>
@@ -61,7 +85,13 @@
 					</div>
 					<div class="field">
 						<label for="login-password">Password</label>
-						<input id="login-password" name="password" type="password" autocomplete="current-password" required />
+						<input
+							id="login-password"
+							name="password"
+							type="password"
+							autocomplete="current-password"
+							required
+						/>
 					</div>
 					<button class="button button-primary" type="submit">Log in</button>
 				</form>
@@ -69,37 +99,136 @@
 
 			<div id="config-view" hidden>
 				<section class="overview" aria-label="Configuration overview">
-					<article class="metric-card"><span class="metric-label">Provider</span><strong class="metric-value" id="provider-status">Not configured</strong></article>
-					<article class="metric-card"><span class="metric-label">Clients</span><strong class="metric-value" id="client-count">0</strong></article>
-					<article class="metric-card"><span class="metric-label">Signed in as</span><strong class="metric-value" id="signed-in-user">—</strong></article>
+					<article class="metric-card">
+						<span class="metric-label">Provider</span
+						><strong class="metric-value" id="provider-status">Not configured</strong>
+					</article>
+					<article class="metric-card">
+						<span class="metric-label">Clients</span
+						><strong class="metric-value" id="client-count">0</strong>
+					</article>
+					<article class="metric-card">
+						<span class="metric-label">Signed in as</span
+						><strong class="metric-value" id="signed-in-user">—</strong>
+					</article>
 				</section>
 
 				<div class="workspace-grid">
 					<section class="panel">
-						<div class="section-heading"><div><p class="section-kicker">Model</p><h2>Provider</h2></div></div>
+						<div class="section-heading">
+							<div>
+								<p class="section-kicker">Model</p>
+								<h2>Provider</h2>
+							</div>
+						</div>
 						<p class="section-copy">The API key is encrypted at rest and never returned.</p>
 						<form id="provider-form">
-							<div class="field"><label for="provider">Provider</label><select id="provider" name="provider"><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option><option value="deepseek">DeepSeek</option></select></div>
-							<div class="field"><label for="model">Model</label><input id="model" name="model" maxlength="200" required /></div>
-							<div class="field"><label for="api-key">API key</label><input id="api-key" name="apiKey" type="password" autocomplete="off" maxlength="4096" /><p class="helper" id="api-key-helper">Required for the selected provider.</p></div>
-							<div class="button-row button-row-wrap"><button class="button button-primary" type="submit">Save provider</button><button class="button button-danger" id="delete-provider" type="button">Remove provider</button></div>
+							<div class="field">
+								<label for="provider">Provider</label
+								><select id="provider" name="provider">
+									<option value="openai">OpenAI</option>
+									<option value="anthropic">Anthropic</option>
+									<option value="deepseek">DeepSeek</option>
+								</select>
+							</div>
+							<div class="field">
+								<label for="model">Model</label
+								><input id="model" name="model" maxlength="200" required />
+							</div>
+							<div class="field">
+								<label for="api-key">API key</label
+								><input
+									id="api-key"
+									name="apiKey"
+									type="password"
+									autocomplete="off"
+									maxlength="4096"
+								/>
+								<p class="helper" id="api-key-helper">Required for the selected provider.</p>
+							</div>
+							<div class="button-row button-row-wrap">
+								<button class="button button-primary" type="submit">Save provider</button
+								><button class="button button-danger" id="delete-provider" type="button">
+									Remove provider
+								</button>
+							</div>
 						</form>
 					</section>
 
 					<section class="panel">
-						<div class="section-heading"><div><p class="section-kicker">OAuth 2.0</p><h2>Connection details</h2></div></div>
-						<dl class="details-list"><div><dt>Issuer</dt><dd id="oauth-issuer">—</dd></div><div><dt>Token endpoint</dt><dd id="oauth-token">—</dd></div><div><dt>Resource</dt><dd id="oauth-resource">—</dd></div><div><dt>Scope</dt><dd id="oauth-scope">—</dd></div><div><dt>Authentication</dt><dd>private_key_jwt</dd></div></dl>
+						<div class="section-heading">
+							<div>
+								<p class="section-kicker">OAuth 2.0</p>
+								<h2>Connection details</h2>
+							</div>
+						</div>
+						<dl class="details-list">
+							<div>
+								<dt>Issuer</dt>
+								<dd id="oauth-issuer">—</dd>
+							</div>
+							<div>
+								<dt>Token endpoint</dt>
+								<dd id="oauth-token">—</dd>
+							</div>
+							<div>
+								<dt>Resource</dt>
+								<dd id="oauth-resource">—</dd>
+							</div>
+							<div>
+								<dt>Scope</dt>
+								<dd id="oauth-scope">—</dd>
+							</div>
+							<div>
+								<dt>Authentication</dt>
+								<dd>private_key_jwt</dd>
+							</div>
+						</dl>
 					</section>
 				</div>
 
 				<section class="panel">
-					<div class="section-heading"><div><p class="section-kicker">Calling agents</p><h2>Registered clients</h2></div></div>
+					<div class="section-heading">
+						<div>
+							<p class="section-kicker">Calling agents</p>
+							<h2>Registered clients</h2>
+						</div>
+					</div>
 					<form class="client-form" id="client-form">
-						<div class="field"><label for="client-name">Client name</label><input id="client-name" name="name" maxlength="100" required /></div>
-						<div class="field"><label for="public-key">Ed25519 public JWK</label><textarea class="code-editor" id="public-key" name="publicKeyJwk" rows="6" spellcheck="false" required></textarea><p class="helper">Paste a public JWK only. Private key material is rejected.</p></div>
+						<div class="field">
+							<label for="client-name">Client name</label
+							><input id="client-name" name="name" maxlength="100" required />
+						</div>
+						<div class="field">
+							<label for="public-key">Ed25519 public JWK</label
+							><textarea
+								class="code-editor"
+								id="public-key"
+								name="publicKeyJwk"
+								rows="6"
+								spellcheck="false"
+								required
+							></textarea>
+							<p class="helper">Paste a public JWK only. Private key material is rejected.</p>
+						</div>
 						<button class="button button-primary" type="submit">Register client</button>
 					</form>
-					<div class="table-wrap"><table><caption>Registered OAuth clients</caption><thead><tr><th>Name</th><th>Client ID</th><th>Created</th><th>Action</th></tr></thead><tbody id="client-rows"></tbody></table></div>
+					<div class="table-wrap">
+						<table>
+							<caption>
+								Registered OAuth clients
+							</caption>
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Client ID</th>
+									<th>Created</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody id="client-rows"></tbody>
+						</table>
+					</div>
 				</section>
 			</div>
 		</main>

@@ -36,7 +36,10 @@ export function registerConfigurationUiRoutes(
 		if (request.headers.accept?.toLowerCase().includes('text/html')) {
 			return reply
 				.header('cache-control', 'no-store')
-				.header('content-security-policy', "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
+				.header(
+					'content-security-policy',
+					"default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+				)
 				.header('referrer-policy', 'no-referrer')
 				.header('x-content-type-options', 'nosniff')
 				.header('x-frame-options', 'DENY')

@@ -57,10 +57,13 @@ export function registerConfigurationAuthenticationRoutes(
 			if (!equalText(request.headers.authorization ?? '', `Bearer ${adminToken}`)) {
 				return reply.code(401).header('www-authenticate', 'Bearer').send({ error: 'Unauthorized' });
 			}
-			if (store.administrator()) return reply.code(409).send({ error: 'Registration is complete.' });
+			if (store.administrator())
+				return reply.code(409).send({ error: 'Registration is complete.' });
 			const username = normalizeUsername(request.body.username);
 			if (!username) {
-				return reply.code(400).send({ error: 'Use 3–64 lowercase letters, numbers, dots, dashes, or underscores.' });
+				return reply
+					.code(400)
+					.send({ error: 'Use 3–64 lowercase letters, numbers, dots, dashes, or underscores.' });
 			}
 			if (
 				request.body.password.length < 12 ||
@@ -143,8 +146,8 @@ function validCsrf(
 	const submitted = request.headers['x-idra-csrf'];
 	return Boolean(
 		administrator &&
-			request.headers.origin === publicUrl &&
-			typeof submitted === 'string' &&
-			equalText(submitted, csrfToken(token, administrator))
+		request.headers.origin === publicUrl &&
+		typeof submitted === 'string' &&
+		equalText(submitted, csrfToken(token, administrator))
 	);
 }

@@ -20,6 +20,7 @@ export function configurationPrincipal(
 	}
 	const token = readConfigurationCookie(request.headers.cookie, publicUrl);
 	const administrator = store.administrator();
-	if (!token || !administrator || !store.hasSession(sessionHash(token), Date.now())) return undefined;
+	if (!token || !administrator || !store.hasSession(sessionHash(token), Date.now()))
+		return undefined;
 	return { method: 'ui-session', subject: administrator.username, token };
 }

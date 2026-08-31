@@ -51,7 +51,8 @@ function showView(name, username = '') {
 	elements['config-view'].hidden = name !== 'config';
 	elements['logout-button'].hidden = name !== 'config';
 	elements['session-status'].dataset.connected = name === 'config' ? 'true' : 'false';
-	elements['session-status'].textContent = name === 'config' ? 'Authenticated' : name === 'register' ? 'Setup required' : 'Signed out';
+	elements['session-status'].textContent =
+		name === 'config' ? 'Authenticated' : name === 'register' ? 'Setup required' : 'Signed out';
 	elements['signed-in-user'].textContent = username || '—';
 }
 
@@ -69,7 +70,11 @@ function renderClients(clients) {
 	}
 	for (const client of clients) {
 		const row = document.createElement('tr');
-		for (const value of [client.name, client.clientId, new Date(client.createdAt).toLocaleString()]) {
+		for (const value of [
+			client.name,
+			client.clientId,
+			new Date(client.createdAt).toLocaleString(),
+		]) {
 			const cell = document.createElement('td');
 			cell.textContent = value;
 			row.append(cell);
@@ -88,11 +93,15 @@ function renderClients(clients) {
 
 function renderConfiguration(configuration) {
 	const provider = configuration.provider;
-	elements['provider-status'].textContent = provider.configured ? `${provider.provider} / ${provider.model}` : 'Not configured';
+	elements['provider-status'].textContent = provider.configured
+		? `${provider.provider} / ${provider.model}`
+		: 'Not configured';
 	elements['client-count'].textContent = String(configuration.clients.length);
 	document.getElementById('provider').value = provider.provider || 'openai';
 	document.getElementById('model').value = provider.model || '';
-	elements['api-key-helper'].textContent = provider.hasApiKey ? 'Leave blank to keep the saved API key.' : 'Required for the selected provider.';
+	elements['api-key-helper'].textContent = provider.hasApiKey
+		? 'Leave blank to keep the saved API key.'
+		: 'Required for the selected provider.';
 	elements['delete-provider'].disabled = !provider.configured;
 	elements['oauth-issuer'].textContent = configuration.oauth.issuer;
 	elements['oauth-token'].textContent = configuration.oauth.tokenEndpoint;
@@ -123,7 +132,8 @@ elements['register-form'].addEventListener('submit', async (event) => {
 	event.preventDefault();
 	const form = event.currentTarget;
 	const data = new FormData(form);
-	if (data.get('password') !== data.get('confirmPassword')) return showNotice('Passwords do not match.', 'error');
+	if (data.get('password') !== data.get('confirmPassword'))
+		return showNotice('Passwords do not match.', 'error');
 	setBusy(form, true);
 	try {
 		const result = await request('/config/auth/register', {
@@ -183,7 +193,11 @@ elements['provider-form'].addEventListener('submit', async (event) => {
 	try {
 		await request('/config/provider', {
 			method: 'PUT',
-			body: JSON.stringify({ provider: data.get('provider'), model: data.get('model'), ...(data.get('apiKey') ? { apiKey: data.get('apiKey') } : {}) }),
+			body: JSON.stringify({
+				provider: data.get('provider'),
+				model: data.get('model'),
+				...(data.get('apiKey') ? { apiKey: data.get('apiKey') } : {}),
+			}),
 		});
 		document.getElementById('api-key').value = '';
 		await loadConfiguration();
@@ -196,7 +210,12 @@ elements['provider-form'].addEventListener('submit', async (event) => {
 });
 
 elements['delete-provider'].addEventListener('click', async () => {
-	if (!window.confirm('Remove the provider configuration? Agent runs will stop until another provider is configured.')) return;
+	if (
+		!window.confirm(
+			'Remove the provider configuration? Agent runs will stop until another provider is configured.'
+		)
+	)
+		return;
 	try {
 		await request('/config/provider', { method: 'DELETE' });
 		await loadConfiguration();
@@ -218,7 +237,10 @@ elements['client-form'].addEventListener('submit', async (event) => {
 	}
 	setBusy(form, true);
 	try {
-		await request('/config/clients', { method: 'POST', body: JSON.stringify({ name: data.get('name'), publicKeyJwk }) });
+		await request('/config/clients', {
+			method: 'POST',
+			body: JSON.stringify({ name: data.get('name'), publicKeyJwk }),
+		});
 		form.reset();
 		await loadConfiguration();
 		showNotice('Calling agent registered.');
@@ -230,7 +252,8 @@ elements['client-form'].addEventListener('submit', async (event) => {
 });
 
 async function revokeClient(clientId, name) {
-	if (!window.confirm(`Revoke ${name}? It will no longer be able to obtain new access tokens.`)) return;
+	if (!window.confirm(`Revoke ${name}? It will no longer be able to obtain new access tokens.`))
+		return;
 	try {
 		await request(`/config/clients/${encodeURIComponent(clientId)}`, { method: 'DELETE' });
 		await loadConfiguration();
