@@ -65,17 +65,17 @@ Idra exposes four distinct REST surfaces:
 | `/config` (browser)       | Administrator username and password  | Register or sign in, then configure the provider and calling-agent public keys      |
 | `/config` and `/config/*` | Administrator bearer token           | Automate provider and calling-agent configuration                                  |
 
-The administrator token cannot invoke A2A, and an A2A token cannot access `/config`. `IDRA_ADMIN_TOKEN` is also the one-time setup token required by the registration page. `IDRA_CONFIG_KEY` encrypts the administrator credentials and provider key at rest. Both remain deployment secrets and are not managed through `/config`.
+The administrator token cannot invoke A2A, and an A2A token cannot access `/config`. `IDRA_ADMIN_TOKEN` is reserved for trusted configuration API automation; browser registration does not use it. `IDRA_CONFIG_KEY` encrypts the administrator credentials and provider key at rest. Both remain deployment secrets and are not managed through `/config`.
 
 ## Create the administrator
 
-Open `https://agent.example.com/config` in a browser. On the first visit, enter the value of `IDRA_ADMIN_TOKEN`, choose a username, and create a password of at least 12 characters. Registration is available only once. Later visits show the username and password login page; after login, the configuration page provides provider, OAuth, and calling-agent settings.
+Open `https://agent.example.com/config` in a browser. On the first visit, choose a username and create a password of at least 12 characters. Registration is available only once. The next setup page requires the model provider, model ID, and API key before the configuration dashboard opens. Later visits show the username and password login page.
 
-Browser sessions last 12 hours, use an HTTP-only same-site cookie, and are revoked when you log out. The setup token and password are never stored in browser storage. Keep the setup token available for API automation after registration, or rotate it through the deployment environment if API bearer access must be revoked.
+Browser sessions last 12 hours, use an HTTP-only same-site cookie, and are revoked when you log out. Passwords and provider API keys are never stored in browser storage. Because registration has no bootstrap credential, complete it on a private network before exposing a new instance to untrusted traffic. The first visitor to an unregistered public instance can create its administrator account.
 
 ## Configure the model provider
 
-Set administrator variables only in the trusted operator shell, then write the provider key:
+The browser setup page is the primary way to configure the provider. Provider, model, API key, base URL, and model-option environment fallbacks are not supported. To automate configuration after administrator registration, set administrator variables only in a trusted operator shell, then write the provider key:
 
 ```bash
 export IDRA_URL='https://agent.example.com'
@@ -549,7 +549,7 @@ Do not use `docker compose down --volumes` unless you intend to delete the works
 
 ### Compose reports a missing variable
 
-`IDRA_PUBLIC_URL`, `IDRA_ADMIN_TOKEN`, and `IDRA_CONFIG_KEY` must have non-empty values. The secure production workflow configures the provider through `PUT /config/provider`; `IDRA_PROVIDER_ID`, `IDRA_MODEL_ID`, and `IDRA_API_KEY` are legacy fallbacks only when secure configuration is inactive. Check the file, then run:
+`IDRA_PUBLIC_URL`, `IDRA_ADMIN_TOKEN`, and `IDRA_CONFIG_KEY` must have non-empty values. Provider, model, and API key values are entered in the browser setup page after administrator registration. Check the file, then run:
 
 ```bash
 docker compose config --quiet
