@@ -40,10 +40,12 @@ test('config UI registers one administrator and protects browser sessions', asyn
 			200
 		);
 		assert.equal((await server.inject({ method: 'GET', url: '/config' })).statusCode, 401);
-		assert.deepEqual(
-			(await server.inject({ method: 'GET', url: '/config/auth/status' })).json(),
-			{ registered: false, authenticated: false, username: null, csrfToken: null }
-		);
+		assert.deepEqual((await server.inject({ method: 'GET', url: '/config/auth/status' })).json(), {
+			registered: false,
+			authenticated: false,
+			username: null,
+			csrfToken: null,
+		});
 
 		const credentials = { username: USERNAME, password: PASSWORD };
 		assert.equal(
