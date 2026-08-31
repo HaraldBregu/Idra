@@ -147,8 +147,6 @@ elements['register-form'].addEventListener('submit', async (event) => {
 	event.preventDefault();
 	const form = event.currentTarget;
 	const data = new FormData(form);
-	if (data.get('password') !== data.get('confirmPassword'))
-		return showNotice('Passwords do not match.', 'error');
 	setBusy(form, true);
 	try {
 		await request('/config/auth/register', {
