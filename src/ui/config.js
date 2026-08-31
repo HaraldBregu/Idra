@@ -34,7 +34,8 @@ async function request(path, options = {}) {
 	if (csrf && options.method && options.method !== 'GET') headers['x-idra-csrf'] = csrf;
 	const response = await fetch(path, { credentials: 'same-origin', ...options, headers });
 	const body = response.status === 204 ? null : await response.json().catch(() => null);
-	if (!response.ok) throw new Error(body?.error || `Request failed (${response.status}).`);
+	if (!response.ok)
+		throw new Error(body?.message || body?.error || `Request failed (${response.status}).`);
 	return body;
 }
 
@@ -235,14 +236,12 @@ elements['delete-provider'].addEventListener('click', async () => {
 });
 
 async function saveProvider(form) {
-	const data = new FormData(form);
+	const provider = form.querySelector('select[name="provider"]').value;
+	const model = form.querySelector('input[name="model"]').value;
+	const apiKey = form.querySelector('input[name="apiKey"]').value;
 	return request('/config/provider', {
 		method: 'PUT',
-		body: JSON.stringify({
-			provider: data.get('provider'),
-			model: data.get('model'),
-			...(data.get('apiKey') ? { apiKey: data.get('apiKey') } : {}),
-		}),
+		body: JSON.stringify({ provider, model, ...(apiKey ? { apiKey } : {}) }),
 	});
 }
 
