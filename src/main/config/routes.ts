@@ -43,6 +43,9 @@ export function registerConfigurationRoutes(
 			},
 		},
 		async (request, reply) => {
+			if (!store.administrator()) {
+				return reply.code(409).send({ error: 'Administrator registration is required.' });
+			}
 			const existing = store.provider();
 			const apiKey = request.body.apiKey?.trim();
 			const model = request.body.model.trim();

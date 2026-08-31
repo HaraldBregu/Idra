@@ -54,7 +54,8 @@ export function registerConfigurationAuthenticationRoutes(
 			if (!limiter.consume(`config-register:${request.ip}`, 5, 60_000)) {
 				return reply.code(429).header('retry-after', '60').send({ error: 'Too Many Requests' });
 			}
-			if (!equalText(request.headers.authorization ?? '', `Bearer ${adminToken}`)) {
+			const bearer = equalText(request.headers.authorization ?? '', `Bearer ${adminToken}`);
+			if (!bearer && request.headers.origin !== publicUrl) {
 				return reply.code(401).header('www-authenticate', 'Bearer').send({ error: 'Unauthorized' });
 			}
 			if (store.administrator())

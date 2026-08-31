@@ -10,11 +10,6 @@ services:
       IDRA_ADMIN_TOKEN: ${IDRA_ADMIN_TOKEN:?set IDRA_ADMIN_TOKEN in .env}
       IDRA_CONFIG_KEY: ${IDRA_CONFIG_KEY:?set IDRA_CONFIG_KEY in .env}
       IDRA_LISTEN_ADDRESS: 0.0.0.0
-      IDRA_PROVIDER_ID: ${IDRA_PROVIDER_ID:-}
-      IDRA_MODEL_ID: ${IDRA_MODEL_ID:-}
-      IDRA_API_KEY: ${IDRA_API_KEY:-}
-      IDRA_BASE_URL: ${IDRA_BASE_URL:-}
-      IDRA_MODEL_OPTIONS: ${IDRA_MODEL_OPTIONS:-}
     volumes:
       - idra-data:/data
     read_only: true
