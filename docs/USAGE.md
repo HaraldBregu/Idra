@@ -584,9 +584,9 @@ Confirm that the request uses the registered private key and `clientId`; `iss` a
 
 Add `A2A-Version: 1.0`. Missing, `0.3`, and unsupported future versions are rejected.
 
-### Opening the server URL returns `404 Not Found`
+### Opening the server URL redirects to registration or login
 
-This is expected. Idra intentionally has no page at `/`. Use `/.well-known/agent-card.json` for discovery and `/a2a` for agent operations.
+This is expected. Idra redirects `/` to administrator registration on a new installation and to administrator login after an account exists. A2A clients should use `/.well-known/agent-card.json` for discovery and `/a2a` for agent operations.
 
 ### Streaming arrives all at once
 
