@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply } from 'fastify';
 import type { RequestLimiter } from '../oauth/limit';
 import type { OAuthIssuer } from '../oauth/issuer';
 import { createConfigurationAuthentication } from './auth';
@@ -21,7 +21,7 @@ export function registerConfigurationUiRoutes(
 	limiter: RequestLimiter
 ): void {
 	const authenticate = createConfigurationAuthentication(store, adminToken, publicUrl, limiter);
-	const sendPage = (reply: Parameters<Parameters<FastifyInstance['get']>[1]>[1]) =>
+	const sendPage = (reply: FastifyReply) =>
 		reply
 			.header('cache-control', 'no-store')
 			.header(
