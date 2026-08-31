@@ -55,7 +55,9 @@ function showView(name, username = '') {
 	elements['setup-view'].hidden = name !== 'setup';
 	elements['config-view'].hidden = name !== 'config';
 	elements['logout-button'].hidden = !['setup', 'config'].includes(name);
-	elements['session-status'].dataset.connected = ['setup', 'config'].includes(name) ? 'true' : 'false';
+	elements['session-status'].dataset.connected = ['setup', 'config'].includes(name)
+		? 'true'
+		: 'false';
 	elements['session-status'].textContent =
 		name === 'config'
 			? 'Authenticated'

@@ -27,7 +27,9 @@
 			<section class="access-card auth-card" id="register-view" hidden>
 				<p class="section-kicker">Step 1 of 2</p>
 				<h2>Create the administrator</h2>
-				<p class="access-subtitle">Choose the username and password used to manage this Idra instance.</p>
+				<p class="access-subtitle">
+					Choose the username and password used to manage this Idra instance.
+				</p>
 				<form id="register-form">
 					<div class="field">
 						<label for="register-username">Username</label>
@@ -94,7 +96,9 @@
 			<section class="access-card setup-card" id="setup-view" hidden>
 				<p class="section-kicker">Step 2 of 2</p>
 				<h2>Connect a model provider</h2>
-				<p class="access-subtitle">Add the provider, model, and API key Idra will use for agent runs.</p>
+				<p class="access-subtitle">
+					Add the provider, model, and API key Idra will use for agent runs.
+				</p>
 				<form id="setup-provider-form">
 					<div class="field">
 						<label for="setup-provider">Provider</label>
@@ -110,7 +114,14 @@
 					</div>
 					<div class="field">
 						<label for="setup-api-key">API key</label>
-						<input id="setup-api-key" name="apiKey" type="password" autocomplete="off" maxlength="4096" required />
+						<input
+							id="setup-api-key"
+							name="apiKey"
+							type="password"
+							autocomplete="off"
+							maxlength="4096"
+							required
+						/>
 						<p class="helper">The API key is encrypted at rest and never returned.</p>
 					</div>
 					<button class="button button-primary" type="submit">Finish setup</button>
