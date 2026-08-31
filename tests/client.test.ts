@@ -79,6 +79,15 @@ test('the official A2A REST client discovers Idra and streams continuous context
 			throw error;
 		}
 		const providerSecret = 'provider-secret-must-never-be-returned';
+		const administrator = await fetch(`${baseUrl}/config/auth/register`, {
+			method: 'POST',
+			headers: { origin: baseUrl, 'content-type': 'application/json' },
+			body: JSON.stringify({
+				username: 'administrator',
+				password: 'correct horse battery staple',
+			}),
+		});
+		assert.equal(administrator.status, 201);
 		const configuredProvider = await fetch(`${baseUrl}/config/provider`, {
 			method: 'PUT',
 			headers: {

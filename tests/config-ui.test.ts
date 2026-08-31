@@ -37,6 +37,7 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		assert.equal(html.headers['cache-control'], 'no-store');
 		assert.match(html.body, /Create the administrator/);
 		assert.match(html.body, /autocomplete="new-password"/);
+		assert.doesNotMatch(html.body, /setup-token|IDRA_ADMIN_TOKEN/);
 		assert.doesNotMatch(html.body, new RegExp(ADMIN_TOKEN));
 		const prematureLogin = await server.inject({ method: 'GET', url: '/config/login' });
 		assert.equal(prematureLogin.statusCode, 302);
@@ -58,6 +59,17 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		assert.equal(
 			(
 				await server.inject({
+					method: 'PUT',
+					url: '/config/provider',
+					headers: { authorization: `Bearer ${ADMIN_TOKEN}` },
+					payload: { provider: 'openai', model: 'gpt-test', apiKey: 'provider-secret' },
+				})
+			).statusCode,
+			409
+		);
+		assert.equal(
+			(
+				await server.inject({
 					method: 'POST',
 					url: '/config/auth/register',
 					payload: credentials,
@@ -68,7 +80,7 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		const registration = await server.inject({
 			method: 'POST',
 			url: '/config/auth/register',
-			headers: { authorization: `Bearer ${ADMIN_TOKEN}` },
+			headers: { origin: PUBLIC_URL },
 			payload: credentials,
 		});
 		assert.equal(registration.statusCode, 201);
@@ -109,7 +121,7 @@ test('config UI registers one administrator and protects browser sessions', asyn
 				await server.inject({
 					method: 'POST',
 					url: '/config/auth/register',
-					headers: { authorization: `Bearer ${ADMIN_TOKEN}` },
+					headers: { origin: PUBLIC_URL },
 					payload: credentials,
 				})
 			).statusCode,
@@ -131,28 +143,53 @@ test('config UI registers one administrator and protects browser sessions', asyn
 			url: '/config',
 			headers: { accept: 'text/html', cookie },
 		});
-		assert.equal(authenticatedPage.statusCode, 200);
-		assert.match(authenticatedPage.body, /id="config-view"/);
+		assert.equal(authenticatedPage.statusCode, 302);
+		assert.equal(authenticatedPage.headers.location, '/config/setup');
+		const setupPage = await server.inject({
+			method: 'GET',
+			url: '/config/setup',
+			headers: { cookie },
+		});
+		assert.equal(setupPage.statusCode, 200);
+		assert.match(setupPage.body, /Connect a model provider/);
+		assert.match(setupPage.body, /id="setup-provider-form"/);
 		const authenticatedLogin = await server.inject({
 			method: 'GET',
 			url: '/config/login',
 			headers: { cookie },
 		});
 		assert.equal(authenticatedLogin.statusCode, 302);
-		assert.equal(authenticatedLogin.headers.location, '/config');
+		assert.equal(authenticatedLogin.headers.location, '/config/setup');
 		const authenticatedRegistration = await server.inject({
 			method: 'GET',
 			url: '/config/register',
 			headers: { cookie },
 		});
 		assert.equal(authenticatedRegistration.statusCode, 302);
-		assert.equal(authenticatedRegistration.headers.location, '/config');
+		assert.equal(authenticatedRegistration.headers.location, '/config/setup');
 		assert.equal(
 			(
 				await server.inject({
 					method: 'GET',
 					url: '/config/api',
 					headers: { cookie },
+				})
+			).statusCode,
+			200
+		);
+		const completedSetup = await server.inject({
+			method: 'GET',
+			url: '/config/setup',
+			headers: { cookie },
+		});
+		assert.equal(completedSetup.statusCode, 302);
+		assert.equal(completedSetup.headers.location, '/config');
+		assert.equal(
+			(
+				await server.inject({
+					method: 'GET',
+					url: '/config',
+					headers: { accept: 'text/html', cookie },
 				})
 			).statusCode,
 			200

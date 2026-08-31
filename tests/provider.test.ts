@@ -108,48 +108,25 @@ test('provider API persists only supported provider configurations without retur
 	}
 });
 
-test('runtime resolves legacy provider settings only when secure configuration is inactive', () => {
+test('runtime resolves only encrypted provider configuration', () => {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-provider-runtime-'));
 	const previous = {
 		dataDirectory: process.env.IDRA_DATA_DIR,
-		provider: process.env.IDRA_PROVIDER_ID,
-		model: process.env.IDRA_MODEL_ID,
-		apiKey: process.env.IDRA_API_KEY,
-		baseUrl: process.env.IDRA_BASE_URL,
 		configurationKey: process.env.IDRA_CONFIG_KEY,
 	};
 	try {
 		process.env.IDRA_DATA_DIR = directory;
-		process.env.IDRA_PROVIDER_ID = 'openai';
-		process.env.IDRA_MODEL_ID = 'environment-model';
-		process.env.IDRA_API_KEY = 'environment-key';
+		delete process.env.IDRA_CONFIG_KEY;
 		fs.writeFileSync(
 			path.join(directory, 'provider.json'),
 			JSON.stringify({ provider: 'deepseek', model: 'deepseek-model', apiKey: 'deepseek-key' }),
 			{ mode: 0o600 }
 		);
 
-		assert.equal(getProviderId(), 'openai');
-		assert.equal(getModelId(), 'environment-model');
-		assert.deepEqual(getResolvedProvider('openai'), {
-			id: 'openai',
-			apiKey: 'environment-key',
-			baseURL: 'https://api.openai.com/v1',
-		});
-		delete process.env.IDRA_PROVIDER_ID;
-		delete process.env.IDRA_MODEL_ID;
-		delete process.env.IDRA_API_KEY;
-		assert.equal(getProviderId(), 'deepseek');
-		assert.equal(getModelId(), 'deepseek-model');
-		assert.deepEqual(getResolvedProvider('deepseek'), {
-			id: 'deepseek',
-			apiKey: 'deepseek-key',
-			baseURL: 'https://api.deepseek.com',
-		});
+		assert.equal(getProviderId(), undefined);
+		assert.equal(getModelId(), undefined);
+		assert.equal(getResolvedProvider('deepseek'), undefined);
 
-		process.env.IDRA_PROVIDER_ID = 'openai';
-		process.env.IDRA_MODEL_ID = 'environment-model';
-		process.env.IDRA_API_KEY = 'environment-key';
 		process.env.IDRA_CONFIG_KEY = '44'.repeat(32);
 		const secureStore = new ConfigurationStore(directory, Buffer.from('44'.repeat(32), 'hex'));
 		assert.equal(getProviderId(), undefined);
@@ -167,6 +144,7 @@ test('runtime resolves legacy provider settings only when secure configuration i
 			apiKey: 'secure-key',
 			baseURL: 'https://api.anthropic.com',
 		});
+		assert.equal(getResolvedProvider('deepseek'), undefined);
 		assert.equal(secureStore.deleteProvider(), true);
 		assert.equal(getProviderId(), undefined);
 		assert.equal(getModelId(), undefined);
@@ -177,10 +155,6 @@ test('runtime resolves legacy provider settings only when secure configuration i
 	} finally {
 		for (const [name, value] of [
 			['IDRA_DATA_DIR', previous.dataDirectory],
-			['IDRA_PROVIDER_ID', previous.provider],
-			['IDRA_MODEL_ID', previous.model],
-			['IDRA_API_KEY', previous.apiKey],
-			['IDRA_BASE_URL', previous.baseUrl],
 			['IDRA_CONFIG_KEY', previous.configurationKey],
 		] as const) {
 			if (value === undefined) delete process.env[name];
