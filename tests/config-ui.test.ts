@@ -177,24 +177,6 @@ test('config UI registers one administrator and protects browser sessions', asyn
 			).statusCode,
 			200
 		);
-		const completedSetup = await server.inject({
-			method: 'GET',
-			url: '/config/setup',
-			headers: { cookie },
-		});
-		assert.equal(completedSetup.statusCode, 302);
-		assert.equal(completedSetup.headers.location, '/config');
-		assert.equal(
-			(
-				await server.inject({
-					method: 'GET',
-					url: '/config',
-					headers: { accept: 'text/html', cookie },
-				})
-			).statusCode,
-			200
-		);
-
 		const providerPayload = { provider: 'openai', model: 'gpt-test', apiKey: 'provider-secret' };
 		assert.equal(
 			(
@@ -232,6 +214,55 @@ test('config UI registers one administrator and protects browser sessions', asyn
 						origin: PUBLIC_URL,
 						'x-idra-csrf': registrationBody.csrfToken,
 					},
+					payload: providerPayload,
+				})
+			).statusCode,
+			200
+		);
+		const completedSetup = await server.inject({
+			method: 'GET',
+			url: '/config/setup',
+			headers: { cookie },
+		});
+		assert.equal(completedSetup.statusCode, 302);
+		assert.equal(completedSetup.headers.location, '/config');
+		assert.equal(
+			(
+				await server.inject({
+					method: 'GET',
+					url: '/config',
+					headers: { accept: 'text/html', cookie },
+				})
+			).statusCode,
+			200
+		);
+		assert.equal(
+			(
+				await server.inject({
+					method: 'DELETE',
+					url: '/config/provider',
+					headers: {
+						cookie,
+						origin: PUBLIC_URL,
+						'x-idra-csrf': registrationBody.csrfToken,
+					},
+				})
+			).statusCode,
+			200
+		);
+		const removedProviderPage = await server.inject({
+			method: 'GET',
+			url: '/config',
+			headers: { accept: 'text/html', cookie },
+		});
+		assert.equal(removedProviderPage.statusCode, 302);
+		assert.equal(removedProviderPage.headers.location, '/config/setup');
+		assert.equal(
+			(
+				await server.inject({
+					method: 'PUT',
+					url: '/config/provider',
+					headers: { authorization: `Bearer ${ADMIN_TOKEN}` },
 					payload: providerPayload,
 				})
 			).statusCode,
