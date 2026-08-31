@@ -25,16 +25,10 @@
 			<p class="notice" id="notice" role="status" aria-live="polite" hidden></p>
 
 			<section class="access-card auth-card" id="register-view" hidden>
-				<p class="section-kicker">First-time setup</p>
+				<p class="section-kicker">Step 1 of 2</p>
 				<h2>Create the administrator</h2>
-				<p class="access-subtitle">
-					Use the setup token from <code>IDRA_ADMIN_TOKEN</code>. Registration is available once.
-				</p>
+				<p class="access-subtitle">Choose the username and password used to manage this Idra instance.</p>
 				<form id="register-form">
-					<div class="field">
-						<label for="setup-token">Setup token</label>
-						<input id="setup-token" name="setupToken" type="password" autocomplete="off" required />
-					</div>
 					<div class="field">
 						<label for="register-username">Username</label>
 						<input
@@ -94,6 +88,32 @@
 						/>
 					</div>
 					<button class="button button-primary" type="submit">Log in</button>
+				</form>
+			</section>
+
+			<section class="access-card setup-card" id="setup-view" hidden>
+				<p class="section-kicker">Step 2 of 2</p>
+				<h2>Connect a model provider</h2>
+				<p class="access-subtitle">Add the provider, model, and API key Idra will use for agent runs.</p>
+				<form id="setup-provider-form">
+					<div class="field">
+						<label for="setup-provider">Provider</label>
+						<select id="setup-provider" name="provider">
+							<option value="openai">OpenAI</option>
+							<option value="anthropic">Anthropic</option>
+							<option value="deepseek">DeepSeek</option>
+						</select>
+					</div>
+					<div class="field">
+						<label for="setup-model">Model</label>
+						<input id="setup-model" name="model" maxlength="200" required />
+					</div>
+					<div class="field">
+						<label for="setup-api-key">API key</label>
+						<input id="setup-api-key" name="apiKey" type="password" autocomplete="off" maxlength="4096" required />
+						<p class="helper">The API key is encrypted at rest and never returned.</p>
+					</div>
+					<button class="button button-primary" type="submit">Finish setup</button>
 				</form>
 			</section>
 

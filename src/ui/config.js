@@ -5,9 +5,11 @@ const elements = Object.fromEntries(
 		'logout-button',
 		'register-view',
 		'login-view',
+		'setup-view',
 		'config-view',
 		'register-form',
 		'login-form',
+		'setup-provider-form',
 		'provider-form',
 		'delete-provider',
 		'client-form',
@@ -24,6 +26,7 @@ const elements = Object.fromEntries(
 );
 
 let csrf = '';
+let currentUsername = '';
 
 async function request(path, options = {}) {
 	const headers = { accept: 'application/json', ...options.headers };
@@ -46,14 +49,22 @@ function setBusy(form, busy) {
 }
 
 function showView(name, username = '') {
+	currentUsername = username || currentUsername;
 	elements['register-view'].hidden = name !== 'register';
 	elements['login-view'].hidden = name !== 'login';
+	elements['setup-view'].hidden = name !== 'setup';
 	elements['config-view'].hidden = name !== 'config';
-	elements['logout-button'].hidden = name !== 'config';
-	elements['session-status'].dataset.connected = name === 'config' ? 'true' : 'false';
+	elements['logout-button'].hidden = !['setup', 'config'].includes(name);
+	elements['session-status'].dataset.connected = ['setup', 'config'].includes(name) ? 'true' : 'false';
 	elements['session-status'].textContent =
-		name === 'config' ? 'Authenticated' : name === 'register' ? 'Setup required' : 'Signed out';
-	elements['signed-in-user'].textContent = username || '—';
+		name === 'config'
+			? 'Authenticated'
+			: name === 'setup'
+				? 'Provider setup'
+				: name === 'register'
+					? 'Setup required'
+					: 'Signed out';
+	elements['signed-in-user'].textContent = currentUsername || '—';
 }
 
 function renderClients(clients) {
@@ -111,7 +122,9 @@ function renderConfiguration(configuration) {
 }
 
 async function loadConfiguration() {
-	renderConfiguration(await request('/config/api'));
+	const configuration = await request('/config/api');
+	renderConfiguration(configuration);
+	showView(configuration.provider.configured ? 'config' : 'setup', currentUsername);
 }
 
 async function initialize() {
@@ -120,7 +133,7 @@ async function initialize() {
 		csrf = status.csrfToken || '';
 		if (!status.registered) return showView('register');
 		if (!status.authenticated) return showView('login');
-		showView('config', status.username);
+		currentUsername = status.username;
 		await loadConfiguration();
 	} catch (error) {
 		showView('login');
@@ -138,9 +151,23 @@ elements['register-form'].addEventListener('submit', async (event) => {
 	try {
 		await request('/config/auth/register', {
 			method: 'POST',
-			headers: { authorization: `Bearer ${data.get('setupToken')}` },
 			body: JSON.stringify({ username: data.get('username'), password: data.get('password') }),
 		});
+		window.location.replace('/config');
+	} catch (error) {
+		showNotice(error.message, 'error');
+	} finally {
+		setBusy(form, false);
+	}
+});
+
+elements['setup-provider-form'].addEventListener('submit', async (event) => {
+	event.preventDefault();
+	const form = event.currentTarget;
+	setBusy(form, true);
+	try {
+		await saveProvider(form);
+		form.reset();
 		window.location.replace('/config');
 	} catch (error) {
 		showNotice(error.message, 'error');
@@ -179,17 +206,9 @@ elements['logout-button'].addEventListener('click', async () => {
 elements['provider-form'].addEventListener('submit', async (event) => {
 	event.preventDefault();
 	const form = event.currentTarget;
-	const data = new FormData(form);
 	setBusy(form, true);
 	try {
-		await request('/config/provider', {
-			method: 'PUT',
-			body: JSON.stringify({
-				provider: data.get('provider'),
-				model: data.get('model'),
-				...(data.get('apiKey') ? { apiKey: data.get('apiKey') } : {}),
-			}),
-		});
+		await saveProvider(form);
 		document.getElementById('api-key').value = '';
 		await loadConfiguration();
 		showNotice('Provider configuration saved.');
@@ -209,12 +228,23 @@ elements['delete-provider'].addEventListener('click', async () => {
 		return;
 	try {
 		await request('/config/provider', { method: 'DELETE' });
-		await loadConfiguration();
-		showNotice('Provider configuration removed.');
+		window.location.replace('/config/setup');
 	} catch (error) {
 		showNotice(error.message, 'error');
 	}
 });
+
+async function saveProvider(form) {
+	const data = new FormData(form);
+	return request('/config/provider', {
+		method: 'PUT',
+		body: JSON.stringify({
+			provider: data.get('provider'),
+			model: data.get('model'),
+			...(data.get('apiKey') ? { apiKey: data.get('apiKey') } : {}),
+		}),
+	});
+}
 
 elements['client-form'].addEventListener('submit', async (event) => {
 	event.preventDefault();

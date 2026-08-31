@@ -47,11 +47,18 @@ export function registerConfigurationUiRoutes(
 	);
 	server.get('/config', async (request, reply) => {
 		if (request.headers.accept?.toLowerCase().includes('text/html')) {
-			if (configurationPrincipal(request, store, adminToken, publicUrl)?.method !== 'ui-session') {
+			const principal = configurationPrincipal(request, store, adminToken, publicUrl);
+			if (principal?.method !== 'ui-session') {
 				return reply
 					.header('cache-control', 'no-store')
 					.header('vary', 'Accept')
 					.redirect(store.administrator() ? '/config/login' : '/config/register');
+			}
+			if (!store.provider()) {
+				return reply
+					.header('cache-control', 'no-store')
+					.header('vary', 'Accept')
+					.redirect('/config/setup');
 			}
 			return sendPage(reply.header('vary', 'Accept'));
 		}
@@ -64,7 +71,9 @@ export function registerConfigurationUiRoutes(
 	);
 	server.get('/config/register', async (request, reply) => {
 		if (configurationPrincipal(request, store, adminToken, publicUrl)?.method === 'ui-session') {
-			return reply.header('cache-control', 'no-store').redirect('/config');
+			return reply
+				.header('cache-control', 'no-store')
+				.redirect(store.provider() ? '/config' : '/config/setup');
 		}
 		if (store.administrator()) {
 			return reply.header('cache-control', 'no-store').redirect('/config/login');
@@ -73,10 +82,23 @@ export function registerConfigurationUiRoutes(
 	});
 	server.get('/config/login', async (request, reply) => {
 		if (configurationPrincipal(request, store, adminToken, publicUrl)?.method === 'ui-session') {
-			return reply.header('cache-control', 'no-store').redirect('/config');
+			return reply
+				.header('cache-control', 'no-store')
+				.redirect(store.provider() ? '/config' : '/config/setup');
 		}
 		if (!store.administrator()) {
 			return reply.header('cache-control', 'no-store').redirect('/config/register');
+		}
+		return sendPage(reply);
+	});
+	server.get('/config/setup', async (request, reply) => {
+		if (configurationPrincipal(request, store, adminToken, publicUrl)?.method !== 'ui-session') {
+			return reply
+				.header('cache-control', 'no-store')
+				.redirect(store.administrator() ? '/config/login' : '/config/register');
+		}
+		if (store.provider()) {
+			return reply.header('cache-control', 'no-store').redirect('/config');
 		}
 		return sendPage(reply);
 	});

@@ -12,6 +12,16 @@
 	font-size: 1.7rem;
 }
 
+.setup-card {
+	width: min(100%, 560px);
+	margin: 5vh auto 0;
+}
+
+.setup-card h2 {
+	margin: 6px 0 8px;
+	font-size: 1.7rem;
+}
+
 .notice[hidden],
 [hidden] {
 	display: none !important;
