@@ -170,6 +170,14 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 			/resource_metadata=/
 		);
 		assert.equal((await server.inject({ method: 'GET', url: '/config' })).statusCode, 401);
+		const configPage = await server.inject({
+			method: 'GET',
+			url: '/config',
+			headers: { accept: 'text/html' },
+		});
+		assert.equal(configPage.statusCode, 200);
+		assert.match(configPage.headers['content-type'] ?? '', /^text\/html/);
+		assert.equal(configPage.headers['cache-control'], 'no-store');
 		const config = await server.inject({
 			method: 'GET',
 			url: '/config',
@@ -178,6 +186,16 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 		assert.equal(config.statusCode, 200);
 		assert.equal(config.headers['cache-control'], 'no-store');
 		assert.ok(Number(config.headers['content-length']) > 0);
+		assert.equal(
+			(
+				await server.inject({
+					method: 'GET',
+					url: '/a2a',
+					headers: { 'a2a-version': '1.0', cookie: '__Host-idra_config=not-an-a2a-token' },
+				})
+			).statusCode,
+			401
+		);
 		for (const [method, url] of [
 			['GET', '/'],
 			['GET', '/access'],
