@@ -30,6 +30,13 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		assert.equal(protectedPage.statusCode, 302);
 		assert.equal(protectedPage.headers.location, '/config/register');
 		assert.equal(protectedPage.headers['cache-control'], 'no-store');
+		const firstRunFallback = await server.inject({
+			method: 'GET',
+			url: '/',
+			headers: { accept: 'text/html' },
+		});
+		assert.equal(firstRunFallback.statusCode, 302);
+		assert.equal(firstRunFallback.headers.location, '/config/register');
 		const html = await server.inject({ method: 'GET', url: '/config/register' });
 		assert.equal(html.statusCode, 200);
 		assert.match(html.headers['content-type'] ?? '', /^text\/html/);
@@ -87,6 +94,13 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		});
 		assert.equal(signedOutPage.statusCode, 302);
 		assert.equal(signedOutPage.headers.location, '/config/login');
+		const signedOutFallback = await server.inject({
+			method: 'GET',
+			url: '/missing-page',
+			headers: { accept: 'text/html' },
+		});
+		assert.equal(signedOutFallback.statusCode, 302);
+		assert.equal(signedOutFallback.headers.location, '/config/login');
 		const completedRegistration = await server.inject({
 			method: 'GET',
 			url: '/config/register',
@@ -133,6 +147,17 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		});
 		assert.equal(authenticatedLogin.statusCode, 302);
 		assert.equal(authenticatedLogin.headers.location, '/config');
+		assert.equal(
+			(
+				await server.inject({
+					method: 'GET',
+					url: '/missing-page',
+					headers: { accept: 'text/html', cookie },
+				})
+			).statusCode,
+			404
+		);
+		assert.equal((await server.inject({ method: 'GET', url: '/missing-page' })).statusCode, 404);
 		assert.equal(
 			(
 				await server.inject({

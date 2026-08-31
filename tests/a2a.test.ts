@@ -178,6 +178,13 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 		assert.equal(configPage.statusCode, 302);
 		assert.equal(configPage.headers.location, '/config/register');
 		assert.equal(configPage.headers['cache-control'], 'no-store');
+		const browserFallback = await server.inject({
+			method: 'GET',
+			url: '/',
+			headers: { accept: 'text/html' },
+		});
+		assert.equal(browserFallback.statusCode, 302);
+		assert.equal(browserFallback.headers.location, '/config/register');
 		const config = await server.inject({
 			method: 'GET',
 			url: '/config',

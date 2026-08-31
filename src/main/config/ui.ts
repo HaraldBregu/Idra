@@ -80,4 +80,15 @@ export function registerConfigurationUiRoutes(
 		}
 		return sendPage(reply);
 	});
+	server.get('/*', async (request, reply) => {
+		if (
+			request.headers.accept?.toLowerCase().includes('text/html') &&
+			configurationPrincipal(request, store, adminToken, publicUrl)?.method !== 'ui-session'
+		) {
+			return reply
+				.header('cache-control', 'no-store')
+				.redirect(store.administrator() ? '/config/login' : '/config/register');
+		}
+		return reply.callNotFound();
+	});
 }
