@@ -39,16 +39,13 @@ export function registerConfigurationUiRoutes(
 			.redirect(store.administrator() ? '/config/login' : '/config/register')
 	);
 	server.get('/config/assets/styles.css', async (_request, reply) =>
-		reply.header('cache-control', 'public, max-age=3600').type('text/css').send(sharedStyles)
+		reply.header('cache-control', 'no-store').type('text/css').send(sharedStyles)
 	);
 	server.get('/config/assets/config.css', async (_request, reply) =>
-		reply.header('cache-control', 'public, max-age=3600').type('text/css').send(configStyles)
+		reply.header('cache-control', 'no-store').type('text/css').send(configStyles)
 	);
 	server.get('/config/assets/config.js', async (_request, reply) =>
-		reply
-			.header('cache-control', 'public, max-age=3600')
-			.type('application/javascript')
-			.send(script)
+		reply.header('cache-control', 'no-store').type('application/javascript').send(script)
 	);
 	server.get('/config', async (request, reply) => {
 		if (request.headers.accept?.toLowerCase().includes('text/html')) {

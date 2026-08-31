@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import type { RequestLimiter } from '../oauth/limit';
-import type { ProviderId } from '../provider/types';
+import { normalizeProvider } from '../provider/normalize';
 import { createConfigurationAuthentication } from './auth';
 import { normalizePublicKey } from './jwk';
 import type { ConfigurationStore } from './store';
@@ -8,7 +8,7 @@ import type { ConfigurationStore } from './store';
 interface ProviderBody {
 	apiKey?: string;
 	model: string;
-	provider: ProviderId;
+	provider: string;
 }
 
 interface ClientBody {
@@ -35,7 +35,7 @@ export function registerConfigurationRoutes(
 					required: ['provider', 'model'],
 					additionalProperties: false,
 					properties: {
-						provider: { type: 'string', enum: ['anthropic', 'openai', 'deepseek'] },
+						provider: { type: 'string', minLength: 1, maxLength: 50 },
 						model: { type: 'string', minLength: 1, maxLength: 200 },
 						apiKey: { type: 'string', minLength: 1, maxLength: 4096 },
 					},
@@ -47,18 +47,22 @@ export function registerConfigurationRoutes(
 				return reply.code(409).send({ error: 'Administrator registration is required.' });
 			}
 			const existing = store.provider();
+			const provider = normalizeProvider(request.body.provider);
 			const apiKey = request.body.apiKey?.trim();
 			const model = request.body.model.trim();
+			if (!provider) {
+				return reply.code(400).send({ error: 'Provider must be OpenAI, Anthropic, or DeepSeek.' });
+			}
 			if (!model) return reply.code(400).send({ error: 'A model is required.' });
-			if (!apiKey && (!existing || existing.provider !== request.body.provider)) {
+			if (!apiKey && (!existing || existing.provider !== provider)) {
 				return reply.code(400).send({ error: 'An API key is required for this provider.' });
 			}
 			store.setProvider({
-				provider: request.body.provider,
+				provider,
 				model,
 				apiKey: apiKey ?? existing?.apiKey ?? '',
 			});
-			request.log.info({ event: 'config.provider.updated', provider: request.body.provider });
+			request.log.info({ event: 'config.provider.updated', provider });
 			return reply.header('cache-control', 'no-store').send(store.publicConfiguration().provider);
 		}
 	);
