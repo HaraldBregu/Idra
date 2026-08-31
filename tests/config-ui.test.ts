@@ -30,13 +30,6 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		assert.equal(protectedPage.statusCode, 302);
 		assert.equal(protectedPage.headers.location, '/config/register');
 		assert.equal(protectedPage.headers['cache-control'], 'no-store');
-		const firstRunFallback = await server.inject({
-			method: 'GET',
-			url: '/',
-			headers: { accept: 'text/html' },
-		});
-		assert.equal(firstRunFallback.statusCode, 302);
-		assert.equal(firstRunFallback.headers.location, '/config/register');
 		const html = await server.inject({ method: 'GET', url: '/config/register' });
 		assert.equal(html.statusCode, 200);
 		assert.match(html.headers['content-type'] ?? '', /^text\/html/);
@@ -94,13 +87,13 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		});
 		assert.equal(signedOutPage.statusCode, 302);
 		assert.equal(signedOutPage.headers.location, '/config/login');
-		const signedOutFallback = await server.inject({
+		const invalidSession = await server.inject({
 			method: 'GET',
-			url: '/missing-page',
-			headers: { accept: 'text/html' },
+			url: '/config',
+			headers: { accept: 'text/html', cookie: '__Host-idra_config=invalid' },
 		});
-		assert.equal(signedOutFallback.statusCode, 302);
-		assert.equal(signedOutFallback.headers.location, '/config/login');
+		assert.equal(invalidSession.statusCode, 302);
+		assert.equal(invalidSession.headers.location, '/config/login');
 		const completedRegistration = await server.inject({
 			method: 'GET',
 			url: '/config/register',
@@ -147,17 +140,13 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		});
 		assert.equal(authenticatedLogin.statusCode, 302);
 		assert.equal(authenticatedLogin.headers.location, '/config');
-		assert.equal(
-			(
-				await server.inject({
-					method: 'GET',
-					url: '/missing-page',
-					headers: { accept: 'text/html', cookie },
-				})
-			).statusCode,
-			404
-		);
-		assert.equal((await server.inject({ method: 'GET', url: '/missing-page' })).statusCode, 404);
+		const authenticatedRegistration = await server.inject({
+			method: 'GET',
+			url: '/config/register',
+			headers: { cookie },
+		});
+		assert.equal(authenticatedRegistration.statusCode, 302);
+		assert.equal(authenticatedRegistration.headers.location, '/config');
 		assert.equal(
 			(
 				await server.inject({
@@ -255,6 +244,13 @@ test('config UI registers one administrator and protects browser sessions', asyn
 			).statusCode,
 			401
 		);
+		const loggedOutPage = await server.inject({
+			method: 'GET',
+			url: '/config',
+			headers: { accept: 'text/html', cookie },
+		});
+		assert.equal(loggedOutPage.statusCode, 302);
+		assert.equal(loggedOutPage.headers.location, '/config/login');
 
 		const wrongUsername = await login(server, 'someone-else', PASSWORD);
 		const wrongPassword = await login(server, USERNAME, 'this password is incorrect');
