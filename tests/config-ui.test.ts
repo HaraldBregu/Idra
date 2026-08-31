@@ -22,6 +22,10 @@ test('config UI registers one administrator and protects browser sessions', asyn
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'idra-config-ui-'));
 	let server = createServer(directory);
 	try {
+		const initialRoot = await server.inject({ method: 'GET', url: '/' });
+		assert.equal(initialRoot.statusCode, 302);
+		assert.equal(initialRoot.headers.location, '/config/register');
+
 		const protectedPage = await server.inject({
 			method: 'GET',
 			url: '/config',
@@ -99,6 +103,9 @@ test('config UI registers one administrator and protects browser sessions', asyn
 		});
 		assert.equal(signedOutPage.statusCode, 302);
 		assert.equal(signedOutPage.headers.location, '/config/login');
+		const signedOutRoot = await server.inject({ method: 'GET', url: '/' });
+		assert.equal(signedOutRoot.statusCode, 302);
+		assert.equal(signedOutRoot.headers.location, '/config/login');
 		const invalidSession = await server.inject({
 			method: 'GET',
 			url: '/config',
