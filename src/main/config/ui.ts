@@ -33,6 +33,11 @@ export function registerConfigurationUiRoutes(
 			.header('x-frame-options', 'DENY')
 			.type('text/html; charset=utf-8')
 			.send(html);
+	server.get('/', async (_request, reply) =>
+		reply
+			.header('cache-control', 'no-store')
+			.redirect(store.administrator() ? '/config/login' : '/config/register')
+	);
 	server.get('/config/assets/styles.css', async (_request, reply) =>
 		reply.header('cache-control', 'public, max-age=3600').type('text/css').send(sharedStyles)
 	);
