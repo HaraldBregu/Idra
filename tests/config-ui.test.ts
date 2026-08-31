@@ -184,7 +184,7 @@ test('config UI registers one administrator and protects browser sessions', asyn
 			).statusCode,
 			200
 		);
-		const providerPayload = { provider: 'openai', model: 'gpt-test', apiKey: 'provider-secret' };
+		const providerPayload = { provider: 'OpenAI', model: 'gpt-test', apiKey: 'provider-secret' };
 		assert.equal(
 			(
 				await server.inject({
