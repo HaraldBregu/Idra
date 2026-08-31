@@ -196,8 +196,10 @@ test('A2A server fails closed and exposes only discovery, OAuth, config, and A2A
 			).statusCode,
 			401
 		);
+		const root = await server.inject({ method: 'GET', url: '/' });
+		assert.equal(root.statusCode, 302);
+		assert.equal(root.headers.location, '/config/register');
 		for (const [method, url] of [
-			['GET', '/'],
 			['GET', '/access'],
 			['GET', '/storage-test'],
 			['GET', '/ui/app.js'],
